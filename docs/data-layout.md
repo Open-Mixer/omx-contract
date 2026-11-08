@@ -64,7 +64,7 @@ not the one its path gives.
 - A `codes` item's codes are sorted by name; the name is the operator-facing key a consumer reads the code by, and the
   code is never reworded. A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
   development phase and MINOR in it (`semver`, as an item's removal). A code its writers stop writing is removed in the next release, never carried as retired (operator ruling 2026-10-20,
-  omx-contract#130: no backwards compatibility before the first public release); the release's changelog names the
+  omx-contract#64: no backwards compatibility before the first public release); the release's changelog names the
   code that takes its place, if any, and every consumer that still read the key moves in its own pin bump.
 - A code may carry the one sentence a person sees for it: `text`, an object with `en` and `ca` (both required, one sentence
   each), and `args`, the ordered placeholder names the sentence may use, written `{name}`. The code's owner writes the

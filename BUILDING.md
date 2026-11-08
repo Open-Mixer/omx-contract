@@ -13,7 +13,7 @@ a C compiler to check the header. Three binary packages come out of one build:
 
 The paths are the ones every release installed, so no reader changes. A program that reads the contract directory or
 the json render at run time requires omx-contract-data, never the development package; every other owner ships its
-own directory the same way, in `<owner>-contract` (FreeMixer/omx-contract#150).
+own directory the same way, in `<owner>-contract` (FreeMixer/omx-contract#74).
 
 ```
 npm ci

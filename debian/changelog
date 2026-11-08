@@ -1,3 +1,20 @@
+omx-contract (3.11.0) unstable; urgency=medium
+
+  * A code carries its sentence: text, one per language (en and ca), and
+    args, the placeholders it names, written by the code's owner. The
+    validator refuses a missing language, differing placeholder sets and a
+    placeholder outside args. omx-contract's own codes carry theirs.
+  * scalePosition and scaleValue: the position law of each scale word, with
+    golden vectors installed as share/omx-contract/scale-vectors.json.
+  * descriptorMeter gains held, clip and measurement; dBTP and LU join the
+    plugin-only units.
+  * Schema 3.11.0; the history files 3.9.0 and 3.10.0 are filed. It breaks
+    nothing: every field is optional. libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0 stay
+    the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sun, 08 Nov 2026 17:16:20 +0100
+
 omx-contract (3.9.1) unstable; urgency=medium
 
   * The npm package now carries every header the -devel packages install:

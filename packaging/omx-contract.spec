@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.9.1
+Version: 3.11.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -119,6 +119,15 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 3.11.0-1
+- A code carries its sentence: text in en and ca and the args it names,
+  written by the code's owner; the validator refuses a missing language and
+  mismatched placeholders. omx-contract's own codes carry theirs.
+- scalePosition and scaleValue, the position law of each scale word, with
+  golden vectors in share/omx-contract/scale-vectors.json.
+- descriptorMeter gains held, clip and measurement; dBTP and LU join the
+  plugin-only units. Schema 3.11.0; nothing breaks, the floors stay.
+
 * Thu Nov 05 2026 Pau Aliagas <linuxnow@gmail.com> - 3.9.1-1
 - The npm package now carries every header the -devel packages install:
   omxcontract/omx_json_write.h moved from src/ to include/omxcontract/, so the

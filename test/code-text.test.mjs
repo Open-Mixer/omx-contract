@@ -2,13 +2,16 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A code's sentence, one per language beside the code, written by the code's owner (docs/data-layout.md, spec 7.11).
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
+import { atLeast } from '../lib/contract-dir.mjs';
 import { loadData } from '../lib/data.mjs';
 import { classify } from '../lib/semver.mjs';
-import { validateData } from '../lib/validate.mjs';
+import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
-import { resolvedOf, texts } from './helpers.mjs';
+import { DATA, resolvedOf, texts } from './helpers.mjs';
 
 const FILE = 'data/hosting.json';
 const withText = (d, c = d[FILE].HOSTING_CODES.codes.noteInput) => {
@@ -59,6 +62,15 @@ test('semver: a text added to a code is MINOR, reworded PATCH, an arg changed MA
   assert.equal(classify(resolvedOf(texts()), base).level, 'minor');
   assert.equal(lvl((c) => { c.text.en = 'No contract directory at {path}.'; }), 'patch');
   assert.equal(lvl((c) => { c.args = ['dir']; c.text = { en: '{dir}', ca: '{dir}' }; }), 'major');
+});
+
+test('this repo\'s own codes (data/codes.json, CONTRACT_CODES) all carry text in en and ca, validating against omx-contract >= 3.11.0', () => {
+  assert.ok(atLeast(SCHEMA_VERSION, '3.11.0'), `this schema is ${SCHEMA_VERSION}`);
+  const doc = JSON.parse(readFileSync(join(DATA, 'codes.json'), 'utf8'));
+  assert.deepEqual(fileProblems({ rel: 'data/codes.json', text: '', doc }), []);
+  const codes = doc.CONTRACT_CODES.codes;
+  const missing = Object.entries(codes).filter(([, c]) => !c.text?.en || !c.text?.ca).map(([k]) => k);
+  assert.deepEqual(missing, [], `codes with no text: ${missing.join(', ')}`);
 });
 
 test('the C vocabulary header, the vocabulary schema and an owner header carry text and args beside the code', () => {

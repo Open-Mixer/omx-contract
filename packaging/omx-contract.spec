@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.11.0
+Version: 3.12.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -120,6 +120,13 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Mon Nov 09 2026 Pau Aliagas <linuxnow@gmail.com> - 3.12.0-1
+- a code's and a word's text is the source sentence with its args; the
+  translations move to the owner's catalogs/<lang>.json; text.ca is deprecated
+  with a warning; validate --catalogs checks an owner's catalogs; the C renders
+  carry _TEXT_EN only; a code may be panel.<a>.<b>...
+- Schema 3.12.0; nothing breaks, the floors stay.
+
 * Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 3.11.0-1
 - A code carries its sentence: text in en and ca and the args it names,
   written by the code's owner; the validator refuses a missing language and

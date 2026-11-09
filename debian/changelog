@@ -1,3 +1,20 @@
+omx-contract (3.12.0) unstable; urgency=medium
+
+  * A code's and a word's text is the source sentence (en) with its args;
+    translations move to the owner's catalog, catalogs/<lang>.json,
+    installed to /usr/share/<owner>/catalogs/. text.ca is deprecated and
+    still read: validate warns and does not fail. validate --catalogs
+    checks an owner's catalogs against its package. omx-contract's own
+    Catalan moves to its catalog; the C renders carry _TEXT_EN only.
+  * A code may be panel.<a>.<b>..., omx-panel's refusals.
+  * semver reads a pattern moved into an anyOf, and a local $ref, by what
+    they resolve to.
+  * Schema 3.12.0. It breaks nothing: libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0
+    stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Mon, 09 Nov 2026 09:59:27 +0100
+
 omx-contract (3.11.0) unstable; urgency=medium
 
   * A code carries its sentence: text, one per language (en and ca), and

@@ -9,8 +9,7 @@
         "code": "contract.dir.absent",
         "doc": "no contract directory was found, or the one named does not exist",
         "text": {
-          "en": "No contract directory was found at {path}. Point --contract-dir, OMX_CONTRACT_PATH or pkg-config at it.",
-          "ca": "No s'ha trobat cap directori de contracte a {path}. Indica'l amb --contract-dir, OMX_CONTRACT_PATH o pkg-config."
+          "en": "No contract directory was found at {path}. Point --contract-dir, OMX_CONTRACT_PATH or pkg-config at it."
         },
         "args": [
           "path"
@@ -20,8 +19,7 @@
         "code": "contract.manifest.absent",
         "doc": "a package directory holds no MANIFEST.json",
         "text": {
-          "en": "The package directory {path} has no MANIFEST.json. Add one that lists its files.",
-          "ca": "El directori del paquet {path} no té cap MANIFEST.json. Afegeix-ne un que llisti els seus fitxers."
+          "en": "The package directory {path} has no MANIFEST.json. Add one that lists its files."
         },
         "args": [
           "path"
@@ -31,8 +29,7 @@
         "code": "contract.manifest.invalid",
         "doc": "a manifest is not JSON, lacks a field, or names another package or schema major than its place",
         "text": {
-          "en": "The manifest at {path} does not match the package it describes. Fix the field the detail names.",
-          "ca": "El manifest de {path} no coincideix amb el paquet que descriu. Corregeix el camp que el detall assenyala."
+          "en": "The manifest at {path} does not match the package it describes. Fix the field the detail names."
         },
         "args": [
           "path"
@@ -42,8 +39,7 @@
         "code": "contract.manifest.mismatch",
         "doc": "a listed file is missing, a file is present but not listed, or its hash differs",
         "text": {
-          "en": "The manifest at {path} and the files installed beside it disagree. Regenerate the manifest from what is actually installed.",
-          "ca": "El manifest de {path} i els fitxers instal·lats al seu costat no coincideixen. Torna a generar el manifest a partir del que hi ha instal·lat de veritat."
+          "en": "The manifest at {path} and the files installed beside it disagree. Regenerate the manifest from what is actually installed."
         },
         "args": [
           "path"
@@ -53,8 +49,7 @@
         "code": "contract.schema.major",
         "doc": "a file's $schema is not the installed form of the reader's schema major",
         "text": {
-          "en": "The file at {path} names a schema major this reader does not read. Install it under the major this reader expects.",
-          "ca": "El fitxer {path} indica un major d'esquema que aquest lector no llegeix. Instal·la'l sota el major que aquest lector espera."
+          "en": "The file at {path} names a schema major this reader does not read. Install it under the major this reader expects."
         },
         "args": [
           "path"
@@ -64,8 +59,7 @@
         "code": "contract.schema.too-old",
         "doc": "a file's requires.omx-contract-schema floor is above the reader's schema",
         "text": {
-          "en": "The file at {path} needs a newer omx-contract schema than this reader has. Upgrade omx-contract, or lower the file's floor.",
-          "ca": "El fitxer {path} necessita un esquema d'omx-contract més nou del que té aquest lector. Actualitza omx-contract, o baixa el mínim que demana el fitxer."
+          "en": "The file at {path} needs a newer omx-contract schema than this reader has. Upgrade omx-contract, or lower the file's floor."
         },
         "args": [
           "path"
@@ -75,8 +69,7 @@
         "code": "contract.schema.floor-absent",
         "doc": "an installed file of a package other than omx-contract states no schema floor",
         "text": {
-          "en": "The file at {path} states no omx-contract schema floor. Add a requires.omx-contract-schema entry.",
-          "ca": "El fitxer {path} no indica cap mínim d'esquema d'omx-contract. Afegeix-hi una entrada requires.omx-contract-schema."
+          "en": "The file at {path} states no omx-contract schema floor. Add a requires.omx-contract-schema entry."
         },
         "args": [
           "path"
@@ -86,8 +79,7 @@
         "code": "contract.schema.floor-understated",
         "doc": "a file does not validate against the schema at its requires.omx-contract-schema floor, only against a newer one: the floor understates what it needs",
         "text": {
-          "en": "The file at {path} needs a newer schema than the floor it states. Raise the floor to the version it actually needs.",
-          "ca": "El fitxer {path} necessita un esquema més nou que el mínim que declara. Puja el mínim a la versió que realment necessita."
+          "en": "The file at {path} needs a newer schema than the floor it states. Raise the floor to the version it actually needs."
         },
         "args": [
           "path"
@@ -97,8 +89,7 @@
         "code": "contract.file.not-json",
         "doc": "a file does not parse",
         "text": {
-          "en": "The file at {path} does not parse as JSON. Fix its syntax.",
-          "ca": "El fitxer {path} no és JSON vàlid. Corregeix-ne la sintaxi."
+          "en": "The file at {path} does not parse as JSON. Fix its syntax."
         },
         "args": [
           "path"
@@ -108,8 +99,7 @@
         "code": "contract.file.invalid",
         "doc": "a file breaks the schema or the kernel-file shape, an unknown key or word included",
         "text": {
-          "en": "The file at {path} breaks the schema or the kernel-file shape. Fix the field the detail names.",
-          "ca": "El fitxer {path} incompleix l'esquema o la forma d'un fitxer de kernel. Corregeix el camp que el detall assenyala."
+          "en": "The file at {path} breaks the schema or the kernel-file shape. Fix the field the detail names."
         },
         "args": [
           "path"
@@ -119,8 +109,7 @@
         "code": "contract.item.duplicate",
         "doc": "two files declare one name",
         "text": {
-          "en": "{item} is declared by two files. Remove the duplicate so only one package declares it.",
-          "ca": "El {item} està declarat per dos fitxers. Elimina el duplicat perquè només un paquet el declari."
+          "en": "{item} is declared by two files. Remove the duplicate so only one package declares it."
         },
         "args": [
           "item"
@@ -130,8 +119,7 @@
         "code": "contract.kernel.duplicate",
         "doc": "two packages each declare a file of one kernel",
         "text": {
-          "en": "Kernel {kernel} is declared by two packages. Keep the declaration in one package only.",
-          "ca": "El kernel {kernel} està declarat per dos paquets. Manté la declaració en un sol paquet."
+          "en": "Kernel {kernel} is declared by two packages. Keep the declaration in one package only."
         },
         "args": [
           "kernel"
@@ -141,8 +129,7 @@
         "code": "contract.ref.unresolved",
         "doc": "a reference names no item",
         "text": {
-          "en": "{ref} refers to a name no installed file declares. Install the file that declares it, or fix the reference.",
-          "ca": "{ref} fa referència a un nom que cap fitxer instal·lat declara. Instal·la el fitxer que el declara, o corregeix la referència."
+          "en": "{ref} refers to a name no installed file declares. Install the file that declares it, or fix the reference."
         },
         "args": [
           "ref"
@@ -152,8 +139,7 @@
         "code": "contract.ref.undeclared",
         "doc": "a reference names an item of a package the file does not require",
         "text": {
-          "en": "{ref} refers to an item of a package its file does not require. Add that package to requires.",
-          "ca": "{ref} fa referència a un element d’un paquet que el fitxer no requereix. Afegeix aquest paquet a requires."
+          "en": "{ref} refers to an item of a package its file does not require. Add that package to requires."
         },
         "args": [
           "ref"
@@ -163,8 +149,7 @@
         "code": "contract.verb.duplicate",
         "doc": "two verbs items, of one package or two, declare one verb: a verb has one owner",
         "text": {
-          "en": "Verb {verb} is declared by more than one package or item. A verb has one owner: remove the extra declaration.",
-          "ca": "El verb {verb} està declarat per més d’un paquet o element. Un verb té un únic propietari: elimina la declaració sobrant."
+          "en": "Verb {verb} is declared by more than one package or item. A verb has one owner: remove the extra declaration."
         },
         "args": [
           "verb"
@@ -174,8 +159,7 @@
         "code": "contract.verb.format",
         "doc": "a verb's format does not start with the verb it declares",
         "text": {
-          "en": "Verb {verb}'s format does not start with the verb itself. Rename the format to start with {verb}.",
-          "ca": "El format del verb {verb} no comença pel mateix verb. Canvia el nom del format perquè comenci per {verb}."
+          "en": "Verb {verb}'s format does not start with the verb itself. Rename the format to start with {verb}."
         },
         "args": [
           "verb"
@@ -185,8 +169,7 @@
         "code": "contract.verb.host-unknown",
         "doc": "a verb's implementedBy names a host that is no word of VERB_HOSTS",
         "text": {
-          "en": "Verb {verb} names a host that is not a word of VERB_HOSTS. Add the host there, or fix the verb’s implementedBy.",
-          "ca": "El verb {verb} anomena un host que no és cap paraula de VERB_HOSTS. Afegeix-lo allà, o corregeix l'implementedBy del verb."
+          "en": "Verb {verb} names a host that is not a word of VERB_HOSTS. Add the host there, or fix the verb’s implementedBy."
         },
         "args": [
           "verb"
@@ -196,8 +179,7 @@
         "code": "contract.verb.code-unknown",
         "doc": "a verb's code names an item that is no codes item, or a name that item does not carry",
         "text": {
-          "en": "Verb {verb} names a code no codes item carries. Fix the code name, or add it where the codes item declares its codes.",
-          "ca": "El verb {verb} anomena un codi que cap element de codis té. Corregeix el nom del codi, o afegeix-lo on l’element de codis declara els seus."
+          "en": "Verb {verb} names a code no codes item carries. Fix the code name, or add it where the codes item declares its codes."
         },
         "args": [
           "verb"
@@ -207,8 +189,7 @@
         "code": "contract.package.absent",
         "doc": "a package the consumer or a file requires is not installed",
         "text": {
-          "en": "{package} is required and is not installed. Install it beside the files that require it.",
-          "ca": "Es requereix {package} i no està instal·lat. Instal·la’l al costat dels fitxers que el requereixen."
+          "en": "{package} is required and is not installed. Install it beside the files that require it."
         },
         "args": [
           "package"
@@ -218,8 +199,7 @@
         "code": "contract.package.too-old",
         "doc": "a required package is installed below its floor",
         "text": {
-          "en": "{package} is installed below the version required of it. Upgrade it to the required version.",
-          "ca": "{package} està instal·lat per sota de la versió que se’n requereix. Actualitza’l a la versió requerida."
+          "en": "{package} is installed below the version required of it. Upgrade it to the required version."
         },
         "args": [
           "package"
@@ -229,8 +209,7 @@
         "code": "contract.origin.misplaced",
         "doc": "a scanned plugin descriptor is installed in the contract directory: a scan is never read as a declaration",
         "text": {
-          "en": "A scanned plugin descriptor is installed in the contract directory at {path}. Remove it: a scan is never a declaration.",
-          "ca": "Hi ha un descriptor de connector escanejat instal·lat al directori de contracte a {path}. Elimina’l: un escaneig mai és una declaració."
+          "en": "A scanned plugin descriptor is installed in the contract directory at {path}. Remove it: a scan is never a declaration."
         },
         "args": [
           "path"
@@ -240,8 +219,7 @@
         "code": "contract.descriptor.origin-source",
         "doc": "an authored descriptor with no impl link, or a built or scanned one with a control that has no from link",
         "text": {
-          "en": "{descriptor} has a control with no source link. An authored descriptor needs an impl link; a built or scanned one needs a from link on every control.",
-          "ca": "{descriptor} té un control sense cap enllaç d'origen. Un descriptor redactat necessita un enllaç impl; un de construït o escanejat necessita un enllaç from a cada control."
+          "en": "{descriptor} has a control with no source link. An authored descriptor needs an impl link; a built or scanned one needs a from link on every control."
         },
         "args": [
           "descriptor"
@@ -251,8 +229,7 @@
         "code": "contract.descriptor.unknown-authored",
         "doc": "an authored descriptor with a unit, a scale or a meaning of unknown",
         "text": {
-          "en": "{descriptor} is authored and leaves a control's unit, scale or meaning as unknown. State it, or mark the descriptor built or scanned instead.",
-          "ca": "{descriptor} és redactat i deixa la unitat, l'escala o el significat d'un control com a unknown. Indica'l, o marca el descriptor com a construït o escanejat."
+          "en": "{descriptor} is authored and leaves a control's unit, scale or meaning as unknown. State it, or mark the descriptor built or scanned instead."
         },
         "args": [
           "descriptor"
@@ -262,8 +239,7 @@
         "code": "contract.descriptor.control-duplicate",
         "doc": "two controls of a descriptor with one id, one name or one symbol",
         "text": {
-          "en": "{descriptor} declares two controls with the same id, name or symbol. Give each control its own.",
-          "ca": "{descriptor} declara dos controls amb el mateix id, nom o símbol. Dona a cada control el seu propi."
+          "en": "{descriptor} declares two controls with the same id, name or symbol. Give each control its own."
         },
         "args": [
           "descriptor"
@@ -273,8 +249,7 @@
         "code": "contract.descriptor.easy",
         "doc": "an easy list that names no control, names one twice or a hidden or read-only one, or stands in a scanned descriptor",
         "text": {
-          "en": "{descriptor}'s easy list names no control, names one twice, names a hidden or read-only control, or appears in a scanned descriptor. Fix the easy list.",
-          "ca": "La llista easy de {descriptor} no anomena cap control, n'anomena un dos cops, anomena un control amagat o de només lectura, o apareix en un descriptor escanejat. Corregeix la llista easy."
+          "en": "{descriptor}'s easy list names no control, names one twice, names a hidden or read-only control, or appears in a scanned descriptor. Fix the easy list."
         },
         "args": [
           "descriptor"
@@ -284,8 +259,7 @@
         "code": "contract.descriptor.meter",
         "doc": "a meter of a descriptor with the id or a symbol of another meter, a symbol a control answers to, a range whose min is not below its max, a scale that is no id of PARAM_SCALES, a unit the kind does not measure in (level: dBFS, dBTP, LUFS, LU; gain-reduction: dB), a measurement in a unit it is not measured in, or a clip word on a gain reduction or a true clip on a loudness",
         "text": {
-          "en": "{descriptor} has a meter whose id, symbol, range, scale or unit is wrong for its kind. Fix the meter the detail names.",
-          "ca": "{descriptor} té un meter amb un id, símbol, rang, escala o unitat incorrectes per al seu tipus. Corregeix el meter que el detall assenyala."
+          "en": "{descriptor} has a meter whose id, symbol, range, scale or unit is wrong for its kind. Fix the meter the detail names."
         },
         "args": [
           "descriptor"
@@ -295,8 +269,7 @@
         "code": "contract.descriptor.port-duplicate",
         "doc": "two ports of a descriptor of one kind and direction with one id",
         "text": {
-          "en": "{descriptor} declares two ports of the same kind and direction with one id. Give each port its own id.",
-          "ca": "{descriptor} declara dos ports del mateix tipus i direcció amb un únic id. Dona a cada port el seu propi id."
+          "en": "{descriptor} declares two ports of the same kind and direction with one id. Give each port its own id."
         },
         "args": [
           "descriptor"
@@ -306,8 +279,7 @@
         "code": "contract.descriptor.range",
         "doc": "a travel whose min is above its max, whose step is negative, or whose default lies outside it",
         "text": {
-          "en": "{descriptor} has a travel whose min, max, step or default is out of order. Fix the travel the detail names.",
-          "ca": "{descriptor} té un travel amb el min, el max, l’step o el default fora d’ordre. Corregeix el travel que el detall assenyala."
+          "en": "{descriptor} has a travel whose min, max, step or default is out of order. Fix the travel the detail names."
         },
         "args": [
           "descriptor"
@@ -317,8 +289,7 @@
         "code": "contract.descriptor.choice",
         "doc": "a choice whose default is not one of its ids, or whose labels or values are not one per id",
         "text": {
-          "en": "{descriptor} has a choice whose default is not one of its ids, or whose labels or values do not match its ids one for one. Fix the choice the detail names.",
-          "ca": "{descriptor} té un choice amb un default que no és cap dels seus ids, o amb labels o values que no coincideixen un a un amb els ids. Corregeix el choice que el detall assenyala."
+          "en": "{descriptor} has a choice whose default is not one of its ids, or whose labels or values do not match its ids one for one. Fix the choice the detail names."
         },
         "args": [
           "descriptor"
@@ -328,8 +299,7 @@
         "code": "contract.descriptor.scale-undeclared",
         "doc": "a scale that is neither an id of PARAM_SCALES nor unknown",
         "text": {
-          "en": "{descriptor} names a scale that is neither an id of PARAM_SCALES nor unknown. Fix the scale name, or add it to PARAM_SCALES.",
-          "ca": "{descriptor} anomena una escala que no és ni un id de PARAM_SCALES ni unknown. Corregeix el nom de l’escala, o afegeix-la a PARAM_SCALES."
+          "en": "{descriptor} names a scale that is neither an id of PARAM_SCALES nor unknown. Fix the scale name, or add it to PARAM_SCALES."
         },
         "args": [
           "descriptor"
@@ -339,8 +309,7 @@
         "code": "contract.descriptor.port-words",
         "doc": "a layout word on a port that is not audio, dialects off a note port or missing on one, or a layout its channels contradict",
         "text": {
-          "en": "{descriptor} has a port whose layout, dialect or channel words contradict each other. Fix the port the detail names.",
-          "ca": "{descriptor} té un port amb paraules de layout, dialecte o canal que es contradiuen. Corregeix el port que el detall assenyala."
+          "en": "{descriptor} has a port whose layout, dialect or channel words contradict each other. Fix the port the detail names."
         },
         "args": [
           "descriptor"
@@ -350,8 +319,7 @@
         "code": "contract.descriptor.instrument",
         "doc": "an instrument block without the instrument feature or the reverse, or an instrument with no note or MIDI input or no audio output",
         "text": {
-          "en": "{descriptor} declares an instrument block without the instrument feature (or the reverse), or an instrument with no note or MIDI input or no audio output. Fix the instrument declaration.",
-          "ca": "{descriptor} declara un bloc instrument sense la feature instrument (o al revés), o un instrument sense entrada de nota o MIDI o sense sortida d'àudio. Corregeix la declaració de l'instrument."
+          "en": "{descriptor} declares an instrument block without the instrument feature (or the reverse), or an instrument with no note or MIDI input or no audio output. Fix the instrument declaration."
         },
         "args": [
           "descriptor"
@@ -361,8 +329,7 @@
         "code": "contract.descriptor.when-unresolved",
         "doc": "a when that names no choice of the descriptor, or an id that choice does not have",
         "text": {
-          "en": "{descriptor} has a when that names no choice of the descriptor, or an id that choice does not have. Fix the when the detail names.",
-          "ca": "{descriptor} té un when que no anomena cap choice del descriptor, o un id que aquell choice no té. Corregeix el when que el detall assenyala."
+          "en": "{descriptor} has a when that names no choice of the descriptor, or an id that choice does not have. Fix the when the detail names."
         },
         "args": [
           "descriptor"
@@ -372,8 +339,7 @@
         "code": "contract.descriptor.face-differs",
         "doc": "a plugin's built face, scanned as a host scans it, states other than its authored descriptor; raised by the owner's face check, since the reader compares no faces",
         "text": {
-          "en": "{descriptor}’s built face states other than what it is authored as. Update the authored descriptor, or fix the build.",
-          "ca": "La cara construïda de {descriptor} declara coses diferents de com està redactat. Actualitza el descriptor redactat, o corregeix la construcció."
+          "en": "{descriptor}’s built face states other than what it is authored as. Update the authored descriptor, or fix the build."
         },
         "args": [
           "descriptor"
@@ -383,8 +349,7 @@
         "code": "contract.override.plugin-mismatch",
         "doc": "an override file whose plugin id or format is not the plugin it is applied to: the file is refused whole",
         "text": {
-          "en": "The override at {path} names a plugin id or format other than the plugin it is applied to. The whole file is refused: fix which plugin it targets.",
-          "ca": "L’override a {path} anomena un id o format de connector diferent del connector al qual s’aplica. Es rebutja tot el fitxer: corregeix a quin connector apunta."
+          "en": "The override at {path} names a plugin id or format other than the plugin it is applied to. The whole file is refused: fix which plugin it targets."
         },
         "args": [
           "path"
@@ -394,8 +359,7 @@
         "code": "contract.override.control-absent",
         "doc": "an override entry that names a control the descriptor does not have: the entry is dropped",
         "text": {
-          "en": "The override at {path} names a control the descriptor does not have. That entry is dropped: remove it, or fix the control name.",
-          "ca": "L’override a {path} anomena un control que el descriptor no té. Aquesta entrada es descarta: elimina-la, o corregeix el nom del control."
+          "en": "The override at {path} names a control the descriptor does not have. That entry is dropped: remove it, or fix the control name."
         },
         "args": [
           "path"
@@ -405,8 +369,7 @@
         "code": "contract.override.widens",
         "doc": "an override entry whose travel end lies outside the plugin's ends, or whose default lies outside the travel: the entry is dropped",
         "text": {
-          "en": "The override at {path} has a travel end outside the plugin's ends, or a default outside the travel. That entry is dropped: bring it inside the plugin's own range.",
-          "ca": "L’override a {path} té un extrem de travel fora dels extrems del connector, o un default fora del travel. Aquesta entrada es descarta: fes que quedi dins del rang propi del connector."
+          "en": "The override at {path} has a travel end outside the plugin's ends, or a default outside the travel. That entry is dropped: bring it inside the plugin's own range."
         },
         "args": [
           "path"
@@ -416,8 +379,7 @@
         "code": "contract.override.kind-mismatch",
         "doc": "an override entry with a word that does not fit the control's kind (a travel or a map on a choice) or its family (a band without family eq and an EQ meaning): the entry is dropped",
         "text": {
-          "en": "The override at {path} has a word that does not fit the control’s kind or family. That entry is dropped: fix the word, or the control it is applied to.",
-          "ca": "L’override a {path} té una paraula que no s’ajusta al tipus o família del control. Aquesta entrada es descarta: corregeix la paraula, o el control al qual s’aplica."
+          "en": "The override at {path} has a word that does not fit the control’s kind or family. That entry is dropped: fix the word, or the control it is applied to."
         },
         "args": [
           "path"
@@ -427,8 +389,7 @@
         "code": "contract.override.scale-floor",
         "doc": "an override entry with a log scale over a floor that is not positive: the entry is dropped",
         "text": {
-          "en": "The override at {path} sets a log scale over a floor that is not positive. That entry is dropped: use a positive floor.",
-          "ca": "L’override a {path} fixa una escala logarítmica amb un mínim que no és positiu. Aquesta entrada es descarta: utilitza un mínim positiu."
+          "en": "The override at {path} sets a log scale over a floor that is not positive. That entry is dropped: use a positive floor."
         },
         "args": [
           "path"
@@ -438,8 +399,7 @@
         "code": "contract.override.map-invalid",
         "doc": "an override map that is not strictly monotonic, does not cover the plugin's ends or lies outside them: the entry is dropped",
         "text": {
-          "en": "The override at {path} has a map that is not strictly monotonic, or does not cover the plugin’s ends. That entry is dropped: fix the map.",
-          "ca": "L’override a {path} té un map que no és estrictament monòton, o que no cobreix els extrems del connector. Aquesta entrada es descarta: corregeix el map."
+          "en": "The override at {path} has a map that is not strictly monotonic, or does not cover the plugin’s ends. That entry is dropped: fix the map."
         },
         "args": [
           "path"
@@ -449,8 +409,7 @@
         "code": "contract.override.basis-evidence",
         "doc": "an override entry with basis measured and no evidence, or evidence with another basis: the entry is dropped",
         "text": {
-          "en": "The override at {path} states basis measured with no evidence, or evidence with another basis. That entry is dropped: add the matching evidence, or change the basis.",
-          "ca": "L’override a {path} declara basis measured sense evidence, o evidence amb una altra basis. Aquesta entrada es descarta: afegeix l’evidence corresponent, o canvia la basis."
+          "en": "The override at {path} states basis measured with no evidence, or evidence with another basis. That entry is dropped: add the matching evidence, or change the basis."
         },
         "args": [
           "path"
@@ -460,8 +419,7 @@
         "code": "contract.override.fingerprint-differs",
         "doc": "an override file written against another control list than the descriptor's: a warning, the entries that still hold are applied",
         "text": {
-          "en": "The override at {path} was written against another control list than the descriptor's. The entries that still fit are applied; review the rest.",
-          "ca": "L’override a {path} es va escriure per a una altra llista de controls que la del descriptor. Es continuen aplicant les entrades que encara hi encaixen; revisa la resta."
+          "en": "The override at {path} was written against another control list than the descriptor's. The entries that still fit are applied; review the rest."
         },
         "args": [
           "path"
@@ -471,8 +429,7 @@
         "code": "contract.source.absent",
         "doc": "a link's path does not exist",
         "text": {
-          "en": "The path a link names, {path}, does not exist. Fix the link's path.",
-          "ca": "El camí que anomena l’enllaç, {path}, no existeix. Corregeix el camí de l’enllaç."
+          "en": "The path a link names, {path}, does not exist. Fix the link's path."
         },
         "args": [
           "path"
@@ -482,8 +439,7 @@
         "code": "contract.source.symbol-absent",
         "doc": "the path holds no definition of the link's symbol",
         "text": {
-          "en": "{path} holds no definition of the symbol a link names. Fix the symbol name, or point the link elsewhere.",
-          "ca": "{path} no conté cap definició del símbol que anomena l’enllaç. Corregeix el nom del símbol, o apunta l’enllaç a un altre lloc."
+          "en": "{path} holds no definition of the symbol a link names. Fix the symbol name, or point the link elsewhere."
         },
         "args": [
           "path"
@@ -493,8 +449,7 @@
         "code": "contract.source.ambiguous",
         "doc": "the path defines the link's symbol more than once",
         "text": {
-          "en": "{path} defines the symbol a link names more than once. Make the definition unique, or narrow the link.",
-          "ca": "{path} defineix més d’un cop el símbol que anomena l’enllaç. Fes que la definició sigui única, o concreta més l’enllaç."
+          "en": "{path} defines the symbol a link names more than once. Make the definition unique, or narrow the link."
         },
         "args": [
           "path"
@@ -504,8 +459,7 @@
         "code": "contract.source.differs",
         "doc": "the value at a from link is not the declared value",
         "text": {
-          "en": "The value at {path}'s from link is not the value declared beside it. Update the declared value to match, or fix the link.",
-          "ca": "El valor a l’enllaç from de {path} no és el valor declarat al seu costat. Actualitza el valor declarat perquè hi coincideixi, o corregeix l’enllaç."
+          "en": "The value at {path}'s from link is not the value declared beside it. Update the declared value to match, or fix the link."
         },
         "args": [
           "path"
@@ -515,8 +469,7 @@
         "code": "contract.source.unevaluable",
         "doc": "a from link whose value the tool cannot read",
         "text": {
-          "en": "The value at {path}'s from link cannot be read by this tool. Simplify the source, or state the value by hand and drop the link.",
-          "ca": "El valor a l’enllaç from de {path} no es pot llegir amb aquesta eina. Simplifica l’origen, o indica el valor a mà i treu l’enllaç."
+          "en": "The value at {path}'s from link cannot be read by this tool. Simplify the source, or state the value by hand and drop the link."
         },
         "args": [
           "path"
@@ -526,8 +479,7 @@
         "code": "contract.source.unread",
         "doc": "an impl link whose definition does not name the item",
         "text": {
-          "en": "The definition at {path}'s impl link does not name the item it is linked from. Point the link at the definition that actually names it.",
-          "ca": "La definició a l’enllaç impl de {path} no anomena l’element des del qual s’hi enllaça. Apunta l’enllaç a la definició que realment l’anomena."
+          "en": "The definition at {path}'s impl link does not name the item it is linked from. Point the link at the definition that actually names it."
         },
         "args": [
           "path"
@@ -537,8 +489,7 @@
         "code": "contract.source.none",
         "doc": "an item with no impl link, where every item must carry one",
         "text": {
-          "en": "{item} carries no impl link, and every item of its kind must carry one. Add the link to where it is defined.",
-          "ca": "{item} no té cap enllaç impl, i tots els elements del seu tipus n’han de tenir-ne un. Afegeix l’enllaç cap a on està definit."
+          "en": "{item} carries no impl link, and every item of its kind must carry one. Add the link to where it is defined."
         },
         "args": [
           "item"

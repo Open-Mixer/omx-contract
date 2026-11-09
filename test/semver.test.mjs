@@ -102,6 +102,23 @@ test('schema: a property or an enum member added is minor; a property or an enum
   assert.equal(schemaLevel((n) => { n.$defs.renderHeader.required.pop(); }).level, 'minor');
 });
 
+test('schema: a definition moved into $defs and referenced is judged by what it resolves to, not by its spelling', () => {
+  const inline = { type: 'object', properties: { en: { type: 'string' } }, required: ['en'], additionalProperties: false };
+  const was = { $defs: { code: { type: 'object', properties: { text: structuredClone(inline) } } } };
+  const moved = (def) => ({ $defs: { sentence: def, code: { type: 'object', properties: { text: { $ref: '#/$defs/sentence' } } } } });
+  assert.equal(classifySchema(was, moved(structuredClone(inline))).level, 'minor', 'the same constraint, now shared: only the definition is new');
+  assert.equal(classifySchema(was, moved({ ...structuredClone(inline), required: ['en', 'ca'] })).level, 'major', 'moved and tightened on the way');
+  assert.equal(classifySchema(moved(structuredClone(inline)), was).level, 'major', 'a definition removed stays major');
+});
+
+test('schema: a pattern moved into an anyOf, another pattern appended beside it, is minor; changed on the way it is major', () => {
+  const was = { $defs: { code: { type: 'string', pattern: '^a$' } } };
+  const grown = (first) => ({ $defs: { code: { type: 'string', anyOf: [{ pattern: first }, { pattern: '^b$' }] } } });
+  assert.equal(classifySchema(was, grown('^a$')).level, 'minor', 'what was accepted is still accepted');
+  assert.equal(classifySchema(was, grown('^c$')).level, 'major', 'the old pattern rewritten');
+  assert.equal(classifySchema(grown('^a$'), was).level, 'major', 'a member dropped');
+});
+
 test('the version a schema states moves with the schema, by what its changes need', () => {
   const was = { 'x-omx-schema-version': '3.7.0', $defs: { a: { type: 'object', properties: { x: { type: 'string' } } } } };
   const grown = (version) => ({ ...structuredClone(was), 'x-omx-schema-version': version, $defs: { a: { type: 'object', properties: { x: { type: 'string' }, y: { type: 'string' } } } } });

@@ -56,7 +56,10 @@ export function renderVocabularyHeader(resolved, pkg) {
         lines.push(...codeTextDefines(codeMacro(c.code), c, cStringLiteral));
       }
     } else {
-      for (const [n, w] of Object.entries(r.value)) lines.push(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}${trailing(w.doc)}`);
+      for (const [n, w] of Object.entries(r.value)) {
+        lines.push(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}${trailing(w.doc)}`);
+        lines.push(...codeTextDefines(wordMacro(r.name, n), w, cStringLiteral));
+      }
       lines.push(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`);
       lines.push(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`);
     }
@@ -96,10 +99,9 @@ export function renderVocabularySchema(resolved, version) {
       description: r.doc,
       enum: r.kind === 'codes' ? Object.values(r.value).map((c) => c.code) : wordsOf(r),
     };
-    if (r.kind === 'codes') {
-      const texts = Object.fromEntries(Object.values(r.value).filter((c) => c.text !== undefined).map((c) => [c.code, { text: c.text, args: c.args ?? [] }]));
-      if (Object.keys(texts).length) defs[r.name]['x-omx-texts'] = texts;
-    }
+    const key = r.kind === 'codes' ? (c) => c.code : (w) => w.word;
+    const texts = Object.fromEntries(Object.values(r.value).filter((e) => e.text !== undefined).map((e) => [key(e), { text: e.text, args: e.args ?? [] }]));
+    if (Object.keys(texts).length) defs[r.name]['x-omx-texts'] = texts;
   }
   const doc = {
     $schema: 'https://json-schema.org/draft/2020-12/schema',

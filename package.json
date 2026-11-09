@@ -35,7 +35,8 @@
       "types": "./render/c/contract-limits-split.d.mts",
       "import": "./render/c/contract-limits-split.mjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./catalog": "./lib/catalog.mjs"
   },
   "files": [
     "bin/",
@@ -46,7 +47,8 @@
     "include/",
     "share/",
     "dist/ts/",
-    "examples/"
+    "examples/",
+    "catalogs"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs",

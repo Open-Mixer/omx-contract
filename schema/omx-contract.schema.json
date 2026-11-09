@@ -3,7 +3,7 @@
   "$id": "https://github.com/FreeMixer/omx-contract/raw/main/schema/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.11.0",
+  "x-omx-schema-version": "3.12.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -327,6 +327,39 @@
       "additionalProperties": false
     },
     "text": { "type": "string", "minLength": 1 },
+    "sentence": {
+      "type": "object",
+      "description": "The one source sentence a person sees for a code or a word, in English, written by its owner and never kept by a surface. Its `{name}` placeholders are each one of `args`. Translations are not contract data: each owner ships one catalog per language (`$defs/catalog`).",
+      "properties": {
+        "en": { "$ref": "#/$defs/text" },
+        "ca": { "$ref": "#/$defs/text", "description": "Deprecated: a translation belongs in the owner's catalog, catalogs/ca.json. Still read, with the warning catalog-migration, until every owner has moved." }
+      },
+      "required": ["en"],
+      "additionalProperties": false
+    },
+    "catalog": {
+      "type": "object",
+      "description": "One owner's sentences in one language: `catalogs/<lang>.json` in the owner's tree, installed to `/usr/share/<owner>/catalogs/<lang>.json`. A key is a code of the owner, or a word as `<ITEM>.<word>`; a sentence's `{name}` placeholders are each one of that code's or word's `args`. A missing key falls back to the source sentence.",
+      "properties": {
+        "$schema": { "type": "string" },
+        "kind": { "const": "catalog" },
+        "lang": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$", "not": { "const": "en" } },
+        "owner": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "messages": {
+          "type": "object",
+          "propertyNames": { "pattern": "^([a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)+|[A-Z][A-Z0-9_]*\\.[^\\s]+)$" },
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        }
+      },
+      "required": ["kind", "lang", "owner", "messages"],
+      "additionalProperties": false
+    },
+    "sentenceArgs": {
+      "type": "array",
+      "description": "The ordered placeholder names the sentence may use, each as `{name}` in `text`.",
+      "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
+      "uniqueItems": true
+    },
     "since": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "The release that first carried an item declared outside the kernels (rates.json, primitives.json); a kernel's items record it in recipes/answers/." },
     "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
     "floor": { "type": "string", "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$", "description": "A version floor, never a ceiling." },
@@ -621,22 +654,11 @@
           "additionalProperties": {
             "type": "object",
             "properties": {
-              "code": { "type": "string", "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" },
+              "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }] },
               "resp": { "type": "integer", "maximum": -1, "description": "The number a host's reply carries for this refusal, the n of `resp <n>`: a reply code only." },
               "doc": { "$ref": "#/$defs/text" },
-              "text": {
-                "type": "object",
-                "description": "The one sentence a person sees for this refusal, one per language, written by the code's owner and never kept by a surface. Both languages are required, and both use the same `{name}` placeholders, each one of `args`.",
-                "properties": { "en": { "$ref": "#/$defs/text" }, "ca": { "$ref": "#/$defs/text" } },
-                "required": ["en", "ca"],
-                "additionalProperties": false
-              },
-              "args": {
-                "type": "array",
-                "description": "The ordered placeholder names the sentence may use, each as `{name}` in `text`.",
-                "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
-                "uniqueItems": true
-              }
+              "text": { "$ref": "#/$defs/sentence" },
+              "args": { "$ref": "#/$defs/sentenceArgs" }
             },
             "required": ["code"],
             "if": { "properties": { "code": { "type": "string", "pattern": "^reply\\." } } },
@@ -727,7 +749,9 @@
               "figureUnit": { "$ref": "#/$defs/word" },
               "basis": { "$ref": "#/$defs/word" },
               "from": { "type": "array", "items": { "$ref": "#/$defs/termRef" }, "minItems": 1, "uniqueItems": true },
-              "doc": { "$ref": "#/$defs/text" }
+              "doc": { "$ref": "#/$defs/text" },
+              "text": { "$ref": "#/$defs/sentence" },
+              "args": { "$ref": "#/$defs/sentenceArgs" }
             },
             "required": ["word"],
             "additionalProperties": false

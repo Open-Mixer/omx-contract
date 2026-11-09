@@ -4,9 +4,18 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- A code gains `text` (`en` and `ca`, both required) and `args` (the `{name}` placeholders), written by the code's owner; the
-  validator refuses differing placeholder sets and a placeholder outside `args`, and the c, json and vocabulary-schema renders carry
-  them (docs/data-layout.md). Schema 3.11.0.
+- A code's and a word's `text` is the source sentence, `{ "en": ... }`, with `args`, for codes and words alike. A
+  translation moves to the owner's catalog: `catalogs/<lang>.json` (`{ kind: "catalog", lang, owner, messages }`, keyed by
+  the code or by `<ITEM>.<word>`, `$defs/catalog`), installed to `/usr/share/<owner>/catalogs/`. `text.ca` is deprecated and
+  still read: `validate` warns `catalog-migration` and does not fail, so an owner moves in its own time. `validate` refuses a
+  catalog key the owner does not declare and a placeholder outside its entry's `args`; `@openmixer/omx-contract/catalog`
+  loads one and looks a key up with the source sentence as fallback (docs/data-layout.md). omx-contract's own Catalan moves
+  to `catalogs/ca.json`; the C renders carry `_TEXT_EN` only. A code may be `panel.<a>.<b>...`, omx-panel's refusals.
+  Schema 3.12.0, a minor.
+- `semver` reads a pattern moved into the first member of an `anyOf` as that `anyOf`, so a member appended beside it is
+  minor.
+- `semver` reads a local `$ref` as the definition it names, so moving a definition into `$defs` is judged by what it
+  resolves to.
 - `scalePosition(travel, value)` and `scaleValue(travel, p)` (`lib/scale.mjs`, exported as `@openmixer/omx-contract/scale`):
   what `linear`, `log` and `stepped`, and the override `map`, mean as a position (docs/scale-position.md).
 - `data/scale-vectors.json`: the golden vectors of each law, installed as `share/omx-contract/scale-vectors.json`; 20 Hz

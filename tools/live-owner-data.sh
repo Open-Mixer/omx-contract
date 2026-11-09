@@ -6,6 +6,7 @@
 # below <dest> and print the path of its data/ directory: the value of OMX_LIVE_OWNER_DATA (test/live-owners.test.mjs,
 # FreeMixer/omx-contract#109). With no tag, the latest release: the release the ops release-consumers.tsv row of omx-dsp
 # holds its consumers to. A failed fetch or a release with no data/kernels is an error, never an empty answer.
+: "${GITHUB_REPOSITORY_OWNER:?live-owner-data: GITHUB_REPOSITORY_OWNER is not set (the organization to read omx-dsp from)}"
 set -eu
 dest=${1:?usage: live-owner-data.sh <dest> [<tag>]}
 tag=${2:-}

@@ -5,7 +5,7 @@
 A host plans for every resource of a plugin (`RESOURCE_KINDS`). CLAP and LV2 already carry some of them
 (`clap.latency`, `clap.tail`, `clap.voice-info`, `clap.scratch-memory/1`, `clap.thread-pool`, `lv2:latency`, the LV2
 worker, options and buf-size); the rest a plugin states in openmixer's own hints, which this contract declares once
-(FreeMixer/omx-contract#119, FreeMixer/plugin-qualify#116). A hint is a claim: plugin-qualify measures the same
+(FreeMixer/omx-contract#59, FreeMixer/plugin-qualify#116). A hint is a claim: plugin-qualify measures the same
 resource and a declared figure that the measurement does not bear out is a finding.
 
 ## The declaration

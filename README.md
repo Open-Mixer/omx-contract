@@ -19,8 +19,8 @@ sudo dnf install omx-contract-devel
 Debian bookworm and trixie (also Raspberry Pi OS and Zynthian):
 
 ```
-curl -fsSLO https://www.openmixer.org/deb/openmixer-release.deb && sudo apt install ./openmixer-release.deb
-sudo apt install libomx-contract-dev
+cd /tmp && curl -fsSLO https://www.openmixer.org/deb/openmixer-release.deb && sudo apt install ./openmixer-release.deb
+sudo apt update && sudo apt install libomx-contract-dev
 ```
 
 JavaScript and TypeScript: `npm install @openmixer/omx-contract` (the CLI is `omx-contract`).

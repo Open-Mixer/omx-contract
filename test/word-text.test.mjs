@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadData } from '../lib/data.mjs';
 import { classify } from '../lib/semver.mjs';
-import { validateData } from '../lib/validate.mjs';
+import { dataWarnings, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
@@ -25,9 +25,12 @@ test('a word with no text stays green', () => assert.deepEqual(problems(() => {}
 
 test('a word with its source sentence, its placeholders all in args, is green', () => assert.deepEqual(problems((d) => { withText(d); }), []));
 
-test('fixture word-text-second-language: a language beside the source sentence is red', () => {
-  const p = problems((d) => { withText(d).text.ca = "{plugin} no té cap entrada d'àudio."; });
-  assert.ok(p.some((x) => x.startsWith(ITEM)), p.join());
+test('fixture word-text-ca-deprecated: a word still carrying text.ca validates, with a catalog-migration warning keyed <ITEM>.<word>', () => {
+  const t = texts((d) => { withText(d).text.ca = "{plugin} no té cap entrada d'àudio."; });
+  assert.deepEqual(validateData(loadData(null, t)), []);
+  const w = dataWarnings(loadData(null, t));
+  assert.deepEqual(w.map((x) => x.rule), ['catalog-migration']);
+  assert.match(w[0].message, new RegExp(`${ITEM}\\.no-audio-in`));
 });
 
 test('fixture word-text-without-en: a text with no source sentence is red', () => {

@@ -61,13 +61,16 @@ not the one its path gives.
 
 ## Inside a file
 
+- A code is `hosting.<group>...`, `contract.<group>.<reason>`, `reply.<group>.<reason>` or `panel.<group>.<reason>`
+  (omx-panel's refusals, since 3.12.0), lower case.
 - A `codes` item's codes are sorted by name; the name is the operator-facing key a consumer reads the code by, and the
   code is never reworded. A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
   development phase and MINOR in it (`semver`, as an item's removal). A code its writers stop writing is removed in the next release, never carried as retired (operator ruling 2026-10-20,
   omx-contract#64: no backwards compatibility before the first public release); the release's changelog names the
   code that takes its place, if any, and every consumer that still read the key moves in its own pin bump.
 - A code or a word may carry the one sentence a person sees for it, written by its owner beside it: `text`, the source
-  sentence in English (`{ "en": "..." }`, the only language contract data holds), and `args`, the ordered placeholder
+  sentence in English (`{ "en": "..." }`, the only language contract data holds; a `ca` beside it is deprecated, still
+  read, and warned as `catalog-migration` until every owner has moved it to its catalog), and `args`, the ordered placeholder
   names it may use, each `{name}` in the sentence. The validator refuses a placeholder outside `args` (`code-text-arg`,
   `word-text-arg`); adding a sentence is MINOR, rewording it PATCH, removing it or changing `args` MAJOR. The renders
   carry it where they carry the code or word: `omx_vocabulary.h`, `<stem>_vocabulary.h` and an owner header's codes
@@ -77,7 +80,7 @@ not the one its path gives.
 - **Catalogs.** A translation is never contract data: an owner ships one catalog per language, `catalogs/<lang>.json`
   in its tree, installed to `/usr/share/<owner>/catalogs/<lang>.json` by its rpm and its deb alike (omx-contract's own:
   `/usr/share/omx-contract/catalogs/`). A catalog is `{ "kind": "catalog", "lang": "ca", "owner": "<package>",
-  "messages": { "<key>": "<sentence>" } }` (`$defs/catalog`). A key is a code of the owner, bare
+  "messages": { "<key>": "<sentence>" } }` (`$defs/catalog`, which `catalogs/<lang>.json` names as its `$schema`). A key is a code of the owner, bare
   (`contract.dir.absent`), or a word as `<ITEM>.<word>` (`PLUGIN_DB_REASONS.no-cell`), since one word may belong to two
   items. `omx-contract validate` reads `catalogs/` beside the data directory and refuses a key that is no code or word
   the owner declares (`catalog-key`, a word key of an item that does not exist included) and a placeholder that is not

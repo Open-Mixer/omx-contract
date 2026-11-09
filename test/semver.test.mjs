@@ -111,6 +111,14 @@ test('schema: a definition moved into $defs and referenced is judged by what it 
   assert.equal(classifySchema(moved(structuredClone(inline)), was).level, 'major', 'a definition removed stays major');
 });
 
+test('schema: a pattern moved into an anyOf, another pattern appended beside it, is minor; changed on the way it is major', () => {
+  const was = { $defs: { code: { type: 'string', pattern: '^a$' } } };
+  const grown = (first) => ({ $defs: { code: { type: 'string', anyOf: [{ pattern: first }, { pattern: '^b$' }] } } });
+  assert.equal(classifySchema(was, grown('^a$')).level, 'minor', 'what was accepted is still accepted');
+  assert.equal(classifySchema(was, grown('^c$')).level, 'major', 'the old pattern rewritten');
+  assert.equal(classifySchema(grown('^a$'), was).level, 'major', 'a member dropped');
+});
+
 test('the version a schema states moves with the schema, by what its changes need', () => {
   const was = { 'x-omx-schema-version': '3.7.0', $defs: { a: { type: 'object', properties: { x: { type: 'string' } } } } };
   const grown = (version) => ({ ...structuredClone(was), 'x-omx-schema-version': version, $defs: { a: { type: 'object', properties: { x: { type: 'string' }, y: { type: 'string' } } } } });

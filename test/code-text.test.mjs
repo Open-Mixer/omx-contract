@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import { atLeast } from '../lib/contract-dir.mjs';
 import { loadData } from '../lib/data.mjs';
 import { classify } from '../lib/semver.mjs';
-import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
+import { SCHEMA_VERSION, dataWarnings, fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { DATA, resolvedOf, texts } from './helpers.mjs';
@@ -26,9 +26,29 @@ test('a code with no text stays green', () => assert.deepEqual(problems(() => {}
 
 test('a code with its source sentence, its placeholders all in args, is green', () => assert.deepEqual(problems((d) => { withText(d); }), []));
 
-test('fixture text-second-language: a language beside the source sentence is red (a translation is a catalog)', () => {
-  const p = problems((d) => { withText(d).text.ca = 'No hi ha cap directori de contracte a {path}'; });
+test('fixture text-ca-deprecated: an owner file still carrying text.ca validates, with a catalog-migration warning', () => {
+  const t = texts((d) => { withText(d).text.ca = 'No hi ha cap directori de contracte a {path}'; });
+  assert.deepEqual(validateData(loadData(null, t)), [], 'no error: an owner migrates to its catalog in its own time');
+  const w = dataWarnings(loadData(null, t));
+  assert.deepEqual(w.map((x) => `${x.item}:${x.rule}`), ['HOSTING_CODES:catalog-migration']);
+  assert.match(w[0].message, /catalogs\/ca\.json/);
+  assert.deepEqual(dataWarnings(loadData(null, texts((d) => { withText(d); }))), [], 'no ca, no warning');
+});
+
+test('fixture text-ca-placeholder: a deprecated ca with a placeholder outside args is still red', () => {
+  assert.ok(problems((d) => { withText(d).text.ca = 'Cap directori a {dir}'; }).includes('HOSTING_CODES:code-text-arg'));
+});
+
+test('fixture text-other-language: a language beside en and the deprecated ca is red', () => {
+  const p = problems((d) => { withText(d).text.es = 'No hay directorio de contrato en {path}'; });
   assert.ok(p.some((x) => x.startsWith('HOSTING_CODES')), p.join());
+});
+
+test('a panel.* code (omx-panel\'s refusals) is a code; a bare panel word is not', () => {
+  const at = (code) => problems((d) => { d['data/zz-panel.json'] = { $schema: '../schema/omx-contract.schema.json', ZZ_PANEL_CODES: { kind: 'codes', doc: 'd', codes: { a: { code, text: { en: 'Skin {skin} names no control.' }, args: ['skin'] } } } }; });
+  assert.deepEqual(at('panel.skin.unknown-control'), []);
+  assert.ok(at('panel.skin').length > 0, 'two segments past the owner, as contract.* and reply.*');
+  assert.ok(at('panel').length > 0);
 });
 
 test('fixture text-without-en: a text with no source sentence is red', () => assert.ok(problems((d) => { const c = withText(d); c.text = {}; delete c.args; }).length > 0));

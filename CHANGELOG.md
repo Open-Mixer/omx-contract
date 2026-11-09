@@ -4,12 +4,16 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- A code's and a word's `text` is the source sentence alone, `{ "en": ... }`, with `args`; `ca` leaves the schema. Each
-  owner ships its translations as catalogs, `catalogs/<lang>.json` (`{ kind: "catalog", lang, owner, messages }`, keyed by
-  the code or by `<ITEM>.<word>`), installed to `/usr/share/<owner>/catalogs/`; `validate` refuses a key the owner does not
-  declare and a placeholder outside its entry's `args`; `@openmixer/omx-contract/catalog` loads one and looks a key up with
-  the source sentence as fallback (docs/data-layout.md). omx-contract's own Catalan sentences move to `catalogs/ca.json`.
-  The C renders drop `_TEXT_CA`. Schema 3.12.0.
+- A code's and a word's `text` is the source sentence, `{ "en": ... }`, with `args`, for codes and words alike. A
+  translation moves to the owner's catalog: `catalogs/<lang>.json` (`{ kind: "catalog", lang, owner, messages }`, keyed by
+  the code or by `<ITEM>.<word>`, `$defs/catalog`), installed to `/usr/share/<owner>/catalogs/`. `text.ca` is deprecated and
+  still read: `validate` warns `catalog-migration` and does not fail, so an owner moves in its own time. `validate` refuses a
+  catalog key the owner does not declare and a placeholder outside its entry's `args`; `@openmixer/omx-contract/catalog`
+  loads one and looks a key up with the source sentence as fallback (docs/data-layout.md). omx-contract's own Catalan moves
+  to `catalogs/ca.json`; the C renders carry `_TEXT_EN` only. A code may be `panel.<a>.<b>...`, omx-panel's refusals.
+  Schema 3.12.0, a minor.
+- `semver` reads a pattern moved into the first member of an `anyOf` as that `anyOf`, so a member appended beside it is
+  minor.
 - `semver` reads a local `$ref` as the definition it names, so moving a definition into `$defs` is judged by what it
   resolves to.
 - `scalePosition(travel, value)` and `scaleValue(travel, p)` (`lib/scale.mjs`, exported as `@openmixer/omx-contract/scale`):

@@ -75,6 +75,14 @@ not the one its path gives.
   changing `args` is MAJOR. The renders carry both where they carry the code: `omx_vocabulary.h` and an owner header's codes
   section as `<CODE>_TEXT_EN`, `<CODE>_TEXT_CA`, `<CODE>_ARGS_COUNT` and `<CODE>_ARGS_INIT`, `omx-contract.json` as the item's
   `text` and `args`, and `omx-vocabulary.schema.json` as `x-omx-texts` per codes item; the json render is what consumers fold at build.
+- A word may carry its sentence the same way, under the same rules: `text` (`en` and `ca`, both required) and `args`, written
+  by the word's owner beside the word, so a menu shows a state, a run or a reason in words its owner wrote and keeps none of
+  its own. The validator refuses differing placeholders (`word-text-placeholders`) and a placeholder outside `args`
+  (`word-text-arg`); adding one is MINOR, rewording it PATCH, removing it or changing `args` MAJOR. The renders carry it
+  where they carry the word: `<stem>_vocabulary.h` as `OMX_<ITEM>_<NAME>_TEXT_EN`, `_TEXT_CA`, `_ARGS_COUNT` and
+  `_ARGS_INIT`, `omx-contract.json` and the ts render as the word's `text` and `args`, and `omx-vocabulary.schema.json`
+  as `x-omx-texts` keyed by the word. The schema declares the sentence once, `$defs/sentence` and `$defs/sentenceArgs`,
+  for codes and words both. Schema 3.12.0.
 - A `words` item's words keep their declared order, which is part of the contract (a rating's severity, a band's
   ascent). A word may name its `group`, a word of the item its `groups` names, its `x` and `y`, words of the item its `axes` names (an axis word then states its `unit` and `scale`, docs/curves.md), and the format terms it is
   name-compatible with (`from: ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"]`); each resolves.

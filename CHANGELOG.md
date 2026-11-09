@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- A word gains `text` (`en` and `ca`, both required) and `args`, as a code has: the same validator rules
+  (`word-text-placeholders`, `word-text-arg`), the same semver classes, and the c, json, ts and vocabulary-schema renders carry
+  them (docs/data-layout.md). The sentence is declared once in the schema (`$defs/sentence`, `$defs/sentenceArgs`) for both.
+  Schema 3.12.0.
+- `semver` reads a local `$ref` as the definition it names, so moving a definition into `$defs` is judged by what it
+  resolves to.
 - A code gains `text` (`en` and `ca`, both required) and `args` (the `{name}` placeholders), written by the code's owner; the
   validator refuses differing placeholder sets and a placeholder outside `args`, and the c, json and vocabulary-schema renders carry
   them (docs/data-layout.md). Schema 3.11.0.

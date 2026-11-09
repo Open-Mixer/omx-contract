@@ -12,7 +12,7 @@
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
 /**
- * A code's sentence as defines, when the code has one: <MACRO>_TEXT_EN and _TEXT_CA the two sentences, with _ARGS_COUNT and
+ * A code's or a word's sentence as defines, when it has one: <MACRO>_TEXT_EN and _TEXT_CA the two sentences, with _ARGS_COUNT and
  * _ARGS_INIT the placeholder names in order (docs/data-layout.md). `literal` spells a string.
  */
 export function codeTextDefines(macro, c, literal) {

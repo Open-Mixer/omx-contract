@@ -7,7 +7,7 @@
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
-  "else": {
+  "else": { "if": { "required": ["kind"] }, "then": { "$ref": "#/$defs/catalog" }, "else": {
     "properties": {
       "$schema": { "type": "string" },
       "requires": { "$ref": "#/$defs/requires" },
@@ -17,7 +17,7 @@
     },
     "propertyNames": { "anyOf": [{ "enum": ["$schema", "requires", "source", "render", "checks"] }, { "pattern": "^[A-Z][A-Z0-9_]*$" }] },
     "additionalProperties": { "$ref": "#/$defs/item" }
-  },
+  } },
   "$defs": {
     "unit": {
       "description": "The closed list of units the items use; \"s\" is seconds and \"min\" minutes, \"x\" is a multiplier, \"\" is a ratio or a fraction, \"dB/oct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770) and \"dB/s\" a gain change per second.",
@@ -329,9 +329,26 @@
     "text": { "type": "string", "minLength": 1 },
     "sentence": {
       "type": "object",
-      "description": "The one sentence a person sees for a code or a word, one per language, written by its owner and never kept by a surface. Both languages are required, and both use the same `{name}` placeholders, each one of `args`.",
-      "properties": { "en": { "$ref": "#/$defs/text" }, "ca": { "$ref": "#/$defs/text" } },
-      "required": ["en", "ca"],
+      "description": "The one source sentence a person sees for a code or a word, in English, written by its owner and never kept by a surface. Its `{name}` placeholders are each one of `args`. Translations are not contract data: each owner ships one catalog per language (`$defs/catalog`).",
+      "properties": { "en": { "$ref": "#/$defs/text" } },
+      "required": ["en"],
+      "additionalProperties": false
+    },
+    "catalog": {
+      "type": "object",
+      "description": "One owner's sentences in one language: `catalogs/<lang>.json` in the owner's tree, installed to `/usr/share/<owner>/catalogs/<lang>.json`. A key is a code of the owner, or a word as `<ITEM>.<word>`; a sentence's `{name}` placeholders are each one of that code's or word's `args`. A missing key falls back to the source sentence.",
+      "properties": {
+        "$schema": { "type": "string" },
+        "kind": { "const": "catalog" },
+        "lang": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$", "not": { "const": "en" } },
+        "owner": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "messages": {
+          "type": "object",
+          "propertyNames": { "pattern": "^([a-z0-9]+(-[a-z0-9]+)*(\\.[a-z0-9]+(-[a-z0-9]+)*)+|[A-Z][A-Z0-9_]*\\.[^\\s]+)$" },
+          "additionalProperties": { "$ref": "#/$defs/text" }
+        }
+      },
+      "required": ["kind", "lang", "owner", "messages"],
       "additionalProperties": false
     },
     "sentenceArgs": {

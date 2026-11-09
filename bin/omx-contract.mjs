@@ -28,6 +28,7 @@ import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
+import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { renderC, renderSheetC } from '../render/c.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
@@ -86,6 +87,18 @@ function toolFiles(argv) {
   });
 }
 
+/** The owner's catalogs beside its data directory (`catalogs/<lang>.json`, lib/catalog.mjs), as loaded files. */
+function catalogFiles(argv) {
+  if (fromContractDir(argv)) return [];
+  const data = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
+  const dir = join(data, '..', 'catalogs');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).filter((f) => f.endsWith('.json')).sort().map((f) => {
+    const text = readFileSync(join(dir, f), 'utf8');
+    return { rel: relative(join(dir, '..'), join(dir, f)), doc: JSON.parse(text) };
+  });
+}
+
 /** Every file under `dir`, relative to it. */
 function filesUnder(dir) {
   if (!existsSync(dir)) return [];
@@ -105,10 +118,15 @@ function cmdValidate(argv) {
   const data = load(argv);
   const tools = toolFiles(argv);
   const problems = [...validateData(data), ...tools.flatMap(fileProblems)];
+  const catalogs = problems.length ? [] : catalogFiles(argv);
+  if (catalogs.length) {
+    const keys = catalogKeys(resolveData(data), { extra: tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind)) });
+    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, keys));
+  }
   for (const p of problems) console.error(`${p.file}: ${p.item}: ${p.rule}: ${p.message}`);
   if (problems.length) return 1;
   const where = data.packages ? ` from ${data.packages.size} packages of ${data.roots.join(':')}` : '';
-  console.log(`omx-contract validate: ${data.items.size} items in ${data.files.length} files${where}, valid${tools.length ? ` (and ${tools.map((f) => f.rel).join(', ')})` : ''}`);
+  console.log(`omx-contract validate: ${data.items.size} items in ${data.files.length} files${where}, valid${tools.length ? ` (and ${tools.map((f) => f.rel).join(', ')})` : ''}${catalogs.length ? `, ${catalogs.length} catalog${catalogs.length === 1 ? '' : 's'}` : ''}`);
   return 0;
 }
 

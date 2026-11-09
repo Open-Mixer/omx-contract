@@ -4,15 +4,14 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- A word gains `text` (`en` and `ca`, both required) and `args`, as a code has: the same validator rules
-  (`word-text-placeholders`, `word-text-arg`), the same semver classes, and the c, json, ts and vocabulary-schema renders carry
-  them (docs/data-layout.md). The sentence is declared once in the schema (`$defs/sentence`, `$defs/sentenceArgs`) for both.
-  Schema 3.12.0.
+- A code's and a word's `text` is the source sentence alone, `{ "en": ... }`, with `args`; `ca` leaves the schema. Each
+  owner ships its translations as catalogs, `catalogs/<lang>.json` (`{ kind: "catalog", lang, owner, messages }`, keyed by
+  the code or by `<ITEM>.<word>`), installed to `/usr/share/<owner>/catalogs/`; `validate` refuses a key the owner does not
+  declare and a placeholder outside its entry's `args`; `@openmixer/omx-contract/catalog` loads one and looks a key up with
+  the source sentence as fallback (docs/data-layout.md). omx-contract's own Catalan sentences move to `catalogs/ca.json`.
+  The C renders drop `_TEXT_CA`. Schema 3.12.0.
 - `semver` reads a local `$ref` as the definition it names, so moving a definition into `$defs` is judged by what it
   resolves to.
-- A code gains `text` (`en` and `ca`, both required) and `args` (the `{name}` placeholders), written by the code's owner; the
-  validator refuses differing placeholder sets and a placeholder outside `args`, and the c, json and vocabulary-schema renders carry
-  them (docs/data-layout.md). Schema 3.11.0.
 - `scalePosition(travel, value)` and `scaleValue(travel, p)` (`lib/scale.mjs`, exported as `@openmixer/omx-contract/scale`):
   what `linear`, `log` and `stepped`, and the override `map`, mean as a position (docs/scale-position.md).
 - `data/scale-vectors.json`: the golden vectors of each law, installed as `share/omx-contract/scale-vectors.json`; 20 Hz

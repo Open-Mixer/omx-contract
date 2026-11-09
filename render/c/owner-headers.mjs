@@ -12,12 +12,12 @@
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
 /**
- * A code's or a word's sentence as defines, when it has one: <MACRO>_TEXT_EN and _TEXT_CA the two sentences, with _ARGS_COUNT and
+ * A code's or a word's sentence as defines, when it has one: <MACRO>_TEXT_EN the source sentence, with _ARGS_COUNT and
  * _ARGS_INIT the placeholder names in order (docs/data-layout.md). `literal` spells a string.
  */
 export function codeTextDefines(macro, c, literal) {
   if (c.text === undefined) return [];
-  const lines = [`#define ${macro}_TEXT_EN ${literal(c.text.en)}`, `#define ${macro}_TEXT_CA ${literal(c.text.ca)}`];
+  const lines = [`#define ${macro}_TEXT_EN ${literal(c.text.en)}`];
   if (c.args?.length) lines.push(`#define ${macro}_ARGS_COUNT ${c.args.length}u`, `#define ${macro}_ARGS_INIT { ${c.args.map(literal).join(', ')} }`);
   return lines;
 }

@@ -10,11 +10,11 @@ set -eu
 dest=${1:?usage: live-owner-data.sh <dest> [<tag>]}
 tag=${2:-}
 if [ -z "$tag" ]; then
-  tag=$(curl -fsSL ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} https://api.github.com/repos/${OMX_ORG:-${GITHUB_REPOSITORY_OWNER:-FreeMixer}}/omx-dsp/releases/latest | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)
+  tag=$(curl -fsSL ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} https://api.github.com/repos/${GITHUB_REPOSITORY_OWNER:?GITHUB_REPOSITORY_OWNER is not set}/omx-dsp/releases/latest | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)
 fi
 test -n "$tag" || { echo "live-owner-data: no omx-dsp release found" >&2; exit 1; }
 mkdir -p "$dest"
-curl -fsSL "https://github.com/${OMX_ORG:-${GITHUB_REPOSITORY_OWNER:-FreeMixer}}/omx-dsp/archive/refs/tags/$tag.tar.gz" | tar -xz -C "$dest"
+curl -fsSL "https://github.com/${GITHUB_REPOSITORY_OWNER:?GITHUB_REPOSITORY_OWNER is not set}/omx-dsp/archive/refs/tags/$tag.tar.gz" | tar -xz -C "$dest"
 data="$dest/omx-dsp-${tag#v}/data"
 test -d "$data/kernels" || { echo "live-owner-data: $tag holds no data/kernels" >&2; exit 1; }
 echo "$data"

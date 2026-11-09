@@ -84,3 +84,11 @@ test('no contract data file holds a language beside the source sentence', () => 
   const r = spawnSync('git', ['-C', ROOT, 'grep', '-l', '-E', '"(ca|es|fr|de)": "', '--', 'data/'], { encoding: 'utf8' });
   assert.equal(r.stdout.trim(), '', `translations in data: ${r.stdout}`);
 });
+
+test('validate --catalogs <dir> checks a named directory: a key the owner does not declare fails the run', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'omx-catalogs-'));
+  writeFileSync(join(dir, 'ca.json'), JSON.stringify(catalog({ 'contract.no.such-code': 'x' })));
+  const r = spawnSync(process.execPath, [join(ROOT, 'bin', 'omx-contract.mjs'), 'validate', '--catalogs', dir], { encoding: 'utf8' });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /catalog-key/);
+});

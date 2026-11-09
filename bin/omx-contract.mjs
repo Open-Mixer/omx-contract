@@ -27,7 +27,7 @@ import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loa
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
-import { fileProblems, validateData } from '../lib/validate.mjs';
+import { catalogMigrationOf, dataWarnings, fileProblems, validateData } from '../lib/validate.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { renderC, renderSheetC } from '../render/c.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
@@ -89,9 +89,10 @@ function toolFiles(argv) {
 
 /** The owner's catalogs beside its data directory (`catalogs/<lang>.json`, lib/catalog.mjs), as loaded files. */
 function catalogFiles(argv) {
-  if (fromContractDir(argv)) return [];
-  const data = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
-  const dir = join(data, '..', 'catalogs');
+  const named = opt(argv, '--catalogs');
+  if (named === undefined && fromContractDir(argv)) return [];
+  const dir = named !== undefined ? resolve(named) : join(resolve(opt(argv, '--data') ?? join(ROOT, 'data')), '..', 'catalogs');
+  if (named !== undefined && !existsSync(dir)) throw new Usage(`no catalogs directory ${dir}`);
   if (!existsSync(dir)) return [];
   return readdirSync(dir).filter((f) => f.endsWith('.json')).sort().map((f) => {
     const text = readFileSync(join(dir, f), 'utf8');
@@ -120,9 +121,13 @@ function cmdValidate(argv) {
   const problems = [...validateData(data), ...tools.flatMap(fileProblems)];
   const catalogs = problems.length ? [] : catalogFiles(argv);
   if (catalogs.length) {
-    const keys = catalogKeys(resolveData(data), { extra: tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind)) });
-    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, keys));
+    const resolved = resolveData(data);
+    const extra = tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind));
+    // from a contract directory, a catalog's keys are its owner's package's codes and words only
+    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, catalogKeys(resolved, { extra, ...(data.packages ? { owner: c.doc?.owner } : {}) })));
   }
+  const warnings = [...dataWarnings(data), ...tools.flatMap((f) => Object.entries(f.doc).flatMap(([n, v]) => catalogMigrationOf(f.rel, n, v)))];
+  for (const w of warnings) console.error(`${w.file}: ${w.item}: warning: ${w.rule}: ${w.message}`);
   for (const p of problems) console.error(`${p.file}: ${p.item}: ${p.rule}: ${p.message}`);
   if (problems.length) return 1;
   const where = data.packages ? ` from ${data.packages.size} packages of ${data.roots.join(':')}` : '';
@@ -315,7 +320,7 @@ function cmdLinks(argv) {
   return problems.length ? 1 : 0;
 }
 
-const USAGE = `usage: omx-contract validate [<input>]
+const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract fmt [--check] [<input>]
        omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture.json>]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]

@@ -149,7 +149,7 @@ jobs:
       - name: Install the build tools
         run: dnf install -y --setopt=install_weak_deps=False git rpm-build dnf5-plugins python3
       - uses: actions/checkout@v4
-      - uses: Open-Mixer/.github/.github/actions/build-rpm@main
+      - uses: Open-Mixer/.github/.github/actions/build-rpm@openmixer-v1
       - id: handback-rpm-files
         name: Which file lands in which package
         run: sh tools/package-files.sh rpm rpms
@@ -194,7 +194,7 @@ jobs:
           apt-get update -qq
           apt-get install -y --no-install-recommends ca-certificates git dpkg-dev debhelper build-essential lintian python3
       - uses: actions/checkout@v4
-      - uses: Open-Mixer/.github/.github/actions/build-deb@main
+      - uses: Open-Mixer/.github/.github/actions/build-deb@openmixer-v1
       - id: handback-deb-files
         name: Which file lands in which package
         run: sh tools/package-files.sh deb debs
@@ -211,4 +211,4 @@ jobs:
   # the checks every FreeMixer repository runs on what it publishes: commit messages, private references, and no
   # local copy of either (Open-Mixer/.github's public-sources-check)
   public-sources:
-    uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@main
+    uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1

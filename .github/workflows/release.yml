@@ -64,7 +64,7 @@ jobs:
 
   rpm:
     needs: check
-    uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@main
+    uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
       package-name: omx-contract
       binary-names: omx-contract omx-contract-data omx-contract-devel
@@ -77,7 +77,7 @@ jobs:
   deb:
     needs: rpm
     if: ${{ !cancelled() && needs.rpm.result == 'success' }}
-    uses: Open-Mixer/.github/.github/workflows/build-deb.yml@main
+    uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
       package-name: omx-contract
       binary-names: libomx-contract-dev omx-contract omx-contract-data

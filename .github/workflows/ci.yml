@@ -134,7 +134,7 @@ jobs:
         name: The headers compile with no node (what a release build runs)
         run: make check
 
-  # The packages of a release, built as the release builds them (FreeMixer/.github's build-rpm and build-deb actions),
+  # The packages of a release, built as the release builds them (Open-Mixer/.github's build-rpm and build-deb actions),
   # each file held to the package it belongs in (tools/package-files.sh, BUILDING.md), and the command run on the
   # installed data with no development package.
   rpm:
@@ -149,7 +149,7 @@ jobs:
       - name: Install the build tools
         run: dnf install -y --setopt=install_weak_deps=False git rpm-build dnf5-plugins python3
       - uses: actions/checkout@v4
-      - uses: FreeMixer/.github/.github/actions/build-rpm@v1
+      - uses: Open-Mixer/.github/.github/actions/build-rpm@main
       - id: handback-rpm-files
         name: Which file lands in which package
         run: sh tools/package-files.sh rpm rpms
@@ -194,7 +194,7 @@ jobs:
           apt-get update -qq
           apt-get install -y --no-install-recommends ca-certificates git dpkg-dev debhelper build-essential lintian python3
       - uses: actions/checkout@v4
-      - uses: FreeMixer/.github/.github/actions/build-deb@v1
+      - uses: Open-Mixer/.github/.github/actions/build-deb@main
       - id: handback-deb-files
         name: Which file lands in which package
         run: sh tools/package-files.sh deb debs
@@ -209,6 +209,6 @@ jobs:
           cmp /tmp/json/omx-contract.json /usr/share/omx-contract/omx-contract.json
 
   # the checks every FreeMixer repository runs on what it publishes: commit messages, private references, and no
-  # local copy of either (FreeMixer/.github's public-sources-check)
+  # local copy of either (Open-Mixer/.github's public-sources-check)
   public-sources:
-    uses: FreeMixer/.github/.github/workflows/public-sources-check.yml@v1
+    uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@main

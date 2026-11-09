@@ -6,15 +6,16 @@
 # below <dest> and print the path of its data/ directory: the value of OMX_LIVE_OWNER_DATA (test/live-owners.test.mjs,
 # FreeMixer/omx-contract#109). With no tag, the latest release: the release the ops release-consumers.tsv row of omx-dsp
 # holds its consumers to. A failed fetch or a release with no data/kernels is an error, never an empty answer.
+: "${GITHUB_REPOSITORY_OWNER:?live-owner-data: GITHUB_REPOSITORY_OWNER is not set (the organization to read omx-dsp from)}"
 set -eu
 dest=${1:?usage: live-owner-data.sh <dest> [<tag>]}
 tag=${2:-}
 if [ -z "$tag" ]; then
-  tag=$(curl -fsSL ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} https://api.github.com/repos/FreeMixer/omx-dsp/releases/latest | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)
+  tag=$(curl -fsSL ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} https://api.github.com/repos/${GITHUB_REPOSITORY_OWNER:?GITHUB_REPOSITORY_OWNER is not set}/omx-dsp/releases/latest | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)
 fi
 test -n "$tag" || { echo "live-owner-data: no omx-dsp release found" >&2; exit 1; }
 mkdir -p "$dest"
-curl -fsSL "https://github.com/FreeMixer/omx-dsp/archive/refs/tags/$tag.tar.gz" | tar -xz -C "$dest"
+curl -fsSL "https://github.com/${GITHUB_REPOSITORY_OWNER:?GITHUB_REPOSITORY_OWNER is not set}/omx-dsp/archive/refs/tags/$tag.tar.gz" | tar -xz -C "$dest"
 data="$dest/omx-dsp-${tag#v}/data"
 test -d "$data/kernels" || { echo "live-owner-data: $tag holds no data/kernels" >&2; exit 1; }
 echo "$data"

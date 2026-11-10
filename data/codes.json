@@ -185,6 +185,16 @@
           "verb"
         ]
       },
+      "roleDuplicate": {
+        "code": "contract.role.duplicate",
+        "doc": "two roleMeanings items, of one package or two, declare one role: a role has one owner",
+        "text": {
+          "en": "Role {role} is declared by more than one package or item. A role has one owner: remove the extra declaration."
+        },
+        "args": [
+          "role"
+        ]
+      },
       "packageAbsent": {
         "code": "contract.package.absent",
         "doc": "a package the consumer or a file requires is not installed",

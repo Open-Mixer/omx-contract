@@ -6652,7 +6652,7 @@ export declare const SCAN_DOCUMENTS: {
 };
 
 /**
- * The scopes of a field dump record, as written before the first TAB; an indexed scope is followed by `:<index>`. Named here, owned by plugin-qualify: the owner keeps the code that writes and reads them.
+ * The scopes of a field dump record, as written before the first TAB; an indexed scope is followed by `:<index>`. Named here, owned by their writers: omx-clap-core's scan (docs/scan.md there) and plugin-hostd's field dump (docs/formats.md there) keep the code that writes them.
  * @see data/scan.json
  */
 export declare const SCAN_FIELD_SCOPES: {

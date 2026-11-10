@@ -92,5 +92,5 @@ test('the panel families and widgets, and the names of the scan documents, are d
   assert.deepEqual(ws(scan.SCAN_FIELD_SCOPES), ['plugin', 'param', 'audio_in', 'audio_out', 'note_in', 'note_out', 'port', 'panel', 'section', 'control', 'role', 'display', 'placement_default']);
   assert.deepEqual(ws(scan.SCAN_DOCUMENTS), ['CLAP_SCAN_DOCUMENT', 'FIELD_DUMP']);
   assert.match(scan.SCAN_DOCUMENTS.words.clapScanDocument.doc, /Owned by omx-clap-core/);
-  assert.match(scan.SCAN_FIELD_SCOPES.doc, /owned by plugin-qualify/);
+  assert.match(scan.SCAN_FIELD_SCOPES.doc, /owned by their writers: omx-clap-core's scan .* plugin-hostd's field dump/);
 });

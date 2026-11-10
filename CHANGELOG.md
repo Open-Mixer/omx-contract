@@ -10,6 +10,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   an item two packages declare, so omx-contract-data conflicts with omx-plugins-contract before 0.19.3 (rpm
   `Conflicts`, deb `Breaks`). No installed omx-plugins header includes the old one, so the -devel floors stay. A removal in the development
   phase, a minor; it rides 3.13.0.
+- `SCAN_FIELD_SCOPES` names its writers, omx-clap-core's scan and plugin-hostd's field dump; it named plugin-qualify,
+  which writes none.
 - `roleMeanings`, a new item kind: a package declares, in its own contract directory, the panel roles its panels name
   and the meaning each plays (a meaning of `$defs/meaning`, `unknown` for none), every role a row of its own. A role
   has one owner, refused as `contract.role.duplicate` by `validate` and the contract-directory reader; a role added is

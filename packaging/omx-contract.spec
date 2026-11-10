@@ -5,8 +5,8 @@ Version: 3.12.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
-Summary: One shared source of truth for every FreeMixer knob, range and default
-URL: https://github.com/FreeMixer/omx-contract
+Summary: One shared source of truth for every OpenMixer knob, range and default
+URL: https://github.com/Open-Mixer/omx-contract
 BuildArch: noarch
 
 Source0: %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
@@ -30,7 +30,7 @@ Provides: bundled(nodejs-require-from-string) = 2.0.2
 
 %description
 A fader range, a default, a plugin parameter, a supported sample rate: in
-FreeMixer each of these is written down once, in omx-contract, and everything
+OpenMixer each of these is written down once, in omx-contract, and everything
 else reads it. That is why the console, the DSP library and the plugins agree
 on what a knob does and how far it turns. The declarations are plain JSON with
 a JSON Schema, so tools in any language can read them, and they are rendered
@@ -43,13 +43,13 @@ install their definitions into as one checked set.
 
 %package data
 License: GPL-3.0-or-later
-Summary: The FreeMixer declarations a reader reads at run time: contract directory, schema, json
+Summary: The OpenMixer declarations a reader reads at run time: contract directory, schema, json
 # the files every reader of the contract directory reads at run time, the same on every architecture
 # 3.13.0: OMX_PLUGIN_FACE_IDS is installed by omx-plugins-contract 0.19.3 on; an older one leaves it declared by no one
 Conflicts: omx-plugins-contract < 0.19.3~
 
 %description data
-The files a program reads at run time to know the FreeMixer declarations:
+The files a program reads at run time to know the OpenMixer declarations:
 omx-contract's own package of the contract directory
 (share/omx-contract/contract.d/3/omx-contract/, where every owner installs its
 definitions beside it), the JSON Schema, the resolved json render, the
@@ -60,7 +60,7 @@ Its documentation is on openmixer.org.
 
 %package devel
 License: GPL-3.0-or-later
-Summary: Headers and pkg-config file to build on the FreeMixer declarations
+Summary: Headers and pkg-config file to build on the OpenMixer declarations
 # the C headers need no node; the union of the contract directory is read by the command
 Requires: %{name}-data = %{version}-%{release}
 Recommends: %{name} = %{version}-%{release}

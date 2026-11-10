@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.12.0
+Version: 3.13.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -122,6 +122,16 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Tue Nov 10 2026 Pau Aliagas <linuxnow@gmail.com> - 3.13.0-1
+- roleMeanings, a new item kind: a package declares the panel roles its panels
+  name and the meaning each plays; a role has one owner, a second is refused as
+  contract.role.duplicate
+- OMX_PLUGIN_FACE_IDS leaves omx-contract for omx-plugins, which installs it
+  from 0.19.3; omx-contract-data conflicts with omx-plugins-contract before it
+- SCAN_FIELD_SCOPES names its writers, omx-clap-core's scan and plugin-hostd's
+  field dump; the package metadata names the Open-Mixer repository
+- Schema 3.13.0; the -devel floors stay.
+
 * Mon Nov 09 2026 Pau Aliagas <linuxnow@gmail.com> - 3.12.0-1
 - a code's and a word's text is the source sentence with its args; the
   translations move to the owner's catalogs/<lang>.json; text.ca is deprecated

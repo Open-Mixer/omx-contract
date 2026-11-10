@@ -4,6 +4,11 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `roleMeanings`, a new item kind: a package declares, in its own contract directory, the panel roles its panels name
+  and the meaning each plays (a meaning of `$defs/meaning`, `unknown` for none), every role a row of its own. A role
+  has one owner, refused as `contract.role.duplicate` by `validate` and the contract-directory reader; a role added is
+  minor, a role removed or playing another meaning major (docs/contract-dir.md "A package's role meanings"). omx-contract
+  declares no role. Schema 3.13.0, a minor.
 - A code's and a word's `text` is the source sentence, `{ "en": ... }`, with `args`, for codes and words alike. A
   translation moves to the owner's catalog: `catalogs/<lang>.json` (`{ kind: "catalog", lang, owner, messages }`, keyed by
   the code or by `<ITEM>.<word>`, `$defs/catalog`), installed to `/usr/share/<owner>/catalogs/`. `text.ca` is deprecated and

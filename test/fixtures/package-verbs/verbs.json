@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
   "requires": {
-    "omx-contract-schema": ">= 3.12.0"
+    "omx-contract-schema": ">= 3.13.0"
   },
   "HOST_VERBS": {
     "kind": "verbs",

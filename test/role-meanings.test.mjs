@@ -47,11 +47,13 @@ function fixtureWith(edit) {
   return dir;
 }
 
+const codesRaised = new Set();
 function refusalOf(root) {
   try {
     loadContractDir({ dir: root });
   } catch (e) {
     assert.ok(e instanceof ContractRefusal, `a refusal, not ${e.message}`);
+    codesRaised.add(e.code);
     return e;
   }
   assert.fail('the read was not refused');
@@ -94,6 +96,12 @@ test('a role declared by two packages is refused: contract.role.duplicate (one o
   const e = refusalOf(dirWith({ 'other-plugins': other, [PKG]: FIXTURE }));
   assert.equal(e.code, CONTRACT_CODES.roleDuplicate);
   assert.match(e.message, /mix: already declared by OTHER_ROLE_MEANINGS\.mix \(other-plugins\), and again by roles-fixture: a role has one owner/);
+});
+
+test('every role code was raised by an arm above', () => {
+  const roleCodes = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('role')).map(([, c]) => c);
+  assert.ok(roleCodes.length >= 1);
+  assert.deepEqual(roleCodes.filter((c) => !codesRaised.has(c)), []);
 });
 
 test('validate refuses the same in a data directory, under its rule', () => {

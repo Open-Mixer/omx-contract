@@ -155,6 +155,36 @@ added, a refusal added, or a host given an optional verb it did not owe is MINOR
 reply changed, a refusal removed, or any other move of what a host owes is MAJOR. A verb's hosts and controllers are no
 consumer `DEVELOPMENT_PHASE` names, so a verb's removal is MAJOR in the development phase too.
 
+## A package's role meanings
+
+A declared panel names the role each control plays (omx-panel docs/panel-layout.md, "Meanings and roles"); a
+descriptor names the meaning a control has. The package whose panels name the roles declares, in an item of kind
+`roleMeanings` in a file of its own directory, the meaning each role plays; omx-contract carries the kind and holds
+it, and declares no role.
+
+```json
+{ "$schema": "../schema/omx-contract.schema.json",
+  "requires": { "omx-contract-schema": ">= 3.13.0" },
+  "OMX_PLUGINS_ROLE_MEANINGS": { "kind": "roleMeanings", "since": "0.19.3",
+    "doc": "The meaning each role of our panels plays.",
+    "roles": {
+      "mix": { "role": "mix", "meaning": "wetDryRatio" },
+      "threshold": { "role": "threshold", "meaning": "threshold" },
+      "bandType": { "role": "band_type", "meaning": "unknown" } } } }
+```
+
+| Field | Meaning |
+|---|---|
+| `role` | The role as a declared panel names it. |
+| `meaning` | A meaning of the contract's closed list (`$defs/meaning`), or `unknown` for a role that plays none (a band's type, a model, an algorithm). |
+| `doc` | Optional, one line of prose. |
+
+Every role is a row of its own, the one whose name is a meaning too: a reader looks a role up and takes `unknown`
+for a role no package declares, never its name. A role has one owner: one role declared twice, by one package or
+two, is refused (`contract.role.duplicate`). A role added is MINOR; a role removed, or one that plays another
+meaning, is MAJOR, since a control binds by its meaning. The fixture `test/fixtures/package-role-meanings/` declares
+renamed roles, roles named as their meaning, and roles that play none.
+
 ## Reading the directory
 
 `loadContractDir()` (`lib/contract-dir.mjs`) and the CLI's `--contract-dir <dir>` (or `--installed`, which looks it
@@ -208,6 +238,7 @@ carry it and it is not installed in the directory.
 | `contract.verb.format` | A verb's format does not start with its verb. |
 | `contract.verb.host-unknown` | A verb's `implementedBy` names a host that is no word of `VERB_HOSTS`. |
 | `contract.verb.code-unknown` | A verb's code names an item that is no codes item, or a name that item does not carry. |
+| `contract.role.duplicate` | Two roleMeanings items, of one package or two, declare one role. |
 | `contract.package.absent` | A package the consumer or a file requires is not installed. |
 | `contract.package.too-old` | It is installed below the floor. |
 | `contract.origin.misplaced` | A `scanned` plugin descriptor ([descriptors.md](descriptors.md)): a scan is never read as a declaration. |

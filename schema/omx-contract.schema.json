@@ -3,7 +3,7 @@
   "$id": "https://github.com/FreeMixer/omx-contract/raw/main/schema/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.12.0",
+  "x-omx-schema-version": "3.13.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -920,10 +920,40 @@
       "required": ["kind", "doc", "verbs"],
       "additionalProperties": false
     },
+    "roleMeaning": {
+      "type": "object",
+      "description": "One panel role and the descriptor meaning a control playing it has: a meaning of the contract's closed list, or unknown when the role plays none (a band's type, a model, an algorithm). Every role is a row of its own, the one whose name is a meaning too: a reader looks the role up and never falls back to its name.",
+      "properties": {
+        "role": { "$ref": "#/$defs/word", "description": "The role as a declared panel names it (omx-panel docs/panel-layout.md)." },
+        "meaning": { "$ref": "#/$defs/meaning" },
+        "doc": { "$ref": "#/$defs/text" }
+      },
+      "required": ["role", "meaning"],
+      "additionalProperties": false
+    },
+    "roleMeanings": {
+      "type": "object",
+      "description": "The panel roles a package declares and the meaning each plays (docs/contract-dir.md \"A package's role meanings\"): one entry per role under a lowerCamel name. A role has one owner: two declarations of one role, in one package or two, are refused.",
+      "properties": {
+        "kind": { "const": "roleMeanings" },
+        "since": { "$ref": "#/$defs/since" },
+        "source": { "$ref": "#/$defs/source" },
+        "doc": { "$ref": "#/$defs/text" },
+        "why": { "$ref": "#/$defs/text" },
+        "roles": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "additionalProperties": { "$ref": "#/$defs/roleMeaning" },
+          "minProperties": 1
+        }
+      },
+      "required": ["kind", "doc", "roles"],
+      "additionalProperties": false
+    },
     "item": {
       "type": "object",
       "required": ["kind"],
-      "properties": { "kind": { "enum": ["scalar", "travels", "sheet", "list", "set", "codes", "words", "terms", "formatMap", "verbs"] } },
+      "properties": { "kind": { "enum": ["scalar", "travels", "sheet", "list", "set", "codes", "words", "terms", "formatMap", "verbs", "roleMeanings"] } },
       "allOf": [
         { "if": { "properties": { "kind": { "const": "scalar" } } }, "then": { "$ref": "#/$defs/scalar" } },
         { "if": { "properties": { "kind": { "const": "travels" } } }, "then": { "$ref": "#/$defs/travels" } },
@@ -934,7 +964,8 @@
         { "if": { "properties": { "kind": { "const": "words" } } }, "then": { "$ref": "#/$defs/words" } },
         { "if": { "properties": { "kind": { "const": "terms" } } }, "then": { "$ref": "#/$defs/terms" } },
         { "if": { "properties": { "kind": { "const": "formatMap" } } }, "then": { "$ref": "#/$defs/formatMap" } },
-        { "if": { "properties": { "kind": { "const": "verbs" } } }, "then": { "$ref": "#/$defs/verbs" } }
+        { "if": { "properties": { "kind": { "const": "verbs" } } }, "then": { "$ref": "#/$defs/verbs" } },
+        { "if": { "properties": { "kind": { "const": "roleMeanings" } } }, "then": { "$ref": "#/$defs/roleMeanings" } }
       ]
     }
   }

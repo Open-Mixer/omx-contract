@@ -1,0 +1,89 @@
+{
+  "$schema": "../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.13.0"
+  },
+  "ROLE_FIXTURE_ROLE_MEANINGS": {
+    "kind": "roleMeanings",
+    "since": "1.0.0",
+    "doc": "Panel roles and the meaning each plays, as a plugin package installs them: renamed roles, roles whose name is their meaning, and roles that play none.",
+    "roles": {
+      "mix": {
+        "role": "mix",
+        "meaning": "wetDryRatio"
+      },
+      "time": {
+        "role": "time",
+        "meaning": "delay"
+      },
+      "cutoff": {
+        "role": "cutoff",
+        "meaning": "cutoffFrequency"
+      },
+      "bandFreq": {
+        "role": "band_freq",
+        "meaning": "frequency"
+      },
+      "bandGain": {
+        "role": "band_gain",
+        "meaning": "gain"
+      },
+      "bandQ": {
+        "role": "band_q",
+        "meaning": "q"
+      },
+      "hpfFreq": {
+        "role": "hpf_freq",
+        "meaning": "lowCut"
+      },
+      "lowCut": {
+        "role": "low_cut",
+        "meaning": "lowCut"
+      },
+      "lpfFreq": {
+        "role": "lpf_freq",
+        "meaning": "highCut"
+      },
+      "highCut": {
+        "role": "high_cut",
+        "meaning": "highCut"
+      },
+      "hpfSlope": {
+        "role": "hpf_slope",
+        "meaning": "slope"
+      },
+      "lpfSlope": {
+        "role": "lpf_slope",
+        "meaning": "slope"
+      },
+      "keyListen": {
+        "role": "key_listen",
+        "meaning": "listen"
+      },
+      "threshold": {
+        "role": "threshold",
+        "meaning": "threshold"
+      },
+      "ratio": {
+        "role": "ratio",
+        "meaning": "ratio"
+      },
+      "attack": {
+        "role": "attack",
+        "meaning": "attack"
+      },
+      "release": {
+        "role": "release",
+        "meaning": "release"
+      },
+      "bandType": {
+        "role": "band_type",
+        "meaning": "unknown"
+      },
+      "model": {
+        "role": "model",
+        "meaning": "unknown"
+      }
+    }
+  }
+}

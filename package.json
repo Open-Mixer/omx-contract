@@ -1,14 +1,14 @@
 {
   "name": "@openmixer/omx-contract",
   "version": "3.12.0",
-  "description": "The FreeMixer declarations as data: a JSON Schema, the data, and one CLI that renders them into C, TypeScript and JSON",
+  "description": "The OpenMixer declarations as data: a JSON Schema, the data, and one CLI that renders them into C, TypeScript and JSON",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "author": "Pau Aliagas <linuxnow@gmail.com>",
-  "homepage": "https://github.com/FreeMixer/omx-contract",
+  "homepage": "https://github.com/Open-Mixer/omx-contract",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/FreeMixer/omx-contract.git"
+    "url": "git+https://github.com/Open-Mixer/omx-contract.git"
   },
   "bin": {
     "omx-contract": "bin/omx-contract.mjs"

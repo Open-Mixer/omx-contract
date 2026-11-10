@@ -61,7 +61,8 @@ const OWNER_FLOORS = [
 ];
 
 test('versions: the RPM Conflicts and the DEB Breaks name the same owners at the same releases', () => {
-  const rpm = Object.fromEntries([...read('packaging/omx-contract.spec').matchAll(/^Conflicts: (\S+) < (\S+)$/gm)].map((m) => [m[1], m[2]]));
+  const devel = read('packaging/omx-contract.spec').split('%package devel')[1].split('%description')[0];
+  const rpm = Object.fromEntries([...devel.matchAll(/^Conflicts: (\S+) < (\S+)$/gm)].map((m) => [m[1], m[2]]));
   const control = read('debian/control');
   const dev = control.slice(control.indexOf('Package: libomx-contract-dev\n')).split('\n\n')[0];
   const breaks = /^Breaks: (.+)$/m.exec(dev)?.[1] ?? '';
@@ -154,7 +155,11 @@ test('packaging: omx-contract-data holds the run-time data, noarch in both forma
   assert.match(spec.split('%package devel')[1].split('%description')[0], /^Requires: %\{name\}-data = %\{version\}-%\{release\}$/m, 'the RPM devel requires the data');
   for (const p of ['omx-contract', 'libomx-contract-dev']) assert.match(stanza(p), /^Depends: .*\bomx-contract-data \(= \$\{source:Version\}\)/m, `${p} depends on the data`);
   // the files it takes over from libomx-contract-dev: Breaks and Replaces before its own version
-  for (const f of ['Breaks', 'Replaces']) assert.match(stanza('omx-contract-data'), new RegExp(`^${f}: libomx-contract-dev \\(<< \\$\\{source:Version\\}\\)$`, 'm'));
+  for (const f of ['Breaks', 'Replaces']) assert.match(stanza('omx-contract-data'), new RegExp(`^${f}: (.*, )?libomx-contract-dev \\(<< \\$\\{source:Version\\}\\)(,|$)`, 'm'));
+  // OMX_PLUGIN_FACE_IDS is omx-plugins' from 0.19.3: an older omx-plugins-contract beside this data leaves it declared by
+  // no one, so both formats keep it out (an item has one owner; the reader refuses two)
+  assert.match(stanza('omx-contract-data'), /^Breaks: .*\bomx-plugins-contract \(<< 0\.19\.3~\)/m, 'deb: the data breaks omx-plugins-contract before 0.19.3');
+  assert.match(spec.split('%package data')[1].split('%description')[0], /^Conflicts: omx-plugins-contract < 0\.19\.3~$/m, 'rpm: the data conflicts with omx-plugins-contract before 0.19.3');
   // one list of the run-time files, the same in both formats
   const rpmData = spec.split('%files data\n')[1].split('\n\n')[0].split('\n').filter((l) => l.startsWith('%{_datadir}/omx-contract/')).map((l) => l.replace('%{_datadir}', 'usr/share').replace(/\/$/, ''));
   assert.deepEqual(rpmData.sort(), read('debian/omx-contract-data.install').trim().split('\n').sort());

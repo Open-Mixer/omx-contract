@@ -45,6 +45,8 @@ install their definitions into as one checked set.
 License: GPL-3.0-or-later
 Summary: The FreeMixer declarations a reader reads at run time: contract directory, schema, json
 # the files every reader of the contract directory reads at run time, the same on every architecture
+# 3.13.0: OMX_PLUGIN_FACE_IDS is installed by omx-plugins-contract 0.19.3 on; an older one leaves it declared by no one
+Conflicts: omx-plugins-contract < 0.19.3~
 
 %description data
 The files a program reads at run time to know the FreeMixer declarations:

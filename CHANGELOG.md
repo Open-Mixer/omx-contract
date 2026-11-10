@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `OMX_PLUGIN_FACE_IDS` (`data/plugin-face.json`, `omxcontract/omx_plugin_face_ids.h`) leaves omx-contract: the ids a
+  plugin face gives its own controls are omx-plugins', who installs the item as `contract.d/3/omx-plugins/plugin-face.json`
+  from 0.19.3 and renders the header itself, values unchanged. One owner per item: the contract-directory reader refuses
+  an item two packages declare, so omx-contract-data conflicts with omx-plugins-contract before 0.19.3 (rpm
+  `Conflicts`, deb `Breaks`). No installed omx-plugins header includes the old one, so the -devel floors stay. A removal in the development
+  phase, a minor; it rides 3.13.0.
 - `roleMeanings`, a new item kind: a package declares, in its own contract directory, the panel roles its panels name
   and the meaning each plays (a meaning of `$defs/meaning`, `unknown` for none), every role a row of its own. A role
   has one owner, refused as `contract.role.duplicate` by `validate` and the contract-directory reader; a role added is

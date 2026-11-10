@@ -12,7 +12,7 @@ Architecture: all
 Multi-Arch: foreign
 Section: misc
 Depends: ${misc:Depends}
-Breaks: libomx-contract-dev (<< ${source:Version})
+Breaks: libomx-contract-dev (<< ${source:Version}), omx-plugins-contract (<< 0.19.3~)
 Replaces: libomx-contract-dev (<< ${source:Version})
 Description: FreeMixer declarations read at run time: contract directory, schema
  A fader range, a default, a plugin parameter, a supported sample rate: in

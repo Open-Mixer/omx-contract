@@ -1,3 +1,21 @@
+omx-contract (3.13.0) unstable; urgency=medium
+
+  * roleMeanings, a new item kind: a package declares, in its own contract
+    directory, the panel roles its panels name and the meaning each plays.
+    A role has one owner; validate and the contract-directory reader refuse
+    a second as contract.role.duplicate. omx-contract declares no role.
+  * OMX_PLUGIN_FACE_IDS leaves omx-contract for omx-plugins, its one
+    reader, which installs the item from 0.19.3 with the values unchanged.
+    omx-contract-data breaks omx-plugins-contract before 0.19.3.
+  * SCAN_FIELD_SCOPES names its writers, omx-clap-core's scan and
+    plugin-hostd's field dump.
+  * The package metadata names the Open-Mixer repository.
+  * Schema 3.13.0, a minor: libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0
+    stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 10 Nov 2026 23:20:00 +0100
+
 omx-contract (3.12.0) unstable; urgency=medium
 
   * A code's and a word's text is the source sentence (en) with its args;

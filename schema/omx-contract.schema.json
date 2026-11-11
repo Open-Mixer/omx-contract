@@ -654,7 +654,7 @@
           "additionalProperties": {
             "type": "object",
             "properties": {
-              "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }] },
+              "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }, { "pattern": "^[A-Z][A-Z0-9_]*$", "description": "A console refusal code (owner openmixer), as the console spells it: UPPER_SNAKE." }, { "pattern": "^(?!(hosting|contract|reply|panel)\\.)[a-z][a-z0-9-]*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$", "description": "A console message code (owner openmixer), as the console spells it: dotted kebab, never in another family (hosting, contract, reply, panel keep their own rules)." }] },
               "resp": { "type": "integer", "maximum": -1, "description": "The number a host's reply carries for this refusal, the n of `resp <n>`: a reply code only." },
               "doc": { "$ref": "#/$defs/text" },
               "text": { "$ref": "#/$defs/sentence" },

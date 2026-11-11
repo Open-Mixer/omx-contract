@@ -7,27 +7,45 @@
     "words": {
       "arch": {
         "word": "arch",
-        "doc": "The machine architecture as uname -m names it."
+        "doc": "The machine architecture as uname -m names it.",
+        "text": {
+          "en": "The machine architecture, as uname -m names it."
+        }
       },
       "family": {
         "word": "family",
-        "doc": "The CPU family and model."
+        "doc": "The CPU family and model.",
+        "text": {
+          "en": "The CPU family and model."
+        }
       },
       "coreBand": {
         "word": "coreBand",
-        "doc": "The cores, as a band of MACHINE_CORE_BANDS."
+        "doc": "The cores, as a band of MACHINE_CORE_BANDS.",
+        "text": {
+          "en": "The core count, as a band of MACHINE_CORE_BANDS."
+        }
       },
       "clockBand": {
         "word": "clockBand",
-        "doc": "The clock, as a band of MACHINE_CLOCK_BANDS."
+        "doc": "The clock, as a band of MACHINE_CLOCK_BANDS.",
+        "text": {
+          "en": "The clock, as a band of MACHINE_CLOCK_BANDS."
+        }
       },
       "preemptRt": {
         "word": "preemptRt",
-        "doc": "Whether the kernel is PREEMPT_RT."
+        "doc": "Whether the kernel is PREEMPT_RT.",
+        "text": {
+          "en": "Whether the kernel is PREEMPT_RT."
+        }
       },
       "cstatesLimited": {
         "word": "cstatesLimited",
-        "doc": "Whether the deep idle states are limited."
+        "doc": "Whether the deep idle states are limited.",
+        "text": {
+          "en": "Whether the deep idle states are limited."
+        }
       }
     }
   },
@@ -37,19 +55,34 @@
     "doc": "How the machine was set when a figure was taken: the frequency policy and isolation a figure depends on.",
     "words": {
       "governor": {
-        "word": "governor"
+        "word": "governor",
+        "text": {
+          "en": "The CPU frequency governor in effect when the figure was taken."
+        }
       },
       "turbo": {
-        "word": "turbo"
+        "word": "turbo",
+        "text": {
+          "en": "Whether turbo or boost clocking was enabled when the figure was taken."
+        }
       },
       "smt": {
-        "word": "smt"
+        "word": "smt",
+        "text": {
+          "en": "Whether simultaneous multithreading was enabled when the figure was taken."
+        }
       },
       "preempt": {
-        "word": "preempt"
+        "word": "preempt",
+        "text": {
+          "en": "Whether the measuring thread ran under real-time preemption, or scheduled as any other thread."
+        }
       },
       "cpuidle": {
-        "word": "cpuidle"
+        "word": "cpuidle",
+        "text": {
+          "en": "The CPU idle driver or policy in effect when the figure was taken."
+        }
       }
     }
   },
@@ -59,22 +92,40 @@
     "doc": "The bands a machine's core count falls in, ascending.",
     "words": {
       "cores1To2": {
-        "word": "1-2"
+        "word": "1-2",
+        "text": {
+          "en": "A machine with 1 to 2 cores."
+        }
       },
       "cores3To4": {
-        "word": "3-4"
+        "word": "3-4",
+        "text": {
+          "en": "A machine with 3 to 4 cores."
+        }
       },
       "cores5To8": {
-        "word": "5-8"
+        "word": "5-8",
+        "text": {
+          "en": "A machine with 5 to 8 cores."
+        }
       },
       "cores9To16": {
-        "word": "9-16"
+        "word": "9-16",
+        "text": {
+          "en": "A machine with 9 to 16 cores."
+        }
       },
       "cores17To32": {
-        "word": "17-32"
+        "word": "17-32",
+        "text": {
+          "en": "A machine with 17 to 32 cores."
+        }
       },
       "cores33Up": {
-        "word": "33+"
+        "word": "33+",
+        "text": {
+          "en": "A machine with 33 or more cores."
+        }
       }
     }
   },
@@ -84,19 +135,34 @@
     "doc": "The bands a machine's clock falls in, ascending.",
     "words": {
       "under1500MHz": {
-        "word": "<1.5GHz"
+        "word": "<1.5GHz",
+        "text": {
+          "en": "A machine clocked under 1.5 GHz."
+        }
       },
       "from1500To2500MHz": {
-        "word": "1.5-2.5GHz"
+        "word": "1.5-2.5GHz",
+        "text": {
+          "en": "A machine clocked from 1.5 to 2.5 GHz."
+        }
       },
       "from2500To3500MHz": {
-        "word": "2.5-3.5GHz"
+        "word": "2.5-3.5GHz",
+        "text": {
+          "en": "A machine clocked from 2.5 to 3.5 GHz."
+        }
       },
       "from3500To4500MHz": {
-        "word": "3.5-4.5GHz"
+        "word": "3.5-4.5GHz",
+        "text": {
+          "en": "A machine clocked from 3.5 to 4.5 GHz."
+        }
       },
       "from4500MHz": {
-        "word": "4.5GHz+"
+        "word": "4.5GHz+",
+        "text": {
+          "en": "A machine clocked at 4.5 GHz or more."
+        }
       }
     }
   },
@@ -106,10 +172,16 @@
     "doc": "The architectures a host profile names, as uname -m spells them.",
     "words": {
       "x8664": {
-        "word": "x86_64"
+        "word": "x86_64",
+        "text": {
+          "en": "An x86-64 machine, as uname -m spells it."
+        }
       },
       "aarch64": {
-        "word": "aarch64"
+        "word": "aarch64",
+        "text": {
+          "en": "An AArch64 machine, as uname -m spells it."
+        }
       }
     }
   },
@@ -120,15 +192,24 @@
     "words": {
       "desk": {
         "word": "desk",
-        "doc": "An x86-64 desk."
+        "doc": "An x86-64 desk.",
+        "text": {
+          "en": "An x86-64 desk."
+        }
       },
       "raspberryPi4": {
         "word": "raspberry-pi-4",
-        "doc": "A Raspberry Pi 4, aarch64."
+        "doc": "A Raspberry Pi 4, aarch64.",
+        "text": {
+          "en": "A Raspberry Pi 4, aarch64."
+        }
       },
       "raspberryPi5": {
         "word": "raspberry-pi-5",
-        "doc": "A Raspberry Pi 5, aarch64."
+        "doc": "A Raspberry Pi 5, aarch64.",
+        "text": {
+          "en": "A Raspberry Pi 5, aarch64."
+        }
       }
     }
   }

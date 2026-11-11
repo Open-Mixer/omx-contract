@@ -10,349 +10,523 @@
         "word": "clap.audio-effect",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#audio-effect"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared."
+        }
       },
       "clapChorus": {
         "word": "clap.chorus",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#chorus"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature chorus: an effect that thickens a sound with detuned, delayed copies of it."
+        }
       },
       "clapCompressor": {
         "word": "clap.compressor",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#compressor"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature compressor: an effect that narrows a sound's dynamic range."
+        }
       },
       "clapDeEsser": {
         "word": "clap.de-esser",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#de-esser"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature de-esser: an effect that tames sibilance in a voice."
+        }
       },
       "clapDelay": {
         "word": "clap.delay",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#delay"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature delay: an effect that repeats a sound after a gap."
+        }
       },
       "clapDistortion": {
         "word": "clap.distortion",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#distortion"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature distortion: an effect that adds harmonics by overdriving a sound."
+        }
       },
       "clapEqualizer": {
         "word": "clap.equalizer",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#equalizer"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature equalizer: an effect that shapes a sound's frequency balance."
+        }
       },
       "clapExpander": {
         "word": "clap.expander",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#expander"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature expander: an effect that widens a sound's dynamic range."
+        }
       },
       "clapFilter": {
         "word": "clap.filter",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#filter"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature filter: an effect that removes or shapes a band of frequencies."
+        }
       },
       "clapFlanger": {
         "word": "clap.flanger",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#flanger"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature flanger: an effect that sweeps a short, modulated delay against the dry sound."
+        }
       },
       "clapFrequencyShifter": {
         "word": "clap.frequency-shifter",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature frequency-shifter: an effect that shifts every frequency of a sound by the same amount."
+        }
       },
       "clapGate": {
         "word": "clap.gate",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#gate"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature gate: an effect that mutes a sound below a level."
+        }
       },
       "clapGlitch": {
         "word": "clap.glitch",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#glitch"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature glitch: an effect that cuts, stutters or corrupts a sound on purpose."
+        }
       },
       "clapGranular": {
         "word": "clap.granular",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#granular"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature granular: an effect built from short grains of a sound."
+        }
       },
       "clapLimiter": {
         "word": "clap.limiter",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#limiter"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature limiter: an effect that holds a sound under a ceiling."
+        }
       },
       "clapMastering": {
         "word": "clap.mastering",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#mastering"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature mastering: an effect meant for a mix's final stage."
+        }
       },
       "clapMixing": {
         "word": "clap.mixing",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#mixing"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature mixing: an effect meant for use while mixing, such as a channel strip."
+        }
       },
       "clapMultiEffects": {
         "word": "clap.multi-effects",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#multi-effects"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature multi-effects: several effects combined in one plugin."
+        }
       },
       "clapPhaseVocoder": {
         "word": "clap.phase-vocoder",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature phase-vocoder: an effect built on a phase vocoder, typically to stretch or shift a sound independently of pitch and time."
+        }
       },
       "clapPhaser": {
         "word": "clap.phaser",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#phaser"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature phaser: an effect that sweeps notches through a sound with an all-pass filter chain."
+        }
       },
       "clapPitchCorrection": {
         "word": "clap.pitch-correction",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature pitch-correction: an effect that pulls a sound's pitch toward a scale."
+        }
       },
       "clapPitchShifter": {
         "word": "clap.pitch-shifter",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature pitch-shifter: an effect that changes a sound's pitch without changing its duration."
+        }
       },
       "clapRestoration": {
         "word": "clap.restoration",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#restoration"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature restoration: an effect that removes noise, clicks or other damage from a recording."
+        }
       },
       "clapReverb": {
         "word": "clap.reverb",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#reverb"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature reverb: an effect that adds the reflections of a space to a sound."
+        }
       },
       "clapTransientShaper": {
         "word": "clap.transient-shaper",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature transient-shaper: an effect that reshapes a sound's attack and sustain."
+        }
       },
       "clapTremolo": {
         "word": "clap.tremolo",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#tremolo"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature tremolo: an effect that modulates a sound's level over time."
+        }
       },
       "clapUtility": {
         "word": "clap.utility",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#utility"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature utility: a plugin that does audio housekeeping rather than a creative effect."
+        }
       },
       "lv2Allpass": {
         "word": "lv2.Allpass",
         "from": [
           "LV2_CORE_TERMS#AllpassPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class AllpassPlugin: an all-pass filter, which shifts phase without changing level."
+        }
       },
       "lv2Amplifier": {
         "word": "lv2.Amplifier",
         "from": [
           "LV2_CORE_TERMS#AmplifierPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class AmplifierPlugin: a plugin that changes a sound's level."
+        }
       },
       "lv2Bandpass": {
         "word": "lv2.Bandpass",
         "from": [
           "LV2_CORE_TERMS#BandpassPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class BandpassPlugin: a filter that passes one band of frequencies."
+        }
       },
       "lv2Chorus": {
         "word": "lv2.Chorus",
         "from": [
           "LV2_CORE_TERMS#ChorusPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ChorusPlugin: an effect that thickens a sound with detuned, delayed copies of it."
+        }
       },
       "lv2Comb": {
         "word": "lv2.Comb",
         "from": [
           "LV2_CORE_TERMS#CombPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class CombPlugin: a comb filter, which adds a short delayed copy of a sound to itself."
+        }
       },
       "lv2Compressor": {
         "word": "lv2.Compressor",
         "from": [
           "LV2_CORE_TERMS#CompressorPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class CompressorPlugin: an effect that narrows a sound's dynamic range."
+        }
       },
       "lv2Converter": {
         "word": "lv2.Converter",
         "from": [
           "LV2_CORE_TERMS#ConverterPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ConverterPlugin: a plugin that converts a signal from one representation to another."
+        }
       },
       "lv2Delay": {
         "word": "lv2.Delay",
         "from": [
           "LV2_CORE_TERMS#DelayPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class DelayPlugin: an effect that repeats a sound after a gap."
+        }
       },
       "lv2Distortion": {
         "word": "lv2.Distortion",
         "from": [
           "LV2_CORE_TERMS#DistortionPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class DistortionPlugin: an effect that adds harmonics by overdriving a sound."
+        }
       },
       "lv2Dynamics": {
         "word": "lv2.Dynamics",
         "from": [
           "LV2_CORE_TERMS#DynamicsPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class DynamicsPlugin: an effect that changes a sound's dynamic range."
+        }
       },
       "lv2EQ": {
         "word": "lv2.EQ",
         "from": [
           "LV2_CORE_TERMS#EQPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class EQPlugin: an effect that shapes a sound's frequency balance."
+        }
       },
       "lv2Envelope": {
         "word": "lv2.Envelope",
         "from": [
           "LV2_CORE_TERMS#EnvelopePlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class EnvelopePlugin: a plugin that follows or applies an envelope over time."
+        }
       },
       "lv2Expander": {
         "word": "lv2.Expander",
         "from": [
           "LV2_CORE_TERMS#ExpanderPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ExpanderPlugin: an effect that widens a sound's dynamic range."
+        }
       },
       "lv2Filter": {
         "word": "lv2.Filter",
         "from": [
           "LV2_CORE_TERMS#FilterPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class FilterPlugin: an effect that removes or shapes a band of frequencies."
+        }
       },
       "lv2Flanger": {
         "word": "lv2.Flanger",
         "from": [
           "LV2_CORE_TERMS#FlangerPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class FlangerPlugin: an effect that sweeps a short, modulated delay against the dry sound."
+        }
       },
       "lv2Gate": {
         "word": "lv2.Gate",
         "from": [
           "LV2_CORE_TERMS#GatePlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class GatePlugin: an effect that mutes a sound below a level."
+        }
       },
       "lv2Highpass": {
         "word": "lv2.Highpass",
         "from": [
           "LV2_CORE_TERMS#HighpassPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class HighpassPlugin: a filter that passes frequencies above a cutoff."
+        }
       },
       "lv2Limiter": {
         "word": "lv2.Limiter",
         "from": [
           "LV2_CORE_TERMS#LimiterPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class LimiterPlugin: an effect that holds a sound under a ceiling."
+        }
       },
       "lv2Lowpass": {
         "word": "lv2.Lowpass",
         "from": [
           "LV2_CORE_TERMS#LowpassPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class LowpassPlugin: a filter that passes frequencies below a cutoff."
+        }
       },
       "lv2Mixer": {
         "word": "lv2.Mixer",
         "from": [
           "LV2_CORE_TERMS#MixerPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class MixerPlugin: a plugin that combines several signals into one."
+        }
       },
       "lv2Modulator": {
         "word": "lv2.Modulator",
         "from": [
           "LV2_CORE_TERMS#ModulatorPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ModulatorPlugin: a plugin that modulates one signal with another."
+        }
       },
       "lv2MultiEQ": {
         "word": "lv2.MultiEQ",
         "from": [
           "LV2_CORE_TERMS#MultiEQPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class MultiEQPlugin: a multi-band equaliser."
+        }
       },
       "lv2ParaEQ": {
         "word": "lv2.ParaEQ",
         "from": [
           "LV2_CORE_TERMS#ParaEQPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ParaEQPlugin: a parametric equaliser."
+        }
       },
       "lv2Phaser": {
         "word": "lv2.Phaser",
         "from": [
           "LV2_CORE_TERMS#PhaserPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class PhaserPlugin: an effect that sweeps notches through a sound with an all-pass filter chain."
+        }
       },
       "lv2Pitch": {
         "word": "lv2.Pitch",
         "from": [
           "LV2_CORE_TERMS#PitchPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class PitchPlugin: a plugin that changes or tracks a sound's pitch."
+        }
       },
       "lv2Reverb": {
         "word": "lv2.Reverb",
         "from": [
           "LV2_CORE_TERMS#ReverbPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ReverbPlugin: an effect that adds the reflections of a space to a sound."
+        }
       },
       "lv2Simulator": {
         "word": "lv2.Simulator",
         "from": [
           "LV2_CORE_TERMS#SimulatorPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class SimulatorPlugin: a plugin that models a physical device or space."
+        }
       },
       "lv2Spatial": {
         "word": "lv2.Spatial",
         "from": [
           "LV2_CORE_TERMS#SpatialPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class SpatialPlugin: a plugin that places or moves a sound in space."
+        }
       },
       "lv2Spectral": {
         "word": "lv2.Spectral",
         "from": [
           "LV2_CORE_TERMS#SpectralPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class SpectralPlugin: a plugin that processes a sound in the frequency domain."
+        }
       },
       "lv2Utility": {
         "word": "lv2.Utility",
         "from": [
           "LV2_CORE_TERMS#UtilityPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class UtilityPlugin: a plugin that does audio housekeeping rather than a creative effect."
+        }
       },
       "lv2Waveshaper": {
         "word": "lv2.Waveshaper",
         "from": [
           "LV2_CORE_TERMS#WaveshaperPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics."
+        }
       }
     }
   },
@@ -365,37 +539,55 @@
         "word": "clap.drum",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#drum"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature drum: an instrument that plays drum sounds."
+        }
       },
       "clapDrumMachine": {
         "word": "clap.drum-machine",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#drum-machine"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature drum-machine: an instrument that sequences and plays drum sounds."
+        }
       },
       "clapInstrument": {
         "word": "clap.instrument",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#instrument"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature instrument: a plugin played by notes, with no more specific kind declared."
+        }
       },
       "clapSampler": {
         "word": "clap.sampler",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#sampler"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature sampler: an instrument that plays recorded samples."
+        }
       },
       "clapSynthesizer": {
         "word": "clap.synthesizer",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#synthesizer"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature synthesizer: an instrument that generates its own sound rather than playing samples."
+        }
       },
       "lv2Instrument": {
         "word": "lv2.Instrument",
         "from": [
           "LV2_CORE_TERMS#InstrumentPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class InstrumentPlugin: a plugin played by notes."
+        }
       }
     }
   },
@@ -408,13 +600,19 @@
         "word": "clap.note-effect",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#note-effect"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature note-effect: a plugin that reads notes and writes notes, such as an arpeggiator."
+        }
       },
       "lv2MIDI": {
         "word": "lv2.MIDI",
         "from": [
           "LV2_CORE_TERMS#MIDIPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out."
+        }
       }
     }
   },
@@ -427,19 +625,28 @@
         "word": "clap.analyzer",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#analyzer"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature analyzer: a plugin that reads audio and reports a measurement, with no further output."
+        }
       },
       "clapNoteDetector": {
         "word": "clap.note-detector",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#note-detector"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature note-detector: an analyzer that reads pitch from audio."
+        }
       },
       "lv2Analyser": {
         "word": "lv2.Analyser",
         "from": [
           "LV2_CORE_TERMS#AnalyserPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement."
+        }
       }
     }
   },
@@ -452,55 +659,82 @@
         "word": "clap.ambisonic",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#ambisonic"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature ambisonic: a plugin declared to work in an ambisonic channel layout."
+        }
       },
       "clapMono": {
         "word": "clap.mono",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#mono"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature mono: a plugin declared to work in a mono channel layout."
+        }
       },
       "clapStereo": {
         "word": "clap.stereo",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#stereo"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature stereo: a plugin declared to work in a stereo channel layout."
+        }
       },
       "clapSurround": {
         "word": "clap.surround",
         "from": [
           "CLAP_PLUGIN_FEATURES_TERMS#surround"
-        ]
+        ],
+        "text": {
+          "en": "The CLAP plugin feature surround: a plugin declared to work in a surround channel layout."
+        }
       },
       "lv2Constant": {
         "word": "lv2.Constant",
         "from": [
           "LV2_CORE_TERMS#ConstantPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class ConstantPlugin: a plugin with no input that outputs a constant."
+        }
       },
       "lv2Function": {
         "word": "lv2.Function",
         "from": [
           "LV2_CORE_TERMS#FunctionPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class FunctionPlugin: a plugin with no audio input or output, used only for its side effects or parameters."
+        }
       },
       "lv2Generator": {
         "word": "lv2.Generator",
         "from": [
           "LV2_CORE_TERMS#GeneratorPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class GeneratorPlugin: a plugin with no audio input that generates a sound."
+        }
       },
       "lv2Oscillator": {
         "word": "lv2.Oscillator",
         "from": [
           "LV2_CORE_TERMS#OscillatorPlugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class OscillatorPlugin: a generator that outputs a periodic waveform."
+        }
       },
       "lv2Plugin": {
         "word": "lv2.Plugin",
         "from": [
           "LV2_CORE_TERMS#Plugin"
-        ]
+        ],
+        "text": {
+          "en": "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared."
+        }
       }
     }
   }

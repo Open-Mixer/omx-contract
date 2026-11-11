@@ -14,7 +14,10 @@ import { resolvedOf, texts } from './helpers.mjs';
 
 const FILE = 'data/measurement.json';
 const ITEM = 'MEASUREMENT_UNMEASURED_REASONS';
-const withText = (d, w = d[FILE][ITEM].words.noAudioIn) => {
+// Every real word of ITEM now carries its own source sentence; a fixture that exercises one word's text in
+// isolation first clears the item back to bare words, so the assertions below do not depend on the others' content.
+const bare = (d) => { for (const w of Object.values(d[FILE][ITEM].words)) { delete w.text; delete w.args; } return d; };
+const withText = (d, w = bare(d)[FILE][ITEM].words.noAudioIn) => {
   w.text = { en: '{plugin} has no audio input, so there is nothing to drive.' };
   w.args = ['plugin'];
   return w;
@@ -75,8 +78,8 @@ test('the C vocabulary header and the vocabulary schema carry text and args besi
 test('semver: a text added to a word is MINOR, reworded PATCH, removed or an arg changed MAJOR', () => {
   const base = resolvedOf(texts((d) => { withText(d); }));
   const lvl = (fn) => classify(base, resolvedOf(texts((d) => { fn(withText(d)); }))).level;
-  assert.equal(classify(resolvedOf(texts()), base).level, 'minor');
+  assert.equal(classify(resolvedOf(texts(bare)), base).level, 'minor');
   assert.equal(lvl((w) => { w.text.en = '{plugin} has no audio input: nothing to drive.'; }), 'patch');
   assert.equal(lvl((w) => { w.args = ['input']; w.text = { en: '{input}' }; }), 'major');
-  assert.equal(classify(base, resolvedOf(texts())).level, 'major');
+  assert.equal(classify(base, resolvedOf(texts(bare))).level, 'major');
 });

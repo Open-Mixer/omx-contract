@@ -8,15 +8,24 @@
     "words": {
       "pluginHostd": {
         "word": "plugin-hostd",
-        "doc": "The daemon that places plugins in workers and answers the verbs it adds itself."
+        "doc": "The daemon that places plugins in workers and answers the verbs it adds itself.",
+        "text": {
+          "en": "The daemon that places plugins in workers and answers the verbs it adds itself."
+        }
       },
       "omxClapHost": {
         "word": "omx-clap-host",
-        "doc": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
+        "doc": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.",
+        "text": {
+          "en": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
+        }
       },
       "modHost": {
         "word": "mod-host",
-        "doc": "mod-host, the LV2 host whose protocol the others speak."
+        "doc": "mod-host, the LV2 host whose protocol the others speak.",
+        "text": {
+          "en": "mod-host, the LV2 host whose protocol the others speak."
+        }
       }
     }
   }

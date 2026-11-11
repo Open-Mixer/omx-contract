@@ -9,8 +9,9 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { spawnSync } from 'node:child_process';
 
+import { loadData, resolveData } from '../lib/data.mjs';
 import { catalogDirOf, catalogKeys, catalogPathOf, catalogProblems, fill, loadCatalog, sentenceOf } from '../lib/catalog.mjs';
-import { ROOT, resolvedOf, texts } from './helpers.mjs';
+import { DATA, ROOT, resolvedOf, texts } from './helpers.mjs';
 
 const FILE = 'data/measurement.json';
 const ITEM = 'MEASUREMENT_UNMEASURED_REASONS';
@@ -77,6 +78,18 @@ test('this repo\'s own catalogs/ca.json validates, and holds a sentence for ever
   const ca = JSON.parse(readFileSync(join(ROOT, 'catalogs', 'ca.json'), 'utf8'));
   const own = JSON.parse(readFileSync(join(ROOT, 'data', 'codes.json'), 'utf8')).CONTRACT_CODES.codes;
   const lacking = Object.values(own).filter((c) => c.text && !(c.code in ca.messages)).map((c) => c.code);
+  assert.deepEqual(lacking, []);
+});
+
+test('every code and word this repo declares carries a source sentence (omx-contract#2)', () => {
+  const resolved = resolveData(loadData(DATA));
+  const lacking = [];
+  for (const [name, r] of resolved) {
+    if (r.kind !== 'codes' && r.kind !== 'words') continue;
+    for (const e of Object.values(r.value)) {
+      if (!e.text?.en) lacking.push(`${name}.${e.code ?? e.word}`);
+    }
+  }
   assert.deepEqual(lacking, []);
 });
 

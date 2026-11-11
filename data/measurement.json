@@ -6,19 +6,34 @@
     "doc": "The measurable dimensions a measurement document declares it covers: latency and cost since the format's 1.0, stability, RT safety and features since 1.1, for the hosting verdict.",
     "words": {
       "latency": {
-        "word": "latency"
+        "word": "latency",
+        "text": {
+          "en": "How long a plugin takes to produce its first sound after it is driven or played."
+        }
       },
       "cost": {
-        "word": "cost"
+        "word": "cost",
+        "text": {
+          "en": "How much CPU time a plugin spends per block under a sustained stimulus."
+        }
       },
       "stability": {
-        "word": "stability"
+        "word": "stability",
+        "text": {
+          "en": "Whether a plugin instantiates, processes and tears down without crashing or producing non-finite output."
+        }
       },
       "rtSafety": {
-        "word": "rtSafety"
+        "word": "rtSafety",
+        "text": {
+          "en": "Whether a plugin's audio thread avoids locks, allocation and other calls a real-time thread must not make."
+        }
       },
       "features": {
-        "word": "features"
+        "word": "features",
+        "text": {
+          "en": "What capabilities a plugin declares and a prober can confirm, beside latency, cost, stability and RT safety."
+        }
       }
     }
   },
@@ -29,15 +44,24 @@
     "words": {
       "nothingToMeasure": {
         "word": "nothing-to-measure",
-        "doc": "A property of the plugin: any prober on any machine reaches it, so it may override a figure."
+        "doc": "A property of the plugin: any prober on any machine reaches it, so it may override a figure.",
+        "text": {
+          "en": "A property of the plugin: any prober on any machine reaches it, so it may override a figure."
+        }
       },
       "probeFailed": {
         "word": "probe-failed",
-        "doc": "A property of this run: it says nothing about the plugin and never overrides a figure."
+        "doc": "A property of this run: it says nothing about the plugin and never overrides a figure.",
+        "text": {
+          "en": "A property of this run: it says nothing about the plugin and never overrides a figure."
+        }
       },
       "notAttempted": {
         "word": "not-attempted",
-        "doc": "The run did not cover this plugin or this dimension: a partial run, not a finding."
+        "doc": "The run did not cover this plugin or this dimension: a partial run, not a finding.",
+        "text": {
+          "en": "The run did not cover this plugin or this dimension: a partial run, not a finding."
+        }
       }
     }
   },
@@ -50,87 +74,138 @@
       "noAudioIn": {
         "word": "no-audio-in",
         "group": "nothing-to-measure",
-        "doc": "No audio input port: nothing to drive."
+        "doc": "No audio input port: nothing to drive.",
+        "text": {
+          "en": "No audio input port: nothing to drive."
+        }
       },
       "noAudioOut": {
         "word": "no-audio-out",
         "group": "nothing-to-measure",
-        "doc": "No audio output port: nothing to read."
+        "doc": "No audio output port: nothing to read.",
+        "text": {
+          "en": "No audio output port: nothing to read."
+        }
       },
       "silentOutput": {
         "word": "silent-output",
         "group": "nothing-to-measure",
-        "doc": "Driven, and silent under a stimulus that should have passed."
+        "doc": "Driven, and silent under a stimulus that should have passed.",
+        "text": {
+          "en": "Driven, and silent under a stimulus that should have passed."
+        }
       },
       "needsCarrier": {
         "word": "needs-carrier",
         "group": "nothing-to-measure",
-        "doc": "Needs a second audio input the prober did not supply."
+        "doc": "Needs a second audio input the prober did not supply.",
+        "text": {
+          "en": "Needs a second audio input the prober did not supply."
+        }
       },
       "needsImpulseResponse": {
         "word": "needs-impulse-response",
         "group": "nothing-to-measure",
-        "doc": "A convolver needing an impulse response the prober did not load."
+        "doc": "A convolver needing an impulse response the prober did not load.",
+        "text": {
+          "en": "A convolver needing an impulse response the prober did not load."
+        }
       },
       "unpinnable": {
         "word": "unpinnable",
         "group": "nothing-to-measure",
-        "doc": "The files the host loads cannot be pinned."
+        "doc": "The files the host loads cannot be pinned.",
+        "text": {
+          "en": "The files the host loads cannot be pinned."
+        }
       },
       "noVoices": {
         "word": "no-voices",
         "group": "nothing-to-measure",
-        "doc": "An instrument whose voice-info declares a capacity of 0."
+        "doc": "An instrument whose voice-info declares a capacity of 0.",
+        "text": {
+          "en": "An instrument whose voice-info declares a capacity of 0."
+        }
       },
       "notesUnplayable": {
         "word": "notes-unplayable",
         "group": "nothing-to-measure",
-        "doc": "An instrument whose note input reads no dialect the prober speaks."
+        "doc": "An instrument whose note input reads no dialect the prober speaks.",
+        "text": {
+          "en": "An instrument whose note input reads no dialect the prober speaks."
+        }
       },
       "voicesUnknown": {
         "word": "voices-unknown",
         "group": "not-attempted",
-        "doc": "An instrument that declares no voice capacity, run with no probe count."
+        "doc": "An instrument that declares no voice capacity, run with no probe count.",
+        "text": {
+          "en": "An instrument that declares no voice capacity, run with no probe count."
+        }
       },
       "refusedInstantiation": {
         "word": "refused-instantiation",
         "group": "probe-failed",
-        "doc": "The plugin would not instantiate at this rate or block size."
+        "doc": "The plugin would not instantiate at this rate or block size.",
+        "text": {
+          "en": "The plugin would not instantiate at this rate or block size."
+        }
       },
       "probeCrashed": {
         "word": "probe-crashed",
         "group": "probe-failed",
-        "doc": "The probe worker died while hosting the plugin."
+        "doc": "The probe worker died while hosting the plugin.",
+        "text": {
+          "en": "The probe worker died while hosting the plugin."
+        }
       },
       "probeTimeout": {
         "word": "probe-timeout",
         "group": "probe-failed",
-        "doc": "The probe passed its per-plugin time limit."
+        "doc": "The probe passed its per-plugin time limit.",
+        "text": {
+          "en": "The probe passed its per-plugin time limit."
+        }
       },
       "nonFiniteOutput": {
         "word": "non-finite-output",
         "group": "probe-failed",
-        "doc": "The output held NaN or infinity."
+        "doc": "The output held NaN or infinity.",
+        "text": {
+          "en": "The output held NaN or infinity."
+        }
       },
       "notInstalled": {
         "word": "not-installed",
         "group": "probe-failed",
-        "doc": "The plugin is not installed on this machine."
+        "doc": "The plugin is not installed on this machine.",
+        "text": {
+          "en": "The plugin is not installed on this machine."
+        }
       },
       "workerNonconforming": {
         "word": "worker-nonconforming",
         "group": "probe-failed",
-        "doc": "An LV2 worker interface with work or work_response NULL."
+        "doc": "An LV2 worker interface with work or work_response NULL.",
+        "text": {
+          "en": "An LV2 worker interface with work or work_response NULL."
+        }
       },
       "probeError": {
         "word": "probe-error",
         "group": "probe-failed",
-        "doc": "A failure with no more specific reason; its own words are kept beside it."
+        "doc": "A failure with no more specific reason; its own words are kept beside it.",
+        "text": {
+          "en": "A failure with no more specific reason; its own words are kept beside it."
+        }
       },
       "notAttempted": {
         "word": "not-attempted",
         "group": "not-attempted",
-        "doc": "The run did not cover this plugin for this dimension."
+        "doc": "The run did not cover this plugin for this dimension.",
+        "text": {
+          "en": "The run did not cover this plugin for this dimension."
+        }
       }
     }
   },
@@ -141,7 +216,14 @@
     "words": {
       "impulseOnset": {
         "word": "impulse-onset",
-        "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does."
+        "from": [
+          "LV2_CORE_TERMS#latency",
+          "CLAP_EXT_LATENCY_TERMS#latency"
+        ],
+        "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.",
+        "text": {
+          "en": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does."
+        }
       },
       "declaredPort": {
         "word": "declared-port",
@@ -149,11 +231,17 @@
           "LV2_CORE_TERMS#latency",
           "CLAP_EXT_LATENCY_TERMS#latency"
         ],
-        "doc": "Read from the plugin's own latency report: what it claims."
+        "doc": "Read from the plugin's own latency report: what it claims.",
+        "text": {
+          "en": "Read from the plugin's own latency report: what it claims."
+        }
       },
       "noteOnset": {
         "word": "note-onset",
-        "doc": "The delay from a note on to the first output sample above the floor."
+        "doc": "The delay from a note on to the first output sample above the floor.",
+        "text": {
+          "en": "The delay from a note on to the first output sample above the floor."
+        }
       }
     }
   },
@@ -164,7 +252,10 @@
     "words": {
       "blockTimePercentile": {
         "word": "block-time-percentile",
-        "doc": "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample."
+        "doc": "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample.",
+        "text": {
+          "en": "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample."
+        }
       }
     }
   },
@@ -175,27 +266,45 @@
     "words": {
       "fixedFrame": {
         "word": "fixed-frame",
-        "doc": "The same frame count at every rate."
+        "doc": "The same frame count at every rate.",
+        "text": {
+          "en": "The same frame count at every rate."
+        }
       },
       "fixedTime": {
         "word": "fixed-time",
-        "doc": "The same milliseconds at every rate."
+        "doc": "The same milliseconds at every rate.",
+        "text": {
+          "en": "The same milliseconds at every rate."
+        }
       },
       "zero": {
         "word": "zero",
-        "doc": "No latency a mix can notice at any measured rate."
+        "doc": "No latency a mix can notice at any measured rate.",
+        "text": {
+          "en": "No latency a mix can notice at any measured rate."
+        }
       },
       "nonconforming": {
         "word": "nonconforming",
-        "doc": "Fits neither law at a magnitude that reaches a mix: flagged, never averaged."
+        "doc": "Fits neither law at a magnitude that reaches a mix: flagged, never averaged.",
+        "text": {
+          "en": "Fits neither law at a magnitude that reaches a mix: flagged, never averaged."
+        }
       },
       "singleRate": {
         "word": "single-rate",
-        "doc": "One usable reading: no law can be fitted."
+        "doc": "One usable reading: no law can be fitted.",
+        "text": {
+          "en": "One usable reading: no law can be fitted."
+        }
       },
       "unmeasured": {
         "word": "unmeasured",
-        "doc": "No rate produced a figure."
+        "doc": "No rate produced a figure.",
+        "text": {
+          "en": "No rate produced a figure."
+        }
       }
     }
   },
@@ -206,11 +315,17 @@
     "words": {
       "belowBudget": {
         "word": "below-budget",
-        "doc": "The readings fit no law but every one is inside the latency budget: the detector's noise."
+        "doc": "The readings fit no law but every one is inside the latency budget: the detector's noise.",
+        "text": {
+          "en": "The readings fit no law but every one is inside the latency budget: the detector's noise."
+        }
       },
       "informationalRate": {
         "word": "informational-rate",
-        "doc": "Only a reading below the operational rates breaks the law; it stays as information."
+        "doc": "Only a reading below the operational rates breaks the law; it stays as information.",
+        "text": {
+          "en": "Only a reading below the operational rates breaks the law; it stays as information."
+        }
       }
     }
   },
@@ -221,7 +336,10 @@
     "words": {
       "impossibleZero": {
         "word": "impossible-zero",
-        "doc": "Zero frames at this rate while another rate measured non-zero."
+        "doc": "Zero frames at this rate while another rate measured non-zero.",
+        "text": {
+          "en": "Zero frames at this rate while another rate measured non-zero."
+        }
       }
     }
   },
@@ -234,10 +352,16 @@
         "word": "declared",
         "from": [
           "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
-        ]
+        ],
+        "text": {
+          "en": "The voice capacity the plugin declares through CLAP's voice-info extension."
+        }
       },
       "probe": {
-        "word": "probe"
+        "word": "probe",
+        "text": {
+          "en": "A note count the caller gave the prober, not read from the plugin."
+        }
       }
     }
   },
@@ -247,16 +371,28 @@
     "doc": "The four ratings a verdict speaks, in order from the best.",
     "words": {
       "suitable": {
-        "word": "suitable"
+        "word": "suitable",
+        "text": {
+          "en": "The plugin meets the host profile's budget on every measured dimension."
+        }
       },
       "conditional": {
-        "word": "conditional"
+        "word": "conditional",
+        "text": {
+          "en": "The plugin meets the host profile's budget only under a stated condition."
+        }
       },
       "unknown": {
-        "word": "unknown"
+        "word": "unknown",
+        "text": {
+          "en": "Not enough was measured to rate the plugin against the host profile."
+        }
       },
       "unsuitable": {
-        "word": "unsuitable"
+        "word": "unsuitable",
+        "text": {
+          "en": "The plugin does not meet the host profile's budget on at least one measured dimension."
+        }
       }
     }
   }

@@ -59,7 +59,10 @@ not the one its path gives.
 ## Inside a file
 
 - A code is `hosting.<group>...`, `contract.<group>.<reason>`, `reply.<group>.<reason>` or `panel.<group>.<reason>`
-  (omx-panel's refusals, since 3.12.0), lower case.
+  (omx-panel's refusals, since 3.12.0), lower case; or, since 3.14.0, a console code as the console spells it (owner
+  openmixer, openmixer#41): a refusal code in UPPER_SNAKE (`BAD_TYPE`) or a message code in dotted kebab (`rt.budget`)
+  that starts with none of the other families' prefixes. The console's catalog (`owner` openmixer) tells its keys from
+  another owner's.
 - A `codes` item's codes are sorted by name; the name is the operator-facing key a consumer reads the code by, and the
   code is never reworded. A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
   development phase and MINOR in it (`semver`, as an item's removal). A code its writers stop writing is removed in the next release, never carried as retired (operator ruling 2026-10-20,

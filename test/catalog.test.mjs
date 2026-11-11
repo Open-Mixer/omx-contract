@@ -93,6 +93,14 @@ test('every code and word this repo declares carries a source sentence (omx-cont
   assert.deepEqual(lacking, []);
 });
 
+test('needs-content: an instrument silent until content is loaded, grouped nothing-to-measure (plugin-qualify#21, #23)', () => {
+  const resolved = resolveData(loadData(DATA));
+  const w = resolved.get('MEASUREMENT_UNMEASURED_REASONS').value.needsContent;
+  assert.equal(w.word, 'needs-content');
+  assert.equal(w.group, 'nothing-to-measure');
+  assert.equal(w.text.en, 'An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.');
+});
+
 test('no contract data file holds a language beside the source sentence', () => {
   const r = spawnSync('git', ['-C', ROOT, 'grep', '-l', '-E', '"(ca|es|fr|de)": "', '--', 'data/'], { encoding: 'utf8' });
   assert.equal(r.stdout.trim(), '', `translations in data: ${r.stdout}`);

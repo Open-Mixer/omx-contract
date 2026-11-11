@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `MEASUREMENT_UNMEASURED_REASONS` gains `needsContent` (`needs-content`, group `nothing-to-measure`,
+  omx-contract#2): an instrument silent under notes until a sample, a sound font or an instrument file is loaded,
+  which the prober did not load, the instrument counterpart of `needs-impulse-response` and `needs-carrier`
+  (plugin-qualify#21, #23).
 - Every word `data/` declares now carries its English source sentence, `text.en` (omx-contract#2): the 262 words left
   without one since 3.12.0 gain it, each written from the item's and the word's own `doc`. A completeness test
   (`catalog.test.mjs`) holds every code and word of this repo to a source sentence; a word elsewhere in the

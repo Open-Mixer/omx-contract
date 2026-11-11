@@ -474,6 +474,7 @@
         "silent-output",
         "needs-carrier",
         "needs-impulse-response",
+        "needs-content",
         "unpinnable",
         "no-voices",
         "notes-unplayable",
@@ -515,6 +516,12 @@
         "needs-impulse-response": {
           "text": {
             "en": "A convolver needing an impulse response the prober did not load."
+          },
+          "args": []
+        },
+        "needs-content": {
+          "text": {
+            "en": "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load."
           },
           "args": []
         },

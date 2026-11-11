@@ -6723,6 +6723,14 @@ export const MEASUREMENT_UNMEASURED_REASONS = {
       "en": "A convolver needing an impulse response the prober did not load."
     }
   },
+  "needsContent": {
+    "word": "needs-content",
+    "group": "nothing-to-measure",
+    "doc": "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.",
+    "text": {
+      "en": "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load."
+    }
+  },
   "unpinnable": {
     "word": "unpinnable",
     "group": "nothing-to-measure",
@@ -8795,6 +8803,7 @@ export const MEASUREMENT_UNMEASURED_REASONS_WORDS = [
   "silent-output",
   "needs-carrier",
   "needs-impulse-response",
+  "needs-content",
   "unpinnable",
   "no-voices",
   "notes-unplayable",

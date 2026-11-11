@@ -173,6 +173,8 @@
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NEEDS_CARRIER_TEXT_EN "Needs a second audio input the prober did not supply."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NEEDS_IMPULSE_RESPONSE "needs-impulse-response" ///< A convolver needing an impulse response the prober did not load.
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NEEDS_IMPULSE_RESPONSE_TEXT_EN "A convolver needing an impulse response the prober did not load."
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_NEEDS_CONTENT "needs-content" ///< An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_NEEDS_CONTENT_TEXT_EN "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_UNPINNABLE "unpinnable" ///< The files the host loads cannot be pinned.
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_UNPINNABLE_TEXT_EN "The files the host loads cannot be pinned."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NO_VOICES "no-voices" ///< An instrument whose voice-info declares a capacity of 0.
@@ -197,8 +199,8 @@
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_PROBE_ERROR_TEXT_EN "A failure with no more specific reason; its own words are kept beside it."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NOT_ATTEMPTED "not-attempted" ///< The run did not cover this plugin for this dimension.
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NOT_ATTEMPTED_TEXT_EN "The run did not cover this plugin for this dimension."
-#define OMX_MEASUREMENT_UNMEASURED_REASONS_COUNT 17u
-#define OMX_MEASUREMENT_UNMEASURED_REASONS_INIT { "no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted" }
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_COUNT 18u
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_INIT { "no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted" }
 
 /* MEASUREMENT_LATENCY_METHODS (data/measurement.json) */
 #define OMX_MEASUREMENT_LATENCY_METHODS_IMPULSE_ONSET "impulse-onset" ///< The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.

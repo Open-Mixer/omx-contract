@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `share/omx-contract/omx_contract_catalog.py`, a small hand-written Python catalog reader (omx-contract#2), so a
+  Python surface such as Zynthian can look a code or word up for the user's locale: `load_catalog(owner, lang)`,
+  `sentence_of(catalog, key, source)` and `fill(sentence, args)`, the same shape as `@openmixer/omx-contract/catalog`.
+  Installed beside the generated `omx_contract.py` (`debian/omx-contract-data.install`, `packaging/omx-contract.spec`);
+  `render --target json|lv2|py --check` names it as the one hand-written file share/omx-contract/ holds beside the
+  renders, as `omx_json_write.h` already is for `include/omxcontract/`.
 - `MEASUREMENT_UNMEASURED_REASONS` gains `needsContent` (`needs-content`, group `nothing-to-measure`,
   omx-contract#2): an instrument silent under notes until a sample, a sound font or an instrument file is loaded,
   which the prober did not load, the instrument counterpart of `needs-impulse-response` and `needs-carrier`

@@ -109,7 +109,10 @@ not the one its path gives.
   answered through a fallback to any group not proven local is refused, and the run is red. An entry's `model` is the
   group the router answered with (its `x-litellm-model-group` header), else the model the answer names. Each answer
   passes the placeholder gate (exactly the source sentence's placeholders, each one of the key's
-  `args`) or is refused, left out, and the run is red. A person's entry is never made again. It runs at an owner's
+  `args`) or is refused, left out, and the run is red. A person's entry is never made again. `--source <file>` reads the source sentences from a file
+  instead of contract data (#24): `{ "<key>": { "text", "args" } }`, a string value being a generated file's banner,
+  for strings that are no contract data (a surface's own, keyed `WEB_UI.<domain>.<path>`), with `--catalogs` and
+  `--package`; everything else, `--check` included, is the same. It runs at an owner's
   release preparation and its catalogs are committed; it refuses to run inside a package build, which has no network
   and must be reproducible. `omx-contract translate --check` is the release gate, with no endpoint: a listed language
   with no catalog, a key a catalog lacks, or a stale entry is red. Each language is its own package built from the

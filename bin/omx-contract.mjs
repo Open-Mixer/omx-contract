@@ -9,7 +9,7 @@
  *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture>]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
- *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir>] [--package <name>] [--model <alias>]
+ *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
  *
  * <input> is `--data <dir>` (the bundled data/ by default), or a contract directory (docs/contract-dir.md):
  * `--contract-dir <dir>`, or `--installed` ($OMX_CONTRACT_PATH, else pkg-config), each with `--needs
@@ -31,6 +31,7 @@ import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/
 import { fileProblems, validateData } from '../lib/validate.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
+import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC, renderSheetC } from '../render/c.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
@@ -455,7 +456,37 @@ async function answersOf(ask, batch, accepts = () => true) {
 }
 
 /** The owner's inputs: its keys, its catalogs directory and its name. */
+/**
+ * An owner's source sentences from a file (`--source`, #24), for strings that are no contract data (a surface's own):
+ * `{ "<key>": { "text": "<English sentence>", "args": [...] } }`, the same `Map<key, { args, en }>` the data gives. A
+ * string value is a generated file's banner, no sentence; `args` absent are the sentence's own placeholders.
+ */
+function sourceKeys(file) {
+  if (!existsSync(file)) throw new Usage(`no source file ${file}`);
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) throw new Usage(`${file} is no object of key -> { text, args }`);
+  const keys = new Map();
+  for (const [key, v] of Object.entries(doc)) {
+    if (typeof v === 'string') continue;
+    if (!v || typeof v !== 'object' || typeof v.text !== 'string' || v.text === '') throw new Usage(`${file}: ${key} is neither a sentence { text, args } nor a banner`);
+    keys.set(key, { args: Array.isArray(v.args) ? v.args : placeholdersOf(v.text), en: v.text });
+  }
+  return keys;
+}
+
 function translateInputs(argv) {
+  const source = opt(argv, '--source');
+  if (source !== undefined) {
+    if (['--data', '--contract-dir', '--installed'].some((o) => argv.includes(o))) throw new Usage('--source and contract data are two inputs: name one');
+    const owner = opt(argv, '--owner');
+    const named = opt(argv, '--catalogs');
+    if (named === undefined && owner === undefined) throw new Usage('--source names no catalogs: add --catalogs <dir> (or --owner <tree>, its catalogs/)');
+    const dir = named !== undefined ? resolve(named) : join(resolve(owner), 'catalogs');
+    const existing = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8'))) : [];
+    const name = opt(argv, '--package') ?? existing.find((c) => c?.kind === 'catalog')?.owner;
+    if (name === undefined) throw new Usage(`no catalog in ${dir} names its owner: add --package <name>`);
+    return { keys: sourceKeys(resolve(source)), dir, name };
+  }
   const owner = opt(argv, '--owner');
   const args = owner !== undefined ? [...argv, '--data', join(resolve(owner), 'data')] : argv;
   const data = load(args);
@@ -507,7 +538,10 @@ async function cmdTranslate(argv) {
   if (!Number.isInteger(size) || size < 1) throw new Usage('--batch is a count of entries, at least 1');
 
   const before = read(lang);
-  const catalog = before ?? { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang, owner: name, messages: {} };
+  // a new catalog of this tree names the schema beside it; one of another owner's (--source) names none, the path
+  // being this tree's
+  const ownSchema = opt(argv, '--source') === undefined ? { $schema: '../schema/omx-contract.schema.json#/$defs/catalog' } : {};
+  const catalog = before ?? { ...ownSchema, kind: 'catalog', lang, owner: name, messages: {} };
   const todo = [...toMake(keys, catalog)];
   const messages = { ...catalog.messages };
   const refused = [];
@@ -542,7 +576,7 @@ const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture.json>]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
-       omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]
+       omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]
   <input>: --data <dir> | --contract-dir <dir> | --installed, a contract directory with [--needs <package>@'>= x.y.z']... [--json]`;
 
 export function main(argv) {

@@ -54,6 +54,11 @@ omx-contract \- validate, format and render the FreeMixer declarations
 |
 .I input
 .B \-\-catalogs
+.I dir
+|
+.B \-\-source
+.I file
+.B \-\-catalogs
 .IR dir ]
 .RB [ \-\-package
 .IR name ]
@@ -137,7 +142,10 @@ and the run fails; a person's entry is never made again. It refuses to run
 inside a package build. With
 .BR \-\-check ,
 no endpoint is used: every language of languages.json must have a catalog,
-whole, with no stale entry.
+whole, with no stale entry. With
+.BR \-\-source ,
+the source sentences are a file mapping each key to its English sentence and
+its args, for strings that are no contract data (a surface's own).
 .SH EXIT STATUS
 0 is a pass, 1 a failure naming what failed, and 2 a usage or environment
 error, which is never a pass. A refusal of the contract directory reader

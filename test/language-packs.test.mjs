@@ -408,6 +408,21 @@ test('a batch the router answered through a fallback to a paid group is refused,
   } finally { await ep.close(); }
 });
 
+// ---- installed: the CLI finds the language list where the data package installs it ----------------------------------
+
+test('installed, translate --check reads languages.json from the data package\'s place, not from the CLI\'s tree', () => {
+  const stage = mkdtempSync(join(tmpdir(), 'omx-contract-installed-'));
+  const make = (target) => spawnSync('make', [target, 'PREFIX=/usr', `DESTDIR=${stage}`], { cwd: ROOT, encoding: 'utf8' });
+  for (const t of ['install', 'install-cli']) assert.equal(make(t).status, 0, `make ${t}`);
+  const cli = join(stage, 'usr/lib/omx-contract/bin/omx-contract.mjs');
+  assert.ok(!readdirSync(join(stage, 'usr/lib/omx-contract')).includes('share'), 'positive control: the CLI\'s tree carries no share/');
+  const env = { ...process.env };
+  delete env.OMX_CONTRACT_DATADIR;
+  const r = spawnSync(process.execPath, [cli, 'translate', '--check', '--owner', ROOT], { cwd: stage, env, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr + r.stdout);
+  assert.match(r.stdout, /6 languages \(ca, es, fr, de, it, pt\)/);
+});
+
 // ---- the packs ------------------------------------------------------------------------------------------------------
 
 test('the RPM spec builds one langpack per listed language, each owning its catalog and supplementing the host locale', () => {

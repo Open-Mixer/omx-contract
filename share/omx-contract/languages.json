@@ -1,0 +1,6 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json#/$defs/languages",
+  "kind": "languages",
+  "languages": ["ca", "es", "fr", "de", "it", "pt"],
+  "test": ["ja", "ar"]
+}

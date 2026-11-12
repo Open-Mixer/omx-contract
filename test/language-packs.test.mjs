@@ -22,7 +22,7 @@ const CLI = join(ROOT, 'bin', 'omx-contract.mjs');
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
 const against = (def) => (doc) => validate({ $schema: SCHEMA.$schema, $defs: SCHEMA.$defs, $ref: `#/$defs/${def}` }, doc);
 const languages = () => JSON.parse(readFileSync(join(ROOT, 'share/omx-contract/languages.json'), 'utf8'));
-const listed = () => languages().languages.map((l) => l.lang);
+const listed = () => languages().languages;
 const { catalogPathOf, catalogProblems, loadCatalog, sentenceOf } = cat;
 const sourceHash = (s) => cat.sourceHash(s);
 
@@ -91,13 +91,15 @@ print(m["source_hash"](${JSON.stringify(SRC)}))
   assert.deepEqual(r.stdout.trim().split('\n'), [SRC, '{package} no tiene MANIFEST.json', 'Versión distinta', sha(SRC)]);
 });
 
-test('languages.json: ca reviewed by people, the machine set listed, en never (the source)', () => {
+test('languages.json: the shipped set made by translate, a non-Latin and a right-to-left test pair never shipped, en never', () => {
   const doc = languages();
   assert.ok(against('languages')(doc).ok, 'the list validates against $defs/languages');
-  assert.deepEqual(doc.languages.find((l) => l.lang === 'ca'), { lang: 'ca', by: 'human' });
-  for (const lang of ['es', 'fr', 'de', 'it', 'pt']) assert.deepEqual(doc.languages.find((l) => l.lang === lang), { lang, by: 'machine' });
-  assert.ok(!listed().includes('en'));
-  assert.equal(new Set(listed()).size, listed().length, 'a language once');
+  assert.deepEqual(doc.languages, ['ca', 'es', 'fr', 'de', 'it', 'pt']);
+  assert.deepEqual(doc.test, ['ja', 'ar']);
+  assert.ok(![...doc.languages, ...doc.test].includes('en'));
+  assert.ok(!against('languages')({ ...doc, languages: ['ca', 'ca'] }).ok, 'a language once');
+  assert.ok(!against('languages')({ ...doc, languages: [{ lang: 'ca', by: 'human' }] }).ok, 'a language is its tag');
+  for (const lang of doc.test) assert.ok(!readdirSync(join(ROOT, 'catalogs')).includes(`${lang}.json`), `${lang} is not shipped`);
 });
 
 test('this tree is release-ready: translate --check finds every listed language\'s catalog whole and none stale', () => {

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.14.0
+Version: 3.15.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -127,6 +127,18 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.15.0-1
+- the library modules are TypeScript (src/lib/*.mts), built into lib/*.mjs with
+  their declarations; the build needs typescript >= 4.8.4 and < 6, and node's
+  and ajv's types come from vendor/ for the build only
+- a code's or a word's text carrying ca is refused (code-text-language,
+  word-text-language): the source sentence is the only language; the
+  catalog-migration warning is gone
+- the catalog reader loads no validator and builds with no implicit any
+- Schema 3.14.0, unchanged in shape: omx-dsp-devel before 0.25.0,
+  omx-clap-core-devel before 0.13.0 and omx-plugins-devel before 0.13.0 stay the
+  floors.
+
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.14.0-1
 - a codes item's code may be a console code as the console spells it: a refusal
   code in UPPER_SNAKE or a message code in dotted kebab; schema 3.13.0 is frozen

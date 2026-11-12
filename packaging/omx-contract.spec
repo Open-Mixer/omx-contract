@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.13.0
+Version: 3.14.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -122,6 +122,15 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.14.0-1
+- a codes item's code may be a console code as the console spells it: a refusal
+  code in UPPER_SNAKE or a message code in dotted kebab; schema 3.13.0 is frozen
+  in schema/history
+- every word in data/ carries its English source sentence
+- omx_contract_catalog.py, a small Python catalog reader, is installed beside
+  omx_contract.py; MEASUREMENT_UNMEASURED_REASONS gains needs-content
+- Schema 3.14.0; the -devel floors stay.
+
 * Tue Nov 10 2026 Pau Aliagas <linuxnow@gmail.com> - 3.13.0-1
 - roleMeanings, a new item kind: a package declares the panel roles its panels
   name and the meaning each plays; a role has one owner, a second is refused as

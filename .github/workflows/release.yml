@@ -79,6 +79,8 @@ jobs:
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
       staged: ${{ inputs.staged == true }}
+      # the first layer of a wave: its staged build runs before anything is in the staging channel
+      staging-bootstrap: ${{ inputs.staged == true }}
       staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
       binary-names: omx-contract omx-contract-data omx-contract-devel
@@ -93,6 +95,8 @@ jobs:
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
       staged: ${{ inputs.staged == true }}
+      # the first layer of a wave: its staged build runs before anything is in the staging channel
+      staging-bootstrap: ${{ inputs.staged == true }}
       staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
       binary-names: libomx-contract-dev omx-contract omx-contract-data

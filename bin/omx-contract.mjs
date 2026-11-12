@@ -201,8 +201,9 @@ function cmdRender(argv) {
     // the json, lv2 and py renders are committed side by side (share/omx-contract/): each knows the others' files
     if (['json', 'lv2', 'py'].includes(target)) {
       for (const t of ['json', 'lv2', 'py']) for (const f of renderTarget(t, argv)) named.add(f.path);
-      // share/omx-contract/ also holds the hand-written Python catalog reader (not rendered: a catalog is read, not generated), shipped beside omx_contract.py
+      // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered), shipped beside omx_contract.py
       named.add('omx_contract_catalog.py');
+      named.add('omx_contract_scale.py');
     }
     if (opt(argv, '--package') === undefined) for (const rel of filesUnder(join(dir, scope))) if (!named.has(join(scope, rel))) bad.push(`${join(scope, rel)} is extra`);
     for (const b of bad) console.error(`omx-contract render --check: ${out.replace(/\/$/, '')}/${b}`);

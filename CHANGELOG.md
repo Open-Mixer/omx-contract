@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `share/omx-contract/omx_contract_scale.py`, the Python twin of the position-law reader
+  (`@openmixer/omx-contract/scale`, omx-contract#20), so a Python surface such as Zynthian
+  (`zyngine/zynthian_position_law.py`) can call it instead of restating the law: `LAWS`, `effective_law(travel)`,
+  `scale_position(travel, value)` and `scale_value(travel, p)`, every law the contract declares (linear, log,
+  stepped, map), held to the same `data/scale-vectors.json` as the TypeScript reader. Installed beside
+  `omx_contract.py` and `omx_contract_catalog.py` (`debian/omx-contract-data.install`, `packaging/omx-contract.spec`).
 - The `ca` migration ends (#2): every owner ships its Catalan sentences in its catalog, so a code's or a word's `text`
   carrying `ca` is refused by `validate` and by the contract-directory reader (`code-text-language`,
   `word-text-language`: a sentence carries `en` alone). The `catalog-migration` warning is gone. The schema's shape keeps

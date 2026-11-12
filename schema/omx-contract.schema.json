@@ -343,7 +343,7 @@
       "description": "The one source sentence a person sees for a code or a word, in English, written by its owner and never kept by a surface. Its `{name}` placeholders are each one of `args`. Translations are not contract data: each owner ships one catalog per language (`$defs/catalog`).",
       "properties": {
         "en": { "$ref": "#/$defs/text" },
-        "ca": { "$ref": "#/$defs/text", "description": "Deprecated: a translation belongs in the owner's catalog, catalogs/ca.json. Still read, with the warning catalog-migration, until every owner has moved." }
+        "ca": { "$ref": "#/$defs/text", "description": "Refused: a translation is the owner's catalog, catalogs/ca.json (validate's <what>-text-language). Kept in the shape until a major release removes it." }
       },
       "required": ["en"],
       "additionalProperties": false

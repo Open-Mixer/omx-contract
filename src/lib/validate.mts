@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
+import { placeholdersOf } from './placeholders.mjs';
 
 /** The class: the CommonJS module's export is the class itself, which TypeScript types as the module object. */
 type Ajv2020Class = typeof import('ajv/dist/2020.js').default;
@@ -120,44 +121,19 @@ export function readoutValidator() {
  * A code's or a word's source sentence (docs/data-layout.md): each `{name}` placeholder is one of `args`
  * (`<what>-text-arg`). The schema holds the sentence to English alone; a translation is a catalog's (lib/catalog.mjs).
  */
-export function placeholdersOf(sentence) {
-  return new Set([...String(sentence ?? '').matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]));
-}
+export { placeholdersOf };
 
 function sentenceRules(r, k, entry, what, say) {
   if (entry.text === undefined) return;
-  for (const lang of ['en', 'ca']) {
-    for (const n of placeholdersOf(entry.text[lang])) {
-      if (!(entry.args ?? []).includes(n)) say(r.rel, r.name, `${what}-text-arg`, `${k}: {${n}} is not in args`);
-    }
+  for (const n of placeholdersOf(entry.text.en)) {
+    if (!(entry.args ?? []).includes(n)) say(r.rel, r.name, `${what}-text-arg`, `${k}: {${n}} is not in args`);
+  }
+  // the source sentence is the only language contract data holds: a translation is the owner's catalog (omx-contract#2)
+  for (const lang of Object.keys(entry.text)) {
+    if (lang !== 'en') say(r.rel, r.name, `${what}-text-language`, `${k}: text.${lang} is a translation: it belongs in the owner's catalogs/${lang}.json, keyed ${what === 'code' ? 'by the code' : 'as <ITEM>.<word>'}`);
   }
 }
 
-/**
- * The warnings of the loaded data, `[{ file, item, rule, message }]`, which never fail a validation: a sentence that
- * still carries `ca` beside its source sentence (`catalog-migration`), to move into the owner's `catalogs/ca.json`.
- * It turns into an error only when every owner has moved and the owner rules so.
- */
-export function dataWarnings(data) {
-  const warnings: Json[] = [];
-  for (const f of data.files ?? []) {
-    if (!f.doc || typeof f.doc !== 'object' || f.doc.origin !== undefined || f.doc.kind !== undefined) continue;
-    for (const [name, item] of Object.entries((f.doc) as Record<string, Json>)) warnings.push(...catalogMigrationOf(f.rel, name, item));
-  }
-  return warnings;
-}
-
-/** One `catalog-migration` warning per code or word of `item` whose text still carries `ca`. */
-export function catalogMigrationOf(rel, name, item) {
-  if (!item || typeof item !== 'object' || (item.kind !== 'codes' && item.kind !== 'words')) return [];
-  const entries = Object.values(((item.kind === 'codes' ? item.codes : item.words) ?? {}) as Record<string, Json>);
-  return entries
-    .filter((e) => e?.text?.ca !== undefined)
-    .map((e) => {
-      const key = item.kind === 'codes' ? e.code : `${name}.${e.word}`;
-      return { file: rel, item: name, rule: 'catalog-migration', message: `${key}: text.ca is deprecated; move it to the owner's catalogs/ca.json under ${JSON.stringify(key)}` };
-    });
-}
 
 function semanticRules(resolved, say) {
   const val = (name) => resolved.get(name)?.value;

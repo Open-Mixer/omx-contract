@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import { atLeast } from '../lib/contract-dir.mjs';
 import { loadData } from '../lib/data.mjs';
 import { classify } from '../lib/semver.mjs';
-import { SCHEMA_VERSION, dataWarnings, fileProblems, validateData } from '../lib/validate.mjs';
+import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { DATA, resolvedOf, texts } from './helpers.mjs';
@@ -28,8 +28,7 @@ test('a code with its source sentence, its placeholders all in args, is green', 
 
 test('fixture text-ca: a code still carrying text.ca is red: the source sentence is the only language in contract data', () => {
   const p = problems((d) => { withText(d).text.ca = 'No hi ha cap directori de contracte a {path}'; });
-  assert.ok(p.some((x) => x.startsWith('HOSTING_CODES')), p.join());
-  assert.deepEqual(dataWarnings(loadData(null, texts((d) => { withText(d); }))), [], 'a source sentence alone warns nothing');
+  assert.ok(p.includes('HOSTING_CODES:code-text-language'), p.join());
 });
 
 test('fixture text-other-language: a language beside en is red', () => {

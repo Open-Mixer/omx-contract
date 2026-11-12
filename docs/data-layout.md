@@ -60,7 +60,7 @@ not the one its path gives.
 
 - A code is `hosting.<group>...`, `contract.<group>.<reason>`, `reply.<group>.<reason>` or `panel.<group>.<reason>`
   (omx-panel's refusals, since 3.12.0), lower case; or, since 3.14.0, a console code as the console spells it (owner
-  openmixer, openmixer#41): a refusal code in UPPER_SNAKE (`BAD_TYPE`) or a message code in dotted kebab (`rt.budget`)
+  openmixer): a refusal code in UPPER_SNAKE (`BAD_TYPE`) or a message code in dotted kebab (`rt.budget`)
   that starts with none of the other families' prefixes. The console's catalog (`owner` openmixer) tells its keys from
   another owner's.
 - A `codes` item's codes are sorted by name; the name is the operator-facing key a consumer reads the code by, and the

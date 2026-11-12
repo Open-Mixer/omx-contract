@@ -9,6 +9,10 @@ name: release
 # GitHub release. The npm package is published by publish.yml (npmjs.com trusts that file by name, with the
 # npm-publish environment), on the same tag.
 
+# A manual run with staged on (never a tag) builds fc44 x86_64 and trixie amd64 only and leaves them on the prerelease
+# staged-v<version> for the next layer of the release chain, which names them in its own staged-deps; nothing reaches
+# the channel, and the real release still publishes once from the v<version> tag (Open-Mixer/.github build-rpm.yml).
+
 on:
   push:
     tags: ['v*']
@@ -18,6 +22,14 @@ on:
         description: 'Sign and publish the packages; only a run on a tag publishes'
         type: boolean
         default: false
+      staged:
+        description: 'Build fc44 x86_64 and trixie amd64 only and put them on the prerelease staged-v<version> for the next layer; publishes nothing to the channel'
+        type: boolean
+        default: false
+      staged-deps:
+        description: 'Staged packages of inner layers to build against, [owner/]repo@version[:package,package], space separated'
+        type: string
+        default: ''
 
 # A called workflow cannot exceed its caller's token. build-rpm.yml and build-deb.yml run a report-failure job that
 # asks for `issues: write` and `actions: read`; without both here GitHub refuses to start the run at all.
@@ -66,6 +78,8 @@ jobs:
     needs: check
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
+      staged: ${{ inputs.staged == true }}
+      staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
       binary-names: omx-contract omx-contract-data omx-contract-devel
       publish: ${{ github.event_name == 'push' || inputs.publish == true }}
@@ -78,6 +92,8 @@ jobs:
     needs: check
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
+      staged: ${{ inputs.staged == true }}
+      staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
       binary-names: libomx-contract-dev omx-contract omx-contract-data
       publish: ${{ github.event_name == 'push' || inputs.publish == true }}

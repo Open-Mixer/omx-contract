@@ -70,3 +70,71 @@ Description: command that checks and renders the OpenMixer declarations
  nothing else.
  .
  Its documentation is on openmixer.org.
+
+Package: omx-contract-l10n-ca
+Architecture: all
+Multi-Arch: foreign
+Section: localization
+Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
+Breaks: omx-contract-data (<< 3.16.0~)
+Replaces: omx-contract-data (<< 3.16.0~)
+Description: Catalan sentences of the OpenMixer declarations' codes and words
+ The Catalan catalog of omx-contract's codes and words
+ (/usr/share/omx-contract/catalogs/ca.json): a surface shows these sentences
+ on a host in that language, and the English source sentence for any key the
+ catalog lacks.
+
+Package: omx-contract-l10n-es
+Architecture: all
+Multi-Arch: foreign
+Section: localization
+Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
+Description: Spanish sentences of the OpenMixer declarations' codes and words
+ The Spanish catalog of omx-contract's codes and words
+ (/usr/share/omx-contract/catalogs/es.json): a surface shows these sentences
+ on a host in that language, and the English source sentence for any key the
+ catalog lacks.
+
+Package: omx-contract-l10n-fr
+Architecture: all
+Multi-Arch: foreign
+Section: localization
+Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
+Description: French sentences of the OpenMixer declarations' codes and words
+ The French catalog of omx-contract's codes and words
+ (/usr/share/omx-contract/catalogs/fr.json): a surface shows these sentences
+ on a host in that language, and the English source sentence for any key the
+ catalog lacks.
+
+Package: omx-contract-l10n-de
+Architecture: all
+Multi-Arch: foreign
+Section: localization
+Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
+Description: German sentences of the OpenMixer declarations' codes and words
+ The German catalog of omx-contract's codes and words
+ (/usr/share/omx-contract/catalogs/de.json): a surface shows these sentences
+ on a host in that language, and the English source sentence for any key the
+ catalog lacks.
+
+Package: omx-contract-l10n-it
+Architecture: all
+Multi-Arch: foreign
+Section: localization
+Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
+Description: Italian sentences of the OpenMixer declarations' codes and words
+ The Italian catalog of omx-contract's codes and words
+ (/usr/share/omx-contract/catalogs/it.json): a surface shows these sentences
+ on a host in that language, and the English source sentence for any key the
+ catalog lacks.
+
+Package: omx-contract-l10n-pt
+Architecture: all
+Multi-Arch: foreign
+Section: localization
+Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
+Description: Portuguese sentences of the OpenMixer declarations' codes and words
+ The Portuguese catalog of omx-contract's codes and words
+ (/usr/share/omx-contract/catalogs/pt.json): a surface shows these sentences
+ on a host in that language, and the English source sentence for any key the
+ catalog lacks.

@@ -6,4 +6,4 @@ usr/share/omx-contract/omx-resource-hints.ttl
 usr/share/omx-contract/omx_contract.py
 usr/share/omx-contract/omx_contract_catalog.py
 usr/share/omx-contract/scale-vectors.json
-usr/share/omx-contract/catalogs
+usr/share/omx-contract/languages.json

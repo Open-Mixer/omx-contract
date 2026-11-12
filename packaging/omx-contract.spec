@@ -62,6 +62,84 @@ share/omx-contract. A package that reads them at run time requires this one,
 never the development package.
 Its documentation is on openmixer.org.
 
+%package langpack-ca
+License: GPL-3.0-or-later
+Summary: The Catalan sentences of the OpenMixer declarations' codes and words
+Requires: %{name}-data = %{version}-%{release}
+Supplements: (%{name}-data and langpacks-ca)
+
+%description langpack-ca
+The Catalan catalog of omx-contract's codes and words
+(share/omx-contract/catalogs/ca.json): a surface shows these sentences on a
+host in that language, and the English source sentence for any key the
+catalog lacks. Installed with omx-contract-data when the host carries the
+Catalan langpacks.
+
+%package langpack-es
+License: GPL-3.0-or-later
+Summary: The Spanish sentences of the OpenMixer declarations' codes and words
+Requires: %{name}-data = %{version}-%{release}
+Supplements: (%{name}-data and langpacks-es)
+
+%description langpack-es
+The Spanish catalog of omx-contract's codes and words
+(share/omx-contract/catalogs/es.json): a surface shows these sentences on a
+host in that language, and the English source sentence for any key the
+catalog lacks. Installed with omx-contract-data when the host carries the
+Spanish langpacks.
+
+%package langpack-fr
+License: GPL-3.0-or-later
+Summary: The French sentences of the OpenMixer declarations' codes and words
+Requires: %{name}-data = %{version}-%{release}
+Supplements: (%{name}-data and langpacks-fr)
+
+%description langpack-fr
+The French catalog of omx-contract's codes and words
+(share/omx-contract/catalogs/fr.json): a surface shows these sentences on a
+host in that language, and the English source sentence for any key the
+catalog lacks. Installed with omx-contract-data when the host carries the
+French langpacks.
+
+%package langpack-de
+License: GPL-3.0-or-later
+Summary: The German sentences of the OpenMixer declarations' codes and words
+Requires: %{name}-data = %{version}-%{release}
+Supplements: (%{name}-data and langpacks-de)
+
+%description langpack-de
+The German catalog of omx-contract's codes and words
+(share/omx-contract/catalogs/de.json): a surface shows these sentences on a
+host in that language, and the English source sentence for any key the
+catalog lacks. Installed with omx-contract-data when the host carries the
+German langpacks.
+
+%package langpack-it
+License: GPL-3.0-or-later
+Summary: The Italian sentences of the OpenMixer declarations' codes and words
+Requires: %{name}-data = %{version}-%{release}
+Supplements: (%{name}-data and langpacks-it)
+
+%description langpack-it
+The Italian catalog of omx-contract's codes and words
+(share/omx-contract/catalogs/it.json): a surface shows these sentences on a
+host in that language, and the English source sentence for any key the
+catalog lacks. Installed with omx-contract-data when the host carries the
+Italian langpacks.
+
+%package langpack-pt
+License: GPL-3.0-or-later
+Summary: The Portuguese sentences of the OpenMixer declarations' codes and words
+Requires: %{name}-data = %{version}-%{release}
+Supplements: (%{name}-data and langpacks-pt)
+
+%description langpack-pt
+The Portuguese catalog of omx-contract's codes and words
+(share/omx-contract/catalogs/pt.json): a surface shows these sentences on a
+host in that language, and the English source sentence for any key the
+catalog lacks. Installed with omx-contract-data when the host carries the
+Portuguese langpacks.
+
 %package devel
 License: GPL-3.0-or-later
 Summary: Headers and pkg-config file to build on the OpenMixer declarations
@@ -115,8 +193,27 @@ Its documentation is on openmixer.org.
 %{_datadir}/omx-contract/omx_contract.py
 %{_datadir}/omx-contract/omx_contract_catalog.py
 %{_datadir}/omx-contract/scale-vectors.json
-%{_datadir}/omx-contract/catalogs/
+%{_datadir}/omx-contract/languages.json
+%dir %{_datadir}/omx-contract/catalogs
 %{_datadir}/omx-contract/omx-resource-hints.ttl
+
+%files langpack-ca
+%{_datadir}/omx-contract/catalogs/ca.json
+
+%files langpack-es
+%{_datadir}/omx-contract/catalogs/es.json
+
+%files langpack-fr
+%{_datadir}/omx-contract/catalogs/fr.json
+
+%files langpack-de
+%{_datadir}/omx-contract/catalogs/de.json
+
+%files langpack-it
+%{_datadir}/omx-contract/catalogs/it.json
+
+%files langpack-pt
+%{_datadir}/omx-contract/catalogs/pt.json
 
 %files devel
 %license LICENSE

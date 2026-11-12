@@ -238,8 +238,8 @@ test('the RPM spec builds one langpack per listed language, each owning its cata
   for (const lang of listed()) {
     const sub = spec.split(`%package langpack-${lang}\n`)[1]?.split('\n%')[0];
     assert.ok(sub, `%package langpack-${lang}`);
-    assert.match(sub, new RegExp(`^Supplements: \\(omx-contract-data and langpacks-${lang}\\)$`, 'm'));
-    assert.match(sub, /^Requires: omx-contract-data = %\{version\}-%\{release\}$/m);
+    assert.match(sub, new RegExp(`^Supplements: \\(%\\{name\\}-data and langpacks-${lang}\\)$`, 'm'));
+    assert.match(sub, /^Requires: %\{name\}-data = %\{version\}-%\{release\}$/m);
     assert.match(spec, new RegExp(`%files langpack-${lang}\\n%\\{_datadir\\}/omx-contract/catalogs/${lang}\\.json\\n`));
   }
   assert.doesNotMatch(spec, /^%\{_datadir\}\/omx-contract\/catalogs\/$/m, 'the data package owns the directory, not the catalogs');

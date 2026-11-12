@@ -1,3 +1,16 @@
+omx-contract (3.17.1) unstable; urgency=medium
+
+  * share/omx-contract/omx_contract_scale.py, the Python twin of the
+    position-law reader (#20): scale_position(travel, value) and
+    scale_value(travel, p) for every law the contract declares (linear, log,
+    stepped, map), held to data/scale-vectors.json and to the TypeScript
+    reader on a grid; installed by omx-contract-data.
+  * Schema 3.16.0, unchanged: libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0
+    stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 21:00:00 +0100
+
 omx-contract (3.17.0) unstable; urgency=medium
 
   * omx-contract translate --source <file>: an owner's source sentences from

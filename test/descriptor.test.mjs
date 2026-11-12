@@ -26,6 +26,8 @@ const fixture = (name) => JSON.parse(readFileSync(join(FIXTURES, `${name}.json`)
 const AUTHORED = 'authored-omx-delay';
 /** A well-formed meter: a gain reduction read off a kernel readout. */
 const METER = () => ({ id: 0, symbol: 'gr', name: 'Gain reduction', kind: 'gain-reduction', channels: 1, unit: 'dB', min: -60, max: 0, scale: 'linear' });
+/** A full commit, as a release tag names one. */
+const COMMIT = '0123456789abcdef0123456789abcdef01234567';
 const BUILT = 'built-wrapped-synth';
 const SCANNED_LV2 = 'scanned-lv2-compressor';
 const SCANNED_CLAP = 'scanned-clap-unknown';
@@ -145,7 +147,9 @@ test('the words are the closed lists of docs/descriptors.md', () => {
   assert.deepEqual($.port.properties.layout.enum, ['mono', 'stereo', 'surround']);
   assert.deepEqual($.port.properties.dialects.items.enum, ['clap', 'midi', 'midiMpe', 'midi2']);
   assert.deepEqual($.plugin.properties.features.items.enum, ['audio-effect', 'instrument', 'note-effect', 'analyzer']);
-  assert.deepEqual(Object.keys($.descriptor.properties), ['$schema', 'requires', 'origin', 'plugin', 'controls', 'ports', 'instrument', 'needs', 'latency', 'easy', 'meters', 'extensions', 'source']);
+  assert.deepEqual(Object.keys($.descriptor.properties), ['$schema', 'requires', 'origin', 'plugin', 'controls', 'ports', 'instrument', 'needs', 'latency', 'easy', 'meters', 'integrity', 'extensions', 'source']);
+  assert.deepEqual($.descriptorIntegrity.required, ['version', 'commit']);
+  assert.deepEqual(Object.keys($.descriptorIntegrity.properties), ['version', 'commit']);
   assert.deepEqual(PARAM_SCALE_IDS, ['linear', 'log', 'stepped']);
   assert.deepEqual($.descriptorMeter.properties.kind.enum, ['gain-reduction', 'level']);
   const doc = readFileSync(join(ROOT, 'docs/descriptors.md'), 'utf8');
@@ -168,6 +172,10 @@ test('a word the schema does not have is contract.file.invalid, never skipped', 
     ['a travel without its scale', (d) => { delete d.controls[0].travel.scale; }],
     ['a control without its id', (d) => { delete d.controls[0].id; }],
     ['a symbol that is no identifier', (d) => { d.controls[0].symbol = 'fx delay'; }],
+    ['an integrity commit that is no full commit', (d) => { d.integrity = { version: d.plugin.version, commit: 'abc123' }; }],
+    ['an integrity commit in capitals', (d) => { d.integrity = { version: d.plugin.version, commit: COMMIT.toUpperCase() }; }],
+    ['an integrity without its commit', (d) => { d.integrity = { version: d.plugin.version }; }],
+    ['an integrity with a key it does not have', (d) => { d.integrity = { version: d.plugin.version, commit: COMMIT, sha256: COMMIT }; }],
   ];
   for (const [what, fn] of arms) {
     const d = broken(AUTHORED, fn);
@@ -204,6 +212,8 @@ const ARMS = [
   ['a peak measurement in LUFS', AUTHORED, (d) => { d.meters = [{ ...METER(), kind: 'level', unit: 'LUFS', measurement: 'peak' }]; }, 'descriptorMeter'],
   ['a level meter whose measurement is gain-reduction', AUTHORED, (d) => { d.meters = [{ ...METER(), kind: 'level', unit: 'dBFS', measurement: 'gain-reduction' }]; }, 'descriptorMeter'],
   ['a gain-reduction meter whose measurement is peak', AUTHORED, (d) => { d.meters = [{ ...METER(), measurement: 'peak' }]; }, 'descriptorMeter'],
+  ['an integrity version that is not the plugin\'s', AUTHORED, (d) => { d.integrity = { version: '9.9.9', commit: COMMIT }; }, 'descriptorIntegrity'],
+  ['an integrity on a plugin that states no version', AUTHORED, (d) => { delete d.plugin.version; d.integrity = { version: '0.5.0', commit: COMMIT }; }, 'descriptorIntegrity'],
   ['two controls with one id', AUTHORED, (d) => { d.controls[1].id = 0; }, 'descriptorControlDuplicate'],
   ['two controls with one name', SCANNED_CLAP, (d) => { d.controls[1].name = 'shape'; }, 'descriptorControlDuplicate'],
   ['two controls with one symbol', AUTHORED, (d) => { d.controls[1].symbol = d.controls[0].symbol; }, 'descriptorControlDuplicate'],
@@ -294,6 +304,17 @@ test('easy names a plugin\'s Easy face in order, by each control\'s key, at most
   const scan = fixture(SCANNED_CLAP);
   scan.easy = [scan.controls[0].id];
   assert.ok(problemsOf(scan).some((p) => p.name === 'descriptorEasy'), 'a scan has nothing to read it from');
+});
+
+test('integrity names the source a descriptor was generated from: its version and the commit its release tag names', () => {
+  const d = fixture(AUTHORED);
+  d.integrity = { version: d.plugin.version, commit: COMMIT };
+  assert.deepEqual(problemsOf(d), [], 'positive control: the plugin\'s version and a full commit pass');
+  const read = loadContractDir({ dir: directory({ 'plugins/omx-delay.json': d }) });
+  assert.deepEqual(read.files.map((f) => f.doc.integrity), [{ version: '0.5.0', commit: COMMIT }], 'and the reader reads it');
+  const none = fixture(AUTHORED);
+  assert.equal(none.integrity, undefined);
+  assert.deepEqual(problemsOf(none), [], 'optional: a descriptor without it is as valid as before');
 });
 
 test('meters name what a plugin publishes while it runs, each by the output symbol a host reads it by', () => {

@@ -7,18 +7,27 @@
     "words": {
       "cpu": {
         "word": "cpu",
-        "doc": "The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115)."
+        "doc": "The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115).",
+        "text": {
+          "en": "The cost per sample at a rate and quantum, its percentile and its tail."
+        }
       },
       "memory": {
         "word": "memory",
-        "doc": "The footprint per instance and its growth over a soak (plugin-qualify#114)."
+        "doc": "The footprint per instance and its growth over a soak (plugin-qualify#114).",
+        "text": {
+          "en": "The footprint per instance and its growth over a soak."
+        }
       },
       "scratchMemory": {
         "word": "scratch-memory",
         "from": [
           "CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"
         ],
-        "doc": "The memory a plugin asks of its host for its process call."
+        "doc": "The memory a plugin asks of its host for its process call.",
+        "text": {
+          "en": "The memory a plugin asks of its host for its process call."
+        }
       },
       "latency": {
         "word": "latency",
@@ -26,32 +35,47 @@
           "LV2_CORE_TERMS#latency",
           "CLAP_EXT_LATENCY_TERMS#latency"
         ],
-        "doc": "The frames a plugin delays its output by, per rate and quantum."
+        "doc": "The frames a plugin delays its output by, per rate and quantum.",
+        "text": {
+          "en": "The frames a plugin delays its output by, per rate and quantum."
+        }
       },
       "tail": {
         "word": "tail",
         "from": [
           "CLAP_EXT_TAIL_TERMS#tail"
         ],
-        "doc": "How long a plugin keeps sounding once its input goes silent."
+        "doc": "How long a plugin keeps sounding once its input goes silent.",
+        "text": {
+          "en": "How long a plugin keeps sounding once its input goes silent."
+        }
       },
       "voices": {
         "word": "voices",
         "from": [
           "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
         ],
-        "doc": "The notes an instrument plays at once."
+        "doc": "The notes an instrument plays at once.",
+        "text": {
+          "en": "The notes an instrument plays at once."
+        }
       },
       "startup": {
         "word": "startup",
-        "doc": "The wall time of instantiate, activate and the first block."
+        "doc": "The wall time of instantiate, activate and the first block.",
+        "text": {
+          "en": "The wall time of instantiate, activate and the first block."
+        }
       },
       "threads": {
         "word": "threads",
         "from": [
           "CLAP_EXT_THREAD_POOL_TERMS#thread-pool"
         ],
-        "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for."
+        "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.",
+        "text": {
+          "en": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for."
+        }
       },
       "worker": {
         "word": "worker",
@@ -59,7 +83,10 @@
           "LV2_WORKER_TERMS#schedule",
           "LV2_WORKER_TERMS#interface"
         ],
-        "doc": "The work a plugin hands to a non-real-time thread of the host."
+        "doc": "The work a plugin hands to a non-real-time thread of the host.",
+        "text": {
+          "en": "The work a plugin hands to a non-real-time thread of the host."
+        }
       },
       "blockLength": {
         "word": "block-length",
@@ -70,19 +97,31 @@
           "LV2_BUF_SIZE_TERMS#nominalBlockLength",
           "LV2_OPTIONS_TERMS#options"
         ],
-        "doc": "The block lengths a plugin accepts."
+        "doc": "The block lengths a plugin accepts.",
+        "text": {
+          "en": "The block lengths a plugin accepts."
+        }
       },
       "openFiles": {
         "word": "open-files",
-        "doc": "The file descriptors a plugin holds after activate, and their growth."
+        "doc": "The file descriptors a plugin holds after activate, and their growth.",
+        "text": {
+          "en": "The file descriptors a plugin holds after activate, and their growth."
+        }
       },
       "diskIo": {
         "word": "disk-io",
-        "doc": "The bytes a plugin reads at load and while it processes."
+        "doc": "The bytes a plugin reads at load and while it processes.",
+        "text": {
+          "en": "The bytes a plugin reads at load and while it processes."
+        }
       },
       "network": {
         "word": "network",
-        "doc": "Any socket a plugin opens."
+        "doc": "Any socket a plugin opens.",
+        "text": {
+          "en": "Any socket a plugin opens."
+        }
       },
       "state": {
         "word": "state",
@@ -90,7 +129,10 @@
           "LV2_STATE_TERMS#interface",
           "CLAP_EXT_STATE_TERMS#state"
         ],
-        "doc": "The size of a plugin's saved state, its save and restore time, and its round trip."
+        "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
+        "text": {
+          "en": "The size of a plugin's saved state, its save and restore time, and its round trip."
+        }
       }
     }
   },
@@ -100,41 +142,68 @@
     "doc": "The units a resource figure is given in; an LV2 unit's name where LV2 has one.",
     "words": {
       "nsPerSample": {
-        "word": "ns-per-sample"
+        "word": "ns-per-sample",
+        "text": {
+          "en": "Nanoseconds per sample."
+        }
       },
       "frames": {
         "word": "frames",
         "from": [
           "LV2_UNITS_TERMS#frame"
-        ]
+        ],
+        "text": {
+          "en": "A count of audio frames."
+        }
       },
       "ms": {
         "word": "ms",
         "from": [
           "LV2_UNITS_TERMS#ms"
-        ]
+        ],
+        "text": {
+          "en": "Milliseconds."
+        }
       },
       "us": {
-        "word": "us"
+        "word": "us",
+        "text": {
+          "en": "Microseconds."
+        }
       },
       "s": {
         "word": "s",
         "from": [
           "LV2_UNITS_TERMS#s"
-        ]
+        ],
+        "text": {
+          "en": "Seconds."
+        }
       },
       "bytes": {
-        "word": "bytes"
+        "word": "bytes",
+        "text": {
+          "en": "Bytes."
+        }
       },
       "plainCount": {
-        "word": "count"
+        "word": "count",
+        "text": {
+          "en": "A plain count, with no unit."
+        }
       },
       "ratio": {
-        "word": "ratio"
+        "word": "ratio",
+        "text": {
+          "en": "A ratio, with no unit."
+        }
       },
       "flag": {
         "word": "flag",
-        "doc": "A yes or a no: one when the plugin does the thing, zero when it does not."
+        "doc": "A yes or a no: one when the plugin does the thing, zero when it does not.",
+        "text": {
+          "en": "A yes or a no: one when the plugin does the thing, zero when it does not."
+        }
       }
     }
   },
@@ -144,13 +213,22 @@
     "doc": "How a resource figure was known: what the plugin declares, what a run measured, or a count the caller gave the probe.",
     "words": {
       "declared": {
-        "word": "declared"
+        "word": "declared",
+        "text": {
+          "en": "What the plugin declares about itself."
+        }
       },
       "measured": {
-        "word": "measured"
+        "word": "measured",
+        "text": {
+          "en": "What a run measured."
+        }
       },
       "probe": {
-        "word": "probe"
+        "word": "probe",
+        "text": {
+          "en": "A count the caller gave the probe."
+        }
       }
     }
   },
@@ -160,19 +238,34 @@
     "doc": "When a plugin's memory is read, per instance (plugin-qualify#114): after instantiate, after activate, at rest after processing, with notes held, and for a second instance, so a shared one-time load is told apart from the per-instance cost.",
     "words": {
       "afterInstantiate": {
-        "word": "after-instantiate"
+        "word": "after-instantiate",
+        "text": {
+          "en": "Memory read right after the plugin instantiates."
+        }
       },
       "afterActivate": {
-        "word": "after-activate"
+        "word": "after-activate",
+        "text": {
+          "en": "Memory read right after the plugin activates."
+        }
       },
       "atRest": {
-        "word": "at-rest"
+        "word": "at-rest",
+        "text": {
+          "en": "Memory read at rest, after processing, with no note playing."
+        }
       },
       "notesHeld": {
-        "word": "notes-held"
+        "word": "notes-held",
+        "text": {
+          "en": "Memory read while notes are held."
+        }
       },
       "secondInstance": {
-        "word": "second-instance"
+        "word": "second-instance",
+        "text": {
+          "en": "Memory read for a second instance, so a shared one-time load is told apart from the per-instance cost."
+        }
       }
     }
   },
@@ -183,11 +276,17 @@
     "words": {
       "unmeasuredOnClass": {
         "word": "unmeasured-on-class",
-        "doc": "The only figure was taken on another machine class: never read as a pass, never scaled."
+        "doc": "The only figure was taken on another machine class: never read as a pass, never scaled.",
+        "text": {
+          "en": "The only figure was taken on another machine class: never read as a pass, never scaled."
+        }
       },
       "limitExceeded": {
         "word": "limit-exceeded",
-        "doc": "The run hit the limit probe isolation set for the resource; the limit is recorded beside it."
+        "doc": "The run hit the limit probe isolation set for the resource; the limit is recorded beside it.",
+        "text": {
+          "en": "The run hit the limit probe isolation set for the resource; the limit is recorded beside it."
+        }
       }
     }
   },
@@ -197,10 +296,16 @@
     "doc": "What a host profile's budget for a resource is counted over (plugin-qualify#114, #115): one plugin instance, or the whole console.",
     "words": {
       "perInstance": {
-        "word": "per-instance"
+        "word": "per-instance",
+        "text": {
+          "en": "Counted over one plugin instance."
+        }
       },
       "perConsole": {
-        "word": "per-console"
+        "word": "per-console",
+        "text": {
+          "en": "Counted over the whole console."
+        }
       }
     }
   },
@@ -210,13 +315,22 @@
     "doc": "How a host runs its plugins.",
     "words": {
       "inProcess": {
-        "word": "in-process"
+        "word": "in-process",
+        "text": {
+          "en": "The host runs its plugins in its own process."
+        }
       },
       "perProcess": {
-        "word": "per-process"
+        "word": "per-process",
+        "text": {
+          "en": "The host runs each plugin in its own process."
+        }
       },
       "sharedProcess": {
-        "word": "shared-process"
+        "word": "shared-process",
+        "text": {
+          "en": "The host runs its plugins together in one process apart from its own."
+        }
       }
     }
   },
@@ -226,10 +340,16 @@
     "doc": "Whether a host aligns on a plugin's reported latency or only passes it on.",
     "words": {
       "compensated": {
-        "word": "compensated"
+        "word": "compensated",
+        "text": {
+          "en": "The host delays every other path to align on this plugin's reported latency."
+        }
       },
       "uncompensated": {
-        "word": "uncompensated"
+        "word": "uncompensated",
+        "text": {
+          "en": "The host passes the plugin's reported latency on, without aligning other paths to it."
+        }
       }
     }
   },
@@ -239,10 +359,16 @@
     "doc": "The scheduling class a host gives its plugin's threads, as the probe output records it.",
     "words": {
       "none": {
-        "word": "none"
+        "word": "none",
+        "text": {
+          "en": "No particular scheduling class: the thread runs as any other."
+        }
       },
       "fifo": {
-        "word": "fifo"
+        "word": "fifo",
+        "text": {
+          "en": "The real-time FIFO scheduling class."
+        }
       }
     }
   },
@@ -266,49 +392,70 @@
         "group": "memory",
         "figureUnit": "bytes",
         "basis": "declared",
-        "doc": "The memory one instance holds at rest, once activated and idle, with no note playing."
+        "doc": "The memory one instance holds at rest, once activated and idle, with no note playing.",
+        "text": {
+          "en": "The memory one instance holds at rest, once activated and idle, with no note playing."
+        }
       },
       "footprintPerVoice": {
         "word": "footprint-per-voice",
         "group": "memory",
         "figureUnit": "bytes",
         "basis": "declared",
-        "doc": "The memory each voice adds while it plays, for an instrument."
+        "doc": "The memory each voice adds while it plays, for an instrument.",
+        "text": {
+          "en": "The memory each voice adds while it plays, for an instrument."
+        }
       },
       "sharedLoad": {
         "word": "shared-load",
         "group": "memory",
         "figureUnit": "bytes",
         "basis": "declared",
-        "doc": "The one-time load every instance of the plugin shares, counted once however many are instantiated."
+        "doc": "The one-time load every instance of the plugin shares, counted once however many are instantiated.",
+        "text": {
+          "en": "The one-time load every instance of the plugin shares, counted once however many are instantiated."
+        }
       },
       "threadsSpawned": {
         "word": "threads-spawned",
         "group": "threads",
         "figureUnit": "count",
         "basis": "declared",
-        "doc": "The threads the plugin starts itself, apart from any it asks the host pool for."
+        "doc": "The threads the plugin starts itself, apart from any it asks the host pool for.",
+        "text": {
+          "en": "The threads the plugin starts itself, apart from any it asks the host pool for."
+        }
       },
       "streamsFromDisk": {
         "word": "streams-from-disk",
         "group": "disk-io",
         "figureUnit": "flag",
         "basis": "declared",
-        "doc": "Whether the plugin reads from disk while it processes."
+        "doc": "Whether the plugin reads from disk while it processes.",
+        "text": {
+          "en": "Whether the plugin reads from disk while it processes."
+        }
       },
       "opensSockets": {
         "word": "opens-sockets",
         "group": "network",
         "figureUnit": "flag",
         "basis": "declared",
-        "doc": "Whether the plugin opens any socket."
+        "doc": "Whether the plugin opens any socket.",
+        "text": {
+          "en": "Whether the plugin opens any socket."
+        }
       },
       "activateTime": {
         "word": "activate-time",
         "group": "startup",
         "figureUnit": "ms",
         "basis": "declared",
-        "doc": "The wall time of activate and the first block the plugin expects."
+        "doc": "The wall time of activate and the first block the plugin expects.",
+        "text": {
+          "en": "The wall time of activate and the first block the plugin expects."
+        }
       }
     }
   }

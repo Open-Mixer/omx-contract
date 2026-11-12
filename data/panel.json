@@ -8,51 +8,87 @@
     "words": {
       "none": {
         "word": "none",
-        "doc": "a plugin with no family: its panel is laid out from its groups and roles"
+        "doc": "a plugin with no family: its panel is laid out from its groups and roles",
+        "text": {
+          "en": "A plugin with no family: its panel is laid out from its groups and its roles."
+        }
       },
       "gate": {
         "word": "gate",
-        "doc": "a gate or expander"
+        "doc": "a gate or expander",
+        "text": {
+          "en": "A gate's or an expander's panel family."
+        }
       },
       "dynamics": {
         "word": "dynamics",
-        "doc": "a compressor"
+        "doc": "a compressor",
+        "text": {
+          "en": "A compressor's panel family."
+        }
       },
       "limiter": {
         "word": "limiter",
-        "doc": "a limiter"
+        "doc": "a limiter",
+        "text": {
+          "en": "A limiter's panel family."
+        }
       },
       "deesser": {
         "word": "deesser",
-        "doc": "a de-esser"
+        "doc": "a de-esser",
+        "text": {
+          "en": "A de-esser's panel family."
+        }
       },
       "eq": {
         "word": "eq",
-        "doc": "an equaliser, parametric or graphic"
+        "doc": "an equaliser, parametric or graphic",
+        "text": {
+          "en": "An equaliser's panel family, parametric or graphic."
+        }
       },
       "filter": {
         "word": "filter",
-        "doc": "a filter"
+        "doc": "a filter",
+        "text": {
+          "en": "A filter's panel family."
+        }
       },
       "drive": {
         "word": "drive",
-        "doc": "a saturator or distortion"
+        "doc": "a saturator or distortion",
+        "text": {
+          "en": "A saturator's or a distortion's panel family."
+        }
       },
       "modulation": {
         "word": "modulation",
-        "doc": "a chorus, flanger, phaser or tremolo"
+        "doc": "a chorus, flanger, phaser or tremolo",
+        "text": {
+          "en": "A chorus's, a flanger's, a phaser's or a tremolo's panel family."
+        }
       },
       "delay": {
         "word": "delay",
-        "doc": "a delay"
+        "doc": "a delay",
+        "text": {
+          "en": "A delay's panel family."
+        }
       },
       "reverb": {
         "word": "reverb",
-        "doc": "a reverb"
+        "doc": "a reverb",
+        "text": {
+          "en": "A reverb's panel family."
+        }
       },
       "pitch": {
         "word": "pitch",
-        "doc": "a pitch shifter"
+        "doc": "a pitch shifter",
+        "text": {
+          "en": "A pitch shifter's panel family."
+        }
       }
     }
   },
@@ -63,35 +99,59 @@
     "words": {
       "knob": {
         "word": "knob",
-        "doc": "a travel"
+        "doc": "a travel",
+        "text": {
+          "en": "A travel, drawn as a knob."
+        }
       },
       "fader": {
         "word": "fader",
-        "doc": "a travel drawn long"
+        "doc": "a travel drawn long",
+        "text": {
+          "en": "A travel drawn long, as a fader."
+        }
       },
       "switch": {
         "word": "switch",
-        "doc": "a toggle"
+        "doc": "a toggle",
+        "text": {
+          "en": "A toggle, drawn as a switch."
+        }
       },
       "selector": {
         "word": "selector",
-        "doc": "an integer travel or labelled values"
+        "doc": "an integer travel or labelled values",
+        "text": {
+          "en": "An integer travel or labelled values, drawn as a selector."
+        }
       },
       "meter": {
         "word": "meter",
-        "doc": "a readout"
+        "doc": "a readout",
+        "text": {
+          "en": "A readout, drawn as a meter."
+        }
       },
       "curve": {
         "word": "curve",
-        "doc": "a response or transfer curve"
+        "doc": "a response or transfer curve",
+        "text": {
+          "en": "A response or transfer curve, drawn as a graph."
+        }
       },
       "xy": {
         "word": "xy",
-        "doc": "two controls drawn as one point"
+        "doc": "two controls drawn as one point",
+        "text": {
+          "en": "Two controls drawn together as one point on a plane."
+        }
       },
       "display": {
         "word": "display",
-        "doc": "a value shown as text"
+        "doc": "a value shown as text",
+        "text": {
+          "en": "A value shown as text."
+        }
       }
     }
   },
@@ -102,23 +162,38 @@
     "words": {
       "auto": {
         "word": "auto",
-        "doc": "left out of a panel declaration: the layout picks the widget from the control"
+        "doc": "left out of a panel declaration: the layout picks the widget from the control",
+        "text": {
+          "en": "Left out of a panel declaration: the layout picks the widget from the control."
+        }
       },
       "knob": {
         "word": "knob",
-        "doc": "a rotary control"
+        "doc": "a rotary control",
+        "text": {
+          "en": "A rotary control."
+        }
       },
       "fader": {
         "word": "fader",
-        "doc": "a linear control"
+        "doc": "a linear control",
+        "text": {
+          "en": "A linear control."
+        }
       },
       "switch": {
         "word": "switch",
-        "doc": "a two-state control"
+        "doc": "a two-state control",
+        "text": {
+          "en": "A two-state control."
+        }
       },
       "selector": {
         "word": "selector",
-        "doc": "a control that picks one of a few values"
+        "doc": "a control that picks one of a few values",
+        "text": {
+          "en": "A control that picks one of a few values."
+        }
       }
     }
   }

@@ -3,7 +3,7 @@
   "$id": "https://github.com/FreeMixer/omx-contract/raw/main/schema/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.13.0",
+  "x-omx-schema-version": "3.14.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -63,6 +63,7 @@
           "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/descriptorMeter" },
           "description": "The values the plugin publishes while it runs and a host draws, never writes (docs/descriptors.md): CLAP clap.meters/1, LV2 output control ports. Optional; in the plugin's order."
         },
+        "integrity": { "$ref": "#/$defs/descriptorIntegrity" },
         "extensions": { "$ref": "#/$defs/extensions" },
         "source": { "$ref": "#/$defs/source" }
       },
@@ -245,6 +246,16 @@
           "then": { "properties": { "travel": false, "ids": false, "labels": false, "values": false, "default": false } }
         }
       ],
+      "additionalProperties": false
+    },
+    "descriptorIntegrity": {
+      "type": "object",
+      "description": "The source the descriptor was generated from (docs/descriptors.md): version, the plugin's own (plugin.version), and commit, the full commit its release tag names, stamped at build. A reader matches the build it links by the commit. Optional, and architecture-independent: it names no binary.",
+      "properties": {
+        "version": { "$ref": "#/$defs/text" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      },
+      "required": ["version", "commit"],
       "additionalProperties": false
     },
     "descriptorMeter": {
@@ -654,7 +665,7 @@
           "additionalProperties": {
             "type": "object",
             "properties": {
-              "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }] },
+              "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }, { "pattern": "^[A-Z][A-Z0-9_]*$", "description": "A console refusal code (owner openmixer), as the console spells it: UPPER_SNAKE." }, { "pattern": "^(?!(hosting|contract|reply|panel)\\.)[a-z][a-z0-9-]*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$", "description": "A console message code (owner openmixer), as the console spells it: dotted kebab, never in another family (hosting, contract, reply, panel keep their own rules)." }] },
               "resp": { "type": "integer", "maximum": -1, "description": "The number a host's reply carries for this refusal, the n of `resp <n>`: a reply code only." },
               "doc": { "$ref": "#/$defs/text" },
               "text": { "$ref": "#/$defs/sentence" },

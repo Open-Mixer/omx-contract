@@ -44,6 +44,20 @@ test('fixture text-other-language: a language beside en and the deprecated ca is
   assert.ok(p.some((x) => x.startsWith('HOSTING_CODES')), p.join());
 });
 
+test("the console's codes (owner openmixer) are codes as spelled: an UPPER_SNAKE refusal and a dotted kebab message", () => {
+  const at = (code) => problems((d) => { d['data/zz-console.json'] = { $schema: '../schema/omx-contract.schema.json', ZZ_CONSOLE_CODES: { kind: 'codes', doc: 'd', codes: { a: { code, text: { en: 'Field {field} is refused.' }, args: ['field'] } } } }; });
+  assert.deepEqual(at('BAD_TYPE'), [], 'a refusal code as the console spells it');
+  assert.deepEqual(at('rt.budget'), [], 'a message code as the console spells it');
+  assert.deepEqual(at('undo.label.set.gain'), []);
+  assert.ok(at('Bad_Type').length > 0, 'neither UPPER_SNAKE nor lower case');
+  assert.ok(at('_BAD').length > 0, 'a refusal code starts with a letter');
+  assert.ok(at('rt..budget').length > 0, 'an empty segment');
+  assert.ok(at('Rt.budget').length > 0, 'a message code is lower case');
+  assert.ok(at('rt.Budget').length > 0);
+  assert.ok(at('panel.skin').length > 0, "another family's prefix keeps that family's rule");
+  assert.ok(at('reply.x').length > 0);
+});
+
 test('a panel.* code (omx-panel\'s refusals) is a code; a bare panel word is not', () => {
   const at = (code) => problems((d) => { d['data/zz-panel.json'] = { $schema: '../schema/omx-contract.schema.json', ZZ_PANEL_CODES: { kind: 'codes', doc: 'd', codes: { a: { code, text: { en: 'Skin {skin} names no control.' }, args: ['skin'] } } } }; });
   assert.deepEqual(at('panel.skin.unknown-control'), []);

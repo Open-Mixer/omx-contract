@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { packageVersion } from '../lib/data.mjs';
@@ -169,4 +171,18 @@ test('packaging: omx-contract-data holds the run-time data, noarch in both forma
   assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n'), ['usr/include/omxcontract', 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/pkgconfig/omx-contract.pc']);
   const rpmNames = /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split('\n  rpm:\n')[1])[1].trim().split(/\s+/);
   assert.deepEqual(rpmNames.sort(), ['omx-contract', 'omx-contract-data', 'omx-contract-devel'], 'the release builds every RPM the spec declares');
+});
+
+// What the packages list, `make install` must put there: the deb's *.install is read against the staged tree (a file
+// listed and never copied fails dh_install and rpmbuild only in the release build, 3.14.0).
+test('packaging: make install stages every file the data package lists', () => {
+  const stage = mkdtempSync(join(tmpdir(), 'omx-contract-stage-'));
+  try {
+    execFileSync('make', ['install', 'PREFIX=/usr', `DESTDIR=${stage}`], { cwd: ROOT, stdio: 'ignore' });
+    const listed = read('debian/omx-contract-data.install').trim().split('\n');
+    assert.ok(listed.includes('usr/share/omx-contract/omx_contract_catalog.py'), 'positive control: the catalog reader is listed');
+    for (const rel of listed) assert.ok(existsSync(join(stage, rel)), `${rel} is listed in debian/omx-contract-data.install and make install does not stage it`);
+  } finally {
+    rmSync(stage, { recursive: true, force: true });
+  }
 });

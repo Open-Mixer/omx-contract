@@ -44,6 +44,23 @@ omx-contract \- validate, format and render the FreeMixer declarations
 .IR package = tree ]...
 .RB [ \-\-require\-impl ]
 .RB [ \-\-json ]
+.br
+.B omx-contract translate
+.RB [ \-\-check ]
+.RB [ \-\-lang
+.IR xx ]
+.RB [ \-\-owner
+.I tree
+|
+.I input
+.B \-\-catalogs
+.IR dir ]
+.RB [ \-\-package
+.IR name ]
+.RB [ \-\-model
+.IR alias ]
+.RB [ \-\-batch
+.IR n ]
 .SH DESCRIPTION
 .B omx-contract
 reads the FreeMixer declarations, the JSON data every knob, range and default
@@ -102,6 +119,22 @@ whether the version the schema states covers its changes since that tag.
 .TP
 .B links
 Check that each value's source links still name the code they cite.
+.TP
+.B translate
+Make every missing or stale entry of one language's catalog through an
+OpenAI-compatible chat/completions endpoint, named by
+.BR OMX_TRANSLATE_URL ,
+.B OMX_TRANSLATE_KEY
+and
+.B OMX_TRANSLATE_MODEL
+(or
+.BR \-\-model ).
+An answer whose placeholders are not exactly the source sentence's is refused
+and the run fails; a person's entry is never made again. It refuses to run
+inside a package build. With
+.BR \-\-check ,
+no endpoint is used: every language of languages.json must have a catalog,
+whole, with no stale entry.
 .SH EXIT STATUS
 0 is a pass, 1 a failure naming what failed, and 2 a usage or environment
 error, which is never a pass. A refusal of the contract directory reader

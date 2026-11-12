@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.15.0
+Version: 3.16.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -224,6 +224,20 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.16.0-1
+- language packs: each language of share/omx-contract/languages.json is its own
+  package, omx-contract-langpack-<lang>, holding its one catalog and
+  supplementing the host's langpacks-<lang>; omx-contract-data keeps the
+  catalogs directory and installs languages.json
+- a catalog entry carries how it was made: a person's, or a model's with its
+  model and the hash of its source sentence; both readers skip a stale one
+- omx-contract translate makes and keeps a language's catalog through an
+  OpenAI-compatible endpoint, behind the placeholder gate; --check is the
+  release gate; it never runs inside a package build
+- Schema 3.16.0, a minor; 3.15.0 is frozen in schema/history. omx-dsp-devel
+  before 0.25.0, omx-clap-core-devel before 0.13.0 and omx-plugins-devel
+  before 0.13.0 stay the floors.
+
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.15.0-1
 - the library modules are TypeScript (src/lib/*.mts), built into lib/*.mjs with
   their declarations; the build needs typescript >= 4.8.4 and < 7, and node's

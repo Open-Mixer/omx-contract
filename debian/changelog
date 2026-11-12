@@ -1,3 +1,22 @@
+omx-contract (3.16.0) unstable; urgency=medium
+
+  * Language packs: each language of share/omx-contract/languages.json is
+    its own package, omx-contract-l10n-<lang>, holding its one catalog;
+    omx-contract-data keeps the catalogs directory and installs
+    languages.json. The Catalan catalog moves from omx-contract-data to its
+    pack.
+  * A catalog entry carries how it was made: a person's, or a model's with
+    its model and the hash of its source sentence; both readers skip a
+    stale one.
+  * omx-contract translate makes and keeps a language's catalog through an
+    OpenAI-compatible endpoint, behind the placeholder gate; --check is the
+    release gate; it never runs inside a package build.
+  * Schema 3.16.0, a minor; 3.15.0 is frozen in schema/history.
+    libomxdsp-dev before 0.25.0, libomx-clap-core-dev before 0.13.0 and
+    omx-plugins-dev before 0.13.0 stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 16:00:00 +0100
+
 omx-contract (3.15.0) unstable; urgency=medium
 
   * The library modules are TypeScript (src/lib/*.mts), built into

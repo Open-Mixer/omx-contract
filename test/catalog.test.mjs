@@ -74,7 +74,9 @@ test('the lookup: the catalog\'s sentence, else the source sentence, its placeho
 test('this repo\'s own catalogs/ca.json validates, and holds a sentence for every own code with a source sentence', () => {
   const r = spawnSync(process.execPath, [join(ROOT, 'bin', 'omx-contract.mjs'), 'validate'], { encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stdout, /1 catalog/);
+  // one catalog per shipped language (omx-contract#21)
+  const langs = JSON.parse(readFileSync(join(ROOT, 'share', 'omx-contract', 'languages.json'), 'utf8')).languages;
+  assert.match(r.stdout, new RegExp(`${langs.length} catalogs`));
   const ca = JSON.parse(readFileSync(join(ROOT, 'catalogs', 'ca.json'), 'utf8'));
   const own = JSON.parse(readFileSync(join(ROOT, 'data', 'codes.json'), 'utf8')).CONTRACT_CODES.codes;
   const lacking = Object.values(own).filter((c) => c.text && !(c.code in ca.messages)).map((c) => c.code);

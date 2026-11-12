@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- Language packs (#21): a catalog entry is the sentence, a person's `{text, by: human}` or a model's `{text, by:
+  machine, model, source}`, `source` the sha256 of the source sentence it was made from; both readers skip a stale one
+  (`sourceHash`, `isStale`; `source_hash` in Python). `share/omx-contract/languages.json` lists the shipped languages
+  (ca, es, fr, de, it, pt) and a test pair (ja, ar). `omx-contract translate` makes and keeps a language's catalog
+  through an OpenAI-compatible endpoint behind the placeholder gate, and `--check` is the release gate. Each language
+  is its own package (`omx-contract-langpack-<lang>`, `omx-contract-l10n-<lang>`). Schema 3.15.0 is frozen in
+  schema/history. Schema 3.16.0, a minor.
 - The `ca` migration ends (#2): every owner ships its Catalan sentences in its catalog, so a code's or a word's `text`
   carrying `ca` is refused by `validate` and by the contract-directory reader (`code-text-language`,
   `word-text-language`: a sentence carries `en` alone). The `catalog-migration` warning is gone. The schema's shape keeps

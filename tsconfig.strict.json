@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.lib.json",
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noEmit": true
+  },
+  "include": [],
+  "files": ["src/lib/catalog.mts"]
+}

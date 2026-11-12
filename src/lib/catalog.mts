@@ -16,7 +16,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { validate } from './schema-validate.mjs';
-import { placeholdersOf } from './validate.mjs';
+import { placeholdersOf } from './placeholders.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /** A catalog document: `{ kind: 'catalog', lang, owner, messages }`. */

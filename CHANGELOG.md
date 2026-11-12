@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- The `ca` migration ends (#2): every owner ships its Catalan sentences in its catalog, so a code's or a word's `text`
+  carrying `ca` is refused by `validate` and by the contract-directory reader (`code-text-language`,
+  `word-text-language`: a sentence carries `en` alone). The `catalog-migration` warning is gone. The schema's shape keeps
+  the `ca` property, described as refused, until a major release removes it.
+- The catalog reader (`@openmixer/omx-contract/catalog`) loads only what a surface's lookup needs: the schema check,
+  the placeholder reader (`placeholders`, its own module now) and the JSON shape, never the validator; it builds with no
+  implicit any (`tsconfig.strict.json`, part of `npm run build`).
 - The fourteen library modules are TypeScript (#15): their sources are `src/lib/*.mts`, built by `tsc` into `lib/*.mjs`
   with their declarations generated beside them; the hand-written `scale.d.mts` and `descriptor.d.mts` are gone, so a
   changed shape can no longer ship with a stale type. Every module stays where it was loaded from: the subpath exports,

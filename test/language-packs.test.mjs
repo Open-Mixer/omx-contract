@@ -114,7 +114,7 @@ test('this tree is release-ready: translate --check finds every listed language\
  * A chat/completions endpoint that translates by prefixing `[<lang>] `, breaking `breakKey`'s placeholders; with
  * `garbleOver`, a batch of more entries than that is answered with text that is no JSON (a cut-off answer).
  */
-async function fakeEndpoint({ breakKey, garbleOver, dropOver, router, group, fellBack } = {}) {
+async function fakeEndpoint({ breakKey, breakOver, garbleOver, dropOver, router, group, fellBack } = {}) {
   const seen = [];
   const server = createServer((req, res) => {
     // a LiteLLM router's own settings and model groups, when this endpoint plays one; else none (a plain server)
@@ -139,7 +139,7 @@ async function fakeEndpoint({ breakKey, garbleOver, dropOver, router, group, fel
         res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: '{"cut off' } }] }));
         return;
       }
-      for (const [i, [key, e]] of Object.entries(payload.entries).entries()) if (dropOver === undefined || seen.at(-1).size <= dropOver || i % 2 === 0) out[key] = key === breakKey ? `[${payload.lang}] ${e.text.replace(/\{(\w+)\}/g, '{$1_x}')}` : `[${payload.lang}] ${e.text}`;
+      for (const [i, [key, e]] of Object.entries(payload.entries).entries()) if (dropOver === undefined || seen.at(-1).size <= dropOver || i % 2 === 0) out[key] = key === breakKey && (breakOver === undefined || seen.at(-1).size > breakOver) ? `[${payload.lang}] ${e.text.replace(/\{(\w+)\}/g, '{$1_x}')}` : `[${payload.lang}] ${e.text}`;
       res.writeHead(200, { 'content-type': 'application/json', ...(group ? { 'x-litellm-model-group': group } : {}), ...(fellBack ? { 'x-litellm-attempted-fallbacks': '1', 'x-litellm-model-group': fellBack } : {}) });
       res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: JSON.stringify(out) } }] }));
     });
@@ -210,6 +210,18 @@ test('translate asks again for the keys a parsed answer leaves out, in halves, s
     assert.equal(r.status, 0, r.stderr);
     const check = await run(['translate', '--check', '--owner', dir, '--lang', 'es', '--package', 'omx-contract']);
     assert.equal(check.status, 0, check.stderr);
+  } finally { await ep.close(); }
+});
+
+test('translate asks again, in halves, for the keys the placeholder gate refuses, so a batch the model garbles converges', async () => {
+  const dir = ownerTree();
+  const ep = await fakeEndpoint({ breakKey: CODE, breakOver: 1 });
+  try {
+    const r = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract', '--batch', '20'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'mid-dense' });
+    assert.equal(r.status, 0, r.stderr);
+    const es = JSON.parse(readFileSync(join(dir, 'catalogs', 'es.json'), 'utf8'));
+    assert.equal(es.messages[CODE].text, `[es] ${sourceOf(dir, CODE)}`, 'asked alone, the key passes the gate');
+    assert.ok(ep.seen.some((s) => s.size === 1), 'the refused key was asked again on its own');
   } finally { await ep.close(); }
 });
 

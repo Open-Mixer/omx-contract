@@ -420,19 +420,21 @@ async function translateBatch({ url, key, model, lang, batch, localGroups = new 
 }
 
 /**
- * A batch's answers. The keys an answer leaves out (all of them when it does not parse, as an answer cut off) are asked
- * again in halves, down to one entry, so only a key the model will not answer on its own is left without one.
+ * A batch's answers. The keys an answer leaves out (all of them when it does not parse, as an answer cut off) and the
+ * keys whose answer the placeholder gate refuses (`accepts`; a model may garble a whole batch's placeholders and answer
+ * the same keys right in a smaller one) are asked again in halves, down to one entry, so only a key the model will not
+ * answer right on its own is left refused.
  */
-async function answersOf(ask, batch) {
+async function answersOf(ask, batch, accepts = () => true) {
   const r = await ask(batch);
   const answers = r.answers ?? {};
-  const left = batch.filter(([k]) => typeof answers[k] !== 'string');
+  const left = batch.filter(([k, want]) => typeof answers[k] !== 'string' || !accepts(want, answers[k]));
   if (left.length === 0 || batch.length === 1) return { model: r.model, answers };
   const half = Math.ceil(left.length / 2);
   const parts = left.length === 1 ? [left] : [left.slice(0, half), left.slice(half)];
   let model = r.model;
   for (const part of parts) {
-    const again = await answersOf(ask, part);
+    const again = await answersOf(ask, part, accepts);
     model = again.model;
     Object.assign(answers, again.answers);
   }
@@ -502,7 +504,7 @@ async function cmdTranslate(argv) {
     let served;
     let answers;
     try {
-      ({ model: served, answers } = await answersOf((b) => translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch: b, localGroups, allowPaid }), batch));
+      ({ model: served, answers } = await answersOf((b) => translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch: b, localGroups, allowPaid }), batch, (want, answer) => 'entry' in admit(want, answer, model)));
     } catch (e) {
       if (!(e instanceof PaidFallback)) throw e;
       for (const [k] of batch) { refused.push(`${k}: ${e.message}`); delete messages[k]; }

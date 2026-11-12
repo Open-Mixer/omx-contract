@@ -6,11 +6,17 @@ ships catalogs/<lang>.json, installed to /usr/share/<owner>/catalogs/<lang>.json
 
     { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": "<sentence with {args}>" } }
 
+An entry is the sentence, or the sentence with how it was made (omx-contract#21): {"text", "by": "human"} is a
+person's, and {"text", "by": "machine", "model", "source"} was made by a model from the source sentence whose
+source_hash is "source". A model's entry whose source sentence no longer hashes to it is stale: sentence_of skips it
+and shows the source sentence.
+
 A key is a code of the owner (reply.plugin-hostd.no-param-contract), or a word of the owner as <ITEM>.<word>
 (PLUGIN_DB_REASONS.no-cell). This reader does the one lookup a surface makes: load_catalog, sentence_of and fill, the
 catalog's sentence for a key, else the source sentence, its placeholders filled. It carries no JSON Schema validator
 of its own (lib/catalog.mjs does, for a build that checks its catalogs); a surface only ever reads an installed one.
 """
+import hashlib
 import json
 import os
 import re
@@ -54,11 +60,24 @@ def load_catalog(owner, lang, root=CATALOG_SHARE_DIR):
     return catalog
 
 
+def source_hash(sentence):
+    """The sha256 of a source sentence, the lowercase hex of its UTF-8 bytes: what a model's entry records as source."""
+    return hashlib.sha256(sentence.encode("utf-8")).hexdigest()
+
+
 def sentence_of(catalog, key, source):
-    """The sentence a surface shows for `key`: the catalog's, else `source` (the code's or word's text.en)."""
+    """The sentence a surface shows for `key`: the catalog's, else `source` (the code's or word's text.en). An entry
+    made from another source sentence than `source` is stale and skipped; with no `source` to compare, it is read."""
     messages = catalog.get("messages") if catalog else None
-    sentence = messages.get(key) if messages else None
-    return sentence if isinstance(sentence, str) else source
+    entry = messages.get(key) if messages else None
+    if isinstance(entry, str):
+        return entry
+    if not isinstance(entry, dict) or not isinstance(entry.get("text"), str):
+        return source
+    recorded = entry.get("source")
+    if source is not None and recorded is not None and recorded != source_hash(source):
+        return source
+    return entry["text"]
 
 
 _PLACEHOLDER = re.compile(r"\{([^{}]*)\}")

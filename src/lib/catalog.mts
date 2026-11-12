@@ -7,11 +7,17 @@
  *
  *     { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": "<sentence with {args}>" } }
  *
+ * An entry is the sentence, or the sentence with how it was made (omx-contract#21): `{ text, by: 'human' }` is a
+ * person's, and `{ text, by: 'machine', model, source }` was made by `model` from the source sentence whose
+ * {@link sourceHash} is `source`. A model's entry whose source sentence no longer hashes to `source` is stale: the
+ * lookup skips it and shows the source sentence, until `omx-contract translate` makes it again.
+ *
  * A key is a code of the owner (`reply.plugin-hostd.no-param-contract`), or a word of the owner as `<ITEM>.<word>`
  * (`PLUGIN_DB_REASONS.no-cell`), since one word may belong to two items. Exported as `@openmixer/omx-contract/catalog`:
  * the checks (`catalogProblems`) and the one lookup a surface makes (`loadCatalog`, `sentenceOf`, `fill`): the catalog's
  * sentence for the key, else the source sentence, its placeholders filled.
  */
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -19,12 +25,23 @@ import { validate } from './schema-validate.mjs';
 import { placeholdersOf } from './placeholders.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
+/** A catalog entry made with its provenance: a person's, or a model's from a source sentence. */
+export interface CatalogRecord {
+  readonly text: string;
+  readonly by: 'human' | 'machine';
+  readonly model?: string;
+  readonly source?: string;
+}
+
+/** A catalog entry: the sentence alone (a person's), or the sentence with how it was made. */
+export type CatalogEntry = string | CatalogRecord;
+
 /** A catalog document: `{ kind: 'catalog', lang, owner, messages }`. */
 export interface Catalog {
   readonly kind: 'catalog';
   readonly lang: string;
   readonly owner: string;
-  readonly messages: Readonly<Record<string, string>>;
+  readonly messages: Readonly<Record<string, CatalogEntry>>;
 }
 
 /** A catalog key's declaration: its `args` and its English source sentence. */
@@ -37,7 +54,7 @@ export interface CatalogKey {
 export interface CatalogProblem {
   readonly file: string;
   readonly item: string;
-  readonly rule: 'catalog-schema' | 'catalog-key' | 'catalog-placeholders';
+  readonly rule: 'catalog-schema' | 'catalog-key' | 'catalog-placeholders' | 'catalog-stale';
   readonly message: string;
 }
 
@@ -56,6 +73,19 @@ const catalogSchema = (): JsonObject => {
   schemaOf = { $schema: whole.$schema, $defs: whole.$defs, $ref: '#/$defs/catalog' };
   return schemaOf;
 };
+
+/** The sha256 of a source sentence, the lowercase hex of its UTF-8 bytes: what a model's entry records as `source`. */
+export function sourceHash(sentence: string): string {
+  return createHash('sha256').update(sentence, 'utf8').digest('hex');
+}
+
+/** An entry's sentence. */
+export const entryText = (entry: CatalogEntry): string => (typeof entry === 'string' ? entry : entry.text);
+
+/** Whether `entry` was made from another source sentence than `source`: a recorded hash `source` no longer has. */
+export function isStale(entry: CatalogEntry, source: string): boolean {
+  return typeof entry !== 'string' && entry.source !== undefined && entry.source !== sourceHash(source);
+}
 
 /** The key of a code (its code) or of a word (`<ITEM>.<word>`). */
 export const codeKey = (code: string): string => code;
@@ -96,13 +126,13 @@ export function catalogProblems(rel: string, catalog: Json, keys: ReadonlyMap<st
   const v = validate(catalogSchema(), catalog);
   for (const e of v.errors) say('-', 'catalog-schema', `${e.path || '/'} ${e.message}`);
   if (!v.ok) return problems;
-  for (const [key, sentence] of Object.entries(catalog.messages as Record<string, string>)) {
+  for (const [key, entry] of Object.entries(catalog.messages as Record<string, CatalogEntry>)) {
     const known = keys.get(key);
     if (known === undefined) {
       say(key, 'catalog-key', `${key} is no code or word ${catalog.owner} declares`);
       continue;
     }
-    for (const n of placeholdersOf(sentence)) {
+    for (const n of placeholdersOf(entryText(entry))) {
       if (!known.args.includes(n)) say(key, 'catalog-placeholders', `${key}: {${n}} is not in its args (${known.args.map((a) => `{${a}}`).join(', ') || 'none'})`);
     }
   }
@@ -123,12 +153,16 @@ export function loadCatalog(owner: string, lang: string, root: string = CATALOG_
   return validate(catalogSchema(), catalog).ok && catalog.owner === owner && catalog.lang === lang ? catalog : undefined;
 }
 
-/** The sentence a surface shows for `key`: the catalog's, else `source` (the code's or word's `text.en`). */
+/**
+ * The sentence a surface shows for `key`: the catalog's, else `source` (the code's or word's `text.en`). An entry made
+ * from another source sentence than `source` is stale and skipped; with no `source` to compare, the entry is read.
+ */
 export function sentenceOf(catalog: Catalog | undefined, key: string, source: string): string;
 export function sentenceOf(catalog: Catalog | undefined, key: string, source?: string): string | undefined;
 export function sentenceOf(catalog: Catalog | undefined, key: string, source?: string): string | undefined {
-  const s = catalog?.messages?.[key];
-  return typeof s === 'string' ? s : source;
+  const entry = catalog?.messages?.[key];
+  if (entry === undefined || (source !== undefined && isStale(entry, source))) return source;
+  return entryText(entry);
 }
 
 /** `sentence` with each `{name}` replaced by `args[name]`; a placeholder with no value is left as written. */

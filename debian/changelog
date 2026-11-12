@@ -1,3 +1,15 @@
+omx-contract (3.17.0) unstable; urgency=medium
+
+  * omx-contract translate --source <file>: an owner's source sentences from
+    a file of key -> { text, args }, for strings that are no contract data
+    (a surface's own); the gate, the provenance, the paid-fallback guard and
+    --check are the same.
+  * Schema 3.16.0, unchanged: libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0
+    stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 19:00:00 +0100
+
 omx-contract (3.16.1) unstable; urgency=medium
 
   * The installed command reads languages.json where omx-contract-data

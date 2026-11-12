@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.16.1
+Version: 3.17.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -224,6 +224,14 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.17.0-1
+- omx-contract translate --source <file>: an owner's source sentences from a
+  file of key -> { text, args }, for strings that are no contract data (a
+  surface's own); the gate, the provenance, the paid-fallback guard and
+  --check are the same
+- Schema 3.16.0, unchanged; the -devel floors stay: omx-dsp-devel before
+  0.25.0, omx-clap-core-devel before 0.13.0 and omx-plugins-devel before 0.13.0.
+
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.16.1-1
 - the installed command reads languages.json where omx-contract-data installs
   it (share/omx-contract), not in its own tree: translate --check no longer

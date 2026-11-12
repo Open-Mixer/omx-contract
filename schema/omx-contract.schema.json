@@ -63,6 +63,7 @@
           "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/descriptorMeter" },
           "description": "The values the plugin publishes while it runs and a host draws, never writes (docs/descriptors.md): CLAP clap.meters/1, LV2 output control ports. Optional; in the plugin's order."
         },
+        "integrity": { "$ref": "#/$defs/descriptorIntegrity" },
         "extensions": { "$ref": "#/$defs/extensions" },
         "source": { "$ref": "#/$defs/source" }
       },
@@ -245,6 +246,16 @@
           "then": { "properties": { "travel": false, "ids": false, "labels": false, "values": false, "default": false } }
         }
       ],
+      "additionalProperties": false
+    },
+    "descriptorIntegrity": {
+      "type": "object",
+      "description": "The source the descriptor was generated from (docs/descriptors.md): version, the plugin's own (plugin.version), and commit, the full commit its release tag names, stamped at build. A reader matches the build it links by the commit. Optional, and architecture-independent: it names no binary.",
+      "properties": {
+        "version": { "$ref": "#/$defs/text" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      },
+      "required": ["version", "commit"],
       "additionalProperties": false
     },
     "descriptorMeter": {

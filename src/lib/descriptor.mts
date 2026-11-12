@@ -8,18 +8,19 @@
 import { readFileSync } from 'node:fs';
 import { CONTRACT_CODES } from './codes.mjs';
 import { validate as validateSchema } from './schema-validate.mjs';
+import type { Json } from './json.mjs';
 
 /** The ids of PARAM_SCALES, the scales a travel may name, read from omx-contract's own data. */
-export const PARAM_SCALE_IDS = JSON.parse(readFileSync(new URL('../data/primitives.json', import.meta.url), 'utf8')).PARAM_SCALES.ids;
+export const PARAM_SCALE_IDS: readonly string[] = JSON.parse(readFileSync(new URL('../data/primitives.json', import.meta.url), 'utf8')).PARAM_SCALES.ids;
 
 /** The value a descriptor writes for a unit, a scale or a meaning the plugin does not state. */
-export const UNKNOWN = 'unknown';
+export const UNKNOWN = 'unknown' as const;
 
 /**
  * The words a plugin's author may reach for that the contract does not take: one word per meaning, no synonyms
  * (FreeMixer/omx-contract#100). Each maps to the meaning that already says it; the validator names it.
  */
-export const MEANING_SYNONYMS = Object.freeze({ on: 'enabled', speed: 'rate' });
+export const MEANING_SYNONYMS: Readonly<Record<string, string>> = Object.freeze({ on: 'enabled', speed: 'rate' });
 
 /** The channel counts a layout admits. */
 const LAYOUT_CHANNELS = { mono: (n) => n === 1, stereo: (n) => n === 2, surround: (n) => n > 2 };
@@ -30,8 +31,36 @@ const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
  * Every problem of descriptor `doc` (file `rel`) beyond the schema: `[{ file, item, rule, code, name, message }]`, `rule`
  * and `code` the CONTRACT_CODES code, `name` its key. `scales` are the ids a travel's scale may name besides unknown.
  */
-export function descriptorProblems(rel, doc, { scales = PARAM_SCALE_IDS } = {}) {
-  const out = [];
+/** One problem of a descriptor beyond the schema: `rule` and `code` the CONTRACT_CODES code, `name` its key. */
+export interface DescriptorProblem {
+  file: string;
+  item: string;
+  rule: string;
+  code: string;
+  name: string;
+  message: string;
+}
+
+/** A refused file or a warning of one layer; a dropped entry names its control too. */
+export interface OverrideNote {
+  layer: number;
+  code: string;
+  name: string;
+  message: string;
+}
+
+/** The effective descriptor under the override layers, and what each layer answered, dropped, warned or refused. */
+export interface OverrideResult<D> {
+  descriptor: D;
+  family: string | undefined;
+  answered: Record<string, number>;
+  dropped: (OverrideNote & { control: string })[];
+  warnings: OverrideNote[];
+  refused: OverrideNote[];
+}
+
+export function descriptorProblems(rel: string, doc: Json, { scales = PARAM_SCALE_IDS }: { scales?: readonly string[] } = {}): DescriptorProblem[] {
+  const out: Json[] = [];
   const say = (name, item, message) => out.push({ file: rel, item, rule: CONTRACT_CODES[name], code: CONTRACT_CODES[name], name, message });
   const controls = doc.controls ?? [];
   const ports = doc.ports ?? [];
@@ -169,7 +198,7 @@ const EQ_MEANINGS = ['frequency', 'gain', 'q', 'slope', 'enabled'];
 const isObject = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /** The schema's problems of an override file `doc`: `[{ path, message }]`, none when it is well formed. */
-export function overrideSchemaProblems(doc) {
+export function overrideSchemaProblems(doc: Json): { path: string; message: string }[] {
   const wrapper = { $schema: 'https://json-schema.org/draft/2020-12/schema', $defs: OVERRIDE_SCHEMA.$defs, $ref: '#/$defs/override' };
   const { errors } = validateSchema(wrapper, doc);
   return errors.map((e) => ({ path: e.path || '/', message: `${e.path || '/'} ${e.message}` }));
@@ -177,7 +206,7 @@ export function overrideSchemaProblems(doc) {
 
 /** The problems one override entry `e` has against its control `c`, `[{ name, message }]`; `family` is the file's effective family. */
 function entryProblems(e, c, family) {
-  const out = [];
+  const out: Json[] = [];
   const say = (name, message) => out.push({ name, message });
   const t = c.travel;
   const hasTravel = c.kind === 'travel' && isObject(t);
@@ -222,7 +251,7 @@ function laidOver(c, e) {
   const out = structuredClone(c);
   for (const k of ['label', 'group', 'meaning', 'hidden', 'band', 'basis', 'evidence', 'map']) if (e[k] !== undefined) out[k] = structuredClone(e[k]);
   if (e.travel) {
-    const corrected = [];
+    const corrected: Json[] = [];
     for (const k of ['unit', 'scale']) {
       if (e.travel[k] !== undefined && c.travel?.[k] !== undefined && c.travel[k] !== UNKNOWN && c.travel[k] !== e.travel[k]) corrected.push(k);
     }
@@ -245,32 +274,33 @@ function laidOver(c, e) {
  *   warnings: {layer: number, code: string, name: string, message: string}[],
  *   refused: {layer: number, code: string, name: string, message: string}[] }}
  */
-export function applyOverride(descriptor, layers, opts = {}) {
-  const result = { descriptor: structuredClone(descriptor), family: undefined, answered: {}, dropped: [], warnings: [], refused: [] };
-  const refuse = (layer, name, message) => result.refused.push({ layer, code: CONTRACT_CODES[name], name, message });
-  const wins = new Map();
-  layers.forEach((doc, layer) => {
+export function applyOverride<D extends object>(descriptor: D, layers: readonly unknown[], opts: { paramsFingerprint?: string } = {}): OverrideResult<D> {
+  const result: OverrideResult<Json> = { descriptor: structuredClone(descriptor), family: undefined, answered: {}, dropped: [], warnings: [], refused: [] };
+  const refuse = (layer: number, name: string, message: string) => result.refused.push({ layer, code: CONTRACT_CODES[name]!, name, message });
+  const wins = new Map<string, { layer: number; entry: Json }>();
+  layers.forEach((doc: Json, layer) => {
     const bad = overrideSchemaProblems(doc);
     if (bad.length) { refuse(layer, 'fileInvalid', bad.map((p) => p.message).join('; ')); return; }
-    if (doc.plugin.id !== descriptor.plugin.id || doc.plugin.format !== descriptor.plugin.format) {
-      refuse(layer, 'overridePluginMismatch', `the file describes ${doc.plugin.format} ${doc.plugin.id}, the plugin is ${descriptor.plugin.format} ${descriptor.plugin.id}`);
+    const d = descriptor as Json;
+    if (doc.plugin.id !== d.plugin.id || doc.plugin.format !== d.plugin.format) {
+      refuse(layer, 'overridePluginMismatch', `the file describes ${doc.plugin.format} ${doc.plugin.id}, the plugin is ${d.plugin.format} ${d.plugin.id}`);
       return;
     }
     if (opts.paramsFingerprint !== undefined && doc.against && doc.against.paramsFingerprint !== opts.paramsFingerprint) {
-      result.warnings.push({ layer, code: CONTRACT_CODES.overrideFingerprintDiffers, name: 'overrideFingerprintDiffers', message: `written against ${doc.against.paramsFingerprint}, the plugin is ${opts.paramsFingerprint}` });
+      result.warnings.push({ layer, code: CONTRACT_CODES['overrideFingerprintDiffers']!, name: 'overrideFingerprintDiffers', message: `written against ${doc.against.paramsFingerprint}, the plugin is ${opts.paramsFingerprint}` });
     }
     if (doc.family !== undefined) result.family = doc.family;
-    for (const [id, entry] of Object.entries(doc.controls ?? {})) wins.set(id, { layer, entry });
+    for (const [id, entry] of Object.entries((doc.controls ?? {}) as Record<string, Json>)) wins.set(id, { layer, entry });
   });
-  const byId = new Map(result.descriptor.controls.map((c, i) => [String(c.id), i]));
+  const byId = new Map<string, number>(result.descriptor.controls.map((c: Json, i: number) => [String(c.id), i]));
   for (const [id, { layer, entry }] of wins) {
-    const drop = (name, message) => result.dropped.push({ layer, control: id, code: CONTRACT_CODES[name], name, message });
+    const drop = (name: string, message: string) => result.dropped.push({ layer, control: id, code: CONTRACT_CODES[name]!, name, message });
     if (!byId.has(id)) { drop('overrideControlAbsent', `the descriptor has no control ${id}`); continue; }
-    const i = byId.get(id);
+    const i = byId.get(id)!;
     const problems = entryProblems(entry, result.descriptor.controls[i], result.family);
     if (problems.length) { for (const p of problems) drop(p.name, p.message); continue; }
     result.descriptor.controls[i] = laidOver(result.descriptor.controls[i], entry);
     result.answered[id] = layer;
   }
-  return result;
+  return result as OverrideResult<D>;
 }

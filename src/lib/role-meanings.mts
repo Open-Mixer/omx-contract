@@ -6,10 +6,11 @@
  * held here, over a whole read so that `validate` (a data directory) and the contract-directory reader refuse the
  * same thing, is that a role has one owner. Each problem names its CONTRACT_CODES code by name.
  */
+import type { Json } from './json.mjs';
 
 /** Every role of the read, in item order: `[{ item, key, row, rel, pkg }]`. */
 export function rolesOf(items) {
-  const out = [];
+  const out: Json[] = [];
   for (const it of items.values()) {
     if (it.item?.kind !== 'roleMeanings') continue;
     for (const [key, row] of Object.entries(it.item.roles ?? {})) out.push({ item: it.name, key, row, rel: it.rel, pkg: it.pkg });
@@ -28,7 +29,7 @@ export function meaningOfRoles(items) {
  * package or two).
  */
 export function roleProblems(items) {
-  const out = [];
+  const out: Json[] = [];
   const owners = new Map();
   for (const { item, key, row, rel, pkg } of rolesOf(items)) {
     const at = `${item}.${key}`;

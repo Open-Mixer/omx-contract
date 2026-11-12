@@ -6,28 +6,34 @@
  * classifies a refusal by its text.
  */
 import { readFileSync } from 'node:fs';
+import type { JsonObject } from './json.mjs';
 
 export const CODES_FILE = new URL('../data/codes.json', import.meta.url);
 
 /** `{ <lowerCamel name>: <code> }`, in the file's order. */
-export const CONTRACT_CODES = Object.fromEntries(
-  Object.entries(JSON.parse(readFileSync(CODES_FILE, 'utf8')).CONTRACT_CODES.codes).map(([k, c]) => [k, c.code]),
+export const CONTRACT_CODES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(JSON.parse(readFileSync(CODES_FILE, 'utf8')).CONTRACT_CODES.codes as Record<string, JsonObject>).map(([k, c]) => [k, c['code'] as string]),
 );
 
 /** A refusal: `code` is a CONTRACT_CODES code, `file` what it was found in, the message what was found. */
 export class ContractRefusal extends Error {
-  constructor(name, file, message) {
+  /** The CONTRACT_CODES code. */
+  readonly code: string;
+  /** What the refusal was found in. */
+  readonly file: string;
+
+  constructor(name: string, file: string, message: string) {
     if (!(name in CONTRACT_CODES)) throw new Error(`no contract code named ${name}`);
     super(message);
-    this.code = CONTRACT_CODES[name];
+    this.code = CONTRACT_CODES[name]!;
     this.file = file;
   }
 
   /** The one line a refusal is printed as: its code first. */
-  line() { return `${this.code} ${this.file}: ${this.message}`; }
+  line(): string { return `${this.code} ${this.file}: ${this.message}`; }
 
-  toJSON() { return { code: this.code, file: this.file, message: this.message }; }
+  toJSON(): { code: string; file: string; message: string } { return { code: this.code, file: this.file, message: this.message }; }
 }
 
 /** Raise the refusal named `name`. */
-export function refuse(name, file, message) { throw new ContractRefusal(name, file, message); }
+export function refuse(name: string, file: string, message: string): never { throw new ContractRefusal(name, file, message); }

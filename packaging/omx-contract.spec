@@ -16,6 +16,10 @@ BuildRequires: make
 BuildRequires: sed
 BuildRequires: tar
 BuildRequires: gzip
+# the library modules are TypeScript (src/lib/*.mts), built into lib/*.mjs by `make build-lib`; node's own types and
+# ajv's come from the tarballs in vendor/, unpacked for the build only (no network)
+BuildRequires: nodejs
+BuildRequires: (typescript >= 4.8.4 with typescript < 6)
 
 Requires: nodejs
 # the command reads the installed contract directory, omx-contract's own files among them

@@ -20,6 +20,7 @@
  * minor in the development phase, as an item's is); one appended, or its range, scale or rate changed, is minor; its
  * doc is patch.
  */
+import type { Json } from './json.mjs';
 
 const RANK = { none: 0, patch: 1, minor: 2, major: 3 };
 
@@ -99,7 +100,7 @@ const OWED = { unsupported: 0, optional: 1, required: 2 };
  * removal is MAJOR in the development phase too.
  */
 function verbChanges(name, a, b, say) {
-  for (const [k, x] of Object.entries(a)) {
+  for (const [k, x] of Object.entries((a) as Record<string, Json>)) {
     const at = `${name}.${k}`;
     const y = b[k];
     if (!y) { say('major', `${at} removed (verb ${x.verb})`); continue; }
@@ -134,13 +135,13 @@ function sentenceChange(at, a, b, say) {
 
 /** `{ level, changes: [{ level, item, what }] }` from `prev` to `next` (Maps name -> resolved item). */
 export function classify(prev, next, { developmentPhase = DEVELOPMENT_PHASE } = {}) {
-  const changes = [];
+  const changes: Json[] = [];
   for (const [name, a] of prev) {
     const say = (level, what) => changes.push({ level, item: name, what });
     const b = next.get(name);
     if (!b) {
-      if (a.kind === 'verbs') say('major', `item removed or renamed, and its verbs with it (${Object.values(a.value).map((v) => v.verb).join(', ')})`);
-      else if (a.kind === 'roleMeanings') say('major', `item removed or renamed, and its roles with it (${Object.values(a.value).map((v) => v.role).join(', ')})`);
+      if (a.kind === 'verbs') say('major', `item removed or renamed, and its verbs with it (${Object.values((a.value) as Record<string, Json>).map((v) => v.verb).join(', ')})`);
+      else if (a.kind === 'roleMeanings') say('major', `item removed or renamed, and its roles with it (${Object.values((a.value) as Record<string, Json>).map((v) => v.role).join(', ')})`);
       else if (developmentPhase) say('minor', `item removed or renamed (MINOR in the development phase: every consumer is ${developmentPhase.consumers.join(', ')})`);
       else say('major', 'item removed or renamed');
       continue;
@@ -206,7 +207,7 @@ export function classify(prev, next, { developmentPhase = DEVELOPMENT_PHASE } = 
         break;
       case 'roleMeanings':
         // a control binds by its meaning: a role that goes, or plays another meaning, breaks what its controls meant
-        for (const [k, r] of Object.entries(a.value)) {
+        for (const [k, r] of Object.entries((a.value) as Record<string, Json>)) {
           const q = b.value[k];
           if (!q) say('major', `${name}.${k}: role ${r.role} removed`);
           else if (q.role !== r.role) say('major', `${name}.${k}: role ${r.role} -> ${q.role}`);
@@ -234,7 +235,7 @@ export function classify(prev, next, { developmentPhase = DEVELOPMENT_PHASE } = 
  * version, not a change.
  */
 export function classifySchema(prev, next) {
-  const changes = [];
+  const changes: Json[] = [];
   const say = (level, what) => changes.push({ level, item: 'schema', what });
   const OPEN = new Set(['properties', '$defs', 'patternProperties', 'definitions']);
   // A local $ref read as the definition it names, its siblings kept: moving a definition into $defs and referencing it
@@ -328,7 +329,7 @@ export function bumpOf(from, to) {
  */
 export function refusal(level, from, to, { developmentPhase = DEVELOPMENT_PHASE } = {}) {
   let bump;
-  try { bump = bumpOf(from, to); } catch (e) { return e.message; }
+  try { bump = bumpOf(from, to); } catch (e) { return (e as Error).message; }
   const need = developmentPhase && level === 'major' ? 'minor' : level;
   if (RANK[bump] >= RANK[need]) return null;
   const phase = need === level ? '' : ' (at least a minor in the development phase)';

@@ -15,6 +15,7 @@ import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data
 import { SCHEMA_VERSION, fileProblems, useProblems, validatesWhole } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
+import type { Json, JsonObject } from './json.mjs';
 
 /** The schema major this reader reads, and the only directory under a contractdir it looks in. */
 export const SCHEMA_MAJOR = Number(SCHEMA_VERSION.split('.')[0]);
@@ -75,7 +76,45 @@ function schemaAt(floor) {
  * `$OMX_CONTRACT_PATH` (a `:` list), else `pkg-config --variable=contractdir omx-contract`.
  * @throws contract.dir.absent when none is found, or one named does not exist.
  */
-export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config' } = {}) {
+/** Where the contract directory is read from: `dir` (one or a list), else `env.OMX_CONTRACT_PATH`, else pkg-config. */
+export interface ContractRootsOptions {
+  readonly dir?: string | readonly string[];
+  readonly env?: NodeJS.ProcessEnv;
+  readonly pkgConfig?: string;
+}
+
+/** What `loadContractDir` reads, and what the consumer requires: `needs` as `{ <package>: '>= x.y.z' }`. */
+export interface LoadContractDirOptions extends ContractRootsOptions {
+  readonly needs?: Readonly<Record<string, string>>;
+  readonly major?: number;
+}
+
+/** One file of the read: its reported path, text and document, its package and installed path. */
+export interface ContractFile {
+  readonly rel: string;
+  readonly text: string;
+  readonly doc: JsonObject;
+  readonly pkg: string;
+  readonly path: string;
+  readonly installed: true;
+}
+
+/** One item of the read, by name: where it is declared and by which package. */
+export interface ContractItem {
+  readonly name: string;
+  readonly rel: string;
+  readonly item: JsonObject;
+  readonly pkg: string;
+}
+
+/** One installed package of the read: its name, directory and manifest. */
+export interface ContractPackage {
+  readonly name: string;
+  readonly dir: string;
+  readonly manifest: JsonObject;
+}
+
+export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config' }: ContractRootsOptions = {}): string[] {
   let roots;
   let from;
   if (dir !== undefined) { roots = [dir].flat(); from = '--contract-dir'; }
@@ -93,7 +132,7 @@ export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config'
 
 /** Every file under `dir`, relative to it with `/`, sorted. */
 function filesUnder(dir) {
-  const out = [];
+  const out: Json[] = [];
   const walk = (d) => {
     for (const f of readdirSync(d).sort()) {
       const p = join(d, f);
@@ -111,7 +150,7 @@ function readManifest(pdir, name, major) {
   const p = join(pdir, 'MANIFEST.json');
   if (!existsSync(p)) refuse('manifestAbsent', name, `${pdir} holds no MANIFEST.json`);
   let m;
-  try { m = JSON.parse(readFileSync(p, 'utf8')); } catch (e) { refuse('manifestInvalid', at, `not JSON: ${e.message}`); }
+  try { m = JSON.parse(readFileSync(p, 'utf8')); } catch (e) { refuse('manifestInvalid', at, `not JSON: ${(e as Error).message}`); }
   if (typeof m !== 'object' || m === null || Array.isArray(m)) refuse('manifestInvalid', at, 'not an object');
   const known = ['package', 'version', 'schemaMajor', 'tree', 'files'];
   for (const k of Object.keys(m)) if (!known.includes(k)) refuse('manifestInvalid', at, `unknown key ${k}: a manifest holds ${known.join(', ')}`);
@@ -131,7 +170,7 @@ function readManifest(pdir, name, major) {
 
 /** Every `{ ref }` head, `count` derivation and control count a file's items name, as [name, where]. */
 function referencesOf(rel, doc) {
-  const out = [];
+  const out: Json[] = [];
   const walk = (v, where) => {
     if (Array.isArray(v)) { v.forEach((x) => walk(x, where)); return; }
     if (typeof v !== 'object' || v === null) return;
@@ -165,7 +204,12 @@ function referencesOf(rel, doc) {
  * `needs` is what the consumer requires, `{ <package>: '>= x.y.z' }`.
  * @throws ContractRefusal, the first refusal met; see docs/contract-dir.md for the order.
  */
-export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEMA_MAJOR } = {}) {
+export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEMA_MAJOR }: LoadContractDirOptions = {}): {
+  files: ContractFile[];
+  items: Map<string, ContractItem>;
+  packages: Map<string, ContractPackage>;
+  roots: string[];
+} {
   const roots = contractRoots({ dir, env, pkgConfig });
   const packages = new Map();
   for (const root of roots) {
@@ -179,7 +223,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   }
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 
-  const files = [];
+  const files: Json[] = [];
   for (const { name, dir: pdir, manifest } of packages.values()) {
     const listed = Object.keys(manifest.files);
     const present = filesUnder(pdir).filter((f) => f !== 'MANIFEST.json');
@@ -191,7 +235,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (sha256(bytes) !== manifest.files[f]) refuse('manifestMismatch', at, `sha256 ${sha256(bytes)}, and the manifest lists ${manifest.files[f]}`);
       const text = bytes.toString('utf8');
       let doc;
-      try { doc = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, e.message); }
+      try { doc = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
       if (typeof doc !== 'object' || doc === null || Array.isArray(doc)) refuse('fileInvalid', at, 'a data file is an object');
       const m = INSTALLED_SCHEMA.exec(doc.$schema ?? '');
       if (!m) refuse('schemaMajor', at, `$schema ${JSON.stringify(doc.$schema)} is not ${installedSchemaUrl(major)}`);

@@ -8,6 +8,9 @@
 import { readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
+
+/** The class: the CommonJS module's export is the class itself, which TypeScript types as the module object. */
+type Ajv2020Class = typeof import('ajv/dist/2020.js').default;
 import { FILE_KEYS, KERNEL_KEYS, KERNEL_SECTIONS, controlGlobal, entriesOf, isDescriptor, isKernelFile, isUse, resolveData } from './data.mjs';
 import { MEANING_SYNONYMS, descriptorProblems } from './descriptor.mjs';
 import { HINT_UNITS, MAX_HINTS } from './hints.mjs';
@@ -15,6 +18,7 @@ import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderTs } from '../render/ts.mjs';
+import type { Json } from './json.mjs';
 
 const SCHEMA = JSON.parse(readFileSync(new URL('../schema/omx-contract.schema.json', import.meta.url), 'utf8'));
 /** The version of the schema's vocabulary (`x-omx-schema-version`), the one a file's `requires.omx-contract-schema` floor is read against. */
@@ -36,7 +40,7 @@ export function shapeProblems(rel, doc) {
   if (keys.length && !keys.some((k) => KERNEL_KEYS.includes(k))) {
     return [`${rel} is a flat item map (the 1.x shape): a kernel file declares its items under ${sections.join(', ')}`];
   }
-  const out = [];
+  const out: Json[] = [];
   for (const k of keys) if (!KERNEL_KEYS.includes(k)) out.push(`unknown top-level key ${k}: a kernel file holds ${KERNEL_KEYS.join(', ')}`);
   if ('readouts' in doc) {
     if (!Array.isArray(doc.readouts)) out.push('readouts must be a list');
@@ -80,10 +84,10 @@ export function shapeProblems(rel, doc) {
     if ('rearms' in c && typeof c.rearms !== 'boolean') out.push(`controls[${i}] ${c.name}: rearms ${JSON.stringify(c.rearms)} is not a boolean`);
   }
   for (const s of ['tables', 'aggregates', 'constants']) {
-    for (const [n, it] of Object.entries(doc[s] ?? {})) if (it && typeof it === 'object' && 'rearms' in it) out.push(`${s} ${n}: rearms is a control's flag, never a ${s.slice(0, -1)}'s`);
+    for (const [n, it] of Object.entries((doc[s] ?? {}) as Record<string, Json>)) if (it && typeof it === 'object' && 'rearms' in it) out.push(`${s} ${n}: rearms is a control's flag, never a ${s.slice(0, -1)}'s`);
   }
-  for (const [n, a] of Object.entries(doc.aggregates ?? {})) for (const f of a.fields ?? []) if (!seen.has(f)) out.push(`aggregate ${n}: field ${f} names no control`);
-  for (const [n, it] of Object.entries(doc.constants ?? {})) {
+  for (const [n, a] of Object.entries((doc.aggregates ?? {}) as Record<string, Json>)) for (const f of a.fields ?? []) if (!seen.has(f)) out.push(`aggregate ${n}: field ${f} names no control`);
+  for (const [n, it] of Object.entries((doc.constants ?? {}) as Record<string, Json>)) {
     if (!['scalar', 'list', 'sheet'].includes(it?.kind)) out.push(`constant ${n}: kind ${JSON.stringify(it?.kind)} is not scalar, list or sheet (a travel or a set is a control)`);
   }
   return out;
@@ -93,7 +97,7 @@ let ajv;
 /** The compiled schema validator. */
 export function schemaValidator() {
   if (!compiled) {
-    ajv = new Ajv2020({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
+    ajv = new (Ajv2020 as unknown as Ajv2020Class)({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
     ajv.addKeyword({ keyword: 'x-omx-schema-version', schemaType: 'string' });
     compiled = ajv.compile(SCHEMA);
   }
@@ -135,10 +139,10 @@ function sentenceRules(r, k, entry, what, say) {
  * It turns into an error only when every owner has moved and the owner rules so.
  */
 export function dataWarnings(data) {
-  const warnings = [];
+  const warnings: Json[] = [];
   for (const f of data.files ?? []) {
     if (!f.doc || typeof f.doc !== 'object' || f.doc.origin !== undefined || f.doc.kind !== undefined) continue;
-    for (const [name, item] of Object.entries(f.doc)) warnings.push(...catalogMigrationOf(f.rel, name, item));
+    for (const [name, item] of Object.entries((f.doc) as Record<string, Json>)) warnings.push(...catalogMigrationOf(f.rel, name, item));
   }
   return warnings;
 }
@@ -146,7 +150,7 @@ export function dataWarnings(data) {
 /** One `catalog-migration` warning per code or word of `item` whose text still carries `ca`. */
 export function catalogMigrationOf(rel, name, item) {
   if (!item || typeof item !== 'object' || (item.kind !== 'codes' && item.kind !== 'words')) return [];
-  const entries = Object.values((item.kind === 'codes' ? item.codes : item.words) ?? {});
+  const entries = Object.values(((item.kind === 'codes' ? item.codes : item.words) ?? {}) as Record<string, Json>);
   return entries
     .filter((e) => e?.text?.ca !== undefined)
     .map((e) => {
@@ -170,7 +174,7 @@ function semanticRules(resolved, say) {
         if (r.values.every((v) => v === null)) say(r.rel, r.name, 'set-values', 'no id carries a value');
       }
     }
-    const travels = r.kind === 'travels' ? (r.shape === 'table' ? Object.entries(r.value) : [['', r.value]]) : [];
+    const travels = r.kind === 'travels' ? (r.shape === 'table' ? Object.entries((r.value) as Record<string, Json>) : [['', r.value]]) : [];
     for (const [field, t] of travels) {
       if (t.scale !== undefined && !(val('PARAM_SCALES') ?? []).includes(t.scale)) say(r.rel, r.name, 'scale', `${field ? `${r.name}.${field}` : r.name}: scale ${JSON.stringify(t.scale)} is not an id of PARAM_SCALES`);
     }
@@ -183,7 +187,7 @@ function semanticRules(resolved, say) {
     }
     if (r.kind === 'codes') {
       const seenCodes = new Map();
-      for (const [k, c] of Object.entries(r.value)) {
+      for (const [k, c] of Object.entries((r.value) as Record<string, Json>)) {
         if (seenCodes.has(c.code)) say(r.rel, r.name, 'code-unique', `${k} and ${seenCodes.get(c.code)} both carry ${JSON.stringify(c.code)}`);
         seenCodes.set(c.code, k);
         sentenceRules(r, k, c, 'code', say);
@@ -191,15 +195,15 @@ function semanticRules(resolved, say) {
     }
     if (r.kind === 'words') {
       const seen = new Map();
-      for (const [k, w] of Object.entries(r.value)) {
+      for (const [k, w] of Object.entries((r.value) as Record<string, Json>)) {
         if (seen.has(w.word)) say(r.rel, r.name, 'word-unique', `${k} and ${seen.get(w.word)} both carry ${JSON.stringify(w.word)}`);
         seen.set(w.word, k);
         sentenceRules(r, k, w, 'word', say);
       }
       const groups = r.groups === undefined ? undefined : resolved.get(r.groups);
       if (r.groups !== undefined && groups?.kind !== 'words') say(r.rel, r.name, 'word-group', `groups names ${r.groups}, which is no words item`);
-      const groupWords = new Set(groups?.kind === 'words' ? Object.values(groups.value).map((w) => w.word) : []);
-      for (const [k, w] of Object.entries(r.value)) {
+      const groupWords = new Set(groups?.kind === 'words' ? Object.values((groups.value) as Record<string, Json>).map((w) => w.word) : []);
+      for (const [k, w] of Object.entries((r.value) as Record<string, Json>)) {
         if (w.group !== undefined && r.groups === undefined) say(r.rel, r.name, 'word-group', `${k} names the group ${w.group}, and the item names no groups`);
         else if (w.group !== undefined && groups?.kind === 'words' && !groupWords.has(w.group)) say(r.rel, r.name, 'word-group', `${k}: ${w.group} is no word of ${r.groups}`);
         for (const [field, itemKey, rule] of [['figureUnit', 'units', 'word-unit'], ['basis', 'bases', 'word-basis']]) {
@@ -207,7 +211,7 @@ function semanticRules(resolved, say) {
           const target = r[itemKey] === undefined ? undefined : resolved.get(r[itemKey]);
           if (r[itemKey] === undefined) say(r.rel, r.name, rule, `${k} names the ${field} ${w[field]}, and the item names no ${itemKey}`);
           else if (target?.kind !== 'words') say(r.rel, r.name, rule, `${itemKey} names ${r[itemKey]}, which is no words item`);
-          else if (!Object.values(target.value).some((x) => x.word === w[field])) say(r.rel, r.name, rule, `${k}: ${w[field]} is no word of ${r[itemKey]}`);
+          else if (!Object.values((target.value) as Record<string, Json>).some((x) => x.word === w[field])) say(r.rel, r.name, rule, `${k}: ${w[field]} is no word of ${r[itemKey]}`);
         }
         // A curve's axes (docs/curves.md): an item naming `axes` draws every word on an x and a y of that item.
         const axes = r.axes === undefined ? undefined : resolved.get(r.axes);
@@ -215,7 +219,7 @@ function semanticRules(resolved, say) {
           if (w[f] === undefined) { if (r.axes !== undefined) say(r.rel, r.name, 'word-axis', `${k} names no ${f}, and every word of an item that names axes is drawn on two`); continue; }
           if (r.axes === undefined) say(r.rel, r.name, 'word-axis', `${k} names the ${f} axis ${w[f]}, and the item names no axes`);
           else if (axes?.kind !== 'words') say(r.rel, r.name, 'word-axis', `axes names ${r.axes}, which is no words item`);
-          else if (!Object.values(axes.value).some((a) => a.word === w[f])) say(r.rel, r.name, 'word-axis', `${k}: ${w[f]} is no word of ${r.axes}`);
+          else if (!Object.values((axes.value) as Record<string, Json>).some((a) => a.word === w[f])) say(r.rel, r.name, 'word-axis', `${k}: ${w[f]} is no word of ${r.axes}`);
         }
         if ((w.unit === undefined) !== (w.scale === undefined)) say(r.rel, r.name, 'axis', `${k} carries a ${w.unit === undefined ? 'scale' : 'unit'} and no ${w.unit === undefined ? 'unit' : 'scale'}: an axis states both`);
         if (w.scale !== undefined && !(val('PARAM_SCALES') ?? []).includes(w.scale)) say(r.rel, r.name, 'scale', `${k}: scale ${JSON.stringify(w.scale)} is not an id of PARAM_SCALES`);
@@ -229,7 +233,7 @@ function semanticRules(resolved, say) {
     }
     if (r.kind === 'words' && r.axes !== undefined && resolved.get(r.axes)?.kind === 'words') {
       const axes = resolved.get(r.axes);
-      for (const [k, a] of Object.entries(axes.value)) {
+      for (const [k, a] of Object.entries((axes.value) as Record<string, Json>)) {
         // One of the two missing is the word's own refusal above; here, the axis that states neither.
         if (a.unit === undefined && a.scale === undefined) say(axes.rel, axes.name, 'axis', `${k} is an axis of ${r.name} and states no unit and no scale`);
       }
@@ -238,13 +242,13 @@ function semanticRules(resolved, say) {
       const claimed = [...resolved.values()].filter((x) => x.kind === 'words' && x.extension !== undefined);
       if (claimed.length > 1 && claimed[0] !== r) say(r.rel, r.name, 'extension', `${claimed[0].name} declares the extension already: the carriers render one item`);
       if (Object.keys(r.value).length > MAX_HINTS) say(r.rel, r.name, 'extension', `more than ${MAX_HINTS} hints: the declared mask holds ${MAX_HINTS} bits`);
-      for (const [k, w] of Object.entries(r.value)) {
+      for (const [k, w] of Object.entries((r.value) as Record<string, Json>)) {
         for (const f of ['group', 'figureUnit', 'basis']) if (w[f] === undefined) say(r.rel, r.name, 'extension', `${k} carries no ${f}, and the carriers type and describe a hint by it`);
-        if (w.figureUnit !== undefined && !Object.hasOwn(HINT_UNITS, w.figureUnit)) say(r.rel, r.name, 'extension', `${k}: ${w.figureUnit} is a unit the carriers have no type for (${Object.keys(HINT_UNITS).join(', ')})`);
+        if (w.figureUnit !== undefined && !Object.hasOwn(HINT_UNITS, w.figureUnit)) say(r.rel, r.name, 'extension', `${k}: ${w.figureUnit} is a unit the carriers have no type for (${Object.keys(HINT_UNITS as Record<string, Json>).join(', ')})`);
       }
     }
     if (r.kind === 'formatMap') {
-      for (const [field, row] of Object.entries(r.value)) {
+      for (const [field, row] of Object.entries((r.value) as Record<string, Json>)) {
         if (row.term === undefined) continue;
         const [item, term] = row.term.split('#');
         const t = resolved.get(item);
@@ -255,7 +259,7 @@ function semanticRules(resolved, say) {
     }
     if (r.kind === 'terms') {
       const key = r.format === 'lv2' ? 'uri' : 'id';
-      for (const [k, t] of Object.entries(r.value)) if (t[key] === undefined) say(r.rel, r.name, 'term-format', `${k}: a ${r.format} term carries its ${key}`);
+      for (const [k, t] of Object.entries((r.value) as Record<string, Json>)) if (t[key] === undefined) say(r.rel, r.name, 'term-format', `${k}: a ${r.format} term carries its ${key}`);
     }
   }
 
@@ -264,14 +268,14 @@ function semanticRules(resolved, say) {
   for (const r of resolved.values()) {
     if (r.kind !== 'sheet') continue;
     const walk = (v, at) => {
-      if (typeof v === 'object' && v !== null && !Array.isArray(v)) { for (const [k, x] of Object.entries(v)) walk(x, `${at}.${k}`); return; }
+      if (typeof v === 'object' && v !== null && !Array.isArray(v)) { for (const [k, x] of Object.entries((v) as Record<string, Json>)) walk(x, `${at}.${k}`); return; }
       if (typeof v !== 'number' || !Number.isFinite(v)) say(r.rel, r.name, 'finite', `${at} resolves to ${JSON.stringify(v)}`);
     };
     walk(r.value, r.name);
   }
 
   // A readout's numbers are finite, its range runs upward, its rate is positive and its scale is a PARAM_SCALES id.
-  for (const [k, { readouts }] of Object.entries(resolved.kernels ?? {})) {
+  for (const [k, { readouts }] of Object.entries((resolved.kernels ?? {}) as Record<string, Json>)) {
     for (const ro of readouts ?? []) {
       const rel = `data/kernels/${k}.json`;
       const at = `${k}.readouts.${ro.name}`;
@@ -308,21 +312,21 @@ function semanticRules(resolved, say) {
     if (r.kind === 'words' && resolved.has(`${r.name}_WORDS`)) say(r.rel, `${r.name}_WORDS`, 'words-export', `${r.name}_WORDS is the ts render's export of ${r.name}'s words: no item may take the name`);
     if (r.kind === 'set' && r.values && resolved.has(`${r.name}_VALUES`)) say(r.rel, `${r.name}_VALUES`, 'set-values', `${r.name}_VALUES is the ts render's export of ${r.name}'s values: no item may take the name`);
   }
-  if (resolved.has('READOUTS') && Object.values(resolved.kernels ?? {}).some((k) => k.readouts)) {
+  if (resolved.has('READOUTS') && Object.values((resolved.kernels ?? {}) as Record<string, Json>).some((k) => k.readouts)) {
     say(resolved.get('READOUTS').rel, 'READOUTS', 'readouts-name', 'READOUTS is the ts render\'s export of the readouts: no item may take the name');
   }
 
   // A per-band control's count: a positive integer scalar, or a sheet whose every variant has a positive integer max
   // and, where it states one, a positive integer default.
-  for (const [k, { controls }] of Object.entries(resolved.kernels ?? {})) {
+  for (const [k, { controls }] of Object.entries((resolved.kernels ?? {}) as Record<string, Json>)) {
     for (const c of controls) {
       if (c.count === undefined) continue;
       const it = resolved.get(c.count);
       const rel = `data/kernels/${k}.json`;
       if (!it) { say(rel, c.global, 'count', `${k}.${c.name}: count ${c.count} is no item`); continue; }
       const ok = (n) => Number.isInteger(n) && n >= 1;
-      const good = it.kind === 'scalar' ? ok(it.value) : it.kind === 'sheet' && Object.values(it.value).length > 0
-        && Object.values(it.value).every((v) => ok(v?.max) && (v.default === undefined || ok(v.default)));
+      const good = it.kind === 'scalar' ? ok(it.value) : it.kind === 'sheet' && Object.values((it.value) as Record<string, Json>).length > 0
+        && Object.values((it.value) as Record<string, Json>).every((v) => ok(v?.max) && (v.default === undefined || ok(v.default)));
       if (!good) say(rel, c.global, 'count', `${k}.${c.name}: count ${c.count} is neither a positive integer scalar nor a sheet of variants with a positive integer max and default`);
     }
   }
@@ -335,7 +339,7 @@ function semanticRules(resolved, say) {
       const num = (x) => typeof x === 'number' && Number.isFinite(x);
       if (num(v.default) && num(v.max) && v.default > v.max) say(r.rel, r.name, 'sheet-default', `${at}: default ${v.default} exceeds max ${v.max}`);
       if (num(v.default) && num(v.min) && v.default < v.min) say(r.rel, r.name, 'sheet-default', `${at}: default ${v.default} is below min ${v.min}`);
-      for (const [k, x] of Object.entries(v)) walk(x, `${at}.${k}`);
+      for (const [k, x] of Object.entries((v) as Record<string, Json>)) walk(x, `${at}.${k}`);
     };
     walk(r.value, r.name);
   }
@@ -375,7 +379,7 @@ const historical = new Map();
  * (its `major.minor.0`): a fresh Ajv instance, since every snapshot shares the bundled schema's `$id`. */
 function historicalValidator(schemaObj, key) {
   if (!historical.has(key)) {
-    const inst = new Ajv2020({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
+    const inst = new (Ajv2020 as unknown as Ajv2020Class)({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
     inst.addKeyword({ keyword: 'x-omx-schema-version', schemaType: 'string' });
     const validate = inst.compile(schemaObj);
     const readout = inst.getSchema(`${schemaObj.$id}#/$defs/readout`);
@@ -405,7 +409,7 @@ export function validatesWhole(schemaObj, key, f) {
  * `[{ rel, item, message }]`.
  */
 export function useProblems(data) {
-  const out = [];
+  const out: Json[] = [];
   for (const f of data.files) {
     if (!isKernelFile(f.rel) || isDescriptor(f.doc) || !Array.isArray(f.doc.controls)) continue;
     for (const c of f.doc.controls.filter(isUse)) {
@@ -428,7 +432,7 @@ export function useProblems(data) {
  * `[{ file, item, rule, message }]`.
  */
 export function fileProblems(f) {
-  const problems = [];
+  const problems: Json[] = [];
   const say = (file, item, rule, message) => problems.push({ file, item, rule, message });
   if (!f.installed) {
     const depth = f.rel.split('/').length - 1;
@@ -444,7 +448,7 @@ export function fileProblems(f) {
   for (const m of shapeProblems(f.rel, f.doc)) say(f.rel, '-', 'shape', m);
   // The schema reads items: a kernel file is checked as the items it expands to, so no rule is lost.
   let items;
-  try { items = itemsOf(f); } catch (e) { say(f.rel, '-', 'shape', e.message); return problems; }
+  try { items = itemsOf(f); } catch (e) { say(f.rel, '-', 'shape', (e as Error).message); return problems; }
   if (isKernelFile(f.rel) && Array.isArray(f.doc.readouts)) {
     const readout = readoutValidator();
     for (const [i, ro] of f.doc.readouts.entries()) {
@@ -472,7 +476,7 @@ function schemaProblems(doc, rel, say) {
 
 /** Every problem of the loaded data: `[{ file, item, rule, message }]`; empty is valid. */
 export function validateData(data) {
-  const problems = [];
+  const problems: Json[] = [];
   const say = (file, item, rule, message) => problems.push({ file, item, rule, message });
   for (const f of data.files) problems.push(...fileProblems(f));
   for (const p of useProblems(data)) say(p.rel, p.item, 'use', p.message);
@@ -489,13 +493,13 @@ export function validateData(data) {
   try {
     resolved = resolveData(data);
   } catch (e) {
-    const name = /^(\w+)/.exec(e.message)?.[1] ?? '-';
-    say(data.items.get(name)?.rel ?? '-', name, 'reference', e.message);
+    const name = /^(\w+)/.exec((e as Error).message)?.[1] ?? '-';
+    say(data.items.get(name)?.rel ?? '-', name, 'reference', (e as Error).message);
     return problems;
   }
 
   for (const r of resolved.values()) {
-    const travels = r.kind === 'travels' ? (r.shape === 'table' ? Object.entries(r.value) : [['', r.value]]) : [];
+    const travels = r.kind === 'travels' ? (r.shape === 'table' ? Object.entries((r.value) as Record<string, Json>) : [['', r.value]]) : [];
     for (const [field, t] of travels) {
       const at = field ? `${r.name}.${field}` : r.name;
       for (const k of ['min', 'max', 'step', 'default']) {
@@ -504,7 +508,7 @@ export function validateData(data) {
       if (!(t.min <= t.max)) say(r.rel, r.name, 'travel-order', `${at}: min ${t.min} > max ${t.max}`);
       if (t.step !== undefined && t.step < 0) say(r.rel, r.name, 'step', `${at}: step ${t.step} < 0`);
       if (t.default !== undefined && !(t.default >= t.min && t.default <= t.max)) say(r.rel, r.name, 'default-inside', `${at}: default ${t.default} outside [${t.min}, ${t.max}]`);
-      for (const [kind, v] of Object.entries(t.byKind ?? {})) {
+      for (const [kind, v] of Object.entries((t.byKind ?? {}) as Record<string, Json>)) {
         if (!(v >= t.min && v <= t.max)) say(r.rel, r.name, 'default-inside', `${at}.byKind.${kind}: ${v} outside [${t.min}, ${t.max}]`);
       }
     }
@@ -513,12 +517,12 @@ export function validateData(data) {
 
   semanticRules(resolved, say);
 
-  for (const [target, files] of [['c', () => renderC(resolved)], ['ts', () => renderTs(resolved)]]) {
+  for (const [target, files] of [['c', () => renderC(resolved)], ['ts', () => renderTs(resolved)]] as [string, () => Json][]) {
     let out;
     try {
       out = files();
     } catch (e) {
-      say('-', '-', `render-${target}`, e.message);
+      say('-', '-', `render-${target}`, (e as Error).message);
       continue;
     }
     if (target !== 'c') continue;

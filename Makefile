@@ -26,11 +26,27 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all check inventory-check layout public-sources install install-cli install-rpm-macros test
+.PHONY: all build-lib check inventory-check layout public-sources install install-cli install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
 	@test -n "$(SCHEMA_MAJOR)" || { echo "no x-omx-schema-version in schema/omx-contract.schema.json" >&2; exit 1; }
+
+# The library modules (#15): src/lib/*.mts, built by tsc into lib/*.mjs with their .d.mts, a build product the CLI,
+# the npm package and every checkout caller load from lib/. TSC is the checkout's (npm ci), else the system's
+# (typescript >= 4.8.4, < 6). A package build has no network: when node_modules/ holds no @types/node, the build-only
+# types (vendor/build/: @types/node, undici-types) and the runtime tarballs whose types the modules import (vendor/:
+# ajv) are unpacked into node_modules/ by their package name first.
+TSC ?= $(firstword $(wildcard node_modules/.bin/tsc) tsc)
+build-lib:
+	@if [ ! -d node_modules/@types/node ]; then \
+	  for t in vendor/build/*.tgz vendor/*.tgz; do \
+	    n=$$(tar -xzOf $$t --wildcards --no-wildcards-match-slash '*/package.json' | sed -n 's/^ *"name": *"\([^"]*\)",*$$/\1/p' | head -1); \
+	    test -n "$$n" || { echo "build-lib: $$t names no package" >&2; exit 1; }; \
+	    install -d node_modules/$$n && tar -xzf $$t --no-same-owner --strip-components=1 -C node_modules/$$n || exit 1; \
+	  done; \
+	fi
+	$(TSC) -p tsconfig.lib.json
 
 # The headers compile on their own, warnings as errors: the committed renders and the verbs fixture's (test/golden/verbs/).
 check: all
@@ -62,7 +78,7 @@ install-rpm-macros: all
 	sed -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' packaging/macros.omx-contract.in > $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
 	chmod 0644 $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
 
-install-cli: all
+install-cli: all build-lib
 	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema \
 	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 bin/omx-contract.mjs $(DESTDIR)$(CLIDIR)/bin/

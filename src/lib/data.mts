@@ -6,6 +6,7 @@
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import type { Json, JsonObject } from './json.mjs';
 
 /**
  * The files at the top of a data directory that are the tool's own tables, not declarations: `codes.json` holds
@@ -23,7 +24,7 @@ export const SIDE_FILES = ['scale-vectors.json'];
 
 /** Every `.json` file under `dir`, sorted by its path relative to `dir`, the tool files at its top left out. */
 export function dataFiles(dir) {
-  const out = [];
+  const out: Json[] = [];
   const walk = (d) => {
     for (const f of readdirSync(d).sort()) {
       const p = join(d, f);
@@ -40,13 +41,13 @@ export function dataFiles(dir) {
  * file order then key order. `files` may be handed in as `{ rel: text }` (a tag's data, a test).
  * @throws naming the file when one is not JSON, and an item declared by two files.
  */
-export function loadData(dir, texts) {
-  const files = [];
-  const entries = texts ? Object.entries(texts).sort(([a], [b]) => (a < b ? -1 : 1)) : dataFiles(dir).map((p) => [relative(join(dir, '..'), p), readFileSync(p, 'utf8')]);
+export function loadData(dir: string, texts?: Readonly<Record<string, string>>): Json {
+  const files: Json[] = [];
+  const entries: [string, string][] = texts ? Object.entries((texts) as Record<string, Json>).sort(([a], [b]) => (a < b ? -1 : 1)) : dataFiles(dir).map((p) => [relative(join(dir, '..'), p), readFileSync(p, 'utf8')]);
   const items = new Map();
   for (const [rel, text] of entries) {
     let doc;
-    try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${e.message}`); }
+    try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${(e as Error).message}`); }
     files.push({ rel, text, doc });
     for (const [name, item] of entriesOf(rel, doc)) {
       if (items.has(name)) throw new Error(`${rel}: ${name}: already declared by ${items.get(name).rel}`);
@@ -102,12 +103,12 @@ export const controlGlobal = (rel, c) => c.global ?? `${kernelPrefix(rel)}_${sna
  * controls; constants pass through. Any other top-level key of a kernel file is not read (validation names it).
  * rates.json and primitives.json are item maps, read as they are.
  */
-export function entriesOf(rel, doc) {
+export function entriesOf(rel: string, doc: Json): [string, Json][] {
   if (isDescriptor(doc)) return [];
-  if (!isKernelFile(rel)) return Object.entries(doc).filter(([name]) => !FILE_KEYS.includes(name));
-  const out = [];
+  if (!isKernelFile(rel)) return Object.entries((doc) as Record<string, Json>).filter(([name]) => !FILE_KEYS.includes(name));
+  const out: Json[] = [];
   const controls = Array.isArray(doc.controls) ? doc.controls : [];
-  const tables = new Map(Object.entries(doc.tables ?? {}).map(([n, meta]) => [n, { kind: 'travels', ...meta, fields: {} }]));
+  const tables = new Map<string, JsonObject>(Object.entries(((doc.tables ?? {}) as Record<string, JsonObject>) as Record<string, Json>).map(([n, meta]) => [n, { kind: 'travels', ...meta, fields: {} }]));
   const placed = new Set();
   for (const c of controls) {
     const { name, kind, global, table, rearms, count, of, when, ...rest } = c;
@@ -116,21 +117,21 @@ export function entriesOf(rel, doc) {
       if (!tables.has(table)) throw new Error(`${rel}: control ${name} names table ${table}, which is not declared`);
       // a table is an item where its first control stands, so a control after a table keeps its place
       if (!placed.has(table)) { placed.add(table); out.push([table, tables.get(table)]); }
-      tables.get(table).fields[name] = rest.travel;
+      tables.get(table)!.fields[name] = rest.travel;
       continue;
     }
     out.push([controlGlobal(rel, c), kind === 'choice' ? { kind: 'set', ...rest } : { kind: 'travels', ...rest }]);
   }
   for (const [n, t] of tables) if (!placed.has(n)) out.push([n, t]);
   const byName = new Map(controls.map((c) => [c.name, c]));
-  for (const [n, a] of Object.entries(doc.aggregates ?? {})) {
+  for (const [n, a] of Object.entries(((doc.aggregates ?? {}) as Record<string, JsonObject>) as Record<string, Json>)) {
     const { fields, ...meta } = a;
     out.push([n, { kind: 'travels', ...meta, fields: Object.fromEntries((fields ?? []).map((f) => {
       if (!byName.has(f)) throw new Error(`${rel}: aggregate ${n} names control ${f}, which is not declared`);
       return [f, { ref: controlGlobal(rel, byName.get(f)) }];
     })) }]);
   }
-  for (const [n, item] of Object.entries(doc.constants ?? {})) out.push([n, item]);
+  for (const [n, item] of Object.entries((doc.constants ?? {}) as Record<string, Json>)) out.push([n, item]);
   return out;
 }
 
@@ -182,7 +183,7 @@ const isWholeRef = (v) => typeof v === 'object' && v !== null && Object.keys(v).
  * @throws naming the item: a fields table that mixes references and travels, an aggregate field whose name is not
  * its control's.
  */
-export function kernelDocOf(rel, entries, kept) {
+export function kernelDocOf(rel: string, entries: [string, Json][], kept?: Json): JsonObject {
   const K = kernelPrefix(rel);
   const doc = kept ? JSON.parse(JSON.stringify(kept)) : {};
   doc.controls ??= [];
@@ -190,10 +191,10 @@ export function kernelDocOf(rel, entries, kept) {
   const declared = new Set(entriesOf(rel, kept ?? {}).map(([n]) => n));
   const singles = new Map(entries.filter(([, it]) => (it.kind === 'travels' && it.travel) || it.kind === 'set'));
   for (const c of doc.controls) if (!c.table) singles.set(controlGlobal(rel, c), c);
-  const isAggregate = (it) => it.kind === 'travels' && it.fields && Object.values(it.fields).length > 0 && Object.values(it.fields).every((f) => isWholeRef(f) && singles.get(f.ref)?.travel);
+  const isAggregate = (it: Json) => it.kind === 'travels' && it.fields && Object.values((it.fields) as Record<string, Json>).length > 0 && Object.values((it.fields) as Record<string, Json>).every((f) => isWholeRef(f) && singles.get(f.ref)?.travel);
   // an aggregate's field names are its controls' names
   const named = new Map();
-  for (const [n, it] of entries) if (isAggregate(it)) for (const [f, t] of Object.entries(it.fields)) named.set(t.ref, f);
+  for (const [n, it] of entries) if (isAggregate(it)) for (const [f, t] of Object.entries((it.fields) as Record<string, Json>)) named.set(t.ref, f);
   for (const [n, it] of entries) {
     if (declared.has(n)) continue;
     if ((it.kind === 'travels' && it.travel) || it.kind === 'set') {
@@ -201,21 +202,21 @@ export function kernelDocOf(rel, entries, kept) {
       const ck = kind === 'set' ? 'choice' : 'travel';
       const suffix = ck === 'choice' ? 'S' : '_RANGE';
       const derived = n.startsWith(`${K}_`) && n.endsWith(suffix) && n.length > K.length + 1 + suffix.length ? camelOf(n.slice(K.length + 1, -suffix.length)) : undefined;
-      const c = { name: named.get(n) ?? derived ?? camelOf(n.endsWith(suffix) ? n.slice(0, -suffix.length) : n), kind: ck };
+      const c: JsonObject = { name: named.get(n) ?? derived ?? camelOf(n.endsWith(suffix) ? n.slice(0, -suffix.length) : n), kind: ck };
       if (controlGlobal(rel, c) !== n) c.global = n;
       doc.controls.push({ ...c, ...rest });
     } else if (it.kind === 'travels' && it.fields && isAggregate(it)) {
       const { kind, fields, ...meta } = it;
-      doc.aggregates[n] = { ...meta, fields: Object.entries(fields).map(([f, t]) => {
+      doc.aggregates[n] = { ...meta, fields: Object.entries((fields) as Record<string, Json>).map(([f, t]) => {
         const c = doc.controls.find((x) => !x.table && controlGlobal(rel, x) === t.ref) ?? { name: named.get(t.ref) };
         if (c.name !== f) throw new Error(`${rel}: ${n}.${f} refers to ${t.ref}, whose control is named ${c.name}: an aggregate's field is named by its control`);
         return f;
       }) };
     } else if (it.kind === 'travels' && it.fields) {
       const { kind, fields, ...meta } = it;
-      if (Object.values(fields).some(isWholeRef)) throw new Error(`${rel}: ${n} mixes fields that refer to single travels with travels of its own: declare it as an aggregate of controls, or as a table`);
+      if (Object.values((fields) as Record<string, Json>).some(isWholeRef)) throw new Error(`${rel}: ${n} mixes fields that refer to single travels with travels of its own: declare it as an aggregate of controls, or as a table`);
       doc.tables[n] = meta;
-      for (const [f, travel] of Object.entries(fields)) doc.controls.push({ name: f, kind: 'travel', table: n, travel });
+      for (const [f, travel] of Object.entries((fields) as Record<string, Json>)) doc.controls.push({ name: f, kind: 'travel', table: n, travel });
     } else {
       doc.constants[n] = it;
     }
@@ -269,7 +270,7 @@ export const DERIVATIONS = {
 /** The taps of the order-`order` Lagrange fractional read at fraction `f` (the fdelay kernel's read). */
 export function lagrangeReadTaps(order, f) {
   const off = Math.floor((order - 1) / 2);
-  const c = [];
+  const c: Json[] = [];
   for (let k = 0; k <= order; k++) {
     let num = 1;
     let den = 1;
@@ -306,14 +307,23 @@ const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
  * `{ rel, pkg, render, items, kernel }` with its items' names in file order and, for a kernel file, its kernel.
  * @throws naming the item: a reference that does not resolve, a cycle, an unknown derivation.
  */
-export function resolveData(data) {
-  const done = new Map();
+/** The resolved items by name, with what a read carries beside them (see resolveData). */
+export type Resolved = Map<string, JsonObject> & {
+  kernels: JsonObject;
+  packageOf: Map<string, string | undefined>;
+  kernelPackageOf: Map<string, string | undefined>;
+  renders: JsonObject[];
+  checks?: JsonObject[];
+};
+
+export function resolveData(data: Json): Resolved {
+  const done = new Map<string, JsonObject>();
   const busy = new Set();
   const lookup = (path, from) => {
     const [head, ...rest] = path.split('.');
     const entry = data.items.get(head);
     if (!entry) throw new Error(`${from}: reference ${path}: no item ${head}`);
-    let v = resolveItem(head).value;
+    let v = resolveItem(head!).value;
     for (const k of rest) {
       if (!isObj(v) || !(k in v)) throw new Error(`${from}: reference ${path}: ${head} has no ${k}`);
       v = v[k];
@@ -327,16 +337,16 @@ export function resolveData(data) {
     if ('derive' in v) {
       const fn = DERIVATIONS[v.derive];
       if (!fn) throw new Error(`${from}: unknown derivation ${v.derive}`);
-      try { return fn(v, (x) => val(x, from)); } catch (e) { throw new Error(`${from}: ${e.message}`); }
+      try { return fn(v, (x) => val(x, from)); } catch (e) { throw new Error(`${from}: ${(e as Error).message}`); }
     }
-    return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, val(x, from)]));
+    return Object.fromEntries(Object.entries((v) as Record<string, Json>).map(([k, x]) => [k, val(x, from)]));
   };
-  function resolveItem(name) {
-    if (done.has(name)) return done.get(name);
+  function resolveItem(name: string): JsonObject {
+    if (done.has(name)) return done.get(name)!;
     if (busy.has(name)) throw new Error(`${name}: reference cycle through ${[...busy].join(' -> ')} -> ${name}`);
     busy.add(name);
     const { rel, item } = data.items.get(name);
-    const r = { name, rel, kind: item.kind, doc: item.doc };
+    const r: JsonObject = { name, rel, kind: item.kind, doc: item.doc };
     if (item.why !== undefined) r.why = item.why;
     if (item.unit !== undefined) r.unit = item.unit;
     if (item.c !== undefined) r.c = item.c;
@@ -362,7 +372,7 @@ export function resolveData(data) {
     done.set(name, r);
     return r;
   }
-  const out = new Map();
+  const out = new Map() as Resolved;
   for (const name of data.items.keys()) out.set(name, resolveItem(name));
   out.kernels = kernelControls(data);
   out.packageOf = new Map([...data.items.values()].map((it) => [it.name, it.pkg]));
@@ -386,10 +396,10 @@ export function resolveData(data) {
  * cut to it: what an owner renders of its own (`render --package`). Every reference stays resolved over the whole
  * read. A data directory (no package on any file) is the package named, whole.
  */
-export function packageItems(resolved, pkg) {
-  const out = new Map([...resolved].filter(([n]) => resolved.packageOf.get(n) === undefined || resolved.packageOf.get(n) === pkg));
-  const mine = (p) => p === undefined || p === pkg;
-  out.kernels = Object.fromEntries(Object.entries(resolved.kernels ?? {}).filter(([k]) => mine(resolved.kernelPackageOf.get(k))));
+export function packageItems(resolved: Resolved, pkg: string | undefined): Resolved {
+  const out = new Map([...resolved].filter(([n]) => resolved.packageOf.get(n) === undefined || resolved.packageOf.get(n) === pkg)) as Resolved;
+  const mine = (p: string | undefined) => p === undefined || p === pkg;
+  out.kernels = Object.fromEntries(Object.entries((resolved.kernels ?? {}) as Record<string, Json>).filter(([k]) => mine(resolved.kernelPackageOf.get(k))));
   out.packageOf = new Map([...resolved.packageOf].filter(([n]) => out.has(n)));
   out.kernelPackageOf = new Map([...resolved.kernelPackageOf].filter(([k]) => k in out.kernels));
   out.renders = (resolved.renders ?? []).filter((f) => f.pkg === undefined || f.pkg === pkg);

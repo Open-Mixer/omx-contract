@@ -351,6 +351,7 @@ async function translateBatch({ url, key, model, lang, batch }) {
   const body = {
     model,
     temperature: 0,
+    max_tokens: Number(process.env.OMX_TRANSLATE_MAX_TOKENS ?? 8192),
     messages: [
       { role: 'system', content: TRANSLATE_PROMPT(lang) },
       { role: 'user', content: `Translate these entries.\n${JSON.stringify({ lang, entries })}` },
@@ -367,8 +368,17 @@ async function translateBatch({ url, key, model, lang, batch }) {
   const content = String(reply?.choices?.[0]?.message?.content ?? '');
   const json = content.slice(content.indexOf('{'), content.lastIndexOf('}') + 1);
   let answers;
-  try { answers = JSON.parse(json); } catch { answers = {}; }
-  return { model: typeof reply?.model === 'string' && reply.model ? reply.model : model, answers };
+  try { answers = JSON.parse(json); } catch { answers = undefined; }
+  return { model: typeof reply?.model === 'string' && reply.model ? reply.model : model, answers: answers && typeof answers === 'object' ? answers : undefined };
+}
+
+/** A batch's answers; one that does not parse (an answer cut off) is asked again in halves, down to one entry. */
+async function answersOf(ask, batch) {
+  const r = await ask(batch);
+  if (r.answers !== undefined || batch.length === 1) return { model: r.model, answers: r.answers ?? {} };
+  const half = Math.ceil(batch.length / 2);
+  const [a, b] = [await answersOf(ask, batch.slice(0, half)), await answersOf(ask, batch.slice(half))];
+  return { model: b.model, answers: { ...a.answers, ...b.answers } };
 }
 
 /** The owner's inputs: its keys, its catalogs directory and its name. */
@@ -425,7 +435,7 @@ async function cmdTranslate(argv) {
   let used = model;
   for (let i = 0; i < todo.length; i += size) {
     const batch = todo.slice(i, i + size);
-    const { model: served, answers } = await translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch });
+    const { model: served, answers } = await answersOf((b) => translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch: b }), batch);
     used = served;
     for (const [k, want] of batch) {
       const a = admit(want, answers[k], served);

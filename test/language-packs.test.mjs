@@ -110,8 +110,11 @@ test('this tree is release-ready: translate --check finds every listed language\
 
 // ---- translate, against an OpenAI-compatible endpoint stood up here ------------------------------------------------
 
-/** A chat/completions endpoint that translates by prefixing `[<lang>] `, breaking `breakKey`'s placeholders. */
-async function fakeEndpoint({ breakKey } = {}) {
+/**
+ * A chat/completions endpoint that translates by prefixing `[<lang>] `, breaking `breakKey`'s placeholders; with
+ * `garbleOver`, a batch of more entries than that is answered with text that is no JSON (a cut-off answer).
+ */
+async function fakeEndpoint({ breakKey, garbleOver } = {}) {
   const seen = [];
   const server = createServer((req, res) => {
     let body = '';
@@ -122,6 +125,13 @@ async function fakeEndpoint({ breakKey } = {}) {
       const content = request.messages.at(-1).content;
       const payload = JSON.parse(content.slice(content.indexOf('\n{') + 1));
       const out = {};
+      seen.at(-1).size = Object.keys(payload.entries).length;
+      seen.at(-1).maxTokens = request.max_tokens;
+      if (garbleOver !== undefined && seen.at(-1).size > garbleOver) {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: '{"cut off' } }] }));
+        return;
+      }
       for (const [key, e] of Object.entries(payload.entries)) out[key] = key === breakKey ? `[${payload.lang}] ${e.text.replace(/\{(\w+)\}/g, '{$1_x}')}` : `[${payload.lang}] ${e.text}`;
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: JSON.stringify(out) } }] }));
@@ -169,6 +179,19 @@ test('translate fills a language from the source sentences, by model, each entry
     assert.ok(ep.seen.length >= 1 && ep.seen.every((s) => s.auth === 'Bearer k' && s.path === '/v1/chat/completions' && s.model === 'mid-dense'));
     const check = await run(['translate', '--check', '--owner', dir, '--lang', 'es', '--package', 'omx-contract']);
     assert.equal(check.status, 0, check.stderr);
+  } finally { await ep.close(); }
+});
+
+test('translate splits a batch whose answer does not parse (a cut-off answer) and asks again, so no entry is lost', async () => {
+  const dir = ownerTree();
+  const ep = await fakeEndpoint({ garbleOver: 5 });
+  try {
+    const r = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract', '--batch', '40'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'mid-dense' });
+    assert.equal(r.status, 0, r.stderr);
+    const es = JSON.parse(readFileSync(join(dir, 'catalogs', 'es.json'), 'utf8'));
+    assert.equal(es.messages[CODE].text, `[es] ${sourceOf(dir, CODE)}`);
+    assert.ok(ep.seen.some((s) => s.size > 5) && ep.seen.some((s) => s.size <= 5), 'a large batch was tried, then halves');
+    assert.ok(ep.seen.every((s) => s.maxTokens >= 4096), 'the answer has room: max_tokens asked');
   } finally { await ep.close(); }
 });
 

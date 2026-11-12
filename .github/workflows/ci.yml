@@ -172,6 +172,8 @@ jobs:
           omx-contract validate --contract-dir /usr/share/omx-contract/contract.d
           omx-contract render --target json --contract-dir /usr/share/omx-contract/contract.d --out /tmp/json
           cmp /tmp/json/omx-contract.json /usr/share/omx-contract/omx-contract.json
+          # the installed command finds the language list where omx-contract-data installs it, never in its own tree
+          omx-contract translate --check --owner "$PWD"
 
   deb:
     name: DEBs (${{ matrix.suite }}), linted, which file lands in which package
@@ -207,6 +209,8 @@ jobs:
           omx-contract validate --contract-dir /usr/share/omx-contract/contract.d
           omx-contract render --target json --contract-dir /usr/share/omx-contract/contract.d --out /tmp/json
           cmp /tmp/json/omx-contract.json /usr/share/omx-contract/omx-contract.json
+          # the installed command finds the language list where omx-contract-data installs it, never in its own tree
+          omx-contract translate --check --owner "$PWD"
 
   # the checks every FreeMixer repository runs on what it publishes: commit messages, private references, and no
   # local copy of either (Open-Mixer/.github's public-sources-check)

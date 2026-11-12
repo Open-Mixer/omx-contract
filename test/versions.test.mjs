@@ -125,7 +125,8 @@ test('packaging: the -devel and -dev descriptions say a consumer requires a floo
 test('packaging: the DEB ships the omx-contract command in its own package, as the RPM does', () => {
   const control = read('debian/control');
   const packages = [...control.matchAll(/^Package: (\S+)$/gm)].map((m) => m[1]);
-  assert.deepEqual(packages.sort(), ['libomx-contract-dev', 'omx-contract', 'omx-contract-data']);
+  const langs = JSON.parse(read('share/omx-contract/languages.json')).languages;
+  assert.deepEqual(packages.sort(), ['libomx-contract-dev', 'omx-contract', 'omx-contract-data', ...langs.map((l) => `omx-contract-l10n-${l}`)].sort());
   const cli = control.slice(control.indexOf('Package: omx-contract\n')).split('\n\n')[0];
   assert.match(cli, /^Architecture: all$/m);
   // node as the RPM requires it, with no version: the command's own code runs on every node the DEB releases carry
@@ -170,7 +171,8 @@ test('packaging: omx-contract-data holds the run-time data, noarch in both forma
   assert.doesNotMatch(rpmDevel, /^%\{_datadir\}\/omx-contract\/$/m, 'the development package no longer ships the whole share/omx-contract');
   assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n'), ['usr/include/omxcontract', 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/pkgconfig/omx-contract.pc']);
   const rpmNames = /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split('\n  rpm:\n')[1])[1].trim().split(/\s+/);
-  assert.deepEqual(rpmNames.sort(), ['omx-contract', 'omx-contract-data', 'omx-contract-devel'], 'the release builds every RPM the spec declares');
+  const packs = JSON.parse(read('share/omx-contract/languages.json')).languages.map((l) => `omx-contract-langpack-${l}`);
+  assert.deepEqual(rpmNames.sort(), ['omx-contract', 'omx-contract-data', 'omx-contract-devel', ...packs].sort(), 'the release builds every RPM the spec declares');
 });
 
 // What the packages list, `make install` must put there: the deb's *.install is read against the staged tree (a file

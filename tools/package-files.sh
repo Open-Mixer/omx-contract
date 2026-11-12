@@ -9,10 +9,11 @@
 #   package-files.sh deb <dir of the debs>
 #
 # omx-contract-data holds data/ installed as contract.d/<schema major>/omx-contract/ (less codes.json and scale-vectors.json, with its
-# MANIFEST.json), the schema, the committed renders and its catalogs under share/omx-contract; the development package the C
+# MANIFEST.json), the schema, the committed renders and languages.json under share/omx-contract; each language pack its one catalog
+# (share/omx-contract/catalogs/<lang>.json, a pack per language of languages.json); the development package the C
 # render, the hand-written C beside it, omx-contract.pc, install-contract-dir.sh and (RPM) the rpm macros; the command package the command, its tree under
-# /usr/lib/omx-contract and its man page. No file is in two packages, and the command and the development package
-# each require omx-contract-data at their own version. Prints each package's list; exit 0 equal, 1 a difference, 2 usage.
+# /usr/lib/omx-contract and its man page. No file is in two packages, and the command, the development package and
+# each pack require omx-contract-data at their own version. Prints each package's list; exit 0 equal, 1 a difference, 2 usage.
 set -eu
 
 kind=${1-} dir=${2-}
@@ -39,12 +40,18 @@ pkgfile() {
 
 if [ "$kind" = rpm ]; then data=omx-contract-data devel=omx-contract-devel; else data=omx-contract-data devel=libomx-contract-dev; fi
 cli=omx-contract
+# the shipped languages, from the one line of languages.json that lists them
+langs=$(sed -n 's/^  "languages": \[\(.*\)\],*$/\1/p' share/omx-contract/languages.json | tr -d '" ' | tr ',' ' ')
+[ -n "$langs" ] || { echo "package-files.sh: share/omx-contract/languages.json lists no language" >&2; exit 2; }
+if [ "$kind" = rpm ]; then pack=omx-contract-langpack-; else pack=omx-contract-l10n-; fi
+packs=
+for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalogs/$l.json" > "$tmp/want-$pack$l"; done
 
 # what the tree says each package holds
 (cd data && find . -name '*.json' ! -path ./codes.json ! -path ./scale-vectors.json | sed "s|^\./|/usr/share/omx-contract/contract.d/$major/omx-contract/|"
   echo "/usr/share/omx-contract/contract.d/$major/omx-contract/MANIFEST.json"
   for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract.py omx_contract_catalog.py scale-vectors.json; do echo "/usr/share/omx-contract/$f"; done
-  for f in ../catalogs/*.json; do echo "/usr/share/omx-contract/catalogs/$(basename "$f")"; done
+  echo /usr/share/omx-contract/languages.json
   echo /usr/share/omx-contract/omx-contract.schema.json) | LC_ALL=C sort > "$tmp/want-$data"
 # the renders and the hand-written C (omx_json_write.h) both live in include/omxcontract; the RPM macros of the
 # contract directory are the RPM's alone (a deb has no rpm macros directory)
@@ -54,7 +61,7 @@ cli=omx-contract
   [ "$kind" = rpm ] && echo /usr/lib/rpm/macros.d/macros.omx-contract) | LC_ALL=C sort > "$tmp/want-$devel"
 
 bad=0
-for pkg in "$data" "$devel" "$cli"; do
+for pkg in "$data" "$devel" "$cli" $packs; do
   f=$(pkgfile "$pkg")
   echo "== $pkg ($(basename "$f"))"
   files "$f" > "$tmp/got-$pkg"
@@ -77,8 +84,8 @@ done
 LC_ALL=C sort "$tmp"/got-* | uniq -d > "$tmp/twice"
 [ ! -s "$tmp/twice" ] || { echo "files in two packages:"; cat "$tmp/twice"; bad=1; }
 
-# the command and the development package require the data at their own version
-for pkg in "$cli" "$devel"; do
+# the command, the development package and each pack require the data at their own version
+for pkg in "$cli" "$devel" $packs; do
   f=$(pkgfile "$pkg")
   if [ "$kind" = rpm ]; then
     v=$(rpm -qp --qf '%{VERSION}-%{RELEASE}' "$f")

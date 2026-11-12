@@ -9,6 +9,7 @@
  *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture>]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
+ *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
  *
  * <input> is `--data <dir>` (the bundled data/ by default), or a contract directory (docs/contract-dir.md):
  * `--contract-dir <dir>`, or `--installed` ($OMX_CONTRACT_PATH, else pkg-config), each with `--needs
@@ -29,6 +30,8 @@ import { formatDoc } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
+import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
+import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC, renderSheetC } from '../render/c.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
@@ -204,6 +207,8 @@ function cmdRender(argv) {
       // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered), shipped beside omx_contract.py
       named.add('omx_contract_catalog.py');
       named.add('omx_contract_scale.py');
+      // and the language list (hand-written: the languages every owner ships a catalog of, omx-contract#21)
+      named.add('languages.json');
     }
     if (opt(argv, '--package') === undefined) for (const rel of filesUnder(join(dir, scope))) if (!named.has(join(scope, rel))) bad.push(`${join(scope, rel)} is extra`);
     for (const b of bad) console.error(`omx-contract render --check: ${out.replace(/\/$/, '')}/${b}`);
@@ -323,20 +328,261 @@ function cmdLinks(argv) {
   return problems.length ? 1 : 0;
 }
 
+// ---- translate (omx-contract#21, docs/data-layout.md "Language packs") ----------------------------------------------
+
+/**
+ * Where omx-contract's data files are: `$OMX_CONTRACT_DATADIR`, else this checkout's `share/omx-contract`, else the
+ * data package's place beside an installed CLI. Installed, the CLI's tree is `<prefix>/lib/omx-contract` (Makefile
+ * CLIDIR) and holds no `share/`; omx-contract-data installs at `<prefix>/share/omx-contract`, two levels up from it.
+ */
+function dataDir() {
+  if (process.env.OMX_CONTRACT_DATADIR) return process.env.OMX_CONTRACT_DATADIR;
+  const checkout = join(ROOT, 'share', 'omx-contract');
+  return existsSync(join(checkout, 'languages.json')) ? checkout : join(ROOT, '..', '..', 'share', 'omx-contract');
+}
+
+/** The languages a catalog is shipped in, and the test ones: the data's languages.json. */
+function languageList() {
+  const file = join(dataDir(), 'languages.json');
+  if (!existsSync(file)) throw new Usage(`no language list at ${file}: install omx-contract-data, or name its directory in OMX_CONTRACT_DATADIR`);
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
+  return { shipped: doc.languages, test: doc.test ?? [] };
+}
+
+/** The language a prompt names: its English name where the runtime knows it, else its tag. */
+function languageName(lang) {
+  try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(lang) ?? lang; } catch { return lang; }
+}
+
+const TRANSLATE_PROMPT = (lang) => `Translate the user-interface messages of an audio mixing console from English into ${languageName(lang)} (${lang}).
+Each entry is one sentence a console, a plugin host or a panel shows to its operator.
+Rules: keep every {placeholder} exactly as written, untranslated, and use each one the source uses; keep codes,
+file names, units and identifiers in backticks or capitals as they are; keep the register short and plain.
+Answer with one JSON object mapping each key to its translated sentence, and nothing else.`;
+
+/** The providers that run on hardware of one's own: an alias served by any other may cost credit. */
+const LOCAL_PROVIDERS = new Set(['ollama', 'ollama_chat', 'hosted_vllm', 'vllm', 'lm_studio', 'llamafile', 'xinference']);
+
+/** A batch the router answered through a fallback to a group that costs credit. */
+class PaidFallback extends Error {}
+
+/**
+ * The paid groups an alias may reach, read from a LiteLLM router before any call: its fallbacks
+ * (`/router/settings`) followed from the alias, each group's providers (`/model_group/info`). A group served by a
+ * provider not in {@link LOCAL_PROVIDERS}, or whose providers the router does not say, is paid. An endpoint with no
+ * router settings is no router and has no fallback. Returns `{ chain, paid }`.
+ */
+async function routerPaidGroups({ url, key, model }) {
+  const base = url.replace(/\/+$/, '').replace(/\/v1$/, '');
+  const get = async (path) => {
+    const res = await fetch(`${base}${path}`, { headers: key ? { authorization: `Bearer ${key}` } : {}, signal: AbortSignal.timeout(30000) });
+    return res.ok ? res.json() : undefined;
+  };
+  const settings = await get('/router/settings').catch(() => undefined);
+  if (!settings) return { chain: [model], paid: [], local: [model] };
+  const fallbacks = new Map();
+  for (const f of settings?.current_values?.fallbacks ?? []) for (const [from, to] of Object.entries(f ?? {})) fallbacks.set(from, Array.isArray(to) ? to : []);
+  const chain = [];
+  for (const queue = [model]; queue.length;) {
+    const g = queue.shift();
+    if (chain.includes(g)) continue;
+    chain.push(g);
+    queue.push(...(fallbacks.get(g) ?? []));
+  }
+  const info = await get('/model_group/info').catch(() => undefined);
+  const providers = new Map((info?.data ?? []).map((g) => [g.model_group, g.providers]));
+  const paid = chain
+    .map((g) => ({ group: g, providers: providers.get(g) }))
+    .filter(({ providers: p }) => !Array.isArray(p) || p.length === 0 || p.some((x) => !LOCAL_PROVIDERS.has(x)));
+  const local = chain.filter((g) => !paid.some((p) => p.group === g));
+  return { chain, paid, local };
+}
+
+/** One batch through an OpenAI-compatible chat/completions endpoint: `{ model, answers }`. */
+async function translateBatch({ url, key, model, lang, batch, localGroups = new Set([model]), allowPaid = false }) {
+  const base = url.replace(/\/+$/, '');
+  const endpoint = /\/v1$/.test(base) ? `${base}/chat/completions` : `${base}/v1/chat/completions`;
+  const entries = Object.fromEntries([...batch].map(([k, w]) => [k, { text: w.text, args: w.args }]));
+  const body = {
+    model,
+    temperature: 0,
+    max_tokens: Number(process.env.OMX_TRANSLATE_MAX_TOKENS ?? 8192),
+    messages: [
+      { role: 'system', content: TRANSLATE_PROMPT(lang) },
+      { role: 'user', content: `Translate these entries.\n${JSON.stringify({ lang, entries })}` },
+    ],
+  };
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...(key ? { authorization: `Bearer ${key}` } : {}) },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(Number(process.env.OMX_TRANSLATE_TIMEOUT ?? 600) * 1000),
+  });
+  if (!res.ok) throw new Error(`translate: ${endpoint} answered ${res.status} ${(await res.text()).slice(0, 200)}`);
+  // the model as the router answered it: a LiteLLM router names the group that served the call in a header (the body
+  // names the alias asked, even when a fallback answered)
+  const group = res.headers.get('x-litellm-model-group');
+  const fellBack = Number(res.headers.get('x-litellm-attempted-fallbacks') ?? 0) > 0;
+  // a fallback is accepted only to a group proven local before the run; any other may have cost credit
+  if (fellBack && !allowPaid && (group === null || !localGroups.has(group))) throw new PaidFallback(`fell back to ${group ?? 'a group the router did not name'}, which costs credit (OMX_TRANSLATE_ALLOW_PAID=1 allows it)`);
+  const reply = await res.json();
+  const content = String(reply?.choices?.[0]?.message?.content ?? '');
+  const json = content.slice(content.indexOf('{'), content.lastIndexOf('}') + 1);
+  let answers;
+  try { answers = JSON.parse(json); } catch { answers = undefined; }
+  const served = group ?? (typeof reply?.model === 'string' && reply.model ? reply.model : model);
+  return { model: served, answers: answers && typeof answers === 'object' ? answers : undefined };
+}
+
+/**
+ * A batch's answers. The keys an answer leaves out (all of them when it does not parse, as an answer cut off) and the
+ * keys whose answer the placeholder gate refuses (`accepts`; a model may garble a whole batch's placeholders and answer
+ * the same keys right in a smaller one) are asked again in halves, down to one entry, so only a key the model will not
+ * answer right on its own is left refused.
+ */
+async function answersOf(ask, batch, accepts = () => true) {
+  const r = await ask(batch);
+  const answers = r.answers ?? {};
+  const left = batch.filter(([k, want]) => typeof answers[k] !== 'string' || !accepts(want, answers[k]));
+  if (left.length === 0 || batch.length === 1) return { model: r.model, answers };
+  const half = Math.ceil(left.length / 2);
+  const parts = left.length === 1 ? [left] : [left.slice(0, half), left.slice(half)];
+  let model = r.model;
+  for (const part of parts) {
+    const again = await answersOf(ask, part, accepts);
+    model = again.model;
+    Object.assign(answers, again.answers);
+  }
+  return { model, answers };
+}
+
+/** The owner's inputs: its keys, its catalogs directory and its name. */
+/**
+ * An owner's source sentences from a file (`--source`, #24), for strings that are no contract data (a surface's own):
+ * `{ "<key>": { "text": "<English sentence>", "args": [...] } }`, the same `Map<key, { args, en }>` the data gives. A
+ * string value is a generated file's banner, no sentence; `args` absent are the sentence's own placeholders.
+ */
+function sourceKeys(file) {
+  if (!existsSync(file)) throw new Usage(`no source file ${file}`);
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) throw new Usage(`${file} is no object of key -> { text, args }`);
+  const keys = new Map();
+  for (const [key, v] of Object.entries(doc)) {
+    if (typeof v === 'string') continue;
+    if (!v || typeof v !== 'object' || typeof v.text !== 'string' || v.text === '') throw new Usage(`${file}: ${key} is neither a sentence { text, args } nor a banner`);
+    keys.set(key, { args: Array.isArray(v.args) ? v.args : placeholdersOf(v.text), en: v.text });
+  }
+  return keys;
+}
+
+function translateInputs(argv) {
+  const source = opt(argv, '--source');
+  if (source !== undefined) {
+    if (['--data', '--contract-dir', '--installed'].some((o) => argv.includes(o))) throw new Usage('--source and contract data are two inputs: name one');
+    const owner = opt(argv, '--owner');
+    const named = opt(argv, '--catalogs');
+    if (named === undefined && owner === undefined) throw new Usage('--source names no catalogs: add --catalogs <dir> (or --owner <tree>, its catalogs/)');
+    const dir = named !== undefined ? resolve(named) : join(resolve(owner), 'catalogs');
+    const existing = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8'))) : [];
+    const name = opt(argv, '--package') ?? existing.find((c) => c?.kind === 'catalog')?.owner;
+    if (name === undefined) throw new Usage(`no catalog in ${dir} names its owner: add --package <name>`);
+    return { keys: sourceKeys(resolve(source)), dir, name };
+  }
+  const owner = opt(argv, '--owner');
+  const args = owner !== undefined ? [...argv, '--data', join(resolve(owner), 'data')] : argv;
+  const data = load(args);
+  const tools = toolFiles(args);
+  const dir = opt(argv, '--catalogs') !== undefined ? resolve(opt(argv, '--catalogs'))
+    : owner !== undefined ? join(resolve(owner), 'catalogs')
+    : join(resolve(opt(args, '--data') ?? join(ROOT, 'data')), '..', 'catalogs');
+  const existing = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8'))) : [];
+  const name = opt(argv, '--package') ?? existing.find((c) => c?.kind === 'catalog')?.owner;
+  if (name === undefined) throw new Usage(`no catalog in ${dir} names its owner: add --package <name>`);
+  const extra = tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind));
+  const keys = catalogKeys(resolveData(data), { extra, ...(data.packages ? { owner: name } : {}) });
+  return { keys, dir, name };
+}
+
+async function cmdTranslate(argv) {
+  if (process.env.RPM_BUILD_ROOT || process.env.DEB_HOST_ARCH || process.env.DEB_BUILD_ARCH) {
+    throw new Usage('translate never runs inside a package build (no network, and a build is reproducible): run it at release preparation and commit the catalogs');
+  }
+  const { keys, dir, name } = translateInputs(argv);
+  const { shipped, test } = languageList();
+  const lang = opt(argv, '--lang');
+  if (lang !== undefined && !shipped.includes(lang) && !test.includes(lang)) throw new Usage(`--lang ${lang} is not in languages.json (${[...shipped, ...test].join(', ')})`);
+  const fileOf = (l) => join(dir, `${l}.json`);
+  const read = (l) => (existsSync(fileOf(l)) ? JSON.parse(readFileSync(fileOf(l), 'utf8')) : undefined);
+
+  if (argv.includes('--check')) {
+    const langs = lang !== undefined ? [lang] : shipped;
+    const problems = releaseProblems(keys, langs, new Map(langs.map((l) => [l, read(l)])), (l) => relative(process.cwd(), fileOf(l)) || fileOf(l));
+    for (const c of langs.map(read).filter(Boolean)) problems.push(...catalogProblems(relative(process.cwd(), fileOf(c.lang)), c, keys).map((p) => ({ file: p.file, key: p.item, message: `${p.rule}: ${p.message}` })));
+    for (const p of problems) console.error(`${p.file}: ${p.key}: ${p.message}`);
+    if (problems.length) return 1;
+    console.log(`omx-contract translate --check: ${name}: ${langs.length} language${langs.length === 1 ? '' : 's'} (${langs.join(', ')}), ${keys.size} keys, whole and none stale`);
+    return 0;
+  }
+
+  if (lang === undefined) throw new Usage('translate makes one language a run: --lang <xx>');
+  const url = process.env.OMX_TRANSLATE_URL;
+  if (!url) throw new Usage('translate needs an OpenAI-compatible endpoint: OMX_TRANSLATE_URL (OMX_TRANSLATE_KEY, OMX_TRANSLATE_MODEL or --model)');
+  const model = opt(argv, '--model') ?? process.env.OMX_TRANSLATE_MODEL;
+  if (!model) throw new Usage('translate needs a model: --model <alias> or OMX_TRANSLATE_MODEL');
+  const allowPaid = process.env.OMX_TRANSLATE_ALLOW_PAID === '1';
+  const { chain, paid, local } = await routerPaidGroups({ url, key: process.env.OMX_TRANSLATE_KEY, model });
+  if (paid.length && !allowPaid) {
+    throw new Usage(`the model ${model} may be answered by ${paid.map((p) => `${p.group} (${(p.providers ?? ['providers not named']).join(', ')})`).join(', ')}, which costs credit (chain: ${chain.join(' -> ')}): choose a local model, or set OMX_TRANSLATE_ALLOW_PAID=1`);
+  }
+  const localGroups = new Set(local);
+  const size = Number(opt(argv, '--batch') ?? 40);
+  if (!Number.isInteger(size) || size < 1) throw new Usage('--batch is a count of entries, at least 1');
+
+  const before = read(lang);
+  // a new catalog of this tree names the schema beside it; one of another owner's (--source) names none, the path
+  // being this tree's
+  const ownSchema = opt(argv, '--source') === undefined ? { $schema: '../schema/omx-contract.schema.json#/$defs/catalog' } : {};
+  const catalog = before ?? { ...ownSchema, kind: 'catalog', lang, owner: name, messages: {} };
+  const todo = [...toMake(keys, catalog)];
+  const messages = { ...catalog.messages };
+  const refused = [];
+  let used = model;
+  for (let i = 0; i < todo.length; i += size) {
+    const batch = todo.slice(i, i + size);
+    let served;
+    let answers;
+    try {
+      ({ model: served, answers } = await answersOf((b) => translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch: b, localGroups, allowPaid }), batch, (want, answer) => 'entry' in admit(want, answer, model)));
+    } catch (e) {
+      if (!(e instanceof PaidFallback)) throw e;
+      for (const [k] of batch) { refused.push(`${k}: ${e.message}`); delete messages[k]; }
+      continue;
+    }
+    used = served;
+    for (const [k, want] of batch) {
+      const a = admit(want, answers[k], served);
+      if ('entry' in a) messages[k] = a.entry;
+      else { refused.push(`${k}: ${a.refused}`); delete messages[k]; }
+    }
+  }
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(fileOf(lang), catalogText({ ...catalog, messages }, Object.keys(catalog.messages)));
+  for (const r of refused) console.error(`omx-contract translate: ${lang}: ${r}`);
+  console.log(`omx-contract translate: ${name} ${lang}: ${todo.length - refused.length} made by ${used}, ${refused.length} refused, ${Object.keys(messages).length} entries`);
+  return refused.length ? 1 : 0;
+}
+
 const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract fmt [--check] [<input>]
        omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture.json>]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
+       omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]
   <input>: --data <dir> | --contract-dir <dir> | --installed, a contract directory with [--needs <package>@'>= x.y.z']... [--json]`;
 
 export function main(argv) {
-  const cmds = { validate: cmdValidate, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks };
-  try {
-    const cmd = cmds[argv[0]];
-    if (!cmd) throw new Usage(argv[0] ? `unknown command ${argv[0]}` : 'no command');
-    return cmd(argv);
-  } catch (e) {
+  const cmds = { validate: cmdValidate, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate };
+  const fail = (e) => {
     if (e instanceof Usage) { console.error(`omx-contract: ${e.message}\n${USAGE}`); return 2; }
     if (e instanceof ContractRefusal) {
       if (argv.includes('--json')) console.log(JSON.stringify(e.toJSON()));
@@ -345,7 +591,20 @@ export function main(argv) {
     }
     console.error(`omx-contract: ${e.message}`);
     return 1;
+  };
+  try {
+    const cmd = cmds[argv[0]];
+    if (!cmd) throw new Usage(argv[0] ? `unknown command ${argv[0]}` : 'no command');
+    const r = cmd(argv);
+    // translate answers later (a model call); every other command answers now, as before
+    return r instanceof Promise ? r.catch(fail) : r;
+  } catch (e) {
+    return fail(e);
   }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = main(process.argv.slice(2));
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const r = main(process.argv.slice(2));
+  if (r instanceof Promise) r.then((code) => { process.exitCode = code; });
+  else process.exitCode = r;
+}

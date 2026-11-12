@@ -271,7 +271,7 @@ const ELSEWHERE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised
 
 test('every descriptor code was raised by an arm above, through validation and through the reader', () => {
   const descriptor = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('descriptor')).map(([, c]) => c).filter((c) => !(c in ELSEWHERE));
-  assert.equal(descriptor.length, 12);
+  assert.equal(descriptor.length, 13);
   assert.deepEqual(descriptor.filter((c) => !raised.has(c)), []);
   assert.ok(raised.has(CONTRACT_CODES.originMisplaced));
 });
@@ -311,7 +311,7 @@ test('integrity names the source a descriptor was generated from: its version an
   d.integrity = { version: d.plugin.version, commit: COMMIT };
   assert.deepEqual(problemsOf(d), [], 'positive control: the plugin\'s version and a full commit pass');
   const read = loadContractDir({ dir: directory({ 'plugins/omx-delay.json': d }) });
-  assert.deepEqual(read.files.map((f) => f.doc.integrity), [{ version: '0.5.0', commit: COMMIT }], 'and the reader reads it');
+  assert.deepEqual(read.files.filter((f) => f.rel.endsWith('plugins/omx-delay.json')).map((f) => f.doc.integrity), [{ version: '0.5.0', commit: COMMIT }], 'and the reader reads it');
   const none = fixture(AUTHORED);
   assert.equal(none.integrity, undefined);
   assert.deepEqual(problemsOf(none), [], 'optional: a descriptor without it is as valid as before');

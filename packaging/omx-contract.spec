@@ -19,7 +19,7 @@ BuildRequires: gzip
 # the library modules are TypeScript (src/lib/*.mts), built into lib/*.mjs by `make build-lib`; node's own types and
 # ajv's come from the tarballs in vendor/, unpacked for the build only (no network)
 BuildRequires: nodejs
-BuildRequires: (typescript >= 4.8.4 with typescript < 6)
+BuildRequires: (typescript >= 4.8.4 with typescript < 7)
 
 Requires: nodejs
 # the command reads the installed contract directory, omx-contract's own files among them
@@ -129,7 +129,7 @@ Its documentation is on openmixer.org.
 %changelog
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.15.0-1
 - the library modules are TypeScript (src/lib/*.mts), built into lib/*.mjs with
-  their declarations; the build needs typescript >= 4.8.4 and < 6, and node's
+  their declarations; the build needs typescript >= 4.8.4 and < 7, and node's
   and ajv's types come from vendor/ for the build only
 - a code's or a word's text carrying ca is refused (code-text-language,
   word-text-language): the source sentence is the only language; the

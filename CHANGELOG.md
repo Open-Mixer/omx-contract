@@ -16,7 +16,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   with their declarations generated beside them; the hand-written `scale.d.mts` and `descriptor.d.mts` are gone, so a
   changed shape can no longer ship with a stale type. Every module stays where it was loaded from: the subpath exports,
   the installed `<prefix>/lib/omx-contract/lib/*.mjs` and a checkout's `lib/` (built by `npm ci`'s `prepare`, or
-  `make build-lib`). Building needs TypeScript >= 4.8.4 and < 6; the
+  `make build-lib`). Building needs TypeScript >= 4.8.4 and < 7; the
   package builds take node's and ajv's types from vendored tarballs (`vendor/build/`, build-only).
 - A descriptor may state `integrity`: `version`, the plugin's own, and `commit`, the full commit its release tag names,
   stamped at build (omx-plugins#32). A host that links a plugin table matches the descriptor to the build it links by

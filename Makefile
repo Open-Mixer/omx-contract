@@ -34,7 +34,7 @@ all:
 
 # The library modules (#15): src/lib/*.mts, built by tsc into lib/*.mjs with their .d.mts, a build product the CLI,
 # the npm package and every checkout caller load from lib/. TSC is the checkout's (npm ci), else the system's
-# (typescript >= 4.8.4, < 6). A package build has no network: when node_modules/ holds no @types/node, the build-only
+# (typescript >= 4.8.4, < 7). A package build has no network: when node_modules/ holds no @types/node, the build-only
 # types (vendor/build/: @types/node, undici-types) and the runtime tarballs whose types the modules import (vendor/:
 # ajv) are unpacked into node_modules/ by their package name first.
 TSC ?= $(firstword $(wildcard node_modules/.bin/tsc) tsc)

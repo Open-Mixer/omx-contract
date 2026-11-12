@@ -27,7 +27,7 @@ import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loa
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
-import { catalogMigrationOf, dataWarnings, fileProblems, validateData } from '../lib/validate.mjs';
+import { fileProblems, validateData } from '../lib/validate.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { renderC, renderSheetC } from '../render/c.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
@@ -126,8 +126,6 @@ function cmdValidate(argv) {
     // from a contract directory, a catalog's keys are its owner's package's codes and words only
     for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, catalogKeys(resolved, { extra, ...(data.packages ? { owner: c.doc?.owner } : {}) })));
   }
-  const warnings = [...dataWarnings(data), ...tools.flatMap((f) => Object.entries(f.doc).flatMap(([n, v]) => catalogMigrationOf(f.rel, n, v)))];
-  for (const w of warnings) console.error(`${w.file}: ${w.item}: warning: ${w.rule}: ${w.message}`);
   for (const p of problems) console.error(`${p.file}: ${p.item}: ${p.rule}: ${p.message}`);
   if (problems.length) return 1;
   const where = data.packages ? ` from ${data.packages.size} packages of ${data.roots.join(':')}` : '';

@@ -1,3 +1,20 @@
+omx-contract (3.15.0) unstable; urgency=medium
+
+  * The library modules are TypeScript (src/lib/*.mts), built into
+    lib/*.mjs with their declarations. The build needs node-typescript
+    >= 4.8.4 and < 6; node's and ajv's types come from vendor/ for the
+    build only.
+  * A code's or a word's text carrying ca is refused (code-text-language,
+    word-text-language): the source sentence is the only language. The
+    catalog-migration warning is gone.
+  * The catalog reader loads no validator and builds with no implicit any.
+  * Schema 3.15.0, a patch (the ca description); 3.14.0 is frozen in
+    schema/history. libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0
+    stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 12:00:00 +0100
+
 omx-contract (3.14.0) unstable; urgency=medium
 
   * A codes item's code may be a console code as the console spells it: a

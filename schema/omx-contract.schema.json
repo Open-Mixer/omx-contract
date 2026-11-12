@@ -3,7 +3,7 @@
   "$id": "https://github.com/FreeMixer/omx-contract/raw/main/schema/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.14.0",
+  "x-omx-schema-version": "3.15.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -343,7 +343,7 @@
       "description": "The one source sentence a person sees for a code or a word, in English, written by its owner and never kept by a surface. Its `{name}` placeholders are each one of `args`. Translations are not contract data: each owner ships one catalog per language (`$defs/catalog`).",
       "properties": {
         "en": { "$ref": "#/$defs/text" },
-        "ca": { "$ref": "#/$defs/text", "description": "Deprecated: a translation belongs in the owner's catalog, catalogs/ca.json. Still read, with the warning catalog-migration, until every owner has moved." }
+        "ca": { "$ref": "#/$defs/text", "description": "Refused: a translation is the owner's catalog, catalogs/ca.json (validate's <what>-text-language). Kept in the shape until a major release removes it." }
       },
       "required": ["en"],
       "additionalProperties": false

@@ -69,8 +69,9 @@ not the one its path gives.
   omx-contract#64: no backwards compatibility before the first public release); the release's changelog names the
   code that takes its place, if any, and every consumer that still read the key moves in its own pin bump.
 - A code or a word may carry the one sentence a person sees for it, written by its owner beside it: `text`, the source
-  sentence in English (`{ "en": "..." }`, the only language contract data holds; a `ca` beside it is deprecated, still
-  read, and warned as `catalog-migration` until every owner has moved it to its catalog), and `args`, the ordered placeholder
+  sentence in English (`{ "en": "..." }`, the only language contract data holds: a `ca` is refused by the validator
+  (`code-text-language`, `word-text-language`) and any other key by the schema; a translation is the owner's
+  catalog), and `args`, the ordered placeholder
   names it may use, each `{name}` in the sentence. The validator refuses a placeholder outside `args` (`code-text-arg`,
   `word-text-arg`); adding a sentence is MINOR, rewording it PATCH, removing it or changing `args` MAJOR. The renders
   carry it where they carry the code or word: `omx_vocabulary.h`, `<stem>_vocabulary.h` and an owner header's codes

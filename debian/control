@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Pau Aliagas <linuxnow@gmail.com>
 Build-Depends: debhelper-compat (= 13),
                nodejs,
-               node-typescript (>= 4.8.4~), node-typescript (<< 6~)
+               node-typescript (>= 4.8.4~), node-typescript (<< 7~)
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/omx-contract
 Rules-Requires-Root: no

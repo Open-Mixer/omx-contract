@@ -50,7 +50,7 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
 # what the tree says each package holds
 (cd data && find . -name '*.json' ! -path ./codes.json ! -path ./scale-vectors.json | sed "s|^\./|/usr/share/omx-contract/contract.d/$major/omx-contract/|"
   echo "/usr/share/omx-contract/contract.d/$major/omx-contract/MANIFEST.json"
-  for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract.py omx_contract_catalog.py scale-vectors.json; do echo "/usr/share/omx-contract/$f"; done
+  for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract.py omx_contract_catalog.py omx_contract_scale.py scale-vectors.json; do echo "/usr/share/omx-contract/$f"; done
   echo /usr/share/omx-contract/languages.json
   echo /usr/share/omx-contract/omx-contract.schema.json) | LC_ALL=C sort > "$tmp/want-$data"
 # the renders and the hand-written C (omx_json_write.h) both live in include/omxcontract; the RPM macros of the

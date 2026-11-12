@@ -135,7 +135,8 @@ Its documentation is on openmixer.org.
   word-text-language): the source sentence is the only language; the
   catalog-migration warning is gone
 - the catalog reader loads no validator and builds with no implicit any
-- Schema 3.14.0, unchanged in shape: omx-dsp-devel before 0.25.0,
+- Schema 3.15.0, a patch (the ca description); 3.14.0 is frozen in
+  schema/history. omx-dsp-devel before 0.25.0,
   omx-clap-core-devel before 0.13.0 and omx-plugins-devel before 0.13.0 stay the
   floors.
 

@@ -109,6 +109,7 @@ Its documentation is on openmixer.org.
 %{_datadir}/omx-contract/omx-contract.json
 %{_datadir}/omx-contract/omx-vocabulary.schema.json
 %{_datadir}/omx-contract/omx_contract.py
+%{_datadir}/omx-contract/omx_contract_catalog.py
 %{_datadir}/omx-contract/scale-vectors.json
 %{_datadir}/omx-contract/catalogs/
 %{_datadir}/omx-contract/omx-resource-hints.ttl

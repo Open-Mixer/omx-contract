@@ -14,78 +14,117 @@ export declare const CURVE_AXES: {
     readonly unit: "Hz";
     readonly scale: "log";
     readonly doc: "Frequency, on the points of EQ_CURVE_GRID where the curve is a response.";
+    readonly text: {
+      readonly en: "Frequency, on the points of EQ_CURVE_GRID where the curve is a response.";
+    };
   };
   readonly magnitude: {
     readonly word: "magnitude";
     readonly unit: "dB";
     readonly scale: "linear";
     readonly doc: "The magnitude of a response at a frequency: 0 dB is unity, a boost positive, a cut negative.";
+    readonly text: {
+      readonly en: "The magnitude of a response at a frequency: 0 dB is unity, a boost positive, a cut negative.";
+    };
   };
   readonly inputLevel: {
     readonly word: "input-level";
     readonly unit: "dBFS";
     readonly scale: "linear";
     readonly doc: "The level a gain computer reads, the static law's input.";
+    readonly text: {
+      readonly en: "The level a gain computer reads, the static law's input.";
+    };
   };
   readonly outputLevel: {
     readonly word: "output-level";
     readonly unit: "dBFS";
     readonly scale: "linear";
     readonly doc: "The level the static law gives for an input level; the diagonal is no gain change.";
+    readonly text: {
+      readonly en: "The level the static law gives for an input level; the diagonal is no gain change.";
+    };
   };
   readonly inputAmplitude: {
     readonly word: "input-amplitude";
     readonly unit: "";
     readonly scale: "linear";
     readonly doc: "A memoryless shaper's input sample, linear, -1 to +1 full scale: bipolar, so an even/odd asymmetry shows.";
+    readonly text: {
+      readonly en: "A memoryless shaper's input sample, linear, -1 to +1 full scale: bipolar, so an even/odd asymmetry shows.";
+    };
   };
   readonly outputAmplitude: {
     readonly word: "output-amplitude";
     readonly unit: "";
     readonly scale: "linear";
     readonly doc: "The shaper's output sample for an input amplitude, linear, on the same full scale.";
+    readonly text: {
+      readonly en: "The shaper's output sample for an input amplitude, linear, on the same full scale.";
+    };
   };
   readonly delayTime: {
     readonly word: "delay-time";
     readonly unit: "ms";
     readonly scale: "linear";
     readonly doc: "The time after the dry sound at which a delay's tap or repeat sounds.";
+    readonly text: {
+      readonly en: "The time after the dry sound at which a delay's tap or repeat sounds.";
+    };
   };
   readonly decayTime: {
     readonly word: "decay-time";
     readonly unit: "s";
     readonly scale: "linear";
     readonly doc: "The time after an impulse over which a reverb's energy decays.";
+    readonly text: {
+      readonly en: "The time after an impulse over which a reverb's energy decays.";
+    };
   };
   readonly level: {
     readonly word: "level";
     readonly unit: "dB";
     readonly scale: "linear";
     readonly doc: "A level relative to the dry input: 0 dB is the input's own, a tap or a decay below it negative.";
+    readonly text: {
+      readonly en: "A level relative to the dry input: 0 dB is the input's own, a tap or a decay below it negative.";
+    };
   };
   readonly phase: {
     readonly word: "phase";
     readonly unit: "";
     readonly scale: "linear";
     readonly doc: "The position within one period of a modulation source, 0 to 1.";
+    readonly text: {
+      readonly en: "The position within one period of a modulation source, 0 to 1.";
+    };
   };
   readonly modulation: {
     readonly word: "modulation";
     readonly unit: "";
     readonly scale: "linear";
     readonly doc: "A modulation source's output at a phase, -1 to +1, before the depth scales it.";
+    readonly text: {
+      readonly en: "A modulation source's output at a phase, -1 to +1, before the depth scales it.";
+    };
   };
   readonly inputPitch: {
     readonly word: "input-pitch";
     readonly unit: "st";
     readonly scale: "linear";
     readonly doc: "The pitch played into a pitch effect, semitones from an origin the host picks.";
+    readonly text: {
+      readonly en: "The pitch played into a pitch effect, semitones from an origin the host picks.";
+    };
   };
   readonly outputPitch: {
     readonly word: "output-pitch";
     readonly unit: "st";
     readonly scale: "linear";
     readonly doc: "The pitch the effect sounds for an input pitch, semitones on the same origin: an unshifted map is the diagonal.";
+    readonly text: {
+      readonly en: "The pitch the effect sounds for an input pitch, semitones on the same origin: an unshifted map is the diagonal.";
+    };
   };
 };
 
@@ -101,48 +140,72 @@ export declare const CURVE_KINDS: {
     readonly x: "frequency";
     readonly y: "magnitude";
     readonly doc: "An EQ's summed magnitude response over log frequency.";
+    readonly text: {
+      readonly en: "An EQ's summed magnitude response over log frequency.";
+    };
   };
   readonly dynamicsCurve: {
     readonly word: "dynamics-curve";
     readonly x: "input-level";
     readonly y: "output-level";
     readonly doc: "A gate's or a compressor's static law, input level to output level, with the live needle.";
+    readonly text: {
+      readonly en: "A gate's or a compressor's static law, input level to output level, with the live needle.";
+    };
   };
   readonly transferCurve: {
     readonly word: "transfer-curve";
     readonly x: "input-amplitude";
     readonly y: "output-amplitude";
     readonly doc: "A memoryless shaper's transfer, input sample to output sample over full scale.";
+    readonly text: {
+      readonly en: "A memoryless shaper's transfer, input sample to output sample over full scale.";
+    };
   };
   readonly delayTaps: {
     readonly word: "delay-taps";
     readonly x: "delay-time";
     readonly y: "level";
     readonly doc: "A delay's taps and repeats, each a line at its time and level.";
+    readonly text: {
+      readonly en: "A delay's taps and repeats, each a line at its time and level.";
+    };
   };
   readonly decayEnvelope: {
     readonly word: "decay-envelope";
     readonly x: "decay-time";
     readonly y: "level";
     readonly doc: "A reverb's decay envelope after an impulse.";
+    readonly text: {
+      readonly en: "A reverb's decay envelope after an impulse.";
+    };
   };
   readonly combResponse: {
     readonly word: "comb-response";
     readonly x: "frequency";
     readonly y: "magnitude";
     readonly doc: "The wet path's comb or notch response at the current sweep position (chorus, flanger, phaser, doubler).";
+    readonly text: {
+      readonly en: "The wet path's comb or notch response at the current sweep position (chorus, flanger, phaser, doubler).";
+    };
   };
   readonly modulationShape: {
     readonly word: "modulation-shape";
     readonly x: "phase";
     readonly y: "modulation";
     readonly doc: "A modulation source over one period (tremolo, rotary).";
+    readonly text: {
+      readonly en: "A modulation source over one period (tremolo, rotary).";
+    };
   };
   readonly intervalMap: {
     readonly word: "interval-map";
     readonly x: "input-pitch";
     readonly y: "output-pitch";
     readonly doc: "A pitch effect's map from the input pitch to the output pitch.";
+    readonly text: {
+      readonly en: "A pitch effect's map from the input pitch to the output pitch.";
+    };
   };
 };
 
@@ -5430,26 +5493,44 @@ export declare const MACHINE_CLASS_FIELDS: {
   readonly arch: {
     readonly word: "arch";
     readonly doc: "The machine architecture as uname -m names it.";
+    readonly text: {
+      readonly en: "The machine architecture, as uname -m names it.";
+    };
   };
   readonly family: {
     readonly word: "family";
     readonly doc: "The CPU family and model.";
+    readonly text: {
+      readonly en: "The CPU family and model.";
+    };
   };
   readonly coreBand: {
     readonly word: "coreBand";
     readonly doc: "The cores, as a band of MACHINE_CORE_BANDS.";
+    readonly text: {
+      readonly en: "The core count, as a band of MACHINE_CORE_BANDS.";
+    };
   };
   readonly clockBand: {
     readonly word: "clockBand";
     readonly doc: "The clock, as a band of MACHINE_CLOCK_BANDS.";
+    readonly text: {
+      readonly en: "The clock, as a band of MACHINE_CLOCK_BANDS.";
+    };
   };
   readonly preemptRt: {
     readonly word: "preemptRt";
     readonly doc: "Whether the kernel is PREEMPT_RT.";
+    readonly text: {
+      readonly en: "Whether the kernel is PREEMPT_RT.";
+    };
   };
   readonly cstatesLimited: {
     readonly word: "cstatesLimited";
     readonly doc: "Whether the deep idle states are limited.";
+    readonly text: {
+      readonly en: "Whether the deep idle states are limited.";
+    };
   };
 };
 
@@ -5460,18 +5541,33 @@ export declare const MACHINE_CLASS_FIELDS: {
 export declare const MACHINE_PROFILE_FIELDS: {
   readonly governor: {
     readonly word: "governor";
+    readonly text: {
+      readonly en: "The CPU frequency governor in effect when the figure was taken.";
+    };
   };
   readonly turbo: {
     readonly word: "turbo";
+    readonly text: {
+      readonly en: "Whether turbo or boost clocking was enabled when the figure was taken.";
+    };
   };
   readonly smt: {
     readonly word: "smt";
+    readonly text: {
+      readonly en: "Whether simultaneous multithreading was enabled when the figure was taken.";
+    };
   };
   readonly preempt: {
     readonly word: "preempt";
+    readonly text: {
+      readonly en: "Whether the measuring thread ran under real-time preemption, or scheduled as any other thread.";
+    };
   };
   readonly cpuidle: {
     readonly word: "cpuidle";
+    readonly text: {
+      readonly en: "The CPU idle driver or policy in effect when the figure was taken.";
+    };
   };
 };
 
@@ -5482,21 +5578,39 @@ export declare const MACHINE_PROFILE_FIELDS: {
 export declare const MACHINE_CORE_BANDS: {
   readonly cores1To2: {
     readonly word: "1-2";
+    readonly text: {
+      readonly en: "A machine with 1 to 2 cores.";
+    };
   };
   readonly cores3To4: {
     readonly word: "3-4";
+    readonly text: {
+      readonly en: "A machine with 3 to 4 cores.";
+    };
   };
   readonly cores5To8: {
     readonly word: "5-8";
+    readonly text: {
+      readonly en: "A machine with 5 to 8 cores.";
+    };
   };
   readonly cores9To16: {
     readonly word: "9-16";
+    readonly text: {
+      readonly en: "A machine with 9 to 16 cores.";
+    };
   };
   readonly cores17To32: {
     readonly word: "17-32";
+    readonly text: {
+      readonly en: "A machine with 17 to 32 cores.";
+    };
   };
   readonly cores33Up: {
     readonly word: "33+";
+    readonly text: {
+      readonly en: "A machine with 33 or more cores.";
+    };
   };
 };
 
@@ -5507,18 +5621,33 @@ export declare const MACHINE_CORE_BANDS: {
 export declare const MACHINE_CLOCK_BANDS: {
   readonly under1500MHz: {
     readonly word: "<1.5GHz";
+    readonly text: {
+      readonly en: "A machine clocked under 1.5 GHz.";
+    };
   };
   readonly from1500To2500MHz: {
     readonly word: "1.5-2.5GHz";
+    readonly text: {
+      readonly en: "A machine clocked from 1.5 to 2.5 GHz.";
+    };
   };
   readonly from2500To3500MHz: {
     readonly word: "2.5-3.5GHz";
+    readonly text: {
+      readonly en: "A machine clocked from 2.5 to 3.5 GHz.";
+    };
   };
   readonly from3500To4500MHz: {
     readonly word: "3.5-4.5GHz";
+    readonly text: {
+      readonly en: "A machine clocked from 3.5 to 4.5 GHz.";
+    };
   };
   readonly from4500MHz: {
     readonly word: "4.5GHz+";
+    readonly text: {
+      readonly en: "A machine clocked at 4.5 GHz or more.";
+    };
   };
 };
 
@@ -5529,9 +5658,15 @@ export declare const MACHINE_CLOCK_BANDS: {
 export declare const MACHINE_ARCHES: {
   readonly x8664: {
     readonly word: "x86_64";
+    readonly text: {
+      readonly en: "An x86-64 machine, as uname -m spells it.";
+    };
   };
   readonly aarch64: {
     readonly word: "aarch64";
+    readonly text: {
+      readonly en: "An AArch64 machine, as uname -m spells it.";
+    };
   };
 };
 
@@ -5543,14 +5678,23 @@ export declare const MACHINE_CLASSES: {
   readonly desk: {
     readonly word: "desk";
     readonly doc: "An x86-64 desk.";
+    readonly text: {
+      readonly en: "An x86-64 desk.";
+    };
   };
   readonly raspberryPi4: {
     readonly word: "raspberry-pi-4";
     readonly doc: "A Raspberry Pi 4, aarch64.";
+    readonly text: {
+      readonly en: "A Raspberry Pi 4, aarch64.";
+    };
   };
   readonly raspberryPi5: {
     readonly word: "raspberry-pi-5";
     readonly doc: "A Raspberry Pi 5, aarch64.";
+    readonly text: {
+      readonly en: "A Raspberry Pi 5, aarch64.";
+    };
   };
 };
 
@@ -5561,18 +5705,33 @@ export declare const MACHINE_CLASSES: {
 export declare const MEASUREMENT_DIMENSIONS: {
   readonly latency: {
     readonly word: "latency";
+    readonly text: {
+      readonly en: "How long a plugin takes to produce its first sound after it is driven or played.";
+    };
   };
   readonly cost: {
     readonly word: "cost";
+    readonly text: {
+      readonly en: "How much CPU time a plugin spends per block under a sustained stimulus.";
+    };
   };
   readonly stability: {
     readonly word: "stability";
+    readonly text: {
+      readonly en: "Whether a plugin instantiates, processes and tears down without crashing or producing non-finite output.";
+    };
   };
   readonly rtSafety: {
     readonly word: "rtSafety";
+    readonly text: {
+      readonly en: "Whether a plugin's audio thread avoids locks, allocation and other calls a real-time thread must not make.";
+    };
   };
   readonly features: {
     readonly word: "features";
+    readonly text: {
+      readonly en: "What capabilities a plugin declares and a prober can confirm, beside latency, cost, stability and RT safety.";
+    };
   };
 };
 
@@ -5584,14 +5743,23 @@ export declare const MEASUREMENT_UNMEASURED_KINDS: {
   readonly nothingToMeasure: {
     readonly word: "nothing-to-measure";
     readonly doc: "A property of the plugin: any prober on any machine reaches it, so it may override a figure.";
+    readonly text: {
+      readonly en: "A property of the plugin: any prober on any machine reaches it, so it may override a figure.";
+    };
   };
   readonly probeFailed: {
     readonly word: "probe-failed";
     readonly doc: "A property of this run: it says nothing about the plugin and never overrides a figure.";
+    readonly text: {
+      readonly en: "A property of this run: it says nothing about the plugin and never overrides a figure.";
+    };
   };
   readonly notAttempted: {
     readonly word: "not-attempted";
     readonly doc: "The run did not cover this plugin or this dimension: a partial run, not a finding.";
+    readonly text: {
+      readonly en: "The run did not cover this plugin or this dimension: a partial run, not a finding.";
+    };
   };
 };
 
@@ -5604,86 +5772,145 @@ export declare const MEASUREMENT_UNMEASURED_REASONS: {
     readonly word: "no-audio-in";
     readonly group: "nothing-to-measure";
     readonly doc: "No audio input port: nothing to drive.";
+    readonly text: {
+      readonly en: "No audio input port: nothing to drive.";
+    };
   };
   readonly noAudioOut: {
     readonly word: "no-audio-out";
     readonly group: "nothing-to-measure";
     readonly doc: "No audio output port: nothing to read.";
+    readonly text: {
+      readonly en: "No audio output port: nothing to read.";
+    };
   };
   readonly silentOutput: {
     readonly word: "silent-output";
     readonly group: "nothing-to-measure";
     readonly doc: "Driven, and silent under a stimulus that should have passed.";
+    readonly text: {
+      readonly en: "Driven, and silent under a stimulus that should have passed.";
+    };
   };
   readonly needsCarrier: {
     readonly word: "needs-carrier";
     readonly group: "nothing-to-measure";
     readonly doc: "Needs a second audio input the prober did not supply.";
+    readonly text: {
+      readonly en: "Needs a second audio input the prober did not supply.";
+    };
   };
   readonly needsImpulseResponse: {
     readonly word: "needs-impulse-response";
     readonly group: "nothing-to-measure";
     readonly doc: "A convolver needing an impulse response the prober did not load.";
+    readonly text: {
+      readonly en: "A convolver needing an impulse response the prober did not load.";
+    };
+  };
+  readonly needsContent: {
+    readonly word: "needs-content";
+    readonly group: "nothing-to-measure";
+    readonly doc: "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.";
+    readonly text: {
+      readonly en: "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.";
+    };
   };
   readonly unpinnable: {
     readonly word: "unpinnable";
     readonly group: "nothing-to-measure";
     readonly doc: "The files the host loads cannot be pinned.";
+    readonly text: {
+      readonly en: "The files the host loads cannot be pinned.";
+    };
   };
   readonly noVoices: {
     readonly word: "no-voices";
     readonly group: "nothing-to-measure";
     readonly doc: "An instrument whose voice-info declares a capacity of 0.";
+    readonly text: {
+      readonly en: "An instrument whose voice-info declares a capacity of 0.";
+    };
   };
   readonly notesUnplayable: {
     readonly word: "notes-unplayable";
     readonly group: "nothing-to-measure";
     readonly doc: "An instrument whose note input reads no dialect the prober speaks.";
+    readonly text: {
+      readonly en: "An instrument whose note input reads no dialect the prober speaks.";
+    };
   };
   readonly voicesUnknown: {
     readonly word: "voices-unknown";
     readonly group: "not-attempted";
     readonly doc: "An instrument that declares no voice capacity, run with no probe count.";
+    readonly text: {
+      readonly en: "An instrument that declares no voice capacity, run with no probe count.";
+    };
   };
   readonly refusedInstantiation: {
     readonly word: "refused-instantiation";
     readonly group: "probe-failed";
     readonly doc: "The plugin would not instantiate at this rate or block size.";
+    readonly text: {
+      readonly en: "The plugin would not instantiate at this rate or block size.";
+    };
   };
   readonly probeCrashed: {
     readonly word: "probe-crashed";
     readonly group: "probe-failed";
     readonly doc: "The probe worker died while hosting the plugin.";
+    readonly text: {
+      readonly en: "The probe worker died while hosting the plugin.";
+    };
   };
   readonly probeTimeout: {
     readonly word: "probe-timeout";
     readonly group: "probe-failed";
     readonly doc: "The probe passed its per-plugin time limit.";
+    readonly text: {
+      readonly en: "The probe passed its per-plugin time limit.";
+    };
   };
   readonly nonFiniteOutput: {
     readonly word: "non-finite-output";
     readonly group: "probe-failed";
     readonly doc: "The output held NaN or infinity.";
+    readonly text: {
+      readonly en: "The output held NaN or infinity.";
+    };
   };
   readonly notInstalled: {
     readonly word: "not-installed";
     readonly group: "probe-failed";
     readonly doc: "The plugin is not installed on this machine.";
+    readonly text: {
+      readonly en: "The plugin is not installed on this machine.";
+    };
   };
   readonly workerNonconforming: {
     readonly word: "worker-nonconforming";
     readonly group: "probe-failed";
     readonly doc: "An LV2 worker interface with work or work_response NULL.";
+    readonly text: {
+      readonly en: "An LV2 worker interface with work or work_response NULL.";
+    };
   };
   readonly probeError: {
     readonly word: "probe-error";
     readonly group: "probe-failed";
     readonly doc: "A failure with no more specific reason; its own words are kept beside it.";
+    readonly text: {
+      readonly en: "A failure with no more specific reason; its own words are kept beside it.";
+    };
   };
   readonly notAttempted: {
     readonly word: "not-attempted";
     readonly group: "not-attempted";
     readonly doc: "The run did not cover this plugin for this dimension.";
+    readonly text: {
+      readonly en: "The run did not cover this plugin for this dimension.";
+    };
   };
 };
 
@@ -5694,16 +5921,26 @@ export declare const MEASUREMENT_UNMEASURED_REASONS: {
 export declare const MEASUREMENT_LATENCY_METHODS: {
   readonly impulseOnset: {
     readonly word: "impulse-onset";
+    readonly from: readonly ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"];
     readonly doc: "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.";
+    readonly text: {
+      readonly en: "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.";
+    };
   };
   readonly declaredPort: {
     readonly word: "declared-port";
     readonly from: readonly ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"];
     readonly doc: "Read from the plugin's own latency report: what it claims.";
+    readonly text: {
+      readonly en: "Read from the plugin's own latency report: what it claims.";
+    };
   };
   readonly noteOnset: {
     readonly word: "note-onset";
     readonly doc: "The delay from a note on to the first output sample above the floor.";
+    readonly text: {
+      readonly en: "The delay from a note on to the first output sample above the floor.";
+    };
   };
 };
 
@@ -5715,6 +5952,9 @@ export declare const MEASUREMENT_COST_METHODS: {
   readonly blockTimePercentile: {
     readonly word: "block-time-percentile";
     readonly doc: "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample.";
+    readonly text: {
+      readonly en: "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample.";
+    };
   };
 };
 
@@ -5726,26 +5966,44 @@ export declare const MEASUREMENT_LATENCY_SCALING: {
   readonly fixedFrame: {
     readonly word: "fixed-frame";
     readonly doc: "The same frame count at every rate.";
+    readonly text: {
+      readonly en: "The same frame count at every rate.";
+    };
   };
   readonly fixedTime: {
     readonly word: "fixed-time";
     readonly doc: "The same milliseconds at every rate.";
+    readonly text: {
+      readonly en: "The same milliseconds at every rate.";
+    };
   };
   readonly zero: {
     readonly word: "zero";
     readonly doc: "No latency a mix can notice at any measured rate.";
+    readonly text: {
+      readonly en: "No latency a mix can notice at any measured rate.";
+    };
   };
   readonly nonconforming: {
     readonly word: "nonconforming";
     readonly doc: "Fits neither law at a magnitude that reaches a mix: flagged, never averaged.";
+    readonly text: {
+      readonly en: "Fits neither law at a magnitude that reaches a mix: flagged, never averaged.";
+    };
   };
   readonly singleRate: {
     readonly word: "single-rate";
     readonly doc: "One usable reading: no law can be fitted.";
+    readonly text: {
+      readonly en: "One usable reading: no law can be fitted.";
+    };
   };
   readonly unmeasured: {
     readonly word: "unmeasured";
     readonly doc: "No rate produced a figure.";
+    readonly text: {
+      readonly en: "No rate produced a figure.";
+    };
   };
 };
 
@@ -5757,10 +6015,16 @@ export declare const MEASUREMENT_LATENCY_SCALING_NOTES: {
   readonly belowBudget: {
     readonly word: "below-budget";
     readonly doc: "The readings fit no law but every one is inside the latency budget: the detector's noise.";
+    readonly text: {
+      readonly en: "The readings fit no law but every one is inside the latency budget: the detector's noise.";
+    };
   };
   readonly informationalRate: {
     readonly word: "informational-rate";
     readonly doc: "Only a reading below the operational rates breaks the law; it stays as information.";
+    readonly text: {
+      readonly en: "Only a reading below the operational rates breaks the law; it stays as information.";
+    };
   };
 };
 
@@ -5772,6 +6036,9 @@ export declare const MEASUREMENT_LATENCY_EXCLUSIONS: {
   readonly impossibleZero: {
     readonly word: "impossible-zero";
     readonly doc: "Zero frames at this rate while another rate measured non-zero.";
+    readonly text: {
+      readonly en: "Zero frames at this rate while another rate measured non-zero.";
+    };
   };
 };
 
@@ -5783,9 +6050,15 @@ export declare const MEASUREMENT_VOICE_BASES: {
   readonly declared: {
     readonly word: "declared";
     readonly from: readonly ["CLAP_EXT_VOICE_INFO_TERMS#voice-info"];
+    readonly text: {
+      readonly en: "The voice capacity the plugin declares through CLAP's voice-info extension.";
+    };
   };
   readonly probe: {
     readonly word: "probe";
+    readonly text: {
+      readonly en: "A note count the caller gave the prober, not read from the plugin.";
+    };
   };
 };
 
@@ -5796,15 +6069,27 @@ export declare const MEASUREMENT_VOICE_BASES: {
 export declare const MEASUREMENT_VERDICT_RATINGS: {
   readonly suitable: {
     readonly word: "suitable";
+    readonly text: {
+      readonly en: "The plugin meets the host profile's budget on every measured dimension.";
+    };
   };
   readonly conditional: {
     readonly word: "conditional";
+    readonly text: {
+      readonly en: "The plugin meets the host profile's budget only under a stated condition.";
+    };
   };
   readonly unknown: {
     readonly word: "unknown";
+    readonly text: {
+      readonly en: "Not enough was measured to rate the plugin against the host profile.";
+    };
   };
   readonly unsuitable: {
     readonly word: "unsuitable";
+    readonly text: {
+      readonly en: "The plugin does not meet the host profile's budget on at least one measured dimension.";
+    };
   };
 };
 
@@ -5818,50 +6103,86 @@ export declare const PANEL_FAMILIES: {
   readonly none: {
     readonly word: "none";
     readonly doc: "a plugin with no family: its panel is laid out from its groups and roles";
+    readonly text: {
+      readonly en: "A plugin with no family: its panel is laid out from its groups and its roles.";
+    };
   };
   readonly gate: {
     readonly word: "gate";
     readonly doc: "a gate or expander";
+    readonly text: {
+      readonly en: "A gate's or an expander's panel family.";
+    };
   };
   readonly dynamics: {
     readonly word: "dynamics";
     readonly doc: "a compressor";
+    readonly text: {
+      readonly en: "A compressor's panel family.";
+    };
   };
   readonly limiter: {
     readonly word: "limiter";
     readonly doc: "a limiter";
+    readonly text: {
+      readonly en: "A limiter's panel family.";
+    };
   };
   readonly deesser: {
     readonly word: "deesser";
     readonly doc: "a de-esser";
+    readonly text: {
+      readonly en: "A de-esser's panel family.";
+    };
   };
   readonly eq: {
     readonly word: "eq";
     readonly doc: "an equaliser, parametric or graphic";
+    readonly text: {
+      readonly en: "An equaliser's panel family, parametric or graphic.";
+    };
   };
   readonly filter: {
     readonly word: "filter";
     readonly doc: "a filter";
+    readonly text: {
+      readonly en: "A filter's panel family.";
+    };
   };
   readonly drive: {
     readonly word: "drive";
     readonly doc: "a saturator or distortion";
+    readonly text: {
+      readonly en: "A saturator's or a distortion's panel family.";
+    };
   };
   readonly modulation: {
     readonly word: "modulation";
     readonly doc: "a chorus, flanger, phaser or tremolo";
+    readonly text: {
+      readonly en: "A chorus's, a flanger's, a phaser's or a tremolo's panel family.";
+    };
   };
   readonly delay: {
     readonly word: "delay";
     readonly doc: "a delay";
+    readonly text: {
+      readonly en: "A delay's panel family.";
+    };
   };
   readonly reverb: {
     readonly word: "reverb";
     readonly doc: "a reverb";
+    readonly text: {
+      readonly en: "A reverb's panel family.";
+    };
   };
   readonly pitch: {
     readonly word: "pitch";
     readonly doc: "a pitch shifter";
+    readonly text: {
+      readonly en: "A pitch shifter's panel family.";
+    };
   };
 };
 
@@ -5873,34 +6194,58 @@ export declare const PANEL_STANDARD_WIDGETS: {
   readonly knob: {
     readonly word: "knob";
     readonly doc: "a travel";
+    readonly text: {
+      readonly en: "A travel, drawn as a knob.";
+    };
   };
   readonly fader: {
     readonly word: "fader";
     readonly doc: "a travel drawn long";
+    readonly text: {
+      readonly en: "A travel drawn long, as a fader.";
+    };
   };
   readonly switch: {
     readonly word: "switch";
     readonly doc: "a toggle";
+    readonly text: {
+      readonly en: "A toggle, drawn as a switch.";
+    };
   };
   readonly selector: {
     readonly word: "selector";
     readonly doc: "an integer travel or labelled values";
+    readonly text: {
+      readonly en: "An integer travel or labelled values, drawn as a selector.";
+    };
   };
   readonly meter: {
     readonly word: "meter";
     readonly doc: "a readout";
+    readonly text: {
+      readonly en: "A readout, drawn as a meter.";
+    };
   };
   readonly curve: {
     readonly word: "curve";
     readonly doc: "a response or transfer curve";
+    readonly text: {
+      readonly en: "A response or transfer curve, drawn as a graph.";
+    };
   };
   readonly xy: {
     readonly word: "xy";
     readonly doc: "two controls drawn as one point";
+    readonly text: {
+      readonly en: "Two controls drawn together as one point on a plane.";
+    };
   };
   readonly display: {
     readonly word: "display";
     readonly doc: "a value shown as text";
+    readonly text: {
+      readonly en: "A value shown as text.";
+    };
   };
 };
 
@@ -5912,22 +6257,37 @@ export declare const PANEL_WIDGETS: {
   readonly auto: {
     readonly word: "auto";
     readonly doc: "left out of a panel declaration: the layout picks the widget from the control";
+    readonly text: {
+      readonly en: "Left out of a panel declaration: the layout picks the widget from the control.";
+    };
   };
   readonly knob: {
     readonly word: "knob";
     readonly doc: "a rotary control";
+    readonly text: {
+      readonly en: "A rotary control.";
+    };
   };
   readonly fader: {
     readonly word: "fader";
     readonly doc: "a linear control";
+    readonly text: {
+      readonly en: "A linear control.";
+    };
   };
   readonly switch: {
     readonly word: "switch";
     readonly doc: "a two-state control";
+    readonly text: {
+      readonly en: "A two-state control.";
+    };
   };
   readonly selector: {
     readonly word: "selector";
     readonly doc: "a control that picks one of a few values";
+    readonly text: {
+      readonly en: "A control that picks one of a few values.";
+    };
   };
 };
 
@@ -5977,234 +6337,408 @@ export declare const PLUGIN_FEATURE_AUDIO_EFFECT: {
   readonly clapAudioEffect: {
     readonly word: "clap.audio-effect";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#audio-effect"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared.";
+    };
   };
   readonly clapChorus: {
     readonly word: "clap.chorus";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#chorus"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature chorus: an effect that thickens a sound with detuned, delayed copies of it.";
+    };
   };
   readonly clapCompressor: {
     readonly word: "clap.compressor";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#compressor"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature compressor: an effect that narrows a sound's dynamic range.";
+    };
   };
   readonly clapDeEsser: {
     readonly word: "clap.de-esser";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#de-esser"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature de-esser: an effect that tames sibilance in a voice.";
+    };
   };
   readonly clapDelay: {
     readonly word: "clap.delay";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#delay"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature delay: an effect that repeats a sound after a gap.";
+    };
   };
   readonly clapDistortion: {
     readonly word: "clap.distortion";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#distortion"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature distortion: an effect that adds harmonics by overdriving a sound.";
+    };
   };
   readonly clapEqualizer: {
     readonly word: "clap.equalizer";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#equalizer"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature equalizer: an effect that shapes a sound's frequency balance.";
+    };
   };
   readonly clapExpander: {
     readonly word: "clap.expander";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#expander"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature expander: an effect that widens a sound's dynamic range.";
+    };
   };
   readonly clapFilter: {
     readonly word: "clap.filter";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#filter"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature filter: an effect that removes or shapes a band of frequencies.";
+    };
   };
   readonly clapFlanger: {
     readonly word: "clap.flanger";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#flanger"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature flanger: an effect that sweeps a short, modulated delay against the dry sound.";
+    };
   };
   readonly clapFrequencyShifter: {
     readonly word: "clap.frequency-shifter";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature frequency-shifter: an effect that shifts every frequency of a sound by the same amount.";
+    };
   };
   readonly clapGate: {
     readonly word: "clap.gate";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#gate"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature gate: an effect that mutes a sound below a level.";
+    };
   };
   readonly clapGlitch: {
     readonly word: "clap.glitch";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#glitch"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature glitch: an effect that cuts, stutters or corrupts a sound on purpose.";
+    };
   };
   readonly clapGranular: {
     readonly word: "clap.granular";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#granular"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature granular: an effect built from short grains of a sound.";
+    };
   };
   readonly clapLimiter: {
     readonly word: "clap.limiter";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#limiter"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature limiter: an effect that holds a sound under a ceiling.";
+    };
   };
   readonly clapMastering: {
     readonly word: "clap.mastering";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#mastering"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature mastering: an effect meant for a mix's final stage.";
+    };
   };
   readonly clapMixing: {
     readonly word: "clap.mixing";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#mixing"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature mixing: an effect meant for use while mixing, such as a channel strip.";
+    };
   };
   readonly clapMultiEffects: {
     readonly word: "clap.multi-effects";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#multi-effects"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature multi-effects: several effects combined in one plugin.";
+    };
   };
   readonly clapPhaseVocoder: {
     readonly word: "clap.phase-vocoder";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature phase-vocoder: an effect built on a phase vocoder, typically to stretch or shift a sound independently of pitch and time.";
+    };
   };
   readonly clapPhaser: {
     readonly word: "clap.phaser";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#phaser"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature phaser: an effect that sweeps notches through a sound with an all-pass filter chain.";
+    };
   };
   readonly clapPitchCorrection: {
     readonly word: "clap.pitch-correction";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature pitch-correction: an effect that pulls a sound's pitch toward a scale.";
+    };
   };
   readonly clapPitchShifter: {
     readonly word: "clap.pitch-shifter";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature pitch-shifter: an effect that changes a sound's pitch without changing its duration.";
+    };
   };
   readonly clapRestoration: {
     readonly word: "clap.restoration";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#restoration"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature restoration: an effect that removes noise, clicks or other damage from a recording.";
+    };
   };
   readonly clapReverb: {
     readonly word: "clap.reverb";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#reverb"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature reverb: an effect that adds the reflections of a space to a sound.";
+    };
   };
   readonly clapTransientShaper: {
     readonly word: "clap.transient-shaper";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature transient-shaper: an effect that reshapes a sound's attack and sustain.";
+    };
   };
   readonly clapTremolo: {
     readonly word: "clap.tremolo";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#tremolo"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature tremolo: an effect that modulates a sound's level over time.";
+    };
   };
   readonly clapUtility: {
     readonly word: "clap.utility";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#utility"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature utility: a plugin that does audio housekeeping rather than a creative effect.";
+    };
   };
   readonly lv2Allpass: {
     readonly word: "lv2.Allpass";
     readonly from: readonly ["LV2_CORE_TERMS#AllpassPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class AllpassPlugin: an all-pass filter, which shifts phase without changing level.";
+    };
   };
   readonly lv2Amplifier: {
     readonly word: "lv2.Amplifier";
     readonly from: readonly ["LV2_CORE_TERMS#AmplifierPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class AmplifierPlugin: a plugin that changes a sound's level.";
+    };
   };
   readonly lv2Bandpass: {
     readonly word: "lv2.Bandpass";
     readonly from: readonly ["LV2_CORE_TERMS#BandpassPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class BandpassPlugin: a filter that passes one band of frequencies.";
+    };
   };
   readonly lv2Chorus: {
     readonly word: "lv2.Chorus";
     readonly from: readonly ["LV2_CORE_TERMS#ChorusPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ChorusPlugin: an effect that thickens a sound with detuned, delayed copies of it.";
+    };
   };
   readonly lv2Comb: {
     readonly word: "lv2.Comb";
     readonly from: readonly ["LV2_CORE_TERMS#CombPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class CombPlugin: a comb filter, which adds a short delayed copy of a sound to itself.";
+    };
   };
   readonly lv2Compressor: {
     readonly word: "lv2.Compressor";
     readonly from: readonly ["LV2_CORE_TERMS#CompressorPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class CompressorPlugin: an effect that narrows a sound's dynamic range.";
+    };
   };
   readonly lv2Converter: {
     readonly word: "lv2.Converter";
     readonly from: readonly ["LV2_CORE_TERMS#ConverterPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ConverterPlugin: a plugin that converts a signal from one representation to another.";
+    };
   };
   readonly lv2Delay: {
     readonly word: "lv2.Delay";
     readonly from: readonly ["LV2_CORE_TERMS#DelayPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class DelayPlugin: an effect that repeats a sound after a gap.";
+    };
   };
   readonly lv2Distortion: {
     readonly word: "lv2.Distortion";
     readonly from: readonly ["LV2_CORE_TERMS#DistortionPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class DistortionPlugin: an effect that adds harmonics by overdriving a sound.";
+    };
   };
   readonly lv2Dynamics: {
     readonly word: "lv2.Dynamics";
     readonly from: readonly ["LV2_CORE_TERMS#DynamicsPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class DynamicsPlugin: an effect that changes a sound's dynamic range.";
+    };
   };
   readonly lv2EQ: {
     readonly word: "lv2.EQ";
     readonly from: readonly ["LV2_CORE_TERMS#EQPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class EQPlugin: an effect that shapes a sound's frequency balance.";
+    };
   };
   readonly lv2Envelope: {
     readonly word: "lv2.Envelope";
     readonly from: readonly ["LV2_CORE_TERMS#EnvelopePlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class EnvelopePlugin: a plugin that follows or applies an envelope over time.";
+    };
   };
   readonly lv2Expander: {
     readonly word: "lv2.Expander";
     readonly from: readonly ["LV2_CORE_TERMS#ExpanderPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ExpanderPlugin: an effect that widens a sound's dynamic range.";
+    };
   };
   readonly lv2Filter: {
     readonly word: "lv2.Filter";
     readonly from: readonly ["LV2_CORE_TERMS#FilterPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class FilterPlugin: an effect that removes or shapes a band of frequencies.";
+    };
   };
   readonly lv2Flanger: {
     readonly word: "lv2.Flanger";
     readonly from: readonly ["LV2_CORE_TERMS#FlangerPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class FlangerPlugin: an effect that sweeps a short, modulated delay against the dry sound.";
+    };
   };
   readonly lv2Gate: {
     readonly word: "lv2.Gate";
     readonly from: readonly ["LV2_CORE_TERMS#GatePlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class GatePlugin: an effect that mutes a sound below a level.";
+    };
   };
   readonly lv2Highpass: {
     readonly word: "lv2.Highpass";
     readonly from: readonly ["LV2_CORE_TERMS#HighpassPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class HighpassPlugin: a filter that passes frequencies above a cutoff.";
+    };
   };
   readonly lv2Limiter: {
     readonly word: "lv2.Limiter";
     readonly from: readonly ["LV2_CORE_TERMS#LimiterPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class LimiterPlugin: an effect that holds a sound under a ceiling.";
+    };
   };
   readonly lv2Lowpass: {
     readonly word: "lv2.Lowpass";
     readonly from: readonly ["LV2_CORE_TERMS#LowpassPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class LowpassPlugin: a filter that passes frequencies below a cutoff.";
+    };
   };
   readonly lv2Mixer: {
     readonly word: "lv2.Mixer";
     readonly from: readonly ["LV2_CORE_TERMS#MixerPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class MixerPlugin: a plugin that combines several signals into one.";
+    };
   };
   readonly lv2Modulator: {
     readonly word: "lv2.Modulator";
     readonly from: readonly ["LV2_CORE_TERMS#ModulatorPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ModulatorPlugin: a plugin that modulates one signal with another.";
+    };
   };
   readonly lv2MultiEQ: {
     readonly word: "lv2.MultiEQ";
     readonly from: readonly ["LV2_CORE_TERMS#MultiEQPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class MultiEQPlugin: a multi-band equaliser.";
+    };
   };
   readonly lv2ParaEQ: {
     readonly word: "lv2.ParaEQ";
     readonly from: readonly ["LV2_CORE_TERMS#ParaEQPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ParaEQPlugin: a parametric equaliser.";
+    };
   };
   readonly lv2Phaser: {
     readonly word: "lv2.Phaser";
     readonly from: readonly ["LV2_CORE_TERMS#PhaserPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class PhaserPlugin: an effect that sweeps notches through a sound with an all-pass filter chain.";
+    };
   };
   readonly lv2Pitch: {
     readonly word: "lv2.Pitch";
     readonly from: readonly ["LV2_CORE_TERMS#PitchPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class PitchPlugin: a plugin that changes or tracks a sound's pitch.";
+    };
   };
   readonly lv2Reverb: {
     readonly word: "lv2.Reverb";
     readonly from: readonly ["LV2_CORE_TERMS#ReverbPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ReverbPlugin: an effect that adds the reflections of a space to a sound.";
+    };
   };
   readonly lv2Simulator: {
     readonly word: "lv2.Simulator";
     readonly from: readonly ["LV2_CORE_TERMS#SimulatorPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class SimulatorPlugin: a plugin that models a physical device or space.";
+    };
   };
   readonly lv2Spatial: {
     readonly word: "lv2.Spatial";
     readonly from: readonly ["LV2_CORE_TERMS#SpatialPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class SpatialPlugin: a plugin that places or moves a sound in space.";
+    };
   };
   readonly lv2Spectral: {
     readonly word: "lv2.Spectral";
     readonly from: readonly ["LV2_CORE_TERMS#SpectralPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class SpectralPlugin: a plugin that processes a sound in the frequency domain.";
+    };
   };
   readonly lv2Utility: {
     readonly word: "lv2.Utility";
     readonly from: readonly ["LV2_CORE_TERMS#UtilityPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class UtilityPlugin: a plugin that does audio housekeeping rather than a creative effect.";
+    };
   };
   readonly lv2Waveshaper: {
     readonly word: "lv2.Waveshaper";
     readonly from: readonly ["LV2_CORE_TERMS#WaveshaperPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics.";
+    };
   };
 };
 
@@ -6216,26 +6750,44 @@ export declare const PLUGIN_FEATURE_INSTRUMENT: {
   readonly clapDrum: {
     readonly word: "clap.drum";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#drum"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature drum: an instrument that plays drum sounds.";
+    };
   };
   readonly clapDrumMachine: {
     readonly word: "clap.drum-machine";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#drum-machine"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature drum-machine: an instrument that sequences and plays drum sounds.";
+    };
   };
   readonly clapInstrument: {
     readonly word: "clap.instrument";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#instrument"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature instrument: a plugin played by notes, with no more specific kind declared.";
+    };
   };
   readonly clapSampler: {
     readonly word: "clap.sampler";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#sampler"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature sampler: an instrument that plays recorded samples.";
+    };
   };
   readonly clapSynthesizer: {
     readonly word: "clap.synthesizer";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#synthesizer"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature synthesizer: an instrument that generates its own sound rather than playing samples.";
+    };
   };
   readonly lv2Instrument: {
     readonly word: "lv2.Instrument";
     readonly from: readonly ["LV2_CORE_TERMS#InstrumentPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class InstrumentPlugin: a plugin played by notes.";
+    };
   };
 };
 
@@ -6247,10 +6799,16 @@ export declare const PLUGIN_FEATURE_NOTE_EFFECT: {
   readonly clapNoteEffect: {
     readonly word: "clap.note-effect";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#note-effect"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature note-effect: a plugin that reads notes and writes notes, such as an arpeggiator.";
+    };
   };
   readonly lv2MIDI: {
     readonly word: "lv2.MIDI";
     readonly from: readonly ["LV2_CORE_TERMS#MIDIPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out.";
+    };
   };
 };
 
@@ -6262,14 +6820,23 @@ export declare const PLUGIN_FEATURE_ANALYZER: {
   readonly clapAnalyzer: {
     readonly word: "clap.analyzer";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#analyzer"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature analyzer: a plugin that reads audio and reports a measurement, with no further output.";
+    };
   };
   readonly clapNoteDetector: {
     readonly word: "clap.note-detector";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#note-detector"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature note-detector: an analyzer that reads pitch from audio.";
+    };
   };
   readonly lv2Analyser: {
     readonly word: "lv2.Analyser";
     readonly from: readonly ["LV2_CORE_TERMS#AnalyserPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement.";
+    };
   };
 };
 
@@ -6281,38 +6848,65 @@ export declare const PLUGIN_FEATURE_OTHER: {
   readonly clapAmbisonic: {
     readonly word: "clap.ambisonic";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#ambisonic"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature ambisonic: a plugin declared to work in an ambisonic channel layout.";
+    };
   };
   readonly clapMono: {
     readonly word: "clap.mono";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#mono"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature mono: a plugin declared to work in a mono channel layout.";
+    };
   };
   readonly clapStereo: {
     readonly word: "clap.stereo";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#stereo"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature stereo: a plugin declared to work in a stereo channel layout.";
+    };
   };
   readonly clapSurround: {
     readonly word: "clap.surround";
     readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#surround"];
+    readonly text: {
+      readonly en: "The CLAP plugin feature surround: a plugin declared to work in a surround channel layout.";
+    };
   };
   readonly lv2Constant: {
     readonly word: "lv2.Constant";
     readonly from: readonly ["LV2_CORE_TERMS#ConstantPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class ConstantPlugin: a plugin with no input that outputs a constant.";
+    };
   };
   readonly lv2Function: {
     readonly word: "lv2.Function";
     readonly from: readonly ["LV2_CORE_TERMS#FunctionPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class FunctionPlugin: a plugin with no audio input or output, used only for its side effects or parameters.";
+    };
   };
   readonly lv2Generator: {
     readonly word: "lv2.Generator";
     readonly from: readonly ["LV2_CORE_TERMS#GeneratorPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class GeneratorPlugin: a plugin with no audio input that generates a sound.";
+    };
   };
   readonly lv2Oscillator: {
     readonly word: "lv2.Oscillator";
     readonly from: readonly ["LV2_CORE_TERMS#OscillatorPlugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class OscillatorPlugin: a generator that outputs a periodic waveform.";
+    };
   };
   readonly lv2Plugin: {
     readonly word: "lv2.Plugin";
     readonly from: readonly ["LV2_CORE_TERMS#Plugin"];
+    readonly text: {
+      readonly en: "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared.";
+    };
   };
 };
 
@@ -6369,66 +6963,108 @@ export declare const RESOURCE_KINDS: {
   readonly cpu: {
     readonly word: "cpu";
     readonly doc: "The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115).";
+    readonly text: {
+      readonly en: "The cost per sample at a rate and quantum, its percentile and its tail.";
+    };
   };
   readonly memory: {
     readonly word: "memory";
     readonly doc: "The footprint per instance and its growth over a soak (plugin-qualify#114).";
+    readonly text: {
+      readonly en: "The footprint per instance and its growth over a soak.";
+    };
   };
   readonly scratchMemory: {
     readonly word: "scratch-memory";
     readonly from: readonly ["CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"];
     readonly doc: "The memory a plugin asks of its host for its process call.";
+    readonly text: {
+      readonly en: "The memory a plugin asks of its host for its process call.";
+    };
   };
   readonly latency: {
     readonly word: "latency";
     readonly from: readonly ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"];
     readonly doc: "The frames a plugin delays its output by, per rate and quantum.";
+    readonly text: {
+      readonly en: "The frames a plugin delays its output by, per rate and quantum.";
+    };
   };
   readonly tail: {
     readonly word: "tail";
     readonly from: readonly ["CLAP_EXT_TAIL_TERMS#tail"];
     readonly doc: "How long a plugin keeps sounding once its input goes silent.";
+    readonly text: {
+      readonly en: "How long a plugin keeps sounding once its input goes silent.";
+    };
   };
   readonly voices: {
     readonly word: "voices";
     readonly from: readonly ["CLAP_EXT_VOICE_INFO_TERMS#voice-info"];
     readonly doc: "The notes an instrument plays at once.";
+    readonly text: {
+      readonly en: "The notes an instrument plays at once.";
+    };
   };
   readonly startup: {
     readonly word: "startup";
     readonly doc: "The wall time of instantiate, activate and the first block.";
+    readonly text: {
+      readonly en: "The wall time of instantiate, activate and the first block.";
+    };
   };
   readonly threads: {
     readonly word: "threads";
     readonly from: readonly ["CLAP_EXT_THREAD_POOL_TERMS#thread-pool"];
     readonly doc: "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.";
+    readonly text: {
+      readonly en: "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.";
+    };
   };
   readonly worker: {
     readonly word: "worker";
     readonly from: readonly ["LV2_WORKER_TERMS#schedule", "LV2_WORKER_TERMS#interface"];
     readonly doc: "The work a plugin hands to a non-real-time thread of the host.";
+    readonly text: {
+      readonly en: "The work a plugin hands to a non-real-time thread of the host.";
+    };
   };
   readonly blockLength: {
     readonly word: "block-length";
     readonly from: readonly ["LV2_BUF_SIZE_TERMS#boundedBlockLength", "LV2_BUF_SIZE_TERMS#maxBlockLength", "LV2_BUF_SIZE_TERMS#minBlockLength", "LV2_BUF_SIZE_TERMS#nominalBlockLength", "LV2_OPTIONS_TERMS#options"];
     readonly doc: "The block lengths a plugin accepts.";
+    readonly text: {
+      readonly en: "The block lengths a plugin accepts.";
+    };
   };
   readonly openFiles: {
     readonly word: "open-files";
     readonly doc: "The file descriptors a plugin holds after activate, and their growth.";
+    readonly text: {
+      readonly en: "The file descriptors a plugin holds after activate, and their growth.";
+    };
   };
   readonly diskIo: {
     readonly word: "disk-io";
     readonly doc: "The bytes a plugin reads at load and while it processes.";
+    readonly text: {
+      readonly en: "The bytes a plugin reads at load and while it processes.";
+    };
   };
   readonly network: {
     readonly word: "network";
     readonly doc: "Any socket a plugin opens.";
+    readonly text: {
+      readonly en: "Any socket a plugin opens.";
+    };
   };
   readonly state: {
     readonly word: "state";
     readonly from: readonly ["LV2_STATE_TERMS#interface", "CLAP_EXT_STATE_TERMS#state"];
     readonly doc: "The size of a plugin's saved state, its save and restore time, and its round trip.";
+    readonly text: {
+      readonly en: "The size of a plugin's saved state, its save and restore time, and its round trip.";
+    };
   };
 };
 
@@ -6439,34 +7075,61 @@ export declare const RESOURCE_KINDS: {
 export declare const RESOURCE_UNITS: {
   readonly nsPerSample: {
     readonly word: "ns-per-sample";
+    readonly text: {
+      readonly en: "Nanoseconds per sample.";
+    };
   };
   readonly frames: {
     readonly word: "frames";
     readonly from: readonly ["LV2_UNITS_TERMS#frame"];
+    readonly text: {
+      readonly en: "A count of audio frames.";
+    };
   };
   readonly ms: {
     readonly word: "ms";
     readonly from: readonly ["LV2_UNITS_TERMS#ms"];
+    readonly text: {
+      readonly en: "Milliseconds.";
+    };
   };
   readonly us: {
     readonly word: "us";
+    readonly text: {
+      readonly en: "Microseconds.";
+    };
   };
   readonly s: {
     readonly word: "s";
     readonly from: readonly ["LV2_UNITS_TERMS#s"];
+    readonly text: {
+      readonly en: "Seconds.";
+    };
   };
   readonly bytes: {
     readonly word: "bytes";
+    readonly text: {
+      readonly en: "Bytes.";
+    };
   };
   readonly plainCount: {
     readonly word: "count";
+    readonly text: {
+      readonly en: "A plain count, with no unit.";
+    };
   };
   readonly ratio: {
     readonly word: "ratio";
+    readonly text: {
+      readonly en: "A ratio, with no unit.";
+    };
   };
   readonly flag: {
     readonly word: "flag";
     readonly doc: "A yes or a no: one when the plugin does the thing, zero when it does not.";
+    readonly text: {
+      readonly en: "A yes or a no: one when the plugin does the thing, zero when it does not.";
+    };
   };
 };
 
@@ -6477,12 +7140,21 @@ export declare const RESOURCE_UNITS: {
 export declare const RESOURCE_BASES: {
   readonly declared: {
     readonly word: "declared";
+    readonly text: {
+      readonly en: "What the plugin declares about itself.";
+    };
   };
   readonly measured: {
     readonly word: "measured";
+    readonly text: {
+      readonly en: "What a run measured.";
+    };
   };
   readonly probe: {
     readonly word: "probe";
+    readonly text: {
+      readonly en: "A count the caller gave the probe.";
+    };
   };
 };
 
@@ -6493,18 +7165,33 @@ export declare const RESOURCE_BASES: {
 export declare const RESOURCE_MEMORY_PHASES: {
   readonly afterInstantiate: {
     readonly word: "after-instantiate";
+    readonly text: {
+      readonly en: "Memory read right after the plugin instantiates.";
+    };
   };
   readonly afterActivate: {
     readonly word: "after-activate";
+    readonly text: {
+      readonly en: "Memory read right after the plugin activates.";
+    };
   };
   readonly atRest: {
     readonly word: "at-rest";
+    readonly text: {
+      readonly en: "Memory read at rest, after processing, with no note playing.";
+    };
   };
   readonly notesHeld: {
     readonly word: "notes-held";
+    readonly text: {
+      readonly en: "Memory read while notes are held.";
+    };
   };
   readonly secondInstance: {
     readonly word: "second-instance";
+    readonly text: {
+      readonly en: "Memory read for a second instance, so a shared one-time load is told apart from the per-instance cost.";
+    };
   };
 };
 
@@ -6516,10 +7203,16 @@ export declare const RESOURCE_UNMEASURED_REASONS: {
   readonly unmeasuredOnClass: {
     readonly word: "unmeasured-on-class";
     readonly doc: "The only figure was taken on another machine class: never read as a pass, never scaled.";
+    readonly text: {
+      readonly en: "The only figure was taken on another machine class: never read as a pass, never scaled.";
+    };
   };
   readonly limitExceeded: {
     readonly word: "limit-exceeded";
     readonly doc: "The run hit the limit probe isolation set for the resource; the limit is recorded beside it.";
+    readonly text: {
+      readonly en: "The run hit the limit probe isolation set for the resource; the limit is recorded beside it.";
+    };
   };
 };
 
@@ -6530,9 +7223,15 @@ export declare const RESOURCE_UNMEASURED_REASONS: {
 export declare const RESOURCE_BUDGET_SCOPES: {
   readonly perInstance: {
     readonly word: "per-instance";
+    readonly text: {
+      readonly en: "Counted over one plugin instance.";
+    };
   };
   readonly perConsole: {
     readonly word: "per-console";
+    readonly text: {
+      readonly en: "Counted over the whole console.";
+    };
   };
 };
 
@@ -6543,12 +7242,21 @@ export declare const RESOURCE_BUDGET_SCOPES: {
 export declare const RESOURCE_HOST_ISOLATIONS: {
   readonly inProcess: {
     readonly word: "in-process";
+    readonly text: {
+      readonly en: "The host runs its plugins in its own process.";
+    };
   };
   readonly perProcess: {
     readonly word: "per-process";
+    readonly text: {
+      readonly en: "The host runs each plugin in its own process.";
+    };
   };
   readonly sharedProcess: {
     readonly word: "shared-process";
+    readonly text: {
+      readonly en: "The host runs its plugins together in one process apart from its own.";
+    };
   };
 };
 
@@ -6559,9 +7267,15 @@ export declare const RESOURCE_HOST_ISOLATIONS: {
 export declare const RESOURCE_HOST_LATENCY_HANDLING: {
   readonly compensated: {
     readonly word: "compensated";
+    readonly text: {
+      readonly en: "The host delays every other path to align on this plugin's reported latency.";
+    };
   };
   readonly uncompensated: {
     readonly word: "uncompensated";
+    readonly text: {
+      readonly en: "The host passes the plugin's reported latency on, without aligning other paths to it.";
+    };
   };
 };
 
@@ -6572,9 +7286,15 @@ export declare const RESOURCE_HOST_LATENCY_HANDLING: {
 export declare const RESOURCE_THREAD_SCHEDULING: {
   readonly none: {
     readonly word: "none";
+    readonly text: {
+      readonly en: "No particular scheduling class: the thread runs as any other.";
+    };
   };
   readonly fifo: {
     readonly word: "fifo";
+    readonly text: {
+      readonly en: "The real-time FIFO scheduling class.";
+    };
   };
 };
 
@@ -6589,6 +7309,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "bytes";
     readonly basis: "declared";
     readonly doc: "The memory one instance holds at rest, once activated and idle, with no note playing.";
+    readonly text: {
+      readonly en: "The memory one instance holds at rest, once activated and idle, with no note playing.";
+    };
   };
   readonly footprintPerVoice: {
     readonly word: "footprint-per-voice";
@@ -6596,6 +7319,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "bytes";
     readonly basis: "declared";
     readonly doc: "The memory each voice adds while it plays, for an instrument.";
+    readonly text: {
+      readonly en: "The memory each voice adds while it plays, for an instrument.";
+    };
   };
   readonly sharedLoad: {
     readonly word: "shared-load";
@@ -6603,6 +7329,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "bytes";
     readonly basis: "declared";
     readonly doc: "The one-time load every instance of the plugin shares, counted once however many are instantiated.";
+    readonly text: {
+      readonly en: "The one-time load every instance of the plugin shares, counted once however many are instantiated.";
+    };
   };
   readonly threadsSpawned: {
     readonly word: "threads-spawned";
@@ -6610,6 +7339,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "count";
     readonly basis: "declared";
     readonly doc: "The threads the plugin starts itself, apart from any it asks the host pool for.";
+    readonly text: {
+      readonly en: "The threads the plugin starts itself, apart from any it asks the host pool for.";
+    };
   };
   readonly streamsFromDisk: {
     readonly word: "streams-from-disk";
@@ -6617,6 +7349,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "flag";
     readonly basis: "declared";
     readonly doc: "Whether the plugin reads from disk while it processes.";
+    readonly text: {
+      readonly en: "Whether the plugin reads from disk while it processes.";
+    };
   };
   readonly opensSockets: {
     readonly word: "opens-sockets";
@@ -6624,6 +7359,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "flag";
     readonly basis: "declared";
     readonly doc: "Whether the plugin opens any socket.";
+    readonly text: {
+      readonly en: "Whether the plugin opens any socket.";
+    };
   };
   readonly activateTime: {
     readonly word: "activate-time";
@@ -6631,6 +7369,9 @@ export declare const RESOURCE_HINTS: {
     readonly figureUnit: "ms";
     readonly basis: "declared";
     readonly doc: "The wall time of activate and the first block the plugin expects.";
+    readonly text: {
+      readonly en: "The wall time of activate and the first block the plugin expects.";
+    };
   };
 };
 
@@ -6644,10 +7385,16 @@ export declare const SCAN_DOCUMENTS: {
   readonly clapScanDocument: {
     readonly word: "CLAP_SCAN_DOCUMENT";
     readonly doc: "The JSON document of omx-clap-scan, one entry per file with its plugins, parameters and ports. Owned by omx-clap-core, which writes it; its shape is omx-clap-core's reference.";
+    readonly text: {
+      readonly en: "The JSON document omx-clap-scan writes, one entry per file with its plugins, its parameters and its ports.";
+    };
   };
   readonly fieldDump: {
     readonly word: "FIELD_DUMP";
     readonly doc: "The field dump of omx-clap-scan --fields: the line `# omx-clap-scan --fields 1`, the format's version, then one `<scope> TAB <field> TAB <value>` record per field a plugin states. Its scopes are SCAN_FIELD_SCOPES.";
+    readonly text: {
+      readonly en: "The field dump omx-clap-scan --fields writes: a version line, then one scope, field and value record per field a plugin states.";
+    };
   };
 };
 
@@ -6659,54 +7406,93 @@ export declare const SCAN_FIELD_SCOPES: {
   readonly plugin: {
     readonly word: "plugin";
     readonly doc: "the plugin as a whole";
+    readonly text: {
+      readonly en: "The plugin as a whole.";
+    };
   };
   readonly param: {
     readonly word: "param";
     readonly doc: "a CLAP parameter, indexed in get_info order";
+    readonly text: {
+      readonly en: "A CLAP parameter, indexed in get_info order.";
+    };
   };
   readonly audioIn: {
     readonly word: "audio_in";
     readonly doc: "an audio input port, indexed";
+    readonly text: {
+      readonly en: "An audio input port, indexed.";
+    };
   };
   readonly audioOut: {
     readonly word: "audio_out";
     readonly doc: "an audio output port, indexed";
+    readonly text: {
+      readonly en: "An audio output port, indexed.";
+    };
   };
   readonly noteIn: {
     readonly word: "note_in";
     readonly doc: "a note input port, indexed";
+    readonly text: {
+      readonly en: "A note input port, indexed.";
+    };
   };
   readonly noteOut: {
     readonly word: "note_out";
     readonly doc: "a note output port, indexed";
+    readonly text: {
+      readonly en: "A note output port, indexed.";
+    };
   };
   readonly port: {
     readonly word: "port";
     readonly doc: "an LV2 port, indexed by lv2:index";
+    readonly text: {
+      readonly en: "An LV2 port, indexed by its lv2:index.";
+    };
   };
   readonly panel: {
     readonly word: "panel";
     readonly doc: "the panel description of a plugin that serves org.openmixer.panel-description/1: its family and fingerprint";
+    readonly text: {
+      readonly en: "The panel description of a plugin that serves org.openmixer.panel-description/1: its family and its fingerprint.";
+    };
   };
   readonly section: {
     readonly word: "section";
     readonly doc: "a section of the panel description, indexed";
+    readonly text: {
+      readonly en: "A section of the panel description, indexed.";
+    };
   };
   readonly control: {
     readonly word: "control";
     readonly doc: "a control of the panel description, indexed";
+    readonly text: {
+      readonly en: "A control of the panel description, indexed.";
+    };
   };
   readonly role: {
     readonly word: "role";
     readonly doc: "a role of the panel description, indexed";
+    readonly text: {
+      readonly en: "A role of the panel description, indexed.";
+    };
   };
   readonly display: {
     readonly word: "display";
     readonly doc: "a display of the panel description, indexed";
+    readonly text: {
+      readonly en: "A display of the panel description, indexed.";
+    };
   };
   readonly placementDefault: {
     readonly word: "placement_default";
     readonly doc: "a per-placement come-up value of the panel description, indexed";
+    readonly text: {
+      readonly en: "A per-placement come-up value of the panel description, indexed.";
+    };
   };
 };
 
@@ -6720,14 +7506,23 @@ export declare const VERB_HOSTS: {
   readonly pluginHostd: {
     readonly word: "plugin-hostd";
     readonly doc: "The daemon that places plugins in workers and answers the verbs it adds itself.";
+    readonly text: {
+      readonly en: "The daemon that places plugins in workers and answers the verbs it adds itself.";
+    };
   };
   readonly omxClapHost: {
     readonly word: "omx-clap-host";
     readonly doc: "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.";
+    readonly text: {
+      readonly en: "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.";
+    };
   };
   readonly modHost: {
     readonly word: "mod-host";
     readonly doc: "mod-host, the LV2 host whose protocol the others speak.";
+    readonly text: {
+      readonly en: "mod-host, the LV2 host whose protocol the others speak.";
+    };
   };
 };
 
@@ -6795,7 +7590,7 @@ export declare const MEASUREMENT_UNMEASURED_KINDS_WORDS: readonly ["nothing-to-m
  * The words of MEASUREMENT_UNMEASURED_REASONS, in their declared order.
  * @see data/measurement.json
  */
-export declare const MEASUREMENT_UNMEASURED_REASONS_WORDS: readonly ["no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted"];
+export declare const MEASUREMENT_UNMEASURED_REASONS_WORDS: readonly ["no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted"];
 
 /**
  * The words of MEASUREMENT_LATENCY_METHODS, in their declared order.

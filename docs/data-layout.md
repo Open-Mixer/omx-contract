@@ -84,7 +84,13 @@ not the one its path gives.
   one of that entry's `args` (`catalog-placeholders`). A key may be missing: the surface shows the source sentence. A
   surface renders through `@openmixer/omx-contract/catalog`: `loadCatalog(owner, lang)`, then `sentenceOf(catalog, key,
   text.en)` (the catalog's sentence, else the source sentence) and `fill(sentence, args)`; `catalogProblems` and
-  `catalogKeys` are the checks, for an owner that validates its catalogs in its own build.
+  `catalogKeys` are the checks, for an owner that validates its catalogs in its own build. A Python surface (Zynthian)
+  reads the same shape with `share/omx-contract/omx_contract_catalog.py`, hand-written and installed beside the
+  generated `omx_contract.py`: `load_catalog(owner, lang)`, `sentence_of(catalog, key, source)` and `fill(sentence,
+  args)`, no schema validation of its own (a surface only ever reads an installed catalog; `validate --catalogs`
+  checks one at build time).
+- Every word and code `data/` declares carries its own source sentence (omx-contract#2); a word another package
+  declares, in its own tree, may still have none until that package's lane adds it.
 - A `words` item's words keep their declared order, which is part of the contract (a rating's severity, a band's
   ascent). A word may name its `group`, a word of the item its `groups` names, its `x` and `y`, words of the item its `axes` names (an axis word then states its `unit` and `scale`, docs/curves.md), and the format terms it is
   name-compatible with (`from: ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"]`); each resolves.

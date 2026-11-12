@@ -13,79 +13,118 @@ export const CURVE_AXES = {
     "word": "frequency",
     "unit": "Hz",
     "scale": "log",
-    "doc": "Frequency, on the points of EQ_CURVE_GRID where the curve is a response."
+    "doc": "Frequency, on the points of EQ_CURVE_GRID where the curve is a response.",
+    "text": {
+      "en": "Frequency, on the points of EQ_CURVE_GRID where the curve is a response."
+    }
   },
   "magnitude": {
     "word": "magnitude",
     "unit": "dB",
     "scale": "linear",
-    "doc": "The magnitude of a response at a frequency: 0 dB is unity, a boost positive, a cut negative."
+    "doc": "The magnitude of a response at a frequency: 0 dB is unity, a boost positive, a cut negative.",
+    "text": {
+      "en": "The magnitude of a response at a frequency: 0 dB is unity, a boost positive, a cut negative."
+    }
   },
   "inputLevel": {
     "word": "input-level",
     "unit": "dBFS",
     "scale": "linear",
-    "doc": "The level a gain computer reads, the static law's input."
+    "doc": "The level a gain computer reads, the static law's input.",
+    "text": {
+      "en": "The level a gain computer reads, the static law's input."
+    }
   },
   "outputLevel": {
     "word": "output-level",
     "unit": "dBFS",
     "scale": "linear",
-    "doc": "The level the static law gives for an input level; the diagonal is no gain change."
+    "doc": "The level the static law gives for an input level; the diagonal is no gain change.",
+    "text": {
+      "en": "The level the static law gives for an input level; the diagonal is no gain change."
+    }
   },
   "inputAmplitude": {
     "word": "input-amplitude",
     "unit": "",
     "scale": "linear",
-    "doc": "A memoryless shaper's input sample, linear, -1 to +1 full scale: bipolar, so an even/odd asymmetry shows."
+    "doc": "A memoryless shaper's input sample, linear, -1 to +1 full scale: bipolar, so an even/odd asymmetry shows.",
+    "text": {
+      "en": "A memoryless shaper's input sample, linear, -1 to +1 full scale: bipolar, so an even/odd asymmetry shows."
+    }
   },
   "outputAmplitude": {
     "word": "output-amplitude",
     "unit": "",
     "scale": "linear",
-    "doc": "The shaper's output sample for an input amplitude, linear, on the same full scale."
+    "doc": "The shaper's output sample for an input amplitude, linear, on the same full scale.",
+    "text": {
+      "en": "The shaper's output sample for an input amplitude, linear, on the same full scale."
+    }
   },
   "delayTime": {
     "word": "delay-time",
     "unit": "ms",
     "scale": "linear",
-    "doc": "The time after the dry sound at which a delay's tap or repeat sounds."
+    "doc": "The time after the dry sound at which a delay's tap or repeat sounds.",
+    "text": {
+      "en": "The time after the dry sound at which a delay's tap or repeat sounds."
+    }
   },
   "decayTime": {
     "word": "decay-time",
     "unit": "s",
     "scale": "linear",
-    "doc": "The time after an impulse over which a reverb's energy decays."
+    "doc": "The time after an impulse over which a reverb's energy decays.",
+    "text": {
+      "en": "The time after an impulse over which a reverb's energy decays."
+    }
   },
   "level": {
     "word": "level",
     "unit": "dB",
     "scale": "linear",
-    "doc": "A level relative to the dry input: 0 dB is the input's own, a tap or a decay below it negative."
+    "doc": "A level relative to the dry input: 0 dB is the input's own, a tap or a decay below it negative.",
+    "text": {
+      "en": "A level relative to the dry input: 0 dB is the input's own, a tap or a decay below it negative."
+    }
   },
   "phase": {
     "word": "phase",
     "unit": "",
     "scale": "linear",
-    "doc": "The position within one period of a modulation source, 0 to 1."
+    "doc": "The position within one period of a modulation source, 0 to 1.",
+    "text": {
+      "en": "The position within one period of a modulation source, 0 to 1."
+    }
   },
   "modulation": {
     "word": "modulation",
     "unit": "",
     "scale": "linear",
-    "doc": "A modulation source's output at a phase, -1 to +1, before the depth scales it."
+    "doc": "A modulation source's output at a phase, -1 to +1, before the depth scales it.",
+    "text": {
+      "en": "A modulation source's output at a phase, -1 to +1, before the depth scales it."
+    }
   },
   "inputPitch": {
     "word": "input-pitch",
     "unit": "st",
     "scale": "linear",
-    "doc": "The pitch played into a pitch effect, semitones from an origin the host picks."
+    "doc": "The pitch played into a pitch effect, semitones from an origin the host picks.",
+    "text": {
+      "en": "The pitch played into a pitch effect, semitones from an origin the host picks."
+    }
   },
   "outputPitch": {
     "word": "output-pitch",
     "unit": "st",
     "scale": "linear",
-    "doc": "The pitch the effect sounds for an input pitch, semitones on the same origin: an unshifted map is the diagonal."
+    "doc": "The pitch the effect sounds for an input pitch, semitones on the same origin: an unshifted map is the diagonal.",
+    "text": {
+      "en": "The pitch the effect sounds for an input pitch, semitones on the same origin: an unshifted map is the diagonal."
+    }
   }
 };
 
@@ -100,49 +139,73 @@ export const CURVE_KINDS = {
     "word": "eq-curve",
     "x": "frequency",
     "y": "magnitude",
-    "doc": "An EQ's summed magnitude response over log frequency."
+    "doc": "An EQ's summed magnitude response over log frequency.",
+    "text": {
+      "en": "An EQ's summed magnitude response over log frequency."
+    }
   },
   "dynamicsCurve": {
     "word": "dynamics-curve",
     "x": "input-level",
     "y": "output-level",
-    "doc": "A gate's or a compressor's static law, input level to output level, with the live needle."
+    "doc": "A gate's or a compressor's static law, input level to output level, with the live needle.",
+    "text": {
+      "en": "A gate's or a compressor's static law, input level to output level, with the live needle."
+    }
   },
   "transferCurve": {
     "word": "transfer-curve",
     "x": "input-amplitude",
     "y": "output-amplitude",
-    "doc": "A memoryless shaper's transfer, input sample to output sample over full scale."
+    "doc": "A memoryless shaper's transfer, input sample to output sample over full scale.",
+    "text": {
+      "en": "A memoryless shaper's transfer, input sample to output sample over full scale."
+    }
   },
   "delayTaps": {
     "word": "delay-taps",
     "x": "delay-time",
     "y": "level",
-    "doc": "A delay's taps and repeats, each a line at its time and level."
+    "doc": "A delay's taps and repeats, each a line at its time and level.",
+    "text": {
+      "en": "A delay's taps and repeats, each a line at its time and level."
+    }
   },
   "decayEnvelope": {
     "word": "decay-envelope",
     "x": "decay-time",
     "y": "level",
-    "doc": "A reverb's decay envelope after an impulse."
+    "doc": "A reverb's decay envelope after an impulse.",
+    "text": {
+      "en": "A reverb's decay envelope after an impulse."
+    }
   },
   "combResponse": {
     "word": "comb-response",
     "x": "frequency",
     "y": "magnitude",
-    "doc": "The wet path's comb or notch response at the current sweep position (chorus, flanger, phaser, doubler)."
+    "doc": "The wet path's comb or notch response at the current sweep position (chorus, flanger, phaser, doubler).",
+    "text": {
+      "en": "The wet path's comb or notch response at the current sweep position (chorus, flanger, phaser, doubler)."
+    }
   },
   "modulationShape": {
     "word": "modulation-shape",
     "x": "phase",
     "y": "modulation",
-    "doc": "A modulation source over one period (tremolo, rotary)."
+    "doc": "A modulation source over one period (tremolo, rotary).",
+    "text": {
+      "en": "A modulation source over one period (tremolo, rotary)."
+    }
   },
   "intervalMap": {
     "word": "interval-map",
     "x": "input-pitch",
     "y": "output-pitch",
-    "doc": "A pitch effect's map from the input pitch to the output pitch."
+    "doc": "A pitch effect's map from the input pitch to the output pitch.",
+    "text": {
+      "en": "A pitch effect's map from the input pitch to the output pitch."
+    }
   }
 };
 
@@ -6344,27 +6407,45 @@ export const LV2_WORKER_TERMS = {
 export const MACHINE_CLASS_FIELDS = {
   "arch": {
     "word": "arch",
-    "doc": "The machine architecture as uname -m names it."
+    "doc": "The machine architecture as uname -m names it.",
+    "text": {
+      "en": "The machine architecture, as uname -m names it."
+    }
   },
   "family": {
     "word": "family",
-    "doc": "The CPU family and model."
+    "doc": "The CPU family and model.",
+    "text": {
+      "en": "The CPU family and model."
+    }
   },
   "coreBand": {
     "word": "coreBand",
-    "doc": "The cores, as a band of MACHINE_CORE_BANDS."
+    "doc": "The cores, as a band of MACHINE_CORE_BANDS.",
+    "text": {
+      "en": "The core count, as a band of MACHINE_CORE_BANDS."
+    }
   },
   "clockBand": {
     "word": "clockBand",
-    "doc": "The clock, as a band of MACHINE_CLOCK_BANDS."
+    "doc": "The clock, as a band of MACHINE_CLOCK_BANDS.",
+    "text": {
+      "en": "The clock, as a band of MACHINE_CLOCK_BANDS."
+    }
   },
   "preemptRt": {
     "word": "preemptRt",
-    "doc": "Whether the kernel is PREEMPT_RT."
+    "doc": "Whether the kernel is PREEMPT_RT.",
+    "text": {
+      "en": "Whether the kernel is PREEMPT_RT."
+    }
   },
   "cstatesLimited": {
     "word": "cstatesLimited",
-    "doc": "Whether the deep idle states are limited."
+    "doc": "Whether the deep idle states are limited.",
+    "text": {
+      "en": "Whether the deep idle states are limited."
+    }
   }
 };
 
@@ -6374,19 +6455,34 @@ export const MACHINE_CLASS_FIELDS = {
  */
 export const MACHINE_PROFILE_FIELDS = {
   "governor": {
-    "word": "governor"
+    "word": "governor",
+    "text": {
+      "en": "The CPU frequency governor in effect when the figure was taken."
+    }
   },
   "turbo": {
-    "word": "turbo"
+    "word": "turbo",
+    "text": {
+      "en": "Whether turbo or boost clocking was enabled when the figure was taken."
+    }
   },
   "smt": {
-    "word": "smt"
+    "word": "smt",
+    "text": {
+      "en": "Whether simultaneous multithreading was enabled when the figure was taken."
+    }
   },
   "preempt": {
-    "word": "preempt"
+    "word": "preempt",
+    "text": {
+      "en": "Whether the measuring thread ran under real-time preemption, or scheduled as any other thread."
+    }
   },
   "cpuidle": {
-    "word": "cpuidle"
+    "word": "cpuidle",
+    "text": {
+      "en": "The CPU idle driver or policy in effect when the figure was taken."
+    }
   }
 };
 
@@ -6396,22 +6492,40 @@ export const MACHINE_PROFILE_FIELDS = {
  */
 export const MACHINE_CORE_BANDS = {
   "cores1To2": {
-    "word": "1-2"
+    "word": "1-2",
+    "text": {
+      "en": "A machine with 1 to 2 cores."
+    }
   },
   "cores3To4": {
-    "word": "3-4"
+    "word": "3-4",
+    "text": {
+      "en": "A machine with 3 to 4 cores."
+    }
   },
   "cores5To8": {
-    "word": "5-8"
+    "word": "5-8",
+    "text": {
+      "en": "A machine with 5 to 8 cores."
+    }
   },
   "cores9To16": {
-    "word": "9-16"
+    "word": "9-16",
+    "text": {
+      "en": "A machine with 9 to 16 cores."
+    }
   },
   "cores17To32": {
-    "word": "17-32"
+    "word": "17-32",
+    "text": {
+      "en": "A machine with 17 to 32 cores."
+    }
   },
   "cores33Up": {
-    "word": "33+"
+    "word": "33+",
+    "text": {
+      "en": "A machine with 33 or more cores."
+    }
   }
 };
 
@@ -6421,19 +6535,34 @@ export const MACHINE_CORE_BANDS = {
  */
 export const MACHINE_CLOCK_BANDS = {
   "under1500MHz": {
-    "word": "<1.5GHz"
+    "word": "<1.5GHz",
+    "text": {
+      "en": "A machine clocked under 1.5 GHz."
+    }
   },
   "from1500To2500MHz": {
-    "word": "1.5-2.5GHz"
+    "word": "1.5-2.5GHz",
+    "text": {
+      "en": "A machine clocked from 1.5 to 2.5 GHz."
+    }
   },
   "from2500To3500MHz": {
-    "word": "2.5-3.5GHz"
+    "word": "2.5-3.5GHz",
+    "text": {
+      "en": "A machine clocked from 2.5 to 3.5 GHz."
+    }
   },
   "from3500To4500MHz": {
-    "word": "3.5-4.5GHz"
+    "word": "3.5-4.5GHz",
+    "text": {
+      "en": "A machine clocked from 3.5 to 4.5 GHz."
+    }
   },
   "from4500MHz": {
-    "word": "4.5GHz+"
+    "word": "4.5GHz+",
+    "text": {
+      "en": "A machine clocked at 4.5 GHz or more."
+    }
   }
 };
 
@@ -6443,10 +6572,16 @@ export const MACHINE_CLOCK_BANDS = {
  */
 export const MACHINE_ARCHES = {
   "x8664": {
-    "word": "x86_64"
+    "word": "x86_64",
+    "text": {
+      "en": "An x86-64 machine, as uname -m spells it."
+    }
   },
   "aarch64": {
-    "word": "aarch64"
+    "word": "aarch64",
+    "text": {
+      "en": "An AArch64 machine, as uname -m spells it."
+    }
   }
 };
 
@@ -6457,15 +6592,24 @@ export const MACHINE_ARCHES = {
 export const MACHINE_CLASSES = {
   "desk": {
     "word": "desk",
-    "doc": "An x86-64 desk."
+    "doc": "An x86-64 desk.",
+    "text": {
+      "en": "An x86-64 desk."
+    }
   },
   "raspberryPi4": {
     "word": "raspberry-pi-4",
-    "doc": "A Raspberry Pi 4, aarch64."
+    "doc": "A Raspberry Pi 4, aarch64.",
+    "text": {
+      "en": "A Raspberry Pi 4, aarch64."
+    }
   },
   "raspberryPi5": {
     "word": "raspberry-pi-5",
-    "doc": "A Raspberry Pi 5, aarch64."
+    "doc": "A Raspberry Pi 5, aarch64.",
+    "text": {
+      "en": "A Raspberry Pi 5, aarch64."
+    }
   }
 };
 
@@ -6475,19 +6619,34 @@ export const MACHINE_CLASSES = {
  */
 export const MEASUREMENT_DIMENSIONS = {
   "latency": {
-    "word": "latency"
+    "word": "latency",
+    "text": {
+      "en": "How long a plugin takes to produce its first sound after it is driven or played."
+    }
   },
   "cost": {
-    "word": "cost"
+    "word": "cost",
+    "text": {
+      "en": "How much CPU time a plugin spends per block under a sustained stimulus."
+    }
   },
   "stability": {
-    "word": "stability"
+    "word": "stability",
+    "text": {
+      "en": "Whether a plugin instantiates, processes and tears down without crashing or producing non-finite output."
+    }
   },
   "rtSafety": {
-    "word": "rtSafety"
+    "word": "rtSafety",
+    "text": {
+      "en": "Whether a plugin's audio thread avoids locks, allocation and other calls a real-time thread must not make."
+    }
   },
   "features": {
-    "word": "features"
+    "word": "features",
+    "text": {
+      "en": "What capabilities a plugin declares and a prober can confirm, beside latency, cost, stability and RT safety."
+    }
   }
 };
 
@@ -6498,15 +6657,24 @@ export const MEASUREMENT_DIMENSIONS = {
 export const MEASUREMENT_UNMEASURED_KINDS = {
   "nothingToMeasure": {
     "word": "nothing-to-measure",
-    "doc": "A property of the plugin: any prober on any machine reaches it, so it may override a figure."
+    "doc": "A property of the plugin: any prober on any machine reaches it, so it may override a figure.",
+    "text": {
+      "en": "A property of the plugin: any prober on any machine reaches it, so it may override a figure."
+    }
   },
   "probeFailed": {
     "word": "probe-failed",
-    "doc": "A property of this run: it says nothing about the plugin and never overrides a figure."
+    "doc": "A property of this run: it says nothing about the plugin and never overrides a figure.",
+    "text": {
+      "en": "A property of this run: it says nothing about the plugin and never overrides a figure."
+    }
   },
   "notAttempted": {
     "word": "not-attempted",
-    "doc": "The run did not cover this plugin or this dimension: a partial run, not a finding."
+    "doc": "The run did not cover this plugin or this dimension: a partial run, not a finding.",
+    "text": {
+      "en": "The run did not cover this plugin or this dimension: a partial run, not a finding."
+    }
   }
 };
 
@@ -6518,87 +6686,146 @@ export const MEASUREMENT_UNMEASURED_REASONS = {
   "noAudioIn": {
     "word": "no-audio-in",
     "group": "nothing-to-measure",
-    "doc": "No audio input port: nothing to drive."
+    "doc": "No audio input port: nothing to drive.",
+    "text": {
+      "en": "No audio input port: nothing to drive."
+    }
   },
   "noAudioOut": {
     "word": "no-audio-out",
     "group": "nothing-to-measure",
-    "doc": "No audio output port: nothing to read."
+    "doc": "No audio output port: nothing to read.",
+    "text": {
+      "en": "No audio output port: nothing to read."
+    }
   },
   "silentOutput": {
     "word": "silent-output",
     "group": "nothing-to-measure",
-    "doc": "Driven, and silent under a stimulus that should have passed."
+    "doc": "Driven, and silent under a stimulus that should have passed.",
+    "text": {
+      "en": "Driven, and silent under a stimulus that should have passed."
+    }
   },
   "needsCarrier": {
     "word": "needs-carrier",
     "group": "nothing-to-measure",
-    "doc": "Needs a second audio input the prober did not supply."
+    "doc": "Needs a second audio input the prober did not supply.",
+    "text": {
+      "en": "Needs a second audio input the prober did not supply."
+    }
   },
   "needsImpulseResponse": {
     "word": "needs-impulse-response",
     "group": "nothing-to-measure",
-    "doc": "A convolver needing an impulse response the prober did not load."
+    "doc": "A convolver needing an impulse response the prober did not load.",
+    "text": {
+      "en": "A convolver needing an impulse response the prober did not load."
+    }
+  },
+  "needsContent": {
+    "word": "needs-content",
+    "group": "nothing-to-measure",
+    "doc": "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.",
+    "text": {
+      "en": "An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load."
+    }
   },
   "unpinnable": {
     "word": "unpinnable",
     "group": "nothing-to-measure",
-    "doc": "The files the host loads cannot be pinned."
+    "doc": "The files the host loads cannot be pinned.",
+    "text": {
+      "en": "The files the host loads cannot be pinned."
+    }
   },
   "noVoices": {
     "word": "no-voices",
     "group": "nothing-to-measure",
-    "doc": "An instrument whose voice-info declares a capacity of 0."
+    "doc": "An instrument whose voice-info declares a capacity of 0.",
+    "text": {
+      "en": "An instrument whose voice-info declares a capacity of 0."
+    }
   },
   "notesUnplayable": {
     "word": "notes-unplayable",
     "group": "nothing-to-measure",
-    "doc": "An instrument whose note input reads no dialect the prober speaks."
+    "doc": "An instrument whose note input reads no dialect the prober speaks.",
+    "text": {
+      "en": "An instrument whose note input reads no dialect the prober speaks."
+    }
   },
   "voicesUnknown": {
     "word": "voices-unknown",
     "group": "not-attempted",
-    "doc": "An instrument that declares no voice capacity, run with no probe count."
+    "doc": "An instrument that declares no voice capacity, run with no probe count.",
+    "text": {
+      "en": "An instrument that declares no voice capacity, run with no probe count."
+    }
   },
   "refusedInstantiation": {
     "word": "refused-instantiation",
     "group": "probe-failed",
-    "doc": "The plugin would not instantiate at this rate or block size."
+    "doc": "The plugin would not instantiate at this rate or block size.",
+    "text": {
+      "en": "The plugin would not instantiate at this rate or block size."
+    }
   },
   "probeCrashed": {
     "word": "probe-crashed",
     "group": "probe-failed",
-    "doc": "The probe worker died while hosting the plugin."
+    "doc": "The probe worker died while hosting the plugin.",
+    "text": {
+      "en": "The probe worker died while hosting the plugin."
+    }
   },
   "probeTimeout": {
     "word": "probe-timeout",
     "group": "probe-failed",
-    "doc": "The probe passed its per-plugin time limit."
+    "doc": "The probe passed its per-plugin time limit.",
+    "text": {
+      "en": "The probe passed its per-plugin time limit."
+    }
   },
   "nonFiniteOutput": {
     "word": "non-finite-output",
     "group": "probe-failed",
-    "doc": "The output held NaN or infinity."
+    "doc": "The output held NaN or infinity.",
+    "text": {
+      "en": "The output held NaN or infinity."
+    }
   },
   "notInstalled": {
     "word": "not-installed",
     "group": "probe-failed",
-    "doc": "The plugin is not installed on this machine."
+    "doc": "The plugin is not installed on this machine.",
+    "text": {
+      "en": "The plugin is not installed on this machine."
+    }
   },
   "workerNonconforming": {
     "word": "worker-nonconforming",
     "group": "probe-failed",
-    "doc": "An LV2 worker interface with work or work_response NULL."
+    "doc": "An LV2 worker interface with work or work_response NULL.",
+    "text": {
+      "en": "An LV2 worker interface with work or work_response NULL."
+    }
   },
   "probeError": {
     "word": "probe-error",
     "group": "probe-failed",
-    "doc": "A failure with no more specific reason; its own words are kept beside it."
+    "doc": "A failure with no more specific reason; its own words are kept beside it.",
+    "text": {
+      "en": "A failure with no more specific reason; its own words are kept beside it."
+    }
   },
   "notAttempted": {
     "word": "not-attempted",
     "group": "not-attempted",
-    "doc": "The run did not cover this plugin for this dimension."
+    "doc": "The run did not cover this plugin for this dimension.",
+    "text": {
+      "en": "The run did not cover this plugin for this dimension."
+    }
   }
 };
 
@@ -6609,7 +6836,14 @@ export const MEASUREMENT_UNMEASURED_REASONS = {
 export const MEASUREMENT_LATENCY_METHODS = {
   "impulseOnset": {
     "word": "impulse-onset",
-    "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does."
+    "from": [
+      "LV2_CORE_TERMS#latency",
+      "CLAP_EXT_LATENCY_TERMS#latency"
+    ],
+    "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.",
+    "text": {
+      "en": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does."
+    }
   },
   "declaredPort": {
     "word": "declared-port",
@@ -6617,11 +6851,17 @@ export const MEASUREMENT_LATENCY_METHODS = {
       "LV2_CORE_TERMS#latency",
       "CLAP_EXT_LATENCY_TERMS#latency"
     ],
-    "doc": "Read from the plugin's own latency report: what it claims."
+    "doc": "Read from the plugin's own latency report: what it claims.",
+    "text": {
+      "en": "Read from the plugin's own latency report: what it claims."
+    }
   },
   "noteOnset": {
     "word": "note-onset",
-    "doc": "The delay from a note on to the first output sample above the floor."
+    "doc": "The delay from a note on to the first output sample above the floor.",
+    "text": {
+      "en": "The delay from a note on to the first output sample above the floor."
+    }
   }
 };
 
@@ -6632,7 +6872,10 @@ export const MEASUREMENT_LATENCY_METHODS = {
 export const MEASUREMENT_COST_METHODS = {
   "blockTimePercentile": {
     "word": "block-time-percentile",
-    "doc": "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample."
+    "doc": "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample.",
+    "text": {
+      "en": "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample."
+    }
   }
 };
 
@@ -6643,27 +6886,45 @@ export const MEASUREMENT_COST_METHODS = {
 export const MEASUREMENT_LATENCY_SCALING = {
   "fixedFrame": {
     "word": "fixed-frame",
-    "doc": "The same frame count at every rate."
+    "doc": "The same frame count at every rate.",
+    "text": {
+      "en": "The same frame count at every rate."
+    }
   },
   "fixedTime": {
     "word": "fixed-time",
-    "doc": "The same milliseconds at every rate."
+    "doc": "The same milliseconds at every rate.",
+    "text": {
+      "en": "The same milliseconds at every rate."
+    }
   },
   "zero": {
     "word": "zero",
-    "doc": "No latency a mix can notice at any measured rate."
+    "doc": "No latency a mix can notice at any measured rate.",
+    "text": {
+      "en": "No latency a mix can notice at any measured rate."
+    }
   },
   "nonconforming": {
     "word": "nonconforming",
-    "doc": "Fits neither law at a magnitude that reaches a mix: flagged, never averaged."
+    "doc": "Fits neither law at a magnitude that reaches a mix: flagged, never averaged.",
+    "text": {
+      "en": "Fits neither law at a magnitude that reaches a mix: flagged, never averaged."
+    }
   },
   "singleRate": {
     "word": "single-rate",
-    "doc": "One usable reading: no law can be fitted."
+    "doc": "One usable reading: no law can be fitted.",
+    "text": {
+      "en": "One usable reading: no law can be fitted."
+    }
   },
   "unmeasured": {
     "word": "unmeasured",
-    "doc": "No rate produced a figure."
+    "doc": "No rate produced a figure.",
+    "text": {
+      "en": "No rate produced a figure."
+    }
   }
 };
 
@@ -6674,11 +6935,17 @@ export const MEASUREMENT_LATENCY_SCALING = {
 export const MEASUREMENT_LATENCY_SCALING_NOTES = {
   "belowBudget": {
     "word": "below-budget",
-    "doc": "The readings fit no law but every one is inside the latency budget: the detector's noise."
+    "doc": "The readings fit no law but every one is inside the latency budget: the detector's noise.",
+    "text": {
+      "en": "The readings fit no law but every one is inside the latency budget: the detector's noise."
+    }
   },
   "informationalRate": {
     "word": "informational-rate",
-    "doc": "Only a reading below the operational rates breaks the law; it stays as information."
+    "doc": "Only a reading below the operational rates breaks the law; it stays as information.",
+    "text": {
+      "en": "Only a reading below the operational rates breaks the law; it stays as information."
+    }
   }
 };
 
@@ -6689,7 +6956,10 @@ export const MEASUREMENT_LATENCY_SCALING_NOTES = {
 export const MEASUREMENT_LATENCY_EXCLUSIONS = {
   "impossibleZero": {
     "word": "impossible-zero",
-    "doc": "Zero frames at this rate while another rate measured non-zero."
+    "doc": "Zero frames at this rate while another rate measured non-zero.",
+    "text": {
+      "en": "Zero frames at this rate while another rate measured non-zero."
+    }
   }
 };
 
@@ -6702,10 +6972,16 @@ export const MEASUREMENT_VOICE_BASES = {
     "word": "declared",
     "from": [
       "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
-    ]
+    ],
+    "text": {
+      "en": "The voice capacity the plugin declares through CLAP's voice-info extension."
+    }
   },
   "probe": {
-    "word": "probe"
+    "word": "probe",
+    "text": {
+      "en": "A note count the caller gave the prober, not read from the plugin."
+    }
   }
 };
 
@@ -6715,16 +6991,28 @@ export const MEASUREMENT_VOICE_BASES = {
  */
 export const MEASUREMENT_VERDICT_RATINGS = {
   "suitable": {
-    "word": "suitable"
+    "word": "suitable",
+    "text": {
+      "en": "The plugin meets the host profile's budget on every measured dimension."
+    }
   },
   "conditional": {
-    "word": "conditional"
+    "word": "conditional",
+    "text": {
+      "en": "The plugin meets the host profile's budget only under a stated condition."
+    }
   },
   "unknown": {
-    "word": "unknown"
+    "word": "unknown",
+    "text": {
+      "en": "Not enough was measured to rate the plugin against the host profile."
+    }
   },
   "unsuitable": {
-    "word": "unsuitable"
+    "word": "unsuitable",
+    "text": {
+      "en": "The plugin does not meet the host profile's budget on at least one measured dimension."
+    }
   }
 };
 
@@ -6737,51 +7025,87 @@ export const MEASUREMENT_VERDICT_RATINGS = {
 export const PANEL_FAMILIES = {
   "none": {
     "word": "none",
-    "doc": "a plugin with no family: its panel is laid out from its groups and roles"
+    "doc": "a plugin with no family: its panel is laid out from its groups and roles",
+    "text": {
+      "en": "A plugin with no family: its panel is laid out from its groups and its roles."
+    }
   },
   "gate": {
     "word": "gate",
-    "doc": "a gate or expander"
+    "doc": "a gate or expander",
+    "text": {
+      "en": "A gate's or an expander's panel family."
+    }
   },
   "dynamics": {
     "word": "dynamics",
-    "doc": "a compressor"
+    "doc": "a compressor",
+    "text": {
+      "en": "A compressor's panel family."
+    }
   },
   "limiter": {
     "word": "limiter",
-    "doc": "a limiter"
+    "doc": "a limiter",
+    "text": {
+      "en": "A limiter's panel family."
+    }
   },
   "deesser": {
     "word": "deesser",
-    "doc": "a de-esser"
+    "doc": "a de-esser",
+    "text": {
+      "en": "A de-esser's panel family."
+    }
   },
   "eq": {
     "word": "eq",
-    "doc": "an equaliser, parametric or graphic"
+    "doc": "an equaliser, parametric or graphic",
+    "text": {
+      "en": "An equaliser's panel family, parametric or graphic."
+    }
   },
   "filter": {
     "word": "filter",
-    "doc": "a filter"
+    "doc": "a filter",
+    "text": {
+      "en": "A filter's panel family."
+    }
   },
   "drive": {
     "word": "drive",
-    "doc": "a saturator or distortion"
+    "doc": "a saturator or distortion",
+    "text": {
+      "en": "A saturator's or a distortion's panel family."
+    }
   },
   "modulation": {
     "word": "modulation",
-    "doc": "a chorus, flanger, phaser or tremolo"
+    "doc": "a chorus, flanger, phaser or tremolo",
+    "text": {
+      "en": "A chorus's, a flanger's, a phaser's or a tremolo's panel family."
+    }
   },
   "delay": {
     "word": "delay",
-    "doc": "a delay"
+    "doc": "a delay",
+    "text": {
+      "en": "A delay's panel family."
+    }
   },
   "reverb": {
     "word": "reverb",
-    "doc": "a reverb"
+    "doc": "a reverb",
+    "text": {
+      "en": "A reverb's panel family."
+    }
   },
   "pitch": {
     "word": "pitch",
-    "doc": "a pitch shifter"
+    "doc": "a pitch shifter",
+    "text": {
+      "en": "A pitch shifter's panel family."
+    }
   }
 };
 
@@ -6792,35 +7116,59 @@ export const PANEL_FAMILIES = {
 export const PANEL_STANDARD_WIDGETS = {
   "knob": {
     "word": "knob",
-    "doc": "a travel"
+    "doc": "a travel",
+    "text": {
+      "en": "A travel, drawn as a knob."
+    }
   },
   "fader": {
     "word": "fader",
-    "doc": "a travel drawn long"
+    "doc": "a travel drawn long",
+    "text": {
+      "en": "A travel drawn long, as a fader."
+    }
   },
   "switch": {
     "word": "switch",
-    "doc": "a toggle"
+    "doc": "a toggle",
+    "text": {
+      "en": "A toggle, drawn as a switch."
+    }
   },
   "selector": {
     "word": "selector",
-    "doc": "an integer travel or labelled values"
+    "doc": "an integer travel or labelled values",
+    "text": {
+      "en": "An integer travel or labelled values, drawn as a selector."
+    }
   },
   "meter": {
     "word": "meter",
-    "doc": "a readout"
+    "doc": "a readout",
+    "text": {
+      "en": "A readout, drawn as a meter."
+    }
   },
   "curve": {
     "word": "curve",
-    "doc": "a response or transfer curve"
+    "doc": "a response or transfer curve",
+    "text": {
+      "en": "A response or transfer curve, drawn as a graph."
+    }
   },
   "xy": {
     "word": "xy",
-    "doc": "two controls drawn as one point"
+    "doc": "two controls drawn as one point",
+    "text": {
+      "en": "Two controls drawn together as one point on a plane."
+    }
   },
   "display": {
     "word": "display",
-    "doc": "a value shown as text"
+    "doc": "a value shown as text",
+    "text": {
+      "en": "A value shown as text."
+    }
   }
 };
 
@@ -6831,23 +7179,38 @@ export const PANEL_STANDARD_WIDGETS = {
 export const PANEL_WIDGETS = {
   "auto": {
     "word": "auto",
-    "doc": "left out of a panel declaration: the layout picks the widget from the control"
+    "doc": "left out of a panel declaration: the layout picks the widget from the control",
+    "text": {
+      "en": "Left out of a panel declaration: the layout picks the widget from the control."
+    }
   },
   "knob": {
     "word": "knob",
-    "doc": "a rotary control"
+    "doc": "a rotary control",
+    "text": {
+      "en": "A rotary control."
+    }
   },
   "fader": {
     "word": "fader",
-    "doc": "a linear control"
+    "doc": "a linear control",
+    "text": {
+      "en": "A linear control."
+    }
   },
   "switch": {
     "word": "switch",
-    "doc": "a two-state control"
+    "doc": "a two-state control",
+    "text": {
+      "en": "A two-state control."
+    }
   },
   "selector": {
     "word": "selector",
-    "doc": "a control that picks one of a few values"
+    "doc": "a control that picks one of a few values",
+    "text": {
+      "en": "A control that picks one of a few values."
+    }
   }
 };
 
@@ -6898,349 +7261,523 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
     "word": "clap.audio-effect",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#audio-effect"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared."
+    }
   },
   "clapChorus": {
     "word": "clap.chorus",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#chorus"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature chorus: an effect that thickens a sound with detuned, delayed copies of it."
+    }
   },
   "clapCompressor": {
     "word": "clap.compressor",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#compressor"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature compressor: an effect that narrows a sound's dynamic range."
+    }
   },
   "clapDeEsser": {
     "word": "clap.de-esser",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#de-esser"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature de-esser: an effect that tames sibilance in a voice."
+    }
   },
   "clapDelay": {
     "word": "clap.delay",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#delay"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature delay: an effect that repeats a sound after a gap."
+    }
   },
   "clapDistortion": {
     "word": "clap.distortion",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#distortion"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature distortion: an effect that adds harmonics by overdriving a sound."
+    }
   },
   "clapEqualizer": {
     "word": "clap.equalizer",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#equalizer"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature equalizer: an effect that shapes a sound's frequency balance."
+    }
   },
   "clapExpander": {
     "word": "clap.expander",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#expander"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature expander: an effect that widens a sound's dynamic range."
+    }
   },
   "clapFilter": {
     "word": "clap.filter",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#filter"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature filter: an effect that removes or shapes a band of frequencies."
+    }
   },
   "clapFlanger": {
     "word": "clap.flanger",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#flanger"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature flanger: an effect that sweeps a short, modulated delay against the dry sound."
+    }
   },
   "clapFrequencyShifter": {
     "word": "clap.frequency-shifter",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature frequency-shifter: an effect that shifts every frequency of a sound by the same amount."
+    }
   },
   "clapGate": {
     "word": "clap.gate",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#gate"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature gate: an effect that mutes a sound below a level."
+    }
   },
   "clapGlitch": {
     "word": "clap.glitch",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#glitch"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature glitch: an effect that cuts, stutters or corrupts a sound on purpose."
+    }
   },
   "clapGranular": {
     "word": "clap.granular",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#granular"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature granular: an effect built from short grains of a sound."
+    }
   },
   "clapLimiter": {
     "word": "clap.limiter",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#limiter"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature limiter: an effect that holds a sound under a ceiling."
+    }
   },
   "clapMastering": {
     "word": "clap.mastering",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#mastering"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature mastering: an effect meant for a mix's final stage."
+    }
   },
   "clapMixing": {
     "word": "clap.mixing",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#mixing"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature mixing: an effect meant for use while mixing, such as a channel strip."
+    }
   },
   "clapMultiEffects": {
     "word": "clap.multi-effects",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#multi-effects"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature multi-effects: several effects combined in one plugin."
+    }
   },
   "clapPhaseVocoder": {
     "word": "clap.phase-vocoder",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature phase-vocoder: an effect built on a phase vocoder, typically to stretch or shift a sound independently of pitch and time."
+    }
   },
   "clapPhaser": {
     "word": "clap.phaser",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#phaser"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature phaser: an effect that sweeps notches through a sound with an all-pass filter chain."
+    }
   },
   "clapPitchCorrection": {
     "word": "clap.pitch-correction",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature pitch-correction: an effect that pulls a sound's pitch toward a scale."
+    }
   },
   "clapPitchShifter": {
     "word": "clap.pitch-shifter",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature pitch-shifter: an effect that changes a sound's pitch without changing its duration."
+    }
   },
   "clapRestoration": {
     "word": "clap.restoration",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#restoration"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature restoration: an effect that removes noise, clicks or other damage from a recording."
+    }
   },
   "clapReverb": {
     "word": "clap.reverb",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#reverb"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature reverb: an effect that adds the reflections of a space to a sound."
+    }
   },
   "clapTransientShaper": {
     "word": "clap.transient-shaper",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature transient-shaper: an effect that reshapes a sound's attack and sustain."
+    }
   },
   "clapTremolo": {
     "word": "clap.tremolo",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#tremolo"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature tremolo: an effect that modulates a sound's level over time."
+    }
   },
   "clapUtility": {
     "word": "clap.utility",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#utility"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature utility: a plugin that does audio housekeeping rather than a creative effect."
+    }
   },
   "lv2Allpass": {
     "word": "lv2.Allpass",
     "from": [
       "LV2_CORE_TERMS#AllpassPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class AllpassPlugin: an all-pass filter, which shifts phase without changing level."
+    }
   },
   "lv2Amplifier": {
     "word": "lv2.Amplifier",
     "from": [
       "LV2_CORE_TERMS#AmplifierPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class AmplifierPlugin: a plugin that changes a sound's level."
+    }
   },
   "lv2Bandpass": {
     "word": "lv2.Bandpass",
     "from": [
       "LV2_CORE_TERMS#BandpassPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class BandpassPlugin: a filter that passes one band of frequencies."
+    }
   },
   "lv2Chorus": {
     "word": "lv2.Chorus",
     "from": [
       "LV2_CORE_TERMS#ChorusPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ChorusPlugin: an effect that thickens a sound with detuned, delayed copies of it."
+    }
   },
   "lv2Comb": {
     "word": "lv2.Comb",
     "from": [
       "LV2_CORE_TERMS#CombPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class CombPlugin: a comb filter, which adds a short delayed copy of a sound to itself."
+    }
   },
   "lv2Compressor": {
     "word": "lv2.Compressor",
     "from": [
       "LV2_CORE_TERMS#CompressorPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class CompressorPlugin: an effect that narrows a sound's dynamic range."
+    }
   },
   "lv2Converter": {
     "word": "lv2.Converter",
     "from": [
       "LV2_CORE_TERMS#ConverterPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ConverterPlugin: a plugin that converts a signal from one representation to another."
+    }
   },
   "lv2Delay": {
     "word": "lv2.Delay",
     "from": [
       "LV2_CORE_TERMS#DelayPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class DelayPlugin: an effect that repeats a sound after a gap."
+    }
   },
   "lv2Distortion": {
     "word": "lv2.Distortion",
     "from": [
       "LV2_CORE_TERMS#DistortionPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class DistortionPlugin: an effect that adds harmonics by overdriving a sound."
+    }
   },
   "lv2Dynamics": {
     "word": "lv2.Dynamics",
     "from": [
       "LV2_CORE_TERMS#DynamicsPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class DynamicsPlugin: an effect that changes a sound's dynamic range."
+    }
   },
   "lv2EQ": {
     "word": "lv2.EQ",
     "from": [
       "LV2_CORE_TERMS#EQPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class EQPlugin: an effect that shapes a sound's frequency balance."
+    }
   },
   "lv2Envelope": {
     "word": "lv2.Envelope",
     "from": [
       "LV2_CORE_TERMS#EnvelopePlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class EnvelopePlugin: a plugin that follows or applies an envelope over time."
+    }
   },
   "lv2Expander": {
     "word": "lv2.Expander",
     "from": [
       "LV2_CORE_TERMS#ExpanderPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ExpanderPlugin: an effect that widens a sound's dynamic range."
+    }
   },
   "lv2Filter": {
     "word": "lv2.Filter",
     "from": [
       "LV2_CORE_TERMS#FilterPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class FilterPlugin: an effect that removes or shapes a band of frequencies."
+    }
   },
   "lv2Flanger": {
     "word": "lv2.Flanger",
     "from": [
       "LV2_CORE_TERMS#FlangerPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class FlangerPlugin: an effect that sweeps a short, modulated delay against the dry sound."
+    }
   },
   "lv2Gate": {
     "word": "lv2.Gate",
     "from": [
       "LV2_CORE_TERMS#GatePlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class GatePlugin: an effect that mutes a sound below a level."
+    }
   },
   "lv2Highpass": {
     "word": "lv2.Highpass",
     "from": [
       "LV2_CORE_TERMS#HighpassPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class HighpassPlugin: a filter that passes frequencies above a cutoff."
+    }
   },
   "lv2Limiter": {
     "word": "lv2.Limiter",
     "from": [
       "LV2_CORE_TERMS#LimiterPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class LimiterPlugin: an effect that holds a sound under a ceiling."
+    }
   },
   "lv2Lowpass": {
     "word": "lv2.Lowpass",
     "from": [
       "LV2_CORE_TERMS#LowpassPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class LowpassPlugin: a filter that passes frequencies below a cutoff."
+    }
   },
   "lv2Mixer": {
     "word": "lv2.Mixer",
     "from": [
       "LV2_CORE_TERMS#MixerPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class MixerPlugin: a plugin that combines several signals into one."
+    }
   },
   "lv2Modulator": {
     "word": "lv2.Modulator",
     "from": [
       "LV2_CORE_TERMS#ModulatorPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ModulatorPlugin: a plugin that modulates one signal with another."
+    }
   },
   "lv2MultiEQ": {
     "word": "lv2.MultiEQ",
     "from": [
       "LV2_CORE_TERMS#MultiEQPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class MultiEQPlugin: a multi-band equaliser."
+    }
   },
   "lv2ParaEQ": {
     "word": "lv2.ParaEQ",
     "from": [
       "LV2_CORE_TERMS#ParaEQPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ParaEQPlugin: a parametric equaliser."
+    }
   },
   "lv2Phaser": {
     "word": "lv2.Phaser",
     "from": [
       "LV2_CORE_TERMS#PhaserPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class PhaserPlugin: an effect that sweeps notches through a sound with an all-pass filter chain."
+    }
   },
   "lv2Pitch": {
     "word": "lv2.Pitch",
     "from": [
       "LV2_CORE_TERMS#PitchPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class PitchPlugin: a plugin that changes or tracks a sound's pitch."
+    }
   },
   "lv2Reverb": {
     "word": "lv2.Reverb",
     "from": [
       "LV2_CORE_TERMS#ReverbPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ReverbPlugin: an effect that adds the reflections of a space to a sound."
+    }
   },
   "lv2Simulator": {
     "word": "lv2.Simulator",
     "from": [
       "LV2_CORE_TERMS#SimulatorPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class SimulatorPlugin: a plugin that models a physical device or space."
+    }
   },
   "lv2Spatial": {
     "word": "lv2.Spatial",
     "from": [
       "LV2_CORE_TERMS#SpatialPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class SpatialPlugin: a plugin that places or moves a sound in space."
+    }
   },
   "lv2Spectral": {
     "word": "lv2.Spectral",
     "from": [
       "LV2_CORE_TERMS#SpectralPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class SpectralPlugin: a plugin that processes a sound in the frequency domain."
+    }
   },
   "lv2Utility": {
     "word": "lv2.Utility",
     "from": [
       "LV2_CORE_TERMS#UtilityPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class UtilityPlugin: a plugin that does audio housekeeping rather than a creative effect."
+    }
   },
   "lv2Waveshaper": {
     "word": "lv2.Waveshaper",
     "from": [
       "LV2_CORE_TERMS#WaveshaperPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics."
+    }
   }
 };
 
@@ -7253,37 +7790,55 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
     "word": "clap.drum",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#drum"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature drum: an instrument that plays drum sounds."
+    }
   },
   "clapDrumMachine": {
     "word": "clap.drum-machine",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#drum-machine"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature drum-machine: an instrument that sequences and plays drum sounds."
+    }
   },
   "clapInstrument": {
     "word": "clap.instrument",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#instrument"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature instrument: a plugin played by notes, with no more specific kind declared."
+    }
   },
   "clapSampler": {
     "word": "clap.sampler",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#sampler"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature sampler: an instrument that plays recorded samples."
+    }
   },
   "clapSynthesizer": {
     "word": "clap.synthesizer",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#synthesizer"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature synthesizer: an instrument that generates its own sound rather than playing samples."
+    }
   },
   "lv2Instrument": {
     "word": "lv2.Instrument",
     "from": [
       "LV2_CORE_TERMS#InstrumentPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class InstrumentPlugin: a plugin played by notes."
+    }
   }
 };
 
@@ -7296,13 +7851,19 @@ export const PLUGIN_FEATURE_NOTE_EFFECT = {
     "word": "clap.note-effect",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#note-effect"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature note-effect: a plugin that reads notes and writes notes, such as an arpeggiator."
+    }
   },
   "lv2MIDI": {
     "word": "lv2.MIDI",
     "from": [
       "LV2_CORE_TERMS#MIDIPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out."
+    }
   }
 };
 
@@ -7315,19 +7876,28 @@ export const PLUGIN_FEATURE_ANALYZER = {
     "word": "clap.analyzer",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#analyzer"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature analyzer: a plugin that reads audio and reports a measurement, with no further output."
+    }
   },
   "clapNoteDetector": {
     "word": "clap.note-detector",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#note-detector"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature note-detector: an analyzer that reads pitch from audio."
+    }
   },
   "lv2Analyser": {
     "word": "lv2.Analyser",
     "from": [
       "LV2_CORE_TERMS#AnalyserPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement."
+    }
   }
 };
 
@@ -7340,55 +7910,82 @@ export const PLUGIN_FEATURE_OTHER = {
     "word": "clap.ambisonic",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#ambisonic"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature ambisonic: a plugin declared to work in an ambisonic channel layout."
+    }
   },
   "clapMono": {
     "word": "clap.mono",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#mono"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature mono: a plugin declared to work in a mono channel layout."
+    }
   },
   "clapStereo": {
     "word": "clap.stereo",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#stereo"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature stereo: a plugin declared to work in a stereo channel layout."
+    }
   },
   "clapSurround": {
     "word": "clap.surround",
     "from": [
       "CLAP_PLUGIN_FEATURES_TERMS#surround"
-    ]
+    ],
+    "text": {
+      "en": "The CLAP plugin feature surround: a plugin declared to work in a surround channel layout."
+    }
   },
   "lv2Constant": {
     "word": "lv2.Constant",
     "from": [
       "LV2_CORE_TERMS#ConstantPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class ConstantPlugin: a plugin with no input that outputs a constant."
+    }
   },
   "lv2Function": {
     "word": "lv2.Function",
     "from": [
       "LV2_CORE_TERMS#FunctionPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class FunctionPlugin: a plugin with no audio input or output, used only for its side effects or parameters."
+    }
   },
   "lv2Generator": {
     "word": "lv2.Generator",
     "from": [
       "LV2_CORE_TERMS#GeneratorPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class GeneratorPlugin: a plugin with no audio input that generates a sound."
+    }
   },
   "lv2Oscillator": {
     "word": "lv2.Oscillator",
     "from": [
       "LV2_CORE_TERMS#OscillatorPlugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class OscillatorPlugin: a generator that outputs a periodic waveform."
+    }
   },
   "lv2Plugin": {
     "word": "lv2.Plugin",
     "from": [
       "LV2_CORE_TERMS#Plugin"
-    ]
+    ],
+    "text": {
+      "en": "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared."
+    }
   }
 };
 
@@ -7477,18 +8074,27 @@ export const ORACLE_FULL_RATES = [
 export const RESOURCE_KINDS = {
   "cpu": {
     "word": "cpu",
-    "doc": "The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115)."
+    "doc": "The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115).",
+    "text": {
+      "en": "The cost per sample at a rate and quantum, its percentile and its tail."
+    }
   },
   "memory": {
     "word": "memory",
-    "doc": "The footprint per instance and its growth over a soak (plugin-qualify#114)."
+    "doc": "The footprint per instance and its growth over a soak (plugin-qualify#114).",
+    "text": {
+      "en": "The footprint per instance and its growth over a soak."
+    }
   },
   "scratchMemory": {
     "word": "scratch-memory",
     "from": [
       "CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"
     ],
-    "doc": "The memory a plugin asks of its host for its process call."
+    "doc": "The memory a plugin asks of its host for its process call.",
+    "text": {
+      "en": "The memory a plugin asks of its host for its process call."
+    }
   },
   "latency": {
     "word": "latency",
@@ -7496,32 +8102,47 @@ export const RESOURCE_KINDS = {
       "LV2_CORE_TERMS#latency",
       "CLAP_EXT_LATENCY_TERMS#latency"
     ],
-    "doc": "The frames a plugin delays its output by, per rate and quantum."
+    "doc": "The frames a plugin delays its output by, per rate and quantum.",
+    "text": {
+      "en": "The frames a plugin delays its output by, per rate and quantum."
+    }
   },
   "tail": {
     "word": "tail",
     "from": [
       "CLAP_EXT_TAIL_TERMS#tail"
     ],
-    "doc": "How long a plugin keeps sounding once its input goes silent."
+    "doc": "How long a plugin keeps sounding once its input goes silent.",
+    "text": {
+      "en": "How long a plugin keeps sounding once its input goes silent."
+    }
   },
   "voices": {
     "word": "voices",
     "from": [
       "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
     ],
-    "doc": "The notes an instrument plays at once."
+    "doc": "The notes an instrument plays at once.",
+    "text": {
+      "en": "The notes an instrument plays at once."
+    }
   },
   "startup": {
     "word": "startup",
-    "doc": "The wall time of instantiate, activate and the first block."
+    "doc": "The wall time of instantiate, activate and the first block.",
+    "text": {
+      "en": "The wall time of instantiate, activate and the first block."
+    }
   },
   "threads": {
     "word": "threads",
     "from": [
       "CLAP_EXT_THREAD_POOL_TERMS#thread-pool"
     ],
-    "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for."
+    "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.",
+    "text": {
+      "en": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for."
+    }
   },
   "worker": {
     "word": "worker",
@@ -7529,7 +8150,10 @@ export const RESOURCE_KINDS = {
       "LV2_WORKER_TERMS#schedule",
       "LV2_WORKER_TERMS#interface"
     ],
-    "doc": "The work a plugin hands to a non-real-time thread of the host."
+    "doc": "The work a plugin hands to a non-real-time thread of the host.",
+    "text": {
+      "en": "The work a plugin hands to a non-real-time thread of the host."
+    }
   },
   "blockLength": {
     "word": "block-length",
@@ -7540,19 +8164,31 @@ export const RESOURCE_KINDS = {
       "LV2_BUF_SIZE_TERMS#nominalBlockLength",
       "LV2_OPTIONS_TERMS#options"
     ],
-    "doc": "The block lengths a plugin accepts."
+    "doc": "The block lengths a plugin accepts.",
+    "text": {
+      "en": "The block lengths a plugin accepts."
+    }
   },
   "openFiles": {
     "word": "open-files",
-    "doc": "The file descriptors a plugin holds after activate, and their growth."
+    "doc": "The file descriptors a plugin holds after activate, and their growth.",
+    "text": {
+      "en": "The file descriptors a plugin holds after activate, and their growth."
+    }
   },
   "diskIo": {
     "word": "disk-io",
-    "doc": "The bytes a plugin reads at load and while it processes."
+    "doc": "The bytes a plugin reads at load and while it processes.",
+    "text": {
+      "en": "The bytes a plugin reads at load and while it processes."
+    }
   },
   "network": {
     "word": "network",
-    "doc": "Any socket a plugin opens."
+    "doc": "Any socket a plugin opens.",
+    "text": {
+      "en": "Any socket a plugin opens."
+    }
   },
   "state": {
     "word": "state",
@@ -7560,7 +8196,10 @@ export const RESOURCE_KINDS = {
       "LV2_STATE_TERMS#interface",
       "CLAP_EXT_STATE_TERMS#state"
     ],
-    "doc": "The size of a plugin's saved state, its save and restore time, and its round trip."
+    "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
+    "text": {
+      "en": "The size of a plugin's saved state, its save and restore time, and its round trip."
+    }
   }
 };
 
@@ -7570,41 +8209,68 @@ export const RESOURCE_KINDS = {
  */
 export const RESOURCE_UNITS = {
   "nsPerSample": {
-    "word": "ns-per-sample"
+    "word": "ns-per-sample",
+    "text": {
+      "en": "Nanoseconds per sample."
+    }
   },
   "frames": {
     "word": "frames",
     "from": [
       "LV2_UNITS_TERMS#frame"
-    ]
+    ],
+    "text": {
+      "en": "A count of audio frames."
+    }
   },
   "ms": {
     "word": "ms",
     "from": [
       "LV2_UNITS_TERMS#ms"
-    ]
+    ],
+    "text": {
+      "en": "Milliseconds."
+    }
   },
   "us": {
-    "word": "us"
+    "word": "us",
+    "text": {
+      "en": "Microseconds."
+    }
   },
   "s": {
     "word": "s",
     "from": [
       "LV2_UNITS_TERMS#s"
-    ]
+    ],
+    "text": {
+      "en": "Seconds."
+    }
   },
   "bytes": {
-    "word": "bytes"
+    "word": "bytes",
+    "text": {
+      "en": "Bytes."
+    }
   },
   "plainCount": {
-    "word": "count"
+    "word": "count",
+    "text": {
+      "en": "A plain count, with no unit."
+    }
   },
   "ratio": {
-    "word": "ratio"
+    "word": "ratio",
+    "text": {
+      "en": "A ratio, with no unit."
+    }
   },
   "flag": {
     "word": "flag",
-    "doc": "A yes or a no: one when the plugin does the thing, zero when it does not."
+    "doc": "A yes or a no: one when the plugin does the thing, zero when it does not.",
+    "text": {
+      "en": "A yes or a no: one when the plugin does the thing, zero when it does not."
+    }
   }
 };
 
@@ -7614,13 +8280,22 @@ export const RESOURCE_UNITS = {
  */
 export const RESOURCE_BASES = {
   "declared": {
-    "word": "declared"
+    "word": "declared",
+    "text": {
+      "en": "What the plugin declares about itself."
+    }
   },
   "measured": {
-    "word": "measured"
+    "word": "measured",
+    "text": {
+      "en": "What a run measured."
+    }
   },
   "probe": {
-    "word": "probe"
+    "word": "probe",
+    "text": {
+      "en": "A count the caller gave the probe."
+    }
   }
 };
 
@@ -7630,19 +8305,34 @@ export const RESOURCE_BASES = {
  */
 export const RESOURCE_MEMORY_PHASES = {
   "afterInstantiate": {
-    "word": "after-instantiate"
+    "word": "after-instantiate",
+    "text": {
+      "en": "Memory read right after the plugin instantiates."
+    }
   },
   "afterActivate": {
-    "word": "after-activate"
+    "word": "after-activate",
+    "text": {
+      "en": "Memory read right after the plugin activates."
+    }
   },
   "atRest": {
-    "word": "at-rest"
+    "word": "at-rest",
+    "text": {
+      "en": "Memory read at rest, after processing, with no note playing."
+    }
   },
   "notesHeld": {
-    "word": "notes-held"
+    "word": "notes-held",
+    "text": {
+      "en": "Memory read while notes are held."
+    }
   },
   "secondInstance": {
-    "word": "second-instance"
+    "word": "second-instance",
+    "text": {
+      "en": "Memory read for a second instance, so a shared one-time load is told apart from the per-instance cost."
+    }
   }
 };
 
@@ -7653,11 +8343,17 @@ export const RESOURCE_MEMORY_PHASES = {
 export const RESOURCE_UNMEASURED_REASONS = {
   "unmeasuredOnClass": {
     "word": "unmeasured-on-class",
-    "doc": "The only figure was taken on another machine class: never read as a pass, never scaled."
+    "doc": "The only figure was taken on another machine class: never read as a pass, never scaled.",
+    "text": {
+      "en": "The only figure was taken on another machine class: never read as a pass, never scaled."
+    }
   },
   "limitExceeded": {
     "word": "limit-exceeded",
-    "doc": "The run hit the limit probe isolation set for the resource; the limit is recorded beside it."
+    "doc": "The run hit the limit probe isolation set for the resource; the limit is recorded beside it.",
+    "text": {
+      "en": "The run hit the limit probe isolation set for the resource; the limit is recorded beside it."
+    }
   }
 };
 
@@ -7667,10 +8363,16 @@ export const RESOURCE_UNMEASURED_REASONS = {
  */
 export const RESOURCE_BUDGET_SCOPES = {
   "perInstance": {
-    "word": "per-instance"
+    "word": "per-instance",
+    "text": {
+      "en": "Counted over one plugin instance."
+    }
   },
   "perConsole": {
-    "word": "per-console"
+    "word": "per-console",
+    "text": {
+      "en": "Counted over the whole console."
+    }
   }
 };
 
@@ -7680,13 +8382,22 @@ export const RESOURCE_BUDGET_SCOPES = {
  */
 export const RESOURCE_HOST_ISOLATIONS = {
   "inProcess": {
-    "word": "in-process"
+    "word": "in-process",
+    "text": {
+      "en": "The host runs its plugins in its own process."
+    }
   },
   "perProcess": {
-    "word": "per-process"
+    "word": "per-process",
+    "text": {
+      "en": "The host runs each plugin in its own process."
+    }
   },
   "sharedProcess": {
-    "word": "shared-process"
+    "word": "shared-process",
+    "text": {
+      "en": "The host runs its plugins together in one process apart from its own."
+    }
   }
 };
 
@@ -7696,10 +8407,16 @@ export const RESOURCE_HOST_ISOLATIONS = {
  */
 export const RESOURCE_HOST_LATENCY_HANDLING = {
   "compensated": {
-    "word": "compensated"
+    "word": "compensated",
+    "text": {
+      "en": "The host delays every other path to align on this plugin's reported latency."
+    }
   },
   "uncompensated": {
-    "word": "uncompensated"
+    "word": "uncompensated",
+    "text": {
+      "en": "The host passes the plugin's reported latency on, without aligning other paths to it."
+    }
   }
 };
 
@@ -7709,10 +8426,16 @@ export const RESOURCE_HOST_LATENCY_HANDLING = {
  */
 export const RESOURCE_THREAD_SCHEDULING = {
   "none": {
-    "word": "none"
+    "word": "none",
+    "text": {
+      "en": "No particular scheduling class: the thread runs as any other."
+    }
   },
   "fifo": {
-    "word": "fifo"
+    "word": "fifo",
+    "text": {
+      "en": "The real-time FIFO scheduling class."
+    }
   }
 };
 
@@ -7726,49 +8449,70 @@ export const RESOURCE_HINTS = {
     "group": "memory",
     "figureUnit": "bytes",
     "basis": "declared",
-    "doc": "The memory one instance holds at rest, once activated and idle, with no note playing."
+    "doc": "The memory one instance holds at rest, once activated and idle, with no note playing.",
+    "text": {
+      "en": "The memory one instance holds at rest, once activated and idle, with no note playing."
+    }
   },
   "footprintPerVoice": {
     "word": "footprint-per-voice",
     "group": "memory",
     "figureUnit": "bytes",
     "basis": "declared",
-    "doc": "The memory each voice adds while it plays, for an instrument."
+    "doc": "The memory each voice adds while it plays, for an instrument.",
+    "text": {
+      "en": "The memory each voice adds while it plays, for an instrument."
+    }
   },
   "sharedLoad": {
     "word": "shared-load",
     "group": "memory",
     "figureUnit": "bytes",
     "basis": "declared",
-    "doc": "The one-time load every instance of the plugin shares, counted once however many are instantiated."
+    "doc": "The one-time load every instance of the plugin shares, counted once however many are instantiated.",
+    "text": {
+      "en": "The one-time load every instance of the plugin shares, counted once however many are instantiated."
+    }
   },
   "threadsSpawned": {
     "word": "threads-spawned",
     "group": "threads",
     "figureUnit": "count",
     "basis": "declared",
-    "doc": "The threads the plugin starts itself, apart from any it asks the host pool for."
+    "doc": "The threads the plugin starts itself, apart from any it asks the host pool for.",
+    "text": {
+      "en": "The threads the plugin starts itself, apart from any it asks the host pool for."
+    }
   },
   "streamsFromDisk": {
     "word": "streams-from-disk",
     "group": "disk-io",
     "figureUnit": "flag",
     "basis": "declared",
-    "doc": "Whether the plugin reads from disk while it processes."
+    "doc": "Whether the plugin reads from disk while it processes.",
+    "text": {
+      "en": "Whether the plugin reads from disk while it processes."
+    }
   },
   "opensSockets": {
     "word": "opens-sockets",
     "group": "network",
     "figureUnit": "flag",
     "basis": "declared",
-    "doc": "Whether the plugin opens any socket."
+    "doc": "Whether the plugin opens any socket.",
+    "text": {
+      "en": "Whether the plugin opens any socket."
+    }
   },
   "activateTime": {
     "word": "activate-time",
     "group": "startup",
     "figureUnit": "ms",
     "basis": "declared",
-    "doc": "The wall time of activate and the first block the plugin expects."
+    "doc": "The wall time of activate and the first block the plugin expects.",
+    "text": {
+      "en": "The wall time of activate and the first block the plugin expects."
+    }
   }
 };
 
@@ -7781,11 +8525,17 @@ export const RESOURCE_HINTS = {
 export const SCAN_DOCUMENTS = {
   "clapScanDocument": {
     "word": "CLAP_SCAN_DOCUMENT",
-    "doc": "The JSON document of omx-clap-scan, one entry per file with its plugins, parameters and ports. Owned by omx-clap-core, which writes it; its shape is omx-clap-core's reference."
+    "doc": "The JSON document of omx-clap-scan, one entry per file with its plugins, parameters and ports. Owned by omx-clap-core, which writes it; its shape is omx-clap-core's reference.",
+    "text": {
+      "en": "The JSON document omx-clap-scan writes, one entry per file with its plugins, its parameters and its ports."
+    }
   },
   "fieldDump": {
     "word": "FIELD_DUMP",
-    "doc": "The field dump of omx-clap-scan --fields: the line `# omx-clap-scan --fields 1`, the format's version, then one `<scope> TAB <field> TAB <value>` record per field a plugin states. Its scopes are SCAN_FIELD_SCOPES."
+    "doc": "The field dump of omx-clap-scan --fields: the line `# omx-clap-scan --fields 1`, the format's version, then one `<scope> TAB <field> TAB <value>` record per field a plugin states. Its scopes are SCAN_FIELD_SCOPES.",
+    "text": {
+      "en": "The field dump omx-clap-scan --fields writes: a version line, then one scope, field and value record per field a plugin states."
+    }
   }
 };
 
@@ -7796,55 +8546,94 @@ export const SCAN_DOCUMENTS = {
 export const SCAN_FIELD_SCOPES = {
   "plugin": {
     "word": "plugin",
-    "doc": "the plugin as a whole"
+    "doc": "the plugin as a whole",
+    "text": {
+      "en": "The plugin as a whole."
+    }
   },
   "param": {
     "word": "param",
-    "doc": "a CLAP parameter, indexed in get_info order"
+    "doc": "a CLAP parameter, indexed in get_info order",
+    "text": {
+      "en": "A CLAP parameter, indexed in get_info order."
+    }
   },
   "audioIn": {
     "word": "audio_in",
-    "doc": "an audio input port, indexed"
+    "doc": "an audio input port, indexed",
+    "text": {
+      "en": "An audio input port, indexed."
+    }
   },
   "audioOut": {
     "word": "audio_out",
-    "doc": "an audio output port, indexed"
+    "doc": "an audio output port, indexed",
+    "text": {
+      "en": "An audio output port, indexed."
+    }
   },
   "noteIn": {
     "word": "note_in",
-    "doc": "a note input port, indexed"
+    "doc": "a note input port, indexed",
+    "text": {
+      "en": "A note input port, indexed."
+    }
   },
   "noteOut": {
     "word": "note_out",
-    "doc": "a note output port, indexed"
+    "doc": "a note output port, indexed",
+    "text": {
+      "en": "A note output port, indexed."
+    }
   },
   "port": {
     "word": "port",
-    "doc": "an LV2 port, indexed by lv2:index"
+    "doc": "an LV2 port, indexed by lv2:index",
+    "text": {
+      "en": "An LV2 port, indexed by its lv2:index."
+    }
   },
   "panel": {
     "word": "panel",
-    "doc": "the panel description of a plugin that serves org.openmixer.panel-description/1: its family and fingerprint"
+    "doc": "the panel description of a plugin that serves org.openmixer.panel-description/1: its family and fingerprint",
+    "text": {
+      "en": "The panel description of a plugin that serves org.openmixer.panel-description/1: its family and its fingerprint."
+    }
   },
   "section": {
     "word": "section",
-    "doc": "a section of the panel description, indexed"
+    "doc": "a section of the panel description, indexed",
+    "text": {
+      "en": "A section of the panel description, indexed."
+    }
   },
   "control": {
     "word": "control",
-    "doc": "a control of the panel description, indexed"
+    "doc": "a control of the panel description, indexed",
+    "text": {
+      "en": "A control of the panel description, indexed."
+    }
   },
   "role": {
     "word": "role",
-    "doc": "a role of the panel description, indexed"
+    "doc": "a role of the panel description, indexed",
+    "text": {
+      "en": "A role of the panel description, indexed."
+    }
   },
   "display": {
     "word": "display",
-    "doc": "a display of the panel description, indexed"
+    "doc": "a display of the panel description, indexed",
+    "text": {
+      "en": "A display of the panel description, indexed."
+    }
   },
   "placementDefault": {
     "word": "placement_default",
-    "doc": "a per-placement come-up value of the panel description, indexed"
+    "doc": "a per-placement come-up value of the panel description, indexed",
+    "text": {
+      "en": "A per-placement come-up value of the panel description, indexed."
+    }
   }
 };
 
@@ -7857,15 +8646,24 @@ export const SCAN_FIELD_SCOPES = {
 export const VERB_HOSTS = {
   "pluginHostd": {
     "word": "plugin-hostd",
-    "doc": "The daemon that places plugins in workers and answers the verbs it adds itself."
+    "doc": "The daemon that places plugins in workers and answers the verbs it adds itself.",
+    "text": {
+      "en": "The daemon that places plugins in workers and answers the verbs it adds itself."
+    }
   },
   "omxClapHost": {
     "word": "omx-clap-host",
-    "doc": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
+    "doc": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.",
+    "text": {
+      "en": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
+    }
   },
   "modHost": {
     "word": "mod-host",
-    "doc": "mod-host, the LV2 host whose protocol the others speak."
+    "doc": "mod-host, the LV2 host whose protocol the others speak.",
+    "text": {
+      "en": "mod-host, the LV2 host whose protocol the others speak."
+    }
   }
 };
 
@@ -8005,6 +8803,7 @@ export const MEASUREMENT_UNMEASURED_REASONS_WORDS = [
   "silent-output",
   "needs-carrier",
   "needs-impulse-response",
+  "needs-content",
   "unpinnable",
   "no-voices",
   "notes-unplayable",

@@ -4,6 +4,20 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `share/omx-contract/omx_contract_catalog.py`, a small hand-written Python catalog reader (omx-contract#2), so a
+  Python surface such as Zynthian can look a code or word up for the user's locale: `load_catalog(owner, lang)`,
+  `sentence_of(catalog, key, source)` and `fill(sentence, args)`, the same shape as `@openmixer/omx-contract/catalog`.
+  Installed beside the generated `omx_contract.py` (`debian/omx-contract-data.install`, `packaging/omx-contract.spec`);
+  `render --target json|lv2|py --check` names it as the one hand-written file share/omx-contract/ holds beside the
+  renders, as `omx_json_write.h` already is for `include/omxcontract/`.
+- `MEASUREMENT_UNMEASURED_REASONS` gains `needsContent` (`needs-content`, group `nothing-to-measure`,
+  omx-contract#2): an instrument silent under notes until a sample, a sound font or an instrument file is loaded,
+  which the prober did not load, the instrument counterpart of `needs-impulse-response` and `needs-carrier`
+  (plugin-qualify#21, #23).
+- Every word `data/` declares now carries its English source sentence, `text.en` (omx-contract#2): the 262 words left
+  without one since 3.12.0 gain it, each written from the item's and the word's own `doc`. A completeness test
+  (`catalog.test.mjs`) holds every code and word of this repo to a source sentence; a word elsewhere in the
+  vocabulary, declared by another owner, is unaffected and may still have none.
 - `OMX_PLUGIN_FACE_IDS` (`data/plugin-face.json`, `omxcontract/omx_plugin_face_ids.h`) leaves omx-contract: the ids a
   plugin face gives its own controls are omx-plugins', who installs the item as `contract.d/3/omx-plugins/plugin-face.json`
   from 0.19.3 and renders the header itself, values unchanged. One owner per item: the contract-directory reader refuses

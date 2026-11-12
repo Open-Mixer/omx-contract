@@ -8,11 +8,17 @@
     "words": {
       "clapScanDocument": {
         "word": "CLAP_SCAN_DOCUMENT",
-        "doc": "The JSON document of omx-clap-scan, one entry per file with its plugins, parameters and ports. Owned by omx-clap-core, which writes it; its shape is omx-clap-core's reference."
+        "doc": "The JSON document of omx-clap-scan, one entry per file with its plugins, parameters and ports. Owned by omx-clap-core, which writes it; its shape is omx-clap-core's reference.",
+        "text": {
+          "en": "The JSON document omx-clap-scan writes, one entry per file with its plugins, its parameters and its ports."
+        }
       },
       "fieldDump": {
         "word": "FIELD_DUMP",
-        "doc": "The field dump of omx-clap-scan --fields: the line `# omx-clap-scan --fields 1`, the format's version, then one `<scope> TAB <field> TAB <value>` record per field a plugin states. Its scopes are SCAN_FIELD_SCOPES."
+        "doc": "The field dump of omx-clap-scan --fields: the line `# omx-clap-scan --fields 1`, the format's version, then one `<scope> TAB <field> TAB <value>` record per field a plugin states. Its scopes are SCAN_FIELD_SCOPES.",
+        "text": {
+          "en": "The field dump omx-clap-scan --fields writes: a version line, then one scope, field and value record per field a plugin states."
+        }
       }
     }
   },
@@ -23,55 +29,94 @@
     "words": {
       "plugin": {
         "word": "plugin",
-        "doc": "the plugin as a whole"
+        "doc": "the plugin as a whole",
+        "text": {
+          "en": "The plugin as a whole."
+        }
       },
       "param": {
         "word": "param",
-        "doc": "a CLAP parameter, indexed in get_info order"
+        "doc": "a CLAP parameter, indexed in get_info order",
+        "text": {
+          "en": "A CLAP parameter, indexed in get_info order."
+        }
       },
       "audioIn": {
         "word": "audio_in",
-        "doc": "an audio input port, indexed"
+        "doc": "an audio input port, indexed",
+        "text": {
+          "en": "An audio input port, indexed."
+        }
       },
       "audioOut": {
         "word": "audio_out",
-        "doc": "an audio output port, indexed"
+        "doc": "an audio output port, indexed",
+        "text": {
+          "en": "An audio output port, indexed."
+        }
       },
       "noteIn": {
         "word": "note_in",
-        "doc": "a note input port, indexed"
+        "doc": "a note input port, indexed",
+        "text": {
+          "en": "A note input port, indexed."
+        }
       },
       "noteOut": {
         "word": "note_out",
-        "doc": "a note output port, indexed"
+        "doc": "a note output port, indexed",
+        "text": {
+          "en": "A note output port, indexed."
+        }
       },
       "port": {
         "word": "port",
-        "doc": "an LV2 port, indexed by lv2:index"
+        "doc": "an LV2 port, indexed by lv2:index",
+        "text": {
+          "en": "An LV2 port, indexed by its lv2:index."
+        }
       },
       "panel": {
         "word": "panel",
-        "doc": "the panel description of a plugin that serves org.openmixer.panel-description/1: its family and fingerprint"
+        "doc": "the panel description of a plugin that serves org.openmixer.panel-description/1: its family and fingerprint",
+        "text": {
+          "en": "The panel description of a plugin that serves org.openmixer.panel-description/1: its family and its fingerprint."
+        }
       },
       "section": {
         "word": "section",
-        "doc": "a section of the panel description, indexed"
+        "doc": "a section of the panel description, indexed",
+        "text": {
+          "en": "A section of the panel description, indexed."
+        }
       },
       "control": {
         "word": "control",
-        "doc": "a control of the panel description, indexed"
+        "doc": "a control of the panel description, indexed",
+        "text": {
+          "en": "A control of the panel description, indexed."
+        }
       },
       "role": {
         "word": "role",
-        "doc": "a role of the panel description, indexed"
+        "doc": "a role of the panel description, indexed",
+        "text": {
+          "en": "A role of the panel description, indexed."
+        }
       },
       "display": {
         "word": "display",
-        "doc": "a display of the panel description, indexed"
+        "doc": "a display of the panel description, indexed",
+        "text": {
+          "en": "A display of the panel description, indexed."
+        }
       },
       "placementDefault": {
         "word": "placement_default",
-        "doc": "a per-placement come-up value of the panel description, indexed"
+        "doc": "a per-placement come-up value of the panel description, indexed",
+        "text": {
+          "en": "A per-placement come-up value of the panel description, indexed."
+        }
       }
     }
   }

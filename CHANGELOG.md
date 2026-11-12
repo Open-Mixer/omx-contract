@@ -4,6 +4,11 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- A descriptor may state `integrity`: `version`, the plugin's own, and `commit`, the full commit its release tag names,
+  stamped at build (omx-plugins#32). A host that links a plugin table matches the descriptor to the build it links by
+  the commit, as it matches the RT verdicts. `contract.descriptor.integrity` refuses a version other than
+  `plugin.version`. A reader before 3.14.0 refuses the whole contract directory on the unknown key, so a descriptor
+  carrying it states `omx-contract-schema >= 3.14.0`.
 - `share/omx-contract/omx_contract_catalog.py`, a small hand-written Python catalog reader (omx-contract#2), so a
   Python surface such as Zynthian can look a code or word up for the user's locale: `load_catalog(owner, lang)`,
   `sentence_of(catalog, key, source)` and `fill(sentence, args)`, the same shape as `@openmixer/omx-contract/catalog`.

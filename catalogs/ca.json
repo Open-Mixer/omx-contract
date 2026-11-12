@@ -9,6 +9,7 @@
     "contract.descriptor.easy": "La llista easy de {descriptor} no anomena cap control, n'anomena un dos cops, anomena un control amagat o de només lectura, o apareix en un descriptor escanejat. Corregiu la llista easy.",
     "contract.descriptor.face-differs": "La cara construïda de {descriptor} declara coses diferents de com està redactat. Actualitzeu el descriptor redactat, o corregiu la construcció.",
     "contract.descriptor.instrument": "{descriptor} declara un bloc instrument sense la feature instrument (o al revés), o un instrument sense entrada de nota o MIDI o sense sortida d'àudio. Corregiu la declaració de l'instrument.",
+    "contract.descriptor.integrity": "La integritat de {descriptor} indica una versió diferent de la que declara el connector. Torneu a generar el descriptor a partir de la compilació que descriu.",
     "contract.descriptor.meter": "{descriptor} té un meter amb un id, símbol, rang, escala o unitat incorrectes per al seu tipus. Corregiu el meter que el detall assenyala.",
     "contract.descriptor.origin-source": "{descriptor} té un control sense cap enllaç d'origen. Un descriptor redactat necessita un enllaç impl; un de construït o escanejat necessita un enllaç from a cada control.",
     "contract.descriptor.port-duplicate": "{descriptor} declara dos ports del mateix tipus i direcció amb un únic id. Doneu a cada port el seu propi id.",

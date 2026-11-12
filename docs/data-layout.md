@@ -103,7 +103,12 @@ not the one its path gives.
   rendering tests, never shipped. `omx-contract translate --lang <xx>` makes every missing or stale entry of a
   language through an OpenAI-compatible chat/completions endpoint (`OMX_TRANSLATE_URL`, `OMX_TRANSLATE_KEY`,
   `OMX_TRANSLATE_MODEL` or `--model`), in batches (`--batch`, 40); an answer that does not parse is asked again in
-  halves. Each answer passes the placeholder gate (exactly the source sentence's placeholders, each one of the key's
+  halves. It spends no credit unasked: against a LiteLLM router it reads the model's fallbacks (`/router/settings`)
+  and each group's providers (`/model_group/info`) before any call, and refuses a model that may be answered by a
+  provider not running on one's own hardware (a cloud fallback) unless `OMX_TRANSLATE_ALLOW_PAID=1`; a batch the router
+  answered through a fallback to any group not proven local is refused, and the run is red. An entry's `model` is the
+  group the router answered with (its `x-litellm-model-group` header), else the model the answer names. Each answer
+  passes the placeholder gate (exactly the source sentence's placeholders, each one of the key's
   `args`) or is refused, left out, and the run is red. A person's entry is never made again. It runs at an owner's
   release preparation and its catalogs are committed; it refuses to run inside a package build, which has no network
   and must be reproducible. `omx-contract translate --check` is the release gate, with no endpoint: a listed language

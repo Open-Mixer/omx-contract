@@ -345,8 +345,46 @@ Rules: keep every {placeholder} exactly as written, untranslated, and use each o
 file names, units and identifiers in backticks or capitals as they are; keep the register short and plain.
 Answer with one JSON object mapping each key to its translated sentence, and nothing else.`;
 
+/** The providers that run on hardware of one's own: an alias served by any other may cost credit. */
+const LOCAL_PROVIDERS = new Set(['ollama', 'ollama_chat', 'hosted_vllm', 'vllm', 'lm_studio', 'llamafile', 'xinference']);
+
+/** A batch the router answered through a fallback to a group that costs credit. */
+class PaidFallback extends Error {}
+
+/**
+ * The paid groups an alias may reach, read from a LiteLLM router before any call: its fallbacks
+ * (`/router/settings`) followed from the alias, each group's providers (`/model_group/info`). A group served by a
+ * provider not in {@link LOCAL_PROVIDERS}, or whose providers the router does not say, is paid. An endpoint with no
+ * router settings is no router and has no fallback. Returns `{ chain, paid }`.
+ */
+async function routerPaidGroups({ url, key, model }) {
+  const base = url.replace(/\/+$/, '').replace(/\/v1$/, '');
+  const get = async (path) => {
+    const res = await fetch(`${base}${path}`, { headers: key ? { authorization: `Bearer ${key}` } : {}, signal: AbortSignal.timeout(30000) });
+    return res.ok ? res.json() : undefined;
+  };
+  const settings = await get('/router/settings').catch(() => undefined);
+  if (!settings) return { chain: [model], paid: [], local: [model] };
+  const fallbacks = new Map();
+  for (const f of settings?.current_values?.fallbacks ?? []) for (const [from, to] of Object.entries(f ?? {})) fallbacks.set(from, Array.isArray(to) ? to : []);
+  const chain = [];
+  for (const queue = [model]; queue.length;) {
+    const g = queue.shift();
+    if (chain.includes(g)) continue;
+    chain.push(g);
+    queue.push(...(fallbacks.get(g) ?? []));
+  }
+  const info = await get('/model_group/info').catch(() => undefined);
+  const providers = new Map((info?.data ?? []).map((g) => [g.model_group, g.providers]));
+  const paid = chain
+    .map((g) => ({ group: g, providers: providers.get(g) }))
+    .filter(({ providers: p }) => !Array.isArray(p) || p.length === 0 || p.some((x) => !LOCAL_PROVIDERS.has(x)));
+  const local = chain.filter((g) => !paid.some((p) => p.group === g));
+  return { chain, paid, local };
+}
+
 /** One batch through an OpenAI-compatible chat/completions endpoint: `{ model, answers }`. */
-async function translateBatch({ url, key, model, lang, batch }) {
+async function translateBatch({ url, key, model, lang, batch, localGroups = new Set([model]), allowPaid = false }) {
   const base = url.replace(/\/+$/, '');
   const endpoint = /\/v1$/.test(base) ? `${base}/chat/completions` : `${base}/v1/chat/completions`;
   const entries = Object.fromEntries([...batch].map(([k, w]) => [k, { text: w.text, args: w.args }]));
@@ -366,12 +404,19 @@ async function translateBatch({ url, key, model, lang, batch }) {
     signal: AbortSignal.timeout(Number(process.env.OMX_TRANSLATE_TIMEOUT ?? 600) * 1000),
   });
   if (!res.ok) throw new Error(`translate: ${endpoint} answered ${res.status} ${(await res.text()).slice(0, 200)}`);
+  // the model as the router answered it: a LiteLLM router names the group that served the call in a header (the body
+  // names the alias asked, even when a fallback answered)
+  const group = res.headers.get('x-litellm-model-group');
+  const fellBack = Number(res.headers.get('x-litellm-attempted-fallbacks') ?? 0) > 0;
+  // a fallback is accepted only to a group proven local before the run; any other may have cost credit
+  if (fellBack && !allowPaid && (group === null || !localGroups.has(group))) throw new PaidFallback(`fell back to ${group ?? 'a group the router did not name'}, which costs credit (OMX_TRANSLATE_ALLOW_PAID=1 allows it)`);
   const reply = await res.json();
   const content = String(reply?.choices?.[0]?.message?.content ?? '');
   const json = content.slice(content.indexOf('{'), content.lastIndexOf('}') + 1);
   let answers;
   try { answers = JSON.parse(json); } catch { answers = undefined; }
-  return { model: typeof reply?.model === 'string' && reply.model ? reply.model : model, answers: answers && typeof answers === 'object' ? answers : undefined };
+  const served = group ?? (typeof reply?.model === 'string' && reply.model ? reply.model : model);
+  return { model: served, answers: answers && typeof answers === 'object' ? answers : undefined };
 }
 
 /**
@@ -437,6 +482,12 @@ async function cmdTranslate(argv) {
   if (!url) throw new Usage('translate needs an OpenAI-compatible endpoint: OMX_TRANSLATE_URL (OMX_TRANSLATE_KEY, OMX_TRANSLATE_MODEL or --model)');
   const model = opt(argv, '--model') ?? process.env.OMX_TRANSLATE_MODEL;
   if (!model) throw new Usage('translate needs a model: --model <alias> or OMX_TRANSLATE_MODEL');
+  const allowPaid = process.env.OMX_TRANSLATE_ALLOW_PAID === '1';
+  const { chain, paid, local } = await routerPaidGroups({ url, key: process.env.OMX_TRANSLATE_KEY, model });
+  if (paid.length && !allowPaid) {
+    throw new Usage(`the model ${model} may be answered by ${paid.map((p) => `${p.group} (${(p.providers ?? ['providers not named']).join(', ')})`).join(', ')}, which costs credit (chain: ${chain.join(' -> ')}): choose a local model, or set OMX_TRANSLATE_ALLOW_PAID=1`);
+  }
+  const localGroups = new Set(local);
   const size = Number(opt(argv, '--batch') ?? 40);
   if (!Number.isInteger(size) || size < 1) throw new Usage('--batch is a count of entries, at least 1');
 
@@ -448,7 +499,15 @@ async function cmdTranslate(argv) {
   let used = model;
   for (let i = 0; i < todo.length; i += size) {
     const batch = todo.slice(i, i + size);
-    const { model: served, answers } = await answersOf((b) => translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch: b }), batch);
+    let served;
+    let answers;
+    try {
+      ({ model: served, answers } = await answersOf((b) => translateBatch({ url, key: process.env.OMX_TRANSLATE_KEY, model, lang, batch: b, localGroups, allowPaid }), batch));
+    } catch (e) {
+      if (!(e instanceof PaidFallback)) throw e;
+      for (const [k] of batch) { refused.push(`${k}: ${e.message}`); delete messages[k]; }
+      continue;
+    }
     used = served;
     for (const [k, want] of batch) {
       const a = admit(want, answers[k], served);

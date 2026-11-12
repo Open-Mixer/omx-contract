@@ -114,9 +114,16 @@ test('this tree is release-ready: translate --check finds every listed language\
  * A chat/completions endpoint that translates by prefixing `[<lang>] `, breaking `breakKey`'s placeholders; with
  * `garbleOver`, a batch of more entries than that is answered with text that is no JSON (a cut-off answer).
  */
-async function fakeEndpoint({ breakKey, garbleOver, dropOver } = {}) {
+async function fakeEndpoint({ breakKey, garbleOver, dropOver, router, group, fellBack } = {}) {
   const seen = [];
   const server = createServer((req, res) => {
+    // a LiteLLM router's own settings and model groups, when this endpoint plays one; else none (a plain server)
+    if (req.method === 'GET') {
+      const answer = router && { '/router/settings': { current_values: { fallbacks: router.fallbacks } }, '/model_group/info': { data: router.groups } }[req.url];
+      res.writeHead(answer ? 200 : 404, { 'content-type': 'application/json' });
+      res.end(JSON.stringify(answer ?? { detail: 'Not Found' }));
+      return;
+    }
     let body = '';
     req.on('data', (c) => { body += c; });
     req.on('end', () => {
@@ -133,7 +140,7 @@ async function fakeEndpoint({ breakKey, garbleOver, dropOver } = {}) {
         return;
       }
       for (const [i, [key, e]] of Object.entries(payload.entries).entries()) if (dropOver === undefined || seen.at(-1).size <= dropOver || i % 2 === 0) out[key] = key === breakKey ? `[${payload.lang}] ${e.text.replace(/\{(\w+)\}/g, '{$1_x}')}` : `[${payload.lang}] ${e.text}`;
-      res.writeHead(200, { 'content-type': 'application/json' });
+      res.writeHead(200, { 'content-type': 'application/json', ...(group ? { 'x-litellm-model-group': group } : {}), ...(fellBack ? { 'x-litellm-attempted-fallbacks': '1', 'x-litellm-model-group': fellBack } : {}) });
       res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: JSON.stringify(out) } }] }));
     });
   });
@@ -267,6 +274,57 @@ test('translate refuses to run inside a package build (no network, reproducible)
   const build = ['%build', '%install', '%check'].map((s) => spec.split(`\n${s}\n`)[1]?.split('\n%')[0] ?? '').join('\n');
   assert.ok(build.includes('make'), 'positive control: the spec build sections are read');
   for (const [f, text] of [['Makefile', readFileSync(join(ROOT, 'Makefile'), 'utf8')], ['the spec build sections', build], ['debian/rules', readFileSync(join(ROOT, 'debian/rules'), 'utf8')]]) assert.doesNotMatch(text, /\btranslate\b/, `${f} never translates`);
+});
+
+// ---- no paid credit: a router alias whose fallback reaches a paid provider is refused ------------------------------
+
+const ROUTER = {
+  fallbacks: [{ 'big-dense': ['openrouter-big'] }, { 'mid-dense': ['mid-dense-desk'] }],
+  groups: [
+    { model_group: 'big-dense', providers: ['ollama'] },
+    { model_group: 'openrouter-big', providers: ['openrouter'] },
+    { model_group: 'mid-dense', providers: ['ollama'] },
+    { model_group: 'mid-dense-desk', providers: ['ollama'] },
+    { model_group: 'draft-prose', providers: ['ollama'] },
+  ],
+};
+
+test('translate refuses a router alias whose fallback reaches a paid provider, before any call, unless allowed', async () => {
+  const dir = ownerTree();
+  const ep = await fakeEndpoint({ router: ROUTER });
+  try {
+    const r = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'big-dense' });
+    assert.equal(r.status, 2);
+    assert.match(r.stderr, /big-dense.*openrouter-big.*openrouter.*OMX_TRANSLATE_ALLOW_PAID/s);
+    assert.equal(ep.seen.length, 0, 'no completion was asked');
+    const local = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'mid-dense' });
+    assert.equal(local.status, 0, local.stderr);
+    const allowed = await run(['translate', '--owner', dir, '--lang', 'fr', '--package', 'omx-contract'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'big-dense', OMX_TRANSLATE_ALLOW_PAID: '1' });
+    assert.equal(allowed.status, 0, allowed.stderr);
+  } finally { await ep.close(); }
+});
+
+test('the provenance names the model group the router answered with, from its header', async () => {
+  const dir = ownerTree();
+  const ep = await fakeEndpoint({ router: ROUTER, group: 'draft-prose' });
+  try {
+    const r = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'draft-prose' });
+    assert.equal(r.status, 0, r.stderr);
+    const es = JSON.parse(readFileSync(join(dir, 'catalogs', 'es.json'), 'utf8'));
+    assert.equal(es.messages[CODE].model, 'draft-prose');
+  } finally { await ep.close(); }
+});
+
+test('a batch the router answered through a fallback to a paid group is refused, and the run is red', async () => {
+  const dir = ownerTree();
+  const ep = await fakeEndpoint({ router: ROUTER, fellBack: 'openrouter-big' });
+  try {
+    const r = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract', '--batch', '400'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'mid-dense' });
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /fell back to openrouter-big/);
+    const es = JSON.parse(readFileSync(join(dir, 'catalogs', 'es.json'), 'utf8'));
+    assert.deepEqual(es.messages, {}, 'nothing a paid group answered is written');
+  } finally { await ep.close(); }
 });
 
 // ---- the packs ------------------------------------------------------------------------------------------------------

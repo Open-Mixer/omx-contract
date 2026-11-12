@@ -27,5 +27,6 @@ test('the export names files the package carries, and the types name every expor
   for (const rel of Object.values(entry)) assert.ok(existsSync(join(ROOT, rel)), rel);
   assert.ok(pkg.files.includes('lib/'));
   const dts = readFileSync(join(ROOT, entry.types), 'utf8');
-  for (const name of Object.keys(tree)) assert.match(dts, new RegExp(`export (const|function) ${name}\\b`), name);
+  // the declarations are generated from the module (tsc), which writes `export declare`
+  for (const name of Object.keys(tree)) assert.match(dts, new RegExp(`export (declare )?(const|function) ${name}\\b`), name);
 });

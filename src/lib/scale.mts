@@ -16,44 +16,64 @@
  * outside 0..1, and the ends are exact.
  */
 
+/** A word of PARAM_SCALES this library gives a law to, or the override `map`. */
+export type PositionLaw = 'linear' | 'log' | 'stepped' | 'map';
+
 /** The words this library gives a law to: PARAM_SCALES' ids and the override `map`. `unknown` is served linear. */
-export const POSITION_LAWS = Object.freeze(['linear', 'log', 'stepped', 'map']);
+export const POSITION_LAWS: readonly PositionLaw[] = Object.freeze(['linear', 'log', 'stepped', 'map']);
 
-const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
-
-/** The word whose law serves `travel`: log over a floor that is not positive is linear. */
-function lawOf(travel) {
-  if (travel === null || typeof travel !== 'object') throw new RangeError('a travel is an object');
-  const word = travel.scale ?? 'linear';
-  if (word === 'unknown') return 'linear';
-  if (!POSITION_LAWS.includes(word)) throw new RangeError(`no position law for the scale ${JSON.stringify(word)}`);
-  if (word === 'log' && !(travel.min > 0)) return 'linear';
-  return word;
+/** A travel as a descriptor states it: `step` for a stepped one, `unknown` is served linear. */
+export interface ScaleTravel {
+  readonly scale?: PositionLaw | 'unknown';
+  readonly min?: number;
+  readonly max?: number;
+  readonly step?: number;
 }
 
-function pointsOf(travel) {
-  const pts = travel.points;
+/** The override module's map: [plain value, quantity] points, linear between them. */
+export interface ScaleMap {
+  readonly scale: 'map';
+  readonly points: readonly (readonly [number, number])[];
+}
+
+type Travel = ScaleTravel | ScaleMap;
+type Point = readonly [number, number];
+
+const isNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+
+/** The word whose law serves `travel`: log over a floor that is not positive is linear. */
+function lawOf(travel: Travel): PositionLaw {
+  if (travel === null || typeof travel !== 'object') throw new RangeError('a travel is an object');
+  const word: string = travel.scale ?? 'linear';
+  if (word === 'unknown') return 'linear';
+  if (!(POSITION_LAWS as readonly string[]).includes(word)) throw new RangeError(`no position law for the scale ${JSON.stringify(word)}`);
+  if (word === 'log' && !((travel as ScaleTravel).min! > 0)) return 'linear';
+  return word as PositionLaw;
+}
+
+function pointsOf(travel: Travel): readonly Point[] {
+  const pts: unknown = (travel as ScaleMap).points;
   if (!Array.isArray(pts) || pts.length < 2 || !pts.every((p) => Array.isArray(p) && p.length === 2 && isNum(p[0]) && isNum(p[1]))) {
     throw new RangeError('a map travel carries at least two [plain value, quantity] points');
   }
-  return pts;
+  return pts as readonly Point[];
 }
 
-function endsOf(travel, law) {
-  const [min, max] = law === 'map' ? [pointsOf(travel)[0][0], pointsOf(travel).at(-1)[0]] : [travel.min, travel.max];
+function endsOf(travel: Travel, law: PositionLaw): [number, number] {
+  const [min, max]: unknown[] = law === 'map' ? [pointsOf(travel)[0]![0], pointsOf(travel).at(-1)![0]] : [(travel as ScaleTravel).min, (travel as ScaleTravel).max];
   if (!isNum(min) || !isNum(max) || !(max > min)) throw new RangeError(`a travel runs upward from its min to its max, not ${min} to ${max}`);
   return [min, max];
 }
 
-function stepsOf(travel, min, max) {
-  if (!(travel.step > 0)) throw new RangeError('a stepped travel states a positive step');
-  const n = Math.round((max - min) / travel.step) + 1;
+function stepsOf(travel: ScaleTravel, min: number, max: number): number {
+  if (!(travel.step! > 0)) throw new RangeError('a stepped travel states a positive step');
+  const n = Math.round((max - min) / travel.step!) + 1;
   if (n < 2) throw new RangeError('a stepped travel has at least two steps');
   return n;
 }
 
 /** The piece of `pts` that holds `x` on its `from` column (0 plain, 1 quantity); the end pieces extend outward. */
-function piece(pts, from, x) {
+function piece(pts: readonly Point[], from: 0 | 1, x: number): [Point, Point] {
   const dir = pts[pts.length - 1][from] > pts[0][from] ? 1 : -1;
   let i = 0;
   while (i < pts.length - 2 && (x - pts[i + 1][from]) * dir > 0) i++;
@@ -61,7 +81,7 @@ function piece(pts, from, x) {
 }
 
 /** The position of `value` on `travel` ({ scale, min, max, step? } or { scale: 'map', points }). */
-export function scalePosition(travel, value) {
+export function scalePosition(travel: Travel, value: number): number {
   const law = lawOf(travel);
   if (law === 'map') {
     const pts = pointsOf(travel);
@@ -75,15 +95,15 @@ export function scalePosition(travel, value) {
   if (value === max) return 1;
   if (law === 'log') return Math.log(value / min) / Math.log(max / min);
   if (law === 'stepped') {
-    const n = stepsOf(travel, min, max);
-    const k = Math.min(n - 1, Math.max(0, Math.round((value - min) / travel.step)));
+    const n = stepsOf(travel as ScaleTravel, min, max);
+    const k = Math.min(n - 1, Math.max(0, Math.round((value - min) / (travel as ScaleTravel).step!)));
     return k / (n - 1);
   }
   return (value - min) / (max - min);
 }
 
 /** The value at position `p` on `travel`: the inverse of scalePosition (a stepped one lands on the nearest step). */
-export function scaleValue(travel, p) {
+export function scaleValue(travel: Travel, p: number): number {
   const law = lawOf(travel);
   const [min, max] = endsOf(travel, law);
   if (law === 'map') {
@@ -98,9 +118,9 @@ export function scaleValue(travel, p) {
   if (p === 1) return max;
   if (law === 'log') return min * Math.pow(max / min, p);
   if (law === 'stepped') {
-    const n = stepsOf(travel, min, max);
+    const n = stepsOf(travel as ScaleTravel, min, max);
     const k = Math.min(n - 1, Math.max(0, Math.round(p * (n - 1))));
-    return min + k * travel.step;
+    return min + k * (travel as ScaleTravel).step!;
   }
   return min + p * (max - min);
 }

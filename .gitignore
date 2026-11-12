@@ -3,3 +3,6 @@ dist/
 *.tgz
 .git-push-failures.log
 !vendor/*.tgz
+!vendor/build/*.tgz
+# the built modules (src/lib/*.mts -> lib/*.mjs and their .d.mts): a build product, like dist/ts
+/lib/

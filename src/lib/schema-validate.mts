@@ -12,12 +12,17 @@
  */
 import Ajv2020 from 'ajv/dist/2020.js';
 
-let ajv;
-const compiled = new WeakMap();
+/** The class: the CommonJS module's export is the class itself, which TypeScript types as the module object. */
+type Ajv2020Class = typeof import('ajv/dist/2020.js').default;
+type Ajv = InstanceType<Ajv2020Class>;
+type Check = ReturnType<Ajv['compile']>;
 
-const validatorOf = (schema) => {
-  if (compiled.has(schema)) return compiled.get(schema);
-  ajv ??= new Ajv2020({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
+let ajv: Ajv | undefined;
+const compiled = new WeakMap<object, Check>();
+
+const validatorOf = (schema: object): Check => {
+  if (compiled.has(schema)) return compiled.get(schema)!;
+  ajv ??= new (Ajv2020 as unknown as Ajv2020Class)({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
   // the contract's own schema versions itself with one; it constrains nothing
   if (!ajv.getKeyword('x-omx-schema-version')) ajv.addKeyword({ keyword: 'x-omx-schema-version', schemaType: 'string' });
   const check = ajv.compile(schema);
@@ -26,9 +31,9 @@ const validatorOf = (schema) => {
 };
 
 /** @returns {{ ok: boolean, errors: { path: string, code: string, message: string }[] }} */
-export function validate(schema, doc) {
+export function validate(schema: object, doc: unknown): { ok: boolean; errors: { path: string; code: string; message: string }[] } {
   if (schema === null || typeof schema !== 'object') throw new TypeError('validate: the schema is an object');
   const check = validatorOf(schema);
-  const ok = check(doc);
+  const ok = check(doc) as boolean;
   return { ok, errors: ok ? [] : (check.errors ?? []).map((e) => ({ path: e.instancePath, code: e.keyword, message: e.message ?? '' })) };
 }

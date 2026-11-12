@@ -17,14 +17,40 @@ import { join } from 'node:path';
 
 import { validate } from './schema-validate.mjs';
 import { placeholdersOf } from './validate.mjs';
+import type { Json, JsonObject } from './json.mjs';
+
+/** A catalog document: `{ kind: 'catalog', lang, owner, messages }`. */
+export interface Catalog {
+  readonly kind: 'catalog';
+  readonly lang: string;
+  readonly owner: string;
+  readonly messages: Readonly<Record<string, string>>;
+}
+
+/** A catalog key's declaration: its `args` and its English source sentence. */
+export interface CatalogKey {
+  readonly args: readonly string[];
+  readonly en: string | undefined;
+}
+
+/** One problem of a catalog. */
+export interface CatalogProblem {
+  readonly file: string;
+  readonly item: string;
+  readonly rule: 'catalog-schema' | 'catalog-key' | 'catalog-placeholders';
+  readonly message: string;
+}
+
+/** The resolved data `catalogKeys` reads (`resolveData`): its items by name, and the package of each when it names one. */
+export type ResolvedItems = Iterable<[string, JsonObject]> & { readonly packageOf?: ReadonlyMap<string, string> };
 
 /** Where an installed owner's catalogs live, the same for rpm and deb: `/usr/share/<owner>/catalogs`. */
 export const CATALOG_SHARE_DIR = '/usr/share';
-export const catalogDirOf = (owner, root = CATALOG_SHARE_DIR) => join(root, owner, 'catalogs');
-export const catalogPathOf = (owner, lang, root = CATALOG_SHARE_DIR) => join(catalogDirOf(owner, root), `${lang}.json`);
+export const catalogDirOf = (owner: string, root: string = CATALOG_SHARE_DIR): string => join(root, owner, 'catalogs');
+export const catalogPathOf = (owner: string, lang: string, root: string = CATALOG_SHARE_DIR): string => join(catalogDirOf(owner, root), `${lang}.json`);
 
-let schemaOf;
-const catalogSchema = () => {
+let schemaOf: JsonObject | undefined;
+const catalogSchema = (): JsonObject => {
   if (schemaOf) return schemaOf;
   const whole = JSON.parse(readFileSync(new URL('../schema/omx-contract.schema.json', import.meta.url), 'utf8'));
   schemaOf = { $schema: whole.$schema, $defs: whole.$defs, $ref: '#/$defs/catalog' };
@@ -32,18 +58,21 @@ const catalogSchema = () => {
 };
 
 /** The key of a code (its code) or of a word (`<ITEM>.<word>`). */
-export const codeKey = (code) => code;
-export const wordKey = (item, word) => `${item}.${word}`;
+export const codeKey = (code: string): string => code;
+export const wordKey = (item: string, word: string): string => `${item}.${word}`;
 
 /**
  * Every code and word an owner declares, by its catalog key: `Map<key, { args, en }>`. `resolved` is the resolved data
  * (`resolveData`), and `extra` more items as `[name, item]` (a tool's own table, data/codes.json); `owner`, when the
  * data names packages, keeps only that package's items.
  */
-export function catalogKeys(resolved, { owner, extra = [] } = {}) {
-  const keys = new Map();
-  const add = (name, kind, value) => {
-    for (const e of Object.values(value ?? {})) {
+export function catalogKeys(
+  resolved: ResolvedItems,
+  { owner, extra = [] }: { owner?: string; extra?: readonly [string, JsonObject][] } = {},
+): Map<string, CatalogKey> {
+  const keys = new Map<string, CatalogKey>();
+  const add = (name: string, kind: string, value: Json) => {
+    for (const e of Object.values((value ?? {}) as Record<string, Json>)) {
       const key = kind === 'codes' ? codeKey(e.code) : wordKey(name, e.word);
       keys.set(key, { args: e.args ?? [], en: e.text?.en });
     }
@@ -61,13 +90,13 @@ export function catalogKeys(resolved, { owner, extra = [] } = {}) {
  * A catalog's problems, `[{ file, item, rule, message }]`: its schema (`catalog-schema`), a key that is no code or word
  * the owner declares (`catalog-key`), and a placeholder that is not one of that entry's `args` (`catalog-placeholders`).
  */
-export function catalogProblems(rel, catalog, keys) {
-  const problems = [];
-  const say = (item, rule, message) => problems.push({ file: rel, item, rule, message });
+export function catalogProblems(rel: string, catalog: Json, keys: ReadonlyMap<string, CatalogKey>): CatalogProblem[] {
+  const problems: CatalogProblem[] = [];
+  const say = (item: string, rule: CatalogProblem['rule'], message: string) => problems.push({ file: rel, item, rule, message });
   const v = validate(catalogSchema(), catalog);
   for (const e of v.errors) say('-', 'catalog-schema', `${e.path || '/'} ${e.message}`);
   if (!v.ok) return problems;
-  for (const [key, sentence] of Object.entries(catalog.messages)) {
+  for (const [key, sentence] of Object.entries(catalog.messages as Record<string, string>)) {
     const known = keys.get(key);
     if (known === undefined) {
       say(key, 'catalog-key', `${key} is no code or word ${catalog.owner} declares`);
@@ -84,8 +113,8 @@ export function catalogProblems(rel, catalog, keys) {
  * The catalog of `owner` in `lang`, or `undefined` when none is installed or it does not read: a surface then shows the
  * source sentence. `root` defaults to the share dir; a test or a build names its own.
  */
-export function loadCatalog(owner, lang, root = CATALOG_SHARE_DIR) {
-  let catalog;
+export function loadCatalog(owner: string, lang: string, root: string = CATALOG_SHARE_DIR): Catalog | undefined {
+  let catalog: Json;
   try {
     catalog = JSON.parse(readFileSync(catalogPathOf(owner, lang, root), 'utf8'));
   } catch {
@@ -95,12 +124,14 @@ export function loadCatalog(owner, lang, root = CATALOG_SHARE_DIR) {
 }
 
 /** The sentence a surface shows for `key`: the catalog's, else `source` (the code's or word's `text.en`). */
-export function sentenceOf(catalog, key, source) {
+export function sentenceOf(catalog: Catalog | undefined, key: string, source: string): string;
+export function sentenceOf(catalog: Catalog | undefined, key: string, source?: string): string | undefined;
+export function sentenceOf(catalog: Catalog | undefined, key: string, source?: string): string | undefined {
   const s = catalog?.messages?.[key];
   return typeof s === 'string' ? s : source;
 }
 
 /** `sentence` with each `{name}` replaced by `args[name]`; a placeholder with no value is left as written. */
-export function fill(sentence, args = {}) {
-  return String(sentence).replace(/\{([^{}]*)\}/g, (m, n) => (Object.hasOwn(args, n) ? String(args[n]) : m));
+export function fill(sentence: string, args: Readonly<Record<string, unknown>> = {}): string {
+  return String(sentence).replace(/\{([^{}]*)\}/g, (m: string, n: string) => (Object.hasOwn(args, n) ? String(args[n]) : m));
 }

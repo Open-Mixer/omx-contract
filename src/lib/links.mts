@@ -10,6 +10,7 @@ import { isAbsolute, join, normalize } from 'node:path';
 import { CONTRACT_CODES } from './codes.mjs';
 import { resolveData } from './data.mjs';
 import { cNamesOf } from '../render/c.mjs';
+import type { Json } from './json.mjs';
 
 const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 const list = (v) => (v === undefined ? [] : [v].flat());
@@ -174,14 +175,14 @@ const isLinkAt = (v) => isObj(v) && typeof v.link === 'string' && typeof v.at ==
 export function linksOf(source) {
   if (!source) return [];
   const one = (role, field, v) => (isLinkAt(v) ? { role, field, link: v.link, at: v.at } : { role, field, link: v, at: source.at });
-  const from = source.from === undefined ? [] : typeof source.from === 'string' || isLinkAt(source.from) ? [['', source.from]] : Object.entries(source.from);
+  const from = source.from === undefined ? [] : typeof source.from === 'string' || isLinkAt(source.from) ? [['', source.from]] : Object.entries((source.from) as Record<string, Json>);
   return [...list(source.impl).map((v) => one('impl', '', v)), ...from.map(([f, v]) => one('from', f, v))];
 }
 
 /** Every item's source: its own, else its file's. `[{ name, rel, pkg, source }]`, items with neither left out. */
-export function sourcesOf(data) {
-  const byRel = new Map(data.files.map((f) => [`${f.pkg ?? ''}\u0000${f.rel}`, f]));
-  const out = [];
+export function sourcesOf(data: Json): Json[] {
+  const byRel = new Map<string, Json>(data.files.map((f) => [`${f.pkg ?? ''}\u0000${f.rel}`, f]));
+  const out: Json[] = [];
   for (const it of data.items.values()) {
     const file = byRel.get(`${it.pkg ?? ''}\u0000${it.rel}`);
     const source = it.item.source ?? file?.doc.source;
@@ -195,12 +196,15 @@ export function sourcesOf(data) {
  * `root` is the owner's tree; `trees` maps a package named by `at` to its tree; `requireImpl` makes an item with no
  * `impl` a problem; `only` keeps the items of one package.
  */
-export function checkLinks(data, { root, trees = {}, requireImpl = false, only } = {}) {
+export function checkLinks(
+  data: Json,
+  { root, trees = {}, requireImpl = false, only }: { root?: string; trees?: Readonly<Record<string, string>>; requireImpl?: boolean; only?: string } = {},
+): { problems: Json[]; checked: number; unchecked: Json[]; none: number } {
   const resolved = resolveData(data);
   const cNames = cNamesOf(resolved);
-  const problems = [];
+  const problems: Json[] = [];
   let checked = 0;
-  const unchecked = [];
+  const unchecked: Json[] = [];
   let none = 0;
   const say = (name, file, item, link, message) => problems.push({ code: CONTRACT_CODES[name], file, item, link, message });
   const texts = new Map();
@@ -223,7 +227,8 @@ export function checkLinks(data, { root, trees = {}, requireImpl = false, only }
       const base = pkgAt === undefined ? root : trees[pkgAt];
       if (base === undefined) { unchecked.push(`${s.name} ${link} (at ${where})`); continue; }
       checked++;
-      const L = parseLink(link);
+      // narrowed by the read: a link that does not parse reads nothing, and the loop goes on
+      const L = parseLink(link)!;
       const text = L && read(base, L.path);
       if (text === undefined) { say('sourceAbsent', s.rel, s.name, link, `${L ? L.path : link} does not exist under ${base}`); continue; }
       const defs = definitions(text, L.symbol, L.tag);
@@ -239,7 +244,7 @@ export function checkLinks(data, { root, trees = {}, requireImpl = false, only }
       }
       const got = L.selectors.length ? undefined : valueOf(def, L.symbol);
       if (got === undefined) { say('sourceUnevaluable', s.rel, s.name, link, `the value of ${sym}${L.selectors.length ? ' at its selectors' : ''} (a ${def.kind}) is not one the tool reads`); continue; }
-      const r = resolved.get(s.name);
+      const r = resolved.get(s.name)!;
       const want = field ? at(r.value, field) : r.value;
       if (!equal(got, want)) say('sourceDiffers', s.rel, s.name, link, `${sym} in ${L.path} holds ${JSON.stringify(got.value)}; ${s.name}${field ? `.${field}` : ''} declares ${JSON.stringify(want)}`);
     }

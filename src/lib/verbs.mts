@@ -6,6 +6,7 @@
  * CONTRACT_CODES code by name; `validate` reports it under the rule of the same name.
  */
 import { readFileSync } from 'node:fs';
+import type { Json } from './json.mjs';
 
 /** The item that lists the hosts a verb's implementedBy may name, and the file it ships in. */
 export const HOSTS_ITEM = 'VERB_HOSTS';
@@ -14,12 +15,12 @@ const HOSTS_FILE = new URL('../data/verbs.json', import.meta.url);
 /** The host words: those of the read's VERB_HOSTS, else of the one this reader ships with. */
 export function hostWords(items) {
   const words = items.get(HOSTS_ITEM)?.item.words ?? JSON.parse(readFileSync(HOSTS_FILE, 'utf8'))[HOSTS_ITEM].words;
-  return Object.values(words).map((w) => w.word);
+  return Object.values(words as Record<string, Json>).map((w) => w.word);
 }
 
 /** Every verb of the read, in item order: `[{ item, key, verb, rel, pkg }]`. */
 export function verbsOf(items) {
-  const out = [];
+  const out: Json[] = [];
   for (const it of items.values()) {
     if (it.item?.kind !== 'verbs') continue;
     for (const [key, verb] of Object.entries(it.item.verbs ?? {})) out.push({ item: it.name, key, verb, rel: it.rel, pkg: it.pkg });
@@ -35,7 +36,7 @@ export function verbsOf(items) {
  * the reference machinery's (contract.ref.unresolved), and is left to it.
  */
 export function verbProblems(items) {
-  const out = [];
+  const out: Json[] = [];
   const hosts = hostWords(items);
   const owners = new Map();
   for (const { item, key, verb, rel, pkg } of verbsOf(items)) {

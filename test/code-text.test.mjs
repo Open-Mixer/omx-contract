@@ -26,20 +26,13 @@ test('a code with no text stays green', () => assert.deepEqual(problems(() => {}
 
 test('a code with its source sentence, its placeholders all in args, is green', () => assert.deepEqual(problems((d) => { withText(d); }), []));
 
-test('fixture text-ca-deprecated: an owner file still carrying text.ca validates, with a catalog-migration warning', () => {
-  const t = texts((d) => { withText(d).text.ca = 'No hi ha cap directori de contracte a {path}'; });
-  assert.deepEqual(validateData(loadData(null, t)), [], 'no error: an owner migrates to its catalog in its own time');
-  const w = dataWarnings(loadData(null, t));
-  assert.deepEqual(w.map((x) => `${x.item}:${x.rule}`), ['HOSTING_CODES:catalog-migration']);
-  assert.match(w[0].message, /catalogs\/ca\.json/);
-  assert.deepEqual(dataWarnings(loadData(null, texts((d) => { withText(d); }))), [], 'no ca, no warning');
+test('fixture text-ca: a code still carrying text.ca is red: the source sentence is the only language in contract data', () => {
+  const p = problems((d) => { withText(d).text.ca = 'No hi ha cap directori de contracte a {path}'; });
+  assert.ok(p.some((x) => x.startsWith('HOSTING_CODES')), p.join());
+  assert.deepEqual(dataWarnings(loadData(null, texts((d) => { withText(d); }))), [], 'a source sentence alone warns nothing');
 });
 
-test('fixture text-ca-placeholder: a deprecated ca with a placeholder outside args is still red', () => {
-  assert.ok(problems((d) => { withText(d).text.ca = 'Cap directori a {dir}'; }).includes('HOSTING_CODES:code-text-arg'));
-});
-
-test('fixture text-other-language: a language beside en and the deprecated ca is red', () => {
+test('fixture text-other-language: a language beside en is red', () => {
   const p = problems((d) => { withText(d).text.es = 'No hay directorio de contrato en {path}'; });
   assert.ok(p.some((x) => x.startsWith('HOSTING_CODES')), p.join());
 });

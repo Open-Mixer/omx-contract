@@ -28,12 +28,9 @@ test('a word with no text stays green', () => assert.deepEqual(problems(() => {}
 
 test('a word with its source sentence, its placeholders all in args, is green', () => assert.deepEqual(problems((d) => { withText(d); }), []));
 
-test('fixture word-text-ca-deprecated: a word still carrying text.ca validates, with a catalog-migration warning keyed <ITEM>.<word>', () => {
-  const t = texts((d) => { withText(d).text.ca = "{plugin} no té cap entrada d'àudio."; });
-  assert.deepEqual(validateData(loadData(null, t)), []);
-  const w = dataWarnings(loadData(null, t));
-  assert.deepEqual(w.map((x) => x.rule), ['catalog-migration']);
-  assert.match(w[0].message, new RegExp(`${ITEM}\\.no-audio-in`));
+test('fixture word-text-ca: a word still carrying text.ca is red: translations are the owner\'s catalogs', () => {
+  const p = problems((d) => { withText(d).text.ca = "{plugin} no té cap entrada d'àudio."; });
+  assert.ok(p.some((x) => x.startsWith(ITEM)), p.join());
 });
 
 test('fixture word-text-without-en: a text with no source sentence is red', () => {

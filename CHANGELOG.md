@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- The installed command reads `languages.json` where omx-contract-data installs it (`<prefix>/share/omx-contract`),
+  not in its own tree, so `omx-contract translate --check` works on an installed host; `OMX_CONTRACT_DATADIR` names
+  another place. Both package arms of CI run the installed command's `translate --check`.
 - Language packs (#21): a catalog entry is the sentence, a person's `{text, by: human}` or a model's `{text, by:
   machine, model, source}`, `source` the sha256 of the source sentence it was made from; both readers skip a stale one
   (`sourceHash`, `isStale`; `source_hash` in Python). `share/omx-contract/languages.json` lists the shipped languages

@@ -328,9 +328,22 @@ function cmdLinks(argv) {
 
 // ---- translate (omx-contract#21, docs/data-layout.md "Language packs") ----------------------------------------------
 
-/** The languages a catalog is shipped in, and the test ones: share/omx-contract/languages.json. */
+/**
+ * Where omx-contract's data files are: `$OMX_CONTRACT_DATADIR`, else this checkout's `share/omx-contract`, else the
+ * data package's place beside an installed CLI. Installed, the CLI's tree is `<prefix>/lib/omx-contract` (Makefile
+ * CLIDIR) and holds no `share/`; omx-contract-data installs at `<prefix>/share/omx-contract`, two levels up from it.
+ */
+function dataDir() {
+  if (process.env.OMX_CONTRACT_DATADIR) return process.env.OMX_CONTRACT_DATADIR;
+  const checkout = join(ROOT, 'share', 'omx-contract');
+  return existsSync(join(checkout, 'languages.json')) ? checkout : join(ROOT, '..', '..', 'share', 'omx-contract');
+}
+
+/** The languages a catalog is shipped in, and the test ones: the data's languages.json. */
 function languageList() {
-  const doc = JSON.parse(readFileSync(join(ROOT, 'share', 'omx-contract', 'languages.json'), 'utf8'));
+  const file = join(dataDir(), 'languages.json');
+  if (!existsSync(file)) throw new Usage(`no language list at ${file}: install omx-contract-data, or name its directory in OMX_CONTRACT_DATADIR`);
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
   return { shipped: doc.languages, test: doc.test ?? [] };
 }
 

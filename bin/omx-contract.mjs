@@ -205,6 +205,8 @@ function cmdRender(argv) {
       for (const t of ['json', 'lv2', 'py']) for (const f of renderTarget(t, argv)) named.add(f.path);
       // share/omx-contract/ also holds the hand-written Python catalog reader (not rendered: a catalog is read, not generated), shipped beside omx_contract.py
       named.add('omx_contract_catalog.py');
+      // and the language list (hand-written: the languages every owner ships a catalog of, omx-contract#21)
+      named.add('languages.json');
     }
     if (opt(argv, '--package') === undefined) for (const rel of filesUnder(join(dir, scope))) if (!named.has(join(scope, rel))) bad.push(`${join(scope, rel)} is extra`);
     for (const b of bad) console.error(`omx-contract render --check: ${out.replace(/\/$/, '')}/${b}`);
@@ -372,13 +374,24 @@ async function translateBatch({ url, key, model, lang, batch }) {
   return { model: typeof reply?.model === 'string' && reply.model ? reply.model : model, answers: answers && typeof answers === 'object' ? answers : undefined };
 }
 
-/** A batch's answers; one that does not parse (an answer cut off) is asked again in halves, down to one entry. */
+/**
+ * A batch's answers. The keys an answer leaves out (all of them when it does not parse, as an answer cut off) are asked
+ * again in halves, down to one entry, so only a key the model will not answer on its own is left without one.
+ */
 async function answersOf(ask, batch) {
   const r = await ask(batch);
-  if (r.answers !== undefined || batch.length === 1) return { model: r.model, answers: r.answers ?? {} };
-  const half = Math.ceil(batch.length / 2);
-  const [a, b] = [await answersOf(ask, batch.slice(0, half)), await answersOf(ask, batch.slice(half))];
-  return { model: b.model, answers: { ...a.answers, ...b.answers } };
+  const answers = r.answers ?? {};
+  const left = batch.filter(([k]) => typeof answers[k] !== 'string');
+  if (left.length === 0 || batch.length === 1) return { model: r.model, answers };
+  const half = Math.ceil(left.length / 2);
+  const parts = left.length === 1 ? [left] : [left.slice(0, half), left.slice(half)];
+  let model = r.model;
+  for (const part of parts) {
+    const again = await answersOf(ask, part);
+    model = again.model;
+    Object.assign(answers, again.answers);
+  }
+  return { model, answers };
 }
 
 /** The owner's inputs: its keys, its catalogs directory and its name. */

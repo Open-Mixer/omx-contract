@@ -114,7 +114,7 @@ test('this tree is release-ready: translate --check finds every listed language\
  * A chat/completions endpoint that translates by prefixing `[<lang>] `, breaking `breakKey`'s placeholders; with
  * `garbleOver`, a batch of more entries than that is answered with text that is no JSON (a cut-off answer).
  */
-async function fakeEndpoint({ breakKey, garbleOver } = {}) {
+async function fakeEndpoint({ breakKey, garbleOver, dropOver } = {}) {
   const seen = [];
   const server = createServer((req, res) => {
     let body = '';
@@ -132,7 +132,7 @@ async function fakeEndpoint({ breakKey, garbleOver } = {}) {
         res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: '{"cut off' } }] }));
         return;
       }
-      for (const [key, e] of Object.entries(payload.entries)) out[key] = key === breakKey ? `[${payload.lang}] ${e.text.replace(/\{(\w+)\}/g, '{$1_x}')}` : `[${payload.lang}] ${e.text}`;
+      for (const [i, [key, e]] of Object.entries(payload.entries).entries()) if (dropOver === undefined || seen.at(-1).size <= dropOver || i % 2 === 0) out[key] = key === breakKey ? `[${payload.lang}] ${e.text.replace(/\{(\w+)\}/g, '{$1_x}')}` : `[${payload.lang}] ${e.text}`;
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ model: 'served-model-1', choices: [{ message: { role: 'assistant', content: JSON.stringify(out) } }] }));
     });
@@ -195,6 +195,17 @@ test('translate splits a batch whose answer does not parse (a cut-off answer) an
   } finally { await ep.close(); }
 });
 
+test('translate asks again for the keys a parsed answer leaves out, in halves, so no entry is lost', async () => {
+  const dir = ownerTree();
+  const ep = await fakeEndpoint({ dropOver: 5 });
+  try {
+    const r = await run(['translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract', '--batch', '40'], { OMX_TRANSLATE_URL: ep.url, OMX_TRANSLATE_MODEL: 'mid-dense' });
+    assert.equal(r.status, 0, r.stderr);
+    const check = await run(['translate', '--check', '--owner', dir, '--lang', 'es', '--package', 'omx-contract']);
+    assert.equal(check.status, 0, check.stderr);
+  } finally { await ep.close(); }
+});
+
 test('translate refuses an entry whose placeholders are not its args, writes the rest, and the run is red', async () => {
   const dir = ownerTree();
   const ep = await fakeEndpoint({ breakKey: CODE });
@@ -251,7 +262,11 @@ test('translate refuses to run inside a package build (no network, reproducible)
   const none = spawnSync(process.execPath, [CLI, 'translate', '--owner', dir, '--lang', 'es', '--package', 'omx-contract'], { env, encoding: 'utf8' });
   assert.equal(none.status, 2);
   assert.match(none.stderr, /OMX_TRANSLATE_URL/);
-  for (const f of ['Makefile', 'packaging/omx-contract.spec', 'debian/rules']) assert.doesNotMatch(readFileSync(join(ROOT, f), 'utf8'), /\btranslate\b/, `${f} never translates`);
+  // a build never translates: no make target, no spec build section, no deb rule runs it
+  const spec = readFileSync(join(ROOT, 'packaging/omx-contract.spec'), 'utf8');
+  const build = ['%build', '%install', '%check'].map((s) => spec.split(`\n${s}\n`)[1]?.split('\n%')[0] ?? '').join('\n');
+  assert.ok(build.includes('make'), 'positive control: the spec build sections are read');
+  for (const [f, text] of [['Makefile', readFileSync(join(ROOT, 'Makefile'), 'utf8')], ['the spec build sections', build], ['debian/rules', readFileSync(join(ROOT, 'debian/rules'), 'utf8')]]) assert.doesNotMatch(text, /\btranslate\b/, `${f} never translates`);
 });
 
 // ---- the packs ------------------------------------------------------------------------------------------------------

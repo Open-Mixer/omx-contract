@@ -8,7 +8,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   (`@openmixer/omx-contract/scale`, omx-contract#20), so a Python surface such as Zynthian
   (`zyngine/zynthian_position_law.py`) can call it instead of restating the law: `LAWS`, `effective_law(travel)`,
   `scale_position(travel, value)` and `scale_value(travel, p)`, every law the contract declares (linear, log,
-  stepped, map), held to the same `data/scale-vectors.json` as the TypeScript reader. Installed beside
+  stepped, map), held to the same `data/scale-vectors.json` as the TypeScript reader and to the TypeScript reader itself on a grid
+  over every travel (a test is red when the two split). Installed beside
   `omx_contract.py` and `omx_contract_catalog.py` (`debian/omx-contract-data.install`, `packaging/omx-contract.spec`).
 - `omx-contract translate --source <file>` (#24): an owner's source sentences from a file of key -> `{ text, args }`,
   for strings that are no contract data (a surface's own); the gate, the provenance, the paid-fallback guard and

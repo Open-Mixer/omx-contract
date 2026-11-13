@@ -5872,6 +5872,14 @@ export declare const MEASUREMENT_UNMEASURED_REASONS: {
       readonly en: "The probe passed its per-plugin time limit.";
     };
   };
+  readonly memoryBound: {
+    readonly word: "memory-bound";
+    readonly group: "probe-failed";
+    readonly doc: "The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure.";
+    readonly text: {
+      readonly en: "The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure.";
+    };
+  };
   readonly nonFiniteOutput: {
     readonly word: "non-finite-output";
     readonly group: "probe-failed";
@@ -7590,7 +7598,7 @@ export declare const MEASUREMENT_UNMEASURED_KINDS_WORDS: readonly ["nothing-to-m
  * The words of MEASUREMENT_UNMEASURED_REASONS, in their declared order.
  * @see data/measurement.json
  */
-export declare const MEASUREMENT_UNMEASURED_REASONS_WORDS: readonly ["no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted"];
+export declare const MEASUREMENT_UNMEASURED_REASONS_WORDS: readonly ["no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "memory-bound", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted"];
 
 /**
  * The words of MEASUREMENT_LATENCY_METHODS, in their declared order.

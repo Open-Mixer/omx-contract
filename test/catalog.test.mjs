@@ -103,6 +103,15 @@ test('needs-content: an instrument silent until content is loaded, grouped nothi
   assert.equal(w.text.en, 'An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.');
 });
 
+test('memory-bound: a pass ended at the run\'s memory bound, grouped probe-failed (plugin-qualify#28)', () => {
+  const resolved = resolveData(loadData(DATA));
+  const w = resolved.get('MEASUREMENT_UNMEASURED_REASONS').value.memoryBound;
+  assert.ok(w, 'MEASUREMENT_UNMEASURED_REASONS has no memoryBound');
+  assert.equal(w.word, 'memory-bound');
+  assert.equal(w.group, 'probe-failed');
+  assert.equal(w.text.en, 'The pass took the plugin past the run\'s memory bound and was ended there; the run went on without its figure.');
+});
+
 test('no contract data file holds a language beside the source sentence', () => {
   const r = spawnSync('git', ['-C', ROOT, 'grep', '-l', '-E', '"(ca|es|fr|de)": "', '--', 'data/'], { encoding: 'utf8' });
   assert.equal(r.stdout.trim(), '', `translations in data: ${r.stdout}`);

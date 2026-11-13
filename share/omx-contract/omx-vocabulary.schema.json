@@ -482,6 +482,7 @@
         "refused-instantiation",
         "probe-crashed",
         "probe-timeout",
+        "memory-bound",
         "non-finite-output",
         "not-installed",
         "worker-nonconforming",
@@ -564,6 +565,12 @@
         "probe-timeout": {
           "text": {
             "en": "The probe passed its per-plugin time limit."
+          },
+          "args": []
+        },
+        "memory-bound": {
+          "text": {
+            "en": "The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure."
           },
           "args": []
         },

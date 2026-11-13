@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `MEASUREMENT_UNMEASURED_REASONS` gains `memoryBound` (`memory-bound`, group `probe-failed`): a measuring pass that
+  took the plugin past the run's memory bound, ended there while the run goes on without its figure, where it was
+  the whole run's end before (plugin-qualify#28: Surge XT's LV2 grew one measuring process past a 4 GB Pi).
 - `share/omx-contract/omx_contract_scale.py`, the Python twin of the position-law reader
   (`@openmixer/omx-contract/scale`, omx-contract#20), so a Python surface such as Zynthian
   (`zyngine/zynthian_position_law.py`) can call it instead of restating the law: `LAWS`, `effective_law(travel)`,

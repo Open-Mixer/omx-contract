@@ -189,6 +189,8 @@
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_PROBE_CRASHED_TEXT_EN "The probe worker died while hosting the plugin."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_PROBE_TIMEOUT "probe-timeout" ///< The probe passed its per-plugin time limit.
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_PROBE_TIMEOUT_TEXT_EN "The probe passed its per-plugin time limit."
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_MEMORY_BOUND "memory-bound" ///< The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure.
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_MEMORY_BOUND_TEXT_EN "The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NON_FINITE_OUTPUT "non-finite-output" ///< The output held NaN or infinity.
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NON_FINITE_OUTPUT_TEXT_EN "The output held NaN or infinity."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NOT_INSTALLED "not-installed" ///< The plugin is not installed on this machine.
@@ -199,8 +201,8 @@
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_PROBE_ERROR_TEXT_EN "A failure with no more specific reason; its own words are kept beside it."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NOT_ATTEMPTED "not-attempted" ///< The run did not cover this plugin for this dimension.
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NOT_ATTEMPTED_TEXT_EN "The run did not cover this plugin for this dimension."
-#define OMX_MEASUREMENT_UNMEASURED_REASONS_COUNT 18u
-#define OMX_MEASUREMENT_UNMEASURED_REASONS_INIT { "no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted" }
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_COUNT 19u
+#define OMX_MEASUREMENT_UNMEASURED_REASONS_INIT { "no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "memory-bound", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted" }
 
 /* MEASUREMENT_LATENCY_METHODS (data/measurement.json) */
 #define OMX_MEASUREMENT_LATENCY_METHODS_IMPULSE_ONSET "impulse-onset" ///< The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.

@@ -6787,6 +6787,14 @@ export const MEASUREMENT_UNMEASURED_REASONS = {
       "en": "The probe passed its per-plugin time limit."
     }
   },
+  "memoryBound": {
+    "word": "memory-bound",
+    "group": "probe-failed",
+    "doc": "The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure.",
+    "text": {
+      "en": "The pass took the plugin past the run's memory bound and was ended there; the run went on without its figure."
+    }
+  },
   "nonFiniteOutput": {
     "word": "non-finite-output",
     "group": "probe-failed",
@@ -8811,6 +8819,7 @@ export const MEASUREMENT_UNMEASURED_REASONS_WORDS = [
   "refused-instantiation",
   "probe-crashed",
   "probe-timeout",
+  "memory-bound",
   "non-finite-output",
   "not-installed",
   "worker-nonconforming",

@@ -53,6 +53,7 @@ export function renderVocabularyHeader(resolved, pkg) {
       for (const c of Object.values(r.value)) {
         lines.push(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}${trailing(c.doc)}`);
         if (Number.isInteger(c.resp)) lines.push(`#define ${respMacro(c.code)} (${c.resp})`);
+        if (c.transient === true) lines.push(`#define ${codeMacro(c.code)}_TRANSIENT 1`);
         lines.push(...codeTextDefines(codeMacro(c.code), c, cStringLiteral));
       }
     } else {

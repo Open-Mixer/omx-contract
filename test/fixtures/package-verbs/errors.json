@@ -28,6 +28,7 @@
       "noParamContract": {
         "code": "reply.plugin-hostd.no-param-contract",
         "resp": -511,
+        "transient": true,
         "doc": "PHD_ERR_NO_PARAM_CONTRACT: the host holds no checked unit and scale for this parameter"
       },
       "chainUnknownInstance": {

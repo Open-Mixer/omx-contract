@@ -1,3 +1,18 @@
+omx-contract (3.18.1) unstable; urgency=medium
+
+  * python3-omx-contract (#28), one package on RPM and DEB from the same
+    source: omx_contract in dist-packages with catalog, scale and clap as
+    submodules, each the share/omx-contract reader byte for byte, so a program
+    writes import omx_contract.catalog instead of loading a file by its path;
+    the share/omx-contract readers stay installed for this release.
+  * npm: ./catalog names its types and ./contract-dir exports
+    loadContractDir.
+  * Schema 3.18.0, unchanged: libomxdsp-dev before 0.25.0,
+    libomx-clap-core-dev before 0.13.0 and omx-plugins-dev before 0.13.0
+    stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 13 Nov 2026 19:40:00 +0100
+
 omx-contract (3.18.0) unstable; urgency=medium
 
   * Schema 3.18.0: a reply code may declare itself transient

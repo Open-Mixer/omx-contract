@@ -230,6 +230,11 @@ Its documentation is on openmixer.org.
   the refusal one the same request may be taken past later; the package
   vocabulary header has <CODE>_TRANSIENT 1 for it and the TS render the
   property (plugin-hostd-protocol#23).
+- The schemas are identified on openmixer.org
+  (https://openmixer.org/schema/omx-contract/<ref>/<file>); a contract file
+  naming the code host's address is still read. An issue may name FreeMixer
+  or Open-Mixer. The organisation's name is Open-Mixer in addresses and
+  OpenMixer in prose.
 - The -devel floors stay: omx-dsp-devel before 0.25.0, omx-clap-core-devel
   before 0.13.0 and omx-plugins-devel before 0.13.0.
 

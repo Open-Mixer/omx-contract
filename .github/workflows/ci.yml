@@ -134,6 +134,31 @@ jobs:
         name: The headers compile with no node (what a release build runs)
         run: make check
 
+  # The Python package from a clean container (omx-contract#28): the interpreter and make alone, omx_contract installed
+  # where that interpreter looks, imported from / in isolated mode so the checkout cannot supply it. The packaging
+  # jobs below repeat it on the built python3-omx-contract.
+  python-import:
+    name: import omx_contract (${{ matrix.image }}), clean container
+    runs-on: ${{ github.event.repository.private && 'arc-freemixer' || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['fedora:44', 'debian:bookworm', 'debian:trixie']
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Install python3 and make, nothing else
+        run: |
+          if command -v dnf >/dev/null; then dnf install -y --setopt=install_weak_deps=False python3 make
+          else apt-get update -qq && apt-get install -y --no-install-recommends python3 make; fi
+      - uses: actions/checkout@v4
+      - id: handback-python-import
+        name: make install-python for /usr, then import omx_contract.catalog, .scale and .clap
+        run: |
+          make install-python PREFIX=/usr
+          sh tools/python-import-check.sh
+
   # The packages of a release, built as the release builds them (Open-Mixer/.github's build-rpm and build-deb actions),
   # each file held to the package it belongs in (tools/package-files.sh, BUILDING.md), and the command run on the
   # installed data with no development package.
@@ -174,6 +199,12 @@ jobs:
           cmp /tmp/json/omx-contract.json /usr/share/omx-contract/omx-contract.json
           # the installed command finds the language list where omx-contract-data installs it, never in its own tree
           omx-contract translate --check --owner "$PWD"
+      - id: handback-rpm-python
+        name: python3-omx-contract alone imports omx_contract, outside the checkout
+        run: |
+          set -eu
+          dnf install -y --setopt=install_weak_deps=False --setopt=retries=5 rpms/python3-omx-contract-[0-9]*.noarch.rpm
+          sh tools/python-import-check.sh
 
   deb:
     name: DEBs (${{ matrix.suite }}), linted, which file lands in which package
@@ -211,6 +242,12 @@ jobs:
           cmp /tmp/json/omx-contract.json /usr/share/omx-contract/omx-contract.json
           # the installed command finds the language list where omx-contract-data installs it, never in its own tree
           omx-contract translate --check --owner "$PWD"
+      - id: handback-deb-python
+        name: python3-omx-contract alone imports omx_contract, outside the checkout
+        run: |
+          set -eu
+          apt-get install -y --no-install-recommends ./debs/python3-omx-contract_*_all.deb
+          sh tools/python-import-check.sh
 
   # the checks every OpenMixer repository runs on what it publishes: commit messages, private references, and no
   # local copy of either (Open-Mixer/.github's public-sources-check)

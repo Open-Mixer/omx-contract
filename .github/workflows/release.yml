@@ -3,8 +3,8 @@
 name: release
 
 # A version tag v<package.json version> proves the data (tests, the round-trip proof, the semver
-# class against the previous tag), builds omx-contract, omx-contract-data, omx-contract-devel and a language pack per
-# language of share/omx-contract/languages.json (RPM) and omx-contract, omx-contract-data, libomx-contract-dev and the
+# class against the previous tag), builds omx-contract, omx-contract-data, omx-contract-devel, python3-omx-contract and a language pack per
+# language of share/omx-contract/languages.json (RPM) and omx-contract, omx-contract-data, libomx-contract-dev, python3-omx-contract and the
 # packs (DEB)
 # through Open-Mixer/.github's shared workflows, attaches them and the `npm pack` tarball to the
 # GitHub release. The npm package is published by publish.yml (npmjs.com trusts that file by name, with the
@@ -87,7 +87,7 @@ jobs:
       staging-bootstrap: ${{ inputs.staged == true }}
       staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
-      binary-names: omx-contract omx-contract-data omx-contract-devel omx-contract-langpack-ca omx-contract-langpack-es omx-contract-langpack-fr omx-contract-langpack-de omx-contract-langpack-it omx-contract-langpack-pt
+      binary-names: omx-contract omx-contract-data omx-contract-devel omx-contract-langpack-ca omx-contract-langpack-es omx-contract-langpack-fr omx-contract-langpack-de omx-contract-langpack-it omx-contract-langpack-pt python3-omx-contract
       publish: ${{ github.event_name == 'push' || inputs.publish == true }}
       needs-mod-host: false
       channel-deps: false
@@ -103,7 +103,7 @@ jobs:
       staging-bootstrap: ${{ inputs.staged == true }}
       staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
-      binary-names: libomx-contract-dev omx-contract omx-contract-data omx-contract-l10n-ca omx-contract-l10n-es omx-contract-l10n-fr omx-contract-l10n-de omx-contract-l10n-it omx-contract-l10n-pt
+      binary-names: libomx-contract-dev omx-contract omx-contract-data omx-contract-l10n-ca omx-contract-l10n-es omx-contract-l10n-fr omx-contract-l10n-de omx-contract-l10n-it omx-contract-l10n-pt python3-omx-contract
       publish: ${{ github.event_name == 'push' || inputs.publish == true }}
       dependencies: ''
       requires: ''

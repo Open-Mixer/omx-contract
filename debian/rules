@@ -7,6 +7,8 @@
 
 override_dh_auto_install:
 	dh_auto_install -- PREFIX=/usr INCLUDEDIR=/usr/include DATADIR=/usr/share
+	# the Python readers' package omx_contract (python3-omx-contract)
+	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PYTHONDIR=/usr/lib/python3/dist-packages
 	$(MAKE) install-cli DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr DATADIR=/usr/share BINDIR=/usr/bin CLIDIR=/usr/lib/omx-contract MANDIR=/usr/share/man
 
 override_dh_auto_test:

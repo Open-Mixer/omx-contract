@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib check inventory-check layout public-sources install install-cli install-rpm-macros test
+.PHONY: all build-lib check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -57,6 +57,18 @@ check: all
 	$(CC) -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Itest/golden/verbs check-headers.c -o check-headers
 	./check-headers
 	rm -f check-headers check-headers.c
+
+# The Python readers as the package omx_contract (omx-contract#28): catalog, scale and clap are the files share/omx-contract/
+# holds (one source), installed under PYTHONDIR, where this python3 keeps pure modules under PREFIX; a package build names
+# its own (the spec's python3_sitelib, Debian's dist-packages)
+PYTHONDIR = $(shell python3 -c 'import sysconfig; print(sysconfig.get_path("purelib", vars={"base": "$(PREFIX)"}))')
+
+install-python:
+	install -d $(DESTDIR)$(PYTHONDIR)/omx_contract
+	install -m 0644 python/omx_contract/__init__.py $(DESTDIR)$(PYTHONDIR)/omx_contract/__init__.py
+	install -m 0644 share/omx-contract/omx_contract_catalog.py $(DESTDIR)$(PYTHONDIR)/omx_contract/catalog.py
+	install -m 0644 share/omx-contract/omx_contract_scale.py $(DESTDIR)$(PYTHONDIR)/omx_contract/scale.py
+	install -m 0644 share/omx-contract/omx_contract.py $(DESTDIR)$(PYTHONDIR)/omx_contract/clap.py
 
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)

@@ -1,6 +1,6 @@
-omx-contract (3.17.2) unstable; urgency=medium
+omx-contract (3.18.0) unstable; urgency=medium
 
-  * Schema 3.17.2: a reply code may declare itself transient
+  * Schema 3.18.0: a reply code may declare itself transient
     (transient: true), the refusal one the same request may be taken past
     later; the package vocabulary header has <CODE>_TRANSIENT 1 for it and
     the TS render the property (plugin-hostd-protocol#23).

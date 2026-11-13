@@ -3,7 +3,7 @@
   "$id": "https://github.com/FreeMixer/omx-contract/raw/main/schema/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.17.2",
+  "x-omx-schema-version": "3.18.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -703,7 +703,7 @@
             "properties": {
               "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }, { "pattern": "^[A-Z][A-Z0-9_]*$", "description": "A console refusal code (owner openmixer), as the console spells it: UPPER_SNAKE." }, { "pattern": "^(?!(hosting|contract|reply|panel)\\.)[a-z][a-z0-9-]*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$", "description": "A console message code (owner openmixer), as the console spells it: dotted kebab, never in another family (hosting, contract, reply, panel keep their own rules)." }] },
               "resp": { "type": "integer", "maximum": -1, "description": "The number a host's reply carries for this refusal, the n of `resp <n>`: a reply code only." },
-              "transient": { "type": "boolean", "description": "Since 3.17.2, a reply code only: true when the refusal says nothing about the plugin or the request and the same request may be taken later (a worker not up, a storm bound spent); absent or false, it says something the request must change. A client asks this property, never a list of codes (plugin-hostd-protocol#23)." },
+              "transient": { "type": "boolean", "description": "Since 3.18.0, a reply code only: true when the refusal says nothing about the plugin or the request and the same request may be taken later (a worker not up, a storm bound spent); absent or false, it says something the request must change. A client asks this property, never a list of codes (plugin-hostd-protocol#23)." },
               "doc": { "$ref": "#/$defs/text" },
               "text": { "$ref": "#/$defs/sentence" },
               "args": { "$ref": "#/$defs/sentenceArgs" }

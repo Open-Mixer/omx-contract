@@ -4,7 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- A reply code may declare itself transient (`transient: true`, schema 3.17.2, plugin-hostd-protocol#23, rulings D22
+- A reply code may declare itself transient (`transient: true`, schema 3.18.0, plugin-hostd-protocol#23, rulings D22
   and D23): an identical request may succeed later with no change by the caller. A reply code only; the package
   vocabulary header has `<CODE>_TRANSIENT 1` for it and the TS render the property, so a client asks the property and
   keeps no list of codes. Additive, default false. Schema 3.16.0 is frozen in schema/history.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/FreeMixer/omx-contract/raw/main/schema/omx-contract.schema.json",
+  "$id": "https://openmixer.org/schema/omx-contract/main/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words or a format's terms. GPL-3.0-or-later.",
   "x-omx-schema-version": "3.1.0",
@@ -629,7 +629,7 @@
         },
         "status": { "enum": ["used", "supported-later", "out-of-scope"] },
         "by": { "type": "array", "items": { "$ref": "#/$defs/termCite" }, "minItems": 1, "uniqueItems": true },
-        "issue": { "type": "string", "pattern": "^FreeMixer/[a-z0-9-]+#[1-9][0-9]*$" },
+        "issue": { "type": "string", "pattern": "^(FreeMixer|Open-Mixer)/[a-z0-9-]+#[1-9][0-9]*$" },
         "ruling": { "$ref": "#/$defs/text" },
         "word": { "$ref": "#/$defs/text" },
         "deprecated": { "const": true }

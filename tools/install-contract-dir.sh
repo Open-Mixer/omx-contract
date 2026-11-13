@@ -28,7 +28,7 @@ echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
 [ -d "$from" ] || { echo "install-contract-dir.sh: no directory $from" >&2; exit 2; }
 
 dest=$to/$major/$pkg
-url="https://github.com/FreeMixer/omx-contract/raw/v$major/schema/omx-contract.schema.json"
+url="https://openmixer.org/schema/omx-contract/v$major/omx-contract.schema.json"
 rm -rf "$dest"
 install -d "$dest"
 list=$(cd "$from" && find . -type f -name '*.json' | sed 's|^\./||' | LC_ALL=C sort)

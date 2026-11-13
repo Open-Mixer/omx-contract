@@ -75,7 +75,7 @@ test('a set id that changes type is visible in the change message (#29)', () => 
 // Every repository whose main reads a name the contract renders (a header define, a TypeScript export or the json
 // render) is a consumer the development-phase rule speaks for: omx-clap-core's host tests and plugin-qualify's
 // declarations read the C header and the rates as omx-dsp and omx-plugins do (FreeMixer/omx-contract#108).
-test('the development phase names every FreeMixer repository that reads the contract', () => {
+test('the development phase names every Open-Mixer repository that reads the contract', () => {
   assert.deepEqual([...DEVELOPMENT_PHASE.consumers].sort(), ['omx-clap-core', 'omx-dsp', 'omx-plugins', 'openmixer', 'plugin-qualify']);
 });
 

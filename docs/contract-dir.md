@@ -51,7 +51,7 @@ one package, the first one wins.
 ### `requires`: a schema floor, and the packages a file refers to
 
 ```json
-{ "$schema": "https://github.com/FreeMixer/omx-contract/raw/v3/schema/omx-contract.schema.json",
+{ "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
   "requires": { "omx-contract-schema": ">= 3.0.0", "omx-dsp": ">= 0.25.0" } }
 ```
 

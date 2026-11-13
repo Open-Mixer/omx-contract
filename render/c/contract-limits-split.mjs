@@ -28,9 +28,9 @@ export const DSP_DEFINITIONS_HEADER = 'omxdsp/omxdsp_definitions.h';
 
 /** The path every message names for a change to an owner's definition, by owner. */
 export const OWNER_PATHS = {
-  'omx-contract': 'change it in FreeMixer/omx-contract\'s data, release omx-contract, then raise the omx-contract ' +
+  'omx-contract': 'change it in Open-Mixer/omx-contract\'s data, release omx-contract, then raise the omx-contract ' +
     'floor the consumer\'s packaging declares (and the owners built against it), in that order',
-  'omx-dsp': 'change it in FreeMixer/omx-dsp\'s data (its definitions, rendered as omxdsp/omxdsp_definitions.h), ' +
+  'omx-dsp': 'change it in Open-Mixer/omx-dsp\'s data (its definitions, rendered as omxdsp/omxdsp_definitions.h), ' +
     'release omx-dsp, then raise the omxdsp floor the consumer\'s packaging declares, in that order',
 };
 

@@ -2,7 +2,7 @@
 <!-- Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> -->
 # omx-contract
 
-The FreeMixer declarations as data: what a value may be (a travel, a default, a kernel constant, a list),
+The OpenMixer declarations as data: what a value may be (a travel, a default, a kernel constant, a list),
 written once as JSON, checked by a JSON Schema and rendered into the languages that read it (a C header,
 TypeScript, resolved JSON). The mixer engine, the DSP library and the plugins all take their ranges, defaults and
 constants from the same definitions, so a knob means the same thing on the console, in a plugin and in a test.

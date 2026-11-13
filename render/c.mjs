@@ -167,7 +167,7 @@ export function renderLimitsHeader(resolved) {
 #include <math.h>
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by \`omx-contract render --target c\` from FreeMixer/omx-contract's data/, the declaration
+ * Produced by \`omx-contract render --target c\` from Open-Mixer/omx-contract's data/, the declaration
  * as data (each item's reason is its \`doc\`). Change the data, never this file: a consumer builds
  * against the render of the omx-contract version it pins and commits none.
  *

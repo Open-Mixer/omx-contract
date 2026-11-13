@@ -144,7 +144,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: ['fedora:44', 'debian:bookworm', 'debian:trixie']
+        # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; bookworm is a full
+        # cell, built only at the wave-end full release, so it joins the matrix when the variable is full
+        image: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["fedora:44", "debian:bookworm", "debian:trixie"]' || '["fedora:44", "debian:trixie"]') }}
     container:
       image: ${{ matrix.image }}
     steps:
@@ -215,7 +217,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [bookworm, trixie]
+        # ruling D25: the release set's suites, bookworm only when OMX_RELEASE_MATRIX is full
+        suite: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["bookworm", "trixie"]' || '["trixie"]') }}
     defaults:
       run:
         shell: bash

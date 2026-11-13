@@ -24,8 +24,8 @@ export const SCHEMA_MAJOR = Number(SCHEMA_VERSION.split('.')[0]);
 export const SCHEMA_PACKAGE = 'omx-contract';
 
 /** The `$schema` an installed file carries: the schema of its major, by URL. */
-export const installedSchemaUrl = (major) => `https://github.com/FreeMixer/omx-contract/raw/v${major}/schema/omx-contract.schema.json`;
-const INSTALLED_SCHEMA = /^https:\/\/github\.com\/FreeMixer\/omx-contract\/raw\/v(\d+)\/schema\/omx-contract\.schema\.json$/;
+export const installedSchemaUrl = (major) => `https://github.com/Open-Mixer/omx-contract/raw/v${major}/schema/omx-contract.schema.json`;
+const INSTALLED_SCHEMA = /^https:\/\/github\.com\/OpenMixer\/omx-contract\/raw\/v(\d+)\/schema\/omx-contract\.schema\.json$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const FLOOR = /^>= ((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))$/;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * `validate(schema, doc)`: the one JSON Schema (draft 2020-12) check the FreeMixer tools share, so a package that
+ * `validate(schema, doc)`: the one JSON Schema (draft 2020-12) check the OpenMixer tools share, so a package that
  * validates a document against a schema of its own carries no Ajv loader. Exported as
  * `@openmixer/omx-contract/validate`.
  *

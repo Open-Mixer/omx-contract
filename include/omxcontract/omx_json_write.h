@@ -21,7 +21,7 @@
 #ifndef OMX_JSON_WRITE_H
 #define OMX_JSON_WRITE_H
 /*
- * The one JSON string writer of the FreeMixer C programs, hand-written (not a render) and installed beside the
+ * The one JSON string writer of the OpenMixer C programs, hand-written (not a render) and installed beside the
  * rendered headers as <omxcontract/omx_json_write.h>. A program that writes JSON (a scan, a measurement, a
  * daemon's reply) spells a string literal through these three functions and never carries an escape loop of its own:
  * omx_json_escape_byte, the escape of one byte; omx_json_write_string, a quoted literal into a FILE; omx_json_string,

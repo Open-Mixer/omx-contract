@@ -58,7 +58,7 @@ function item(it) {
   const o = ordered(it, ORDER.item);
   if (isObj(o.source)) o.source = ordered(o.source, ORDER.source);
   if ('value' in o) o.value = o.kind === 'sheet' ? sheet(o.value) : number(o.value);
-  if (isObj(o.codes)) o.codes = Object.fromEntries(Object.entries(o.codes).map(([k, c]) => [k, ordered(c, ['code', 'resp', 'doc'])]));
+  if (isObj(o.codes)) o.codes = Object.fromEntries(Object.entries(o.codes).map(([k, c]) => [k, ordered(c, ['code', 'resp', 'transient', 'doc'])]));
   // a package's verbs keep the order it declares them in, each verb's keys in schema order
   if (o.kind === 'verbs' && isObj(o.verbs)) o.verbs = Object.fromEntries(Object.entries(o.verbs).map(([k, v]) => [k, isObj(v) ? ordered(v, ORDER.verb) : v]));
   // a vocabulary's words keep their declared order, which is part of the contract (a rating's severity, a band's

@@ -245,6 +245,29 @@ test('the schema holds a verb closed: its fields, its levels, a reply code with 
   assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: 0 }) }), ['C'], 'a refusal is negative');
 });
 
+test('a reply code may declare itself transient: the schema takes a boolean on a reply code, nothing else', () => {
+  const probs = (items) => [...new Set(fileProblems({ rel: 'data/x.json', text: '', doc: { $schema: '../schema/omx-contract.schema.json', ...items } }).map((p) => p.item))];
+  const codes = (c) => ({ kind: 'codes', doc: 'd', codes: { a: c } });
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, transient: true }) }), []);
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, transient: false }) }), []);
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, transient: 'yes' }) }), ['C'], 'a boolean');
+  assert.deepEqual(probs({ C: codes({ code: 'hosting.x.y', transient: true }) }), ['C'], 'only a reply code is transient');
+});
+
+test('a reply code declared transient is a _TRANSIENT macro in the package vocabulary header, and a code not declared so has none', () => {
+  const root = installed();
+  const resolved = resolveData(loadContractDir({ dir: root }));
+  const pkg = packageVocabularyC(resolved, PKG)[0].text;
+  const codes = [...resolved.values()].filter((r) => r.kind === 'codes').flatMap((r) => Object.values(r.value)).filter((c) => pkg.includes(`"${c.code}"`));
+  const transient = codes.filter((c) => c.transient === true);
+  assert.ok(transient.length >= 1 && transient.length < codes.length, 'the fixture declares a transient code and a code that is not');
+  const macros = [...pkg.matchAll(/^#define (OMX_REPLY_\w+)_TRANSIENT 1$/gm)].map((m) => m[1]);
+  const macro = (c) => `OMX_${c.code.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase()}`;
+  assert.deepEqual(macros.sort(), transient.map(macro).sort());
+  const ts = renderTs(resolved).find((f) => f.path.endsWith('.js'))?.text ?? '';
+  for (const c of transient) assert.match(ts, new RegExp(`"code": "${c.code.replace(/\./g, '\\.')}",[^}]*"transient": true`), c.code);
+});
+
 test('semver: the verbs kind and a verb added are MINOR; a verb removed is MAJOR, in the development phase too', () => {
   const withFixture = (edit = () => {}) => {
     const t = texts();

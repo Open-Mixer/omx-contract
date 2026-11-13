@@ -1,3 +1,19 @@
+omx-contract (3.18.0) unstable; urgency=medium
+
+  * Schema 3.18.0: a reply code may declare itself transient
+    (transient: true), the refusal one the same request may be taken past
+    later; the package vocabulary header has <CODE>_TRANSIENT 1 for it and
+    the TS render the property (plugin-hostd-protocol#23).
+  * The schemas are identified on openmixer.org
+    (https://openmixer.org/schema/omx-contract/<ref>/<file>); a contract
+    file naming the code host's address is still read. An issue may name
+    FreeMixer or Open-Mixer. The organisation's name is Open-Mixer in
+    addresses and OpenMixer in prose.
+  * libomxdsp-dev before 0.25.0, libomx-clap-core-dev before 0.13.0 and
+    omx-plugins-dev before 0.13.0 stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 13 Nov 2026 17:00:00 +0100
+
 omx-contract (3.17.1) unstable; urgency=medium
 
   * share/omx-contract/omx_contract_scale.py, the Python twin of the

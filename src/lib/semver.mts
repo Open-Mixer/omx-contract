@@ -26,7 +26,7 @@ const RANK = { none: 0, patch: 1, minor: 2, major: 3 };
 
 /**
  * The development-phase rule: while every consumer of
- * omx-contract is a FreeMixer repository named here, removing an item is MINOR. The rule ends, and
+ * omx-contract is an OpenMixer repository named here, removing an item is MINOR. The rule ends, and
  * this becomes null so a removal is MAJOR again, in the release that names the first consumer
  * outside the list. Until then a MAJOR class is released as a minor bump (see refusal).
  */

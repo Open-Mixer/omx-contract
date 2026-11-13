@@ -2,7 +2,7 @@
 .\" Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 .TH OMX-CONTRACT 1 2026-10-17 omx-contract "User Commands"
 .SH NAME
-omx-contract \- validate, format and render the FreeMixer declarations
+omx-contract \- validate, format and render the OpenMixer declarations
 .SH SYNOPSIS
 .B omx-contract validate
 .RI [ input ]
@@ -68,7 +68,7 @@ omx-contract \- validate, format and render the FreeMixer declarations
 .IR n ]
 .SH DESCRIPTION
 .B omx-contract
-reads the FreeMixer declarations, the JSON data every knob, range and default
+reads the OpenMixer declarations, the JSON data every knob, range and default
 is written down in once, checks them against their JSON Schema and the rules a
 schema cannot express, and renders them as C headers, a TypeScript module or
 one resolved JSON file.
@@ -159,4 +159,4 @@ omx-contract render \-\-target json \-\-out build/contract \-\-installed
 .SH SEE ALSO
 .BR pkg\-config (1)
 .PP
-https://github.com/FreeMixer/omx-contract
+https://github.com/Open-Mixer/omx-contract

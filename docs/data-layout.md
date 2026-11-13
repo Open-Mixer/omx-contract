@@ -64,7 +64,10 @@ not the one its path gives.
   that starts with none of the other families' prefixes. The console's catalog (`owner` openmixer) tells its keys from
   another owner's.
 - A `codes` item's codes are sorted by name; the name is the operator-facing key a consumer reads the code by, and the
-  code is never reworded. A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
+  code is never reworded. A reply code may carry `transient: true` (since 3.18.0, reply codes only): the refusal says
+  nothing about the plugin or the request, and the same request may be taken later; the C vocabulary header has
+  `<CODE>_TRANSIENT 1` for it and the TS render the property, so a client asks the property and keeps no list of codes
+  (plugin-hostd-protocol#23). A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
   development phase and MINOR in it (`semver`, as an item's removal). A code its writers stop writing is removed in the next release, never carried as retired (operator ruling 2026-10-20,
   omx-contract#64: no backwards compatibility before the first public release); the release's changelog names the
   code that takes its place, if any, and every consumer that still read the key moves in its own pin bump.

@@ -10,6 +10,18 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   The `/usr/share/omx-contract/*.py` files stay installed for this release and go in the next. CI imports it from a
   clean Fedora 44, bookworm and trixie container. A new package, a minor.
 - npm: `./catalog` names its types (`lib/catalog.d.mts`) and `./contract-dir` exports `loadContractDir`.
+- The schemas are identified on the project's own domain (ruling D21): every `$id` and `$schema` this package
+  writes or ships is `https://openmixer.org/schema/omx-contract/<ref>/<file>`, the frozen history included, and the
+  reader builds that URL. A contract file that names the code host's address, under either organisation, is still
+  read, so a package installed before this loads until it is released again. A declaration's `issue` may name
+  FreeMixer or Open-Mixer: the old organisation's records keep their numbers there. The site serving the path is
+  Open-Mixer/openmixer-www#24.
+- The organisation's name: addresses that named FreeMixer name Open-Mixer, and the name in prose is OpenMixer; the
+  C renders' banner follows the renderer.
+- A reply code may declare itself transient (`transient: true`, schema 3.18.0, plugin-hostd-protocol#23, rulings D22
+  and D23): an identical request may succeed later with no change by the caller. A reply code only; the package
+  vocabulary header has `<CODE>_TRANSIENT 1` for it and the TS render the property, so a client asks the property and
+  keeps no list of codes. Additive, default false. Schema 3.16.0 is frozen in schema/history.
 - `share/omx-contract/omx_contract_scale.py`, the Python twin of the position-law reader
   (`@openmixer/omx-contract/scale`, omx-contract#20), so a Python surface such as Zynthian
   (`zyngine/zynthian_position_law.py`) can call it instead of restating the law: `LAWS`, `effective_law(travel)`,

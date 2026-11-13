@@ -96,7 +96,7 @@ test('versions: the newest debian/changelog entry is dated strictly after the on
 });
 
 test('versions: npm publishes from publish.yml, by OIDC with no token', () => {
-  // npmjs.com's trusted publisher names exactly these: FreeMixer/omx-contract, publish.yml, no environment
+  // npmjs.com's trusted publisher names exactly these: Open-Mixer/omx-contract, publish.yml, no environment
   const y = read('.github/workflows/publish.yml');
   assert.match(y, /\n {2}publish:\n {4}if: github\.repository == '[A-Za-z0-9-]+\/omx-contract'\n/);
   assert.doesNotMatch(y, /\n {4}environment:/);  // npm's entry names none: a named one would not match it

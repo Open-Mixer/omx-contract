@@ -30,6 +30,26 @@ jobs:
           sparse-checkout: .github/workflows
       - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
 
+  # the cells the import and package jobs run: check-matrix's answer (fc44 and fc45; the quick set while a release wave
+  # is open, the whole matrix declared here otherwise)
+  checks:
+    runs-on: ${{ github.event.repository.private && 'arc-freemixer' || 'ubuntu-latest' }}
+    timeout-minutes: 5
+    outputs:
+      rpm: ${{ steps.m.outputs.rpm }}
+      rpm-count: ${{ steps.m.outputs.rpm-count }}
+      cells: ${{ steps.m.outputs.cells }}
+      count: ${{ steps.m.outputs.count }}
+    steps:
+      - id: m
+        uses: Open-Mixer/.github/.github/actions/check-matrix@openmixer-v1
+        with:
+          wave: ${{ vars.OMX_RELEASE_MATRIX }}
+          rpm-releases: '["44", "45"]'
+          rpm-arches: '["x86_64"]'
+          deb-releases: '["bookworm", "trixie"]'
+          deb-arches: '["amd64"]'
+
   changes:
     name: what the pull request changes
     runs-on: ${{ github.event.repository.private && 'arc-freemixer' || 'ubuntu-latest' }}
@@ -148,15 +168,17 @@ jobs:
   # where that interpreter looks, imported from / in isolated mode so the checkout cannot supply it. The packaging
   # jobs below repeat it on the built python3-omx-contract.
   python-import:
-    name: import omx_contract (${{ matrix.image }}), clean container
+    name: import omx_contract (${{ matrix.cell.image }}), clean container
+    needs: checks
+    if: needs.checks.outputs.count != '0'
     runs-on: ${{ github.event.repository.private && 'arc-freemixer' || 'ubuntu-latest' }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        image: ['fedora:44', 'debian:bookworm', 'debian:trixie']
+        cell: ${{ fromJSON(needs.checks.outputs.cells) }}
     container:
-      image: ${{ matrix.image }}
+      image: ${{ matrix.cell.image }}
     steps:
       - name: Install python3 and make, nothing else
         run: |
@@ -173,13 +195,17 @@ jobs:
   # each file held to the package it belongs in (tools/package-files.sh, BUILDING.md), and the command run on the
   # installed data with no development package.
   rpm:
-    name: RPMs (fc44), which file lands in which package
-    needs: changes
-    if: needs.changes.outputs.packages == 'true'
+    name: RPMs (fc${{ matrix.cell.fedora }}), which file lands in which package
+    needs: [checks, changes]
+    if: needs.changes.outputs.packages == 'true' && needs.checks.outputs.rpm-count != '0'
     runs-on: ${{ github.event.repository.private && 'arc-freemixer' || github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.OMX_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
     container:
-      image: fedora:44
+      image: ${{ matrix.cell.image }}
     steps:
       - name: Install the build tools
         run: dnf install -y --setopt=install_weak_deps=False git rpm-build dnf5-plugins python3

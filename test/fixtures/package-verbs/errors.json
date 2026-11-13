@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
   "requires": {
-    "omx-contract-schema": ">= 3.18.0"
+    "omx-contract-schema": ">= 3.17.2"
   },
   "MOD_HOST_REPLY_CODES": {
     "kind": "codes",

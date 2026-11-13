@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.18.0
+Version: 3.17.2
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -225,8 +225,8 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
-* Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.0-1
-- Schema 3.18.0: a reply code may declare itself transient (transient: true),
+* Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.17.2-1
+- Schema 3.17.2: a reply code may declare itself transient (transient: true),
   the refusal one the same request may be taken past later; the package
   vocabulary header has <CODE>_TRANSIENT 1 for it and the TS render the
   property (plugin-hostd-protocol#23).

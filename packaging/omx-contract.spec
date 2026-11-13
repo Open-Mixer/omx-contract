@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.17.1
+Version: 3.18.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -225,6 +225,14 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
+* Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.0-1
+- Schema 3.18.0: a reply code may declare itself transient (transient: true),
+  the refusal one the same request may be taken past later; the package
+  vocabulary header has <CODE>_TRANSIENT 1 for it and the TS render the
+  property (plugin-hostd-protocol#23).
+- The -devel floors stay: omx-dsp-devel before 0.25.0, omx-clap-core-devel
+  before 0.13.0 and omx-plugins-devel before 0.13.0.
+
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 3.17.1-1
 - share/omx-contract/omx_contract_scale.py, the Python twin of the
   position-law reader (#20): scale_position and scale_value for every law the

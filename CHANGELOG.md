@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- A reply code may declare itself transient (`transient: true`, schema 3.18.0, plugin-hostd-protocol#23, rulings D22
+  and D23): an identical request may succeed later with no change by the caller. A reply code only; the package
+  vocabulary header has `<CODE>_TRANSIENT 1` for it and the TS render the property, so a client asks the property and
+  keeps no list of codes. Additive, default false. Schema 3.16.0 is frozen in schema/history.
 - `share/omx-contract/omx_contract_scale.py`, the Python twin of the position-law reader
   (`@openmixer/omx-contract/scale`, omx-contract#20), so a Python surface such as Zynthian
   (`zyngine/zynthian_position_law.py`) can call it instead of restating the law: `LAWS`, `effective_law(travel)`,

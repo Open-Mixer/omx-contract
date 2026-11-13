@@ -12,7 +12,9 @@
 # MANIFEST.json), the schema, the committed renders and languages.json under share/omx-contract; each language pack its one catalog
 # (share/omx-contract/catalogs/<lang>.json, a pack per language of languages.json); the development package the C
 # render, the hand-written C beside it, omx-contract.pc, install-contract-dir.sh and (RPM) the rpm macros; the command package the command, its tree under
-# /usr/lib/omx-contract and its man page. No file is in two packages, and the command, the development package and
+# /usr/lib/omx-contract and its man page; python3-omx-contract the package omx_contract (catalog, scale and clap, the
+# share/omx-contract readers under their module names) in the interpreter's site-packages (RPM) or dist-packages (deb),
+# shown as /SITE with the bytecode left out. No file is in two packages, and the command, the development package and
 # each pack require omx-contract-data at their own version. Prints each package's list; exit 0 equal, 1 a difference, 2 usage.
 set -eu
 
@@ -39,7 +41,7 @@ pkgfile() {
 }
 
 if [ "$kind" = rpm ]; then data=omx-contract-data devel=omx-contract-devel; else data=omx-contract-data devel=libomx-contract-dev; fi
-cli=omx-contract
+cli=omx-contract py=python3-omx-contract
 # the shipped languages, from the one line of languages.json that lists them
 langs=$(sed -n 's/^  "languages": \[\(.*\)\],*$/\1/p' share/omx-contract/languages.json | tr -d '" ' | tr ',' ' ')
 [ -n "$langs" ] || { echo "package-files.sh: share/omx-contract/languages.json lists no language" >&2; exit 2; }
@@ -59,12 +61,18 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
   echo /usr/share/omx-contract/install-contract-dir.sh
   echo /usr/share/pkgconfig/omx-contract.pc
   [ "$kind" = rpm ] && echo /usr/lib/rpm/macros.d/macros.omx-contract) | LC_ALL=C sort > "$tmp/want-$devel"
+for m in __init__ catalog clap scale; do echo "/SITE/omx_contract/$m.py"; done | LC_ALL=C sort > "$tmp/want-$py"
 
 bad=0
-for pkg in "$data" "$devel" "$cli" $packs; do
+for pkg in "$data" "$devel" "$cli" "$py" $packs; do
   f=$(pkgfile "$pkg")
   echo "== $pkg ($(basename "$f"))"
-  files "$f" > "$tmp/got-$pkg"
+  if [ "$pkg" = "$py" ]; then
+    # one interpreter's directory, whatever its version; the bytecode the RPM build compiles is not the tree's
+    files "$f" | grep -v '/__pycache__/' | sed 's|^/usr/lib/python3[.0-9]*/[a-z]*-packages/|/SITE/|' > "$tmp/got-$pkg"
+  else
+    files "$f" > "$tmp/got-$pkg"
+  fi
   # the command's vendored npm tree is counted, not listed
   grep -v '^/usr/lib/omx-contract/node_modules/' "$tmp/got-$pkg" || true
   n=$(grep -c '^/usr/lib/omx-contract/node_modules/' "$tmp/got-$pkg" || true)

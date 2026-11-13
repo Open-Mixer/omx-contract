@@ -20,6 +20,8 @@ BuildRequires: gzip
 # ajv's come from the tarballs in vendor/, unpacked for the build only (no network)
 BuildRequires: nodejs
 BuildRequires: (typescript >= 4.8.4 with typescript < 7)
+# the Python readers' package (python3-omx-contract) installs under python3_sitelib
+BuildRequires: python3-devel
 
 Requires: nodejs
 # the command reads the installed contract directory, omx-contract's own files among them
@@ -60,6 +62,23 @@ definitions beside it), the JSON Schema, the resolved json render, the
 vocabulary's schema fragment and the resource hints' Turtle, under
 share/omx-contract. A package that reads them at run time requires this one,
 never the development package.
+Its documentation is on openmixer.org.
+
+%package -n python3-omx-contract
+License: GPL-3.0-or-later
+Summary: omx-contract's readers for Python: import omx_contract.catalog, .scale, .clap
+BuildArch: noarch
+# the three readers use the standard library alone; the catalogs they read are each owner's
+Requires: python3
+
+%description -n python3-omx-contract
+The Python package omx_contract: omx_contract.catalog reads an owner's catalogs
+(the sentence of a code in a language, falling back to its English source),
+omx_contract.scale is the position law of a control (scale_position,
+scale_value), omx_contract.clap the CLAP identifiers and numbers the headers
+declare. A program writes `import omx_contract.catalog` instead of loading a
+file by its path. Each submodule is the file omx-contract-data ships under
+share/omx-contract, byte for byte; those files stay there for one release.
 Its documentation is on openmixer.org.
 
 %package langpack-ca
@@ -170,6 +189,7 @@ Its documentation is on openmixer.org.
 %install
 %make_install PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
 %{__make} install-rpm-macros DESTDIR=%{buildroot} PREFIX=%{_prefix} RPMMACRODIR=%{_rpmmacrodir}
+%{__make} install-python DESTDIR=%{buildroot} PYTHONDIR=%{python3_sitelib}
 %{__make} install-cli DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} BINDIR=%{_bindir} CLIDIR=%{_prefix}/lib/omx-contract MANDIR=%{_mandir}
 
 %check
@@ -197,6 +217,10 @@ Its documentation is on openmixer.org.
 %{_datadir}/omx-contract/languages.json
 %dir %{_datadir}/omx-contract/catalogs
 %{_datadir}/omx-contract/omx-resource-hints.ttl
+
+%files -n python3-omx-contract
+%license LICENSE
+%{python3_sitelib}/omx_contract/
 
 %files langpack-ca
 %{_datadir}/omx-contract/catalogs/ca.json

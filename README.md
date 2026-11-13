@@ -25,6 +25,8 @@ sudo apt update && sudo apt install libomx-contract-dev
 
 JavaScript and TypeScript: `npm install @openmixer/omx-contract` (the CLI is `omx-contract`).
 
+Python: `python3-omx-contract` (rpm and deb), the package `omx_contract` with the catalog, scale and CLAP readers.
+
 ## Start
 
 ```c
@@ -34,6 +36,14 @@ JavaScript and TypeScript: `npm install @openmixer/omx-contract` (the CLI is `om
 ```
 cc -c app.c $(pkg-config --cflags omx-contract)
 omx-contract render --target json --installed     # every declaration in the contract directory
+```
+
+```python
+import omx_contract.catalog
+import omx_contract.scale
+
+ca = omx_contract.catalog.load_catalog("plugin-db", "ca")   # an owner's installed Catalan catalog
+omx_contract.scale.scale_position({"scale": "log", "min": 20, "max": 20000}, 1000)   # 0.5663
 ```
 
 ## Documentation

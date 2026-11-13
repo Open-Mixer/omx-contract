@@ -36,7 +36,14 @@
       "import": "./render/c/contract-limits-split.mjs"
     },
     "./package.json": "./package.json",
-    "./catalog": "./lib/catalog.mjs",
+    "./catalog": {
+      "types": "./lib/catalog.d.mts",
+      "import": "./lib/catalog.mjs"
+    },
+    "./contract-dir": {
+      "types": "./lib/contract-dir.d.mts",
+      "import": "./lib/contract-dir.mjs"
+    },
     "./descriptor": {
       "types": "./lib/descriptor.d.mts",
       "import": "./lib/descriptor.mjs"

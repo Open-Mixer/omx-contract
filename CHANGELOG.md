@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `python3-omx-contract` (#28), one package on RPM and DEB from the same source: `omx_contract` in site-packages /
+  dist-packages with `catalog`, `scale` and `clap` as submodules, each the `share/omx-contract` reader byte for byte,
+  so a program writes `import omx_contract.catalog` instead of loading a file by its path (`make install-python`).
+  The `/usr/share/omx-contract/*.py` files stay installed for this release and go in the next. CI imports it from a
+  clean Fedora 44, bookworm and trixie container. A new package, a minor.
+- npm: `./catalog` names its types (`lib/catalog.d.mts`) and `./contract-dir` exports `loadContractDir`.
 - `share/omx-contract/omx_contract_scale.py`, the Python twin of the position-law reader
   (`@openmixer/omx-contract/scale`, omx-contract#20), so a Python surface such as Zynthian
   (`zyngine/zynthian_position_law.py`) can call it instead of restating the law: `LAWS`, `effective_law(travel)`,

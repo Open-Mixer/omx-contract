@@ -97,7 +97,7 @@ not the one its path gives.
   args)`, no schema validation of its own (a surface only ever reads an installed catalog; `validate --catalogs`
   checks one at build time).
 - **Language packs** (omx-contract#21). An entry of a catalog is the sentence alone (a person's; valid for one minor),
-  `{ "text", "by": "human" }`, a person's entry, or `{ "text", "by": "machine", "model", "source" }`, made by `model`
+  `{ "text", "by": "human" }`, a person's entry, `{ "text", "by": "same", "source" }`, a sentence that is the same word as the English one it records the hash of (a unit name, not a glossary term; kept, never regenerated, stale like any entry when its source changes), or `{ "text", "by": "machine", "model", "source" }`, made by `model`
   from the source sentence whose sha256 (the lowercase hex of its UTF-8) is `source` (`$defs/catalogEntry`,
   `$defs/sourceHash`). A model's entry whose source sentence no longer hashes to its `source` is stale: both readers
   skip it and show the source sentence (`sourceHash`, `isStale`; `source_hash` in Python). `share/omx-contract/

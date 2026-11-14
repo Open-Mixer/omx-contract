@@ -8,7 +8,7 @@
  *     { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": "<sentence with {args}>" } }
  *
  * An entry is the sentence, or the sentence with how it was made (omx-contract#21): `{ text, by: 'human' }` is a
- * person's, and `{ text, by: 'machine', model, source }` was made by `model` from the source sentence whose
+ * person's, `{ text, by: 'same', source }` is a sentence that is the same word as the English one (kept, never regenerated), and `{ text, by: 'machine', model, source }` was made by `model` from the source sentence whose
  * {@link sourceHash} is `source`. A model's entry whose source sentence no longer hashes to `source` is stale: the
  * lookup skips it and shows the source sentence, until `omx-contract translate` makes it again.
  *
@@ -28,7 +28,7 @@ import type { Json, JsonObject } from './json.mjs';
 /** A catalog entry made with its provenance: a person's, or a model's from a source sentence. */
 export interface CatalogRecord {
   readonly text: string;
-  readonly by: 'human' | 'machine';
+  readonly by: 'human' | 'same' | 'machine';
   readonly model?: string;
   readonly source?: string;
 }

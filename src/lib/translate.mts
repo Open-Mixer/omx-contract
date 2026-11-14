@@ -29,8 +29,8 @@ export interface ReleaseProblem {
   readonly message: string;
 }
 
-/** Whether `entry` is a person's: a sentence alone, or `by: human`. */
-export const isHuman = (entry: CatalogEntry): boolean => typeof entry === 'string' || entry.by === 'human';
+/** Whether `entry` is kept, not generated: a sentence alone, `by: human`, or `by: same`. */
+export const isHuman = (entry: CatalogEntry): boolean => typeof entry === 'string' || entry.by !== 'machine';
 
 /** The keys with a source sentence: what a catalog of the owner holds, whole. */
 function sourced(keys: ReadonlyMap<string, CatalogKey>): [string, string, readonly string[]][] {

@@ -366,13 +366,19 @@
       "additionalProperties": false
     },
     "catalogEntry": {
-      "description": "One catalog entry: the sentence alone (a person's; kept valid for one minor), or the sentence with how it was made. `by: human` is a person's, and no generator overwrites it. `by: machine` was made by `model` from the source sentence whose hash is `source`; when the source sentence no longer hashes to it, the entry is stale: a reader skips it and `omx-contract translate` makes it again.",
+      "description": "One catalog entry: the sentence alone (a person's; kept valid for one minor), or the sentence with how it was made. `by: human` is a person's, and no generator overwrites it. `by: same` is a sentence that is the same word in this language as in English (a unit name such as bytes, not a glossary term); it records the `source` hash like a model's entry, is kept and never regenerated. `by: machine` was made by `model` from the source sentence whose hash is `source`; when the source sentence no longer hashes to it, the entry is stale: a reader skips it and `omx-contract translate` makes it again.",
       "oneOf": [
         { "$ref": "#/$defs/text" },
         {
           "type": "object",
           "properties": { "text": { "$ref": "#/$defs/text" }, "by": { "const": "human" }, "source": { "$ref": "#/$defs/sourceHash" } },
           "required": ["text", "by"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": { "text": { "$ref": "#/$defs/text" }, "by": { "const": "same" }, "source": { "$ref": "#/$defs/sourceHash" } },
+          "required": ["text", "by", "source"],
           "additionalProperties": false
         },
         {

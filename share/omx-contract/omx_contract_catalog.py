@@ -7,7 +7,7 @@ ships catalogs/<lang>.json, installed to /usr/share/<owner>/catalogs/<lang>.json
     { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": "<sentence with {args}>" } }
 
 An entry is the sentence, or the sentence with how it was made (omx-contract#21): {"text", "by": "human"} is a
-person's, and {"text", "by": "machine", "model", "source"} was made by a model from the source sentence whose
+person's, {"text", "by": "same", "source"} is the same word as the English source sentence (kept), and {"text", "by": "machine", "model", "source"} was made by a model from the source sentence whose
 source_hash is "source". A model's entry whose source sentence no longer hashes to it is stale: sentence_of skips it
 and shows the source sentence.
 

@@ -19,7 +19,7 @@ import { renderC } from '../render/c.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT, texts } from './helpers.mjs';
+import { DATA, ROOT, texts, scratchDir } from './helpers.mjs';
 import { validateData } from '../lib/validate.mjs';
 
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
@@ -84,7 +84,7 @@ test('sabotage: a swapped bit, a changed id, a wrong type, a lost member and a c
 });
 
 test('the header compiles as C and as C++, and its mask and members hold what the declaration counts', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'omx-hints-'));
+  const dir = scratchDir('omx-hints-');
   dirs.push(dir);
   const src = join(dir, 'h.c');
   writeFileSync(src, `#include <omxcontract/omx_resource_hints.h>
@@ -144,7 +144,7 @@ test('the LV2 Turtle is the declaration', () => {
 });
 
 test('the LV2 Turtle parses as Turtle where a parser is installed, and links the LV2 terms of its resources', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'omx-ttl-'));
+  const dir = scratchDir('omx-ttl-');
   dirs.push(dir);
   writeFileSync(join(dir, 'h.ttl'), turtleText());
   const serdi = spawnSync('serdi', ['-i', 'turtle', '-o', 'ntriples', join(dir, 'h.ttl')], { encoding: 'utf8' });
@@ -182,7 +182,7 @@ test('sord_validate finds nothing to say about the hints vocabulary, where it is
   const ours = out.stderr.split(/\n(?=error|warning)/).filter((e) => e.includes('openmixer.org/ns/resource-hints'));
   assert.deepEqual(ours, []);
   // the control: the validator does read the file, so a term without a label is named
-  const bad = join(mkdtempSync(join(tmpdir(), 'omx-ttl-')), 'bad.ttl');
+  const bad = join(scratchDir('omx-ttl-'), 'bad.ttl');
   dirs.push(dirname(bad));
   writeFileSync(bad, turtleText().replace(/ {4}rdfs:label "resource" ;\n/, ''));
   const control = spawnSync('sord_validate', [...files.slice(0, -1), bad], { encoding: 'utf8' });

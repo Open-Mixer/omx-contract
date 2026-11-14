@@ -1,3 +1,14 @@
+omx-contract (3.19.0) unstable; urgency=medium
+
+  * Schema 3.19.0: a catalog entry may be by: same, the sentence the
+    source sentence is, with its source hash; readers keep it and no
+    generator rewrites it. The Catalan catalog's plain entries carry their
+    by form.
+  * libomxdsp-dev before 0.25.0, libomx-clap-core-dev before 0.13.0 and
+    omx-plugins-dev before 0.13.0 stay the floors.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 14 Nov 2026 15:00:00 +0100
+
 omx-contract (3.18.0) unstable; urgency=medium
 
   * Schema 3.18.0: a reply code may declare itself transient

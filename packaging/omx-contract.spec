@@ -255,6 +255,15 @@ Its documentation is on openmixer.org.
   rewrites it. The Catalan catalog's plain entries carry their by form.
 - The -devel floors stay: omx-dsp-devel before 0.25.0, omx-clap-core-devel
   before 0.13.0 and omx-plugins-devel before 0.13.0.
+* Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.1-1
+- python3-omx-contract (#28), one package on RPM and DEB from the same source:
+  omx_contract in the interpreter's site-packages with catalog, scale and clap
+  as submodules, each the share/omx-contract reader byte for byte, so a
+  program writes import omx_contract.catalog instead of loading a file by its
+  path; the share/omx-contract readers stay installed for this release
+- npm: ./catalog names its types and ./contract-dir exports loadContractDir
+- Schema 3.18.0, unchanged; the -devel floors stay: omx-dsp-devel before
+  0.25.0, omx-clap-core-devel before 0.13.0 and omx-plugins-devel before 0.13.0.
 
 * Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.0-1
 - Schema 3.18.0: a reply code may declare itself transient (transient: true),

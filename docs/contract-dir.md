@@ -241,6 +241,8 @@ carry it and it is not installed in the directory.
 | `contract.role.duplicate` | Two roleMeanings items, of one package or two, declare one role. |
 | `contract.package.absent` | A package the consumer or a file requires is not installed. |
 | `contract.package.too-old` | It is installed below the floor. |
+| `contract.requires.unresolved` | `translate --owner` of a tree whose files name a package in `requires` that neither `$OMX_CONTRACT_PATH` nor the installed directory holds (or holds below the floor): it names the requirement, the places looked and the `--installed` form (data-layout.md). |
+| `contract.owner.codes-unlocated` | `translate --owner` of a tree whose catalogs hold keys and whose declared code locations (`data/`, `schema/codes.json`) hold no code or word. |
 | `contract.origin.misplaced` | A `scanned` plugin descriptor ([descriptors.md](descriptors.md)): a scan is never read as a declaration. |
 | `contract.source.absent` | A link's path does not exist. |
 | `contract.source.symbol-absent` | The path holds no definition of the link's symbol. |

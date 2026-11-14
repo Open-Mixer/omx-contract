@@ -13,10 +13,10 @@ import { CONTRACT_CODES } from '../lib/codes.mjs';
 import { loadData } from '../lib/data.mjs';
 import { checkLinks, definitions, parseLink } from '../lib/links.mjs';
 import { validateData } from '../lib/validate.mjs';
-import { DATA_ITEMS, ROOT } from './helpers.mjs';
+import { DATA_ITEMS, ROOT, scratchDir } from './helpers.mjs';
 
-const TREE = mkdtempSync(join(tmpdir(), 'omx-links-'));
-const OTHER = mkdtempSync(join(tmpdir(), 'omx-links-other-'));
+const TREE = scratchDir('omx-links-');
+const OTHER = scratchDir('omx-links-other-');
 after(() => { rmSync(TREE, { recursive: true, force: true }); rmSync(OTHER, { recursive: true, force: true }); });
 const put = (root, rel, text) => { mkdirSync(dirname(join(root, rel)), { recursive: true }); writeFileSync(join(root, rel), text); };
 
@@ -156,7 +156,7 @@ test('contract.source.none only with --require-impl; a file\'s source stands for
 });
 
 test('the CLI: links --check exits 1 naming the code first, 0 over a clean tree; the shipped data carries no link yet', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'omx-links-cli-'));
+  const dir = scratchDir('omx-links-cli-');
   const doc = items();
   doc.K_MAX_MS.value = 101;
   put(dir, 'data/x.json', JSON.stringify(doc));

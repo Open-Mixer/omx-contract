@@ -38,7 +38,11 @@ all:
 # types (vendor/build/: @types/node, undici-types) and the runtime tarballs whose types the modules import (vendor/:
 # ajv) are unpacked into node_modules/ by their package name first.
 TSC ?= $(firstword $(wildcard node_modules/.bin/tsc) tsc)
-build-lib:
+build-lib: lib/codes.mjs
+
+# A real file target (tsc emits every module of the library in one run, and lib/codes.mjs is one of them): a lib/ no older
+# than its sources is a no-op, so an install run beside a parallel test suite never rewrites the modules the suite loads.
+lib/codes.mjs: $(wildcard src/lib/*.mts) tsconfig.lib.json
 	@if [ ! -d node_modules/@types/node ]; then \
 	  for t in vendor/build/*.tgz vendor/*.tgz; do \
 	    n=$$(tar -xzOf $$t --wildcards --no-wildcards-match-slash '*/package.json' | sed -n 's/^ *"name": *"\([^"]*\)",*$$/\1/p' | head -1); \

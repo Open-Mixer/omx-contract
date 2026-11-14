@@ -215,6 +215,27 @@
           "package"
         ]
       },
+      "requiresUnresolved": {
+        "code": "contract.requires.unresolved",
+        "doc": "translate --owner reads a tree whose files require a package that neither OMX_CONTRACT_PATH nor the installed directory holds (or holds below the floor)",
+        "text": {
+          "en": "{requirement} is required by this tree and was found nowhere: looked in {places}. Run the --installed form with OMX_CONTRACT_PATH naming a directory that holds it."
+        },
+        "args": [
+          "requirement",
+          "places"
+        ]
+      },
+      "ownerCodesUnlocated": {
+        "code": "contract.owner.codes-unlocated",
+        "doc": "translate --owner reads a tree whose catalogs hold keys and whose declared code locations hold no code or word",
+        "text": {
+          "en": "No code or word of this tree was found in {places}, though its catalogs hold keys. Declare the codes under data/ or in schema/codes.json."
+        },
+        "args": [
+          "places"
+        ]
+      },
       "originMisplaced": {
         "code": "contract.origin.misplaced",
         "doc": "a scanned plugin descriptor is installed in the contract directory: a scan is never read as a declaration",

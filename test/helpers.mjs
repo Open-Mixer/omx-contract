@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+import { execFileSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -144,3 +145,18 @@ export function texts(fn) {
 }
 
 export const resolvedOf = (t) => resolveData(loadData(null, t));
+
+/**
+ * The files `npm pack` lists for this package, from a staged copy of the tree: `npm pack` runs prepack (`npm run build`)
+ * even with --ignore-scripts, and run in ROOT it rewrote lib/*.mjs while the suite's other files loaded them
+ * (omx-contract#39).
+ */
+export function packedFiles() {
+  const stage = scratchDir('omx-contract-pack-');
+  cpSync(ROOT, stage, { recursive: true, filter: (src) => !/\/(node_modules|\.git)(\/|$)/.test(src) });
+  const pkg = JSON.parse(readFileSync(join(stage, 'package.json'), 'utf8'));
+  for (const k of ['prepare', 'prepack', 'postpack']) delete pkg.scripts?.[k];
+  writeFileSync(join(stage, 'package.json'), JSON.stringify(pkg, null, 2));
+  const out = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: stage, stdio: ['ignore', 'pipe', 'pipe'] });
+  return JSON.parse(out)[0].files.map((f) => f.path);
+}

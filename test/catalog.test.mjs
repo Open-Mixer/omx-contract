@@ -11,7 +11,7 @@ import { spawnSync } from 'node:child_process';
 
 import { loadData, resolveData } from '../lib/data.mjs';
 import { catalogDirOf, catalogKeys, catalogPathOf, catalogProblems, fill, loadCatalog, sentenceOf } from '../lib/catalog.mjs';
-import { DATA, ROOT, resolvedOf, texts } from './helpers.mjs';
+import { DATA, ROOT, resolvedOf, texts, scratchDir } from './helpers.mjs';
 
 const FILE = 'data/measurement.json';
 const ITEM = 'MEASUREMENT_UNMEASURED_REASONS';
@@ -57,7 +57,7 @@ test('the catalog schema: kind, lang (never en), owner and messages, nothing els
 });
 
 test('the lookup: the catalog\'s sentence, else the source sentence, its placeholders filled', () => {
-  const root = mkdtempSync(join(tmpdir(), 'omx-catalog-'));
+  const root = scratchDir('omx-catalog-');
   assert.equal(catalogPathOf('plugin-db', 'ca', root), join(root, 'plugin-db', 'catalogs', 'ca.json'));
   assert.equal(catalogDirOf('plugin-db'), '/usr/share/plugin-db/catalogs');
   mkdirSync(catalogDirOf('omx-contract', root), { recursive: true });
@@ -109,7 +109,7 @@ test('no contract data file holds a language beside the source sentence', () => 
 });
 
 test('validate --catalogs <dir> checks a named directory: a key the owner does not declare fails the run', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'omx-catalogs-'));
+  const dir = scratchDir('omx-catalogs-');
   writeFileSync(join(dir, 'ca.json'), JSON.stringify(catalog({ 'contract.no.such-code': 'x' })));
   const r = spawnSync(process.execPath, [join(ROOT, 'bin', 'omx-contract.mjs'), 'validate', '--catalogs', dir], { encoding: 'utf8' });
   assert.equal(r.status, 1);

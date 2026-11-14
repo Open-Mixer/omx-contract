@@ -22,8 +22,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ContractRefusal } from '../lib/codes.mjs';
-import { contractVersion, loadContractDir } from '../lib/contract-dir.mjs';
+import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
+import { atLeast, contractVersion, floorOf, loadContractDir } from '../lib/contract-dir.mjs';
 import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
@@ -475,6 +475,63 @@ function sourceKeys(file) {
   return keys;
 }
 
+/**
+ * The places a package named in a tree's `requires` is looked for, in order: `$OMX_CONTRACT_PATH` (a `:` list), then the
+ * installed contract directory (pkg-config), the lookup `--installed` makes. `roots` are the ones that exist.
+ */
+function requirementPlaces(env = process.env) {
+  const listed = (env.OMX_CONTRACT_PATH ?? '').split(':').filter(Boolean);
+  let installed = '';
+  try { installed = execFileSync('pkg-config', ['--variable=contractdir', 'omx-contract'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { /* not installed */ }
+  const roots = [...listed, ...(installed ? [installed] : [])].filter((r) => existsSync(r) && statSync(r).isDirectory());
+  const text = `OMX_CONTRACT_PATH=${env.OMX_CONTRACT_PATH ? env.OMX_CONTRACT_PATH : '(unset)'}, pkg-config --variable=contractdir omx-contract=${installed || '(not installed)'}`;
+  return { roots, text };
+}
+
+/**
+ * An owner tree's declared code locations (docs/data-layout.md "Catalogs"): its `data/`, and `schema/codes.json`, a
+ * bare item file of kind codes wrapped as `<PACKAGE>_CODES` as the owners' gates wrap it. The packages its files name
+ * in `requires` are resolved through `requirementPlaces`: their items join the read (they resolve references, and are
+ * no key of this owner's), or the tree is refused with contract.requires.unresolved.
+ */
+function ownerData(owner, name, argv) {
+  const tree = resolve(owner);
+  const dataDir = join(tree, 'data');
+  const bare = join(tree, 'schema', 'codes.json');
+  if (!existsSync(dataDir) && !existsSync(bare)) throw new Usage(`no data directory ${dataDir}`);
+  const data = existsSync(dataDir) ? loadData(dataDir) : { files: [], items: new Map() };
+  if (existsSync(bare)) {
+    const item = JSON.parse(readFileSync(bare, 'utf8'));
+    const key = `${name.toUpperCase().replace(/-/g, '_')}_CODES`;
+    if (data.items.has(key)) throw new Error(`schema/codes.json: ${key}: already declared by ${data.items.get(key).rel}`);
+    data.files.push({ rel: 'schema/codes.json', text: '', doc: { [key]: item } });
+    data.items.set(key, { name: key, rel: 'schema/codes.json', item });
+  }
+  const needs = new Map();
+  for (const f of data.files) {
+    for (const [pkg, v] of Object.entries(f.doc?.requires ?? {})) {
+      if (pkg !== 'omx-contract-schema' && !needs.has(pkg)) needs.set(pkg, { floor: v, rel: f.rel });
+    }
+  }
+  if (!needs.size) return { data, resolved: false };
+  const { roots, text } = requirementPlaces();
+  const unresolved = (pkg, why) => refuse('requiresUnresolved', 'requires', `${pkg} ${needs.get(pkg).floor} (required by ${needs.get(pkg).rel}) ${why}; looked in ${text}. Use the --installed form instead: OMX_CONTRACT_PATH=<contract directory holding ${pkg}> omx-contract translate --installed --catalogs ${join(tree, 'catalogs')} --package ${name}${argv.includes('--check') ? ' --check' : ''}`);
+  const [first] = needs.keys();
+  if (!roots.length) unresolved(first, 'was not found: no contract directory exists there');
+  let installed;
+  try { installed = loadContractDir({ dir: roots }); } catch (e) {
+    if (e instanceof ContractRefusal && e.code === CONTRACT_CODES.dirAbsent) unresolved(first, 'was not found');
+    throw e;
+  }
+  for (const [pkg, { floor }] of needs) {
+    const p = installed.packages.get(pkg);
+    if (!p) unresolved(pkg, 'is not installed');
+    if (!atLeast(p.manifest.version, floorOf(floor))) unresolved(pkg, `is installed as ${p.manifest.version}, below its floor`);
+  }
+  for (const [n, it] of installed.items) if (!data.items.has(n)) data.items.set(n, it);
+  return { data, resolved: true };
+}
+
 function translateInputs(argv) {
   const source = opt(argv, '--source');
   if (source !== undefined) {
@@ -490,16 +547,20 @@ function translateInputs(argv) {
   }
   const owner = opt(argv, '--owner');
   const args = owner !== undefined ? [...argv, '--data', join(resolve(owner), 'data')] : argv;
-  const data = load(args);
-  const tools = toolFiles(args);
   const dir = opt(argv, '--catalogs') !== undefined ? resolve(opt(argv, '--catalogs'))
     : owner !== undefined ? join(resolve(owner), 'catalogs')
     : join(resolve(opt(args, '--data') ?? join(ROOT, 'data')), '..', 'catalogs');
   const existing = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8'))) : [];
   const name = opt(argv, '--package') ?? existing.find((c) => c?.kind === 'catalog')?.owner;
   if (name === undefined) throw new Usage(`no catalog in ${dir} names its owner: add --package <name>`);
+  const own = owner !== undefined ? ownerData(owner, name, argv) : undefined;
+  const data = own?.data ?? load(args);
+  const tools = toolFiles(args);
   const extra = tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind));
-  const keys = catalogKeys(resolveData(data), { extra, ...(data.packages ? { owner: name } : {}) });
+  const keys = catalogKeys(resolveData(data), { extra, ...(data.packages || own?.resolved ? { owner: name } : {}) });
+  if (own && !keys.size && existing.some((c) => Object.keys(c?.messages ?? {}).length)) {
+    refuse('ownerCodesUnlocated', 'owner', `no code or word was found in ${join(resolve(owner), 'data')} or ${join(resolve(owner), 'schema', 'codes.json')}, and the catalogs in ${dir} hold keys; declare the codes in one of them`);
+  }
   return { keys, dir, name };
 }
 

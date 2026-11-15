@@ -249,12 +249,19 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
-* Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.0-1
+* Sun Nov 15 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.0-1
 - Schema 3.19.0: a catalog entry may be by: same, the sentence the source
   sentence is, with its source hash; readers keep it and no generator
-  rewrites it. The Catalan catalog's plain entries carry their by form.
+  rewrites it. The Catalan catalog's plain entries carry their by form (#37).
+- translate --owner resolves a tree's requires through OMX_CONTRACT_PATH and
+  the installed directory and reads schema/codes.json as the tree's codes,
+  or refuses by name (#41)
+- CI: fast checks alone on a pull request, the heavy workflows by dispatch
+  and tags (#43); explicit artifact retention (#40); the commit-message
+  checkout reads OPENMIXER_DOTGITHUB (#35)
 - The -devel floors stay: omx-dsp-devel before 0.25.0, omx-clap-core-devel
   before 0.13.0 and omx-plugins-devel before 0.13.0.
+
 * Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.1-1
 - python3-omx-contract (#28), one package on RPM and DEB from the same source:
   omx_contract in the interpreter's site-packages with catalog, scale and clap

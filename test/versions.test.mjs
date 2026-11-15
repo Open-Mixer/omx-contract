@@ -34,6 +34,19 @@ test('versions: the schema is no newer than the next release, the minor it left 
   assert.ok(schemaFits(schema, v), `x-omx-schema-version ${schema} is past the next release of the package ${v}`);
   const frozen = readdirSync(join(ROOT, 'schema/history')).map((f) => f.replace('.schema.json', ''));
   assert.ok(!frozen.includes(schema), `schema/history/ holds the current minor ${schema}`);
+  // THE MINOR IT LEFT IS FROZEN (docs/contract-dir.md): every schema minor a release note names (CHANGELOG.md, the spec's
+  // and debian's changelogs: "Schema 3.16.0, a minor") below the current one has its frozen copy, the one the reader
+  // validates an installed file against at that floor. 3.19.0 shipped without 3.18.0's: `render --installed` threw
+  // "schema/history/3.18.0.schema.json is missing" on a system whose omx-dsp floors at 3.18.0.
+  const minor = (x) => x.split('.').slice(0, 2).join('.');
+  const named = new Set();
+  for (const f of ['CHANGELOG.md', 'packaging/omx-contract.spec', 'debian/changelog']) {
+    for (const m of read(f).matchAll(/[Ss]chema (\d+\.\d+)\.0\b/g)) if (m[1].split('.')[0] === schema.split('.')[0]) named.add(`${m[1]}.0`);
+  }
+  assert.ok(named.size >= 5, `positive control: the release notes name the schema minors (${[...named].join(', ')})`);
+  const left = [...named].filter((m) => n(m) < n(schema) && minor(m) !== minor(schema)).sort((a, b) => n(a) - n(b));
+  assert.ok(left.length > 0, 'positive control: a past minor is named');
+  for (const m of left) assert.ok(frozen.includes(m), `schema/history/${m}.schema.json: the release notes name schema ${m} below ${schema}, so its frozen copy ships`);
   for (const f of frozen) {
     assert.equal(JSON.parse(read(`schema/history/${f}.schema.json`))['x-omx-schema-version'], f, `schema/history/${f} is that minor's`);
     assert.ok(n(f) < n(schema), `schema/history/${f} is not past`);

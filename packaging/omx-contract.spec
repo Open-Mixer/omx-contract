@@ -253,6 +253,8 @@ Its documentation is on openmixer.org.
 - Schema 3.19.0: a catalog entry may be by: same, the sentence the source
   sentence is, with its source hash; readers keep it and no generator
   rewrites it. The Catalan catalog's plain entries carry their by form (#37).
+  Schema 3.18.0 is frozen in schema/history and ships with the command, so
+  render --installed reads a file flooring at 3.18.0 instead of throwing.
 - translate --owner resolves a tree's requires through OMX_CONTRACT_PATH and
   the installed directory and reads schema/codes.json as the tree's codes,
   or refuses by name (#41)

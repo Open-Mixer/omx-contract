@@ -34,6 +34,7 @@
       "chainUnknownInstance": {
         "code": "reply.plugin-hostd.chain-unknown-instance",
         "resp": -518,
+        "leavesNoMark": true,
         "doc": "PHD_ERR_CHAIN_UNKNOWN_INSTANCE: a member is an instance no add made"
       },
       "chainDuplicate": {

@@ -10,7 +10,7 @@
 import { readFileSync } from 'node:fs';
 import { packageItems } from '../lib/data.mjs';
 import { HOSTS_ITEM } from '../lib/verbs.mjs';
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral } from './c/c-literals.mjs';
 import { vocabularyStem } from './vocabulary.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();

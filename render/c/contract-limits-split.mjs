@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The split of a contract-limits render (contract-limits-render.mjs) by owner: the ONE render of a consumer's
+ * The split of a contract-limits render (render/c.mjs) by owner: the ONE render of a consumer's
  * declarations, cut by membership in the INSTALLED owners' C headers. Each owner header (omx-contract's own
  * `<omxcontract/omx_contract_limits.h>`, omx-dsp's `<omxdsp/omxdsp_definitions.h>`) is re-rendered unit by
  * unit, and every unit no owner carries goes to the consumer's own header.

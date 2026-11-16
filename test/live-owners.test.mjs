@@ -95,11 +95,7 @@ test('the schema unit enum lists exactly the units the live items and readouts u
 });
 
 test('the tool names no item an owner installs: the owner\'s file is the only place its spelling and its rules live', { skip }, () => {
-  // The console engine's renderer, moved unchanged, names the console's own items in its prose: they are that
-  // renderer's text, not a rule of the tool.
-  const FROZEN = 'render/c/contract-limits-render.mjs';
-  const sources = ['lib', 'render', 'render/c', 'bin'].flatMap((d) => readdirSync(join(ROOT, d)).filter((f) => f.endsWith('.mjs')).map((f) => [`${d}/${f}`, readFileSync(join(ROOT, d, f), 'utf8')]))
-    .filter(([file]) => file !== FROZEN);
+  const sources = ['lib', 'render', 'render/c', 'bin'].flatMap((d) => readdirSync(join(ROOT, d)).filter((f) => f.endsWith('.mjs')).map((f) => [`${d}/${f}`, readFileSync(join(ROOT, d, f), 'utf8')]));
   const own = new Set(loadData(DATA).items.keys());
   const owned = [...loadData(liveUnion()).items.keys()].filter((n) => !own.has(n));
   assert.ok(owned.includes('HOSTED_STAGE_LIMITS') && owned.length > 150, 'positive control: the owners\' items');

@@ -3,15 +3,14 @@
 /**
  * The `c` target: `omxcontract/omx_contract_limits.h`, and beside it the header each file's `render.c` word declares
  * (docs/render.md); with a package named, only that package's declared headers, at their own paths. Every define of
- * omx_contract_limits.h is spelled by the console engine's
- * renderer, moved unchanged (c/contract-limits-render.mjs); only the frame (banner, section
- * comments) is this repository's. A plugin's parameter header is rendered by omx-plugins from its
+ * omx_contract_limits.h is spelled by the helpers of c/c-literals.mjs; the frame (banner, section
+ * comments) is this file's. A plugin's parameter header is rendered by omx-plugins from its
  * declaration, by reference to the items here.
  */
 import {
   cStringLiteral, genDeclaredListsBlock, genDeclaredRates, genDeclaredScalarsBlock, genLimitBlock,
   scalarLiteral,
-} from './c/contract-limits-render.mjs';
+} from './c/c-literals.mjs';
 import { ownerNames, renderOwnerHeader } from './c/owner-headers.mjs';
 import { doors, isNativeTable } from './doors.mjs';
 import { packageItems } from '../lib/data.mjs';

@@ -226,35 +226,14 @@ test('contract.schema.major, contract.schema.too-old and contract.schema.floor-a
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.fileInvalid, 'a floor is written >= x.y.z');
 });
 
-test('contract.schema.floor-understated: a file does not validate against the schema at its stated floor', () => {
-  // "dB/oct" is a unit schema 3.3.0 added (CHANGELOG 3.3.0); schema 3.0.0 has no such unit.
-  let root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB/oct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
-  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.schemaFloorUnderstated);
-  root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB/oct' }) }, { 'omx-contract-schema': '>= 3.3.0' }) });
-  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'a floor at the minor that carries the unit is not understated');
-  // A floor of an older minor that states nothing newer than it is not refused.
-  root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1) }, { 'omx-contract-schema': '>= 3.0.0' }) });
-  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'a floor an ordinary file reaches is not refused');
-});
-
-test('a file flooring at the minor the current schema left is read against its frozen copy, never thrown at', () => {
-  // The minor the current schema left: the highest frozen-or-not minor below it that a release note names (3.18.0 for
-  // 3.19.0). omx-dsp 0.32.3 floors there; `render --installed` on 3.19.0 threw "schema/history/3.18.0.schema.json is
-  // missing" instead of reading it (docs/contract-dir.md: a release that bumps the minor freezes the one it leaves).
-  const n = (x) => x.split('.').map(Number).reduce((a, b) => a * 1000 + b, 0);
-  const minor = (x) => x.split('.').slice(0, 2).join('.');
-  const named = new Set();
-  for (const f of ['CHANGELOG.md', 'packaging/omx-contract.spec', 'debian/changelog']) {
-    for (const m of readFileSync(join(ROOT, f), 'utf8').matchAll(/[Ss]chema (\d+\.\d+)\.0\b/g)) named.add(`${m[1]}.0`);
-  }
-  const left = [...named].filter((m) => n(m) < n(SCHEMA_VERSION) && minor(m) !== minor(SCHEMA_VERSION)).sort((a, b) => n(b) - n(a))[0];
-  assert.ok(left, 'positive control: the release notes name the minor the schema left');
+test('the reader keeps no schema history: a floor older than the installed contract is not re-validated', () => {
+  // "dB/oct" is a unit schema 3.3.0 added; the file states a floor of 3.0.0. Nothing older than the installed schema
+  // is read in development, so there is no schema/history to look in and no floor-understated refusal.
+  assert.ok(!existsSync(join(ROOT, 'schema/history')), 'schema/history does not exist');
+  assert.ok(!/schema\/history|floor-understated/.test(readFileSync(join(ROOT, 'src/lib/contract-dir.mts'), 'utf8')), 'the reader names no history');
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1) }, { 'omx-contract-schema': `>= ${left}` }) });
-  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', `a floor at ${left} reads through schema/history/${left}.schema.json`);
+  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB/oct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
+  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'an older floor loads with no history lookup');
 });
 
 test('contract.file.not-json and contract.file.invalid', () => {

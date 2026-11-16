@@ -9,9 +9,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.
 - A catalog entry may be `by: same` (schema 3.19.0): the sentence is the source sentence itself, with its source hash;
   readers keep it and `translate` never regenerates it. The Catalan catalog's plain entries carry their `by` form.
-  Schema 3.18.0 is frozen in schema/history (a release that bumps the minor freezes the one it leaves,
-  docs/contract-dir.md): without it `render --installed` threw on a system whose omx-dsp floors at 3.18.0, and
-  `versions.test.mjs` now holds every schema minor the release notes name to its frozen copy.
+- The schema history is removed while the contract is in development: no `schema/history/`, no re-validation of a
+  file against the schema at its stated floor, no `contract.schema.floor-understated` code (its catalog entries and
+  tests go with it). The reader still refuses a required package found nowhere or installed below its floor.
 - `python3-omx-contract` (#28), one package on RPM and DEB from the same source: `omx_contract` in site-packages /
   dist-packages with `catalog`, `scale` and `clap` as submodules, each the `share/omx-contract` reader byte for byte,
   so a program writes `import omx_contract.catalog` instead of loading a file by its path (`make install-python`).

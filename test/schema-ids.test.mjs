@@ -16,7 +16,7 @@ import { renderVocabularySchema } from '../render/vocabulary.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = 'https://openmixer.org/schema/omx-contract/';
 const read = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
-const schemas = ['schema/omx-contract.schema.json', ...readdirSync(join(ROOT, 'schema/history')).map((f) => `schema/history/${f}`)];
+const schemas = ['schema/omx-contract.schema.json'];
 
 /** every "issue" property's pattern in a schema document */
 function issuePatterns(node, out = []) {

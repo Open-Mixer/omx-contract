@@ -88,6 +88,38 @@ test('the C render defines every code and word once, by its code and by its item
   assert.doesNotMatch(h, /TERMS/, 'a terms item has no C render');
 });
 
+// A consumer builds its own tables from a words item (omx-clap-core's panel families, widgets and display kinds,
+// Open-Mixer/omx-clap-core#104), so the item renders as one X-macro: X(<code>u, "<word>", <NAME>), the code being the
+// word's place in the declared order and NAME the suffix of its own macro. A table built from it follows the contract
+// with no edit in the consumer.
+test('every words item renders an X-macro, X(code, "word", NAME), in its declared order', () => {
+  const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
+  assert.match(h, /^#define OMX_MEASUREMENT_VOICE_BASES\(X\) \\\n {4}X\(0u, "declared", DECLARED\) X\(1u, "probe", PROBE\)$/m);
+  for (const r of [...withCodes.values()].filter((x) => x.kind === 'words')) {
+    const m = h.match(new RegExp(`^#define OMX_${r.name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
+    assert.ok(m, `${r.name} renders an X-macro`);
+    const got = [...m[1].matchAll(/X\((\d+)u, ("(?:[^"\\]|\\.)*"), (\w+)\)/g)].map(([, c, w, n]) => [Number(c), JSON.parse(w), n]);
+    const want = Object.entries(r.value).map(([k, w], i) => {
+      const def = h.match(new RegExp(`^#define (OMX_${r.name}_(\\w+)) ${JSON.stringify(w.word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?: |$)`, 'm'));
+      return [i, w.word, def?.[2]];
+    });
+    assert.deepEqual(got, want, `${r.name}: each word once, at its place, named as its own macro`);
+  }
+});
+
+test('a word whose C name meets a words item\'s X-macro is refused', () => {
+  const clash = (d) => { d[R].RESOURCE_BASES_PROBE = { kind: 'words', since: '3.19.0', doc: 'x', words: { one: { word: 'one' } } }; };
+  assert.ok(problems(texts(clash)).some((p) => p.rule === 'c-name-unique' && /OMX_RESOURCE_BASES_PROBE /.test(p.message)));
+});
+
+// The display kinds a panel description serves were omx-plugins' words restated by hand in omx-clap-core; they are
+// declared once, here, beside the families and widgets (vocabulary-owner rule).
+test('the panel display kinds are declared here, in the order a panel description serves them', () => {
+  const r = resolved.get('PANEL_DISPLAY_KINDS');
+  assert.ok(r && r.kind === 'words', 'PANEL_DISPLAY_KINDS is a words item');
+  assert.deepEqual(Object.values(r.value).map((w) => w.word), ['gain_reduction_bar', 'transfer_curve', 'eq_response', 'meter']);
+});
+
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {
   const f = JSON.parse(renderJson(withCodes, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text);
   assert.deepEqual(f.$defs.MEASUREMENT_LATENCY_METHODS.enum, ['impulse-onset', 'declared-port', 'note-onset']);

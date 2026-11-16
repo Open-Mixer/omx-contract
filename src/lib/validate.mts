@@ -337,41 +337,11 @@ function semanticRules(resolved, say) {
 }
 
 /** The item-shaped object the schema validates `f` as: the `FILE_KEYS` it carries, plus every entry a kernel file
- * expands to (data.mjs `entriesOf`). Shared by the current schema's check (`fileProblems`) and a historical one
- * (`validatesWhole`, `contract.schema.floor-understated`). Throws when `f.doc` has no valid shape to expand. */
+ * expands to (data.mjs `entriesOf`). Throws when `f.doc` has no valid shape to expand. */
 export function itemsOf(f) {
   const expanded = entriesOf(f.rel, f.doc);
   const keys = Object.fromEntries(FILE_KEYS.filter((k) => k in f.doc).map((k) => [k, f.doc[k]]));
   return { ...keys, ...Object.fromEntries(expanded) };
-}
-
-const historical = new Map();
-
-/** The compiled validator and readout sub-validator of a schema object other than the bundled one, cached by `key`
- * (its `major.minor.0`): a fresh Ajv instance, since every snapshot shares the bundled schema's `$id`. */
-function historicalValidator(schemaObj, key) {
-  if (!historical.has(key)) {
-    const inst = new (Ajv2020 as unknown as Ajv2020Class)({ allErrors: true, strict: true, strictRequired: false, allowUnionTypes: true });
-    inst.addKeyword({ keyword: 'x-omx-schema-version', schemaType: 'string' });
-    const validate = inst.compile(schemaObj);
-    const readout = inst.getSchema(`${schemaObj.$id}#/$defs/readout`);
-    historical.set(key, { validate, readout });
-  }
-  return historical.get(key);
-}
-
-/** Whether `f` (already valid against the bundled schema) also validates whole against the schema object
- * `schemaObj` (a past minor, cached by `key`): its items and, for a kernel file, every readout. Used to check a
- * file against the schema at its stated floor (`contract.schema.floor-understated`, docs/contract-dir.md): a
- * floor understates what the file needs when this returns false. */
-export function validatesWhole(schemaObj, key, f) {
-  const { validate, readout } = historicalValidator(schemaObj, key);
-  if (isDescriptor(f.doc)) return !!validate(f.doc);
-  if (!validate(itemsOf(f))) return false;
-  if (isKernelFile(f.rel) && Array.isArray(f.doc.readouts)) {
-    for (const ro of f.doc.readouts) if (!readout(ro)) return false;
-  }
-  return true;
 }
 
 /**

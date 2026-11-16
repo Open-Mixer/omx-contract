@@ -342,15 +342,14 @@
       "type": "object",
       "description": "The one source sentence a person sees for a code or a word, in English, written by its owner and never kept by a surface. Its `{name}` placeholders are each one of `args`. Translations are not contract data: each owner ships one catalog per language (`$defs/catalog`).",
       "properties": {
-        "en": { "$ref": "#/$defs/text" },
-        "ca": { "$ref": "#/$defs/text", "description": "Refused: a translation is the owner's catalog, catalogs/ca.json (validate's <what>-text-language). Kept in the shape until a major release removes it." }
+        "en": { "$ref": "#/$defs/text" }
       },
       "required": ["en"],
       "additionalProperties": false
     },
     "catalog": {
       "type": "object",
-      "description": "One owner's sentences in one language: `catalogs/<lang>.json` in the owner's tree, installed to `/usr/share/<owner>/catalogs/<lang>.json`. A key is a code of the owner, or a word as `<ITEM>.<word>`; a sentence's `{name}` placeholders are each one of that code's or word's `args`. An entry is the sentence, or the sentence with how it was made (`catalogEntry`). A missing key, or a model's entry whose source sentence has changed since it was made (stale), falls back to the source sentence.",
+      "description": "One owner's sentences in one language: `catalogs/<lang>.json` in the owner's tree, installed to `/usr/share/<owner>/catalogs/<lang>.json`. A key is a code of the owner, or a word as `<ITEM>.<word>`; a sentence's `{name}` placeholders are each one of that code's or word's `args`. An entry is the sentence with how it was made (`catalogEntry`). A missing key, or a model's entry whose source sentence has changed since it was made (stale), falls back to the source sentence.",
       "properties": {
         "$schema": { "type": "string" },
         "kind": { "const": "catalog" },
@@ -366,9 +365,8 @@
       "additionalProperties": false
     },
     "catalogEntry": {
-      "description": "One catalog entry: the sentence alone (a person's; kept valid for one minor), or the sentence with how it was made. `by: human` is a person's, and no generator overwrites it. `by: same` is a sentence that is the same word in this language as in English (a unit name such as bytes, not a glossary term); it records the `source` hash like a model's entry, is kept and never regenerated. `by: machine` was made by `model` from the source sentence whose hash is `source`; when the source sentence no longer hashes to it, the entry is stale: a reader skips it and `omx-contract translate` makes it again.",
+      "description": "One catalog entry: the sentence with how it was made. `by: human` is a person's, and no generator overwrites it. `by: same` is a sentence that is the same word in this language as in English (a unit name such as bytes, not a glossary term); it records the `source` hash like a model's entry, is kept and never regenerated. `by: machine` was made by `model` from the source sentence whose hash is `source`; when the source sentence no longer hashes to it, the entry is stale: a reader skips it and `omx-contract translate` makes it again.",
       "oneOf": [
-        { "$ref": "#/$defs/text" },
         {
           "type": "object",
           "properties": { "text": { "$ref": "#/$defs/text" }, "by": { "const": "human" }, "source": { "$ref": "#/$defs/sourceHash" } },

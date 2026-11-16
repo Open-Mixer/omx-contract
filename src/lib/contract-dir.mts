@@ -25,10 +25,8 @@ export const SCHEMA_PACKAGE = 'omx-contract';
 
 /** The `$schema` an installed file carries: the schema of its major, by URL. */
 export const installedSchemaUrl = (major) => `https://openmixer.org/schema/omx-contract/v${major}/omx-contract.schema.json`;
-// the schema a contract file names: its id on openmixer.org, which this package writes; an installed package written
-// before that names the code host's address, under either organisation, and is read all the same until it is released
-// again (the id moved, the schema did not)
-const INSTALLED_SCHEMA = /^https:\/\/(?:openmixer\.org\/schema\/omx-contract\/v(\d+)\/|github\.com\/(?:FreeMixer|Open-Mixer)\/omx-contract\/raw\/v(\d+)\/schema\/)omx-contract\.schema\.json$/;
+// the schema a contract file names: its id on openmixer.org, which this package writes
+const INSTALLED_SCHEMA = /^https:\/\/openmixer\.org\/schema\/omx-contract\/v(\d+)\/omx-contract\.schema\.json$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const FLOOR = /^>= ((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))$/;
@@ -242,7 +240,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (typeof doc !== 'object' || doc === null || Array.isArray(doc)) refuse('fileInvalid', at, 'a data file is an object');
       const m = INSTALLED_SCHEMA.exec(doc.$schema ?? '');
       if (!m) refuse('schemaMajor', at, `$schema ${JSON.stringify(doc.$schema)} is not ${installedSchemaUrl(major)}`);
-      const named = m[1] ?? m[2];
+      const named = m[1];
       if (Number(named) !== major) refuse('schemaMajor', at, `$schema names schema major ${named}; this reader reads ${major}`);
       if (doc.requires !== undefined && (typeof doc.requires !== 'object' || doc.requires === null || Array.isArray(doc.requires))) refuse('fileInvalid', at, 'requires is not a map');
       const req = doc.requires ?? {};

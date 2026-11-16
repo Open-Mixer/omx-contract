@@ -30,10 +30,6 @@ test('a reference cycle is refused', () => {
   assert.ok(problems(t).some((p) => p.rule === 'reference' && /cycle/.test(p.message)));
 });
 
-test('a c.alias is refused by the schema (3.0.0 removed the word)', () => {
-  assert.ok(has(texts((d, at) => { at('data/kernels/echo.json', 'ECHO_TIME_RANGE').c = { alias: { fact: 'echo', field: 'timeMs' } }; }), 'ECHO_TIME_RANGE', 'schema'));
-});
-
 test('two items rendering one C name are refused', () => {
   const t = texts((d) => { d['data/kernels/contour.json'].constants.TOOL_SPLIT_LOW = { kind: 'sheet', doc: 'collides', value: { q: 1 } }; });
   assert.ok(problems(t).some((p) => p.rule === 'render-c' && /OMX_TOOL_SPLIT_LOW_Q/.test(p.message)));

@@ -27,24 +27,25 @@ const keys = () => catalogKeys(resolvedOf(data()));
 const WORD = `${ITEM}.no-audio-in`;
 const CODE = (() => resolvedOf(data()).get('HOSTING_CODES').value.noteInput.code)();
 const catalog = (messages) => ({ kind: 'catalog', lang: 'ca', owner: 'omx-contract', messages });
+const h = (text) => ({ text, by: 'human' });
 const rules = (messages) => catalogProblems('catalogs/ca.json', catalog(messages), keys()).map((p) => `${p.item}:${p.rule}`);
 
 test('a catalog keyed by a code and by <ITEM>.<word>, its placeholders in args, is green', () => {
-  assert.deepEqual(rules({ [CODE]: 'Cap directori de contracte a {path}', [WORD]: "{plugin} no té cap entrada d'àudio." }), []);
+  assert.deepEqual(rules({ [CODE]: h('Cap directori de contracte a {path}'), [WORD]: h("{plugin} no té cap entrada d'àudio.") }), []);
   assert.deepEqual(rules({}), [], 'an empty catalog: every key falls back');
 });
 
 test('fixture catalog-key: a key that is no code or word of the owner is red', () => {
-  assert.deepEqual(rules({ 'hosting.nope.gone': 'x' }), ['hosting.nope.gone:catalog-key']);
-  assert.deepEqual(rules({ [`${ITEM}.no-such-word`]: 'x' }), [`${ITEM}.no-such-word:catalog-key`]);
-  assert.deepEqual(rules({ 'NO_SUCH_ITEM.no-audio-in': 'x' }), ['NO_SUCH_ITEM.no-audio-in:catalog-key'], 'a word key whose item does not exist');
-  assert.ok(rules({ 'no-audio-in': 'x' }).every((r) => r.endsWith(':catalog-schema')) && rules({ 'no-audio-in': 'x' }).length > 0, 'a bare word is no key');
+  assert.deepEqual(rules({ 'hosting.nope.gone': h('x') }), ['hosting.nope.gone:catalog-key']);
+  assert.deepEqual(rules({ [`${ITEM}.no-such-word`]: h('x') }), [`${ITEM}.no-such-word:catalog-key`]);
+  assert.deepEqual(rules({ 'NO_SUCH_ITEM.no-audio-in': h('x') }), ['NO_SUCH_ITEM.no-audio-in:catalog-key'], 'a word key whose item does not exist');
+  assert.ok(rules({ 'no-audio-in': h('x') }).every((r) => r.endsWith(':catalog-schema')) && rules({ 'no-audio-in': h('x') }).length > 0, 'a bare word is no key');
 });
 
 test('fixture catalog-placeholders: a placeholder that is not one of its entry\'s args is red', () => {
-  assert.deepEqual(rules({ [CODE]: 'Cap directori a {dir}' }), [`${CODE}:catalog-placeholders`]);
-  assert.deepEqual(rules({ [WORD]: '{plugin} a {rate}' }), [`${WORD}:catalog-placeholders`]);
-  assert.deepEqual(rules({ [CODE]: 'Cap directori' }), [], 'a sentence may use fewer placeholders than args');
+  assert.deepEqual(rules({ [CODE]: h('Cap directori a {dir}') }), [`${CODE}:catalog-placeholders`]);
+  assert.deepEqual(rules({ [WORD]: h('{plugin} a {rate}') }), [`${WORD}:catalog-placeholders`]);
+  assert.deepEqual(rules({ [CODE]: h('Cap directori') }), [], 'a sentence may use fewer placeholders than args');
 });
 
 test('the catalog schema: kind, lang (never en), owner and messages, nothing else', () => {
@@ -61,7 +62,7 @@ test('the lookup: the catalog\'s sentence, else the source sentence, its placeho
   assert.equal(catalogPathOf('plugin-db', 'ca', root), join(root, 'plugin-db', 'catalogs', 'ca.json'));
   assert.equal(catalogDirOf('plugin-db'), '/usr/share/plugin-db/catalogs');
   mkdirSync(catalogDirOf('omx-contract', root), { recursive: true });
-  writeFileSync(catalogPathOf('omx-contract', 'ca', root), JSON.stringify(catalog({ [CODE]: 'Cap directori de contracte a {path}' })));
+  writeFileSync(catalogPathOf('omx-contract', 'ca', root), JSON.stringify(catalog({ [CODE]: h('Cap directori de contracte a {path}') })));
   const ca = loadCatalog('omx-contract', 'ca', root);
   assert.equal(fill(sentenceOf(ca, CODE, 'No contract directory at {path}'), { path: '/x' }), 'Cap directori de contracte a /x');
   assert.equal(sentenceOf(ca, WORD, '{plugin} has no audio input.'), '{plugin} has no audio input.', 'a missing entry falls back');
@@ -110,7 +111,7 @@ test('no contract data file holds a language beside the source sentence', () => 
 
 test('validate --catalogs <dir> checks a named directory: a key the owner does not declare fails the run', () => {
   const dir = scratchDir('omx-catalogs-');
-  writeFileSync(join(dir, 'ca.json'), JSON.stringify(catalog({ 'contract.no.such-code': 'x' })));
+  writeFileSync(join(dir, 'ca.json'), JSON.stringify(catalog({ 'contract.no.such-code': h('x') })));
   const r = spawnSync(process.execPath, [join(ROOT, 'bin', 'omx-contract.mjs'), 'validate', '--catalogs', dir], { encoding: 'utf8' });
   assert.equal(r.status, 1);
   assert.match(r.stderr, /catalog-key/);

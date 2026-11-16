@@ -9,7 +9,7 @@
  * declaration, by reference to the items here.
  */
 import {
-  cStringLiteral, genDeclaredListsBlock, genDeclaredRates, genDeclaredScalarsBlock, genLimitBlock, renderContractLimits,
+  cStringLiteral, genDeclaredListsBlock, genDeclaredRates, genDeclaredScalarsBlock, genLimitBlock,
   scalarLiteral,
 } from './c/contract-limits-render.mjs';
 import { ownerNames, renderOwnerHeader } from './c/owner-headers.mjs';
@@ -232,14 +232,4 @@ export function renderC(resolved, { pkg } = {}) {
   const verbs = renderVerbsHeader(resolved);
   if (verbs) files.push({ path: VERBS_HEADER, text: verbs });
   return files;
-}
-
-/**
- * The `c` target of a frozen sheet (test/fixtures/frozen-limits-sheet.json): `{ sheet }` rendered by the moved
- * renderer, for the round-trip proof.
- */
-export function renderSheetC(fixture) {
-  const s = fixture.sheet;
-  const sheet = { ...s, CORE_LIMITS: new Map(Object.entries(s.CORE_LIMITS)) };
-  return [{ path: 'omxcontract/omx_contract_limits.h', text: renderContractLimits(sheet) }];
 }

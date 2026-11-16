@@ -9,7 +9,6 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { main } from '../bin/omx-contract.mjs';
-import { roundTrip } from '../tools/proof/round-trip.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
@@ -68,7 +67,6 @@ test('declare the quanta: the console set is the contract\'s, and the readers fo
 test('the unperturbed data passes every check', () => {
   assert.equal(main(['render', '--target', 'c', '--out', `${RENDERS}/include`, '--check', '--data', UNION]), 0);
   assert.equal(main(['render', '--target', 'c', '--out', `${ROOT}/include`, '--check', '--data', DATA]), 0);
-  assert.equal(roundTrip().ok, true);
 });
 
 // 1.3.0: one case per family of items it added — move the value in its file and the c, ts and json

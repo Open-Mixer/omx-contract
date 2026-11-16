@@ -69,28 +69,6 @@ test('versions: every schema minor a release shipped, past the current one in it
   assert.deepEqual(missing, [], `shipped schema minors with no frozen copy: ${missing.join(', ')}`);
 });
 
-// The owners whose releases before schema 3 read words and names this one no longer carries: each owner's RPM -devel and DEB
-// -dev package, and the first release built against schema 3.
-const OWNER_FLOORS = [
-  ['omx-dsp-devel', 'libomxdsp-dev', '0.25.0'],
-  ['omx-clap-core-devel', 'libomx-clap-core-dev', '0.13.0'],
-  ['omx-plugins-devel', 'omx-plugins-dev', '0.13.0'],
-];
-
-test('versions: the RPM Conflicts and the DEB Breaks name the same owners at the same releases', () => {
-  const devel = read('packaging/omx-contract.spec').split('%package devel')[1].split('%description')[0];
-  const rpm = Object.fromEntries([...devel.matchAll(/^Conflicts: (\S+) < (\S+)$/gm)].map((m) => [m[1], m[2]]));
-  const control = read('debian/control');
-  const dev = control.slice(control.indexOf('Package: libomx-contract-dev\n')).split('\n\n')[0];
-  const breaks = /^Breaks: (.+)$/m.exec(dev)?.[1] ?? '';
-  const deb = Object.fromEntries([...breaks.matchAll(/([a-z0-9.+-]+) \(<< ([^)]+)\)/g)].map((m) => [m[1], m[2]]));
-  // the floor ends in `~` so a pre-release snapshot of the floor release (0.22.0~git…) is not refused: in both RPM
-  // and DEB ordering `0.22.0~x` sorts before `0.22.0`, and the CI builds of the owners are exactly such snapshots
-  assert.deepEqual(rpm, Object.fromEntries(OWNER_FLOORS.map(([r, , v]) => [r, `${v}~`])));
-  assert.deepEqual(deb, Object.fromEntries(OWNER_FLOORS.map(([, d, v]) => [d, `${v}~`])));
-  for (const [, , v] of OWNER_FLOORS) assert.match(read('debian/changelog').split('\n -- ')[0], new RegExp(v.replace(/\./g, '\\.')), `the newest changelog entry says ${v}`);
-});
-
 test('versions: package.json, the RPM spec and the debian changelog name one version', () => {
   const v = packageVersion(ROOT);
   assert.equal(/^Version: (\S+)$/m.exec(read('packaging/omx-contract.spec'))[1], v);
@@ -172,12 +150,6 @@ test('packaging: omx-contract-data holds the run-time data, noarch in both forma
   assert.match(spec.split('%package')[0], /^Requires: %\{name\}-data = %\{version\}-%\{release\}$/m, 'the RPM command requires the data');
   assert.match(spec.split('%package devel')[1].split('%description')[0], /^Requires: %\{name\}-data = %\{version\}-%\{release\}$/m, 'the RPM devel requires the data');
   for (const p of ['omx-contract', 'libomx-contract-dev']) assert.match(stanza(p), /^Depends: .*\bomx-contract-data \(= \$\{source:Version\}\)/m, `${p} depends on the data`);
-  // the files it takes over from libomx-contract-dev: Breaks and Replaces before its own version
-  for (const f of ['Breaks', 'Replaces']) assert.match(stanza('omx-contract-data'), new RegExp(`^${f}: (.*, )?libomx-contract-dev \\(<< \\$\\{source:Version\\}\\)(,|$)`, 'm'));
-  // OMX_PLUGIN_FACE_IDS is omx-plugins' from 0.19.3: an older omx-plugins-contract beside this data leaves it declared by
-  // no one, so both formats keep it out (an item has one owner; the reader refuses two)
-  assert.match(stanza('omx-contract-data'), /^Breaks: .*\bomx-plugins-contract \(<< 0\.19\.3~\)/m, 'deb: the data breaks omx-plugins-contract before 0.19.3');
-  assert.match(spec.split('%package data')[1].split('%description')[0], /^Conflicts: omx-plugins-contract < 0\.19\.3~$/m, 'rpm: the data conflicts with omx-plugins-contract before 0.19.3');
   // one list of the run-time files, the same in both formats
   const rpmData = spec.split('%files data\n')[1].split('\n\n')[0].split('\n').filter((l) => l.startsWith('%{_datadir}/omx-contract/')).map((l) => l.replace('%{_datadir}', 'usr/share').replace(/\/$/, ''));
   assert.deepEqual(rpmData.sort(), read('debian/omx-contract-data.install').trim().split('\n').sort());

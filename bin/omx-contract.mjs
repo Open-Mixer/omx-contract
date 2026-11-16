@@ -6,7 +6,7 @@
  *
  *   omx-contract validate [<input>]                            schema + semantic checks
  *   omx-contract fmt [--check] [<input>]                       the one formatting
- *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture>]
+ *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>]]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
  *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
@@ -32,7 +32,7 @@ import { fileProblems, validateData } from '../lib/validate.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
 import { placeholdersOf } from '../lib/placeholders.mjs';
-import { renderC, renderSheetC } from '../render/c.mjs';
+import { renderC } from '../render/c.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
@@ -155,11 +155,6 @@ function cmdFmt(argv) {
 }
 
 export function renderTarget(target, argv) {
-  const sheet = opt(argv, '--sheet');
-  if (sheet) {
-    if (target !== 'c') throw new Usage('--sheet renders the c target only');
-    return renderSheetC(JSON.parse(readFileSync(resolve(sheet), 'utf8')));
-  }
   const data = load(argv);
   const resolved = resolveData(data);
   const pkg = opt(argv, '--package');
@@ -635,7 +630,7 @@ async function cmdTranslate(argv) {
 
 const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract fmt [--check] [<input>]
-       omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>] | --sheet <fixture.json>]
+       omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>]]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
        omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]

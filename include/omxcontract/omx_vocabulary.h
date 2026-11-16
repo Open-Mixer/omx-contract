@@ -293,8 +293,10 @@
 #define OMX_PANEL_FAMILIES_REVERB_TEXT_EN "A reverb's panel family."
 #define OMX_PANEL_FAMILIES_PITCH "pitch" ///< a pitch shifter
 #define OMX_PANEL_FAMILIES_PITCH_TEXT_EN "A pitch shifter's panel family."
-#define OMX_PANEL_FAMILIES_COUNT 12u
-#define OMX_PANEL_FAMILIES_INIT { "none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch" }
+#define OMX_PANEL_FAMILIES_UTILITY "utility" ///< a gain trim, a stereo width control or another utility that shapes a signal without a processor's character
+#define OMX_PANEL_FAMILIES_UTILITY_TEXT_EN "A utility's panel family: a trim, a width control, a balancer or a clipper."
+#define OMX_PANEL_FAMILIES_COUNT 13u
+#define OMX_PANEL_FAMILIES_INIT { "none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility" }
 
 /* PANEL_STANDARD_WIDGETS (data/panel.json) */
 #define OMX_PANEL_STANDARD_WIDGETS_KNOB "knob" ///< a travel

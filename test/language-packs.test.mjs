@@ -8,15 +8,16 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { ROOT } from './helpers.mjs';
+import { ROOT, scratchDir } from './helpers.mjs';
 import * as cat from '../lib/catalog.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
 import { validate } from '../lib/schema-validate.mjs';
+import { toMake } from '../lib/translate.mjs';
 
 const CLI = join(ROOT, 'bin', 'omx-contract.mjs');
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
@@ -42,11 +43,14 @@ test('the catalog schema: an entry is a sentence, a person\'s entry, or a model\
   const ok = against('catalog');
   assert.ok(ok(catalog('es', { [CODE]: 'Ningún directorio de contrato en {path}' })).ok, 'a plain sentence stays valid (by a person) for one minor');
   assert.ok(ok(catalog('es', { [CODE]: { text: 'Ningún directorio en {path}', by: 'human' } })).ok);
+  assert.ok(ok(catalog('es', { [CODE]: { text: 'Bytes.', by: 'same', source: sha('Bytes.') } })).ok, 'by: same is a sentence kept identical to English, with its source hash');
+  assert.ok(!ok(catalog('es', { [CODE]: { text: 'Bytes.', by: 'same' } })).ok, 'by: same records its source hash');
+  assert.ok(!ok(catalog('es', { [CODE]: { text: 'Bytes.', by: 'same', source: sha('Bytes.'), model: 'm' } })).ok, 'by: same carries no model');
   assert.ok(ok(catalog('es', { [CODE]: machine('Ningún directorio en {path}') })).ok);
   assert.ok(!ok(catalog('es', { [CODE]: { text: 'x', by: 'machine', source: sha(SRC) } })).ok, 'a model\'s entry names its model');
   assert.ok(!ok(catalog('es', { [CODE]: { text: 'x', by: 'machine', model: 'm' } })).ok, 'a model\'s entry records its source hash');
   assert.ok(!ok(catalog('es', { [CODE]: { text: 'x', by: 'machine', model: 'm', source: 'abc' } })).ok, 'the hash is 64 hex');
-  assert.ok(!ok(catalog('es', { [CODE]: { text: 'x', by: 'someone' } })).ok, 'by is human or machine');
+  assert.ok(!ok(catalog('es', { [CODE]: { text: 'x', by: 'someone' } })).ok, 'by is human, same or machine');
   assert.ok(!ok(catalog('es', { [CODE]: { text: '', by: 'human' } })).ok, 'a text is never empty');
   assert.ok(!ok(catalog('es', { [CODE]: { text: 'x', by: 'human', extra: 1 } })).ok, 'nothing else');
 });
@@ -57,7 +61,7 @@ test('a model\'s entry with a placeholder that is not one of its args is red, as
 });
 
 test('the TS reader: a stale model entry is skipped (the source sentence shows); a current one and a person\'s are read', () => {
-  const root = mkdtempSync(join(tmpdir(), 'omx-langpack-'));
+  const root = scratchDir('omx-langpack-');
   mkdirSync(join(root, 'omx-contract', 'catalogs'), { recursive: true });
   const write = (messages) => writeFileSync(catalogPathOf('omx-contract', 'es', root), JSON.stringify(catalog('es', messages)));
   write({ [CODE]: machine('Ningún directorio en {path}') });
@@ -68,10 +72,14 @@ test('the TS reader: a stale model entry is skipped (the source sentence shows);
   assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, SRC), 'Ningún directorio en {path}');
   write({ [CODE]: 'Ningún directorio en {path}' });
   assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, SRC), 'Ningún directorio en {path}');
+  write({ [CODE]: { text: 'Bytes.', by: 'same', source: sha('Bytes.') } });
+  assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, 'Bytes.'), 'Bytes.', 'a same entry is read');
+  assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, 'Octets.'), 'Octets.', 'a same entry whose source changed is stale');
+  assert.equal(toMake(new Map([[CODE, { en: 'Octets.', args: [] }]]), loadCatalog('omx-contract', 'es', root)).size, 0, 'translate keeps a same entry, never regenerates it');
 });
 
 test('the Python reader skips a stale model entry the same way, and reads a person\'s', { skip: spawnSync('python3', ['--version']).status !== 0 && 'no python3' }, () => {
-  const root = mkdtempSync(join(tmpdir(), 'omx-langpack-py-'));
+  const root = scratchDir('omx-langpack-py-');
   mkdirSync(join(root, 'omx-contract', 'catalogs'), { recursive: true });
   writeFileSync(catalogPathOf('omx-contract', 'es', root), JSON.stringify(catalog('es', {
     [CODE]: machine('Ningún directorio en {path}', 'No contract dir at {path}'),
@@ -150,7 +158,7 @@ async function fakeEndpoint({ breakKey, breakOver, garbleOver, dropOver, router,
 
 /** A copy of this tree's data/ and catalogs/ to run translate over. */
 function ownerTree() {
-  const dir = mkdtempSync(join(tmpdir(), 'omx-translate-'));
+  const dir = scratchDir('omx-translate-');
   cpSync(join(ROOT, 'data'), join(dir, 'data'), { recursive: true });
   mkdirSync(join(dir, 'catalogs'));
   return dir;
@@ -298,7 +306,7 @@ const SOURCE = {
 
 /** A surface's tree: its source file and an empty catalogs directory. */
 function sourceTree() {
-  const dir = mkdtempSync(join(tmpdir(), 'omx-translate-source-'));
+  const dir = scratchDir('omx-translate-source-');
   writeFileSync(join(dir, 'source.json'), JSON.stringify(SOURCE));
   mkdirSync(join(dir, 'catalogs'));
   return dir;
@@ -411,9 +419,15 @@ test('a batch the router answered through a fallback to a paid group is refused,
 // ---- installed: the CLI finds the language list where the data package installs it ----------------------------------
 
 test('installed, translate --check reads languages.json from the data package\'s place, not from the CLI\'s tree', () => {
-  const stage = mkdtempSync(join(tmpdir(), 'omx-contract-installed-'));
-  const make = (target) => spawnSync('make', [target, 'PREFIX=/usr', `DESTDIR=${stage}`], { cwd: ROOT, encoding: 'utf8' });
+  const stage = scratchDir('omx-contract-installed-');
+  const make = (target, ...more) => spawnSync('make', [...(Array.isArray(target) ? target : [target]), ...more, 'PREFIX=/usr', `DESTDIR=${stage}`], { cwd: ROOT, encoding: 'utf8' });
+  // install-cli builds lib/ first. A lib/ no older than its sources must stay as it is: tsc rewriting lib/*.mjs in place
+  // while the suite's other files load them failed "does not provide an export" under `node --test` (omx-contract#39).
+  assert.equal(make(['-q', 'build-lib']).status, 0, 'precondition: lib/ is built from the current sources (npm run build)');
+  const libStamp = () => Object.fromEntries(readdirSync(join(ROOT, 'lib')).map((f) => [f, statSync(join(ROOT, 'lib', f)).mtimeMs]));
+  const libBefore = libStamp();
   for (const t of ['install', 'install-cli']) assert.equal(make(t).status, 0, `make ${t}`);
+  assert.deepEqual(libStamp(), libBefore, 'make install-cli left lib/ as it was: a fresh lib/ is not rebuilt in place');
   const cli = join(stage, 'usr/lib/omx-contract/bin/omx-contract.mjs');
   assert.ok(!readdirSync(join(stage, 'usr/lib/omx-contract')).includes('share'), 'positive control: the CLI\'s tree carries no share/');
   const env = { ...process.env };

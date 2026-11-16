@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { execFileSync } from 'node:child_process';
+import { packedFiles } from './helpers.mjs';
 import { readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +22,6 @@ test('each example descriptor resolves through the package exports to the tree f
 });
 
 test('the packed package carries every example descriptor', () => {
-  const [pack] = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: ROOT, encoding: 'utf8' }));
-  const packed = new Set(pack.files.map((x) => x.path));
+  const packed = new Set(packedFiles());
   for (const f of EXAMPLES) assert.ok(packed.has(`examples/descriptors/${f}`), f);
 });

@@ -8,7 +8,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { ROOT } from './helpers.mjs';
+import { ROOT, scratchDir } from './helpers.mjs';
 
 const MODULE = join(ROOT, 'share/omx-contract/omx_contract_catalog.py');
 const hasPython = spawnSync('python3', ['--version']).status === 0;
@@ -35,7 +35,7 @@ print(m["word_key"]("MEASUREMENT_UNMEASURED_REASONS", "no-audio-in"))
 });
 
 test('the lookup: the catalog\'s sentence, else the source sentence, its placeholders filled', { skip: !hasPython && 'no python3' }, () => {
-  const root = mkdtempSync(join(tmpdir(), 'omx-catalog-py-'));
+  const root = scratchDir('omx-catalog-py-');
   mkdirSync(join(root, 'omx-contract', 'catalogs'), { recursive: true });
   writeFileSync(join(root, 'omx-contract', 'catalogs', 'ca.json'), JSON.stringify({
     kind: 'catalog', lang: 'ca', owner: 'omx-contract', messages: { 'contract.dir.absent': 'Cap directori de contracte a {path}' },
@@ -60,7 +60,7 @@ print(m["fill"]("{a} and {b}", {"a": 1}))
 });
 
 test('a catalog whose kind, owner or lang does not match falls back, as the JS reader does', { skip: !hasPython && 'no python3' }, () => {
-  const root = mkdtempSync(join(tmpdir(), 'omx-catalog-py-bad-'));
+  const root = scratchDir('omx-catalog-py-bad-');
   mkdirSync(join(root, 'omx-contract', 'catalogs'), { recursive: true });
   for (const [name, doc] of [
     ['wrong-kind.json', { kind: 'words', lang: 'ca', owner: 'omx-contract', messages: {} }],

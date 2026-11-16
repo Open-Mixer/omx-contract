@@ -97,7 +97,7 @@ not the one its path gives.
   args)`, no schema validation of its own (a surface only ever reads an installed catalog; `validate --catalogs`
   checks one at build time).
 - **Language packs** (omx-contract#21). An entry of a catalog is the sentence alone (a person's; valid for one minor),
-  `{ "text", "by": "human" }`, a person's entry, or `{ "text", "by": "machine", "model", "source" }`, made by `model`
+  `{ "text", "by": "human" }`, a person's entry, `{ "text", "by": "same", "source" }`, a sentence that is the same word as the English one it records the hash of (a unit name, not a glossary term; kept, never regenerated, stale like any entry when its source changes), or `{ "text", "by": "machine", "model", "source" }`, made by `model`
   from the source sentence whose sha256 (the lowercase hex of its UTF-8) is `source` (`$defs/catalogEntry`,
   `$defs/sourceHash`). A model's entry whose source sentence no longer hashes to its `source` is stale: both readers
   skip it and show the source sentence (`sourceHash`, `isStale`; `source_hash` in Python). `share/omx-contract/
@@ -115,7 +115,15 @@ not the one its path gives.
   `args`) or is refused, left out, and the run is red. A person's entry is never made again. `--source <file>` reads the source sentences from a file
   instead of contract data (#24): `{ "<key>": { "text", "args" } }`, a string value being a generated file's banner,
   for strings that are no contract data (a surface's own, keyed `WEB_UI.<domain>.<path>`), with `--catalogs` and
-  `--package`; everything else, `--check` included, is the same. It runs at an owner's
+  `--package`; everything else, `--check` included, is the same. `--owner <tree>` reads the tree's declared code
+  locations: its `data/` and, for an owner whose codes are one bare item file, `schema/codes.json` (kind `codes` at
+  the top, wrapped as `<PACKAGE>_CODES`, as the owners' own gates wrap it). Where a file of the tree's `data/` names
+  packages in `requires`, each is resolved first through `$OMX_CONTRACT_PATH`, then through the installed contract
+  directory (pkg-config), the lookup `--installed` makes, so a reference into a required package resolves. A
+  requirement found in neither is refused with `contract.requires.unresolved`, naming the requirement, every place
+  looked and the `--installed` form to use; a tree whose catalogs hold keys and whose declared locations hold no code
+  or word is refused with `contract.owner.codes-unlocated`, naming the places looked. Neither ever reports a key or a
+  reference undeclared that the tree does declare. It runs at an owner's
   release preparation and its catalogs are committed; it refuses to run inside a package build, which has no network
   and must be reproducible. `omx-contract translate --check` is the release gate, with no endpoint: a listed language
   with no catalog, a key a catalog lacks, or a stale entry is red. Each language is its own package built from the

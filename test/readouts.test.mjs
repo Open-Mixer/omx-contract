@@ -3,8 +3,6 @@
 // A kernel's readouts (docs/readouts.md): the shape the schema holds them to, the rules about their numbers, the
 // one formatting, the c, ts and json renders, and how semver classifies a change to one.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { test } from 'node:test';
 import { loadData } from '../lib/data.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
@@ -13,7 +11,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT, UNION, resolvedOf, texts } from './helpers.mjs';
+import { UNION, resolvedOf, texts } from './helpers.mjs';
 
 const swell = 'data/kernels/swell.json';
 const readout = (over = {}) => ({ name: 'gainReductionDb', doc: 'The swell gain reduction.', unit: 'dB', min: { ref: 'SWELL_LIMITS.rangeDb.min' }, max: 0, scale: 'linear', rateHz: 50, ...over });
@@ -102,41 +100,6 @@ test('a readout bounded by reference: its range read off the travel, its rate of
   const moved = resolvedOf(texts((d, at) => { at(swell, 'SWELL_LIMITS.rangeDb').min = -72; }));
   assert.equal(moved.kernels.swell.readouts[0].min, -72, 'the readout follows the travel that bounds it');
   assert.equal(r.get('READOUT_RATE_HZ').value, 50);
-});
-
-test('the C render keeps every 2.3.0 line, byte for byte and in order, and adds only READOUT_RATE_HZ and the readouts', () => {
-  const old = readFileSync(join(ROOT, 'test/fixtures/omx-contract-2.3.0/omx_contract_limits.h'), 'utf8').split('\n');
-  // the released 2.4.0 header: the release the readouts came in (later releases add their own, test/comp-topology.test.mjs)
-  const now = readFileSync(join(ROOT, 'test/fixtures/omx-contract-2.4.0/omx_contract_limits.h'), 'utf8').split('\n');
-  let i = 0;
-  const added = [];
-  for (const line of now) {
-    if (i < old.length && line === old[i]) i++;
-    else added.push(line);
-  }
-  assert.equal(i, old.length, `2.3.0 line ${i + 1} is not in the render: ${old[i]}`);
-  const block = (kernel, min) => [
-    `enum omx_${kernel}_readouts {`,
-    `  OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB = 0,`,
-    '};',
-    `#define OMX_${kernel.toUpperCase()}_READOUT_COUNT 1u`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_MIN ${min}`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_MAX 0.0f`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_RATE_HZ 50`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_SCALE OMX_PARAM_SCALES_LINEAR`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_UNIT "dB"`,
-  ];
-  assert.deepEqual(added, [
-    '#define OMX_READOUT_RATE_HZ 50',
-    '/* Every kernel\'s readouts, the meters a host draws (docs/readouts.md): an enum of the readouts at their position,',
-    ' * `OMX_<KERNEL>_READOUT_COUNT`, and per readout its display range (_MIN, _MAX), _RATE_HZ, _SCALE (an OMX_PARAM_SCALES_*',
-    ' * member) and _UNIT. */',
-    ...block('comp', '-60.0f'),
-    ...block('deesser', '-24.0f'),
-    ...block('gate', '-90.0f'),
-    ...block('limiter', '-12.0f'),
-    '',
-  ]);
 });
 
 // The per-band readouts of the remaining-FX wave (docs/readouts.md, #107): the dynamic EQ's band gain and the multiband's

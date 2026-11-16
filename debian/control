@@ -16,8 +16,6 @@ Architecture: all
 Multi-Arch: foreign
 Section: misc
 Depends: ${misc:Depends}
-Breaks: libomx-contract-dev (<< ${source:Version}), omx-plugins-contract (<< 0.19.3~)
-Replaces: libomx-contract-dev (<< ${source:Version})
 Description: OpenMixer declarations read at run time: contract directory, schema
  A fader range, a default, a plugin parameter, a supported sample rate: in
  OpenMixer each of these is written down once, in omx-contract, and everything
@@ -56,7 +54,6 @@ Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}, omx-contract-data (= ${source:Version})
 Recommends: omx-contract (= ${source:Version})
-Breaks: libomxdsp-dev (<< 0.25.0~), libomx-clap-core-dev (<< 0.13.0~), omx-plugins-dev (<< 0.13.0~)
 Description: one shared source of truth for every OpenMixer knob, range, default
  A fader range, a default, a plugin parameter, a supported sample rate: in
  OpenMixer each of these is written down once, in omx-contract, and everything
@@ -96,8 +93,6 @@ Architecture: all
 Multi-Arch: foreign
 Section: localization
 Depends: omx-contract-data (= ${source:Version}), ${misc:Depends}
-Breaks: omx-contract-data (<< 3.16.0~)
-Replaces: omx-contract-data (<< 3.16.0~)
 Description: Catalan sentences of the OpenMixer declarations' codes and words
  The Catalan catalog of omx-contract's codes and words
  (/usr/share/omx-contract/catalogs/ca.json): a surface shows these sentences

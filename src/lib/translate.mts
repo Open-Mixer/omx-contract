@@ -29,8 +29,8 @@ export interface ReleaseProblem {
   readonly message: string;
 }
 
-/** Whether `entry` is kept, not generated: a sentence alone, `by: human`, or `by: same`. */
-export const isHuman = (entry: CatalogEntry): boolean => typeof entry === 'string' || entry.by !== 'machine';
+/** Whether `entry` is kept, not generated: `by: human`, or `by: same`. */
+export const isHuman = (entry: CatalogEntry): boolean => entry.by !== 'machine';
 
 /** The keys with a source sentence: what a catalog of the owner holds, whole. */
 function sourced(keys: ReadonlyMap<string, CatalogKey>): [string, string, readonly string[]][] {
@@ -105,7 +105,6 @@ export function catalogText(catalog: Catalog & { readonly $schema?: string }, be
 
 /** An entry on one line, its fields in the schema's order. */
 function entryJson(entry: CatalogEntry): string {
-  if (typeof entry === 'string') return JSON.stringify(entry);
   const { text, by, model, source } = entry;
   return `{ ${[['text', text], ['by', by], ['model', model], ['source', source]].filter(([, v]) => v !== undefined).map(([k, v]) => `"${k}": ${JSON.stringify(v)}`).join(', ')} }`;
 }

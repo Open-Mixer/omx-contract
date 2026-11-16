@@ -130,9 +130,10 @@ inventory-check:
 # No tracked file points into a private repository, branch, issue or path, with no exemption.
 public-sources: private-refs
 
-# Open-Mixer/.github's private-refs check, from a checkout of it (OPENMIXER_DOTGITHUB, else ../freemixer-dotgithub); CI
+# Open-Mixer/.github's private-refs check, from a checkout of it (OPENMIXER_DOTGITHUB); CI
 # runs it through the public-sources-check workflow.
-OPENMIXER_DOTGITHUB ?= $(or $(FREEMIXER_DOTGITHUB),../freemixer-dotgithub)
+OPENMIXER_DOTGITHUB ?=
 .PHONY: private-refs
 private-refs:
+	@test -n "$(OPENMIXER_DOTGITHUB)" || { echo 'private-refs: set OPENMIXER_DOTGITHUB to a checkout of Open-Mixer/.github' >&2; exit 1; }
 	$(OPENMIXER_DOTGITHUB)/.github/actions/private-refs-check/check.sh .

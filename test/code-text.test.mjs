@@ -28,7 +28,7 @@ test('a code with its source sentence, its placeholders all in args, is green', 
 
 test('fixture text-ca: a code still carrying text.ca is red: the source sentence is the only language in contract data', () => {
   const p = problems((d) => { withText(d).text.ca = 'No hi ha cap directori de contracte a {path}'; });
-  assert.ok(p.includes('HOSTING_CODES:code-text-language'), p.join());
+  assert.ok(p.includes('HOSTING_CODES:schema'), p.join());
 });
 
 test('fixture text-other-language: a language beside en is red', () => {

@@ -5,9 +5,9 @@
  * The contract holds the source sentence, in English, with its `args`; a translation is never contract data. An owner
  * ships `catalogs/<lang>.json`, installed to `/usr/share/<owner>/catalogs/<lang>.json` by its rpm and its deb alike:
  *
- *     { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": "<sentence with {args}>" } }
+ *     { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": { "text": "<sentence with {args}>", "by": "human" } } }
  *
- * An entry is the sentence, or the sentence with how it was made (omx-contract#21): `{ text, by: 'human' }` is a
+ * An entry is the sentence with how it was made (omx-contract#21): `{ text, by: 'human' }` is a
  * person's, `{ text, by: 'same', source }` is a sentence that is the same word as the English one (kept, never regenerated), and `{ text, by: 'machine', model, source }` was made by `model` from the source sentence whose
  * {@link sourceHash} is `source`. A model's entry whose source sentence no longer hashes to `source` is stale: the
  * lookup skips it and shows the source sentence, until `omx-contract translate` makes it again.
@@ -33,8 +33,8 @@ export interface CatalogRecord {
   readonly source?: string;
 }
 
-/** A catalog entry: the sentence alone (a person's), or the sentence with how it was made. */
-export type CatalogEntry = string | CatalogRecord;
+/** A catalog entry: the sentence with how it was made. */
+export type CatalogEntry = CatalogRecord;
 
 /** A catalog document: `{ kind: 'catalog', lang, owner, messages }`. */
 export interface Catalog {
@@ -80,11 +80,11 @@ export function sourceHash(sentence: string): string {
 }
 
 /** An entry's sentence. */
-export const entryText = (entry: CatalogEntry): string => (typeof entry === 'string' ? entry : entry.text);
+export const entryText = (entry: CatalogEntry): string => entry.text;
 
 /** Whether `entry` was made from another source sentence than `source`: a recorded hash `source` no longer has. */
 export function isStale(entry: CatalogEntry, source: string): boolean {
-  return typeof entry !== 'string' && entry.source !== undefined && entry.source !== sourceHash(source);
+  return entry.source !== undefined && entry.source !== sourceHash(source);
 }
 
 /** The key of a code (its code) or of a word (`<ITEM>.<word>`). */

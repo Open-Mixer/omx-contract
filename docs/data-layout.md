@@ -72,8 +72,7 @@ not the one its path gives.
   omx-contract#64: no backwards compatibility before the first public release); the release's changelog names the
   code that takes its place, if any, and every consumer that still read the key moves in its own pin bump.
 - A code or a word may carry the one sentence a person sees for it, written by its owner beside it: `text`, the source
-  sentence in English (`{ "en": "..." }`, the only language contract data holds: a `ca` is refused by the validator
-  (`code-text-language`, `word-text-language`) and any other key by the schema; a translation is the owner's
+  sentence in English (`{ "en": "..." }`, the only language contract data holds: any other key is refused by the schema; a translation is the owner's
   catalog), and `args`, the ordered placeholder
   names it may use, each `{name}` in the sentence. The validator refuses a placeholder outside `args` (`code-text-arg`,
   `word-text-arg`); adding a sentence is MINOR, rewording it PATCH, removing it or changing `args` MAJOR. The renders
@@ -84,7 +83,7 @@ not the one its path gives.
 - **Catalogs.** A translation is never contract data: an owner ships one catalog per language, `catalogs/<lang>.json`
   in its tree, installed to `/usr/share/<owner>/catalogs/<lang>.json` by its rpm and its deb alike (omx-contract's own:
   `/usr/share/omx-contract/catalogs/`). A catalog is `{ "kind": "catalog", "lang": "ca", "owner": "<package>",
-  "messages": { "<key>": "<sentence>" } }` (`$defs/catalog`, which `catalogs/<lang>.json` names as its `$schema`). A key is a code of the owner, bare
+  "messages": { "<key>": { "text": "<sentence>", "by": "human" } } }` (`$defs/catalog`, which `catalogs/<lang>.json` names as its `$schema`). A key is a code of the owner, bare
   (`contract.dir.absent`), or a word as `<ITEM>.<word>` (`PLUGIN_DB_REASONS.no-cell`), since one word may belong to two
   items. `omx-contract validate` reads `catalogs/` beside the data directory and refuses a key that is no code or word
   the owner declares (`catalog-key`, a word key of an item that does not exist included) and a placeholder that is not
@@ -96,7 +95,7 @@ not the one its path gives.
   generated `omx_contract.py`: `load_catalog(owner, lang)`, `sentence_of(catalog, key, source)` and `fill(sentence,
   args)`, no schema validation of its own (a surface only ever reads an installed catalog; `validate --catalogs`
   checks one at build time).
-- **Language packs** (omx-contract#21). An entry of a catalog is the sentence alone (a person's; valid for one minor),
+- **Language packs** (omx-contract#21). An entry of a catalog is
   `{ "text", "by": "human" }`, a person's entry, `{ "text", "by": "same", "source" }`, a sentence that is the same word as the English one it records the hash of (a unit name, not a glossary term; kept, never regenerated, stale like any entry when its source changes), or `{ "text", "by": "machine", "model", "source" }`, made by `model`
   from the source sentence whose sha256 (the lowercase hex of its UTF-8) is `source` (`$defs/catalogEntry`,
   `$defs/sourceHash`). A model's entry whose source sentence no longer hashes to its `source` is stale: both readers

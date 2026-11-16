@@ -24,28 +24,16 @@ export const VOCABULARY = new Set([...loadData(DATA).items.values()].filter(({ i
 export const DATA_ITEMS = loadData(DATA).items.size;
 
 /**
- * The macro names 3.0.0's removal of `c.alias` dropped: a travel's second C spelling,
- * OMX_<FACT>_<FIELD>_MIN/_MAX/_DEFAULT. Read generically from the released 2.10.0 header, the last one to carry the
- * aliases section, rather than hand-listed: an old omx-dsp fixture that reads one of these is before 0.25.0, which
- * omx-contract-devel 3.0.0 conflicts with.
- */
-export const ALIAS_NAMES = (() => {
-  const h = readFileSync(join(ROOT, 'test/fixtures/omx-contract-2.10.0/omx_contract_limits.h'), 'utf8');
-  const section = /\/\* The second C spelling of a travel[\s\S]*?\n\n(?=\/\* Every scalar)/.exec(h)[0];
-  return new Set([...section.matchAll(/^#define (OMX_\w+)/gm)].map((m) => m[1]));
-})();
-
-/**
  * The invented kernels and primitives of test/fixtures/tool-kernels/: the shapes the tool's tests read and break, no owner's values.
  * The definitions themselves are held by their owners' own CI (omx-dsp's `make contract-proof` and contract tests).
  */
 export const TOOL_KERNELS = join(ROOT, 'test/fixtures/tool-kernels');
 
 /**
- * omx-clap-core's hosting file, frozen at its 2.14.0 bytes, with its render word: kept until omx-clap-core carries its
- * own proof (omx-contract#192).
+ * A hosting file shaped like omx-clap-core's (a sheet of stage limits, a codes item, its own render word), for the tool's
+ * own tests: the owner's real file is held by omx-clap-core's CI (make test-contract), not frozen here.
  */
-export const HOSTING = join(ROOT, 'test/fixtures/owners-2.14.0/hosting.json');
+export const HOSTING = join(TOOL_KERNELS, 'hosting.json');
 
 const scratch = [];
 process.on('exit', () => { for (const d of scratch) rmSync(d, { recursive: true, force: true }); });
@@ -57,7 +45,7 @@ export function scratchDir(prefix) {
   return dir;
 }
 
-/** A scratch data directory holding data/, the tool kernels in kernels/ and the hosting file (schema/ beside it). */
+/** A scratch data directory holding data/, the tool kernels in kernels/ and the tool hosting file (schema/ beside it). */
 export function scratchUnion() {
   const dir = scratchDir('omx-contract-union-');
   cpSync(DATA, join(dir, 'data'), { recursive: true });
@@ -67,7 +55,7 @@ export function scratchUnion() {
   return join(dir, 'data');
 }
 
-/** The union of data/, the tool kernels and the hosting file, read like a data directory. */
+/** The union of data/, the tool kernels and the tool hosting file, read like a data directory. */
 export const UNION = scratchUnion();
 
 const unionItems = loadData(UNION).items;

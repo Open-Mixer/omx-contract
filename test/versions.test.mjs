@@ -54,6 +54,21 @@ test('versions: the schema is no newer than the next release, the minor it left 
   for (const [f, floor] of floors) assert.ok(n(floor) <= n(schema), `${f} requires schema ${floor}, newer than ${schema}`);
 });
 
+// Every schema a release shipped is frozen once the schema moves past its minor: each release entry of debian/changelog
+// names its schema ("Schema 3.18.0: ..."), and a reader that meets a floor at that minor validates against
+// schema/history/<minor>.schema.json (src/lib/contract-dir.mts). Schema 3.18.0 shipped in 3.18.0 and 3.18.1 and the
+// schema moved to 3.19.0 with no frozen copy, which turned every floor at 3.18 red.
+test('versions: every schema minor a release shipped, past the current one in its major, is frozen in schema/history', () => {
+  const schema = JSON.parse(read('schema/omx-contract.schema.json'))['x-omx-schema-version'];
+  const [major] = schema.split('.').map(Number);
+  const n = (x) => x.split('.').map(Number).reduce((a, b) => a * 1000 + b, 0);
+  const shipped = [...read('debian/changelog').matchAll(/^ {2}\* Schema (\d+)\.(\d+)\.\d+/gm)].map(([, a, i]) => `${a}.${i}.0`);
+  assert.ok(shipped.includes('3.16.0'), 'positive control: the release entries name their schema');
+  const past = [...new Set(shipped)].filter((m) => Number(m.split('.')[0]) === major && n(m) < n(schema));
+  const missing = past.filter((m) => !existsSync(join(ROOT, `schema/history/${m}.schema.json`)));
+  assert.deepEqual(missing, [], `shipped schema minors with no frozen copy: ${missing.join(', ')}`);
+});
+
 // The owners whose releases before schema 3 read words and names this one no longer carries: each owner's RPM -devel and DEB
 // -dev package, and the first release built against schema 3.
 const OWNER_FLOORS = [

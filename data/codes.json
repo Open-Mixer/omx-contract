@@ -75,16 +75,6 @@
           "path"
         ]
       },
-      "schemaFloorUnderstated": {
-        "code": "contract.schema.floor-understated",
-        "doc": "a file does not validate against the schema at its requires.omx-contract-schema floor, only against a newer one: the floor understates what it needs",
-        "text": {
-          "en": "The file at {path} needs a newer schema than the floor it states. Raise the floor to the version it actually needs."
-        },
-        "args": [
-          "path"
-        ]
-      },
       "fileNotJson": {
         "code": "contract.file.not-json",
         "doc": "a file does not parse",

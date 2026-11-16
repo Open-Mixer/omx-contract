@@ -984,6 +984,41 @@
         }
       }
     },
+    "PANEL_DISPLAY_KINDS": {
+      "description": "The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+      "enum": [
+        "gain_reduction_bar",
+        "transfer_curve",
+        "eq_response",
+        "meter"
+      ],
+      "x-omx-texts": {
+        "gain_reduction_bar": {
+          "text": {
+            "en": "A bar showing the gain reduction."
+          },
+          "args": []
+        },
+        "transfer_curve": {
+          "text": {
+            "en": "The dynamics transfer curve: output level against input level."
+          },
+          "args": []
+        },
+        "eq_response": {
+          "text": {
+            "en": "The equaliser's frequency response."
+          },
+          "args": []
+        },
+        "meter": {
+          "text": {
+            "en": "A level meter."
+          },
+          "args": []
+        }
+      }
+    },
     "PLUGIN_FEATURE_AUDIO_EFFECT": {
       "description": "The CLAP plugin features and LV2 plugin classes that become the descriptor feature audio-effect: every kind of effect, a filter, a dynamics processor, a modulation or a space, and the channel-less roles of a processor (utility, mixing, mastering).",
       "enum": [

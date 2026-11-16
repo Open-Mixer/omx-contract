@@ -108,7 +108,7 @@ test('every words item renders an X-macro, X(code, "word", NAME), in its declare
 });
 
 test('a word whose C name meets a words item\'s X-macro is refused', () => {
-  const clash = (d) => { d[R].RESOURCE_BASES_PROBE = { kind: 'words', since: '3.19.0', doc: 'x', words: { one: { word: 'one' } } }; };
+  const clash = (d) => { d[R].RESOURCE_BASES_PROBE = { kind: 'words', since: '3.20.0', doc: 'x', words: { one: { word: 'one' } } }; };
   assert.ok(problems(texts(clash)).some((p) => p.rule === 'c-name-unique' && /OMX_RESOURCE_BASES_PROBE /.test(p.message)));
 });
 

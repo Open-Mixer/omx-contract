@@ -504,7 +504,7 @@ export function validateData(data) {
     if (target !== 'c') continue;
     for (const f of out) {
       const seen = new Map();
-      for (const m of f.text.matchAll(/^(?:#define |  )(OMX_\w+)(?= = |\s)/gm)) {
+      for (const m of f.text.matchAll(/^(?:#define |  )(OMX_\w+)(?= = |\s|\()/gm)) {
         if (seen.has(m[1])) say('-', m[1], 'c-name-unique', `${f.path} defines ${m[1]} twice`);
         seen.set(m[1], true);
       }

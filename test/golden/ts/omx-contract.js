@@ -7222,6 +7222,43 @@ export const PANEL_WIDGETS = {
 };
 
 /**
+ * The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ *
+ * Why: omx-clap-core restated these words by hand beside the families and widgets; a display kind is a declaration, so it lives here (vocabulary-owner rule).
+ * @see data/panel.json
+ */
+export const PANEL_DISPLAY_KINDS = {
+  "gainReductionBar": {
+    "word": "gain_reduction_bar",
+    "doc": "a bar of the gain a dynamics processor takes off",
+    "text": {
+      "en": "A bar showing the gain reduction."
+    }
+  },
+  "transferCurve": {
+    "word": "transfer_curve",
+    "doc": "a dynamics processor's output level against its input level",
+    "text": {
+      "en": "The dynamics transfer curve: output level against input level."
+    }
+  },
+  "eqResponse": {
+    "word": "eq_response",
+    "doc": "an equaliser's frequency response",
+    "text": {
+      "en": "The equaliser's frequency response."
+    }
+  },
+  "meter": {
+    "word": "meter",
+    "doc": "a level meter",
+    "text": {
+      "en": "A level meter."
+    }
+  }
+};
+
+/**
  * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.
  * @see data/param-contract.json
  */
@@ -8938,6 +8975,17 @@ export const PANEL_WIDGETS_WORDS = [
   "fader",
   "switch",
   "selector"
+];
+
+/**
+ * The words of PANEL_DISPLAY_KINDS, in their declared order.
+ * @see data/panel.json
+ */
+export const PANEL_DISPLAY_KINDS_WORDS = [
+  "gain_reduction_bar",
+  "transfer_curve",
+  "eq_response",
+  "meter"
 ];
 
 /**

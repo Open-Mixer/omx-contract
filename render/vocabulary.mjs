@@ -63,6 +63,11 @@ export function renderVocabularyHeader(resolved, pkg) {
       }
       lines.push(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`);
       lines.push(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`);
+      // X(<code>u, "<word>", <NAME>) per word, the code its place in the order: a consumer's tables follow the item
+      const xs = Object.entries(r.value).map(([n, w], i) => `X(${i}u, ${cStringLiteral(w.word)}, ${constCase(n)})`);
+      const rows = [];
+      for (let i = 0; i < xs.length; i += 4) rows.push(`    ${xs.slice(i, i + 4).join(' ')}`);
+      lines.push(`#define OMX_${r.name}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
     }
     return lines.join('\n');
   });

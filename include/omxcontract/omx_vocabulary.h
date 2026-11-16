@@ -39,6 +39,11 @@
 #define OMX_CURVE_AXES_OUTPUT_PITCH_TEXT_EN "The pitch the effect sounds for an input pitch, semitones on the same origin: an unshifted map is the diagonal."
 #define OMX_CURVE_AXES_COUNT 13u
 #define OMX_CURVE_AXES_INIT { "frequency", "magnitude", "input-level", "output-level", "input-amplitude", "output-amplitude", "delay-time", "decay-time", "level", "phase", "modulation", "input-pitch", "output-pitch" }
+#define OMX_CURVE_AXES(X) \
+    X(0u, "frequency", FREQUENCY) X(1u, "magnitude", MAGNITUDE) X(2u, "input-level", INPUT_LEVEL) X(3u, "output-level", OUTPUT_LEVEL) \
+    X(4u, "input-amplitude", INPUT_AMPLITUDE) X(5u, "output-amplitude", OUTPUT_AMPLITUDE) X(6u, "delay-time", DELAY_TIME) X(7u, "decay-time", DECAY_TIME) \
+    X(8u, "level", LEVEL) X(9u, "phase", PHASE) X(10u, "modulation", MODULATION) X(11u, "input-pitch", INPUT_PITCH) \
+    X(12u, "output-pitch", OUTPUT_PITCH)
 
 /* CURVE_KINDS (data/curves.json) */
 #define OMX_CURVE_KINDS_EQ_CURVE "eq-curve" ///< An EQ's summed magnitude response over log frequency.
@@ -59,6 +64,9 @@
 #define OMX_CURVE_KINDS_INTERVAL_MAP_TEXT_EN "A pitch effect's map from the input pitch to the output pitch."
 #define OMX_CURVE_KINDS_COUNT 8u
 #define OMX_CURVE_KINDS_INIT { "eq-curve", "dynamics-curve", "transfer-curve", "delay-taps", "decay-envelope", "comb-response", "modulation-shape", "interval-map" }
+#define OMX_CURVE_KINDS(X) \
+    X(0u, "eq-curve", EQ_CURVE) X(1u, "dynamics-curve", DYNAMICS_CURVE) X(2u, "transfer-curve", TRANSFER_CURVE) X(3u, "delay-taps", DELAY_TAPS) \
+    X(4u, "decay-envelope", DECAY_ENVELOPE) X(5u, "comb-response", COMB_RESPONSE) X(6u, "modulation-shape", MODULATION_SHAPE) X(7u, "interval-map", INTERVAL_MAP)
 
 /* MACHINE_CLASS_FIELDS (data/machine-class.json) */
 #define OMX_MACHINE_CLASS_FIELDS_ARCH "arch" ///< The machine architecture as uname -m names it.
@@ -75,6 +83,9 @@
 #define OMX_MACHINE_CLASS_FIELDS_CSTATES_LIMITED_TEXT_EN "Whether the deep idle states are limited."
 #define OMX_MACHINE_CLASS_FIELDS_COUNT 6u
 #define OMX_MACHINE_CLASS_FIELDS_INIT { "arch", "family", "coreBand", "clockBand", "preemptRt", "cstatesLimited" }
+#define OMX_MACHINE_CLASS_FIELDS(X) \
+    X(0u, "arch", ARCH) X(1u, "family", FAMILY) X(2u, "coreBand", CORE_BAND) X(3u, "clockBand", CLOCK_BAND) \
+    X(4u, "preemptRt", PREEMPT_RT) X(5u, "cstatesLimited", CSTATES_LIMITED)
 
 /* MACHINE_PROFILE_FIELDS (data/machine-class.json) */
 #define OMX_MACHINE_PROFILE_FIELDS_GOVERNOR "governor"
@@ -89,6 +100,9 @@
 #define OMX_MACHINE_PROFILE_FIELDS_CPUIDLE_TEXT_EN "The CPU idle driver or policy in effect when the figure was taken."
 #define OMX_MACHINE_PROFILE_FIELDS_COUNT 5u
 #define OMX_MACHINE_PROFILE_FIELDS_INIT { "governor", "turbo", "smt", "preempt", "cpuidle" }
+#define OMX_MACHINE_PROFILE_FIELDS(X) \
+    X(0u, "governor", GOVERNOR) X(1u, "turbo", TURBO) X(2u, "smt", SMT) X(3u, "preempt", PREEMPT) \
+    X(4u, "cpuidle", CPUIDLE)
 
 /* MACHINE_CORE_BANDS (data/machine-class.json) */
 #define OMX_MACHINE_CORE_BANDS_CORES1_TO2 "1-2"
@@ -105,6 +119,9 @@
 #define OMX_MACHINE_CORE_BANDS_CORES33_UP_TEXT_EN "A machine with 33 or more cores."
 #define OMX_MACHINE_CORE_BANDS_COUNT 6u
 #define OMX_MACHINE_CORE_BANDS_INIT { "1-2", "3-4", "5-8", "9-16", "17-32", "33+" }
+#define OMX_MACHINE_CORE_BANDS(X) \
+    X(0u, "1-2", CORES1_TO2) X(1u, "3-4", CORES3_TO4) X(2u, "5-8", CORES5_TO8) X(3u, "9-16", CORES9_TO16) \
+    X(4u, "17-32", CORES17_TO32) X(5u, "33+", CORES33_UP)
 
 /* MACHINE_CLOCK_BANDS (data/machine-class.json) */
 #define OMX_MACHINE_CLOCK_BANDS_UNDER1500_MHZ "<1.5GHz"
@@ -119,6 +136,9 @@
 #define OMX_MACHINE_CLOCK_BANDS_FROM4500_MHZ_TEXT_EN "A machine clocked at 4.5 GHz or more."
 #define OMX_MACHINE_CLOCK_BANDS_COUNT 5u
 #define OMX_MACHINE_CLOCK_BANDS_INIT { "<1.5GHz", "1.5-2.5GHz", "2.5-3.5GHz", "3.5-4.5GHz", "4.5GHz+" }
+#define OMX_MACHINE_CLOCK_BANDS(X) \
+    X(0u, "<1.5GHz", UNDER1500_MHZ) X(1u, "1.5-2.5GHz", FROM1500_TO2500_MHZ) X(2u, "2.5-3.5GHz", FROM2500_TO3500_MHZ) X(3u, "3.5-4.5GHz", FROM3500_TO4500_MHZ) \
+    X(4u, "4.5GHz+", FROM4500_MHZ)
 
 /* MACHINE_ARCHES (data/machine-class.json) */
 #define OMX_MACHINE_ARCHES_X8664 "x86_64"
@@ -127,6 +147,8 @@
 #define OMX_MACHINE_ARCHES_AARCH64_TEXT_EN "An AArch64 machine, as uname -m spells it."
 #define OMX_MACHINE_ARCHES_COUNT 2u
 #define OMX_MACHINE_ARCHES_INIT { "x86_64", "aarch64" }
+#define OMX_MACHINE_ARCHES(X) \
+    X(0u, "x86_64", X8664) X(1u, "aarch64", AARCH64)
 
 /* MACHINE_CLASSES (data/machine-class.json) */
 #define OMX_MACHINE_CLASSES_DESK "desk" ///< An x86-64 desk.
@@ -137,6 +159,8 @@
 #define OMX_MACHINE_CLASSES_RASPBERRY_PI5_TEXT_EN "A Raspberry Pi 5, aarch64."
 #define OMX_MACHINE_CLASSES_COUNT 3u
 #define OMX_MACHINE_CLASSES_INIT { "desk", "raspberry-pi-4", "raspberry-pi-5" }
+#define OMX_MACHINE_CLASSES(X) \
+    X(0u, "desk", DESK) X(1u, "raspberry-pi-4", RASPBERRY_PI4) X(2u, "raspberry-pi-5", RASPBERRY_PI5)
 
 /* MEASUREMENT_DIMENSIONS (data/measurement.json) */
 #define OMX_MEASUREMENT_DIMENSIONS_LATENCY "latency"
@@ -151,6 +175,9 @@
 #define OMX_MEASUREMENT_DIMENSIONS_FEATURES_TEXT_EN "What capabilities a plugin declares and a prober can confirm, beside latency, cost, stability and RT safety."
 #define OMX_MEASUREMENT_DIMENSIONS_COUNT 5u
 #define OMX_MEASUREMENT_DIMENSIONS_INIT { "latency", "cost", "stability", "rtSafety", "features" }
+#define OMX_MEASUREMENT_DIMENSIONS(X) \
+    X(0u, "latency", LATENCY) X(1u, "cost", COST) X(2u, "stability", STABILITY) X(3u, "rtSafety", RT_SAFETY) \
+    X(4u, "features", FEATURES)
 
 /* MEASUREMENT_UNMEASURED_KINDS (data/measurement.json) */
 #define OMX_MEASUREMENT_UNMEASURED_KINDS_NOTHING_TO_MEASURE "nothing-to-measure" ///< A property of the plugin: any prober on any machine reaches it, so it may override a figure.
@@ -161,6 +188,8 @@
 #define OMX_MEASUREMENT_UNMEASURED_KINDS_NOT_ATTEMPTED_TEXT_EN "The run did not cover this plugin or this dimension: a partial run, not a finding."
 #define OMX_MEASUREMENT_UNMEASURED_KINDS_COUNT 3u
 #define OMX_MEASUREMENT_UNMEASURED_KINDS_INIT { "nothing-to-measure", "probe-failed", "not-attempted" }
+#define OMX_MEASUREMENT_UNMEASURED_KINDS(X) \
+    X(0u, "nothing-to-measure", NOTHING_TO_MEASURE) X(1u, "probe-failed", PROBE_FAILED) X(2u, "not-attempted", NOT_ATTEMPTED)
 
 /* MEASUREMENT_UNMEASURED_REASONS (data/measurement.json) */
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN "no-audio-in" ///< No audio input port: nothing to drive.
@@ -201,6 +230,12 @@
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_NOT_ATTEMPTED_TEXT_EN "The run did not cover this plugin for this dimension."
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_COUNT 18u
 #define OMX_MEASUREMENT_UNMEASURED_REASONS_INIT { "no-audio-in", "no-audio-out", "silent-output", "needs-carrier", "needs-impulse-response", "needs-content", "unpinnable", "no-voices", "notes-unplayable", "voices-unknown", "refused-instantiation", "probe-crashed", "probe-timeout", "non-finite-output", "not-installed", "worker-nonconforming", "probe-error", "not-attempted" }
+#define OMX_MEASUREMENT_UNMEASURED_REASONS(X) \
+    X(0u, "no-audio-in", NO_AUDIO_IN) X(1u, "no-audio-out", NO_AUDIO_OUT) X(2u, "silent-output", SILENT_OUTPUT) X(3u, "needs-carrier", NEEDS_CARRIER) \
+    X(4u, "needs-impulse-response", NEEDS_IMPULSE_RESPONSE) X(5u, "needs-content", NEEDS_CONTENT) X(6u, "unpinnable", UNPINNABLE) X(7u, "no-voices", NO_VOICES) \
+    X(8u, "notes-unplayable", NOTES_UNPLAYABLE) X(9u, "voices-unknown", VOICES_UNKNOWN) X(10u, "refused-instantiation", REFUSED_INSTANTIATION) X(11u, "probe-crashed", PROBE_CRASHED) \
+    X(12u, "probe-timeout", PROBE_TIMEOUT) X(13u, "non-finite-output", NON_FINITE_OUTPUT) X(14u, "not-installed", NOT_INSTALLED) X(15u, "worker-nonconforming", WORKER_NONCONFORMING) \
+    X(16u, "probe-error", PROBE_ERROR) X(17u, "not-attempted", NOT_ATTEMPTED)
 
 /* MEASUREMENT_LATENCY_METHODS (data/measurement.json) */
 #define OMX_MEASUREMENT_LATENCY_METHODS_IMPULSE_ONSET "impulse-onset" ///< The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.
@@ -211,12 +246,16 @@
 #define OMX_MEASUREMENT_LATENCY_METHODS_NOTE_ONSET_TEXT_EN "The delay from a note on to the first output sample above the floor."
 #define OMX_MEASUREMENT_LATENCY_METHODS_COUNT 3u
 #define OMX_MEASUREMENT_LATENCY_METHODS_INIT { "impulse-onset", "declared-port", "note-onset" }
+#define OMX_MEASUREMENT_LATENCY_METHODS(X) \
+    X(0u, "impulse-onset", IMPULSE_ONSET) X(1u, "declared-port", DECLARED_PORT) X(2u, "note-onset", NOTE_ONSET)
 
 /* MEASUREMENT_COST_METHODS (data/measurement.json) */
 #define OMX_MEASUREMENT_COST_METHODS_BLOCK_TIME_PERCENTILE "block-time-percentile" ///< A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample.
 #define OMX_MEASUREMENT_COST_METHODS_BLOCK_TIME_PERCENTILE_TEXT_EN "A percentile of per-block wall time under a sustained stimulus, warm-up discarded, in nanoseconds per sample."
 #define OMX_MEASUREMENT_COST_METHODS_COUNT 1u
 #define OMX_MEASUREMENT_COST_METHODS_INIT { "block-time-percentile" }
+#define OMX_MEASUREMENT_COST_METHODS(X) \
+    X(0u, "block-time-percentile", BLOCK_TIME_PERCENTILE)
 
 /* MEASUREMENT_LATENCY_SCALING (data/measurement.json) */
 #define OMX_MEASUREMENT_LATENCY_SCALING_FIXED_FRAME "fixed-frame" ///< The same frame count at every rate.
@@ -233,6 +272,9 @@
 #define OMX_MEASUREMENT_LATENCY_SCALING_UNMEASURED_TEXT_EN "No rate produced a figure."
 #define OMX_MEASUREMENT_LATENCY_SCALING_COUNT 6u
 #define OMX_MEASUREMENT_LATENCY_SCALING_INIT { "fixed-frame", "fixed-time", "zero", "nonconforming", "single-rate", "unmeasured" }
+#define OMX_MEASUREMENT_LATENCY_SCALING(X) \
+    X(0u, "fixed-frame", FIXED_FRAME) X(1u, "fixed-time", FIXED_TIME) X(2u, "zero", ZERO) X(3u, "nonconforming", NONCONFORMING) \
+    X(4u, "single-rate", SINGLE_RATE) X(5u, "unmeasured", UNMEASURED)
 
 /* MEASUREMENT_LATENCY_SCALING_NOTES (data/measurement.json) */
 #define OMX_MEASUREMENT_LATENCY_SCALING_NOTES_BELOW_BUDGET "below-budget" ///< The readings fit no law but every one is inside the latency budget: the detector's noise.
@@ -241,12 +283,16 @@
 #define OMX_MEASUREMENT_LATENCY_SCALING_NOTES_INFORMATIONAL_RATE_TEXT_EN "Only a reading below the operational rates breaks the law; it stays as information."
 #define OMX_MEASUREMENT_LATENCY_SCALING_NOTES_COUNT 2u
 #define OMX_MEASUREMENT_LATENCY_SCALING_NOTES_INIT { "below-budget", "informational-rate" }
+#define OMX_MEASUREMENT_LATENCY_SCALING_NOTES(X) \
+    X(0u, "below-budget", BELOW_BUDGET) X(1u, "informational-rate", INFORMATIONAL_RATE)
 
 /* MEASUREMENT_LATENCY_EXCLUSIONS (data/measurement.json) */
 #define OMX_MEASUREMENT_LATENCY_EXCLUSIONS_IMPOSSIBLE_ZERO "impossible-zero" ///< Zero frames at this rate while another rate measured non-zero.
 #define OMX_MEASUREMENT_LATENCY_EXCLUSIONS_IMPOSSIBLE_ZERO_TEXT_EN "Zero frames at this rate while another rate measured non-zero."
 #define OMX_MEASUREMENT_LATENCY_EXCLUSIONS_COUNT 1u
 #define OMX_MEASUREMENT_LATENCY_EXCLUSIONS_INIT { "impossible-zero" }
+#define OMX_MEASUREMENT_LATENCY_EXCLUSIONS(X) \
+    X(0u, "impossible-zero", IMPOSSIBLE_ZERO)
 
 /* MEASUREMENT_VOICE_BASES (data/measurement.json) */
 #define OMX_MEASUREMENT_VOICE_BASES_DECLARED "declared"
@@ -255,6 +301,8 @@
 #define OMX_MEASUREMENT_VOICE_BASES_PROBE_TEXT_EN "A note count the caller gave the prober, not read from the plugin."
 #define OMX_MEASUREMENT_VOICE_BASES_COUNT 2u
 #define OMX_MEASUREMENT_VOICE_BASES_INIT { "declared", "probe" }
+#define OMX_MEASUREMENT_VOICE_BASES(X) \
+    X(0u, "declared", DECLARED) X(1u, "probe", PROBE)
 
 /* MEASUREMENT_VERDICT_RATINGS (data/measurement.json) */
 #define OMX_MEASUREMENT_VERDICT_RATINGS_SUITABLE "suitable"
@@ -267,6 +315,8 @@
 #define OMX_MEASUREMENT_VERDICT_RATINGS_UNSUITABLE_TEXT_EN "The plugin does not meet the host profile's budget on at least one measured dimension."
 #define OMX_MEASUREMENT_VERDICT_RATINGS_COUNT 4u
 #define OMX_MEASUREMENT_VERDICT_RATINGS_INIT { "suitable", "conditional", "unknown", "unsuitable" }
+#define OMX_MEASUREMENT_VERDICT_RATINGS(X) \
+    X(0u, "suitable", SUITABLE) X(1u, "conditional", CONDITIONAL) X(2u, "unknown", UNKNOWN) X(3u, "unsuitable", UNSUITABLE)
 
 /* PANEL_FAMILIES (data/panel.json) */
 #define OMX_PANEL_FAMILIES_NONE "none" ///< a plugin with no family: its panel is laid out from its groups and roles
@@ -297,6 +347,11 @@
 #define OMX_PANEL_FAMILIES_UTILITY_TEXT_EN "A utility's panel family: a trim, a width control, a balancer or a clipper."
 #define OMX_PANEL_FAMILIES_COUNT 13u
 #define OMX_PANEL_FAMILIES_INIT { "none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility" }
+#define OMX_PANEL_FAMILIES(X) \
+    X(0u, "none", NONE) X(1u, "gate", GATE) X(2u, "dynamics", DYNAMICS) X(3u, "limiter", LIMITER) \
+    X(4u, "deesser", DEESSER) X(5u, "eq", EQ) X(6u, "filter", FILTER) X(7u, "drive", DRIVE) \
+    X(8u, "modulation", MODULATION) X(9u, "delay", DELAY) X(10u, "reverb", REVERB) X(11u, "pitch", PITCH) \
+    X(12u, "utility", UTILITY)
 
 /* PANEL_STANDARD_WIDGETS (data/panel.json) */
 #define OMX_PANEL_STANDARD_WIDGETS_KNOB "knob" ///< a travel
@@ -317,6 +372,9 @@
 #define OMX_PANEL_STANDARD_WIDGETS_DISPLAY_TEXT_EN "A value shown as text."
 #define OMX_PANEL_STANDARD_WIDGETS_COUNT 8u
 #define OMX_PANEL_STANDARD_WIDGETS_INIT { "knob", "fader", "switch", "selector", "meter", "curve", "xy", "display" }
+#define OMX_PANEL_STANDARD_WIDGETS(X) \
+    X(0u, "knob", KNOB) X(1u, "fader", FADER) X(2u, "switch", SWITCH) X(3u, "selector", SELECTOR) \
+    X(4u, "meter", METER) X(5u, "curve", CURVE) X(6u, "xy", XY) X(7u, "display", DISPLAY)
 
 /* PANEL_WIDGETS (data/panel.json) */
 #define OMX_PANEL_WIDGETS_AUTO "auto" ///< left out of a panel declaration: the layout picks the widget from the control
@@ -331,6 +389,23 @@
 #define OMX_PANEL_WIDGETS_SELECTOR_TEXT_EN "A control that picks one of a few values."
 #define OMX_PANEL_WIDGETS_COUNT 5u
 #define OMX_PANEL_WIDGETS_INIT { "auto", "knob", "fader", "switch", "selector" }
+#define OMX_PANEL_WIDGETS(X) \
+    X(0u, "auto", AUTO) X(1u, "knob", KNOB) X(2u, "fader", FADER) X(3u, "switch", SWITCH) \
+    X(4u, "selector", SELECTOR)
+
+/* PANEL_DISPLAY_KINDS (data/panel.json) */
+#define OMX_PANEL_DISPLAY_KINDS_GAIN_REDUCTION_BAR "gain_reduction_bar" ///< a bar of the gain a dynamics processor takes off
+#define OMX_PANEL_DISPLAY_KINDS_GAIN_REDUCTION_BAR_TEXT_EN "A bar showing the gain reduction."
+#define OMX_PANEL_DISPLAY_KINDS_TRANSFER_CURVE "transfer_curve" ///< a dynamics processor's output level against its input level
+#define OMX_PANEL_DISPLAY_KINDS_TRANSFER_CURVE_TEXT_EN "The dynamics transfer curve: output level against input level."
+#define OMX_PANEL_DISPLAY_KINDS_EQ_RESPONSE "eq_response" ///< an equaliser's frequency response
+#define OMX_PANEL_DISPLAY_KINDS_EQ_RESPONSE_TEXT_EN "The equaliser's frequency response."
+#define OMX_PANEL_DISPLAY_KINDS_METER "meter" ///< a level meter
+#define OMX_PANEL_DISPLAY_KINDS_METER_TEXT_EN "A level meter."
+#define OMX_PANEL_DISPLAY_KINDS_COUNT 4u
+#define OMX_PANEL_DISPLAY_KINDS_INIT { "gain_reduction_bar", "transfer_curve", "eq_response", "meter" }
+#define OMX_PANEL_DISPLAY_KINDS(X) \
+    X(0u, "gain_reduction_bar", GAIN_REDUCTION_BAR) X(1u, "transfer_curve", TRANSFER_CURVE) X(2u, "eq_response", EQ_RESPONSE) X(3u, "meter", METER)
 
 /* PLUGIN_FEATURE_AUDIO_EFFECT (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_CLAP_AUDIO_EFFECT "clap.audio-effect"
@@ -451,6 +526,22 @@
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_LV2_WAVESHAPER_TEXT_EN "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics."
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_COUNT 58u
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_INIT { "clap.audio-effect", "clap.chorus", "clap.compressor", "clap.de-esser", "clap.delay", "clap.distortion", "clap.equalizer", "clap.expander", "clap.filter", "clap.flanger", "clap.frequency-shifter", "clap.gate", "clap.glitch", "clap.granular", "clap.limiter", "clap.mastering", "clap.mixing", "clap.multi-effects", "clap.phase-vocoder", "clap.phaser", "clap.pitch-correction", "clap.pitch-shifter", "clap.restoration", "clap.reverb", "clap.transient-shaper", "clap.tremolo", "clap.utility", "lv2.Allpass", "lv2.Amplifier", "lv2.Bandpass", "lv2.Chorus", "lv2.Comb", "lv2.Compressor", "lv2.Converter", "lv2.Delay", "lv2.Distortion", "lv2.Dynamics", "lv2.EQ", "lv2.Envelope", "lv2.Expander", "lv2.Filter", "lv2.Flanger", "lv2.Gate", "lv2.Highpass", "lv2.Limiter", "lv2.Lowpass", "lv2.Mixer", "lv2.Modulator", "lv2.MultiEQ", "lv2.ParaEQ", "lv2.Phaser", "lv2.Pitch", "lv2.Reverb", "lv2.Simulator", "lv2.Spatial", "lv2.Spectral", "lv2.Utility", "lv2.Waveshaper" }
+#define OMX_PLUGIN_FEATURE_AUDIO_EFFECT(X) \
+    X(0u, "clap.audio-effect", CLAP_AUDIO_EFFECT) X(1u, "clap.chorus", CLAP_CHORUS) X(2u, "clap.compressor", CLAP_COMPRESSOR) X(3u, "clap.de-esser", CLAP_DE_ESSER) \
+    X(4u, "clap.delay", CLAP_DELAY) X(5u, "clap.distortion", CLAP_DISTORTION) X(6u, "clap.equalizer", CLAP_EQUALIZER) X(7u, "clap.expander", CLAP_EXPANDER) \
+    X(8u, "clap.filter", CLAP_FILTER) X(9u, "clap.flanger", CLAP_FLANGER) X(10u, "clap.frequency-shifter", CLAP_FREQUENCY_SHIFTER) X(11u, "clap.gate", CLAP_GATE) \
+    X(12u, "clap.glitch", CLAP_GLITCH) X(13u, "clap.granular", CLAP_GRANULAR) X(14u, "clap.limiter", CLAP_LIMITER) X(15u, "clap.mastering", CLAP_MASTERING) \
+    X(16u, "clap.mixing", CLAP_MIXING) X(17u, "clap.multi-effects", CLAP_MULTI_EFFECTS) X(18u, "clap.phase-vocoder", CLAP_PHASE_VOCODER) X(19u, "clap.phaser", CLAP_PHASER) \
+    X(20u, "clap.pitch-correction", CLAP_PITCH_CORRECTION) X(21u, "clap.pitch-shifter", CLAP_PITCH_SHIFTER) X(22u, "clap.restoration", CLAP_RESTORATION) X(23u, "clap.reverb", CLAP_REVERB) \
+    X(24u, "clap.transient-shaper", CLAP_TRANSIENT_SHAPER) X(25u, "clap.tremolo", CLAP_TREMOLO) X(26u, "clap.utility", CLAP_UTILITY) X(27u, "lv2.Allpass", LV2_ALLPASS) \
+    X(28u, "lv2.Amplifier", LV2_AMPLIFIER) X(29u, "lv2.Bandpass", LV2_BANDPASS) X(30u, "lv2.Chorus", LV2_CHORUS) X(31u, "lv2.Comb", LV2_COMB) \
+    X(32u, "lv2.Compressor", LV2_COMPRESSOR) X(33u, "lv2.Converter", LV2_CONVERTER) X(34u, "lv2.Delay", LV2_DELAY) X(35u, "lv2.Distortion", LV2_DISTORTION) \
+    X(36u, "lv2.Dynamics", LV2_DYNAMICS) X(37u, "lv2.EQ", LV2_EQ) X(38u, "lv2.Envelope", LV2_ENVELOPE) X(39u, "lv2.Expander", LV2_EXPANDER) \
+    X(40u, "lv2.Filter", LV2_FILTER) X(41u, "lv2.Flanger", LV2_FLANGER) X(42u, "lv2.Gate", LV2_GATE) X(43u, "lv2.Highpass", LV2_HIGHPASS) \
+    X(44u, "lv2.Limiter", LV2_LIMITER) X(45u, "lv2.Lowpass", LV2_LOWPASS) X(46u, "lv2.Mixer", LV2_MIXER) X(47u, "lv2.Modulator", LV2_MODULATOR) \
+    X(48u, "lv2.MultiEQ", LV2_MULTI_EQ) X(49u, "lv2.ParaEQ", LV2_PARA_EQ) X(50u, "lv2.Phaser", LV2_PHASER) X(51u, "lv2.Pitch", LV2_PITCH) \
+    X(52u, "lv2.Reverb", LV2_REVERB) X(53u, "lv2.Simulator", LV2_SIMULATOR) X(54u, "lv2.Spatial", LV2_SPATIAL) X(55u, "lv2.Spectral", LV2_SPECTRAL) \
+    X(56u, "lv2.Utility", LV2_UTILITY) X(57u, "lv2.Waveshaper", LV2_WAVESHAPER)
 
 /* PLUGIN_FEATURE_INSTRUMENT (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_INSTRUMENT_CLAP_DRUM "clap.drum"
@@ -467,6 +558,9 @@
 #define OMX_PLUGIN_FEATURE_INSTRUMENT_LV2_INSTRUMENT_TEXT_EN "The LV2 plugin class InstrumentPlugin: a plugin played by notes."
 #define OMX_PLUGIN_FEATURE_INSTRUMENT_COUNT 6u
 #define OMX_PLUGIN_FEATURE_INSTRUMENT_INIT { "clap.drum", "clap.drum-machine", "clap.instrument", "clap.sampler", "clap.synthesizer", "lv2.Instrument" }
+#define OMX_PLUGIN_FEATURE_INSTRUMENT(X) \
+    X(0u, "clap.drum", CLAP_DRUM) X(1u, "clap.drum-machine", CLAP_DRUM_MACHINE) X(2u, "clap.instrument", CLAP_INSTRUMENT) X(3u, "clap.sampler", CLAP_SAMPLER) \
+    X(4u, "clap.synthesizer", CLAP_SYNTHESIZER) X(5u, "lv2.Instrument", LV2_INSTRUMENT)
 
 /* PLUGIN_FEATURE_NOTE_EFFECT (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_NOTE_EFFECT_CLAP_NOTE_EFFECT "clap.note-effect"
@@ -475,6 +569,8 @@
 #define OMX_PLUGIN_FEATURE_NOTE_EFFECT_LV2_MIDI_TEXT_EN "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out."
 #define OMX_PLUGIN_FEATURE_NOTE_EFFECT_COUNT 2u
 #define OMX_PLUGIN_FEATURE_NOTE_EFFECT_INIT { "clap.note-effect", "lv2.MIDI" }
+#define OMX_PLUGIN_FEATURE_NOTE_EFFECT(X) \
+    X(0u, "clap.note-effect", CLAP_NOTE_EFFECT) X(1u, "lv2.MIDI", LV2_MIDI)
 
 /* PLUGIN_FEATURE_ANALYZER (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_ANALYZER_CLAP_ANALYZER "clap.analyzer"
@@ -485,6 +581,8 @@
 #define OMX_PLUGIN_FEATURE_ANALYZER_LV2_ANALYSER_TEXT_EN "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement."
 #define OMX_PLUGIN_FEATURE_ANALYZER_COUNT 3u
 #define OMX_PLUGIN_FEATURE_ANALYZER_INIT { "clap.analyzer", "clap.note-detector", "lv2.Analyser" }
+#define OMX_PLUGIN_FEATURE_ANALYZER(X) \
+    X(0u, "clap.analyzer", CLAP_ANALYZER) X(1u, "clap.note-detector", CLAP_NOTE_DETECTOR) X(2u, "lv2.Analyser", LV2_ANALYSER)
 
 /* PLUGIN_FEATURE_OTHER (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_OTHER_CLAP_AMBISONIC "clap.ambisonic"
@@ -507,6 +605,10 @@
 #define OMX_PLUGIN_FEATURE_OTHER_LV2_PLUGIN_TEXT_EN "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared."
 #define OMX_PLUGIN_FEATURE_OTHER_COUNT 9u
 #define OMX_PLUGIN_FEATURE_OTHER_INIT { "clap.ambisonic", "clap.mono", "clap.stereo", "clap.surround", "lv2.Constant", "lv2.Function", "lv2.Generator", "lv2.Oscillator", "lv2.Plugin" }
+#define OMX_PLUGIN_FEATURE_OTHER(X) \
+    X(0u, "clap.ambisonic", CLAP_AMBISONIC) X(1u, "clap.mono", CLAP_MONO) X(2u, "clap.stereo", CLAP_STEREO) X(3u, "clap.surround", CLAP_SURROUND) \
+    X(4u, "lv2.Constant", LV2_CONSTANT) X(5u, "lv2.Function", LV2_FUNCTION) X(6u, "lv2.Generator", LV2_GENERATOR) X(7u, "lv2.Oscillator", LV2_OSCILLATOR) \
+    X(8u, "lv2.Plugin", LV2_PLUGIN)
 
 /* RESOURCE_KINDS (data/resource-profile.json) */
 #define OMX_RESOURCE_KINDS_CPU "cpu" ///< The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115).
@@ -539,6 +641,11 @@
 #define OMX_RESOURCE_KINDS_STATE_TEXT_EN "The size of a plugin's saved state, its save and restore time, and its round trip."
 #define OMX_RESOURCE_KINDS_COUNT 14u
 #define OMX_RESOURCE_KINDS_INIT { "cpu", "memory", "scratch-memory", "latency", "tail", "voices", "startup", "threads", "worker", "block-length", "open-files", "disk-io", "network", "state" }
+#define OMX_RESOURCE_KINDS(X) \
+    X(0u, "cpu", CPU) X(1u, "memory", MEMORY) X(2u, "scratch-memory", SCRATCH_MEMORY) X(3u, "latency", LATENCY) \
+    X(4u, "tail", TAIL) X(5u, "voices", VOICES) X(6u, "startup", STARTUP) X(7u, "threads", THREADS) \
+    X(8u, "worker", WORKER) X(9u, "block-length", BLOCK_LENGTH) X(10u, "open-files", OPEN_FILES) X(11u, "disk-io", DISK_IO) \
+    X(12u, "network", NETWORK) X(13u, "state", STATE)
 
 /* RESOURCE_UNITS (data/resource-profile.json) */
 #define OMX_RESOURCE_UNITS_NS_PER_SAMPLE "ns-per-sample"
@@ -561,6 +668,10 @@
 #define OMX_RESOURCE_UNITS_FLAG_TEXT_EN "A yes or a no: one when the plugin does the thing, zero when it does not."
 #define OMX_RESOURCE_UNITS_COUNT 9u
 #define OMX_RESOURCE_UNITS_INIT { "ns-per-sample", "frames", "ms", "us", "s", "bytes", "count", "ratio", "flag" }
+#define OMX_RESOURCE_UNITS(X) \
+    X(0u, "ns-per-sample", NS_PER_SAMPLE) X(1u, "frames", FRAMES) X(2u, "ms", MS) X(3u, "us", US) \
+    X(4u, "s", S) X(5u, "bytes", BYTES) X(6u, "count", PLAIN_COUNT) X(7u, "ratio", RATIO) \
+    X(8u, "flag", FLAG)
 
 /* RESOURCE_BASES (data/resource-profile.json) */
 #define OMX_RESOURCE_BASES_DECLARED "declared"
@@ -571,6 +682,8 @@
 #define OMX_RESOURCE_BASES_PROBE_TEXT_EN "A count the caller gave the probe."
 #define OMX_RESOURCE_BASES_COUNT 3u
 #define OMX_RESOURCE_BASES_INIT { "declared", "measured", "probe" }
+#define OMX_RESOURCE_BASES(X) \
+    X(0u, "declared", DECLARED) X(1u, "measured", MEASURED) X(2u, "probe", PROBE)
 
 /* RESOURCE_MEMORY_PHASES (data/resource-profile.json) */
 #define OMX_RESOURCE_MEMORY_PHASES_AFTER_INSTANTIATE "after-instantiate"
@@ -585,6 +698,9 @@
 #define OMX_RESOURCE_MEMORY_PHASES_SECOND_INSTANCE_TEXT_EN "Memory read for a second instance, so a shared one-time load is told apart from the per-instance cost."
 #define OMX_RESOURCE_MEMORY_PHASES_COUNT 5u
 #define OMX_RESOURCE_MEMORY_PHASES_INIT { "after-instantiate", "after-activate", "at-rest", "notes-held", "second-instance" }
+#define OMX_RESOURCE_MEMORY_PHASES(X) \
+    X(0u, "after-instantiate", AFTER_INSTANTIATE) X(1u, "after-activate", AFTER_ACTIVATE) X(2u, "at-rest", AT_REST) X(3u, "notes-held", NOTES_HELD) \
+    X(4u, "second-instance", SECOND_INSTANCE)
 
 /* RESOURCE_UNMEASURED_REASONS (data/resource-profile.json) */
 #define OMX_RESOURCE_UNMEASURED_REASONS_UNMEASURED_ON_CLASS "unmeasured-on-class" ///< The only figure was taken on another machine class: never read as a pass, never scaled.
@@ -593,6 +709,8 @@
 #define OMX_RESOURCE_UNMEASURED_REASONS_LIMIT_EXCEEDED_TEXT_EN "The run hit the limit probe isolation set for the resource; the limit is recorded beside it."
 #define OMX_RESOURCE_UNMEASURED_REASONS_COUNT 2u
 #define OMX_RESOURCE_UNMEASURED_REASONS_INIT { "unmeasured-on-class", "limit-exceeded" }
+#define OMX_RESOURCE_UNMEASURED_REASONS(X) \
+    X(0u, "unmeasured-on-class", UNMEASURED_ON_CLASS) X(1u, "limit-exceeded", LIMIT_EXCEEDED)
 
 /* RESOURCE_BUDGET_SCOPES (data/resource-profile.json) */
 #define OMX_RESOURCE_BUDGET_SCOPES_PER_INSTANCE "per-instance"
@@ -601,6 +719,8 @@
 #define OMX_RESOURCE_BUDGET_SCOPES_PER_CONSOLE_TEXT_EN "Counted over the whole console."
 #define OMX_RESOURCE_BUDGET_SCOPES_COUNT 2u
 #define OMX_RESOURCE_BUDGET_SCOPES_INIT { "per-instance", "per-console" }
+#define OMX_RESOURCE_BUDGET_SCOPES(X) \
+    X(0u, "per-instance", PER_INSTANCE) X(1u, "per-console", PER_CONSOLE)
 
 /* RESOURCE_HOST_ISOLATIONS (data/resource-profile.json) */
 #define OMX_RESOURCE_HOST_ISOLATIONS_IN_PROCESS "in-process"
@@ -611,6 +731,8 @@
 #define OMX_RESOURCE_HOST_ISOLATIONS_SHARED_PROCESS_TEXT_EN "The host runs its plugins together in one process apart from its own."
 #define OMX_RESOURCE_HOST_ISOLATIONS_COUNT 3u
 #define OMX_RESOURCE_HOST_ISOLATIONS_INIT { "in-process", "per-process", "shared-process" }
+#define OMX_RESOURCE_HOST_ISOLATIONS(X) \
+    X(0u, "in-process", IN_PROCESS) X(1u, "per-process", PER_PROCESS) X(2u, "shared-process", SHARED_PROCESS)
 
 /* RESOURCE_HOST_LATENCY_HANDLING (data/resource-profile.json) */
 #define OMX_RESOURCE_HOST_LATENCY_HANDLING_COMPENSATED "compensated"
@@ -619,6 +741,8 @@
 #define OMX_RESOURCE_HOST_LATENCY_HANDLING_UNCOMPENSATED_TEXT_EN "The host passes the plugin's reported latency on, without aligning other paths to it."
 #define OMX_RESOURCE_HOST_LATENCY_HANDLING_COUNT 2u
 #define OMX_RESOURCE_HOST_LATENCY_HANDLING_INIT { "compensated", "uncompensated" }
+#define OMX_RESOURCE_HOST_LATENCY_HANDLING(X) \
+    X(0u, "compensated", COMPENSATED) X(1u, "uncompensated", UNCOMPENSATED)
 
 /* RESOURCE_THREAD_SCHEDULING (data/resource-profile.json) */
 #define OMX_RESOURCE_THREAD_SCHEDULING_NONE "none"
@@ -627,6 +751,8 @@
 #define OMX_RESOURCE_THREAD_SCHEDULING_FIFO_TEXT_EN "The real-time FIFO scheduling class."
 #define OMX_RESOURCE_THREAD_SCHEDULING_COUNT 2u
 #define OMX_RESOURCE_THREAD_SCHEDULING_INIT { "none", "fifo" }
+#define OMX_RESOURCE_THREAD_SCHEDULING(X) \
+    X(0u, "none", NONE) X(1u, "fifo", FIFO)
 
 /* RESOURCE_HINTS (data/resource-profile.json) */
 #define OMX_RESOURCE_HINTS_FOOTPRINT_AT_REST "footprint-at-rest" ///< The memory one instance holds at rest, once activated and idle, with no note playing.
@@ -645,6 +771,9 @@
 #define OMX_RESOURCE_HINTS_ACTIVATE_TIME_TEXT_EN "The wall time of activate and the first block the plugin expects."
 #define OMX_RESOURCE_HINTS_COUNT 7u
 #define OMX_RESOURCE_HINTS_INIT { "footprint-at-rest", "footprint-per-voice", "shared-load", "threads-spawned", "streams-from-disk", "opens-sockets", "activate-time" }
+#define OMX_RESOURCE_HINTS(X) \
+    X(0u, "footprint-at-rest", FOOTPRINT_AT_REST) X(1u, "footprint-per-voice", FOOTPRINT_PER_VOICE) X(2u, "shared-load", SHARED_LOAD) X(3u, "threads-spawned", THREADS_SPAWNED) \
+    X(4u, "streams-from-disk", STREAMS_FROM_DISK) X(5u, "opens-sockets", OPENS_SOCKETS) X(6u, "activate-time", ACTIVATE_TIME)
 
 /* SCAN_DOCUMENTS (data/scan.json) */
 #define OMX_SCAN_DOCUMENTS_CLAP_SCAN_DOCUMENT "CLAP_SCAN_DOCUMENT" ///< The JSON document of omx-clap-scan, one entry per file with its plugins, parameters and ports. Owned by omx-clap-core, which writes it; its shape is omx-clap-core's reference.
@@ -653,6 +782,8 @@
 #define OMX_SCAN_DOCUMENTS_FIELD_DUMP_TEXT_EN "The field dump omx-clap-scan --fields writes: a version line, then one scope, field and value record per field a plugin states."
 #define OMX_SCAN_DOCUMENTS_COUNT 2u
 #define OMX_SCAN_DOCUMENTS_INIT { "CLAP_SCAN_DOCUMENT", "FIELD_DUMP" }
+#define OMX_SCAN_DOCUMENTS(X) \
+    X(0u, "CLAP_SCAN_DOCUMENT", CLAP_SCAN_DOCUMENT) X(1u, "FIELD_DUMP", FIELD_DUMP)
 
 /* SCAN_FIELD_SCOPES (data/scan.json) */
 #define OMX_SCAN_FIELD_SCOPES_PLUGIN "plugin" ///< the plugin as a whole
@@ -683,6 +814,11 @@
 #define OMX_SCAN_FIELD_SCOPES_PLACEMENT_DEFAULT_TEXT_EN "A per-placement come-up value of the panel description, indexed."
 #define OMX_SCAN_FIELD_SCOPES_COUNT 13u
 #define OMX_SCAN_FIELD_SCOPES_INIT { "plugin", "param", "audio_in", "audio_out", "note_in", "note_out", "port", "panel", "section", "control", "role", "display", "placement_default" }
+#define OMX_SCAN_FIELD_SCOPES(X) \
+    X(0u, "plugin", PLUGIN) X(1u, "param", PARAM) X(2u, "audio_in", AUDIO_IN) X(3u, "audio_out", AUDIO_OUT) \
+    X(4u, "note_in", NOTE_IN) X(5u, "note_out", NOTE_OUT) X(6u, "port", PORT) X(7u, "panel", PANEL) \
+    X(8u, "section", SECTION) X(9u, "control", CONTROL) X(10u, "role", ROLE) X(11u, "display", DISPLAY) \
+    X(12u, "placement_default", PLACEMENT_DEFAULT)
 
 /* VERB_HOSTS (data/verbs.json) */
 #define OMX_VERB_HOSTS_PLUGIN_HOSTD "plugin-hostd" ///< The daemon that places plugins in workers and answers the verbs it adds itself.
@@ -693,5 +829,7 @@
 #define OMX_VERB_HOSTS_MOD_HOST_TEXT_EN "mod-host, the LV2 host whose protocol the others speak."
 #define OMX_VERB_HOSTS_COUNT 3u
 #define OMX_VERB_HOSTS_INIT { "plugin-hostd", "omx-clap-host", "mod-host" }
+#define OMX_VERB_HOSTS(X) \
+    X(0u, "plugin-hostd", PLUGIN_HOSTD) X(1u, "omx-clap-host", OMX_CLAP_HOST) X(2u, "mod-host", MOD_HOST)
 
 #endif /* OMX_VOCABULARY_H */

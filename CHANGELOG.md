@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- Every words item renders one X-macro in the C vocabulary, `OMX_<ITEM>(X)` with `X(<code>u, "<word>", <NAME>)` per word,
+  the code being its place in the declared order: a consumer builds its tables from the item instead of restating it
+  (omx-clap-core's panel families, widgets and display kinds, Open-Mixer/omx-clap-core#104). Its name is held unique with
+  every other C name.
+- `PANEL_DISPLAY_KINDS` (data/panel.json): the displays a panel description serves, `gain_reduction_bar`,
+  `transfer_curve`, `eq_response` and `meter`, in the order of their codes; declared here, no longer restated by hand in
+  omx-clap-core. The six catalogs carry their sentences as drafts.
 - The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
   balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their
   order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.

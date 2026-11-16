@@ -129,6 +129,7 @@
     "PANEL_FAMILIES.none": { "text": "Un plugin sin familia: su panel se distribuye a partir de sus grupos y sus roles.", "by": "machine", "model": "draft-prose", "source": "c0fdc99c45116d4cff42136cf0158a8daaee2016eab2f865fc99f8ec28a5219a" },
     "PANEL_FAMILIES.pitch": { "text": "Una familia de paneles para pitch shifters.", "by": "machine", "model": "draft-prose", "source": "7e5d400f3ec6105e741da32756a023f90b260dba103556d4ea8cb383e1a3ebac" },
     "PANEL_FAMILIES.reverb": { "text": "Una familia de paneles para reverbs.", "by": "machine", "model": "draft-prose", "source": "05ef5c056ad778a381dc2f2122deb6b774359a8658883a4d9cef2f16e81fad8b" },
+    "PANEL_FAMILIES.utility": { "text": "Una familia de paneles para utilidades: un trim, un control de anchura, un balanceador o un clipper.", "by": "machine", "model": "lane-draft", "source": "403438fa1cccb39d52e91587502cf94860f203012166395e4317cdb64629f803" },
     "PANEL_STANDARD_WIDGETS.curve": { "text": "Una curva de respuesta o transferencia, dibujada como un gráfico.", "by": "machine", "model": "draft-prose", "source": "0a7920fd9b263d3ebb3e32117e05a7f58280c4cdc0734d3fae6481ebe0087668" },
     "PANEL_STANDARD_WIDGETS.display": { "text": "Un valor mostrado como texto.", "by": "machine", "model": "draft-prose", "source": "6e013d5873685d59d99827aaaf6a77533d25983f85b9215685b2e5f55009bbb1" },
     "PANEL_STANDARD_WIDGETS.fader": { "text": "Un recorrido dibujado largo, como un fader.", "by": "machine", "model": "draft-prose", "source": "efbf109439a8c3888f791465c872ef57bcbae7cc0899165676ab95ef228ffeff" },

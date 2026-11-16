@@ -32,6 +32,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   `share/omx-contract/clap-kind-vectors.json`: the merged scale word (the contract entry's, else the stepped flag), an
   enumeration a choice, a stepped 0..1 with step 1 a toggle (default on at 0.5 and above), everything else a travel.
   plugin-hostd's describe and the console's catalog are held to the vectors, keeping no rule of their own.
+- A descriptor may declare `choiceUnits` (omx-contract#51, omx-panel#68): per choice control, the unit of its values,
+  one of the descriptor units and never `unknown`. The producer declares it once; omx-panel's MOD GUI generator and the
+  console read it here and drop their local maps. A new optional field: additive, a minor.
 - The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
   balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their
   order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.

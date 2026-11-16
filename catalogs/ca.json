@@ -42,7 +42,6 @@
     "contract.ref.unresolved": { "text": "{ref} fa referència a un nom que cap fitxer instal·lat declara. Instal·leu el fitxer que el declara, o corregiu la referència.", "by": "human" },
     "contract.requires.unresolved": { "text": "Aquest arbre requereix {requirement} i no s’ha trobat enlloc: s’ha mirat a {places}. Feu servir la forma --installed amb OMX_CONTRACT_PATH apuntant a un directori que el tingui.", "by": "machine", "model": "lane-draft", "source": "a725a024847a99d9cca2a8b28021e1da98913015ad04bb6e74c02be38343bf1f" },
     "contract.schema.floor-absent": { "text": "El fitxer {path} no indiqueu cap mínim d'esquema d'omx-contract. Afegiu-hi una entrada requires.omx-contract-schema.", "by": "human" },
-    "contract.schema.floor-understated": { "text": "El fitxer {path} necessita un esquema més nou que el mínim que declara. Pugeu el mínim a la versió que realment necessita.", "by": "human" },
     "contract.schema.major": { "text": "El fitxer {path} indiqueu un major d'esquema que aquest lector no llegeix. Instal·leu-lo sota el major que aquest lector espera.", "by": "human" },
     "contract.schema.too-old": { "text": "El fitxer {path} necessita un esquema d'omx-contract més nou del que té aquest lector. Actualitzeu omx-contract, o baixeu el mínim que demana el fitxer.", "by": "human" },
     "contract.source.absent": { "text": "El camí que anomena l’enllaç, {path}, no existeix. Corregiu el camí de l’enllaç.", "by": "human" },

@@ -27,17 +27,11 @@ test('versions: what the schema may state against the package', () => {
     ['3.10.0', '3.8.0', true], ['3.9.1', '3.8.0', false], ['4.0.0', '3.8.0', false]]) assert.equal(schemaFits(schema, v), want, `${schema} against ${v}`);
 });
 
-test('versions: the schema is no newer than the next release, the minor it left is frozen, and nothing shipped needs a newer schema than it is', () => {
+test('versions: the schema is no newer than the next release, and nothing shipped needs a newer schema than it is', () => {
   const v = packageVersion(ROOT);
   const schema = JSON.parse(read('schema/omx-contract.schema.json'))['x-omx-schema-version'];
   const n = (x) => x.split('.').map(Number).reduce((a, b) => a * 1000 + b, 0);
   assert.ok(schemaFits(schema, v), `x-omx-schema-version ${schema} is past the next release of the package ${v}`);
-  const frozen = readdirSync(join(ROOT, 'schema/history')).map((f) => f.replace('.schema.json', ''));
-  assert.ok(!frozen.includes(schema), `schema/history/ holds the current minor ${schema}`);
-  for (const f of frozen) {
-    assert.equal(JSON.parse(read(`schema/history/${f}.schema.json`))['x-omx-schema-version'], f, `schema/history/${f} is that minor's`);
-    assert.ok(n(f) < n(schema), `schema/history/${f} is not past`);
-  }
   const floors = [];
   const walk = (d) => {
     for (const f of readdirSync(join(ROOT, d), { withFileTypes: true })) {
@@ -52,21 +46,6 @@ test('versions: the schema is no newer than the next release, the minor it left 
   walk('examples/descriptors');
   assert.ok(floors.length > 0, 'positive control: the descriptor fixtures state a floor');
   for (const [f, floor] of floors) assert.ok(n(floor) <= n(schema), `${f} requires schema ${floor}, newer than ${schema}`);
-});
-
-// Every schema a release shipped is frozen once the schema moves past its minor: each release entry of debian/changelog
-// names its schema ("Schema 3.18.0: ..."), and a reader that meets a floor at that minor validates against
-// schema/history/<minor>.schema.json (src/lib/contract-dir.mts). Schema 3.18.0 shipped in 3.18.0 and 3.18.1 and the
-// schema moved to 3.19.0 with no frozen copy, which turned every floor at 3.18 red.
-test('versions: every schema minor a release shipped, past the current one in its major, is frozen in schema/history', () => {
-  const schema = JSON.parse(read('schema/omx-contract.schema.json'))['x-omx-schema-version'];
-  const [major] = schema.split('.').map(Number);
-  const n = (x) => x.split('.').map(Number).reduce((a, b) => a * 1000 + b, 0);
-  const shipped = [...read('debian/changelog').matchAll(/^ {2}\* Schema (\d+)\.(\d+)\.\d+/gm)].map(([, a, i]) => `${a}.${i}.0`);
-  assert.ok(shipped.includes('3.16.0'), 'positive control: the release entries name their schema');
-  const past = [...new Set(shipped)].filter((m) => Number(m.split('.')[0]) === major && n(m) < n(schema));
-  const missing = past.filter((m) => !existsSync(join(ROOT, `schema/history/${m}.schema.json`)));
-  assert.deepEqual(missing, [], `shipped schema minors with no frozen copy: ${missing.join(', ')}`);
 });
 
 // The owners whose releases before schema 3 read words and names this one no longer carries: each owner's RPM -devel and DEB

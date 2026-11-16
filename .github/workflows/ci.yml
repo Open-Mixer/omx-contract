@@ -213,8 +213,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # ruling D25: the release set's suites, bookworm only when OMX_RELEASE_MATRIX is full
-        suite: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["bookworm", "trixie"]' || '["trixie"]') }}
+        # no bookworm package cells: no new bookworm releases (owner ruling, coordinator 04:57Z)
+        suite: ["trixie"]
     defaults:
       run:
         shell: bash

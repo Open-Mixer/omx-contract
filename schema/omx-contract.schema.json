@@ -55,6 +55,11 @@
         "instrument": { "$ref": "#/$defs/instrument" },
         "needs": { "$ref": "#/$defs/needs" },
         "latency": { "$ref": "#/$defs/latency" },
+        "choiceUnits": {
+          "type": "object", "minProperties": 1,
+          "description": "The unit of a choice's values, declared once by the plugin (docs/descriptors.md): a choice control's name to one of the descriptor units, never unknown. A reader takes the unit from here and keeps no map of its own. Optional; a choice with no entry carries no unit.",
+          "additionalProperties": { "allOf": [{ "$ref": "#/$defs/descriptorUnit" }, { "not": { "const": "unknown" } }] }
+        },
         "easy": {
           "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": ["string", "integer"] },
           "description": "The controls of the plugin's Easy face, in order, each by its symbol, else its id (docs/descriptors.md). Optional, and never in a scanned descriptor; with none, a host's panel layout picks them from the roles."

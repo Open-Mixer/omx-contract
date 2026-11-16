@@ -86,8 +86,12 @@ function qualifyTree({ codes = true } = {}) {
   return tree;
 }
 
+// pkg-config sees only an empty directory: the host's installed contract directory is never read (the test above)
+const NO_PKG_CONFIG = fresh('no-pkg-config');
+mkdirSync(NO_PKG_CONFIG, { recursive: true });
+
 const run = (tree, env = {}) => {
-  const e = { ...process.env, OMX_CONTRACT_PATH: '', ...env };
+  const e = { ...process.env, PKG_CONFIG_PATH: NO_PKG_CONFIG, PKG_CONFIG_LIBDIR: NO_PKG_CONFIG, OMX_CONTRACT_PATH: '', ...env };
   if (!env.OMX_CONTRACT_PATH) delete e.OMX_CONTRACT_PATH;
   return spawnSync(process.execPath, [CLI, 'translate', '--check', '--owner', tree, '--lang', 'ca', '--package', tree.includes('hostd') ? 'fixture' : 'fixture-qualify'], { env: e, encoding: 'utf8' });
 };

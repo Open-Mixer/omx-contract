@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
+  balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their
+  order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.
 - A catalog entry may be `by: same` (schema 3.19.0): the sentence is the source sentence itself, with its source hash;
   readers keep it and `translate` never regenerates it. The Catalan catalog's plain entries carry their `by` form.
   Schema 3.18.0 is frozen in schema/history (a release that bumps the minor freezes the one it leaves,

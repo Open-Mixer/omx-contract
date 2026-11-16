@@ -85,7 +85,7 @@ test('an instrument class is only one that takes notes: generators and oscillato
 test('the panel families and widgets, and the names of the scan documents, are declared here (#157)', () => {
   const panel = read('data/panel.json');
   const ws = (it) => Object.values(it.words).map((w) => w.word);
-  assert.deepEqual(ws(panel.PANEL_FAMILIES), ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch']);
+  assert.deepEqual(ws(panel.PANEL_FAMILIES), ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility']);
   assert.deepEqual(ws(panel.PANEL_WIDGETS), ['auto', 'knob', 'fader', 'switch', 'selector']);
   assert.deepEqual(ws(panel.PANEL_STANDARD_WIDGETS), ['knob', 'fader', 'switch', 'selector', 'meter', 'curve', 'xy', 'display']);
   const scan = read('data/scan.json');

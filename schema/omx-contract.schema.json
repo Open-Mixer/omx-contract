@@ -148,7 +148,7 @@
           "required": ["paramsFingerprint"],
           "additionalProperties": false
         },
-        "family": { "enum": ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch"], "description": "One word of PANEL_FAMILIES." },
+        "family": { "enum": ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility"], "description": "One word of PANEL_FAMILIES." },
         "controls": { "type": "object", "propertyNames": { "pattern": "^[A-Za-z0-9_]+$" }, "additionalProperties": { "$ref": "#/$defs/overrideControl" } },
         "made": {
           "type": "object",

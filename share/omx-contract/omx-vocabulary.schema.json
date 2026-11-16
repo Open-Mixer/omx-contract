@@ -795,7 +795,8 @@
         "modulation",
         "delay",
         "reverb",
-        "pitch"
+        "pitch",
+        "utility"
       ],
       "x-omx-texts": {
         "none": {
@@ -867,6 +868,12 @@
         "pitch": {
           "text": {
             "en": "A pitch shifter's panel family."
+          },
+          "args": []
+        },
+        "utility": {
+          "text": {
+            "en": "A utility's panel family: a trim, a width control, a balancer or a clipper."
           },
           "args": []
         }

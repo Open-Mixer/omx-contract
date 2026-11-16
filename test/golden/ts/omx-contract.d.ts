@@ -6184,6 +6184,13 @@ export declare const PANEL_FAMILIES: {
       readonly en: "A pitch shifter's panel family.";
     };
   };
+  readonly utility: {
+    readonly word: "utility";
+    readonly doc: "a gain trim, a stereo width control or another utility that shapes a signal without a processor's character";
+    readonly text: {
+      readonly en: "A utility's panel family: a trim, a width control, a balancer or a clipper.";
+    };
+  };
 };
 
 /**
@@ -7638,7 +7645,7 @@ export declare const MEASUREMENT_VERDICT_RATINGS_WORDS: readonly ["suitable", "c
  * The words of PANEL_FAMILIES, in their declared order.
  * @see data/panel.json
  */
-export declare const PANEL_FAMILIES_WORDS: readonly ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch"];
+export declare const PANEL_FAMILIES_WORDS: readonly ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility"];
 
 /**
  * The words of PANEL_STANDARD_WIDGETS, in their declared order.

@@ -7106,6 +7106,13 @@ export const PANEL_FAMILIES = {
     "text": {
       "en": "A pitch shifter's panel family."
     }
+  },
+  "utility": {
+    "word": "utility",
+    "doc": "a gain trim, a stereo width control or another utility that shapes a signal without a processor's character",
+    "text": {
+      "en": "A utility's panel family: a trim, a width control, a balancer or a clipper."
+    }
   }
 };
 
@@ -8902,7 +8909,8 @@ export const PANEL_FAMILIES_WORDS = [
   "modulation",
   "delay",
   "reverb",
-  "pitch"
+  "pitch",
+  "utility"
 ];
 
 /**

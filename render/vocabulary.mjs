@@ -9,7 +9,7 @@
  */
 import { packageItems } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral } from './c/c-literals.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 

@@ -13,7 +13,7 @@
  * `<ID>` is the term's CLAP identifier (`CLAP_EXT_REMOTE_CONTROLS`), `<SPEC>` its item's name between `LV2_` and
  * `_TERMS` (`LV2_PORT_PROPS_TERMS` is `PORT_PROPS`).
  */
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral } from './c/c-literals.mjs';
 
 const termsOf = (resolved, format) => [...resolved.values()].filter((r) => r.kind === 'terms' && r.format === format);
 

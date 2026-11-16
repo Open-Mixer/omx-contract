@@ -7,7 +7,7 @@
  * the types and the prose are read from the item.
  */
 import { constOf, hintItems, memberOf, unitOf } from '../lib/hints.mjs';
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral } from './c/c-literals.mjs';
 
 const oneLine = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
 const ttlString = (s) => `"${oneLine(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;

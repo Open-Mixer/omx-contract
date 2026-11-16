@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- `translate --source` no longer skips a source key by its shape (omx-contract#48): only a key starting with `_` is file
+  metadata; any other key that is not a sentence `{ text, args }` (a bare string) refuses the file by name, so `--check`
+  never counts fewer keys than the source holds and calls the catalogs whole.
 - A catalog entry may be `by: same` (schema 3.19.0): the sentence is the source sentence itself, with its source hash;
   readers keep it and `translate` never regenerates it. The Catalan catalog's plain entries carry their `by` form.
 - `python3-omx-contract` (#28), one package on RPM and DEB from the same source: `omx_contract` in site-packages /

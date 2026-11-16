@@ -116,3 +116,18 @@ test('a formatMap row\'s term is a term of a terms item of the map\'s format (ru
   const term = Object.keys(clap.item.terms)[0];
   rule((rows) => { rows['units:unit'].term = `${clap.name}#${term}`; }, /is a clap term, and the map is lv2's/);
 });
+
+test('a descriptor declares choiceUnits once: a choice control name to a descriptor unit, and an unknown unit is refused', () => {
+  const doc = authored();
+  doc.controls.push({ id: 2, name: 'slope', kind: 'choice', ids: ['s12', 's24'], labels: ['12', '24'], default: 's12' });
+  doc.choiceUnits = { slope: 'dB/oct' };
+  assert.deepEqual(problemsOf(doc), []);
+  const bad = (edit, want) => {
+    const d = structuredClone(doc);
+    edit(d);
+    assert.ok(problemsOf(d).some((p) => want.test(p)), `${want}: ${JSON.stringify(problemsOf(d))}`);
+  };
+  bad((d) => { d.choiceUnits.slope = 'furlongs'; }, /\/choiceUnits\/slope/);
+  bad((d) => { d.choiceUnits.slope = 'unknown'; }, /\/choiceUnits\/slope/);
+  bad((d) => { d.choiceUnits = {}; }, /\/choiceUnits must NOT have fewer than 1 properties/);
+});

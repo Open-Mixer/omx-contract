@@ -113,7 +113,9 @@ not the one its path gives.
   group the router answered with (its `x-litellm-model-group` header), else the model the answer names. Each answer
   passes the placeholder gate (exactly the source sentence's placeholders, each one of the key's
   `args`) or is refused, left out, and the run is red. A person's entry is never made again. `--source <file>` reads the source sentences from a file
-  instead of contract data (#24): `{ "<key>": { "text", "args" } }`, a string value being a generated file's banner,
+  instead of contract data (#24): `{ "<key>": { "text", "args" } }`, a key starting with `_` (`_generated`) being the file's
+  metadata and any other key that is no sentence refusing the file by name, so `--check` compares every catalog with the
+  file's whole key set,
   for strings that are no contract data (a surface's own, keyed `WEB_UI.<domain>.<path>`), with `--catalogs` and
   `--package`; everything else, `--check` included, is the same. `--owner <tree>` reads the tree's declared code
   locations: its `data/` and, for an owner whose codes are one bare item file, `schema/codes.json` (kind `codes` at

@@ -121,6 +121,7 @@
     "PANEL_DISPLAY_KINDS.transfer_curve": { "text": "La curva de transferencia de la dinámica: el nivel de salida según el de entrada.", "by": "machine", "model": "lane-draft", "source": "6025ca94dd504e70ce62f6c57cb83c633fa8604705f440486f354524fb3b819a" },
     "PANEL_DISPLAY_KINDS.eq_response": { "text": "La respuesta en frecuencia del ecualizador.", "by": "machine", "model": "lane-draft", "source": "0877c82ba2901b0b7a9f5ad0430069cd3a07270ba376f08938b5295580634940" },
     "PANEL_DISPLAY_KINDS.meter": { "text": "Un medidor de nivel.", "by": "machine", "model": "lane-draft", "source": "f2ca8f607dd30ba6ce17aea6ba8ef8b32f270b4ee043ada7d4b891fb23e2e8b5" },
+    "PANEL_DISPLAY_KINDS.time_response": { "text": "La respuesta en el tiempo: las repeticiones de un retardo o la cola de una reverberación.", "by": "machine", "model": "lane-draft", "source": "ba75ee20c1bd3ded3b9f24b00af1eea2cebd05afcce7a8050fcb705eff254d35" },
     "PANEL_FAMILIES.deesser": { "text": "La familia de paneles de un de-esser.", "by": "machine", "model": "draft-prose", "source": "2e80851594f548fe38bf9b71c6a179e0fe226ae660b7ec422d111f08f577eaee" },
     "PANEL_FAMILIES.delay": { "text": "Una familia de paneles para delays.", "by": "machine", "model": "draft-prose", "source": "39632e3c2f4ccd94068f32d088de776ac7caec3b90b9ad88876743e955182d11" },
     "PANEL_FAMILIES.drive": { "text": "Una familia de paneles para saturadores o distorsiones.", "by": "machine", "model": "draft-prose", "source": "5984a37474e21563302bf0bf66b47511cf99b5967cf7842f6801639a0243a47f" },

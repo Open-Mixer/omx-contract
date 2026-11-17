@@ -9,7 +9,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   (omx-clap-core's panel families, widgets and display kinds, Open-Mixer/omx-clap-core#104). Its name is held unique with
   every other C name.
 - `PANEL_DISPLAY_KINDS` (data/panel.json): the displays a panel description serves, `gain_reduction_bar`,
-  `transfer_curve`, `eq_response` and `meter`, in the order of their codes; declared here, no longer restated by hand in
+  `transfer_curve`, `eq_response`, `meter` and `time_response` (omx-panel's, code 4), in the order of their codes; declared here, no longer restated by hand in
   omx-clap-core. The six catalogs carry their sentences as drafts.
 - The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
   balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their

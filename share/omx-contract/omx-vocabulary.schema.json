@@ -985,12 +985,13 @@
       }
     },
     "PANEL_DISPLAY_KINDS": {
-      "description": "The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+      "description": "The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
       "enum": [
         "gain_reduction_bar",
         "transfer_curve",
         "eq_response",
-        "meter"
+        "meter",
+        "time_response"
       ],
       "x-omx-texts": {
         "gain_reduction_bar": {
@@ -1014,6 +1015,12 @@
         "meter": {
           "text": {
             "en": "A level meter."
+          },
+          "args": []
+        },
+        "time_response": {
+          "text": {
+            "en": "The response over time: a delay's taps or a reverb's decay."
           },
           "args": []
         }

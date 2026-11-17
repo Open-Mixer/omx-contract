@@ -7222,7 +7222,7 @@ export const PANEL_WIDGETS = {
 };
 
 /**
- * The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ * The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
  *
  * Why: omx-clap-core restated these words by hand beside the families and widgets; a display kind is a declaration, so it lives here (vocabulary-owner rule).
  * @see data/panel.json
@@ -7254,6 +7254,13 @@ export const PANEL_DISPLAY_KINDS = {
     "doc": "a level meter",
     "text": {
       "en": "A level meter."
+    }
+  },
+  "timeResponse": {
+    "word": "time_response",
+    "doc": "a response over time: a delay's train of taps or a reverb's decay envelope",
+    "text": {
+      "en": "The response over time: a delay's taps or a reverb's decay."
     }
   }
 };
@@ -8985,7 +8992,8 @@ export const PANEL_DISPLAY_KINDS_WORDS = [
   "gain_reduction_bar",
   "transfer_curve",
   "eq_response",
-  "meter"
+  "meter",
+  "time_response"
 ];
 
 /**

@@ -6299,7 +6299,7 @@ export declare const PANEL_WIDGETS: {
 };
 
 /**
- * The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ * The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
  *
  * Why: omx-clap-core restated these words by hand beside the families and widgets; a display kind is a declaration, so it lives here (vocabulary-owner rule).
  * @see data/panel.json
@@ -6331,6 +6331,13 @@ export declare const PANEL_DISPLAY_KINDS: {
     readonly doc: "a level meter";
     readonly text: {
       readonly en: "A level meter.";
+    };
+  };
+  readonly timeResponse: {
+    readonly word: "time_response";
+    readonly doc: "a response over time: a delay's train of taps or a reverb's decay envelope";
+    readonly text: {
+      readonly en: "The response over time: a delay's taps or a reverb's decay.";
     };
   };
 };
@@ -7700,7 +7707,7 @@ export declare const PANEL_WIDGETS_WORDS: readonly ["auto", "knob", "fader", "sw
  * The words of PANEL_DISPLAY_KINDS, in their declared order.
  * @see data/panel.json
  */
-export declare const PANEL_DISPLAY_KINDS_WORDS: readonly ["gain_reduction_bar", "transfer_curve", "eq_response", "meter"];
+export declare const PANEL_DISPLAY_KINDS_WORDS: readonly ["gain_reduction_bar", "transfer_curve", "eq_response", "meter", "time_response"];
 
 /**
  * The words of PLUGIN_FEATURE_AUDIO_EFFECT, in their declared order.

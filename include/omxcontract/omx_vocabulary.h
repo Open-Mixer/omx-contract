@@ -402,10 +402,13 @@
 #define OMX_PANEL_DISPLAY_KINDS_EQ_RESPONSE_TEXT_EN "The equaliser's frequency response."
 #define OMX_PANEL_DISPLAY_KINDS_METER "meter" ///< a level meter
 #define OMX_PANEL_DISPLAY_KINDS_METER_TEXT_EN "A level meter."
-#define OMX_PANEL_DISPLAY_KINDS_COUNT 4u
-#define OMX_PANEL_DISPLAY_KINDS_INIT { "gain_reduction_bar", "transfer_curve", "eq_response", "meter" }
+#define OMX_PANEL_DISPLAY_KINDS_TIME_RESPONSE "time_response" ///< a response over time: a delay's train of taps or a reverb's decay envelope
+#define OMX_PANEL_DISPLAY_KINDS_TIME_RESPONSE_TEXT_EN "The response over time: a delay's taps or a reverb's decay."
+#define OMX_PANEL_DISPLAY_KINDS_COUNT 5u
+#define OMX_PANEL_DISPLAY_KINDS_INIT { "gain_reduction_bar", "transfer_curve", "eq_response", "meter", "time_response" }
 #define OMX_PANEL_DISPLAY_KINDS(X) \
-    X(0u, "gain_reduction_bar", GAIN_REDUCTION_BAR) X(1u, "transfer_curve", TRANSFER_CURVE) X(2u, "eq_response", EQ_RESPONSE) X(3u, "meter", METER)
+    X(0u, "gain_reduction_bar", GAIN_REDUCTION_BAR) X(1u, "transfer_curve", TRANSFER_CURVE) X(2u, "eq_response", EQ_RESPONSE) X(3u, "meter", METER) \
+    X(4u, "time_response", TIME_RESPONSE)
 
 /* PLUGIN_FEATURE_AUDIO_EFFECT (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_CLAP_AUDIO_EFFECT "clap.audio-effect"

@@ -266,3 +266,30 @@ Run by the owner's CI over its own tree; a consumer never resolves links. For ev
 
 Links with `at` lie in another package's tree; they are reported as unchecked unless `--at <package>=<dir>` names
 that tree.
+
+## What omx-contract owns: the ownership gate
+
+omx-contract keeps only the schema kinds, the loader check, the renderers and its own codes; every other vocabulary
+lives with the package that owns it (omx-contract#81 lists the moves). The rule was remembered and broke twice; it is
+now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and by `test/ownership.test.mjs`.
+
+- **Items.** The check reads `data/` through the loader (`src/lib/data.mts`, so a kernel file's items count as the
+  renders see them) plus the tool file `codes.json`, and it scans every `enum` of `schema/omx-contract.schema.json`
+  and `shapes/travel.schema.json`, each named `<file>#<json pointer>`. A side file's fields (`scale-vectors.json`)
+  and a file-level key (`$schema`, `render`) are not items.
+- **Lists.** `ownership/owned.txt` names the items omx-contract owns (`CONTRACT_CODES`, the parameter scales, the
+  formats data, the schema's own enums); `ownership/moving-out.txt` names the items #81 moves to their owner. A line
+  is a name, once; a duplicate or a junk line is red. An item in neither list is red; a listed item `data/` no longer
+  declares is red (a moved item leaves its line in the same change).
+- **Words.** `ownership/words.json` holds each item's word set (the keys of its `words`, `codes`, `terms`, `value`,
+  or its `ids`/`values`; an enum's members). A word in the data the file lacks is red, named with its item: a word
+  added inside an existing item is as much a new vocabulary as a new item. A word the data lost is red too, so the
+  file is always the data. `node tools/check-ownership.mjs --update` rewrites it; the diff is the review.
+- **Only out, never back.** Against the base (`OWNERSHIP_BASE`, origin/main) a name added to `moving-out.txt`, a word
+  added to a moving-out item in `words.json`, and a name that stood on `moving-out.txt` at the base and now stands on
+  `owned.txt` are red.
+- **The base.** `make ownership` fetches it first, and a base git cannot read (the fetch failed, the ref is absent)
+  is a refusal by name, exit 2, never a pass. The one tolerated base is a commit that predates the gate (no
+  `tools/check-ownership.mjs` in it): the gate's own first change. Once that change is the base, a base without the
+  lists is a refusal too, so there is no permanent bypass.
+- Exit 0 clean; 1 a finding; 2 the check could not run. Every message names a path relative to the repository.

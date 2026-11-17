@@ -117,7 +117,14 @@ test('a word whose C name meets a words item\'s X-macro is refused', () => {
 test('the panel display kinds are declared here, in the order a panel description serves them', () => {
   const r = resolved.get('PANEL_DISPLAY_KINDS');
   assert.ok(r && r.kind === 'words', 'PANEL_DISPLAY_KINDS is a words item');
-  assert.deepEqual(Object.values(r.value).map((w) => w.word), ['gain_reduction_bar', 'transfer_curve', 'eq_response', 'meter']);
+  assert.deepEqual(Object.values(r.value).map((w) => w.word), ['gain_reduction_bar', 'transfer_curve', 'eq_response', 'meter', 'time_response']);
+});
+
+// omx-panel released the time_response display (a delay's tap train, a reverb's decay envelope) at code 4: the list
+// carries it there, after meter, or a consumer's table drifts from the extension's.
+test('the panel display kinds carry time_response at code 4', () => {
+  const words = Object.values(resolved.get('PANEL_DISPLAY_KINDS').value).map((w) => w.word);
+  assert.equal(words.indexOf('time_response'), 4, 'time_response is the fifth display kind, code 4');
 });
 
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {

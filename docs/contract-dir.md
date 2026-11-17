@@ -48,6 +48,25 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds
   beside its document.
+- A domain may be a MODULE of a group (owner ruling 2026-11-17, omx-contract#81 move 12): its name is `<group>/<module>`
+  (`formats/clap`), its document `<contractdir>/<group>/<module>/<module>.json`, its `$id`
+  `https://openmixer.org/contract/<group>/<module>`. A group directory holds no document of its own, only modules, and a
+  module is added without any other module's version or consumers changing. A `requires` of a data tree names a domain
+  by that name, and its floor is compared to the domain's `info.version`.
+- A TERMS item (the map of one specification or header, kind `terms`) is a schema with `x-format` (`clap`, `lv2`),
+  `x-spec`, `x-version`, optional `x-deprecated`, and a `oneOf` of one `{ "const": "<the term's key>", "title": "<its id
+  or uri>", "x-term": { ...the term as the classic item writes it, in its order } }` per term. `description`, `x-since`
+  and `x-why` are a words item's. Its renders (`omx_formats.h`, the ts and py exports) are those of the classic terms
+  item, byte for byte, since they are a read of its terms.
+- The kinds and statuses a term may have are words of the domain `formats/common` (`FORMAT_TERM_KINDS`,
+  `FORMAT_TERM_STATUSES`), which every module of the group refers to and none copies: a terms item names them as
+  `"x-kinds": { "$ref": "https://openmixer.org/contract/formats/common#/components/schemas/FORMAT_TERM_KINDS" }` and
+  `"x-statuses"` likewise. The read refuses (`contract.ref.unresolved`) a `$ref` that names no schema of a domain it
+  read, and (`contract.file.invalid`) a term whose `kind` or `status` is no `const` of the schema named.
+- A data tree (`--data`, the bundled `data/` by default) whose files `requires` a domain is read WITH that domain, taken
+  from the contract directory (`$OMX_CONTRACT_PATH`, else pkg-config) as `translate --owner` already reads a tree's
+  requirements: the items of the domain answer a reference of the tree (a word's `from`), the tree's renders are of
+  the tree's own items only, and a requirement no directory satisfies is refused by `contract.requires.unresolved`.
 - A consumer of a domain's words that is not a C or TypeScript render (a Python reader, a template) reads the domain
   document itself, `<contractdir>/<domain>/<domain>.json`; the json render of the whole read is not a reader of a
   domain's items.

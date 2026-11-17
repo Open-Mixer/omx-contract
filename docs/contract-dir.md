@@ -266,3 +266,20 @@ Run by the owner's CI over its own tree; a consumer never resolves links. For ev
 
 Links with `at` lie in another package's tree; they are reported as unchecked unless `--at <package>=<dir>` names
 that tree.
+
+## What omx-contract owns: the ownership gate
+
+omx-contract keeps only the schema kinds, the loader check, the renderers and its own codes; every other vocabulary
+lives with the package that owns it (omx-contract#81 lists the moves). The rule was remembered and broke twice; it is
+now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and by `test/ownership.test.mjs`.
+
+- The check lists every item `data/` declares: each top-level key of each `data/**/*.json`, but `$schema`.
+- `ownership/owned.txt` names the items omx-contract owns: `CONTRACT_CODES`, the parameter scales and their
+  vectors (`PARAM_SCALES`, `ulp`, `doc`, `laws`), the host table (`VERB_HOSTS`) and the formats data (`CLAP_*_TERMS`,
+  `LV2_*_TERMS`).
+- `ownership/moving-out.txt` names the items #81 moves to their owner, until the PR that moves one removes its line
+  with the item. The list only shrinks: a line absent from the base (`OWNERSHIP_BASE`, origin/main
+  unless named) and present here is red, and so is an unreadable base (a gate with no base is never green).
+- An item in neither list is red, named with its file: a new word is the owner's, not omx-contract's. An item in a
+  list that `data/` no longer declares is red too, so a moved item leaves its line in the same change.
+- Exit 0 clean; 1 a finding; 2 the check could not run.

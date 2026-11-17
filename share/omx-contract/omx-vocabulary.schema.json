@@ -1026,6 +1026,76 @@
         }
       }
     },
+    "PANEL_DISPLAY_SOURCES": {
+      "description": "Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+      "enum": [
+        "family",
+        "meters",
+        "gain_adjustment",
+        "curve"
+      ],
+      "x-omx-texts": {
+        "family": {
+          "text": {
+            "en": "The data the panel family implies."
+          },
+          "args": []
+        },
+        "meters": {
+          "text": {
+            "en": "The plugin's meter readouts."
+          },
+          "args": []
+        },
+        "gain_adjustment": {
+          "text": {
+            "en": "The gain the processor applies."
+          },
+          "args": []
+        },
+        "curve": {
+          "text": {
+            "en": "A curve the plugin declares."
+          },
+          "args": []
+        }
+      }
+    },
+    "PANEL_PLACEMENTS": {
+      "description": "Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+      "enum": [
+        "insert",
+        "return",
+        "bus",
+        "master"
+      ],
+      "x-omx-texts": {
+        "insert": {
+          "text": {
+            "en": "An instance on an insert chain."
+          },
+          "args": []
+        },
+        "return": {
+          "text": {
+            "en": "An instance on a return track."
+          },
+          "args": []
+        },
+        "bus": {
+          "text": {
+            "en": "An instance on a bus."
+          },
+          "args": []
+        },
+        "master": {
+          "text": {
+            "en": "An instance on the master."
+          },
+          "args": []
+        }
+      }
+    },
     "PLUGIN_FEATURE_AUDIO_EFFECT": {
       "description": "The CLAP plugin features and LV2 plugin classes that become the descriptor feature audio-effect: every kind of effect, a filter, a dynamics processor, a modulation or a space, and the channel-less roles of a processor (utility, mixing, mastering).",
       "enum": [

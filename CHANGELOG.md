@@ -11,6 +11,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 - `PANEL_DISPLAY_KINDS` (data/panel.json): the displays a panel description serves, `gain_reduction_bar`,
   `transfer_curve`, `eq_response`, `meter` and `time_response` (omx-panel's, code 4), in the order of their codes; declared here, no longer restated by hand in
   omx-clap-core. The six catalogs carry their sentences as drafts.
+- `PANEL_DISPLAY_SOURCES` (`family`, `meters`, `gain_adjustment`, `curve`) and `PANEL_PLACEMENTS` (`insert`, `return`,
+  `bus`, `master`) (data/panel.json): where a panel description's display takes its data and where an instance sits, in the
+  order of their codes; declared here beside the families, widgets and display kinds, no longer restated by hand in
+  omx-clap-core and omx-plugins. The six catalogs carry their sentences as drafts.
 - Shapes (`docs/shapes.md`, the typed-contracts spec `docs/typed-contracts-shared-behaviour.md`
   §3, lane S1): a document's shape is one JSON Schema 2020-12 file under `shapes/`, rendered by
   `render --target ts|py|c --shapes` to a TypeScript interface (json-schema-to-typescript, pinned), a Python `TypedDict`

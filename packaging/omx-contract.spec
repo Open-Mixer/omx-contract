@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.19.0
+Version: 3.20.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -247,10 +247,12 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
-* Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.0-1
-- Schema 3.19.0: a catalog entry may be by: same, the sentence the source
-  sentence is, with its source hash; readers keep it and no generator
-  rewrites it. The Catalan catalog's plain entries carry their by form.
+* Tue Nov 17 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.0-1
+- Schema 3.20.0 (3.19.0 was never released; this release carries its content):
+  a catalog entry may be by: same, the sentence the source sentence is, with
+  its source hash (#44); every words item renders one X-macro in the C
+  vocabulary, and the words items PANEL_DISPLAY_KINDS, PANEL_DISPLAY_SOURCES
+  and PANEL_PLACEMENTS are declared here (#52, #73).
 - The -devel floors stay: omx-dsp-devel before 0.25.0, omx-clap-core-devel
   before 0.13.0 and omx-plugins-devel before 0.13.0.
 * Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.1-1

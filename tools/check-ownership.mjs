@@ -81,7 +81,7 @@ export function ownershipProblems(decl, lists, base) {
   for (const name of owned) if (moving.has(name)) problems.push(`${name} is on both lists`);
   for (const [name, { file, words: have }] of decl) {
     const held = new Set(words[name] ?? []);
-    for (const w of have) if (!held.has(w)) problems.push(`${name} (${file}): the word "${w}" is new in ownership/words.json's item; a new word is the owner's vocabulary, not omx-contract's`);
+    for (const w of have) if (!held.has(w)) problems.push(`${name} (${file}): the word "${w}" is in the data and not in ownership/words.json; a new word is the owner's vocabulary, not omx-contract's`);
     for (const w of held) if (!have.includes(w)) problems.push(`${name} (${file}): ownership/words.json holds the word "${w}", which the data no longer has`);
   }
   for (const name of Object.keys(words)) if (!decl.has(name)) problems.push(`ownership/words.json holds ${name}, which nothing declares`);

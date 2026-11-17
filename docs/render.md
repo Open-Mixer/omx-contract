@@ -104,8 +104,9 @@ reads none of a file's globals without one, so a header with no `@file` block is
 public declaration a header spells (a define, an enum and each of its members, a struct and each of its members, a
 function and each of its parameters) carries a `/** */` block, spelled from the item that declares it: its `doc`, its
 `unit` where it carries one, and the version its `since` names; the comment states the declaration's meaning, its
-units and ranges, since when it is declared, and who owns the memory it names. A one-line prose is a trailing
-`///<`, a longer one a block above the declaration.
+units and ranges, since when it is declared, and who owns the memory it names. A define's or a function's block
+stands above its line, so the line stays as a reader greps it (a function's names each parameter and its return); an
+enum's or a struct's member carries its one line as a trailing `///<`, as a word of the vocabulary does.
 
 The declarations doxygen reports undocumented are the lines of `docs/doxygen-baseline.txt`, each `<header>: <text>`
 with no line number, sorted: the gate compares doxygen's warnings with that list and refuses a warning the list does

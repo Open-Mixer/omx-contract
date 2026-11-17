@@ -9365,7 +9365,7 @@ export const VERB_HOSTS_WORDS = [
 
 /**
  * The CLAP identifiers (extension ids, factory ids, plugin features, window APIs) by the header's own identifier.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export const CLAP_IDS = {
   "CLAP_PORT_AMBISONIC": "ambisonic",
@@ -9484,7 +9484,7 @@ export const CLAP_IDS = {
 
 /**
  * The numbers the CLAP headers declare, by the header's own identifier.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export const CLAP_NUMBERS = {
   "CLAP_REMOTE_CONTROLS_COUNT": 8
@@ -9492,7 +9492,7 @@ export const CLAP_NUMBERS = {
 
 /**
  * The URI of each LV2 specification, by its name in upper snake case.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export const LV2_SPECIFICATIONS = {
   "ATOM": "http://lv2plug.in/ns/ext/atom",
@@ -9523,7 +9523,7 @@ export const LV2_SPECIFICATIONS = {
 
 /**
  * The namespace each LV2 specification's terms are written after: its URI and a #.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export const LV2_NAMESPACES = {
   "ATOM": "http://lv2plug.in/ns/ext/atom#",

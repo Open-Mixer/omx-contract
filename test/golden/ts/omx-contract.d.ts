@@ -7905,7 +7905,7 @@ export declare const VERB_HOSTS_WORDS: readonly ["plugin-hostd", "omx-clap-host"
 
 /**
  * The CLAP identifiers (extension ids, factory ids, plugin features, window APIs) by the header's own identifier.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const CLAP_IDS: {
   readonly CLAP_PORT_AMBISONIC: "ambisonic";
@@ -8024,7 +8024,7 @@ export declare const CLAP_IDS: {
 
 /**
  * The numbers the CLAP headers declare, by the header's own identifier.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const CLAP_NUMBERS: {
   readonly CLAP_REMOTE_CONTROLS_COUNT: 8;
@@ -8032,7 +8032,7 @@ export declare const CLAP_NUMBERS: {
 
 /**
  * The URI of each LV2 specification, by its name in upper snake case.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const LV2_SPECIFICATIONS: {
   readonly ATOM: "http://lv2plug.in/ns/ext/atom";
@@ -8063,7 +8063,7 @@ export declare const LV2_SPECIFICATIONS: {
 
 /**
  * The namespace each LV2 specification's terms are written after: its URI and a #.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const LV2_NAMESPACES: {
   readonly ATOM: "http://lv2plug.in/ns/ext/atom#";

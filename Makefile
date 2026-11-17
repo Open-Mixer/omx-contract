@@ -120,17 +120,17 @@ test:
 
 # Every public declaration of the installed headers documented (docs/render.md "Documentation", omx-contract#64):
 # doxygen's undocumented-member warnings held to docs/doxygen-baseline.txt, red on a new one and on a stale line. With
-# DOXYGEN_BASE a git ref, the baseline is also held to that ref's: it only shrinks (a ref with no baseline yet, the
-# commit that introduces the gate, holds it to nothing and says so).
+# DOXYGEN_BASE a git ref, the baseline is also held to that ref's: it only shrinks. A ref that is a commit here with no
+# baseline yet (the commit that introduces the gate) holds it to nothing and says so; a ref git cannot read (not
+# fetched, no checkout) is a refusal, exit 2, never a pass with no base.
 DOXYGEN_BASE ?=
 doxygen-check:
-	@if [ -n "$(DOXYGEN_BASE)" ] && git show "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" > doxygen-baseline.base 2>/dev/null; then \
-	  sh tools/doxygen-gate.sh --base-baseline doxygen-baseline.base; s=$$?; rm -f doxygen-baseline.base; exit $$s; \
-	else \
-	  rm -f doxygen-baseline.base; \
-	  [ -z "$(DOXYGEN_BASE)" ] || echo "doxygen-check: $(DOXYGEN_BASE) carries no docs/doxygen-baseline.txt; the shrink check starts at the next change"; \
-	  sh tools/doxygen-gate.sh; \
-	fi
+	@if [ -z "$(DOXYGEN_BASE)" ]; then sh tools/doxygen-gate.sh; \
+	elif git cat-file -e "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" 2>/dev/null; then \
+	  git show "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" > doxygen-baseline.base && sh tools/doxygen-gate.sh --base-baseline doxygen-baseline.base; s=$$?; rm -f doxygen-baseline.base; exit $$s; \
+	elif git rev-parse --verify -q "$(DOXYGEN_BASE)^{commit}" >/dev/null 2>&1; then \
+	  echo "doxygen-check: $(DOXYGEN_BASE) carries no docs/doxygen-baseline.txt; the shrink check starts at the next change"; sh tools/doxygen-gate.sh; \
+	else echo "doxygen-check: $(DOXYGEN_BASE) is no commit git can read here; fetch it, the shrink check needs it" >&2; exit 2; fi
 
 # Every word of data/ in the file its rule places it, and every LV2 and CLAP term of inventory/ mapped with a status
 # (docs/data-layout.md).

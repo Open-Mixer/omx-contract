@@ -112,6 +112,15 @@ test('the baseline only shrinks: a line added against the base is refused, a str
   assert.equal(shrunk.status, 0, shrunk.out);
 });
 
+test('make doxygen-check: the base ref is held to; a ref git cannot read is a refusal, exit 2, never a pass with no base', { skip: noDoxygen || (spawnSync('make', ['--version']).status !== 0 && 'no make') }, () => {
+  const make = (base) => spawnSync('make', ['doxygen-check', `DOXYGEN_BASE=${base}`], { cwd: ROOT, encoding: 'utf8' });
+  const head = make('HEAD');
+  assert.equal(head.status, 0, `${head.stdout}${head.stderr}`);
+  const none = make('no-such-ref-for-the-gate');
+  assert.equal(none.status, 2, `${none.stdout}${none.stderr}`);
+  assert.match(none.stderr, /no commit git can read here/);
+});
+
 test('--list prints the current warnings keyed by header and text, with no line number', { skip: noDoxygen }, () => {
   const r = gate('--list');
   assert.equal(r.status, 0, r.out);

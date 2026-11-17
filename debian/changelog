@@ -1,3 +1,13 @@
+omx-contract (3.19.1) unstable; urgency=medium
+
+  * The npm package @openmixer/omx-contract is now published with the
+    release: the publish workflow's prove step installs the shape
+    generators' requirements (tools/shapes-requirements.txt), as
+    release.yml does (#94). 3.19.0's npm publish failed there. Nothing
+    else changed since 3.19.0.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 17 Nov 2026 23:00:12 +0000
+
 omx-contract (3.19.0) unstable; urgency=medium
 
   * Schema 3.19.0: a catalog entry may be by: same, the sentence the

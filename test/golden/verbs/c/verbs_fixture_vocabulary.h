@@ -10,6 +10,10 @@
  * literal of its own.
  */
 
+/** @file
+ * @brief The vocabulary of verbs-fixture: every code and every word as a string define, with its sentence
+ * where it carries one. */
+
 /* MOD_HOST_REPLY_CODES (data/errors.json) */
 #define OMX_REPLY_MOD_HOST_INVALID_OPERATION "reply.mod-host.invalid-operation" ///< ERR_INVALID_OPERATION: a word outside the verb's grammar
 #define OMX_REPLY_MOD_HOST_INVALID_OPERATION_RESP (-902)

@@ -9,6 +9,9 @@
  * plugin-qualify measures the same resource and a declared figure the measurement does not bear out is a finding.
  */
 
+/** @file
+ * @brief The CLAP extension org.openmixer.resource-hints.draft/0: the hints a plugin declares about its own footprint, one bit and one member each. */
+
 #include <stdbool.h>
 #include <stdint.h>
 

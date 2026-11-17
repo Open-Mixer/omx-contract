@@ -50,7 +50,9 @@ omx_contract.scale.scale_position({"scale": "log", "min": 20, "max": 20000}, 100
 
 <https://www.openmixer.org/projects/omx-contract>, `man omx-contract`, and in this repository: what the package
 holds, pinning a version and where each subject is ([docs/overview.md](docs/overview.md)); building
-([BUILDING.md](BUILDING.md)).
+([BUILDING.md](BUILDING.md)). The installed C headers are documented for doxygen, every public declaration from the
+item that declares it; `make doxygen-check` holds the undocumented ones to a baseline that only shrinks
+([docs/render.md](docs/render.md) "Documentation").
 
 ## Licence
 

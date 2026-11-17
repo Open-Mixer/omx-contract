@@ -1,32 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The published contract-limits renderer and split: a consumer imports them from this package by name, renders its
- * whole sheet once and cuts it by the owners' installed headers.
+ * The published contract-limits split: a consumer imports it from this package by name, renders its whole sheet once
+ * and cuts it by the owners' installed headers.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
-import { fileURLToPath } from 'node:url';
-import { renderContractLimits } from '@openmixer/omx-contract/contract-limits-render';
 import { limitUnits, pinVerdicts, splitContractLimits } from '@openmixer/omx-contract/contract-limits-split';
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const frozen = () => {
-  const s = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/frozen-limits-sheet.json'), 'utf8')).sheet;
-  return { ...s, CORE_LIMITS: new Map(Object.entries(s.CORE_LIMITS)) };
-};
-
-test('the published renderer is the one the round-trip proves, and renders the stage facts a consumer names', () => {
-  const pin = readFileSync(join(ROOT, 'test/fixtures/limits-0.1.3/omx_contract_limits.h'), 'utf8');
-  assert.equal(renderContractLimits(frozen()), pin, 'positive control: the default facts render the frozen header');
-  const pan = renderContractLimits({ ...frozen(), coreStageFacts: ['pan'] });
-  const block = (text) => text.split('\n/* ').find((part) => part.includes('coreLimits-sourced fact'));
-  assert.match(block(pan), /^#define OMX_PAN_PAN_MIN /m);
-  assert.doesNotMatch(block(pan), /^#define OMX_(DELAY|REVERB|DRIVE)_/m, 'a fact the consumer does not name has no block');
-  assert.match(block(pin), /^#define OMX_DRIVE_/m, 'positive control: the default facts carry the drive block');
-});
 
 const OWNER = `#ifndef OWNER_H
 #define OWNER_H

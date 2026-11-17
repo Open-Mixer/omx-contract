@@ -32,15 +32,22 @@
  * slash is never escaped.
  */
 
+/** @file
+ * @brief The one JSON string writer of the OpenMixer C programs: the escape of one byte, a quoted literal into a FILE
+ * and a quoted literal into a buffer. */
+
 #include <stddef.h>
 #include <stdio.h>
 
-/**
- * The escape of byte `c` into `out` (no NUL): its length, 1 for a byte written as it is, 2 for a short escape, 6 for
- * \u00XX. `out` holds at least OMX_JSON_ESCAPE_MAX bytes.
- */
+/** The most bytes the escape of one byte takes (`\\u00XX`): what `out` of omx_json_escape_byte holds at least. */
 #define OMX_JSON_ESCAPE_MAX 6
 
+/**
+ * The escape of byte `c` into `out`, with no NUL.
+ * @param c the byte to escape
+ * @param out the caller's buffer of at least OMX_JSON_ESCAPE_MAX bytes; the caller owns it
+ * @return the length written: 1 for a byte written as it is, 2 for a short escape, 6 for `\\u00XX`
+ */
 static inline size_t omx_json_escape_byte(unsigned char c, char *out)
 {
     static const char hex[] = "0123456789abcdef";
@@ -66,7 +73,12 @@ static inline size_t omx_json_escape_byte(unsigned char c, char *out)
     }
 }
 
-/** `s` (NUL-terminated; NULL writes null) as a quoted JSON string literal into `f`: 0, or EOF when a write failed. */
+/**
+ * `s` as a quoted JSON string literal into `f`.
+ * @param f the open stream written to; the caller owns it
+ * @param s the NUL-terminated string, or NULL, which writes `null`
+ * @return 0, or EOF when a write failed
+ */
 static inline int omx_json_write_string(FILE *f, const char *s)
 {
     char esc[OMX_JSON_ESCAPE_MAX];
@@ -82,10 +94,16 @@ static inline int omx_json_write_string(FILE *f, const char *s)
     return fputc('"', f) == EOF ? EOF : 0;
 }
 
+/** The buffer writer's own put: byte `ch` into `dst` when it fits under `cap`, counted in `n` always; omx_json_string's alone, undefined after it. */
+#define OMX_JSON_PUT_(ch) do { if (n + 1 < cap) dst[n] = (ch); n++; } while (0)
+
 /**
- * `s` (NUL-terminated; NULL writes null) as a quoted JSON string literal into `dst` of `cap` bytes, NUL-terminated
- * when cap is not 0: the length the whole literal takes without the NUL, as snprintf reports it, so a result of cap or
- * more says the literal was cut.
+ * `s` as a quoted JSON string literal into `dst`, the way snprintf fills a buffer.
+ * @param dst the caller's buffer of `cap` bytes, NUL-terminated when `cap` is not 0; the caller owns it
+ * @param cap the size of `dst` in bytes; 0 writes nothing and measures
+ * @param s the NUL-terminated string, or NULL, which writes `null`
+ * @return the length the whole literal takes without the NUL, as snprintf reports it, so a result of `cap` or more says
+ * the literal was cut
  */
 static inline size_t omx_json_string(char *dst, size_t cap, const char *s)
 {
@@ -93,7 +111,6 @@ static inline size_t omx_json_string(char *dst, size_t cap, const char *s)
     const unsigned char *p;
     size_t n = 0, i, k;
 
-#define OMX_JSON_PUT_(ch) do { if (n + 1 < cap) dst[n] = (ch); n++; } while (0)
     if (s == NULL)
     {
         for (p = (const unsigned char *)"null"; *p; p++)
@@ -110,10 +127,10 @@ static inline size_t omx_json_string(char *dst, size_t cap, const char *s)
         }
         OMX_JSON_PUT_('"');
     }
-#undef OMX_JSON_PUT_
     if (cap)
         dst[n < cap ? n : cap - 1] = '\0';
     return n;
 }
+#undef OMX_JSON_PUT_
 
 #endif /* OMX_JSON_WRITE_H */

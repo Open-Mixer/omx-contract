@@ -3,15 +3,14 @@
 /**
  * The `c` target: `omxcontract/omx_contract_limits.h`, and beside it the header each file's `render.c` word declares
  * (docs/render.md); with a package named, only that package's declared headers, at their own paths. Every define of
- * omx_contract_limits.h is spelled by the console engine's
- * renderer, moved unchanged (c/contract-limits-render.mjs); only the frame (banner, section
- * comments) is this repository's. A plugin's parameter header is rendered by omx-plugins from its
+ * omx_contract_limits.h is spelled by the helpers of c/c-literals.mjs; the frame (banner, section
+ * comments) is this file's. A plugin's parameter header is rendered by omx-plugins from its
  * declaration, by reference to the items here.
  */
 import {
-  cStringLiteral, genDeclaredListsBlock, genDeclaredRates, genDeclaredScalarsBlock, genLimitBlock, renderContractLimits,
-  scalarLiteral,
-} from './c/contract-limits-render.mjs';
+  contractLine, cStringLiteral, described, documented, doxyLine, genDeclaredListsBlock, genDeclaredRates, genDeclaredScalarsBlock,
+  genLimitBlock, scalarLiteral,
+} from './c/c-literals.mjs';
 import { ownerNames, renderOwnerHeader } from './c/owner-headers.mjs';
 import { doors, isNativeTable } from './doors.mjs';
 import { packageItems } from '../lib/data.mjs';
@@ -31,8 +30,14 @@ function ratesTail(rates) {
  * it and gain the rates without mixing the two copies' limits. */
 #ifndef OMX_DECLARED_RATE_COUNT
 ${genDeclaredRates(rates)}
-/* The declared rates that are whole multiples of \`base\` (a tool's default grid: the 48 kHz family),
- * in declaration order, at most \`cap\` of them; returns how many were written to \`out\`. */
+/**
+ * The declared rates that are whole multiples of \`base\` (a tool's default grid: the 48 kHz family), in declaration
+ * order, at most \`cap\` of them.
+ * @param base the rate (Hz) every written rate is a whole multiple of; 0 is undefined behaviour (a division by zero)
+ * @param out the caller's array of at least \`cap\` ints, filled from its start; the caller owns it
+ * @param cap the most rates written; 0 or less writes none
+ * @return how many rates were written to \`out\`, 0 to \`cap\`
+ */
 static inline int omx_declared_rates_multiple_of(unsigned base, int *out, int cap) {
   int n = 0;
   for (unsigned k = 0; k < OMX_DECLARED_RATE_COUNT && n < cap; k++)
@@ -57,10 +62,16 @@ export const setEnumerators = (set) => set.ids.map((id) => `OMX_${set.name}_${co
  */
 function genSetValues(set, names) {
   const fn = `omx_${set.name.toLowerCase()}_value`;
-  const carried = set.ids.map((id, i) => [names[i], set.values[i]]).filter(([, v]) => v !== null);
+  const carried = set.ids.map((id, i) => [names[i], set.values[i], set.ids[i]]).filter(([, v]) => v !== null);
   return [
-    `#define OMX_${set.name}_UNIT ${cStringLiteral(set.unit)}`,
-    ...carried.map(([n, v]) => `#define ${n}_VALUE ${floatLiteral(v)}`),
+    described(`#define OMX_${set.name}_UNIT ${cStringLiteral(set.unit)}`, `The unit of the values the ids of ${set.name} carry.`),
+    ...carried.map(([n, v, id]) => described(`#define ${n}_VALUE ${floatLiteral(v)}`, `The value the id \`${doxyLine(id)}\` of ${set.name} carries (OMX_${set.name}_UNIT).`)),
+    '/**',
+    ` * The value an id of ${set.name} carries.`,
+    ` * @param id an enumerator of enum omx_${set.name.toLowerCase()}`,
+    ' * @param out where the value is written, when the id carries one; the caller owns it',
+    ' * @return 1 when the id carries a value, written to `out`; 0 for an id that carries none, `out` untouched',
+    ' */',
     `static inline int ${fn}(int id, float *out) {`,
     '  switch (id) {',
     ...carried.map(([n]) => `  case ${n}: *out = ${n}_VALUE; return 1;`),
@@ -74,9 +85,13 @@ function genDeclaredSetsEnums(sets) {
   return sets.map((set) => {
     const names = setEnumerators(set);
     const numeric = typeof set.ids[0] === 'number';
-    const members = set.ids.map((id, i) => `  ${names[i]} = ${numeric ? id : i},`);
-    const lines = [`enum omx_${set.name.toLowerCase()} {`, ...members, '};', `#define OMX_${set.name}_COUNT ${set.ids.length}u`];
-    if (set.default !== undefined) lines.push(`#define OMX_${set.name}_DEFAULT ${names[set.ids.indexOf(set.default)]}`);
+    const members = set.ids.map((id, i) => documented(`  ${names[i]} = ${numeric ? id : i},`, set.labels?.[i] !== undefined ? doxyLine(set.labels[i]) : `The id \`${doxyLine(id)}\`.`));
+    const lines = [
+      `/** ${contractLine(set.doc, { since: set.since })} ${numeric ? 'A numeric id is its own value.' : 'A named id\'s value is its position.'} */`,
+      `enum omx_${set.name.toLowerCase()} {`, ...members, '};',
+      described(`#define OMX_${set.name}_COUNT ${set.ids.length}u`, `The number of ids of ${set.name}.`),
+    ];
+    if (set.default !== undefined) lines.push(described(`#define OMX_${set.name}_DEFAULT ${names[set.ids.indexOf(set.default)]}`, `The id ${set.name} names as its default.`));
     if (set.values) lines.push(...genSetValues(set, names));
     return lines.join('\n');
   }).join('\n');
@@ -93,13 +108,17 @@ function genReadouts(kernels) {
   return Object.entries(kernels ?? {}).filter(([, k]) => k.readouts?.length).map(([kernel, { readouts }]) => {
     const K = kernel.toUpperCase();
     const names = readouts.map((ro) => `OMX_${K}_READOUT_${constCase(ro.name)}`);
-    const lines = [`enum omx_${kernel}_readouts {`, ...names.map((n, i) => `  ${n} = ${i},`), '};', `#define OMX_${K}_READOUT_COUNT ${readouts.length}u`];
+    const lines = [
+      `/** The readouts of the ${kernel} kernel, the meters a host draws, each at its position. */`,
+      `enum omx_${kernel}_readouts {`, ...names.map((n, i) => documented(`  ${n} = ${i},`, contractLine(readouts[i].doc, { unit: readouts[i].unit }))), '};',
+      described(`#define OMX_${K}_READOUT_COUNT ${readouts.length}u`, `The number of readouts of the ${kernel} kernel.`),
+    ];
     readouts.forEach((ro, i) => lines.push(
-      `#define ${names[i]}_MIN ${floatLiteral(ro.min)}`,
-      `#define ${names[i]}_MAX ${floatLiteral(ro.max)}`,
-      `#define ${names[i]}_RATE_HZ ${scalarLiteral(ro.rateHz)}`,
-      `#define ${names[i]}_SCALE OMX_PARAM_SCALES_${constCase(ro.scale)}`,
-      `#define ${names[i]}_UNIT ${cStringLiteral(ro.unit)}`,
+      described(`#define ${names[i]}_MIN ${floatLiteral(ro.min)}`, contractLine(`The least value the \`${ro.name}\` readout shows.`, { unit: ro.unit })),
+      described(`#define ${names[i]}_MAX ${floatLiteral(ro.max)}`, contractLine(`The greatest value the \`${ro.name}\` readout shows.`, { unit: ro.unit })),
+      described(`#define ${names[i]}_RATE_HZ ${scalarLiteral(ro.rateHz)}`, `How often the \`${ro.name}\` readout is published (Hz).`),
+      described(`#define ${names[i]}_SCALE OMX_PARAM_SCALES_${constCase(ro.scale)}`, `How a host draws the \`${ro.name}\` readout, an enum omx_param_scales member.`),
+      described(`#define ${names[i]}_UNIT ${cStringLiteral(ro.unit)}`, `The unit of the \`${ro.name}\` readout, as a string.`),
     ));
     return lines.join('\n');
   }).join('\n');
@@ -174,6 +193,10 @@ export function renderLimitsHeader(resolved) {
  * A C contract (OMX_PRE/OMX_POST/OMX_INVARIANT) reads a limit from HERE, never a literal.
  */
 
+/** @file
+ * @brief The numbers of the contract: every declared limit, scalar, list and set as an OMX_ define or enum, and the
+ * declared sample rates. */
+
 ${limitsSections(resolved)}
 
 #endif /* OMX_CONTRACT_LIMITS_H */
@@ -232,14 +255,4 @@ export function renderC(resolved, { pkg } = {}) {
   const verbs = renderVerbsHeader(resolved);
   if (verbs) files.push({ path: VERBS_HEADER, text: verbs });
   return files;
-}
-
-/**
- * The `c` target of a frozen sheet (test/fixtures/frozen-limits-sheet.json): `{ sheet }` rendered by the moved
- * renderer, for the round-trip proof.
- */
-export function renderSheetC(fixture) {
-  const s = fixture.sheet;
-  const sheet = { ...s, CORE_LIMITS: new Map(Object.entries(s.CORE_LIMITS)) };
-  return [{ path: 'omxcontract/omx_contract_limits.h', text: renderContractLimits(sheet) }];
 }

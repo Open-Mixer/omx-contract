@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib check doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -63,6 +63,7 @@ check: all
 	rm -f check-headers check-headers.c
 
 # The Python readers as the package omx_contract (omx-contract#28): catalog, scale and clap are the files share/omx-contract/
+# holds, and the shapes' TypedDicts (docs/shapes.md) as omx_contract.shapes.<name>; all of them the files share/omx-contract/
 # holds (one source), installed under PYTHONDIR, where this python3 keeps pure modules under PREFIX; a package build names
 # its own (the spec's python3_sitelib, Debian's dist-packages)
 PYTHONDIR = $(shell python3 -c 'import sysconfig; print(sysconfig.get_path("purelib", vars={"base": "$(PREFIX)"}))')
@@ -73,12 +74,17 @@ install-python:
 	install -m 0644 share/omx-contract/omx_contract_catalog.py $(DESTDIR)$(PYTHONDIR)/omx_contract/catalog.py
 	install -m 0644 share/omx-contract/omx_contract_scale.py $(DESTDIR)$(PYTHONDIR)/omx_contract/scale.py
 	install -m 0644 share/omx-contract/omx_contract.py $(DESTDIR)$(PYTHONDIR)/omx_contract/clap.py
+	install -d $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes
+	install -m 0644 python/omx_contract/shapes/__init__.py $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes/__init__.py
+	for f in share/omx-contract/omx_contract_*_shape.py; do n=$$(basename "$$f" _shape.py | sed 's/^omx_contract_//'); install -m 0644 "$$f" $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes/$$n.py || exit 1; done
 
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
 	install -m 0644 include/omxcontract/*.h $(DESTDIR)$(INCLUDEDIR)/omxcontract/
-	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
+	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
+	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
+	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
 	sh tools/install-contract-dir.sh -x codes.json -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
@@ -118,6 +124,22 @@ install-cli: all build-lib
 test:
 	npm test
 
+# Every public declaration of the installed headers documented (docs/render.md "Documentation", omx-contract#64):
+# doxygen's undocumented-member warnings held to docs/doxygen-baseline.txt, red on a new one and on a stale line. With
+# The baseline is also held to DOXYGEN_BASE's (origin/main unless named): it only shrinks. An empty DOXYGEN_BASE is a
+# refusal (no shrink check is never silent); a ref that is a commit here with no baseline yet (the commit that
+# introduced the gate) holds it to nothing and says so; a ref git cannot read (not fetched, no checkout) is a refusal.
+# make exits 2 on any failure, as it does for every recipe; the script's own exit tells a finding (1) from a gate that
+# could not run (2).
+DOXYGEN_BASE ?= origin/main
+doxygen-check:
+	@if [ -z "$(DOXYGEN_BASE)" ]; then echo "doxygen-check: set DOXYGEN_BASE to the ref the baseline is held to (origin/main)" >&2; exit 2; \
+	elif git cat-file -e "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" 2>/dev/null; then \
+	  git show "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" > doxygen-baseline.base && sh tools/doxygen-gate.sh --base-baseline doxygen-baseline.base; s=$$?; rm -f doxygen-baseline.base; exit $$s; \
+	elif git rev-parse --verify -q "$(DOXYGEN_BASE)^{commit}" >/dev/null 2>&1; then \
+	  echo "doxygen-check: $(DOXYGEN_BASE) carries no docs/doxygen-baseline.txt; the shrink check starts at the next change"; sh tools/doxygen-gate.sh; \
+	else echo "doxygen-check: $(DOXYGEN_BASE) is no commit git can read here; fetch it, the shrink check needs it" >&2; exit 2; fi
+
 # Every word of data/ in the file its rule places it, and every LV2 and CLAP term of inventory/ mapped with a status
 # (docs/data-layout.md).
 layout:
@@ -130,9 +152,10 @@ inventory-check:
 # No tracked file points into a private repository, branch, issue or path, with no exemption.
 public-sources: private-refs
 
-# Open-Mixer/.github's private-refs check, from a checkout of it (OPENMIXER_DOTGITHUB, else ../freemixer-dotgithub); CI
+# Open-Mixer/.github's private-refs check, from a checkout of it (OPENMIXER_DOTGITHUB); CI
 # runs it through the public-sources-check workflow.
-OPENMIXER_DOTGITHUB ?= $(or $(FREEMIXER_DOTGITHUB),../freemixer-dotgithub)
+OPENMIXER_DOTGITHUB ?=
 .PHONY: private-refs
 private-refs:
+	@test -n "$(OPENMIXER_DOTGITHUB)" || { echo 'private-refs: set OPENMIXER_DOTGITHUB to a checkout of Open-Mixer/.github' >&2; exit 1; }
 	$(OPENMIXER_DOTGITHUB)/.github/actions/private-refs-check/check.sh .

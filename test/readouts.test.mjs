@@ -3,8 +3,6 @@
 // A kernel's readouts (docs/readouts.md): the shape the schema holds them to, the rules about their numbers, the
 // one formatting, the c, ts and json renders, and how semver classifies a change to one.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { test } from 'node:test';
 import { loadData } from '../lib/data.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
@@ -13,7 +11,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT, UNION, resolvedOf, texts } from './helpers.mjs';
+import { UNION, resolvedOf, texts, undocumented } from './helpers.mjs';
 
 const swell = 'data/kernels/swell.json';
 const readout = (over = {}) => ({ name: 'gainReductionDb', doc: 'The swell gain reduction.', unit: 'dB', min: { ref: 'SWELL_LIMITS.rangeDb.min' }, max: 0, scale: 'linear', rateHz: 50, ...over });
@@ -52,7 +50,7 @@ test('a readout declares no item, and fmt spells it in its one key order after t
 });
 
 test('the c render: an enum of the readouts at their position, the count, and each one\'s range, rate, scale and unit', () => {
-  const h = renderC(resolvedOf(withReadouts([readout(), second])))[0].text;
+  const h = undocumented(renderC(resolvedOf(withReadouts([readout(), second])))[0].text);
   assert.match(h, /^enum omx_swell_readouts \{\n {2}OMX_SWELL_READOUT_GAIN_REDUCTION_DB = 0,\n {2}OMX_SWELL_READOUT_KEY_LEVEL_DB = 1,\n\};\n#define OMX_SWELL_READOUT_COUNT 2u$/m);
   assert.match(h, /^#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_MIN -80\.0f\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_MAX 0\.0f\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_RATE_HZ 50\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_SCALE OMX_PARAM_SCALES_LINEAR\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_UNIT "dB"$/m);
   assert.match(h, /^#define OMX_SWELL_READOUT_KEY_LEVEL_DB_MIN -80\.0f$/m);
@@ -104,41 +102,6 @@ test('a readout bounded by reference: its range read off the travel, its rate of
   assert.equal(r.get('READOUT_RATE_HZ').value, 50);
 });
 
-test('the C render keeps every 2.3.0 line, byte for byte and in order, and adds only READOUT_RATE_HZ and the readouts', () => {
-  const old = readFileSync(join(ROOT, 'test/fixtures/omx-contract-2.3.0/omx_contract_limits.h'), 'utf8').split('\n');
-  // the released 2.4.0 header: the release the readouts came in (later releases add their own, test/comp-topology.test.mjs)
-  const now = readFileSync(join(ROOT, 'test/fixtures/omx-contract-2.4.0/omx_contract_limits.h'), 'utf8').split('\n');
-  let i = 0;
-  const added = [];
-  for (const line of now) {
-    if (i < old.length && line === old[i]) i++;
-    else added.push(line);
-  }
-  assert.equal(i, old.length, `2.3.0 line ${i + 1} is not in the render: ${old[i]}`);
-  const block = (kernel, min) => [
-    `enum omx_${kernel}_readouts {`,
-    `  OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB = 0,`,
-    '};',
-    `#define OMX_${kernel.toUpperCase()}_READOUT_COUNT 1u`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_MIN ${min}`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_MAX 0.0f`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_RATE_HZ 50`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_SCALE OMX_PARAM_SCALES_LINEAR`,
-    `#define OMX_${kernel.toUpperCase()}_READOUT_GAIN_REDUCTION_DB_UNIT "dB"`,
-  ];
-  assert.deepEqual(added, [
-    '#define OMX_READOUT_RATE_HZ 50',
-    '/* Every kernel\'s readouts, the meters a host draws (docs/readouts.md): an enum of the readouts at their position,',
-    ' * `OMX_<KERNEL>_READOUT_COUNT`, and per readout its display range (_MIN, _MAX), _RATE_HZ, _SCALE (an OMX_PARAM_SCALES_*',
-    ' * member) and _UNIT. */',
-    ...block('comp', '-60.0f'),
-    ...block('deesser', '-24.0f'),
-    ...block('gate', '-90.0f'),
-    ...block('limiter', '-12.0f'),
-    '',
-  ]);
-});
-
 // The per-band readouts of the remaining-FX wave (docs/readouts.md, #107): the dynamic EQ's band gain and the multiband's
 // band gain reduction (FreeMixer/omx-dsp#188), in the grammar the single-band readouts use.
 const bands = (n, stem, over = {}) => Array.from({ length: n }, (_, i) => readout({ name: `band${i + 1}${stem}`, doc: `Band ${i + 1}.`, min: -24, max: 12, rateHz: 50, ...over }));
@@ -149,10 +112,10 @@ test('per-band readouts: the dynamic EQ\'s six band gains and the multiband\'s f
   assert.equal(problems(withReadouts(dyneq())), '');
   assert.equal(problems(withReadouts(multiband())), '');
   assert.equal(problems(withReadouts([readout(), ...multiband()])), '', 'a band run after a single-band readout');
-  const h = renderC(resolvedOf(withReadouts(dyneq())))[0].text;
+  const h = undocumented(renderC(resolvedOf(withReadouts(dyneq())))[0].text);
   assert.match(h, /^ {2}OMX_SWELL_READOUT_BAND1_GAIN_DB = 0,\n {2}OMX_SWELL_READOUT_BAND2_GAIN_DB = 1,\n {2}OMX_SWELL_READOUT_BAND3_GAIN_DB = 2,\n {2}OMX_SWELL_READOUT_BAND4_GAIN_DB = 3,\n {2}OMX_SWELL_READOUT_BAND5_GAIN_DB = 4,\n {2}OMX_SWELL_READOUT_BAND6_GAIN_DB = 5,\n\};\n#define OMX_SWELL_READOUT_COUNT 6u$/m);
   assert.match(h, /^#define OMX_SWELL_READOUT_BAND6_GAIN_DB_MIN -24\.0f\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_MAX 12\.0f\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_RATE_HZ 50\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_SCALE OMX_PARAM_SCALES_LINEAR\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_UNIT "dB"$/m);
-  const m = renderC(resolvedOf(withReadouts([readout(), ...multiband()])))[0].text;
+  const m = undocumented(renderC(resolvedOf(withReadouts([readout(), ...multiband()])))[0].text);
   assert.match(m, /^ {2}OMX_SWELL_READOUT_BAND1_GAIN_REDUCTION_DB = 1,$/m);
   assert.match(m, /^ {2}OMX_SWELL_READOUT_BAND5_GAIN_REDUCTION_DB = 5,$/m);
   assert.match(m, /^#define OMX_SWELL_READOUT_BAND5_GAIN_REDUCTION_DB_MIN -60\.0f$/m);

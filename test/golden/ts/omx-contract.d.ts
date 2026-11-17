@@ -6299,6 +6299,50 @@ export declare const PANEL_WIDGETS: {
 };
 
 /**
+ * The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ *
+ * Why: omx-clap-core restated these words by hand beside the families and widgets; a display kind is a declaration, so it lives here (vocabulary-owner rule).
+ * @see data/panel.json
+ */
+export declare const PANEL_DISPLAY_KINDS: {
+  readonly gainReductionBar: {
+    readonly word: "gain_reduction_bar";
+    readonly doc: "a bar of the gain a dynamics processor takes off";
+    readonly text: {
+      readonly en: "A bar showing the gain reduction.";
+    };
+  };
+  readonly transferCurve: {
+    readonly word: "transfer_curve";
+    readonly doc: "a dynamics processor's output level against its input level";
+    readonly text: {
+      readonly en: "The dynamics transfer curve: output level against input level.";
+    };
+  };
+  readonly eqResponse: {
+    readonly word: "eq_response";
+    readonly doc: "an equaliser's frequency response";
+    readonly text: {
+      readonly en: "The equaliser's frequency response.";
+    };
+  };
+  readonly meter: {
+    readonly word: "meter";
+    readonly doc: "a level meter";
+    readonly text: {
+      readonly en: "A level meter.";
+    };
+  };
+  readonly timeResponse: {
+    readonly word: "time_response";
+    readonly doc: "a response over time: a delay's train of taps or a reverb's decay envelope";
+    readonly text: {
+      readonly en: "The response over time: a delay's taps or a reverb's decay.";
+    };
+  };
+};
+
+/**
  * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.
  * @see data/param-contract.json
  */
@@ -7658,6 +7702,12 @@ export declare const PANEL_STANDARD_WIDGETS_WORDS: readonly ["knob", "fader", "s
  * @see data/panel.json
  */
 export declare const PANEL_WIDGETS_WORDS: readonly ["auto", "knob", "fader", "switch", "selector"];
+
+/**
+ * The words of PANEL_DISPLAY_KINDS, in their declared order.
+ * @see data/panel.json
+ */
+export declare const PANEL_DISPLAY_KINDS_WORDS: readonly ["gain_reduction_bar", "transfer_curve", "eq_response", "meter", "time_response"];
 
 /**
  * The words of PLUGIN_FEATURE_AUDIO_EFFECT, in their declared order.

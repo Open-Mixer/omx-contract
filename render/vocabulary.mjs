@@ -9,7 +9,7 @@
  */
 import { packageItems } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral, described, documented, doxyLine } from './c/c-literals.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 
@@ -31,8 +31,6 @@ export const wordMacro = (item, name) => `OMX_${item}_${constCase(name)}`;
 /** The words of a words item, in their declared order. */
 export const wordsOf = (r) => Object.values(r.value).map((w) => w.word);
 
-const trailing = (doc) => (doc ? ` ///< ${doc.replace(/\*\//g, '* /').replace(/\s+/g, ' ')}` : '');
-
 /**
  * The stem of a package's vocabulary files (docs/render.md): `omx` for omx-contract, whose vocabulary is the
  * contract's own (omx_vocabulary.h), and the package's name for any other, so two packages' headers include together.
@@ -51,18 +49,24 @@ export function renderVocabularyHeader(resolved, pkg) {
     const lines = [`/* ${r.name} (${r.rel}) */`];
     if (r.kind === 'codes') {
       for (const c of Object.values(r.value)) {
-        lines.push(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}${trailing(c.doc)}`);
+        lines.push(documented(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}`, c.doc && doxyLine(c.doc)));
         if (Number.isInteger(c.resp)) lines.push(`#define ${respMacro(c.code)} (${c.resp})`);
         if (c.transient === true) lines.push(`#define ${codeMacro(c.code)}_TRANSIENT 1`);
         lines.push(...codeTextDefines(codeMacro(c.code), c, cStringLiteral));
       }
     } else {
       for (const [n, w] of Object.entries(r.value)) {
-        lines.push(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}${trailing(w.doc)}`);
+        lines.push(documented(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}`, w.doc && doxyLine(w.doc)));
         lines.push(...codeTextDefines(wordMacro(r.name, n), w, cStringLiteral));
       }
-      lines.push(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`);
-      lines.push(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`);
+      lines.push(described(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`, `The number of words of ${r.name}.`));
+      lines.push(described(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`, `The words of ${r.name} in their declared order, as a C initializer list.`));
+      // X(<code>u, "<word>", <NAME>) per word, the code its place in the order: a consumer's tables follow the item
+      const xs = Object.entries(r.value).map(([n, w], i) => `X(${i}u, ${cStringLiteral(w.word)}, ${constCase(n)})`);
+      const rows = [];
+      for (let i = 0; i < xs.length; i += 4) rows.push(`    ${xs.slice(i, i + 4).join(' ')}`);
+      const doc = `Expands \`X(code, "word", NAME)\` once per word of ${r.name}, in order, the code being its place in the order.${r.doc ? ` ${doxyLine(r.doc)}` : ''}`;
+      lines.push(`/** ${doc} */`, `#define OMX_${r.name}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
     }
     return lines.join('\n');
   });
@@ -77,6 +81,10 @@ export function renderVocabularyHeader(resolved, pkg) {
  * item with its _COUNT and an _INIT of its words in their order. A consumer writes and compares these, never a
  * literal of its own.
  */
+
+/** @file
+ * @brief The vocabulary of ${pkg ?? 'omx-contract'}: every code and every word as a string define, with its sentence
+ * where it carries one. */
 
 ${blocks.join('\n\n')}
 

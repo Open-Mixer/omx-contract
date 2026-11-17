@@ -203,5 +203,48 @@
         }
       }
     }
+  },
+  "PANEL_DISPLAY_KINDS": {
+    "kind": "words",
+    "since": "3.20.0",
+    "doc": "The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+    "why": "omx-clap-core restated these words by hand beside the families and widgets; a display kind is a declaration, so it lives here (vocabulary-owner rule).",
+    "words": {
+      "gainReductionBar": {
+        "word": "gain_reduction_bar",
+        "doc": "a bar of the gain a dynamics processor takes off",
+        "text": {
+          "en": "A bar showing the gain reduction."
+        }
+      },
+      "transferCurve": {
+        "word": "transfer_curve",
+        "doc": "a dynamics processor's output level against its input level",
+        "text": {
+          "en": "The dynamics transfer curve: output level against input level."
+        }
+      },
+      "eqResponse": {
+        "word": "eq_response",
+        "doc": "an equaliser's frequency response",
+        "text": {
+          "en": "The equaliser's frequency response."
+        }
+      },
+      "meter": {
+        "word": "meter",
+        "doc": "a level meter",
+        "text": {
+          "en": "A level meter."
+        }
+      },
+      "timeResponse": {
+        "word": "time_response",
+        "doc": "a response over time: a delay's train of taps or a reverb's decay envelope",
+        "text": {
+          "en": "The response over time: a delay's taps or a reverb's decay."
+        }
+      }
+    }
   }
 }

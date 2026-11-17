@@ -38,7 +38,7 @@ test('the lookup: the catalog\'s sentence, else the source sentence, its placeho
   const root = scratchDir('omx-catalog-py-');
   mkdirSync(join(root, 'omx-contract', 'catalogs'), { recursive: true });
   writeFileSync(join(root, 'omx-contract', 'catalogs', 'ca.json'), JSON.stringify({
-    kind: 'catalog', lang: 'ca', owner: 'omx-contract', messages: { 'contract.dir.absent': 'Cap directori de contracte a {path}' },
+    kind: 'catalog', lang: 'ca', owner: 'omx-contract', messages: { 'contract.dir.absent': { text: 'Cap directori de contracte a {path}', by: 'human' } },
   }));
   const out = run(`
 ca = m["load_catalog"]("omx-contract", "ca", ${JSON.stringify(root)})

@@ -298,7 +298,7 @@ export function lagrangeReadL1(order) {
 const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /**
- * Resolve every item: `{ name, rel, kind, doc, why?, unit?, c?, shape?, default?, labels?, values?, groups?, axes?, format?, spec?, version?, value }`
+ * Resolve every item: `{ name, rel, kind, doc, why?, since?, unit?, c?, shape?, default?, labels?, values?, groups?, axes?, format?, spec?, version?, value }`
  * (default, labels and values: a set's; groups and axes: a words item's; format, spec and version: a terms item's), where `value` has
  * every `{ref}` and `{derive}` evaluated. The returned map also carries `kernels`, every kernel's ordered controls
  * (kernelControls) and, for a kernel that declares them, its ordered `readouts` `{ name, doc, unit, min, max, scale,
@@ -348,6 +348,7 @@ export function resolveData(data: Json): Resolved {
     const { rel, item } = data.items.get(name);
     const r: JsonObject = { name, rel, kind: item.kind, doc: item.doc };
     if (item.why !== undefined) r.why = item.why;
+    if (item.since !== undefined) r.since = item.since;
     if (item.unit !== undefined) r.unit = item.unit;
     if (item.c !== undefined) r.c = item.c;
     if (item.docs !== undefined) r.docs = item.docs;

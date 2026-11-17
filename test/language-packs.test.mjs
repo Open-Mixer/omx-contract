@@ -39,9 +39,9 @@ test('sourceHash is the sha256 of the source sentence, in lowercase hex', () => 
   assert.match(sourceHash(''), /^[0-9a-f]{64}$/);
 });
 
-test('the catalog schema: an entry is a sentence, a person\'s entry, or a model\'s entry with its model and source hash', () => {
+test('the catalog schema: an entry is a person\'s, a same-word one or a model\'s entry with its model and source hash', () => {
   const ok = against('catalog');
-  assert.ok(ok(catalog('es', { [CODE]: 'Ningún directorio de contrato en {path}' })).ok, 'a plain sentence stays valid (by a person) for one minor');
+  assert.ok(!ok(catalog('es', { [CODE]: 'Ningún directorio de contrato en {path}' })).ok, 'a bare sentence is no entry');
   assert.ok(ok(catalog('es', { [CODE]: { text: 'Ningún directorio en {path}', by: 'human' } })).ok);
   assert.ok(ok(catalog('es', { [CODE]: { text: 'Bytes.', by: 'same', source: sha('Bytes.') } })).ok, 'by: same is a sentence kept identical to English, with its source hash');
   assert.ok(!ok(catalog('es', { [CODE]: { text: 'Bytes.', by: 'same' } })).ok, 'by: same records its source hash');
@@ -69,8 +69,6 @@ test('the TS reader: a stale model entry is skipped (the source sentence shows);
   write({ [CODE]: machine('Ningún directorio en {path}', 'No contract dir at {path}') });
   assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, SRC), SRC, 'the source changed since: stale, skipped');
   write({ [CODE]: { text: 'Ningún directorio en {path}', by: 'human' } });
-  assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, SRC), 'Ningún directorio en {path}');
-  write({ [CODE]: 'Ningún directorio en {path}' });
   assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, SRC), 'Ningún directorio en {path}');
   write({ [CODE]: { text: 'Bytes.', by: 'same', source: sha('Bytes.') } });
   assert.equal(sentenceOf(loadCatalog('omx-contract', 'es', root), CODE, 'Bytes.'), 'Bytes.', 'a same entry is read');

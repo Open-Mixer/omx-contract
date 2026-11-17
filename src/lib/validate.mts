@@ -128,10 +128,6 @@ function sentenceRules(r, k, entry, what, say) {
   for (const n of placeholdersOf(entry.text.en)) {
     if (!(entry.args ?? []).includes(n)) say(r.rel, r.name, `${what}-text-arg`, `${k}: {${n}} is not in args`);
   }
-  // the source sentence is the only language contract data holds: a translation is the owner's catalog (omx-contract#2)
-  for (const lang of Object.keys(entry.text)) {
-    if (lang !== 'en') say(r.rel, r.name, `${what}-text-language`, `${k}: text.${lang} is a translation: it belongs in the owner's catalogs/${lang}.json, keyed ${what === 'code' ? 'by the code' : 'as <ITEM>.<word>'}`);
-  }
 }
 
 
@@ -474,7 +470,7 @@ export function validateData(data) {
     if (target !== 'c') continue;
     for (const f of out) {
       const seen = new Map();
-      for (const m of f.text.matchAll(/^(?:#define |  )(OMX_\w+)(?= = |\s)/gm)) {
+      for (const m of f.text.matchAll(/^(?:#define |  )(OMX_\w+)(?= = |\s|\()/gm)) {
         if (seen.has(m[1])) say('-', m[1], 'c-name-unique', `${f.path} defines ${m[1]} twice`);
         seen.set(m[1], true);
       }

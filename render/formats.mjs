@@ -13,7 +13,7 @@
  * `<ID>` is the term's CLAP identifier (`CLAP_EXT_REMOTE_CONTROLS`), `<SPEC>` its item's name between `LV2_` and
  * `_TERMS` (`LV2_PORT_PROPS_TERMS` is `PORT_PROPS`).
  */
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral } from './c/c-literals.mjs';
 
 const termsOf = (resolved, format) => [...resolved.values()].filter((r) => r.kind === 'terms' && r.format === format);
 
@@ -71,6 +71,10 @@ export function renderFormatsHeader(resolved) {
  * numbers the CLAP headers declare and the namespaces of the LV2 specifications (docs/data-layout.md). A consumer
  * writes and compares these, never a literal of its own.
  */
+
+/** @file
+ * @brief The identifiers and numbers of the plugin formats: the CLAP extension, factory, feature and window ids and
+ * the numbers the CLAP headers declare, and the LV2 specifications' URIs and namespaces. */
 
 ${lines.join('\n').replace(/\n+$/, '')}
 

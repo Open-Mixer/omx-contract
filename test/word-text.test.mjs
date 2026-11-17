@@ -30,7 +30,7 @@ test('a word with its source sentence, its placeholders all in args, is green', 
 
 test('fixture word-text-ca: a word still carrying text.ca is red: translations are the owner\'s catalogs', () => {
   const p = problems((d) => { withText(d).text.ca = "{plugin} no té cap entrada d'àudio."; });
-  assert.ok(p.includes(`${ITEM}:word-text-language`), p.join());
+  assert.ok(p.includes(`${ITEM}:schema`), p.join());
 });
 
 test('fixture word-text-without-en: a text with no source sentence is red', () => {

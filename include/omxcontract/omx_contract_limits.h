@@ -73,7 +73,7 @@
 #define OMX_PARAM_CONTRACT_UNITS_NONE 0
 /** octaves */
 #define OMX_PARAM_CONTRACT_UNITS_OCT 20
-/** percent, 0 to 100 */
+/** percent */
 #define OMX_PARAM_CONTRACT_UNITS_PC 14
 /** a ratio, n to 1, as a compressor states it (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_RATIO 258

@@ -44,7 +44,7 @@
 #define OMX_CLAP_UNIT_INCH 11u ///< inches
 #define OMX_CLAP_UNIT_MILE 12u ///< miles
 #define OMX_CLAP_UNIT_DB 13u ///< decibels, a relative level or a gain
-#define OMX_CLAP_UNIT_PC 14u ///< percent, 0 to 100
+#define OMX_CLAP_UNIT_PC 14u ///< percent
 #define OMX_CLAP_UNIT_COEF 15u ///< a coefficient, a plain multiplier (1 is unity)
 #define OMX_CLAP_UNIT_HZ 16u ///< hertz
 #define OMX_CLAP_UNIT_KHZ 17u ///< kilohertz

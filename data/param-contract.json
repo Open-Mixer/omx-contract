@@ -53,6 +53,37 @@
       "dbu": 257,
       "ratio": 258,
       "lufs": 259
+    },
+    "docs": {
+      "none": "no unit: a plain number, a switch, an index",
+      "s": "seconds",
+      "ms": "milliseconds",
+      "min": "minutes",
+      "bar": "bars of the transport",
+      "beat": "beats of the transport",
+      "frame": "audio frames (samples) at the running rate",
+      "m": "metres",
+      "cm": "centimetres",
+      "mm": "millimetres",
+      "km": "kilometres",
+      "inch": "inches",
+      "mile": "miles",
+      "db": "decibels, a relative level or a gain",
+      "pc": "percent, 0 to 100",
+      "coef": "a coefficient, a plain multiplier (1 is unity)",
+      "hz": "hertz",
+      "khz": "kilohertz",
+      "mhz": "megahertz",
+      "bpm": "beats per minute",
+      "oct": "octaves",
+      "cent": "cents, hundredths of a semitone",
+      "semitone12TET": "semitones of twelve-tone equal temperament",
+      "degree": "degrees of arc or of phase",
+      "midiNote": "a MIDI note number, 0 to 127",
+      "dbfs": "decibels relative to full scale, 0 the largest sample, a level (vendor block)",
+      "dbu": "decibels relative to 0.775 V RMS, an analogue level (vendor block)",
+      "ratio": "a ratio, n to 1, as a compressor states it (vendor block)",
+      "lufs": "loudness units relative to full scale, ITU-R BS.1770 (vendor block)"
     }
   }
 }

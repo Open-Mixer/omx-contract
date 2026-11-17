@@ -31,7 +31,7 @@ test('the declared unit codes are the ones omx-plugins shipped, append-only', ()
 
 test('the header defines one OMX_CLAP_UNIT_ code per declared unit, and no other', () => {
   const v = declared().value;
-  const defs = new Map([...header().matchAll(/^#define OMX_CLAP_UNIT_(\w+) (\d+)u$/gm)].map((m) => [m[1], Number(m[2])]));
+  const defs = new Map([...header().matchAll(/^#define OMX_CLAP_UNIT_(\w+) (\d+)u(?: ///<.*)?$/gm)].map((m) => [m[1], Number(m[2])]));
   assert.deepEqual([...defs.keys()].sort(), Object.keys(v).map(constOf).sort());
   for (const [t, code] of Object.entries(v)) assert.equal(defs.get(constOf(t)), code, t);
 });

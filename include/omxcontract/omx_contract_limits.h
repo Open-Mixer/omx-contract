@@ -23,63 +23,63 @@
  * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0. (since 3.6.0)
  */
 /// @{
-/** The `bar` of OMX_PARAM_CONTRACT_UNITS. */
+/** bars of the transport */
 #define OMX_PARAM_CONTRACT_UNITS_BAR 4
-/** The `beat` of OMX_PARAM_CONTRACT_UNITS. */
+/** beats of the transport */
 #define OMX_PARAM_CONTRACT_UNITS_BEAT 5
-/** The `bpm` of OMX_PARAM_CONTRACT_UNITS. */
+/** beats per minute */
 #define OMX_PARAM_CONTRACT_UNITS_BPM 19
-/** The `cent` of OMX_PARAM_CONTRACT_UNITS. */
+/** cents, hundredths of a semitone */
 #define OMX_PARAM_CONTRACT_UNITS_CENT 21
-/** The `cm` of OMX_PARAM_CONTRACT_UNITS. */
+/** centimetres */
 #define OMX_PARAM_CONTRACT_UNITS_CM 8
-/** The `coef` of OMX_PARAM_CONTRACT_UNITS. */
+/** a coefficient, a plain multiplier (1 is unity) */
 #define OMX_PARAM_CONTRACT_UNITS_COEF 15
-/** The `db` of OMX_PARAM_CONTRACT_UNITS. */
+/** decibels, a relative level or a gain */
 #define OMX_PARAM_CONTRACT_UNITS_DB 13
-/** The `dbfs` of OMX_PARAM_CONTRACT_UNITS. */
+/** decibels relative to full scale, 0 the largest sample, a level (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_DBFS 256
-/** The `dbu` of OMX_PARAM_CONTRACT_UNITS. */
+/** decibels relative to 0.775 V RMS, an analogue level (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_DBU 257
-/** The `degree` of OMX_PARAM_CONTRACT_UNITS. */
+/** degrees of arc or of phase */
 #define OMX_PARAM_CONTRACT_UNITS_DEGREE 23
-/** The `frame` of OMX_PARAM_CONTRACT_UNITS. */
+/** audio frames (samples) at the running rate */
 #define OMX_PARAM_CONTRACT_UNITS_FRAME 6
-/** The `hz` of OMX_PARAM_CONTRACT_UNITS. */
+/** hertz */
 #define OMX_PARAM_CONTRACT_UNITS_HZ 16
-/** The `inch` of OMX_PARAM_CONTRACT_UNITS. */
+/** inches */
 #define OMX_PARAM_CONTRACT_UNITS_INCH 11
-/** The `khz` of OMX_PARAM_CONTRACT_UNITS. */
+/** kilohertz */
 #define OMX_PARAM_CONTRACT_UNITS_KHZ 17
-/** The `km` of OMX_PARAM_CONTRACT_UNITS. */
+/** kilometres */
 #define OMX_PARAM_CONTRACT_UNITS_KM 10
-/** The `lufs` of OMX_PARAM_CONTRACT_UNITS. */
+/** loudness units relative to full scale, ITU-R BS.1770 (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_LUFS 259
-/** The `m` of OMX_PARAM_CONTRACT_UNITS. */
+/** metres */
 #define OMX_PARAM_CONTRACT_UNITS_M 7
-/** The `mhz` of OMX_PARAM_CONTRACT_UNITS. */
+/** megahertz */
 #define OMX_PARAM_CONTRACT_UNITS_MHZ 18
-/** The `midiNote` of OMX_PARAM_CONTRACT_UNITS. */
+/** a MIDI note number, 0 to 127 */
 #define OMX_PARAM_CONTRACT_UNITS_MIDI_NOTE 24
-/** The `mile` of OMX_PARAM_CONTRACT_UNITS. */
+/** miles */
 #define OMX_PARAM_CONTRACT_UNITS_MILE 12
-/** The `min` of OMX_PARAM_CONTRACT_UNITS. */
+/** minutes */
 #define OMX_PARAM_CONTRACT_UNITS_MIN 3
-/** The `mm` of OMX_PARAM_CONTRACT_UNITS. */
+/** millimetres */
 #define OMX_PARAM_CONTRACT_UNITS_MM 9
-/** The `ms` of OMX_PARAM_CONTRACT_UNITS. */
+/** milliseconds */
 #define OMX_PARAM_CONTRACT_UNITS_MS 2
-/** The `none` of OMX_PARAM_CONTRACT_UNITS. */
+/** no unit: a plain number, a switch, an index */
 #define OMX_PARAM_CONTRACT_UNITS_NONE 0
-/** The `oct` of OMX_PARAM_CONTRACT_UNITS. */
+/** octaves */
 #define OMX_PARAM_CONTRACT_UNITS_OCT 20
-/** The `pc` of OMX_PARAM_CONTRACT_UNITS. */
+/** percent, 0 to 100 */
 #define OMX_PARAM_CONTRACT_UNITS_PC 14
-/** The `ratio` of OMX_PARAM_CONTRACT_UNITS. */
+/** a ratio, n to 1, as a compressor states it (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_RATIO 258
-/** The `s` of OMX_PARAM_CONTRACT_UNITS. */
+/** seconds */
 #define OMX_PARAM_CONTRACT_UNITS_S 1
-/** The `semitone12TET` of OMX_PARAM_CONTRACT_UNITS. */
+/** semitones of twelve-tone equal temperament */
 #define OMX_PARAM_CONTRACT_UNITS_SEMITONE12_TET 22
 /// @}
 /** How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md). (Hz; since 2.4.0) */

@@ -160,40 +160,6 @@ omx_formats.h: warning: Member OMX_LV2_SPEC_UNITS (macro definition) of file omx
 omx_formats.h: warning: Member OMX_LV2_SPEC_URID (macro definition) of file omx_formats.h is not documented.
 omx_formats.h: warning: Member OMX_LV2_SPEC_URI_MAP (macro definition) of file omx_formats.h is not documented.
 omx_formats.h: warning: Member OMX_LV2_SPEC_WORKER (macro definition) of file omx_formats.h is not documented.
-omx_json_write.h: warning: Member OMX_JSON_PUT_(ch) (macro definition) of file omx_json_write.h is not documented.
-omx_json_write.h: warning: Member omx_json_escape_byte(unsigned char c, char *out) (function) of file omx_json_write.h is not documented.
-omx_json_write.h: warning: parameters of member omx_json_string are not documented
-omx_json_write.h: warning: parameters of member omx_json_write_string are not documented
-omx_json_write.h: warning: return type of member omx_json_string is not documented
-omx_json_write.h: warning: return type of member omx_json_write_string is not documented
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_BAR (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_BEAT (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_BPM (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_CENT (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_CM (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_COEF (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_DB (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_DBFS (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_DBU (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_DEGREE (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_FRAME (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_HZ (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_INCH (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_KHZ (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_KM (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_LUFS (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_M (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_MHZ (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_MIDI_NOTE (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_MILE (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_MIN (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_MM (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_MS (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_OCT (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_PC (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_RATIO (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_S (macro definition) of file omx_param_units.h is not documented.
-omx_param_units.h: warning: Member OMX_CLAP_UNIT_SEMITONE12_TET (macro definition) of file omx_param_units.h is not documented.
 omx_vocabulary.h: warning: Member OMX_CURVE_AXES_COUNT (macro definition) of file omx_vocabulary.h is not documented.
 omx_vocabulary.h: warning: Member OMX_CURVE_AXES_DECAY_TIME_TEXT_EN (macro definition) of file omx_vocabulary.h is not documented.
 omx_vocabulary.h: warning: Member OMX_CURVE_AXES_DELAY_TIME_TEXT_EN (macro definition) of file omx_vocabulary.h is not documented.

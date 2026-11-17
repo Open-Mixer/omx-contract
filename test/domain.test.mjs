@@ -81,11 +81,11 @@ for (const [what, edit, code] of refusals) {
 }
 
 test('a domain\'s catalogs/<lang>.json sit beside its document; a malformed one is refused', () => {
-  const root = dirWith(panelDomain());
-  mkdirSync(join(root, 'panel', 'catalogs'));
-  writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'omx-panel', messages: {} }));
-  assert.ok(loadContractDir({ dir: root }).items.has('PANEL_FAMILIES'));
-  writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'de', owner: 'omx-panel', messages: {} }));
+  const root = dirWith(sampleDomain());
+  mkdirSync(join(root, 'sample', 'catalogs'));
+  writeFileSync(join(root, 'sample', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'omx-panel', messages: {} }));
+  assert.ok(loadContractDir({ dir: root }).items.has('SAMPLE_KINDS'));
+  writeFileSync(join(root, 'sample', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'de', owner: 'omx-panel', messages: {} }));
   assert.equal(refusalOf(root), CONTRACT_CODES.fileInvalid);
 });
 

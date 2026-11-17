@@ -115,6 +115,7 @@ test('a shape that breaks a rule is refused by name and nothing is rendered (sab
     ['description', (s) => { delete s.$defs.ScaleTravel.properties.min.description; }],
     ['additionalProperties', (s) => { delete s.$defs.ScaleMap.additionalProperties; }],
     ['identifiers', (s) => { s.$defs.ScaleTravel.properties['3d-step'] = s.$defs.ScaleTravel.properties.step; }],
+    ['patternProperties', (s) => { s.$defs.ScaleMap.patternProperties = { '^x-': { type: 'string' } }; }],
     ['words', (s) => { s.$defs.ScaleTravel.properties.scale.enum = ['linear', 'log', 'stepped', 'no-word', 2]; }],
   ];
   assert.deepEqual(broken.map(([rule]) => rule), SHAPE_RULES.map((r) => r.rule), 'every rule has a sabotage arm');
@@ -153,4 +154,24 @@ test('the C render is right where a grep would not see it: a nested object has i
   writeFileSync(probe, '#include "omx_travel_shape.h"\n#define K(id, name) name,\nstatic const char *const keys[] = { OMX_SHAPE_ORIGIN_KEYS(K) OMX_SHAPE_SCALE_TRAVEL_SCALE_WORDS(K) OMX_SHAPE_TRAVEL_SCHEMA };\nint main(void) { return keys[0][0] == \'f\' ? 0 : 1; }\n');
   const cc = spawnSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', '-fsyntax-only', probe], { encoding: 'utf8' });
   assert.equal(cc.status, 0, `the header compiles under -Werror: ${cc.stderr}`);
+});
+
+test('a oneOf of enum words renders its words, and a bad word inside a oneOf is refused (the macro is never missing)', () => {
+  const s = travel();
+  s.$defs.ScaleTravel.properties.scale = { description: 'The scale.', oneOf: [{ type: 'string', enum: ['linear', 'log'], description: 'Smooth.' }, { type: 'string', const: 'stepped', description: 'Stepped.' }] };
+  const dir = treeWith(s);
+  const [{ text }] = renderShapesC(dir, join(dir, 'shapes'));
+  assert.match(text, /#define OMX_SHAPE_SCALE_TRAVEL_SCALE_WORDS\(X\) X\(linear, "linear"\) X\(log, "log"\) X\(stepped, "stepped"\)/, 'the words of every oneOf branch');
+  s.$defs.ScaleTravel.properties.scale.oneOf[0].enum = ['linear', 'no-word'];
+  const bad = shapeProblems(shapesOf(treeWith(s))[0]);
+  assert.ok(bad.some((p) => p.rule === 'words'), `a word in a oneOf is held to the rule: ${JSON.stringify(bad)}`);
+});
+
+test('two shapes that share a title are refused by both files, since their macros would be defined twice', () => {
+  const dir = treeWith(travel());
+  writeFileSync(join(dir, 'shapes/other.schema.json'), JSON.stringify({ ...travel(), $id: 'https://openmixer.org/schema/omx-contract/v3/shapes/other.schema.json', title: 'Other' }, null, 2));
+  const r = cli(['render', '--target', 'c', '--shapes', '--out', join(dir, 'include'), '--shapes-dir', join(dir, 'shapes')]);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /travel\.schema\.json: titles at \/\$defs\/ScaleMap: the title ScaleMap renders the same macros as ScaleMap of shapes\/other\.schema\.json/);
+  assert.ok(!existsSync(join(dir, 'include/omxcontract/omx_other_shape.h')), 'nothing rendered');
 });

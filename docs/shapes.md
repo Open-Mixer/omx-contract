@@ -29,9 +29,10 @@ omx-panel's gesture shapes, adds that rule to [contract-dir.md](contract-dir.md)
 | `title` | One CapitalisedWord: the type's name in every render (`Travel`). |
 | `description` | On the root, on every object and on every property: the renders carry it as the doc comment, so a type is documented where it is declared. |
 | `additionalProperties` | `false` on every object: a closed shape names every key, and the C X-macro of its keys is complete. |
-| `titles` | Every object, nested ones too, has a title, and no two spell the same macro stem: each object's macros and type are named by it, and one would render over the other. |
+| `titles` | Every object, nested ones too, has a title, and no two, in one shape or across shapes, spell the same macro stem: each object's macros and type are named by it, and one would render over the other. |
 | `identifiers` | Every key is a C identifier (`[A-Za-z_][A-Za-z0-9_]*`): a key is an X-macro argument, one token, so no two collide. |
-| `words` | Every `enum` or `const` of a property is strings, each a C identifier: they render as the `_WORDS(X)` macro. |
+| `patternProperties` | Absent: a key set named by a pattern has no key for the C macros to name, so it is refused by name, never dropped. |
+| `words` | Every `enum` or `const` of a property is strings, each a C identifier: they render as the `_WORDS(X)` macro, and the words of a `oneOf` or `anyOf` branch join it. |
 
 ## The renders
 

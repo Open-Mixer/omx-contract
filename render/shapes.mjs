@@ -49,8 +49,13 @@ function* nodes(s, path = '') {
 /** The object nodes of a shape, each `[path, node]`: the root when it is one, every $defs entry and every nested one. */
 const objects = (s) => [...nodes(s)].filter(([, n]) => n.type === 'object');
 
-/** The enum or const words of a property node, or undefined when it has none. */
-const wordsOf = (p) => p.enum ?? (p.const !== undefined ? [p.const] : undefined);
+/** The enum or const words of a property node, its oneOf and anyOf branches' included, or undefined when it has none. */
+const wordsOf = (p) => {
+  const own = p.enum ?? (p.const !== undefined ? [p.const] : undefined);
+  const branches = [...(p.oneOf ?? []), ...(p.anyOf ?? [])].map(wordsOf).filter(Boolean).flat();
+  if (!own && !branches.length) return undefined;
+  return [...new Set([...(own ?? []), ...branches])];
+};
 
 const upper = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
@@ -94,6 +99,11 @@ export const SHAPE_RULES = [
     check: (s) => objects(s).flatMap(([path, n]) => Object.keys(n.properties ?? {}).filter((k) => !C_IDENT.test(k)).map((k) => ({ path: `${path}/properties/${k}`, message: `the key ${JSON.stringify(k)} is not a C identifier` }))),
   },
   {
+    // an object keyed by a pattern has no key to name: the C macros would drop it silently
+    rule: 'patternProperties',
+    check: (s) => objects(s).filter(([, n]) => 'patternProperties' in n).map(([path]) => ({ path, message: '"patternProperties" cannot be rendered: a key set the C macros cannot name is not a closed shape (name every key under "properties")' })),
+  },
+  {
     rule: 'words',
     check: (s) => objects(s).flatMap(([path, n]) => Object.entries(n.properties ?? {}).flatMap(([k, p]) => {
       const words = wordsOf(p);
@@ -109,8 +119,24 @@ export function shapeProblems({ schema }) {
   return SHAPE_RULES.flatMap(({ rule, check }) => check(schema).map((p) => ({ rule, ...p })));
 }
 
+/** A title two shapes share spells the same macros in two headers, a redefinition where both are included: refused by both files. */
+const crossShapeProblems = (shapes) => {
+  const seen = new Map();
+  const out = [];
+  for (const s of shapes) {
+    for (const [path, n] of objects(s.schema)) {
+      if (!TITLE.test(n.title ?? '')) continue;
+      const stem = upper(n.title);
+      const first = seen.get(stem);
+      if (first && first.rel !== s.rel) out.push(`${s.rel}: titles at ${path}: the title ${n.title} renders the same macros as ${first.title} of ${first.rel}: titles are distinct across shapes`);
+      else if (!first) seen.set(stem, { rel: s.rel, title: n.title });
+    }
+  }
+  return out;
+};
+
 const refuseProblems = (shapes) => {
-  const lines = shapes.flatMap((s) => shapeProblems(s).map((p) => `${s.rel}: ${p.rule} at ${p.path}: ${p.message}`));
+  const lines = [...shapes.flatMap((s) => shapeProblems(s).map((p) => `${s.rel}: ${p.rule} at ${p.path}: ${p.message}`)), ...crossShapeProblems(shapes)];
   if (lines.length) throw new Error(`render --shapes refused:\n${lines.join('\n')}`);
 };
 

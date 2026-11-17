@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- The panel words LEAVE omx-contract: `data/panel.json` (`PANEL_FAMILIES`, `PANEL_WIDGETS`, `PANEL_STANDARD_WIDGETS`,
+  `PANEL_DISPLAY_KINDS`, `PANEL_DISPLAY_SOURCES`, `PANEL_PLACEMENTS`), their catalog entries and their renders in
+  `omx_vocabulary.h` are removed, with no shim: omx-panel owns them as the `panel` domain (`contract.d/panel/panel.json`,
+  `<omxdomain/panel_vocabulary.h>`), words and codes unchanged, and a change of one is its release alone. A consumer
+  includes `<omxdomain/panel_vocabulary.h>` and floors omx-panel, not omx-contract. `tools/data-layout.mjs` refuses a
+  `PANEL_*` item or a `panel.json` in data/ by name (`DOMAINS_OWNED_ELSEWHERE`), so they cannot creep back. The override's
+  `family` enum in the schema still lists the families; it becomes a `$ref` to the panel domain with the domain migration.
 - The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,
   `info{title,version,x-owner}` and `components.schemas`, a words item a `oneOf` of `const` words (docs/contract-dir.md,
   "Domains"). The domain's owner is metadata, its version its own; `render --package <domain>` renders `<domain>_vocabulary.h`

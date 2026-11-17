@@ -10,29 +10,16 @@ import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
 import { loadContractDir } from '../lib/contract-dir.mjs';
-import { loadData, resolveData } from '../lib/data.mjs';
+import { resolveData } from '../lib/data.mjs';
 import { packageVocabularyC, wordsExports } from '../render/vocabulary.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 
-/** The domain document of data/panel.json, as the owner writes it: each words item a oneOf of const words. */
-function panelDomain() {
-  const old = JSON.parse(readFileSync(join(DATA, 'panel.json'), 'utf8'));
-  const schemas = {};
-  for (const [name, it] of Object.entries(old)) {
-    if (name === '$schema') continue;
-    schemas[name] = {
-      description: it.doc,
-      'x-since': it.since,
-      ...(it.why === undefined ? {} : { 'x-why': it.why }),
-      oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
-    };
-  }
-  return { $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel' }, components: { schemas } };
-}
+/** A copy of omx-panel's panel domain document (contract.d/panel/panel.json), the fixture of a domain with words. */
+const panelDomain = () => JSON.parse(readFileSync(join(ROOT, 'test/fixtures/domain/panel.json'), 'utf8'));
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
 function dirWith(doc, name = 'panel') {
@@ -56,17 +43,13 @@ test('a domain is read: a package of its own name, its owner metadata, its own v
   assert.ok(d.items.has('PANEL_FAMILIES') && d.items.get('PANEL_FAMILIES').pkg === 'panel');
 });
 
-test('its words render byte for byte what the old layout renders: C defines, X-macros, ts words', () => {
-  const old = resolveData(loadData(DATA));
-  const oldHeader = packageVocabularyC(old, undefined)[0].text;
+test('its words render as the C header, the X-macros and the ts words the committed golden holds', () => {
   const resolved = resolveData(loadContractDir({ dir: dirWith(panelDomain()) }));
   const [h] = packageVocabularyC(resolved, 'panel');
   assert.equal(h.path, 'panel_vocabulary.h');
-  const block = (text, item) => text.slice(text.indexOf(`/* ${item} (`), text.indexOf('\n\n', text.indexOf(`/* ${item} (`))).replace(/^\/\* (\w+) \([^)]*\) \*\//, '/* $1 */');
-  for (const item of ['PANEL_FAMILIES', 'PANEL_WIDGETS', 'PANEL_STANDARD_WIDGETS', 'PANEL_DISPLAY_KINDS', 'PANEL_DISPLAY_SOURCES', 'PANEL_PLACEMENTS']) {
-    assert.ok(block(h.text, item).length > 100, item);
-    assert.equal(block(h.text, item), block(oldHeader, item), item);
-  }
+  assert.equal(h.text, readFileSync(join(ROOT, 'test/golden/domain/panel_vocabulary.h'), 'utf8'));
+  assert.match(h.text, /^#define OMX_PANEL_PLACEMENTS_BUS "bus"/m);
+  assert.match(h.text, /X\(4u, "time_response", TIME_RESPONSE\)/);
   const ts = wordsExports(resolved, (w) => JSON.stringify(w));
   assert.match(ts.js, /PANEL_PLACEMENTS_WORDS = \[\s*"insert",\s*"return",\s*"bus",\s*"master"\s*\]/);
 });

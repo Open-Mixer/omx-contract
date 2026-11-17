@@ -22,7 +22,6 @@ data/
                                omx_param_units.h, read as data by omx-panel and plugin-hostd
   plugin-features.json         PLUGIN_FEATURE_*: every CLAP plugin feature and LV2 plugin class onto a descriptor feature word, or other
   panel.json                   PANEL_*: the panel families and widgets
-  scan.json                    SCAN_*: the names of the scan documents and the scopes of the field dump (owned elsewhere)
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
   formats/lv2/<spec>.json      LV2_<SPEC>_TERMS: the terms of the LV2 specification bundle <spec>.lv2
   formats/clap/<header>.json   CLAP_<HEADER>_TERMS: the identifiers of the CLAP header clap/<header>.h
@@ -45,7 +44,6 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 | a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
 | a CLAP feature or LV2 class and the feature word it becomes | `plugin-features.json` | `PLUGIN_FEATURE_<WORD>`, kind `words`, one item per target |
 | a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
-| a document a scan writes, or a scope of its field dump | `scan.json` | `SCAN_<LIST>`, kind `words`; named here, owned by the writer |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | `formats/lv2/<spec>.json`, `<spec>` the bundle it is defined in | `LV2_<SPEC>_TERMS`, kind `terms` |
 | a CLAP identifier declared in `clap/<header>.h` | `formats/clap/<header>.json` | `CLAP_<HEADER>_TERMS`, the path in upper snake case |

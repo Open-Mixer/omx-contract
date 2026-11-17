@@ -104,9 +104,11 @@ exists because a port can miss a rule.
 
 ### 3.1 The source
 
-JSON Schema 2020-12, one file per document shape, in the owner's `schema/` directory and installed in the contract
-directory beside its declarations (`<contractdir>/3/<package>/schema/<name>.schema.json`, by `contract-dir.md`'s
-rules, so a reader finds a shape the way it finds a declaration). The schemas that exist stay where they are
+JSON Schema 2020-12, one file per document shape, in the owner's `shapes/` directory (`shapes/<name>.schema.json`,
+as lane S1 built it: `docs/shapes.md`) and installed for a reader that validates: omx-contract's own under its data
+directory (`share/omx-contract/shapes/`, S1); another owner's in the contract directory beside its declarations
+(`<contractdir>/3/<package>/shapes/<name>.schema.json`, by `contract-dir.md`'s rules, so a reader finds a shape the
+way it finds a declaration — the rule lane S2 adds with the first owner that needs it). The schemas that exist stay where they are
 (`omx-panel/schema/panel.schema.json`, `skin-package.schema.json`, `plugin-hostd-protocol/protocol/plugin-hostd.schema.json`)
 and are installed. New ones are written for the documents that have none:
 

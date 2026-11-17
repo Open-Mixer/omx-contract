@@ -34,6 +34,23 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   and `<ITEM>_WORDS`, and the Python literal, byte for byte what the words item of the old layout renders.
   Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
   disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
+- A word may carry what the classic layout calls a `group` and a `from` (owner ruling 2026-11-17, omx-contract#81):
+  - `group` is `x-group` on its `oneOf` entry: the `const` of a word of the words schema its item's `x-groups` names.
+  - `groups` of the classic item is its own words schema in the SAME domain document: the item names it as
+    `"x-groups": "<SchemaName>"`, and the schema is read as any words item. Two domains never share a group schema.
+  - `from` (the format terms a word is taken from) is `x-from`, one `{ "$ref", "x-term" }` per term: the `$ref` is the
+    `$id` of the domain that declares the terms item plus the schema, `https://openmixer.org/contract/<domain>#/components/schemas/<ITEM>`,
+    and `x-term` the term's key, so `{ "$ref": ".../omx-contract#/components/schemas/LV2_CORE_TERMS", "x-term": "latency" }`
+    is the classic `from` string `LV2_CORE_TERMS#latency`. Until omx-contract's own data/ is migrated into domains, its
+    items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
+    a file path is never a reference.
+- A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
+  (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
+  key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds
+  beside its document.
+- A consumer of a domain's words that is not a C or TypeScript render (a Python reader, a template) reads the domain
+  document itself, `<contractdir>/<domain>/<domain>.json`; the json render of the whole read is not a reader of a
+  domain's items.
 - `$id` is the domain's stable URL. A domain refers to another by `$ref` to that `$id` (`https://openmixer.org/contract/<other>#/components/schemas/<Name>`),
   never to a file path, so a move of files breaks no reference.
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package

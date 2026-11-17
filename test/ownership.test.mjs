@@ -1,52 +1,167 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The ownership gate (docs/contract-dir.md "What omx-contract owns"): clean on the committed data and lists, and red
- * on a new word in neither list, on a line added to the moving-out list, and on a listed item data/ no longer holds.
+ * The ownership gate (docs/contract-dir.md "What omx-contract owns"), through its command line on a scratch copy of the
+ * repository whose HEAD is the base: clean on the committed tree, and red, by name, on a new item, a new word inside an
+ * existing item, a schema enum word, a line added to moving-out, an item moved back to owned, a duplicate or junk line,
+ * and a base git cannot read.
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { test } from 'node:test';
-import { declaredItems, ownershipProblems, parseList } from '../tools/check-ownership.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { after, before, test } from 'node:test';
+import { ROOT } from './helpers.mjs';
 
-const list = (n) => parseList(readFileSync(join(ROOT, 'ownership', n), 'utf8'));
-const owned = list('owned.txt');
-const moving = list('moving-out.txt');
-const items = () => declaredItems(DATA);
+const TOOL = join(ROOT, 'tools', 'check-ownership.mjs');
+let dir;
+const git = (...a) => execFileSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@example.org', '-c', 'commit.gpgsign=false', ...a], { stdio: 'ignore' });
+const read = (rel) => readFileSync(join(dir, rel), 'utf8');
+const write = (rel, text) => writeFileSync(join(dir, rel), text);
+const editJson = (rel, f) => { const d = JSON.parse(read(rel)); f(d); write(rel, `${JSON.stringify(d, null, 2)}\n`); };
+const editList = (rel, f) => write(rel, f(read(rel).split('\n')).join('\n'));
+const run = (...extra) => {
+  const r = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', ...extra], { encoding: 'utf8' });
+  return { status: r.status, out: r.stdout + r.stderr };
+};
 
-test('the committed data and lists are clean', () => {
-  assert.deepEqual(ownershipProblems(items(), owned, moving, moving), []);
+before(() => {
+  dir = mkdtempSync(join(tmpdir(), 'ownership-'));
+  for (const d of ['data', 'schema', 'shapes', 'ownership', 'tools']) cpSync(join(ROOT, d), join(dir, d), { recursive: true });
+  git('init', '-q');
+  git('add', '-A');
+  git('commit', '-q', '-m', 'base');
+});
+after(() => rmSync(dir, { recursive: true, force: true }));
+// every case starts from the base
+const reset = () => { git('checkout', '-q', '--', '.'); git('clean', '-qfd'); };
+
+test('the committed tree is clean', () => {
+  reset();
+  const r = run();
+  assert.equal(r.status, 0, r.out);
 });
 
-test('a PANEL_ word in neither list is red, named', () => {
-  const it = items();
-  it.set('PANEL_FAKE_WORDS', 'data/panel.json');
-  const p = ownershipProblems(it, owned, moving, moving);
-  assert.equal(p.length, 1);
-  assert.match(p[0], /^PANEL_FAKE_WORDS \(data\/panel\.json\) is in neither/);
+test('a new item in neither list is red, named with its repository-relative file', () => {
+  reset();
+  editJson('data/panel.json', (d) => { d.PANEL_FAKE_WORDS = d.PANEL_FAMILIES; });
+  const r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /PANEL_FAKE_WORDS \(data\/panel\.json\) is in neither/);
+  assert.ok(!r.out.includes(dir), 'a message names a path relative to the repository');
 });
 
-test('a name added to the moving-out list is red', () => {
-  const it = items();
-  it.set('NEW_THING', 'data/x.json');
-  const p = ownershipProblems(it, owned, [...moving, 'NEW_THING'], moving);
-  assert.equal(p.length, 1);
-  assert.match(p[0], /^NEW_THING is added to ownership\/moving-out\.txt/);
+test('a new word inside an existing item is red, named with the item and the word', () => {
+  reset();
+  editJson('data/panel.json', (d) => { d.PANEL_FAMILIES.words.utility_x = { ...Object.values(d.PANEL_FAMILIES.words)[0] }; });
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /PANEL_FAMILIES.*utility_x/);
+  reset();
+  editJson('data/panel.json', (d) => { d.PANEL_DISPLAY_KINDS.words.time_response_x = { ...Object.values(d.PANEL_DISPLAY_KINDS.words)[0] }; });
+  r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /PANEL_DISPLAY_KINDS.*time_response_x/);
 });
 
-test('a removed moving-out line passes with its item gone, and is red with the item still declared', () => {
-  const it = items();
-  it.delete('SCAN_DOCUMENTS');
-  const rest = moving.filter((n) => n !== 'SCAN_DOCUMENTS');
-  assert.deepEqual(ownershipProblems(it, owned, rest, moving), []);
-  const p = ownershipProblems(items(), owned, rest, moving);
-  assert.match(p[0], /^SCAN_DOCUMENTS \(.*scan\.json\) is in neither/);
+test('a new word in a schema enum is red, named by file and pointer', () => {
+  reset();
+  editJson('schema/omx-contract.schema.json', (d) => { d.$defs.override.properties.family.enum.push('fake_family'); });
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /schema\/omx-contract\.schema\.json#.*family.*fake_family/);
+  reset();
+  editJson('shapes/travel.schema.json', (d) => { const find = (o) => { for (const v of Object.values(o)) { if (v && typeof v === 'object') { if (Array.isArray(v.enum)) { v.enum.push('fake_unit'); return true; } if (find(v)) return true; } } return false; }; assert.ok(find(d)); });
+  r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /shapes\/travel\.schema\.json#.*fake_unit/);
 });
 
-test('a listed item data/ no longer declares is red', () => {
-  const it = items();
-  it.delete('CONTRACT_CODES');
-  assert.match(ownershipProblems(it, owned, moving, moving)[0], /^CONTRACT_CODES is listed but data\/ declares no such item/);
+test('the override family enum is on the moving-out list, the side-file fields and render are on none', () => {
+  const moving = read('ownership/moving-out.txt');
+  const owned = read('ownership/owned.txt');
+  assert.match(moving, /^schema\/omx-contract\.schema\.json#.*override.*family.*enum$/m);
+  assert.match(moving, /^VERB_HOSTS$/m);
+  for (const n of ['ulp', 'doc', 'laws', 'render']) {
+    assert.ok(!new RegExp(`^${n}$`, 'm').test(owned + moving), `${n} is no item`);
+  }
+});
+
+test('a name added to moving-out is red, against the base', () => {
+  reset();
+  editJson('data/panel.json', (d) => { d.NEW_THING = d.PANEL_FAMILIES; });
+  editList('ownership/moving-out.txt', (l) => [...l, 'NEW_THING']);
+  const r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /NEW_THING is added to ownership\/moving-out\.txt/);
+});
+
+test('a moving-out item moved back to owned is red', () => {
+  reset();
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'SCAN_DOCUMENTS'));
+  editList('ownership/owned.txt', (l) => [...l, 'SCAN_DOCUMENTS']);
+  const r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /SCAN_DOCUMENTS stood on ownership\/moving-out\.txt at the base/);
+});
+
+test('a word added to a moving-out item in words.json is red, even with the data matching', () => {
+  reset();
+  editJson('data/panel.json', (d) => { d.PANEL_FAMILIES.words.utility_x = { ...Object.values(d.PANEL_FAMILIES.words)[0] }; });
+  const u = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', '--update'], { encoding: 'utf8' });
+  assert.equal(u.status, 0, u.stderr);
+  const r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /PANEL_FAMILIES.*utility_x.*added.*moving out/);
+});
+
+test('a moved item and its words leave together: removing both is green', () => {
+  reset();
+  editJson('data/scan.json', (d) => { delete d.SCAN_DOCUMENTS; });
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'SCAN_DOCUMENTS'));
+  editJson('ownership/words.json', (d) => { delete d.SCAN_DOCUMENTS; });
+  const r = run();
+  assert.equal(r.status, 0, r.out);
+});
+
+test('a duplicate line and a junk line are red', () => {
+  reset();
+  editList('ownership/owned.txt', (l) => [...l, 'CONTRACT_CODES']);
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /CONTRACT_CODES is listed twice/);
+  reset();
+  editList('ownership/owned.txt', (l) => [...l, 'not a name!']);
+  r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /junk/);
+});
+
+test('a base git cannot read is a refusal by name', () => {
+  reset();
+  const r = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'no-such-ref'], { encoding: 'utf8' });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /no-such-ref is no commit git can read/);
+});
+
+test('a base that predates the gate passes once; a base with the gate but no lists is a refusal', () => {
+  reset();
+  git('rm', '-q', 'tools/check-ownership.mjs', '-r', 'ownership');
+  git('commit', '-q', '-m', 'before the gate');
+  let r = run();
+  assert.equal(r.status, 0, r.out);
+  assert.match(r.out, /predates the ownership gate/);
+  reset();
+  git('checkout', '-q', 'HEAD~1', '--', 'tools/check-ownership.mjs');
+  git('commit', '-q', '-m', 'the tool without its lists');
+  r = run();
+  assert.equal(r.status, 2);
+  assert.match(r.out, /carries the gate but no ownership\/moving-out\.txt/);
+});
+
+test('make ownership refuses when the base cannot be fetched', () => {
+  const r = spawnSync('make', ['-C', ROOT, 'ownership', 'OWNERSHIP_REMOTE=/nonexistent-remote'], { encoding: 'utf8' });
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /ownership: fetching the base from \/nonexistent-remote failed/);
 });

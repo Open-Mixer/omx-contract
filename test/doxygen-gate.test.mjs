@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+// Copyright (C) 2026 Pau Aliagas
 /**
  * The documentation gate of the installed headers (tools/doxygen-gate.sh, docs/render.md "Documentation"): red first
  * on each defect it exists for, over a scratch copy of include/omxcontract/ and of the baseline. Skipped, never
@@ -7,7 +7,7 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { appendFileSync, cpSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { ROOT, scratchDir } from './helpers.mjs';
@@ -80,6 +80,66 @@ test('red: a baseline line whose declaration is documented now must be struck', 
   assert.equal(r.status, 1, r.out);
   assert.match(r.out, /documented now \(strike them/);
   assert.match(r.out, /OMX_FIXTURE_GONE/);
+});
+
+test('red: the baseline is a set: one line swapped for a stray one is red by both names, a dropped trailing newline is no change', { skip: noDoxygen }, () => {
+  const s = scratch();
+  const lines = readFileSync(BASELINE, 'utf8').trimEnd().split('\n');
+  const stray = 'omx_formats.h: warning: Member OMX_FIXTURE_SWAPPED_IN (macro definition) of file omx_formats.h is not documented.';
+  writeFileSync(s.baseline, `${[stray, ...lines.slice(1)].join('\n')}\n`);
+  const swapped = gate('--input', s.headers, '--baseline', s.baseline);
+  assert.equal(swapped.status, 1, swapped.out);
+  assert.ok(swapped.out.includes(lines[0]), 'the line swapped out is named as new');
+  assert.ok(swapped.out.includes(stray), 'the stray line is named as stale');
+  writeFileSync(s.baseline, lines.join('\n'));
+  const noNewline = gate('--input', s.headers, '--baseline', s.baseline);
+  assert.equal(noNewline.status, 0, noNewline.out);
+});
+
+test('refused by name, exit 2: no Doxyfile where it runs, no baseline file, no header under --input', { skip: noDoxygen }, () => {
+  const s = scratch();
+  const elsewhere = spawnSync('sh', [join(ROOT, 'tools/doxygen-gate.sh')], { cwd: s.dir, encoding: 'utf8' });
+  assert.equal(elsewhere.status, 2, elsewhere.stderr);
+  assert.match(elsewhere.stderr, /no Doxyfile in /);
+  const noBaseline = gate('--input', s.headers, '--baseline', join(s.dir, 'no-such-baseline.txt'));
+  assert.equal(noBaseline.status, 2, noBaseline.out);
+  assert.match(noBaseline.out, /no baseline at .*no-such-baseline\.txt/);
+  const noHeader = gate('--input', join(s.dir, 'empty'), '--baseline', s.baseline);
+  assert.equal(noHeader.status, 2, noHeader.out);
+  assert.match(noHeader.out, /no header under/);
+});
+
+test('tracked headers only: a stray undocumented header beside the installed ones counts on neither side', { skip: noDoxygen }, () => {
+  const stray = join(HEADERS, 'omx_stray_fixture.h');
+  assert.ok(!existsSync(stray));
+  writeFileSync(stray, '/** @file\n * @brief A stray. */\n#ifndef OMX_STRAY_H\n#define OMX_STRAY_H\nstatic inline int omx_stray_undocumented(int a) { return a; }\n#endif\n');
+  try {
+    const r = gate();
+    assert.equal(r.status, 0, r.out);
+    assert.doesNotMatch(gate('--list').out, /omx_stray/);
+    // the same header read through --input is seen: the tracked filter is the only thing that hid it
+    const seen = gate('--input', HEADERS, '--baseline', BASELINE);
+    assert.equal(seen.status, 1, seen.out);
+    assert.match(seen.out, /omx_stray_undocumented/);
+  } finally {
+    rmSync(stray);
+  }
+});
+
+test('--update only lowers: refused by name while a new warning stands, written when a line is struck', { skip: noDoxygen }, () => {
+  const s = scratch();
+  const before = readFileSync(s.baseline, 'utf8');
+  addBeforeGuardEnd(join(s.headers, 'omx_json_write.h'), 'static inline int omx_fixture_undocumented(int a) { return a; }');
+  const refused = gate('--input', s.headers, '--baseline', s.baseline, '--update');
+  assert.equal(refused.status, 1, refused.out);
+  assert.match(refused.out, /--update only lowers/);
+  assert.match(refused.out, /omx_fixture_undocumented/);
+  assert.equal(readFileSync(s.baseline, 'utf8'), before, 'the baseline is untouched');
+  const t = scratch();
+  appendFileSync(t.baseline, 'omx_json_write.h: warning: Member OMX_FIXTURE_STRUCK (macro definition) of file omx_json_write.h is not documented.\n');
+  const written = gate('--input', t.headers, '--baseline', t.baseline, '--update');
+  assert.equal(written.status, 0, written.out);
+  assert.equal(readFileSync(t.baseline, 'utf8'), readFileSync(BASELINE, 'utf8'), 'the struck line is gone, nothing else moved');
 });
 
 test('red: a header with no @file block is refused before doxygen, since doxygen would read none of it', { skip: noDoxygen }, () => {

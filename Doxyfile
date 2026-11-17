@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+# Copyright (C) 2026 Pau Aliagas
 #
 # The documentation gate of the installed C headers (omx-contract#64): `make doxygen-check` (tools/doxygen-gate.sh)
 # runs doxygen over include/omxcontract/ with no output but its warnings, and holds the undocumented public declarations

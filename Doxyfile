@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Pau Aliagas
+#
+# The documentation gate of the installed C headers (omx-contract#64): `make doxygen-check` (tools/doxygen-gate.sh)
+# runs doxygen over include/omxcontract/ with no output but its warnings, and holds the undocumented public declarations
+# to docs/doxygen-baseline.txt, a list that may only shrink. Every public function, struct, enum, typedef and macro of an
+# installed header carries a `/** */` block (a `@file` block per header, else doxygen reads none of its globals).
+# `doxygen Doxyfile` renders the pages into build/doxygen/ (git-ignored); the gate renders them into a scratch
+# directory it removes. The gate refuses a copy of this file that suppresses what it counts (EXCLUDE*, HIDE_UNDOC_*,
+# the WARN_* and EXTRACT_* settings, filters, ENABLED_SECTIONS): tools/doxygen-gate.sh names the keys.
+
+PROJECT_NAME           = omx-contract
+PROJECT_BRIEF          = "The declarations of OpenMixer, as data, rendered to C"
+OUTPUT_DIRECTORY       = build/doxygen
+INPUT                  = include/omxcontract
+FILE_PATTERNS          = *.h
+RECURSIVE              = NO
+FULL_PATH_NAMES        = NO
+OPTIMIZE_OUTPUT_FOR_C  = YES
+JAVADOC_AUTOBRIEF      = YES
+EXTRACT_ALL            = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+HIDE_UNDOC_MEMBERS     = NO
+SHOW_INCLUDE_FILES     = NO
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = CLAP_ABI=
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_IF_INCOMPLETE_DOC = YES
+WARN_IF_UNDOC_ENUM_VAL = YES
+WARN_NO_PARAMDOC       = YES
+WARN_AS_ERROR          = NO
+WARN_FORMAT            = "$file:$line: $text"
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+HAVE_DOT               = NO

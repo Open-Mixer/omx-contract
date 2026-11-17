@@ -9,6 +9,10 @@
  * writes and compares these, never a literal of its own.
  */
 
+/** @file
+ * @brief The identifiers and numbers of the plugin formats: the CLAP extension, factory, feature and window ids and
+ * the numbers the CLAP headers declare, and the LV2 specifications' URIs and namespaces. */
+
 /* CLAP identifiers: an extension id as get_extension is asked for it, a factory id, a plugin feature, a window API */
 #define OMX_CLAP_PORT_AMBISONIC "ambisonic"
 #define OMX_CLAP_EXT_AMBISONIC_COMPAT "clap.ambisonic.draft/3"

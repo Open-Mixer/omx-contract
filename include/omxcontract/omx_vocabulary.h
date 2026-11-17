@@ -10,6 +10,10 @@
  * literal of its own.
  */
 
+/** @file
+ * @brief The vocabulary of omx-contract: every code and every word as a string define, with its sentence
+ * where it carries one. */
+
 /* CURVE_AXES (data/curves.json) */
 #define OMX_CURVE_AXES_FREQUENCY "frequency" ///< Frequency, on the points of EQ_CURVE_GRID where the curve is a response.
 #define OMX_CURVE_AXES_FREQUENCY_TEXT_EN "Frequency, on the points of EQ_CURVE_GRID where the curve is a response."

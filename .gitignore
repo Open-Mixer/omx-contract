@@ -6,3 +6,5 @@ dist/
 !vendor/build/*.tgz
 # the built modules (src/lib/*.mts -> lib/*.mjs and their .d.mts): a build product, like dist/ts
 /lib/
+# doxygen's pages, from a hand run of `doxygen Doxyfile`
+/build/

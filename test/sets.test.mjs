@@ -11,7 +11,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, UNION, dropDecl, relOf, resolvedOf, texts } from './helpers.mjs';
+import { DATA, UNION, dropDecl, relOf, resolvedOf, texts, undocumented } from './helpers.mjs';
 
 const problems = (t) => validateData(loadData(null, t)).map((p) => `${p.item}:${p.rule}`);
 const header = (t) => renderC(resolvedOf(t))[0].text;
@@ -19,7 +19,7 @@ const contour = 'data/kernels/contour.json';
 
 test('a set renders as a C enum, a count and a default, a ts list of ids and a json item with its labels', () => {
   const t = texts();
-  const h = header(t);
+  const h = undocumented(header(t));
   assert.match(h, /^enum omx_contour_band_types \{\n {2}OMX_CONTOUR_BAND_TYPES_PEAK = 0,\n {2}OMX_CONTOUR_BAND_TYPES_LOW_SHELF = 1,\n {2}OMX_CONTOUR_BAND_TYPES_HIGH_SHELF = 2,\n {2}OMX_CONTOUR_BAND_TYPES_CUT = 3,\n\};$/m);
   assert.match(h, /^#define OMX_CONTOUR_BAND_TYPES_COUNT 4u$/m);
   assert.match(h, /^#define OMX_CONTOUR_BAND_TYPES_DEFAULT OMX_CONTOUR_BAND_TYPES_PEAK$/m);

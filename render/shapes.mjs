@@ -1,24 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+// Copyright (C) 2026 Pau Aliagas
 /**
  * The shapes (docs/shapes.md): a document's shape is one JSON Schema 2020-12 file, shapes/<name>.schema.json, and the
  * types every language reads are renders of it, never written by hand. `render --target ts|py|c --shapes` writes them:
  *
- *   ts  shapes/<name>.d.ts                       json-schema-to-typescript, pinned in package.json
+ *   ts  shapes/<name>.d.ts                       json-schema-to-typescript, pinned exactly in package.json
  *   py  omx_contract_<name>_shape.py             datamodel-code-generator (TypedDicts), pinned in tools/shapes-requirements.txt
  *   c   omxcontract/omx_<name>_shape.h           this file: the keys, the words and the required set as X-macros, no struct
  *
  * The two generators run in the owner's CI and their output is committed; a consumer reads the committed file and runs
- * no generator. `--check` holds the committed files to a fresh render byte for byte. A shape that breaks a rule
- * (SHAPE_RULES) is refused by name and nothing is rendered.
+ * no generator. Each generator is held to its pin at run time: another version, or none, is refused by name, since its
+ * bytes would differ. `--check` holds the committed files to a fresh render byte for byte. A shape that breaks a rule
+ * (SHAPE_RULES) is refused by file, rule and JSON path, and nothing is rendered.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
+import { cStringLiteral } from './c/c-literals.mjs';
 
 const SCHEMA_2020 = 'https://json-schema.org/draft/2020-12/schema';
-const SPDX = ['SPDX-License-Identifier: GPL-3.0-or-later', 'Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>'];
+const SPDX = ['SPDX-License-Identifier: GPL-3.0-or-later', 'Copyright (C) 2026 Pau Aliagas'];
+/** A C identifier: what a key, a word and a title's macro stem must be, so an X-macro argument is one token and no two collide. */
+const C_IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const TITLE = /^[A-Z][A-Za-z0-9]*$/;
 
 /** The shapes of a tree: every shapes/<name>.schema.json, parsed, in name order. */
 export function shapesOf(root, dir = join(root, 'shapes')) {
@@ -30,7 +35,7 @@ export function shapesOf(root, dir = join(root, 'shapes')) {
   }));
 }
 
-/** Every schema node under `s` that is an object (has `type` or `properties` or `enum` or `const`), with its JSON path. */
+/** Every schema node under `s` (a type, properties, an enum, a const, a $ref or a oneOf), with its JSON path, parents first. */
 function* nodes(s, path = '') {
   if (s === null || typeof s !== 'object' || Array.isArray(s)) return;
   if ('type' in s || 'properties' in s || 'enum' in s || 'const' in s || '$ref' in s || 'oneOf' in s) yield [path || '/', s];
@@ -41,18 +46,61 @@ function* nodes(s, path = '') {
   }
 }
 
+/** The object nodes of a shape, each `[path, node]`: the root when it is one, every $defs entry and every nested one. */
+const objects = (s) => [...nodes(s)].filter(([, n]) => n.type === 'object');
+
+/** The enum or const words of a property node, or undefined when it has none. */
+const wordsOf = (p) => p.enum ?? (p.const !== undefined ? [p.const] : undefined);
+
+const upper = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
+
 /** The rules a shape is held to, each with its check; a problem is `{ rule, path, message }`. The sabotage arm of test/shapes.test.mjs breaks each. */
 export const SHAPE_RULES = [
   { rule: '$schema', check: (s) => (s.$schema === SCHEMA_2020 ? [] : [{ path: '/', message: `"$schema" is ${JSON.stringify(s.$schema)}, not ${SCHEMA_2020}` }]) },
   { rule: '$id', check: (s) => (typeof s.$id === 'string' && s.$id.endsWith('.schema.json') ? [] : [{ path: '/', message: 'no "$id" ending in .schema.json' }]) },
-  { rule: 'title', check: (s) => (typeof s.title === 'string' && /^[A-Z][A-Za-z0-9]*$/.test(s.title) ? [] : [{ path: '/', message: 'no "title" (one CapitalisedWord, the type\'s name)' }]) },
+  {
+    rule: 'title',
+    check: (s) => [
+      ...(TITLE.test(s.title ?? '') ? [] : [{ path: '/', message: 'no "title" (one CapitalisedWord, the type\'s name)' }]),
+      ...objects(s).filter(([, n]) => !TITLE.test(n.title ?? '')).map(([path]) => ({ path, message: 'an object without a "title" (one CapitalisedWord): its macros and its type are named by it' })),
+    ],
+  },
+  {
+    // two titles that spell the same macro stem (ScaleMap and Scalemap both give OMX_SHAPE_SCALE_MAP... or the same word) would render one over the other
+    rule: 'titles',
+    check: (s) => {
+      const seen = new Map();
+      const out = [];
+      for (const [path, n] of objects(s)) {
+        if (!TITLE.test(n.title ?? '')) continue;
+        const stem = upper(n.title);
+        if (seen.has(stem)) out.push({ path, message: `the title ${n.title} renders the same macros as ${seen.get(stem)}: titles are distinct` });
+        else seen.set(stem, n.title);
+      }
+      return out;
+    },
+  },
   {
     rule: 'description',
     check: (s) => [...nodes(s)].filter(([, n]) => !('$ref' in n) && !(typeof n.description === 'string' && n.description.trim())).map(([path]) => ({ path, message: 'no "description": the renders carry it as the doc comment' })),
   },
   {
     rule: 'additionalProperties',
-    check: (s) => [...nodes(s)].filter(([, n]) => n.type === 'object' && n.additionalProperties !== false).map(([path]) => ({ path, message: 'an object without "additionalProperties": false: a closed shape names every key' })),
+    check: (s) => objects(s).filter(([, n]) => n.additionalProperties !== false).map(([path]) => ({ path, message: 'an object without "additionalProperties": false: a closed shape names every key' })),
+  },
+  {
+    // a key is an X-macro argument and a word an identifier: one C token each, so no two spell the same one
+    rule: 'identifiers',
+    check: (s) => objects(s).flatMap(([path, n]) => Object.keys(n.properties ?? {}).filter((k) => !C_IDENT.test(k)).map((k) => ({ path: `${path}/properties/${k}`, message: `the key ${JSON.stringify(k)} is not a C identifier` }))),
+  },
+  {
+    rule: 'words',
+    check: (s) => objects(s).flatMap(([path, n]) => Object.entries(n.properties ?? {}).flatMap(([k, p]) => {
+      const words = wordsOf(p);
+      if (!words) return [];
+      const bad = words.filter((w) => typeof w !== 'string' || !C_IDENT.test(w));
+      return bad.length ? [{ path: `${path}/properties/${k}`, message: `the words ${JSON.stringify(bad)} are not C identifiers: an enum or const of ${k} is strings, each one identifier` }] : [];
+    })),
   },
 ];
 
@@ -79,22 +127,15 @@ export function shapePaths(root, target, dir) {
   return shapesOf(root, dir).map((s) => shapePath(target, s.name));
 }
 
-const upper = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
-const ident = (s) => s.replace(/[^A-Za-z0-9_]/g, '_');
-const doxy = (text) => `/** ${text.replace(/\*\//g, '*\\/')} */`;
-
-/** The objects of a shape with their names: the root when it is an object, and every $defs entry that is. */
-function objectsOf(schema) {
-  const out = [];
-  if (schema.type === 'object') out.push([schema.title, schema]);
-  for (const [n, d] of Object.entries(schema.$defs ?? {})) if (d.type === 'object') out.push([d.title ?? n, d]);
-  return out;
-}
+/** Prose inside a C comment: a comment close is broken, a line break is a space. */
+const inComment = (text) => String(text).replace(/\*\//g, '*\\/').replace(/\s*\n\s*/g, ' ');
+const doxy = (text) => `/** ${inComment(text)} */`;
+const macroStem = (s) => upper(s).replace(/[^A-Z0-9_]/g, '_');
 
 /** The `c` render of one shape: the schema's installed path and id, and per object its keys, required keys and each enum's words, as X-macros. */
 function renderShapeC({ name, rel, schema }) {
-  const guard = `OMX_${upper(name)}_SHAPE_H`;
-  const P = `OMX_SHAPE_${upper(name)}`;
+  const guard = `OMX_${macroStem(name)}_SHAPE_H`;
+  const P = `OMX_SHAPE_${macroStem(schema.title)}`;
   const lines = [
     `/* ${SPDX[0]} */`,
     `/* ${SPDX[1]} */`,
@@ -103,29 +144,30 @@ function renderShapeC({ name, rel, schema }) {
     `#define ${guard}`,
     '',
     `/** @file omx_${name}_shape.h`,
-    ` *  @brief The shape ${schema.title} (${rel}): ${schema.description}`,
+    ` *  @brief The shape ${schema.title} (${rel}): ${inComment(schema.description)}`,
     ` *  A C reader parses the document by key; these macros name every key, every word and the required set, so no name is`,
     ` *  typed twice. The schema itself is installed under the data directory for a reader that validates. */`,
     '',
     doxy(`The schema of ${schema.title}, relative to omx-contract's data directory (\`pkg-config --variable=datadir omx-contract\`).`),
-    `#define ${P}_SCHEMA "${rel}"`,
+    `#define ${P}_SCHEMA ${cStringLiteral(rel)}`,
     doxy(`The \`$id\` of the schema of ${schema.title}.`),
-    `#define ${P}_ID "${schema.$id}"`,
+    `#define ${P}_ID ${cStringLiteral(schema.$id)}`,
   ];
-  for (const [title, obj] of objectsOf(schema)) {
-    const O = `OMX_SHAPE_${upper(title)}`;
+  for (const [, obj] of objects(schema)) {
+    const title = obj.title;
+    const O = `OMX_SHAPE_${macroStem(title)}`;
     const keys = Object.keys(obj.properties ?? {});
     const required = obj.required ?? [];
-    lines.push('', `/* ${title}: ${obj.description} */`);
+    lines.push('', `/* ${title}: ${inComment(obj.description)} */`);
     lines.push(doxy(`The keys of ${title}, each as X(identifier, "key"): ${keys.join(', ')}.`));
-    lines.push(`#define ${O}_KEYS(X) ${keys.map((k) => `X(${ident(k)}, "${k}")`).join(' ')}`);
+    lines.push(`#define ${O}_KEYS(X) ${keys.map((k) => `X(${k}, ${cStringLiteral(k)})`).join(' ')}`);
     lines.push(doxy(`The keys ${title} requires${required.length ? '' : ' (none)'}, each as X(identifier, "key").`));
-    lines.push(`#define ${O}_REQUIRED(X) ${required.map((k) => `X(${ident(k)}, "${k}")`).join(' ')}`.trimEnd());
+    lines.push(`#define ${O}_REQUIRED(X) ${required.map((k) => `X(${k}, ${cStringLiteral(k)})`).join(' ')}`.trimEnd());
     for (const [k, p] of Object.entries(obj.properties ?? {})) {
-      const words = p.enum ?? (p.const !== undefined ? [p.const] : undefined);
-      if (!words || !words.every((w) => typeof w === 'string')) continue;
+      const words = wordsOf(p);
+      if (!words) continue;
       lines.push(doxy(`The words of ${title}.${k}, each as X(identifier, "word"): ${p.description}`));
-      lines.push(`#define ${O}_${upper(k)}_WORDS(X) ${words.map((w) => `X(${ident(w)}, "${w}")`).join(' ')}`);
+      lines.push(`#define ${O}_${macroStem(k)}_WORDS(X) ${words.map((w) => `X(${w}, ${cStringLiteral(w)})`).join(' ')}`);
     }
   }
   lines.push('', `#endif /* ${guard} */`, '');
@@ -139,18 +181,36 @@ export function renderShapesC(root, dir) {
   return shapes.map((s) => ({ path: shapePath('c', s.name), text: renderShapeC(s) }));
 }
 
-/** The `ts` target: json-schema-to-typescript, pinned in package.json; absent, the render refuses and names it. */
+/** The exact version package.json pins for json-schema-to-typescript. */
+export function tsGeneratorPin(root) {
+  const pin = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).devDependencies?.['json-schema-to-typescript'];
+  if (!/^\d+\.\d+\.\d+$/.test(pin ?? '')) throw new Error('package.json pins no exact json-schema-to-typescript version under devDependencies');
+  return pin;
+}
+
+/** Whether the installed json-schema-to-typescript is the pinned one: `{ ok, why }`; `installed` is read from node_modules unless given. */
+export function tsGeneratorVersion(root, installed) {
+  const pin = tsGeneratorPin(root);
+  if (installed === undefined) {
+    const p = join(root, 'node_modules/json-schema-to-typescript/package.json');
+    if (!existsSync(p)) return { ok: false, why: `json-schema-to-typescript is not installed (package.json pins ${pin}; npm ci)` };
+    installed = JSON.parse(readFileSync(p, 'utf8')).version;
+  }
+  if (installed !== pin) return { ok: false, why: `json-schema-to-typescript ${installed} is not the pinned ${pin} of package.json: its output would differ` };
+  return { ok: true, why: '' };
+}
+
+/** The `ts` target: json-schema-to-typescript at its pinned version; absent or another version, the render refuses and names it. */
 export async function renderShapesTs(root, dir) {
   const shapes = shapesOf(root, dir);
   refuseProblems(shapes);
-  let compile;
-  try { ({ compile } = await import('json-schema-to-typescript')); } catch {
-    throw new Error('render --target ts --shapes needs json-schema-to-typescript, pinned in package.json (npm ci): not installed');
-  }
+  const v = tsGeneratorVersion(root);
+  if (!v.ok) throw new Error(`render --target ts --shapes: ${v.why}`);
+  const { compile } = await import('json-schema-to-typescript');
   const out = [];
   for (const s of shapes) {
     const bannerComment = `// ${SPDX[0]}\n// ${SPDX[1]}\n// GENERATED by \`omx-contract render --target ts --shapes\` from ${s.rel} of Open-Mixer/omx-contract, do not edit.`;
-    const text = await compile(structuredClone(s.schema), s.schema.title, { bannerComment, additionalProperties: false, cwd: join(root, 'shapes'), style: { printWidth: 120, singleQuote: false } });
+    const text = await compile(structuredClone(s.schema), s.schema.title, { bannerComment, additionalProperties: false, cwd: dir ?? join(root, 'shapes'), style: { printWidth: 120, singleQuote: false } });
     out.push({ path: shapePath('ts', s.name), text });
   }
   return out;

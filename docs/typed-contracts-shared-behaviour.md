@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
-<!-- Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> -->
+<!-- Copyright (C) 2026 Pau Aliagas -->
 # Typed contracts and shared behaviour: one shape source, one implementation, bound per runtime
 
 Status: PART RULED by the owner, 2026-11-17: behaviour (§4, §5; decisions 3, 4, 6 and 7 of §9) is RULED — one C
@@ -13,7 +13,7 @@ renderer and the engine, C; a MOD GUI in a browser) use the SAME contract, with 
 coordinator's proposal (JSON Schema as the one typed source with generated types per language; one C implementation
 of each behaviour, bound per runtime; the fixtures as the proof every binding passes) and makes it concrete.
 
-**Author:** Pau Aliagas <linuxnow@gmail.com>.
+**Author:** Pau Aliagas.
 
 **Builds on, and does not reopen:** the owner's decision of 2026-11-17 on the console (the console on the shared
 abstractions: served curves, one gesture reference, ownership by gesture; "the console's decision" below) and the

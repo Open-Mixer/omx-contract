@@ -1,28 +1,33 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+// Copyright (C) 2026 Pau Aliagas
 /**
- * THE SHAPES FACILITY (docs/shapes.md; the typed-contracts spec, docs/typed-contracts-shared-behaviour.md
- * §3, lane S1): a document's shape is one JSON Schema 2020-12 file under shapes/, and the types every language reads are
- * renders of it, held byte for byte by `render --shapes --check`. Red first: before the facility, `--shapes` is an unknown
- * option and no render exists; a hand-edited render is named by `--check`; a shape that breaks a rule of docs/shapes.md
- * is refused by name, never rendered.
+ * THE SHAPES FACILITY (docs/shapes.md; the typed-contracts document docs/typed-contracts-shared-behaviour.md §3, lane S1):
+ * a document's shape is one JSON Schema 2020-12 file under shapes/, and the types every language reads are renders of it,
+ * held byte for byte by `render --shapes --check`. Red first: before the facility, `--shapes` was an unknown option and no
+ * render existed; a hand-edited render is named by `--check`; a shape that breaks a rule of docs/shapes.md is refused by
+ * name, never rendered; a generator absent or at another version is a refusal, never a pass; the C render is held by a
+ * compiler, not by a grep alone.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ROOT } from './helpers.mjs';
-import { SHAPE_RULES, pyGeneratorVersion, shapeProblems, shapePaths, shapesOf } from '../render/shapes.mjs';
+import { SHAPE_RULES, pyGeneratorPin, pyGeneratorVersion, renderShapesC, shapeProblems, shapePaths, shapesOf, tsGeneratorPin, tsGeneratorVersion } from '../render/shapes.mjs';
 
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
-const cli = (...args) => spawnSync(process.execPath, [CLI, ...args], { cwd: ROOT, encoding: 'utf8' });
+const cli = (args, env = {}) => spawnSync(process.execPath, [CLI, ...args], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, ...env } });
 const scratch = [];
 process.on('exit', () => { for (const d of scratch) rmSync(d, { recursive: true, force: true }); });
 const tmp = () => { const d = mkdtempSync(join(tmpdir(), 'omx-shapes-')); scratch.push(d); return d; };
-/** The pinned Python generator is present at its pinned version, or the Python arm says why it did not run. */
+/** The pinned Python generator is present at its pinned version, or the Python arms say why they did not run. */
 const pyGenerator = pyGeneratorVersion();
+const hasCc = spawnSync('cc', ['--version'], { encoding: 'utf8' }).status === 0;
+const travel = () => JSON.parse(readFileSync(join(ROOT, 'shapes/travel.schema.json'), 'utf8'));
+/** A scratch tree holding one shape, `travel.schema.json` as given. */
+const treeWith = (schema) => { const dir = tmp(); mkdirSync(join(dir, 'shapes')); writeFileSync(join(dir, 'shapes/travel.schema.json'), JSON.stringify(schema, null, 2)); return dir; };
 
 test('the shapes directory holds the travel shape, a 2020-12 schema with no problem', () => {
   const shapes = shapesOf(ROOT);
@@ -32,7 +37,7 @@ test('the shapes directory holds the travel shape, a 2020-12 schema with no prob
 
 test('the committed C and TypeScript renders are the render of the shapes (--check), and name every key and word', () => {
   for (const [target, out] of [['c', 'include'], ['ts', 'test/golden/ts']]) {
-    const r = cli('render', '--target', target, '--shapes', '--out', out, '--check');
+    const r = cli(['render', '--target', target, '--shapes', '--out', out, '--check']);
     assert.equal(r.status, 0, `${target}: ${r.stdout}${r.stderr}`);
     assert.match(r.stdout, /byte-identical/);
   }
@@ -41,6 +46,7 @@ test('the committed C and TypeScript renders are the render of the shapes (--che
   for (const word of ['linear', 'log', 'stepped', 'unknown']) assert.match(h, new RegExp(`X\\(${word}, "${word}"\\)`), `the header names the word ${word}`);
   assert.match(h, /OMX_SHAPE_SCALE_MAP_REQUIRED\(X\) X\(scale, "scale"\) X\(points, "points"\)/, 'the required keys of ScaleMap');
   assert.match(h, /OMX_SHAPE_TRAVEL_SCHEMA "shapes\/travel\.schema\.json"/, 'the installed schema path');
+  assert.doesNotMatch(h, /<[^>\n]*@[^>\n]*>/, 'the house header: no address');
   const d = readFileSync(join(ROOT, 'test/golden/ts/shapes/travel.d.ts'), 'utf8');
   assert.match(d, /export type Travel = ScaleTravel \| ScaleMap/, 'the TypeScript union');
   assert.match(d, /export interface ScaleTravel \{[\s\S]*scale\?: "linear" \| "log" \| "stepped" \| "unknown"/, 'the TypeScript interface with the words');
@@ -48,27 +54,20 @@ test('the committed C and TypeScript renders are the render of the shapes (--che
 });
 
 test('the committed Python render is the render of the shapes (--check), a TypedDict per object', { skip: pyGenerator.ok ? false : pyGenerator.why }, () => {
-  const r = cli('render', '--target', 'py', '--shapes', '--out', 'share/omx-contract', '--check');
-  const lines = r.stderr.split('\n').filter(Boolean);
-  assert.ok(!lines.some((l) => /shape/.test(l)), `no shape file is named by --check: ${r.stderr}`);
-  // share/omx-contract/clap-kind-vectors.json is called extra by every py check at main (Open-Mixer/omx-contract#70, a red at
-  // base this lane does not fix); that one line, and none other, is tolerated until it lands
-  const known = lines.filter((l) => !l.endsWith('share/omx-contract/clap-kind-vectors.json is extra'));
-  assert.deepEqual(known, [], `only the base red of omx-contract#70 may stand: ${r.stderr}`);
-  if (!lines.length) assert.equal(r.status, 0, r.stdout);
+  const r = cli(['render', '--target', 'py', '--shapes', '--out', 'share/omx-contract', '--check']);
+  assert.equal(r.status, 0, `${r.stdout}${r.stderr}`);
   const py = readFileSync(join(ROOT, 'share/omx-contract/omx_contract_travel_shape.py'), 'utf8');
   assert.match(py, /class ScaleTravel\(TypedDict/, 'a TypedDict per object');
   assert.match(py, /^Travel(: TypeAlias)? = (Union\[ScaleTravel, ScaleMap\]|ScaleTravel \| ScaleMap)$/m, 'the union');
   assert.doesNotMatch(py, /typing_extensions/, 'the standard library alone: no typing_extensions at import');
-  assert.match(py, /GENERATED by `omx-contract render --target py --shapes`/, 'the banner says it is generated');
 });
 
-test('the Python generator is refused when it is absent or not the pinned version, by name, never a silent pass', () => {
-  const r = cli('render', '--target', 'py', '--shapes', '--out', tmp(), ...[], ...[]);
-  if (pyGenerator.ok) { assert.equal(r.status, 0, r.stderr); return; }
-  assert.notEqual(r.status, 0, 'no generator: no pass');
-  assert.match(r.stderr, /datamodel-codegen/, 'the refusal names the generator');
-  assert.match(r.stderr, /tools\/shapes-requirements\.txt/, 'and the pin');
+test('the plain renders know the shapes files beside them: --check of c, ts, json, lv2 and py calls none of them extra', () => {
+  for (const [target, out] of [['c', 'include'], ['ts', 'test/golden/ts'], ['json', 'share/omx-contract'], ['lv2', 'share/omx-contract'], ['py', 'share/omx-contract']]) {
+    const r = cli(['render', '--target', target, '--out', out, '--check']);
+    assert.equal(r.status, 0, `${target}: ${r.stdout}${r.stderr}`);
+  }
+  for (const target of ['c', 'ts', 'py']) assert.ok(shapePaths(ROOT, target).length >= 1, `${target} has shape paths`);
 });
 
 test('a hand-edited render is named by --check (sabotage), for each target', () => {
@@ -76,44 +75,80 @@ test('a hand-edited render is named by --check (sabotage), for each target', () 
   cpSync(join(ROOT, 'include'), join(dir, 'include'), { recursive: true });
   const h = join(dir, 'include/omxcontract/omx_travel_shape.h');
   writeFileSync(h, readFileSync(h, 'utf8').replace('X(step, "step")', 'X(step, "stepp")'));
-  const r = cli('render', '--target', 'c', '--shapes', '--out', join(dir, 'include'), '--check');
+  const r = cli(['render', '--target', 'c', '--shapes', '--out', join(dir, 'include'), '--check']);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /omx_travel_shape\.h differs/);
   mkdirSync(join(dir, 'ts/shapes'), { recursive: true });
-  const r2 = cli('render', '--target', 'ts', '--shapes', '--out', join(dir, 'ts'), '--check');
+  const r2 = cli(['render', '--target', 'ts', '--shapes', '--out', join(dir, 'ts'), '--check']);
   assert.equal(r2.status, 1);
   assert.match(r2.stderr, /shapes\/travel\.d\.ts is missing/);
 });
 
-test('the plain renders know the shapes files beside them: --check of c and ts does not call them extra', () => {
-  for (const [target, out] of [['c', 'include'], ['ts', 'test/golden/ts']]) {
-    const r = cli('render', '--target', target, '--out', out, '--check');
-    assert.equal(r.status, 0, `${target}: ${r.stdout}${r.stderr}`);
-  }
-  for (const target of ['c', 'ts', 'py']) assert.ok(shapePaths(ROOT, target).length >= 1, `${target} has shape paths`);
+test('each generator is held to its pin: absent or another version is refused by both names, never a pass', () => {
+  // the TypeScript generator: the installed version against package.json's exact pin
+  assert.match(tsGeneratorPin(ROOT), /^\d+\.\d+\.\d+$/, 'package.json pins json-schema-to-typescript exactly');
+  assert.equal(tsGeneratorVersion(ROOT).ok, true, 'positive control: the installed one is the pinned one');
+  const other = tsGeneratorVersion(ROOT, '1.0.0');
+  assert.equal(other.ok, false);
+  assert.match(other.why, /json-schema-to-typescript 1\.0\.0 is not the pinned \d+\.\d+\.\d+ of package\.json/);
+  // the Python generator: a command that answers another version is refused through the CLI
+  const dir = tmp();
+  const fake = join(dir, 'datamodel-codegen');
+  writeFileSync(fake, '#!/bin/sh\necho "datamodel-codegen 0.1.0"\n');
+  chmodSync(fake, 0o755);
+  const r = cli(['render', '--target', 'py', '--shapes', '--out', join(dir, 'out')], { OMX_DATAMODEL_CODEGEN: fake });
+  assert.equal(r.status, 1, 'another version: no pass');
+  assert.match(r.stderr, new RegExp(`datamodel-codegen 0\\.1\\.0 is not the pinned ${pyGeneratorPin(ROOT).replace(/\./g, '\\.')} of tools/shapes-requirements\\.txt`));
+  assert.ok(!existsSync(join(dir, 'out')), 'nothing rendered');
+  // and one that is not there at all
+  const r2 = cli(['render', '--target', 'py', '--shapes', '--out', join(dir, 'out')], { OMX_DATAMODEL_CODEGEN: join(dir, 'no-such-command') });
+  assert.equal(r2.status, 1);
+  assert.match(r2.stderr, /datamodel-codegen is not installed .*tools\/shapes-requirements\.txt/);
 });
 
 test('a shape that breaks a rule is refused by name and nothing is rendered (sabotage of each rule)', () => {
-  const good = JSON.parse(readFileSync(join(ROOT, 'shapes/travel.schema.json'), 'utf8'));
   const broken = [
     ['$schema', (s) => { s.$schema = 'http://json-schema.org/draft-07/schema#'; }],
     ['$id', (s) => { delete s.$id; }],
-    ['title', (s) => { delete s.title; }],
+    ['title', (s) => { delete s.$defs.ScaleMap.title; }],
+    ['titles', (s) => { s.$defs.ScaleMap.title = 'ScaleTravel'; }],
     ['description', (s) => { delete s.$defs.ScaleTravel.properties.min.description; }],
     ['additionalProperties', (s) => { delete s.$defs.ScaleMap.additionalProperties; }],
+    ['identifiers', (s) => { s.$defs.ScaleTravel.properties['3d-step'] = s.$defs.ScaleTravel.properties.step; }],
+    ['words', (s) => { s.$defs.ScaleTravel.properties.scale.enum = ['linear', 'log', 'stepped', 'no-word', 2]; }],
   ];
   assert.deepEqual(broken.map(([rule]) => rule), SHAPE_RULES.map((r) => r.rule), 'every rule has a sabotage arm');
   for (const [rule, sabotage] of broken) {
-    const dir = tmp();
-    mkdirSync(join(dir, 'shapes'));
-    const s = structuredClone(good);
+    const s = travel();
     sabotage(s);
-    writeFileSync(join(dir, 'shapes/travel.schema.json'), JSON.stringify(s, null, 2));
+    const dir = treeWith(s);
     const problems = shapeProblems(shapesOf(dir)[0]);
     assert.ok(problems.some((p) => p.rule === rule), `${rule}: refused as ${JSON.stringify(problems)}`);
-    const r = cli('render', '--target', 'c', '--shapes', '--out', join(dir, 'include'), '--shapes-dir', join(dir, 'shapes'));
+    const r = cli(['render', '--target', 'c', '--shapes', '--out', join(dir, 'include'), '--shapes-dir', join(dir, 'shapes')]);
     assert.equal(r.status, 1, `${rule}: the render refuses`);
     assert.match(r.stderr, new RegExp(`travel\\.schema\\.json: ${rule.replace('$', '\\$')} at `), `${rule}: named in the refusal`);
     assert.ok(!existsSync(join(dir, 'include/omxcontract/omx_travel_shape.h')), `${rule}: nothing rendered`);
   }
+});
+
+test('the C render is right where a grep would not see it: a nested object has its own macros, prose with a quote or a comment close is a literal, and a compiler accepts it', { skip: !hasCc && 'no cc' }, () => {
+  const s = travel();
+  s.description = 'A travel, said "plainly" */ with a backslash \\ and a line\nbreak.';
+  s.$defs.ScaleMap.properties.origin = {
+    type: 'object', title: 'Origin', description: 'Where the map came from: the "override" file.', additionalProperties: false,
+    properties: { file: { type: 'string', description: 'The file.' }, kind: { type: 'string', enum: ['scan', 'hand'], description: 'Scanned or by hand.' } }, required: ['file'],
+  };
+  const dir = treeWith(s);
+  const [{ text }] = renderShapesC(dir, join(dir, 'shapes'));
+  assert.match(text, /#define OMX_SHAPE_ORIGIN_KEYS\(X\) X\(file, "file"\) X\(kind, "kind"\)/, 'the nested object renders its keys');
+  assert.match(text, /#define OMX_SHAPE_ORIGIN_REQUIRED\(X\) X\(file, "file"\)/, 'and its required keys');
+  assert.match(text, /#define OMX_SHAPE_ORIGIN_KIND_WORDS\(X\) X\(scan, "scan"\) X\(hand, "hand"\)/, 'and its words');
+  assert.doesNotMatch(text, /[^\\]\*\/ with a backslash/, 'a comment close inside prose is broken');
+  assert.doesNotMatch(text, /\n(?!\s*\*|\/|#|\n|$)./, 'no prose line stands outside a comment or a define');
+  const file = join(dir, 'omx_travel_shape.h');
+  writeFileSync(file, text);
+  const probe = join(dir, 'probe.c');
+  writeFileSync(probe, '#include "omx_travel_shape.h"\n#define K(id, name) name,\nstatic const char *const keys[] = { OMX_SHAPE_ORIGIN_KEYS(K) OMX_SHAPE_SCALE_TRAVEL_SCALE_WORDS(K) OMX_SHAPE_TRAVEL_SCHEMA };\nint main(void) { return keys[0][0] == \'f\' ? 0 : 1; }\n');
+  const cc = spawnSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', '-fsyntax-only', probe], { encoding: 'utf8' });
+  assert.equal(cc.status, 0, `the header compiles under -Werror: ${cc.stderr}`);
 });

@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
-<!-- Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> -->
+<!-- Copyright (C) 2026 Pau Aliagas -->
 # Shapes: a document's type, declared once and rendered to every language
 
 A declaration says what a VALUE may be (a travel, a limit, a word list) and the renders carry the values. A **shape**
@@ -29,6 +29,9 @@ omx-panel's gesture shapes, adds that rule to [contract-dir.md](contract-dir.md)
 | `title` | One CapitalisedWord: the type's name in every render (`Travel`). |
 | `description` | On the root, on every object and on every property: the renders carry it as the doc comment, so a type is documented where it is declared. |
 | `additionalProperties` | `false` on every object: a closed shape names every key, and the C X-macro of its keys is complete. |
+| `titles` | Every object, nested ones too, has a title, and no two spell the same macro stem: each object's macros and type are named by it, and one would render over the other. |
+| `identifiers` | Every key is a C identifier (`[A-Za-z_][A-Za-z0-9_]*`): a key is an X-macro argument, one token, so no two collide. |
+| `words` | Every `enum` or `const` of a property is strings, each a C identifier: they render as the `_WORDS(X)` macro. |
 
 ## The renders
 
@@ -50,8 +53,12 @@ its JSON form, held equal by a conformance test in the owner (the spec, §3.2).
 
 The two generators run only where the owner renders (its CI, a release build of the renders) and their output is
 COMMITTED; a consumer reads the committed file and runs no generator, a distribution build installs it and needs
-neither npm nor PyPI. A generator that is absent, or not at its pinned version, is refused by name: a version drift
-changes the bytes, and `--check` would then lie in one direction or the other.
+neither npm nor PyPI. Each generator is held to its pin at run time (the installed `json-schema-to-typescript` against
+`package.json`'s exact version, `datamodel-codegen --version` against the requirements file): one that is absent, or
+not at its pinned version, is refused by both names, since a version drift changes the bytes and `--check` would then
+lie in one direction or the other. The generators' own dependencies are not pinned the same way yet (omx-contract#71).
+The C render is held by a compiler in `test/shapes.test.mjs`: a nested object's macros, prose with a quote or a comment
+close, under `cc -Werror -fsyntax-only`.
 
 ## The drift check
 

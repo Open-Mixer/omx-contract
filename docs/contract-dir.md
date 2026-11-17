@@ -24,6 +24,16 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   "components": { "schemas": { "PanelFamilies": { "...": "JSON Schema 2020-12 shape of the item" } } } }
 ```
 
+- A words item is pure JSON Schema 2020-12: a `components.schemas` entry named by the item (`PANEL_FAMILIES`), its
+  `description` the item's `doc`, its `x-since` and optional `x-why` as written today, and a `oneOf` of one
+  `{ "const": "<word as written>", "title": "<key, the name of the word's macro>", "description": "<one line>",
+  "x-code": <int>, "x-text": "<the English source sentence>" }` per word, in their declared order. A word is any
+  string (`-`, `fbs-fixed`), not only an identifier. `x-code` is the word's code, today its place in the order
+  (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
+  the sentence they translate. The renders map `oneOf`/`const` to the C X-macros and defines, the TypeScript union
+  and `<ITEM>_WORDS`, and the Python literal, byte for byte what the words item of the old layout renders.
+  Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
+  disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
 - `$id` is the domain's stable URL. A domain refers to another by `$ref` to that `$id` (`https://openmixer.org/contract/<other>#/components/schemas/<Name>`),
   never to a file path, so a move of files breaks no reference.
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package

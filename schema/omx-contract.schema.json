@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/schema/omx-contract/main/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.19.0",
+  "x-omx-schema-version": "3.20.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -416,9 +416,9 @@
     "floor": { "type": "string", "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$", "description": "A version floor, never a ceiling." },
     "requires": {
       "type": "object",
-      "description": "What a file needs to be read: omx-contract-schema, the lowest schema its words need; any other key a package whose items it refers to. Each a floor.",
+      "description": "What a file needs to be read: omx-contract-schema, the lowest schema its words need; any other key a package, or a domain (`<group>/<module>`, docs/contract-dir.md), whose items it refers to. Each a floor.",
       "properties": { "omx-contract-schema": { "$ref": "#/$defs/floor" } },
-      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+      "propertyNames": { "anyOf": [{ "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" }, { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*/[a-z][a-z0-9]*(-[a-z0-9]+)*$" }] },
       "additionalProperties": { "$ref": "#/$defs/floor" },
       "minProperties": 1
     },

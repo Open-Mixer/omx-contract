@@ -4,7 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- A domain may be a module of a group (`formats/clap`), a terms item is a schema with `x-format`/`x-spec`/`x-version` and a `oneOf` of `x-term` terms whose kinds and statuses `$ref` the group's common words by `$id`, and a data tree that `requires` a domain is read with it (docs/contract-dir.md, omx-contract#81 move 12).
+- Schema 3.20.0: `requires` may name a domain (`<group>/<module>`). A domain may be a module of a group (`formats/clap`), a terms item is a schema with `x-format`/`x-spec`/`x-version` and a `oneOf` of `x-term` terms whose kinds and statuses `$ref` the group's common words by `$id`, and a data tree that `requires` a domain is read with it (docs/contract-dir.md, omx-contract#81 move 12).
 
 - A domain's words may carry `x-group` (with the item's `x-groups`, a words schema of the same document), `x-from` (`$ref` by a domain `$id` + `x-term`), and a domain directory holds `catalogs/<lang>.json`, read by `validate` with the owner taken from `info.x-owner` (docs/contract-dir.md, omx-contract#81).
 - The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,

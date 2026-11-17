@@ -15,7 +15,7 @@ import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data
 import { SCHEMA_VERSION, fileProblems, useProblems } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
-import { DOMAIN_NAME, readDomain } from './domain.mjs';
+import { DOMAIN_NAME, domainId, domainLeaf, domainPath, readDomain, wordsOf, type DomainUse } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /** The schema major this reader reads, and the only directory under a contractdir it looks in. */
@@ -198,28 +198,49 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       packages.set(name, { name, dir: pdir, manifest: readManifest(pdir, name, major) });
     }
   }
-  // a domain (docs/contract-dir.md): <root>/<domain>/<domain>.json, read as the classic file of its items
+  // a domain (docs/contract-dir.md): <root>/<domain>/<leaf>.json, read as the classic file of its items; a group
+  // directory (<root>/<group>/, no document of its own) holds modules, each a domain named <group>/<module>
   const domainFiles: Json[] = [];
+  const domainDocs = new Map<string, Json>();
+  const uses: [string, DomainUse][] = [];
+  const readOne = (root, name) => {
+    const ddir = join(root, name);
+    const path = join(ddir, `${domainLeaf(name)}.json`);
+    const at = domainPath(name);
+    const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
+    if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
+    const text = readFileSync(path, 'utf8');
+    let raw;
+    try { raw = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
+    if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) refuse('fileInvalid', at, 'a domain document is an object');
+    const d = readDomain(name, raw, installedSchemaUrl(major), major);
+    const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true };
+    const problems = fileProblems(file);
+    if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
+    packages.set(name, { name, dir: ddir, manifest: d.manifest });
+    domainFiles.push(file);
+    domainDocs.set(domainId(name), raw);
+    for (const u of d.uses) uses.push([at, u]);
+  };
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
       if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || packages.has(name)) continue;
-      const path = join(ddir, `${name}.json`);
-      const at = `${name}/${name}.json`;
-      if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${name}.json`);
-      const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
-      if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${name}.json`).join(', ')} is beside it`);
-      const text = readFileSync(path, 'utf8');
-      let raw;
-      try { raw = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
-      if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) refuse('fileInvalid', at, 'a domain document is an object');
-      const d = readDomain(name, raw, installedSchemaUrl(major), major);
-      const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true };
-      const problems = fileProblems(file);
-      if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-      packages.set(name, { name, dir: ddir, manifest: d.manifest });
-      domainFiles.push(file);
+      if (existsSync(join(ddir, `${name}.json`))) { readOne(root, name); continue; }
+      const modules = readdirSync(ddir).sort().filter((m) => DOMAIN_NAME.test(m) && statSync(join(ddir, m)).isDirectory() && existsSync(join(ddir, m, `${m}.json`)));
+      if (!modules.length) refuse('manifestAbsent', name, `${ddir} holds no ${name}.json and no module`);
+      const stray = readdirSync(ddir).filter((m) => !modules.includes(m));
+      if (stray.length) refuse('fileInvalid', name, `a group directory holds modules only, and ${stray.join(', ')} is beside them`);
+      for (const m of modules) if (!packages.has(`${name}/${m}`)) readOne(root, `${name}/${m}`);
     }
+  }
+  // a terms item's kinds and statuses are words of a domain it names by $id (docs/contract-dir.md, "Domains")
+  for (const [at, u] of uses) {
+    const doc = domainDocs.get(domainId(u.domain));
+    const known = doc === undefined ? undefined : wordsOf(doc, u.schema);
+    if (known === undefined) refuse('refUnresolved', at, `${u.at}: refers to ${domainId(u.domain)}#/components/schemas/${u.schema}, which no domain read declares as words`);
+    const bad = u.values.find((v) => !known.includes(v));
+    if (bad !== undefined) refuse('fileInvalid', at, `${u.at}: a term is ${JSON.stringify(bad)}, which is no word of ${u.schema} (${known.join(', ')})`);
   }
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 

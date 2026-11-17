@@ -142,6 +142,23 @@ jobs:
         name: The documentation gate is red on an undocumented new declaration, a stale baseline line and a grown baseline
         run: node --test test/doxygen-gate.test.mjs
 
+  # The panel words leave omx-contract only once omx-panel ships them from the package channel (tools/panel-domain-gate.sh):
+  # the merge-order gate of omx-panel#102 and this removal. Red, never a skip, while the channel has no such omx-panel.
+  panel-domain-shipped:
+    name: omx-panel in the channel provides contract.d/panel/panel.json (merge-order gate)
+    runs-on: ${{ github.event.repository.private && 'arc-freemixer' || github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.OMX_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    container:
+      image: fedora:44
+    steps:
+      - name: Install the tools
+        run: dnf install -y --setopt=install_weak_deps=False git dnf5-plugins
+      - uses: actions/checkout@v4
+      - name: Add the OpenMixer channel
+        uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+      - name: The gate
+        run: sh tools/panel-domain-gate.sh
+
   # The Python package from a clean container (omx-contract#28): the interpreter and make alone, omx_contract installed
   # where that interpreter looks, imported from / in isolated mode so the checkout cannot supply it. The packaging
   # jobs below repeat it on the built python3-omx-contract.

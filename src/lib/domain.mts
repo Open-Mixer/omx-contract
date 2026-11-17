@@ -67,7 +67,8 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       if (e['x-text'] !== undefined && typeof e['x-text'] !== 'string') refuse('fileInvalid', at, `${ew}.x-text is not a sentence`);
       if (e['x-group'] !== undefined) {
         const g = typeof s['x-groups'] === 'string' ? schemas[s['x-groups']] : undefined;
-        const known = Array.isArray(g?.oneOf) ? g.oneOf.map((x: JsonObject) => x.const) : [];
+        const gone = g?.oneOf;
+        const known = Array.isArray(gone) ? gone.map((x: JsonObject) => x.const) : [];
         if (!known.includes(e['x-group'])) refuse('fileInvalid', at, `${ew}.x-group ${JSON.stringify(e['x-group'])} is no word of the schema ${w}.x-groups names`);
       }
       const from: string[] = [];

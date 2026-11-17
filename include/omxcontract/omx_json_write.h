@@ -94,6 +94,9 @@ static inline int omx_json_write_string(FILE *f, const char *s)
     return fputc('"', f) == EOF ? EOF : 0;
 }
 
+/** The buffer writer's own put: byte `ch` into `dst` when it fits under `cap`, counted in `n` always; omx_json_string's alone, undefined after it. */
+#define OMX_JSON_PUT_(ch) do { if (n + 1 < cap) dst[n] = (ch); n++; } while (0)
+
 /**
  * `s` as a quoted JSON string literal into `dst`, the way snprintf fills a buffer.
  * @param dst the caller's buffer of `cap` bytes, NUL-terminated when `cap` is not 0; the caller owns it
@@ -108,10 +111,6 @@ static inline size_t omx_json_string(char *dst, size_t cap, const char *s)
     const unsigned char *p;
     size_t n = 0, i, k;
 
-/// @cond OMX_JSON_WRITE_INTERNAL
-/* the writer's own: one byte into dst when it fits, counted always; undefined below */
-#define OMX_JSON_PUT_(ch) do { if (n + 1 < cap) dst[n] = (ch); n++; } while (0)
-/// @endcond
     if (s == NULL)
     {
         for (p = (const unsigned char *)"null"; *p; p++)
@@ -128,10 +127,10 @@ static inline size_t omx_json_string(char *dst, size_t cap, const char *s)
         }
         OMX_JSON_PUT_('"');
     }
-#undef OMX_JSON_PUT_
     if (cap)
         dst[n < cap ? n : cap - 1] = '\0';
     return n;
 }
+#undef OMX_JSON_PUT_
 
 #endif /* OMX_JSON_WRITE_H */

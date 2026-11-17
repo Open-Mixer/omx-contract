@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Pau Aliagas
 /**
  * The documentation gate of the installed headers (tools/doxygen-gate.sh, docs/render.md "Documentation"): red first
- * on each defect it exists for, over a scratch copy of include/omxcontract/ and of the baseline. Skipped, never
- * green, where doxygen is not installed: CI installs it.
+ * on each defect it exists for, over a scratch copy of include/omxcontract/ and of the baseline. Skipped where doxygen
+ * is not installed (a skip is reported, not a pass); CI installs doxygen and runs them.
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -148,7 +148,7 @@ test('red: a header with no @file block is refused before doxygen, since doxygen
   writeFileSync(f, readFileSync(f, 'utf8').replace('@file', '@fil_'));
   const r = gate('--input', s.headers, '--baseline', s.baseline);
   assert.equal(r.status, 1, r.out);
-  assert.match(r.out, /no @file block/);
+  assert.match(r.out, /no @file doc block/);
   assert.match(r.out, /omx_json_write\.h/);
 });
 
@@ -172,13 +172,57 @@ test('the baseline only shrinks: a line added against the base is refused, a str
   assert.equal(shrunk.status, 0, shrunk.out);
 });
 
-test('make doxygen-check: the base ref is held to; a ref git cannot read is a refusal, exit 2, never a pass with no base', { skip: noDoxygen || (spawnSync('make', ['--version']).status !== 0 && 'no make') }, () => {
+test('make doxygen-check: the base ref is held to; a ref git cannot read, or an empty DOXYGEN_BASE, is a refusal, exit 2', { skip: noDoxygen || (spawnSync('make', ['--version']).status !== 0 && 'no make') }, () => {
   const make = (base) => spawnSync('make', ['doxygen-check', `DOXYGEN_BASE=${base}`], { cwd: ROOT, encoding: 'utf8' });
   const head = make('HEAD');
   assert.equal(head.status, 0, `${head.stdout}${head.stderr}`);
   const none = make('no-such-ref-for-the-gate');
   assert.equal(none.status, 2, `${none.stdout}${none.stderr}`);
   assert.match(none.stderr, /no commit git can read here/);
+  const empty = make('');
+  assert.equal(empty.status, 2, `${empty.stdout}${empty.stderr}`);
+  assert.match(empty.stderr, /set DOXYGEN_BASE/);
+});
+
+/** The gate run from a scratch directory holding `doxyfile` as its Doxyfile, over the scratch headers and baseline. */
+function gateWith(doxyfile, s) {
+  writeFileSync(join(s.dir, 'Doxyfile'), doxyfile);
+  const r = spawnSync('sh', [join(ROOT, 'tools/doxygen-gate.sh'), '--input', s.headers, '--baseline', s.baseline], { cwd: s.dir, encoding: 'utf8' });
+  return { status: r.status, out: `${r.stdout}${r.stderr}` };
+}
+
+test('red: a Doxyfile that suppresses what the gate counts is a finding by key, never a lower baseline', { skip: noDoxygen }, () => {
+  const s = scratch();
+  const doxyfile = readFileSync(join(ROOT, 'Doxyfile'), 'utf8');
+  const same = gateWith(doxyfile, s);
+  assert.equal(same.status, 0, same.out);
+  for (const [planted, key] of [['EXCLUDE_SYMBOLS = omx_*', 'EXCLUDE_SYMBOLS'], ['WARN_IF_UNDOCUMENTED = NO', 'WARN_IF_UNDOCUMENTED'], ['HIDE_UNDOC_MEMBERS = YES', 'HIDE_UNDOC_MEMBERS'], ['EXTRACT_ALL = YES', 'EXTRACT_ALL'], ['ENABLED_SECTIONS = X', 'ENABLED_SECTIONS']]) {
+    const r = gateWith(`${doxyfile}${planted}\n`, s);
+    assert.equal(r.status, 1, `${planted}: ${r.out}`);
+    assert.match(r.out, new RegExp(`suppresses what the gate counts[\\s\\S]*${key}`), planted);
+  }
+  for (const [dropped, key] of [['EXTRACT_STATIC', 'EXTRACT_STATIC'], ['WARN_NO_PARAMDOC', 'WARN_NO_PARAMDOC'], ['WARN_IF_UNDOC_ENUM_VAL', 'WARN_IF_UNDOC_ENUM_VAL'], ['MACRO_EXPANSION', 'MACRO_EXPANSION']]) {
+    const r = gateWith(doxyfile.replace(new RegExp(`^${dropped} .*$`, 'm'), ''), s);
+    assert.equal(r.status, 1, `${dropped}: ${r.out}`);
+    assert.match(r.out, new RegExp(`drops a setting the gate needs: ${key}`));
+  }
+});
+
+test('red: a header that hides a new function under @cond is refused by name, and so is a @file in a plain comment', { skip: noDoxygen }, () => {
+  const s = scratch();
+  addBeforeGuardEnd(join(s.headers, 'omx_json_write.h'), '/// @cond HIDDEN\nstatic inline int omx_fixture_hidden(int a) { return a; }\n/// @endcond');
+  const hidden = gate('--input', s.headers, '--baseline', s.baseline);
+  assert.equal(hidden.status, 1, hidden.out);
+  assert.match(hidden.out, /hides code from doxygen \(@cond\)/);
+  assert.match(hidden.out, /omx_json_write\.h:\d+:.*@cond HIDDEN/);
+  const t = scratch();
+  const f = join(t.headers, 'omx_json_write.h');
+  writeFileSync(f, readFileSync(f, 'utf8').replace(/\/\*\* @file[\s\S]*?\*\//, '// @file\n// @brief A plain comment, which doxygen does not read.'));
+  assert.match(readFileSync(f, 'utf8'), /^\/\/ @file$/m, 'the fixture holds a plain-comment @file');
+  const plain = gate('--input', t.headers, '--baseline', t.baseline);
+  assert.equal(plain.status, 1, plain.out);
+  assert.match(plain.out, /no @file doc block/);
+  assert.match(plain.out, /omx_json_write\.h/);
 });
 
 test('--list prints the current warnings keyed by header and text, with no line number', { skip: noDoxygen }, () => {

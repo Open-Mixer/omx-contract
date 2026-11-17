@@ -5,8 +5,9 @@
 # runs doxygen over include/omxcontract/ with no output but its warnings, and holds the undocumented public declarations
 # to docs/doxygen-baseline.txt, a list that may only shrink. Every public function, struct, enum, typedef and macro of an
 # installed header carries a `/** */` block (a `@file` block per header, else doxygen reads none of its globals).
-# `doxygen Doxyfile` alone renders nothing: set GENERATE_HTML=YES on the command line (`( cat Doxyfile; echo
-# GENERATE_HTML=YES ) | doxygen -`) to read the pages.
+# `doxygen Doxyfile` renders the pages into build/doxygen/ (git-ignored); the gate renders them into a scratch
+# directory it removes. The gate refuses a copy of this file that suppresses what it counts (EXCLUDE*, HIDE_UNDOC_*,
+# the WARN_* and EXTRACT_* settings, filters, ENABLED_SECTIONS): tools/doxygen-gate.sh names the keys.
 
 PROJECT_NAME           = omx-contract
 PROJECT_BRIEF          = "The declarations of OpenMixer, as data, rendered to C"

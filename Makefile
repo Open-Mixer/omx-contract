@@ -120,12 +120,14 @@ test:
 
 # Every public declaration of the installed headers documented (docs/render.md "Documentation", omx-contract#64):
 # doxygen's undocumented-member warnings held to docs/doxygen-baseline.txt, red on a new one and on a stale line. With
-# DOXYGEN_BASE a git ref, the baseline is also held to that ref's: it only shrinks. A ref that is a commit here with no
-# baseline yet (the commit that introduces the gate) holds it to nothing and says so; a ref git cannot read (not
-# fetched, no checkout) is a refusal, exit 2, never a pass with no base.
-DOXYGEN_BASE ?=
+# The baseline is also held to DOXYGEN_BASE's (origin/main unless named): it only shrinks. An empty DOXYGEN_BASE is a
+# refusal (no shrink check is never silent); a ref that is a commit here with no baseline yet (the commit that
+# introduced the gate) holds it to nothing and says so; a ref git cannot read (not fetched, no checkout) is a refusal.
+# make exits 2 on any failure, as it does for every recipe; the script's own exit tells a finding (1) from a gate that
+# could not run (2).
+DOXYGEN_BASE ?= origin/main
 doxygen-check:
-	@if [ -z "$(DOXYGEN_BASE)" ]; then sh tools/doxygen-gate.sh; \
+	@if [ -z "$(DOXYGEN_BASE)" ]; then echo "doxygen-check: set DOXYGEN_BASE to the ref the baseline is held to (origin/main)" >&2; exit 2; \
 	elif git cat-file -e "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" 2>/dev/null; then \
 	  git show "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" > doxygen-baseline.base && sh tools/doxygen-gate.sh --base-baseline doxygen-baseline.base; s=$$?; rm -f doxygen-baseline.base; exit $$s; \
 	elif git rev-parse --verify -q "$(DOXYGEN_BASE)^{commit}" >/dev/null 2>&1; then \

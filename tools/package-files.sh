@@ -54,14 +54,17 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
   echo "/usr/share/omx-contract/contract.d/$major/omx-contract/MANIFEST.json"
   for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract.py omx_contract_catalog.py omx_contract_scale.py scale-vectors.json clap-kind-vectors.json; do echo "/usr/share/omx-contract/$f"; done
   echo /usr/share/omx-contract/languages.json
+  for f in ../shapes/*.schema.json; do echo "/usr/share/omx-contract/shapes/$(basename "$f")"; done
   echo /usr/share/omx-contract/omx-contract.schema.json) | LC_ALL=C sort > "$tmp/want-$data"
+# (the shapes' schemas, docs/shapes.md, beside the schema; the shapes' TypedDicts under omx_contract/shapes/)
 # the renders and the hand-written C (omx_json_write.h) both live in include/omxcontract; the RPM macros of the
 # contract directory are the RPM's alone (a deb has no rpm macros directory)
 (for h in include/omxcontract/*.h; do echo "/usr/include/omxcontract/$(basename "$h")"; done
   echo /usr/share/omx-contract/install-contract-dir.sh
   echo /usr/share/pkgconfig/omx-contract.pc
   [ "$kind" = rpm ] && echo /usr/lib/rpm/macros.d/macros.omx-contract) | LC_ALL=C sort > "$tmp/want-$devel"
-for m in __init__ catalog clap scale; do echo "/SITE/omx_contract/$m.py"; done | LC_ALL=C sort > "$tmp/want-$py"
+(for m in __init__ catalog clap scale shapes/__init__; do echo "/SITE/omx_contract/$m.py"; done
+  for f in share/omx-contract/omx_contract_*_shape.py; do echo "/SITE/omx_contract/shapes/$(basename "$f" _shape.py | sed 's/^omx_contract_//').py"; done) | LC_ALL=C sort > "$tmp/want-$py"
 
 bad=0
 for pkg in "$data" "$devel" "$cli" "$py" $packs; do

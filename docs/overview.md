@@ -7,6 +7,8 @@
   contract directory ([contract-dir.md](contract-dir.md)): omx-dsp its kernels and design constants,
   omx-clap-core its hosting limits.
 - Renders for C (a header), TypeScript and resolved JSON, each held equal to the data by CI.
+- A document's shape declared once as a JSON Schema under `shapes/` and rendered to a TypeScript interface, a Python
+  `TypedDict` and the C keys and words, each held equal to the schema by CI ([shapes.md](shapes.md)).
 - Semantic versioning enforced by a check: a change that narrows a declaration needs a major bump, one that adds
   or widens needs a minor ([what the check judges](kernel-files.md#what-semver-judges)).
 

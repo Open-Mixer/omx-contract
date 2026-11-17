@@ -6,7 +6,7 @@
  *
  *   omx-contract validate [<input>]                            schema + semantic checks
  *   omx-contract fmt [--check] [<input>]                       the one formatting
- *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>]]
+ *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
  *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
@@ -37,6 +37,7 @@ import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderOwnerTs, renderTs } from '../render/ts.mjs';
+import { renderShapes, shapePaths } from '../render/shapes.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -178,11 +179,31 @@ export function renderTarget(target, argv) {
   throw new Usage(`unknown target ${target} (c, ts, json, lv2, py)`);
 }
 
-function cmdRender(argv) {
+/** The target and --out of a render, checked. */
+function renderArgs(argv) {
   const target = opt(argv, '--target');
   const out = opt(argv, '--out');
   if (!target || !out) throw new Usage('render needs --target <c|ts|json|lv2|py> and --out <dir>');
-  const files = renderTarget(target, argv);
+  return { target, out };
+}
+
+function cmdRender(argv) {
+  // --shapes: the document shapes (docs/shapes.md), rendered beside the declarations' files from shapes/ (or --shapes-dir);
+  // its generators answer later, every other render answers now, as before
+  if (argv.includes('--shapes')) return cmdRenderShapes(argv);
+  const { target, out } = renderArgs(argv);
+  return finishRender(target, out, renderTarget(target, argv), argv, false);
+}
+
+async function cmdRenderShapes(argv) {
+  const { target, out } = renderArgs(argv);
+  if (!['c', 'ts', 'py'].includes(target)) throw new Usage(`render --shapes renders c, ts and py, not ${target}`);
+  return finishRender(target, out, await renderShapes(target, ROOT, opt(argv, '--shapes-dir')), argv, true);
+}
+
+/** Write the files under --out, or with --check hold the directory to them byte for byte. */
+function finishRender(target, out, files, argv, shapes) {
+  const shapesDir = opt(argv, '--shapes-dir');
   const dir = resolve(out);
   if (argv.includes('--check')) {
     const bad = [];
@@ -197,25 +218,32 @@ function cmdRender(argv) {
     // include/omxcontract/ also holds the hand-written C of the package (not rendered), which the npm tarball and the -devel packages ship beside the renders
     if (target === 'c') named.add('omxcontract/omx_json_write.h');
     // the json, lv2 and py renders are committed side by side (share/omx-contract/): each knows the others' files
-    if (['json', 'lv2', 'py'].includes(target)) {
+    if (['json', 'lv2', 'py'].includes(target) || (shapes && target === 'py')) {
       for (const t of ['json', 'lv2', 'py']) for (const f of renderTarget(t, argv)) named.add(f.path);
       // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered), shipped beside omx_contract.py
       named.add('omx_contract_catalog.py');
       named.add('omx_contract_scale.py');
       // and the language list (hand-written: the languages every owner ships a catalog of, omx-contract#21)
       named.add('languages.json');
+      // and the CLAP kind vectors (hand-written goldens, docs/descriptors.md; omx-contract#70)
+      named.add('clap-kind-vectors.json');
+      // and the shapes' Python renders (docs/shapes.md), committed beside them
+      for (const p of shapePaths(ROOT, 'py', shapesDir)) named.add(p);
     }
+    // the shapes' renders (docs/shapes.md) are committed beside the declarations' for c, ts and py: each check knows the other's files
+    if (['c', 'ts'].includes(target)) for (const p of shapePaths(ROOT, target, shapesDir)) named.add(p);
+    if (shapes && ['c', 'ts'].includes(target)) for (const f of renderTarget(target, argv)) named.add(f.path);
     if (opt(argv, '--package') === undefined) for (const rel of filesUnder(join(dir, scope))) if (!named.has(join(scope, rel))) bad.push(`${join(scope, rel)} is extra`);
     for (const b of bad) console.error(`omx-contract render --check: ${out.replace(/\/$/, '')}/${b}`);
     if (bad.length) return 1;
-    console.log(`omx-contract render --target ${target} --check: ${files.length} files byte-identical under ${out}`);
+    console.log(`omx-contract render --target ${target}${shapes ? ' --shapes' : ''} --check: ${files.length} files byte-identical under ${out}`);
     return 0;
   }
   for (const f of files) {
     mkdirSync(dirname(join(dir, f.path)), { recursive: true });
     writeFileSync(join(dir, f.path), f.text);
   }
-  console.log(`omx-contract render --target ${target}: wrote ${files.length} files under ${out}`);
+  console.log(`omx-contract render --target ${target}${shapes ? ' --shapes' : ''}: wrote ${files.length} files under ${out}`);
   return 0;
 }
 
@@ -630,7 +658,7 @@ async function cmdTranslate(argv) {
 
 const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract fmt [--check] [<input>]
-       omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [<input> [--package <name>]]
+       omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
        omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]

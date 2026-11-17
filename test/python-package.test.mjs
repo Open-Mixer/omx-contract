@@ -31,7 +31,7 @@ test('make install-python installs omx_contract with catalog, scale and clap, an
   const dest = install('install-python', { PYTHONDIR: '/py' });
   try {
     const pkg = join(dest, 'py', 'omx_contract');
-    for (const f of ['__init__.py', 'catalog.py', 'scale.py', 'clap.py']) assert.ok(existsSync(join(pkg, f)), `omx_contract/${f} installed`);
+    for (const f of ['__init__.py', 'catalog.py', 'scale.py', 'clap.py', 'shapes/__init__.py', 'shapes/travel.py']) assert.ok(existsSync(join(pkg, f)), `omx_contract/${f} installed`);
     const r = spawnSync('python3', ['-I', '-c', `import sys
 sys.path.insert(0, ${JSON.stringify(join(dest, 'py'))})
 import omx_contract.catalog, omx_contract.scale, omx_contract.clap

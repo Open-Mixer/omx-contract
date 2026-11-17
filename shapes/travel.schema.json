@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/omx-contract/v3/shapes/travel.schema.json",
+  "title": "Travel",
+  "description": "A travel as the scale position law reads it (docs/scale-position.md): a scale word with its ends and, for a stepped one, its step; or the override module's map, linear between its points. The document @openmixer/omx-contract/scale and omx_contract.scale take; the shape every surface that nudges or draws a control reads.",
+  "oneOf": [
+    { "$ref": "#/$defs/ScaleTravel" },
+    { "$ref": "#/$defs/ScaleMap" }
+  ],
+  "$defs": {
+    "ScaleTravel": {
+      "type": "object",
+      "title": "ScaleTravel",
+      "description": "A travel as a descriptor states it: a scale word of PARAM_SCALES with its ends; `unknown` is served linear; a log word over a floor that is not positive is served linear.",
+      "properties": {
+        "scale": {
+          "type": "string",
+          "enum": ["linear", "log", "stepped", "unknown"],
+          "description": "The scale word: a law of PARAM_SCALES, or `unknown` when the descriptor states none (served linear)."
+        },
+        "min": {
+          "type": "number",
+          "description": "The value at position 0, in the control's own unit."
+        },
+        "max": {
+          "type": "number",
+          "description": "The value at position 1, in the control's own unit."
+        },
+        "step": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "The step of a stepped travel, in the control's own unit; absent for the other words."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ScaleMap": {
+      "type": "object",
+      "title": "ScaleMap",
+      "description": "The override module's map: [plain value, quantity] points, ascending in the plain value, the position linear between them.",
+      "properties": {
+        "scale": {
+          "type": "string",
+          "const": "map",
+          "description": "The word `map`: not a word of PARAM_SCALES, the override module's table."
+        },
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "description": "The points, at least two, each [plain value, quantity], ascending in the plain value.",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "One point: the plain value, then the quantity it maps to.",
+            "items": { "type": "number", "description": "A coordinate of the point." }
+          }
+        }
+      },
+      "required": ["scale", "points"],
+      "additionalProperties": false
+    }
+  }
+}

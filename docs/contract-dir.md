@@ -16,6 +16,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 
 ```
 <contractdir>/<domain>/<domain>.json      ONE self-describing document
+<contractdir>/<domain>/catalogs/<lang>.json   the translations of its words, one per language
 ```
 
 ```json

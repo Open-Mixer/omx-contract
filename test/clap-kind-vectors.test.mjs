@@ -37,7 +37,7 @@ test('the vectors file is one object: a doc and a list of named vectors with the
     const { input: i, expect: e } = c;
     assert.ok(Array.isArray(i.flags) && i.flags.every((f) => FLAGS.has(f)), `${c.name}: flags are CLAP's param flags`);
     assert.ok(Number.isFinite(i.min) && Number.isFinite(i.max) && i.min <= i.max, `${c.name}: a range`);
-    assert.ok(Number.isFinite(i.default), `${c.name}: a default`);
+    assert.ok(Number.isFinite(i.default) && i.default >= i.min && i.default <= i.max, `${c.name}: a default inside the range`);
     assert.ok(i.contract === null || (typeof i.contract.scale === 'string' && (i.contract.step === undefined || Number.isFinite(i.contract.step))), `${c.name}: the contract entry or null`);
     assert.equal(typeof i.points, 'boolean', `${c.name}: whether value texts exist`);
     assert.ok(KINDS.has(e.kind), `${c.name}: expects a descriptor kind`);
@@ -58,11 +58,14 @@ test('each determinant of the rule is exercised by two vectors that differ in it
   };
   pair('toggle-off', 'enum-two-values', ['flags', 'points']); // the enumeration flag and its texts: a choice
   pair('toggle-off', 'stepped-0-to-2', ['max']); // the ceiling
-  pair('toggle-off', 'stepped-1-to-2', ['min', 'max']); // the floor
+  pair('toggle-off', 'stepped-1-to-2', ['min', 'max', 'default']); // the floor (the default moves inside the range)
   pair('toggle-off', 'continuous-0-to-1', ['flags']); // no stepped flag, no contract: a continuous travel
   pair('contract-stepped-no-flag', 'contract-linear-with-flag', ['flags', 'contract']); // the merged word, both ways
   pair('contract-step-1', 'contract-step-quarter', ['contract']); // the contract step
   pair('toggle-off', 'toggle-on', ['default']); // the default's side of 0.5
+  pair('toggle-off', 'stepped-0-to-3', ['max']); // a wider stepped range with the flag (a detectLink)
+  pair('contract-step-1', 'contract-step-half', ['contract']); // three positions are no toggle
+  assert.equal(by['enum-flag-without-stepped'].expect.kind, 'choice', 'the enumeration flag alone makes a choice');
   assert.equal(by['toggle-default-below-half'].expect.default, false);
   assert.equal(by['toggle-default-at-half'].expect.default, true);
   assert.equal(by['bypass'].expect.kind, 'toggle', 'a stepped 0..1 bypass is a toggle like any other');

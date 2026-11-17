@@ -2,7 +2,11 @@
 <!-- Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> -->
 # Typed contracts and shared behaviour: one shape source, one implementation, bound per runtime
 
-Status: PROPOSED for the owner, 2026-11-17. A design, no code. It answers the owner's question of 2026-11-17: the
+Status: PART RULED by the owner, 2026-11-17: behaviour (§4, §5; decisions 3, 4, 6 and 7 of §9) is RULED — one C
+implementation, bound by ctypes and the engine's native door and compiled to WebAssembly for every JavaScript
+runtime; the TypeScript and Python arithmetic go. Shapes (§3; decisions 1 and 2) stay PROPOSED, with the owner's
+question answered in §3.4 (what Protobuf and TypeSpec add). No lane starts before the shapes ruling: S1 of §8 is
+the first lane and needs it. A design, no code. It answers the owner's question of 2026-11-17: the
 contracts are the basis of sharing; JSON is standard but untyped and carries no behaviour; TypeScript is expressive
 but one language. How does every surface (the console, TypeScript in Node and in a browser; Zynthian, Python; the
 renderer and the engine, C; a MOD GUI in a browser) use the SAME contract, with no twins? It evaluates the
@@ -167,9 +171,17 @@ red build, as a stale header is today.
   binary. Against: one more language the team does not speak, a Go toolchain on every CI, and its JSON Schema export
   is lossy for the constructs it is good at. It fits an organisation whose configuration is the product; ours are
   contracts read by three runtimes.
-- **JSON Schema 2020-12, chosen**: it is what two repositories already use, ajv already validates it, both generators
-  of §3.2 are the standard ones for their language, and the schema is itself the installed, versioned, licensed data
-  the contract directory serves.
+- **JSON Schema 2020-12, proposed**: it is what two repositories already use, ajv already validates it, both
+  generators of §3.2 are the standard ones for their language, and the schema is itself the installed, versioned,
+  licensed data the contract directory serves.
+
+The owner asked (2026-11-17) what Protobuf and TypeSpec add. The answer, in one line each: JSON Schema is the
+CONSUMED format either way — the installed file a reader validates against and the generators of §3.2 read.
+TypeSpec adds an authoring layer above it: one source that emits committed JSON Schema AND an OpenAPI document,
+which the console's REST entity map (its ~85 entities, their OPTIONS and streams) would gain for free; consumers
+need no compiler, only the owner's CI runs `tsp compile` and commits the output, checked like a render. That is a
+possible LATER step for the console's map alone, after the shapes of §3.3 are in place, not a part of this ruling.
+Protobuf adds a binary wire and C structs; it is taken only for a real binary wire need, which no surface has.
 
 ## 4. Part 2: behaviour
 
@@ -331,20 +343,24 @@ the twin it removes: the test that holds the twin today is the test that holds t
 
 ## 9. What the owner decides
 
-1. JSON Schema 2020-12 as the one shape source, written by hand, installed in the contract directory (§3.1, §3.4) —
-   or one of Protobuf, TypeSpec, CUE.
-2. The generators: `json-schema-to-typescript` and `datamodel-code-generator` (TypedDict), pinned in the owner and
-   their output committed; C gets defines and X-macros, and a hand-written struct per API shape held by a
+1. PROPOSED — JSON Schema 2020-12 as the one shape source, written by hand, installed in the contract directory
+   (§3.1, §3.4), as the consumed format; TypeSpec possibly later as an authoring layer for the console's REST map
+   (§3.4); Protobuf only for a real binary wire need.
+2. PROPOSED — The generators: `json-schema-to-typescript` and `datamodel-code-generator` (TypedDict), pinned in the
+   owner and their output committed; C gets defines and X-macros, and a hand-written struct per API shape held by a
    conformance test (§3.2).
-3. Gestures: the reference moves from JavaScript to C in omx-panel; the JS and Python arithmetic are deleted once
-   the wasm and the ctypes binding pass the shipped scripts (§4.1).
-4. The wasm toolchain: distribution `clang` + `wasi-libc` + `lld`, no Emscripten; the artefact in a noarch
-   subpackage and in the npm tarball, never committed (§4.3).
+3. RULED YES (owner, 2026-11-17) — Gestures: the reference moves from JavaScript to C in omx-panel;
+   `gestures.mjs` is the wasm loader; the JS and Python arithmetic are deleted once the wasm and the ctypes binding
+   pass the shipped scripts (§4.1).
+4. RULED YES (owner, 2026-11-17) — Behaviour is C + WebAssembly for ALL JavaScript runtimes: distribution `clang` +
+   wasi-libc + `lld`, no Emscripten; the artefact in a noarch subpackage and in the npm tarball, never committed
+   (§4.3).
 5. Node: the engine keeps its native addon; every other JavaScript, in Node or a browser, loads the wasm; no second
-   addon (§4.2).
-6. The MOD GUI's live curve: the wasm in the bundle, no MOD-UI relay; the static SVG stays the come-up picture
-   (§5.2).
-7. `@openmixer/omx-dsp` keeps its name and becomes the wasm and its loader; the TypeScript twins go (§5.3).
+   addon (§4.2). Carried by decision 4.
+6. RULED YES (owner, 2026-11-17) — The MOD GUI's live curve: the wasm in the bundle, no MOD-UI relay; the static SVG
+   stays the come-up picture (§5.2).
+7. RULED YES (owner, 2026-11-17) — `@openmixer/omx-dsp` keeps its name and becomes the wasm build and its loader;
+   the TypeScript twins go (§5.3).
 8. The tolerance rule: a wasm-versus-native miss is a reported finding with the function and the ulps, never a
    widened tolerance without a ruling (§4.3).
-9. The lane order and owners of §8.
+9. The lane order and owners of §8; no lane starts before decisions 1 and 2 (S1 needs them).

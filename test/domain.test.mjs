@@ -31,7 +31,7 @@ function panelDomain() {
       oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
     };
   }
-  return { $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel' }, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel' }, components: { schemas } };
 }
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
@@ -79,6 +79,8 @@ test('a word is any string, not only an identifier', () => {
 });
 
 const refusals = [
+  ['a $schema that is not JSON Schema 2020-12', (d) => { d.$schema = 'http://json-schema.org/draft-07/schema#'; }, CONTRACT_CODES.fileInvalid],
+  ['no $schema', (d) => { delete d.$schema; }, CONTRACT_CODES.fileInvalid],
   ['a $id that is not the directory\'s', (d) => { d.$id = 'https://openmixer.org/contract/look'; }, CONTRACT_CODES.manifestInvalid],
   ['a version that is not x.y.z', (d) => { d.info.version = '1.0'; }, CONTRACT_CODES.manifestInvalid],
   ['an owner that is no package name', (d) => { d.info['x-owner'] = 'Omx Panel'; }, CONTRACT_CODES.manifestInvalid],

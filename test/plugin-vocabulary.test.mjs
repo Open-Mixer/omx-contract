@@ -91,3 +91,8 @@ test('the panel families and widgets are declared here, the scan words are a dom
   // the scan words are omx-clap-core's domain (contract.d/scan/), never a file of this tree (omx-contract#81)
   assert.equal(existsSync(join(ROOT, 'data', 'scan.json')), false);
 });
+
+test('the machine fields, bands and arches are plugin-hostd\'s machine domain, not items of this tree (#81)', () => {
+  const left = Object.keys(read('data/machine-class.json')).filter((k) => k !== '$schema');
+  assert.deepEqual(left, ['MACHINE_CLASSES']);
+});

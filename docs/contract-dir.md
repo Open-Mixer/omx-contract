@@ -7,6 +7,36 @@ directory through one call. This page states the directory's layout, the schema 
 there (`requires`, `source`, `render`), the refusals the reader names by code, and the `links` check. The bundled `data/`
 stays the default input of every command; the directory is read only when it is asked for.
 
+## Domains (owner ruling 2026-11-17, supersedes the layout below for every new definition)
+
+The contract directory is keyed by DOMAIN, never by owner and never by schema major: a domain is a vocabulary with one
+name for as long as it is used (`panel`, `gestures`, `look`), and the package that owns it today is metadata, so a
+domain changes owner without a path, an include or a consumer's reference moving. Each domain is modelled as an
+OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes, docs/shapes.md):
+
+```
+<contractdir>/<domain>/<domain>.json      ONE self-describing document
+```
+
+```json
+{ "$id": "https://openmixer.org/contract/panel",
+  "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel" },
+  "components": { "schemas": { "PanelFamilies": { "...": "JSON Schema 2020-12 shape of the item" } } } }
+```
+
+- `$id` is the domain's stable URL. A domain refers to another by `$ref` to that `$id` (`https://openmixer.org/contract/<other>#/components/schemas/<Name>`),
+  never to a file path, so a move of files breaks no reference.
+- `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
+  that owns it now. Neither is read from the path.
+- `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
+  the version it declares, so a domain evolves on its own line and a change in one domain touches no other domain's
+  consumers, and needs no omx-contract release.
+- omx-contract holds the document kind, the loader check and the renderers, and no domain it does not own; the renders
+  of a domain are produced at its owner's build time (`render --package <domain>`, docs/render.md).
+- There is no compatibility with the `<major>/<owner>/` layout below: it is migrated domain by domain (omx-contract's
+  own `data/` into domains is a series of follow-up lanes) and then removed from this page. Until a domain is
+  migrated, the sections below describe how its files are read.
+
 ## The layout
 
 ```

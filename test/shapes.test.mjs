@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * THE SHAPES FACILITY (docs/shapes.md; the typed-contracts spec, docs/design/specs/2026-11-17-typed-contracts-shared-behaviour.md
+ * THE SHAPES FACILITY (docs/shapes.md; the typed-contracts spec, docs/typed-contracts-shared-behaviour.md
  * §3, lane S1): a document's shape is one JSON Schema 2020-12 file under shapes/, and the types every language reads are
  * renders of it, held byte for byte by `render --shapes --check`. Red first: before the facility, `--shapes` is an unknown
  * option and no render exists; a hand-edited render is named by `--check`; a shape that breaks a rule of docs/shapes.md

@@ -4,7 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- Shapes (`docs/shapes.md`, the typed-contracts spec `docs/design/specs/2026-11-17-typed-contracts-shared-behaviour.md`
+- Shapes (`docs/shapes.md`, the typed-contracts spec `docs/typed-contracts-shared-behaviour.md`
   §3, lane S1): a document's shape is one JSON Schema 2020-12 file under `shapes/`, rendered by
   `render --target ts|py|c --shapes` to a TypeScript interface (json-schema-to-typescript, pinned), a Python `TypedDict`
   (datamodel-code-generator, pinned in `tools/shapes-requirements.txt`) and the C keys and words as X-macros, every

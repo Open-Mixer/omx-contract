@@ -6,7 +6,7 @@ A declaration says what a VALUE may be (a travel, a limit, a word list) and the 
 says what a DOCUMENT looks like (the travel a scale law reads, a gesture event, a curve request) and the renders carry
 its TYPE: a TypeScript interface, a Python `TypedDict`, the C keys and words. One JSON Schema file per document, owned
 by the package that owns the document, and every language's type of it a render of that file, never written by hand
-(the typed-contracts spec, `docs/design/specs/2026-11-17-typed-contracts-shared-behaviour.md`, §3, ruled by the
+(the typed-contracts spec, `typed-contracts-shared-behaviour.md`, §3, ruled by the
 owner on 2026-11-17).
 
 ## Where a shape lives

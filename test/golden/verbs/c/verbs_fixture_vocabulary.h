@@ -14,23 +14,41 @@
  * @brief The vocabulary of verbs-fixture: every code and every word as a string define, with its sentence
  * where it carries one. */
 
-/* MOD_HOST_REPLY_CODES (data/errors.json) */
+/**
+ * @name MOD_HOST_REPLY_CODES (data/errors.json)
+ * Two of mod-host's own refusals, as the hosts that speak its protocol answer them (mod-host.h). (since 3.3.0)
+ */
+/// @{
 #define OMX_REPLY_MOD_HOST_INVALID_OPERATION "reply.mod-host.invalid-operation" ///< ERR_INVALID_OPERATION: a word outside the verb's grammar
+/** The resp number a host answers `reply.mod-host.invalid-operation` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_MOD_HOST_INVALID_OPERATION_RESP (-902)
 #define OMX_REPLY_MOD_HOST_PARAM_SYMBOL_INVALID "reply.mod-host.param-symbol-invalid" ///< ERR_LV2_INVALID_PARAM_SYMBOL: a symbol that is not a parameter of the instance
+/** The resp number a host answers `reply.mod-host.param-symbol-invalid` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_MOD_HOST_PARAM_SYMBOL_INVALID_RESP (-103)
+/// @}
 
-/* PLUGIN_HOSTD_REPLY_CODES (data/errors.json) */
+/**
+ * @name PLUGIN_HOSTD_REPLY_CODES (data/errors.json)
+ * The refusals plugin-hostd adds to mod-host's that its param_info and chain answer (protocol.h PHD_ERRORS, plugin-hostd 0.11.0). (since 3.3.0)
+ */
+/// @{
 #define OMX_REPLY_PLUGIN_HOSTD_NO_PARAM_CONTRACT "reply.plugin-hostd.no-param-contract" ///< PHD_ERR_NO_PARAM_CONTRACT: the host holds no checked unit and scale for this parameter
+/** The resp number a host answers `reply.plugin-hostd.no-param-contract` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_PLUGIN_HOSTD_NO_PARAM_CONTRACT_RESP (-511)
+/** `reply.plugin-hostd.no-param-contract` is transient: the same request may succeed when repeated. */
 #define OMX_REPLY_PLUGIN_HOSTD_NO_PARAM_CONTRACT_TRANSIENT 1
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_UNKNOWN_INSTANCE "reply.plugin-hostd.chain-unknown-instance" ///< PHD_ERR_CHAIN_UNKNOWN_INSTANCE: a member is an instance no add made
+/** The resp number a host answers `reply.plugin-hostd.chain-unknown-instance` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_UNKNOWN_INSTANCE_RESP (-518)
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_DUPLICATE "reply.plugin-hostd.chain-duplicate" ///< PHD_ERR_CHAIN_DUPLICATE: an instance is named twice in one chain
+/** The resp number a host answers `reply.plugin-hostd.chain-duplicate` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_DUPLICATE_RESP (-519)
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_INSTANCE_BUSY "reply.plugin-hostd.chain-instance-busy" ///< PHD_ERR_CHAIN_INSTANCE_BUSY: a member is already in another chain
+/** The resp number a host answers `reply.plugin-hostd.chain-instance-busy` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_INSTANCE_BUSY_RESP (-520)
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_MIXED_FORMAT "reply.plugin-hostd.chain-mixed-format" ///< PHD_ERR_CHAIN_MIXED_FORMAT: no one worker program runs every member
+/** The resp number a host answers `reply.plugin-hostd.chain-mixed-format` with, as the protocol's reply line carries it. */
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_MIXED_FORMAT_RESP (-521)
+/// @}
 
 #endif /* VERBS_FIXTURE_VOCABULARY_H */

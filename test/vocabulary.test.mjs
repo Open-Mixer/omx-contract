@@ -85,7 +85,7 @@ test('the C render defines every code and word once, by its code and by its item
   assert.match(h, /^#define OMX_MEASUREMENT_LATENCY_METHODS_NOTE_ONSET "note-onset" \/\/\/< /m);
   assert.match(h, /^#define OMX_MACHINE_CLOCK_BANDS_INIT \{ "<1\.5GHz", "1\.5-2\.5GHz", "2\.5-3\.5GHz", "3\.5-4\.5GHz", "4\.5GHz\+" \}$/m);
   assert.match(h, /^#define OMX_MEASUREMENT_VOICE_BASES_COUNT 2u$/m);
-  assert.doesNotMatch(h, /TERMS/, 'a terms item has no C render');
+  assert.doesNotMatch(h, /#define \w*TERMS/, 'a terms item has no C render');
 });
 
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {

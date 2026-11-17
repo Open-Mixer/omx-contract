@@ -13,7 +13,7 @@
  * `<ID>` is the term's CLAP identifier (`CLAP_EXT_REMOTE_CONTROLS`), `<SPEC>` its item's name between `LV2_` and
  * `_TERMS` (`LV2_PORT_PROPS_TERMS` is `PORT_PROPS`).
  */
-import { cStringLiteral } from './c/c-literals.mjs';
+import { cStringLiteral, described, doxyLine } from './c/c-literals.mjs';
 
 const termsOf = (resolved, format) => [...resolved.values()].filter((r) => r.kind === 'terms' && r.format === format);
 
@@ -29,6 +29,19 @@ export function clapValues(resolved) {
   }
   return { ids, numbers };
 }
+
+/**
+ * Every CLAP term that renders a define, with what documents it: `{ id, value, kind, status, spec, version }`, in file
+ * order; `status` is the term's mapping (docs/data-layout.md): used, supported-later or out-of-scope.
+ */
+function clapTerms(resolved) {
+  return termsOf(resolved, 'clap').flatMap((r) => Object.values(r.value)
+    .filter((t) => typeof t.value === 'string' || (Number.isInteger(t.value) && t.value >= 0))
+    .map((t) => ({ id: t.id, value: t.value, kind: t.kind, status: t.status, spec: r.spec, version: r.version })));
+}
+
+/** One CLAP term's line: what kind of identifier it is, in which header of which clap release, and its mapping status. */
+const clapLine = (t) => doxyLine(`The CLAP ${t.kind} ${t.id} of ${t.spec} (clap ${t.version}); status ${t.status}.`);
 
 /** The namespaces of the LV2 specifications: `[[SPEC, uri]]`, in file order. */
 export function lv2Specs(resolved) {
@@ -50,17 +63,26 @@ export function formatValues(resolved) {
 /** The C header, or undefined when no format term carries a value. */
 export function renderFormatsHeader(resolved) {
   const { ids, numbers } = clapValues(resolved);
+  const terms = clapTerms(resolved);
   const specs = lv2Specs(resolved);
+  const specDocs = new Map(termsOf(resolved, 'lv2').map((r) => [r.name.replace(/^LV2_/, '').replace(/_TERMS$/, ''), r]));
   if (!ids.length && !numbers.length && !specs.length) return undefined;
   const lines = [];
   const section = (title, rows) => { if (rows.length) lines.push(`/* ${title} */`, ...rows, ''); };
   section('CLAP identifiers: an extension id as get_extension is asked for it, a factory id, a plugin feature, a window API',
-    ids.map(([id, v]) => `#define OMX_${id} ${cStringLiteral(v)}`));
-  section('CLAP numbers the headers declare', numbers.map(([id, v]) => `#define OMX_${id} ${v}u`));
+    terms.filter((t) => typeof t.value === 'string').map((t) => described(`#define OMX_${t.id} ${cStringLiteral(t.value)}`, clapLine(t))));
+  section('CLAP numbers the headers declare', terms.filter((t) => typeof t.value !== 'string').map((t) => described(`#define OMX_${t.id} ${t.value}u`, clapLine(t))));
   section('The same identifiers as one list, for a reader that walks them: X(<identifier>, <string>)',
-    ids.length ? [`#define OMX_CLAP_IDS(X) \\`, ...ids.map(([id, v], i) => `  X(${cStringLiteral(id)}, ${cStringLiteral(v)})${i < ids.length - 1 ? ' \\' : ''}`)] : []);
+    ids.length ? ['/** Every CLAP identifier above as X(<identifier>, <string>), in the same order, for a reader that walks them without typing the list again. */', `#define OMX_CLAP_IDS(X) \\`, ...ids.map(([id, v], i) => `  X(${cStringLiteral(id)}, ${cStringLiteral(v)})${i < ids.length - 1 ? ' \\' : ''}`)] : []);
   section('LV2 specifications: the URI, and the namespace every term of it is written after (the URI and a #)',
-    specs.flatMap(([n, u]) => [`#define OMX_LV2_SPEC_${n} ${cStringLiteral(u)}`, `#define OMX_LV2_NS_${n} ${cStringLiteral(`${u}#`)}`]));
+    specs.flatMap(([n, u]) => {
+      const r = specDocs.get(n);
+      const about = r ? ` (${r.spec}${r.version ? ` ${r.version}` : ''})` : '';
+      return [
+        described(`#define OMX_LV2_SPEC_${n} ${cStringLiteral(u)}`, doxyLine(`The URI of the LV2 specification ${n}${about}: what a bundle's manifest names.`)),
+        described(`#define OMX_LV2_NS_${n} ${cStringLiteral(`${u}#`)}`, doxyLine(`The namespace of ${n}: its URI and a #, every term of it written after.`)),
+      ];
+    }));
   return `// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 #ifndef OMX_FORMATS_H

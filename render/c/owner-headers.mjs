@@ -9,7 +9,7 @@
  * project here.
  */
 
-import { documented, doxyLine } from './c-literals.mjs';
+import { described, documented, doxyLine } from './c-literals.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
@@ -19,8 +19,13 @@ const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUppe
  */
 export function codeTextDefines(macro, c, literal) {
   if (c.text === undefined) return [];
-  const lines = [`#define ${macro}_TEXT_EN ${literal(c.text.en)}`];
-  if (c.args?.length) lines.push(`#define ${macro}_ARGS_COUNT ${c.args.length}u`, `#define ${macro}_ARGS_INIT { ${c.args.map(literal).join(', ')} }`);
+  const lines = [described(`#define ${macro}_TEXT_EN ${literal(c.text.en)}`, `The English sentence of ${macro}, its placeholders in braces; a catalog translates it by this key (docs/data-layout.md).`)];
+  if (c.args?.length) {
+    lines.push(
+      described(`#define ${macro}_ARGS_COUNT ${c.args.length}u`, `The number of placeholders of ${macro}_TEXT_EN, the length of ${macro}_ARGS_INIT.`),
+      described(`#define ${macro}_ARGS_INIT { ${c.args.map(literal).join(', ')} }`, `The placeholder names of ${macro}_TEXT_EN in the order the sentence takes its arguments, an initialiser of const char *.`),
+    );
+  }
   return lines;
 }
 

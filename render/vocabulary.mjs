@@ -9,7 +9,7 @@
  */
 import { packageItems } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
-import { cStringLiteral, documented, doxyLine } from './c/c-literals.mjs';
+import { contractLine, cStringLiteral, described, documented, doxyLine } from './c/c-literals.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 
@@ -32,6 +32,16 @@ export const wordMacro = (item, name) => `OMX_${item}_${constCase(name)}`;
 export const wordsOf = (r) => Object.values(r.value).map((w) => w.word);
 
 /**
+ * A word's one doxygen line: its `doc`, else its English sentence (every word carries one), and the terms it is
+ * mapped from (`from`, the format's own names) cited after it.
+ */
+const wordLine = (w) => {
+  const text = w.doc ?? w.text?.en;
+  if (text === undefined) return undefined;
+  return doxyLine(Array.isArray(w.from) && w.from.length ? `${text} (from ${w.from.join(', ')})` : text);
+};
+
+/**
  * The stem of a package's vocabulary files (docs/render.md): `omx` for omx-contract, whose vocabulary is the
  * contract's own (omx_vocabulary.h), and the package's name for any other, so two packages' headers include together.
  */
@@ -45,23 +55,26 @@ export function renderVocabularyHeader(resolved, pkg) {
   const items = vocabularyItems(pkg === undefined ? resolved : packageItems(resolved, pkg));
   if (!items.length) return undefined;
   const guard = `${constCase(vocabularyStem(pkg ?? 'omx-contract'))}_VOCABULARY_H`;
+  // each item one doxygen member group under its name and contract; a code or word trails its line, a derived define
+  // (_RESP, _TRANSIENT, _TEXT_EN, _ARGS_*, _COUNT, _INIT) carries its block above
   const blocks = items.map((r) => {
-    const lines = [`/* ${r.name} (${r.rel}) */`];
+    const lines = ['/**', ` * @name ${r.name} (${r.rel})`, ...(r.doc === undefined ? [] : [` * ${contractLine(r.doc, { since: r.since })}`]), ' */', '/// @{'];
     if (r.kind === 'codes') {
       for (const c of Object.values(r.value)) {
         lines.push(documented(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}`, c.doc && doxyLine(c.doc)));
-        if (Number.isInteger(c.resp)) lines.push(`#define ${respMacro(c.code)} (${c.resp})`);
-        if (c.transient === true) lines.push(`#define ${codeMacro(c.code)}_TRANSIENT 1`);
+        if (Number.isInteger(c.resp)) lines.push(described(`#define ${respMacro(c.code)} (${c.resp})`, `The resp number a host answers \`${doxyLine(c.code)}\` with, as the protocol's reply line carries it.`));
+        if (c.transient === true) lines.push(described(`#define ${codeMacro(c.code)}_TRANSIENT 1`, `\`${doxyLine(c.code)}\` is transient: the same request may succeed when repeated.`));
         lines.push(...codeTextDefines(codeMacro(c.code), c, cStringLiteral));
       }
     } else {
       for (const [n, w] of Object.entries(r.value)) {
-        lines.push(documented(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}`, w.doc && doxyLine(w.doc)));
+        lines.push(documented(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}`, wordLine(w)));
         lines.push(...codeTextDefines(wordMacro(r.name, n), w, cStringLiteral));
       }
-      lines.push(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`);
-      lines.push(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`);
+      lines.push(described(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`, `The number of words of ${r.name}, the length of OMX_${r.name}_INIT.`));
+      lines.push(described(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`, `The words of ${r.name} in declaration order, an initialiser of const char *.`));
     }
+    lines.push('/// @}');
     return lines.join('\n');
   });
   return `// SPDX-License-Identifier: GPL-3.0-or-later

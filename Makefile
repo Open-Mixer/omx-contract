@@ -145,10 +145,14 @@ doxygen-check:
 layout:
 	node tools/data-layout.mjs
 
-# Every item of data/ owned here or on its way out, the moving-out list only shrinking against OWNERSHIP_BASE
-# (docs/contract-dir.md "What omx-contract owns").
-OWNERSHIP_BASE ?= origin/main
+# Every item and word of data/ and the schemas owned here or moving out, what moves out only shrinking against
+# OWNERSHIP_BASE (docs/contract-dir.md "What omx-contract owns"). The base is fetched first: a fetch that fails or a ref
+# git cannot read is a refusal by name (exit 2), never a pass.
+OWNERSHIP_REMOTE ?= origin
+OWNERSHIP_BRANCH ?= main
+OWNERSHIP_BASE ?= $(OWNERSHIP_REMOTE)/$(OWNERSHIP_BRANCH)
 ownership:
+	@git fetch --no-tags $(OWNERSHIP_REMOTE) $(OWNERSHIP_BRANCH) >/dev/null 2>&1 || { echo "ownership: fetching the base from $(OWNERSHIP_REMOTE) $(OWNERSHIP_BRANCH) failed; the shrink check needs it" >&2; exit 2; }
 	node tools/check-ownership.mjs --base $(OWNERSHIP_BASE)
 
 # inventory/ is the LV2 and CLAP installed here (needs serdi, the LV2 bundles and the CLAP headers).

@@ -125,8 +125,7 @@ jobs:
       - id: handback-ownership
         name: Every item of data/ is owned here or moving out, and the moving-out list only shrinks (omx-contract#81)
         run: |
-          git fetch --no-tags origin main
-          make ownership OWNERSHIP_BASE=origin/main
+          make ownership
           node --test test/ownership.test.mjs
       - name: Install the C toolchain where the runner has none (arc-freemixer's image carries no make or cc)
         run: |

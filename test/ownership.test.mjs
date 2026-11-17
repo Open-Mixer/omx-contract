@@ -22,7 +22,7 @@ const write = (rel, text) => writeFileSync(join(dir, rel), text);
 const editJson = (rel, f) => { const d = JSON.parse(read(rel)); f(d); write(rel, `${JSON.stringify(d, null, 2)}\n`); };
 const editList = (rel, f) => write(rel, f(read(rel).split('\n')).join('\n'));
 const run = (...extra) => {
-  const r = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', ...extra], { encoding: 'utf8' });
+  const r = spawnSync(process.execPath, [TOOL, '--root', dir, ...(extra.includes('--base') ? [] : ['--base', 'HEAD']), ...extra], { encoding: 'utf8' });
   return { status: r.status, out: r.stdout + r.stderr };
 };
 
@@ -147,21 +147,25 @@ test('a base git cannot read is a refusal by name', () => {
 
 test('a base that predates the gate passes once; a base with the gate but no lists is a refusal', () => {
   reset();
-  git('rm', '-q', 'tools/check-ownership.mjs', '-r', 'ownership');
+  const head = execFileSync('git', ['-C', dir, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  git('rm', '-q', '-r', 'tools/check-ownership.mjs', 'ownership');
   git('commit', '-q', '-m', 'before the gate');
-  let r = run();
+  git('tag', 'pre');
+  git('checkout', '-q', head, '--', 'tools/check-ownership.mjs', 'ownership');
+  let r = run('--base', 'pre');
   assert.equal(r.status, 0, r.out);
-  assert.match(r.out, /predates the ownership gate/);
-  reset();
-  git('checkout', '-q', 'HEAD~1', '--', 'tools/check-ownership.mjs');
+  assert.match(r.out, /pre predates the ownership gate/);
+  git('rm', '-q', '-r', '-f', 'ownership');
   git('commit', '-q', '-m', 'the tool without its lists');
-  r = run();
+  git('tag', 'toolonly');
+  git('checkout', '-q', head, '--', 'ownership');
+  r = run('--base', 'toolonly');
   assert.equal(r.status, 2);
-  assert.match(r.out, /carries the gate but no ownership\/moving-out\.txt/);
+  assert.match(r.out, /toolonly carries the gate but no ownership\/moving-out\.txt/);
 });
 
 test('make ownership refuses when the base cannot be fetched', () => {
   const r = spawnSync('make', ['-C', ROOT, 'ownership', 'OWNERSHIP_REMOTE=/nonexistent-remote'], { encoding: 'utf8' });
   assert.equal(r.status, 2);
-  assert.match(r.stderr, /ownership: fetching the base from \/nonexistent-remote failed/);
+  assert.match(r.stderr, /ownership: fetching the base from \/nonexistent-remote main failed/);
 });

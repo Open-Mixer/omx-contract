@@ -1,5 +1,5 @@
-# one item name per line; see docs/contract-dir.md, the ownership gate
-# omx-contract#81: only ever removed, with the item, by the PR that moves it
+# one name per line (an item, or <file>#<pointer> of a schema enum); see docs/contract-dir.md, the ownership gate
+# omx-contract#81: only ever removed, with the item and its words, by the PR that moves it
 CURVE_AXES
 CURVE_KINDS
 MACHINE_CLASS_FIELDS
@@ -24,7 +24,6 @@ PANEL_WIDGETS
 PANEL_DISPLAY_KINDS
 PANEL_DISPLAY_SOURCES
 PANEL_PLACEMENTS
-render
 OMX_PARAM_CONTRACT_UNITS
 PLUGIN_FEATURE_AUDIO_EFFECT
 PLUGIN_FEATURE_INSTRUMENT
@@ -49,3 +48,5 @@ RESOURCE_THREAD_SCHEDULING
 RESOURCE_HINTS
 SCAN_DOCUMENTS
 SCAN_FIELD_SCOPES
+VERB_HOSTS
+schema/omx-contract.schema.json#/$defs/override/properties/family/enum

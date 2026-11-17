@@ -1,5 +1,4 @@
-# one item name per line; see docs/contract-dir.md, the ownership gate
-CONTRACT_CODES
+# one name per line (an item, or <file>#<pointer> of a schema enum); see docs/contract-dir.md, the ownership gate
 CLAP_COLOR_TERMS
 CLAP_EVENTS_TERMS
 CLAP_EXT_AMBISONIC_TERMS
@@ -83,7 +82,34 @@ LV2_URI_MAP_TERMS
 LV2_URID_TERMS
 LV2_WORKER_TERMS
 PARAM_SCALES
-ulp
-doc
-laws
-VERB_HOSTS
+CONTRACT_CODES
+schema/omx-contract.schema.json#/else/propertyNames/anyOf/0/enum
+schema/omx-contract.schema.json#/$defs/unit/enum
+schema/omx-contract.schema.json#/$defs/descriptorUnit/anyOf/1/enum
+schema/omx-contract.schema.json#/$defs/meaning/enum
+schema/omx-contract.schema.json#/$defs/descriptor/properties/origin/enum
+schema/omx-contract.schema.json#/$defs/extensions/propertyNames/enum
+schema/omx-contract.schema.json#/$defs/overrideTravel/properties/scale/enum
+schema/omx-contract.schema.json#/$defs/overrideMap/properties/scale/enum
+schema/omx-contract.schema.json#/$defs/overrideControl/properties/basis/enum
+schema/omx-contract.schema.json#/$defs/override/properties/plugin/properties/format/enum
+schema/omx-contract.schema.json#/$defs/plugin/properties/format/enum
+schema/omx-contract.schema.json#/$defs/plugin/properties/features/items/enum
+schema/omx-contract.schema.json#/$defs/descriptorTravel/properties/defaultFrom/enum
+schema/omx-contract.schema.json#/$defs/descriptorControl/properties/kind/enum
+schema/omx-contract.schema.json#/$defs/descriptorMeter/properties/kind/enum
+schema/omx-contract.schema.json#/$defs/descriptorMeter/properties/measurement/enum
+schema/omx-contract.schema.json#/$defs/port/properties/kind/enum
+schema/omx-contract.schema.json#/$defs/port/properties/direction/enum
+schema/omx-contract.schema.json#/$defs/port/properties/role/enum
+schema/omx-contract.schema.json#/$defs/port/properties/layout/enum
+schema/omx-contract.schema.json#/$defs/port/properties/dialects/items/enum
+schema/omx-contract.schema.json#/$defs/renderHeader/properties/scope/enum
+schema/omx-contract.schema.json#/$defs/travel/properties/defaultFrom/enum
+schema/omx-contract.schema.json#/$defs/term/properties/kind/enum
+schema/omx-contract.schema.json#/$defs/term/properties/status/enum
+schema/omx-contract.schema.json#/$defs/terms/properties/format/enum
+schema/omx-contract.schema.json#/$defs/formatMap/properties/format/enum
+schema/omx-contract.schema.json#/$defs/verb/properties/implementedBy/additionalProperties/enum
+schema/omx-contract.schema.json#/$defs/item/properties/kind/enum
+shapes/travel.schema.json#/$defs/ScaleTravel/properties/scale/enum

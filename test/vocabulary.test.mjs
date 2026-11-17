@@ -67,7 +67,13 @@ test('a word whose C name meets a words item\'s _COUNT is refused', () => {
   assert.ok(problems(texts((d) => { d[R].RESOURCE_BASES.words.count = { word: 'counted' }; })).some((p) => p.rule === 'c-name-unique' && /OMX_RESOURCE_BASES_COUNT/.test(p.message)));
 });
 
-const resolved = resolveData(loadData(DATA));
+// the moved words (test/fixtures/moved-words/) stand in as a words item with groups, text and args
+const SCRATCH0 = mkdtempSync(join(tmpdir(), 'omx-contract-moved-'));
+after(() => rmSync(SCRATCH0, { recursive: true, force: true }));
+cpSync(DATA, join(SCRATCH0, 'data'), { recursive: true });
+cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH0, 'data', 'measurement.json'));
+cpSync(join(ROOT, 'schema'), join(SCRATCH0, 'schema'), { recursive: true });
+const resolved = resolveData(loadData(join(SCRATCH0, 'data')));
 
 // data/ holds no codes item to render since the hosting codes moved to omx-clap-core (docs/hosting.md): the codes
 // kind is read beside it from an owner's codes file (test/fixtures/package-codes/hosting/cost.json).
@@ -75,6 +81,7 @@ const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-codes-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 cpSync(DATA, join(SCRATCH, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/package-codes'), join(SCRATCH, 'data'), { recursive: true });
+cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH, 'data', 'measurement.json'));
 cpSync(join(ROOT, 'schema'), join(SCRATCH, 'schema'), { recursive: true });
 const withCodes = resolveData(loadData(join(SCRATCH, 'data')));
 

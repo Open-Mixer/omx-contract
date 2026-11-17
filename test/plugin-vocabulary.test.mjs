@@ -92,7 +92,8 @@ test('the panel families and widgets are declared here, the scan words are a dom
   assert.equal(existsSync(join(ROOT, 'data', 'scan.json')), false);
 });
 
-test('the machine fields, bands and arches are plugin-hostd\'s machine domain, not items of this tree (#81)', () => {
-  const left = Object.keys(read('data/machine-class.json')).filter((k) => k !== '$schema');
-  assert.deepEqual(left, ['MACHINE_CLASSES']);
+test('the machine, measurement and qualification words are plugin-hostd\'s and plugin-qualify\'s domains, not files of this tree (#81)', () => {
+  for (const f of ['machine-class.json', 'measurement.json']) assert.equal(existsSync(join(ROOT, 'data', f)), false, f);
+  const left = Object.keys(read('data/resource-profile.json')).filter((k) => k !== '$schema');
+  assert.deepEqual(left, ['RESOURCE_KINDS', 'RESOURCE_UNITS', 'RESOURCE_BASES', 'RESOURCE_HINTS']);
 });

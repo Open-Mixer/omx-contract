@@ -32,8 +32,8 @@ test('sabotage: an owner\'s hosting file put back into data/ is named', () => {
 
 test('sabotage: a codes item outside codes.json is named', () => {
   const fs = files();
-  doc(fs, 'measurement.json').MEASUREMENT_STRAY_CODES = { kind: 'codes', doc: 'd', codes: { stray: { code: 'hosting.cost.stray' } } };
-  assert.deepEqual(layoutProblems(fs), ['measurement.json: MEASUREMENT_STRAY_CODES: a codes item outside codes.json']);
+  doc(fs, 'resource-profile.json').RESOURCE_STRAY_CODES = { kind: 'codes', doc: 'd', codes: { stray: { code: 'hosting.cost.stray' } } };
+  assert.deepEqual(layoutProblems(fs), ['resource-profile.json: RESOURCE_STRAY_CODES: a codes item outside codes.json']);
 });
 
 test('sabotage: unsorted terms are named', () => {
@@ -60,9 +60,9 @@ test('sabotage: an item its path does not name, and a word file\'s item without 
   delete d.CLAP_EXT_TAIL_TERMS;
   assert.deepEqual(layoutProblems(fs), ['formats/clap/ext/tail.json: holds one terms item, CLAP_EXT_TAIL_TERMS']);
   fs = files();
-  const m = doc(fs, 'measurement.json');
-  m.VOICE_BASES = m.MEASUREMENT_VOICE_BASES;
-  assert.deepEqual(layoutProblems(fs), ['measurement.json: VOICE_BASES: an item of measurement.json is named MEASUREMENT_...']);
+  const m = doc(fs, 'resource-profile.json');
+  m.BASES = m.RESOURCE_BASES;
+  assert.deepEqual(layoutProblems(fs), ['resource-profile.json: BASES: an item of resource-profile.json is named RESOURCE_...']);
 });
 
 test('sabotage: a file no rule places is named', () => {

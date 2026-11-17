@@ -97,7 +97,7 @@ test('every code and word this repo declares carries a source sentence (omx-cont
 });
 
 test('needs-content: an instrument silent until content is loaded, grouped nothing-to-measure (plugin-qualify#21, #23)', () => {
-  const resolved = resolveData(loadData(DATA));
+  const resolved = resolvedOf(texts());
   const w = resolved.get('MEASUREMENT_UNMEASURED_REASONS').value.needsContent;
   assert.equal(w.word, 'needs-content');
   assert.equal(w.group, 'nothing-to-measure');

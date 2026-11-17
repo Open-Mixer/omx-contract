@@ -184,3 +184,11 @@ test('validate reads a domain catalog: the owner is the domain x-owner, and a ke
   writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), cat('some-owner', 'GROUPED_REASONS.nope'));
   assert.match(run().stderr, /catalog-key/);
 });
+
+test('a word with no description renders no comment, as a word with no doc does', () => {
+  const dom = groupedDomain();
+  delete dom.components.schemas.GROUPED_KINDS.oneOf[1].description;
+  const it = loadContractDir({ dir: dirWith(dom, 'grouped') }).items.get('GROUPED_KINDS').item;
+  assert.equal('doc' in it.words.cannot, false);
+  assert.equal(it.words.nothing.doc, 'nothing-to-measure.');
+});

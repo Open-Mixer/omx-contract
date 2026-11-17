@@ -1,0 +1,18 @@
+{
+  "doc": "The vectors of the rule a describing host reads a scanned CLAP parameter's kind by (docs/descriptors.md, 'A scanned CLAP parameter's kind'). input: the CLAP param flags, min_value, max_value, default_value, the org.openmixer.param-contract/1 entry ({ scale, step? }) or null, and points (value texts exist). expect: the descriptor kind, a toggle's default (on at 0.5 and above), a travel's merged scale word. The C reader (plugin-hostd src/describe.c) and the TypeScript one (openmixer packages/catalog/src/scanned-descriptors.ts) hold themselves to every vector; no reader restates this table.",
+  "vectors": [
+    { "name": "toggle-off", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": null, "points": false }, "expect": { "kind": "toggle", "default": false } },
+    { "name": "toggle-on", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 1, "contract": null, "points": false }, "expect": { "kind": "toggle", "default": true } },
+    { "name": "toggle-default-below-half", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0.3, "contract": null, "points": false }, "expect": { "kind": "toggle", "default": false } },
+    { "name": "toggle-default-at-half", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0.5, "contract": null, "points": false }, "expect": { "kind": "toggle", "default": true } },
+    { "name": "bypass", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_BYPASS"], "min": 0, "max": 1, "default": 0, "contract": null, "points": false }, "expect": { "kind": "toggle", "default": false } },
+    { "name": "enum-two-values", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_ENUM", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": null, "points": true }, "expect": { "kind": "choice" } },
+    { "name": "stepped-0-to-2", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 2, "default": 0, "contract": null, "points": false }, "expect": { "kind": "travel", "scale": "stepped" } },
+    { "name": "stepped-1-to-2", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 1, "max": 2, "default": 0, "contract": null, "points": false }, "expect": { "kind": "travel", "scale": "stepped" } },
+    { "name": "continuous-0-to-1", "input": { "flags": ["CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": null, "points": false }, "expect": { "kind": "travel", "scale": "unknown" } },
+    { "name": "contract-step-1", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": { "scale": "stepped", "step": 1 }, "points": false }, "expect": { "kind": "toggle", "default": false } },
+    { "name": "contract-step-quarter", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": { "scale": "stepped", "step": 0.25 }, "points": false }, "expect": { "kind": "travel", "scale": "stepped" } },
+    { "name": "contract-stepped-no-flag", "input": { "flags": ["CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": { "scale": "stepped" }, "points": false }, "expect": { "kind": "toggle", "default": false } },
+    { "name": "contract-linear-with-flag", "input": { "flags": ["CLAP_PARAM_IS_STEPPED", "CLAP_PARAM_IS_AUTOMATABLE"], "min": 0, "max": 1, "default": 0, "contract": { "scale": "linear" }, "points": false }, "expect": { "kind": "travel", "scale": "linear" } }
+  ]
+}

@@ -210,6 +210,7 @@ Its documentation is on openmixer.org.
 %{_datadir}/omx-contract/omx_contract_catalog.py
 %{_datadir}/omx-contract/omx_contract_scale.py
 %{_datadir}/omx-contract/scale-vectors.json
+%{_datadir}/omx-contract/clap-kind-vectors.json
 %{_datadir}/omx-contract/languages.json
 %dir %{_datadir}/omx-contract/catalogs
 %{_datadir}/omx-contract/omx-resource-hints.ttl

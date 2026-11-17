@@ -13,6 +13,7 @@ so a test can break one and watch the check name it:
 - `echo`: an integer travel, a travel with a come-up value by kind, a flat table keyed by field, two integer lists, a
   sheet field by reference to a scalar;
 - `wave`: an aggregate and a `ceilSum`; `ripple` and `flutter`, which have answers: the kernel recipe's;
+- `hosting.json`: a hosting file shaped like omx-clap-core's (a sheet of stage limits, a codes item, a render word), whose header and codes are held where its owner declares them (omx-clap-core's `make test-contract`);
 - `primitives/`: a square root and its readers, a Lagrange read norm, a travels item with fields of its own.
 
 The definitions themselves are proved where they live (omx-dsp's `make contract-proof` and `make contract-tests`); the

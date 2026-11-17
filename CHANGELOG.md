@@ -11,6 +11,18 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 - `PANEL_DISPLAY_KINDS` (data/panel.json): the displays a panel description serves, `gain_reduction_bar`,
   `transfer_curve`, `eq_response`, `meter` and `time_response` (omx-panel's, code 4), in the order of their codes; declared here, no longer restated by hand in
   omx-clap-core. The six catalogs carry their sentences as drafts.
+- Shapes (`docs/shapes.md`, the typed-contracts spec `docs/typed-contracts-shared-behaviour.md`
+  §3, lane S1): a document's shape is one JSON Schema 2020-12 file under `shapes/`, rendered by
+  `render --target ts|py|c --shapes` to a TypeScript interface (json-schema-to-typescript, pinned), a Python `TypedDict`
+  (datamodel-code-generator, pinned in `tools/shapes-requirements.txt`) and the C keys and words as X-macros, every
+  render committed and held by `--check`; a shape that breaks a rule is refused by name. The first shape is
+  `shapes/travel.schema.json`, the travel the scale law reads: `@openmixer/omx-contract/shapes/travel` (types),
+  `omx_contract.shapes.travel` (python3-omx-contract), `omxcontract/omx_travel_shape.h` (the -devel package), and the
+  schema installed under `share/omx-contract/shapes/`. Additive: a minor.
+- A scanned CLAP parameter's kind is read by one rule, stated in `docs/descriptors.md` and held by
+  `share/omx-contract/clap-kind-vectors.json`: the merged scale word (the contract entry's, else the stepped flag), an
+  enumeration a choice, a stepped 0..1 with step 1 a toggle (default on at 0.5 and above), everything else a travel.
+  plugin-hostd's describe and the console's catalog are held to the vectors, keeping no rule of their own.
 - The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
   balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their
   order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.

@@ -95,3 +95,30 @@ package's (a readout's `OMX_PARAM_SCALES_*` scale) needs that package's header i
 `omx-contract links --check` takes a C name a header spells as naming its item, as it takes `OMX_<NAME>`: an `impl`
 link to a function that reads `CLAP_HOST_CLAMP_DBFS` names `HOSTED_STAGE_LIMITS`; an omitted field is no name of it
 (docs/contract-dir.md).
+
+## Documentation
+
+Every installed header, rendered or hand-written (`omx_json_write.h`), is read by doxygen (`Doxyfile`,
+`make doxygen-check`, omx-contract#64). A header opens with a `@file` block whose `@brief` says what it holds: doxygen
+reads none of a file's globals without one, so a header with no `@file` block is refused before doxygen runs. Every
+public declaration a header spells (a define, an enum and each of its members, a struct and each of its members, a
+function and each of its parameters) carries a `/** */` block, spelled from the item that declares it: its `doc`, its
+`unit` where it carries one, and the version its `since` names; the comment states the declaration's meaning, its
+units and ranges, since when it is declared, and who owns the memory it names. A define's or a function's block
+stands above its line, so the line stays as a reader greps it (a function's names each parameter and its return); an
+enum's or a struct's member carries its one line as a trailing `///<`, as a word of the vocabulary does.
+
+The declarations doxygen reports undocumented are the lines of `docs/doxygen-baseline.txt`, each `<header>: <text>`
+with no line number, sorted: the gate compares doxygen's warnings with that list and refuses a warning the list does
+not carry (a new or renamed public declaration must be documented) and a line the warnings no longer carry (a
+declaration documented since is struck from the list in the same change). The list only shrinks; a change that
+adds a line to it against its base is refused. With the list empty, every public declaration is documented.
+
+`make doxygen-check` (`DOXYGEN_BASE`, `origin/main` unless named: the ref whose baseline this one must not exceed; an
+empty one is refused) runs `tools/doxygen-gate.sh`; `--list` prints the current warnings, `--update` writes them as the
+baseline only when they lower it. The gate refuses, by name, a header that hides code from doxygen (`@cond`), a `@file`
+outside a doc comment, and a `Doxyfile` that suppresses what it counts (`EXCLUDE*`, `HIDE_UNDOC_*`, filters,
+`ENABLED_SECTIONS`, `EXTRACT_ALL`, the `WARN_*` keys) or drops a setting it needs, read back through `doxygen -x`. Its
+limit: a declaration under a preprocessor condition false with only `CLAP_ABI` predefined is not read, as a compiler
+would not read it; the headers carry none. The script exits 0 at the baseline, 1 on a finding, 2 when it cannot run;
+`make` exits 2 on either.

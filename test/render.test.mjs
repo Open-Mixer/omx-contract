@@ -10,7 +10,7 @@ import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, RENDERS, ROOT, UNION, editData, scratchData, scratchDir } from './helpers.mjs';
+import { DATA, RENDERS, ROOT, UNION, editData, scratchData, scratchDir, undocumented } from './helpers.mjs';
 
 const resolved = () => resolveData(loadData(UNION));
 const own = () => resolveData(loadData(DATA));
@@ -23,7 +23,7 @@ test('golden: the ts render of data/ is test/golden/ts/', () => golden('test/gol
 test('c: a <PREFIX>_LIMITS field with no default renders its MIN and MAX and no DEFAULT', () => {
   const dir = scratchData();
   editData(dir, 'kernels/swell.json', (d, at) => { delete at('SWELL_LIMITS.releaseMs').default; delete at('SWELL_LIMITS.releaseMs').defaultFrom; });
-  const h = renderC(resolveData(loadData(dir)))[0].text;
+  const h = undocumented(renderC(resolveData(loadData(dir)))[0].text);
   assert.match(h, /^#define OMX_SWELL_RELEASE_MS_MIN 5\.0f\n#define OMX_SWELL_RELEASE_MS_MAX 2000\.0f\n\n/m);
   assert.doesNotMatch(h, /OMX_SWELL_RELEASE_MS_DEFAULT|undefined/);
 });

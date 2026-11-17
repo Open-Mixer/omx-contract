@@ -4,9 +4,9 @@
 The contract holds the source sentence, in English, with its args; a translation is never contract data. An owner
 ships catalogs/<lang>.json, installed to /usr/share/<owner>/catalogs/<lang>.json by its rpm and its deb alike:
 
-    { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": "<sentence with {args}>" } }
+    { "kind": "catalog", "lang": "ca", "owner": "<package>", "messages": { "<key>": {"text": "<sentence with {args}>", "by": "human"} } }
 
-An entry is the sentence, or the sentence with how it was made (omx-contract#21): {"text", "by": "human"} is a
+An entry is the sentence with how it was made (omx-contract#21): {"text", "by": "human"} is a
 person's, {"text", "by": "same", "source"} is the same word as the English source sentence (kept), and {"text", "by": "machine", "model", "source"} was made by a model from the source sentence whose
 source_hash is "source". A model's entry whose source sentence no longer hashes to it is stale: sentence_of skips it
 and shows the source sentence.
@@ -70,8 +70,6 @@ def sentence_of(catalog, key, source):
     made from another source sentence than `source` is stale and skipped; with no `source` to compare, it is read."""
     messages = catalog.get("messages") if catalog else None
     entry = messages.get(key) if messages else None
-    if isinstance(entry, str):
-        return entry
     if not isinstance(entry, dict) or not isinstance(entry.get("text"), str):
         return source
     recorded = entry.get("source")

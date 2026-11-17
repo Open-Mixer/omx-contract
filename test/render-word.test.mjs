@@ -92,12 +92,12 @@ const EXPECTED = `/* SPDX-License-Identifier: GPL-3.0-or-later */
 #include <stddef.h>
 
 /** the numbers the core reads */
-#define ACME_QUEUE_DEPTH 16u  ///< the records the queue holds
+#define ACME_QUEUE_DEPTH 16u ///< the records the queue holds
 #define ACME_CLAMP_DBFS 12.0f
 #define ACME_FLOOR_DBFS -6.5f
 
 /** the refusals the core returns */
-#define ACME_CODE_TOO_BIG "hosting.acme.too-big"  ///< the input is too big
+#define ACME_CODE_TOO_BIG "hosting.acme.too-big" ///< the input is too big
 #define ACME_CODE_GONE "hosting.acme.gone"
 
 #endif /* ACME_LIMITS_H */
@@ -128,7 +128,7 @@ test('perturbation: every word of render.c moves the header', () => {
   moved((d, c) => { c.numbers.levels = 'clampDbfs'; d.ACME_LIMITS.value.floorDbfs = 6; }, /^#define ACME_FLOOR_DBFS 6u$/m);
   moved((d, c) => { c.numbers.comment = 'other numbers'; }, /^\/\*\* other numbers \*\/\n#define ACME_QUEUE_DEPTH/m);
   moved((d, c) => { delete c.codes; }, /^#define ACME_FLOOR_DBFS -6\.5f\n\n#endif/m);
-  moved((d, c) => { c.scalars = { comment: 'as the contract spells them' }; }, /^\/\*\* as the contract spells them \*\/\n#define OMX_ACME_ADAPTER_RING 64\n#define OMX_ACME_CLAMP_DBFS 12\n/m);
+  moved((d, c) => { c.scalars = { comment: 'as the contract spells them' }; }, /^\/\*\* as the contract spells them \*\/\n\/\*\*\n \* @name ACME_LIMITS\n(?: \* .*\n)? \*\/\n\/\/\/ @\{\n\/\*\* .* \*\/\n#define OMX_ACME_ADAPTER_RING 64\n\/\*\* .* \*\/\n#define OMX_ACME_CLAMP_DBFS 12\n/m);
   assert.ok(renderC(resolveData(loadData(null, texts((d, c) => { c.header = 'acme/limits.h'; })))).some((f) => f.path === 'omxcontract/acme/limits.h'), 'the header is where the word puts it');
   assert.equal(renderC(resolveData(loadData(null, texts((d, c) => { c.scalars = { comment: 'x' }; })))).some((f) => f.path === 'omxcontract/acme_limits.h'), false, 'a header of OMX_ names is not written twice by the whole read');
 });
@@ -136,7 +136,7 @@ test('perturbation: every word of render.c moves the header', () => {
 test('perturbation: a moved number, code or prose of the items moves the header', () => {
   assert.match(header((d) => { d.ACME_LIMITS.value.queueDepth = 32; }), /^#define ACME_QUEUE_DEPTH 32u /m);
   assert.match(header((d) => { d.ACME_CODES.codes.gone.code = 'hosting.acme.lost'; }), /^#define ACME_CODE_GONE "hosting\.acme\.lost"$/m);
-  assert.match(header((d) => { d.ACME_LIMITS.docs.queueDepth = 'records'; }), /^#define ACME_QUEUE_DEPTH 16u {2}\/\/\/< records$/m);
+  assert.match(header((d) => { d.ACME_LIMITS.docs.queueDepth = 'records'; }), /^#define ACME_QUEUE_DEPTH 16u \/\/\/< records$/m);
 });
 
 test('refused, by rule: what the word cannot spell, and words the schema does not know', () => {

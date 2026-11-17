@@ -8,10 +8,11 @@
 set -eu
 cd /
 python3 -I -c '
-import omx_contract, omx_contract.catalog, omx_contract.scale, omx_contract.clap
+import omx_contract, omx_contract.catalog, omx_contract.scale, omx_contract.clap, omx_contract.shapes.travel
 assert "/share/omx-contract/" not in omx_contract.catalog.__file__, omx_contract.catalog.__file__
 assert omx_contract.catalog.code_key("contract.dir.absent")
 assert "%.4f" % omx_contract.scale.scale_position({"scale": "log", "min": 20, "max": 20000}, 1000) == "0.5663"
 assert omx_contract.clap.CLAP_IDS["CLAP_EXT_AUDIO_PORTS_CONFIG"] == "clap.audio-ports-config"
+assert set(omx_contract.shapes.travel.ScaleMap.__required_keys__) == {"scale", "points"}, omx_contract.shapes.travel.ScaleMap.__required_keys__
 print("python-import-check.sh: omx_contract from", omx_contract.__file__)
 '

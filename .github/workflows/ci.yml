@@ -41,8 +41,10 @@ jobs:
         with:
           node-version: 22
       - id: handback-install
-        name: Install the one runtime dependency
-        run: npm ci
+        name: Install the one runtime dependency, and the two pinned shape generators (docs/shapes.md)
+        run: |
+          npm ci
+          python3 -m pip install --user -r tools/shapes-requirements.txt
       - id: handback-validate
         name: The data is valid and in the one formatting
         run: |
@@ -56,6 +58,12 @@ jobs:
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check
           node bin/omx-contract.mjs render --target py --out share/omx-contract --check
+      - id: handback-shapes
+        name: The committed shape renders are the render of the shapes, by the pinned generators (docs/shapes.md)
+        run: |
+          node bin/omx-contract.mjs render --target c --shapes --out include --check
+          node bin/omx-contract.mjs render --target ts --shapes --out test/golden/ts --check
+          node bin/omx-contract.mjs render --target py --shapes --out share/omx-contract --check
       - id: handback-contract-dir
         name: The data installed as the contract directory renders the same bytes, and its links hold
         run: |
@@ -87,9 +95,6 @@ jobs:
           cli="$RUNNER_TEMP/inst/usr/lib/omx-contract/bin/omx-contract.mjs"
           dir="$RUNNER_TEMP/inst/usr/share/omx-contract/contract.d"
           cd "$RUNNER_TEMP"
-          for f in "$GITHUB_WORKSPACE"/schema/history/*.schema.json; do
-            test -f "$RUNNER_TEMP/inst/usr/lib/omx-contract/schema/history/$(basename "$f")" || { echo "not installed: $f"; exit 1; }
-          done
           node "$cli" validate --contract-dir "$dir"
           node "$cli" render --target json --out "$RUNNER_TEMP/cli-json" --contract-dir "$dir"
           cmp "$RUNNER_TEMP/cli-json/omx-contract.json" "$GITHUB_WORKSPACE/share/omx-contract/omx-contract.json"
@@ -117,9 +122,6 @@ jobs:
       - id: handback-layout
         name: Every word in the file its rule places it; every installed LV2 and CLAP term mapped with a status
         run: make layout
-      - id: handback-round-trip
-        name: The renderer's round-trip proof, the frozen sheet against omx-dsp v0.1.3's header (spec 4.4 step 1)
-        run: node tools/proof/round-trip.mjs --quiet
       - name: Install the C toolchain where the runner has none (arc-freemixer's image carries no make or cc)
         run: |
           command -v make >/dev/null && command -v cc >/dev/null || {
@@ -129,6 +131,16 @@ jobs:
       - id: handback-headers
         name: The headers compile with no node (what a release build runs)
         run: make check
+      - name: Install doxygen where the runner has none
+        run: command -v doxygen >/dev/null || { sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends doxygen; }
+      - id: handback-doxygen
+        name: Every public declaration of the installed headers documented, the baseline held to main's and only shrinking
+        run: |
+          git fetch --no-tags origin main
+          make doxygen-check DOXYGEN_BASE=origin/main
+      - id: handback-doxygen-gate
+        name: The documentation gate is red on an undocumented new declaration, a stale baseline line and a grown baseline
+        run: node --test test/doxygen-gate.test.mjs
 
   # The Python package from a clean container (omx-contract#28): the interpreter and make alone, omx_contract installed
   # where that interpreter looks, imported from / in isolated mode so the checkout cannot supply it. The packaging

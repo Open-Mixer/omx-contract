@@ -10,7 +10,7 @@
 import { readFileSync } from 'node:fs';
 import { packageItems } from '../lib/data.mjs';
 import { HOSTS_ITEM } from '../lib/verbs.mjs';
-import { cStringLiteral } from './c/contract-limits-render.mjs';
+import { cStringLiteral } from './c/c-literals.mjs';
 import { vocabularyStem } from './vocabulary.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
@@ -87,6 +87,10 @@ export function renderVerbsHeader(resolved, pkg) {
  * protocol_add_command takes, and OMX_VERB_<VERB>_REPLY; a verb that answers refusals carries their resp numbers
  * in OMX_VERB_<VERB>_CODES_INIT. ${stem}_host_verbs() is the table of what each host owes each verb.
  */
+
+/** @file
+ * @brief The host verbs of ${pkg === undefined ? 'the whole read' : pkg}: each verb's word, line format and reply, and
+ * the table of what each host owes it. */
 
 #include <string.h>
 

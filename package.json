@@ -26,11 +26,11 @@
     "./scale-vectors.json": "./data/scale-vectors.json",
     "./resolved.json": "./share/omx-contract/omx-contract.json",
     "./schema.json": "./schema/omx-contract.schema.json",
-    "./examples/descriptors/*": "./examples/descriptors/*",
-    "./contract-limits-render": {
-      "types": "./render/c/contract-limits-render.d.mts",
-      "import": "./render/c/contract-limits-render.mjs"
+    "./shapes/*.schema.json": "./shapes/*.schema.json",
+    "./shapes/*": {
+      "types": "./dist/ts/shapes/*.d.ts"
     },
+    "./examples/descriptors/*": "./examples/descriptors/*",
     "./contract-limits-split": {
       "types": "./render/c/contract-limits-split.d.mts",
       "import": "./render/c/contract-limits-split.mjs"
@@ -55,6 +55,7 @@
     "render/",
     "data/",
     "schema/",
+    "shapes/",
     "include/",
     "share/",
     "dist/ts/",
@@ -65,7 +66,7 @@
     "build": "tsc -p tsconfig.lib.json && tsc -p tsconfig.strict.json",
     "prepare": "npm run build",
     "test": "npm run build && node --test test/*.test.mjs",
-    "prepack": "npm run build && node bin/omx-contract.mjs render --target ts --out dist/ts"
+    "prepack": "npm run build && node bin/omx-contract.mjs render --target ts --out dist/ts && node bin/omx-contract.mjs render --target ts --shapes --out dist/ts"
   },
   "dependencies": {
     "ajv": "^8.17.1"
@@ -79,6 +80,7 @@
   },
   "devDependencies": {
     "@types/node": "18.19.64",
+    "json-schema-to-typescript": "16.0.0",
     "typescript": ">=4.8.4 <7"
   }
 }

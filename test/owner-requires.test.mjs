@@ -72,7 +72,7 @@ function hostdTree() {
       },
     },
   });
-  write(tree, 'catalogs/ca.json', { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang: 'ca', owner: 'fixture', messages: { 'reply.fixture.placement-invalid': 'El plugin no es pot col·locar allà; trieu-ne un altre lloc.' } });
+  write(tree, 'catalogs/ca.json', { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang: 'ca', owner: 'fixture', messages: { 'reply.fixture.placement-invalid': { text: 'El plugin no es pot col·locar allà; trieu-ne un altre lloc.', by: 'human' } } });
   return tree;
 }
 
@@ -82,15 +82,54 @@ function qualifyTree({ codes = true } = {}) {
   write(tree, 'package.json', { name: '@openmixer/fixture-qualify' });
   write(tree, 'data/formats/x.json', { $schema: '../../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, FIXTURE_SCALAR: { kind: 'scalar', doc: 'a scalar', unit: '', value: 1 } });
   if (codes) write(tree, 'schema/codes.json', { kind: 'codes', doc: 'the fixture codes', codes: { descriptorDuplicateSymbol: { code: 'qualify.descriptor.duplicate-symbol', doc: 'a symbol twice', text: { en: 'The plugin declares a symbol twice.' }, args: [] } } });
-  write(tree, 'catalogs/ca.json', { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang: 'ca', owner: 'fixture-qualify', messages: { 'qualify.descriptor.duplicate-symbol': 'El plugin declara un símbol dues vegades.' } });
+  write(tree, 'catalogs/ca.json', { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang: 'ca', owner: 'fixture-qualify', messages: { 'qualify.descriptor.duplicate-symbol': { text: 'El plugin declara un símbol dues vegades.', by: 'human' } } });
   return tree;
 }
 
+// pkg-config sees only an empty directory: the host's installed contract directory is never read (the test above)
+const NO_PKG_CONFIG = fresh('no-pkg-config');
+mkdirSync(NO_PKG_CONFIG, { recursive: true });
+
 const run = (tree, env = {}) => {
-  const e = { ...process.env, OMX_CONTRACT_PATH: '', ...env };
+  const e = { ...process.env, PKG_CONFIG_PATH: NO_PKG_CONFIG, PKG_CONFIG_LIBDIR: NO_PKG_CONFIG, OMX_CONTRACT_PATH: '', ...env };
   if (!env.OMX_CONTRACT_PATH) delete e.OMX_CONTRACT_PATH;
   return spawnSync(process.execPath, [CLI, 'translate', '--check', '--owner', tree, '--lang', 'ca', '--package', tree.includes('hostd') ? 'fixture' : 'fixture-qualify'], { env: e, encoding: 'utf8' });
 };
+
+// The tests read only the contract directories they build: the machine's own installed one (pkg-config's contractdir,
+// which `requirementPlaces` looks in after $OMX_CONTRACT_PATH) holds whatever the host installed, and a package there
+// whose refs this fixture does not carry (plugin-hostd 0.20.7's verbs, on a desk) turned the three tests below red on
+// that host and green in CI. A host directory that breaks the read stands in for it here.
+test('the host\'s installed contract directory never reaches these tests', () => {
+  const host = fresh('host');
+  const pdir = join(host, String(SCHEMA_MAJOR), 'host-package');
+  write(pdir, 'verbs.json', {
+    $schema: installedSchemaUrl(SCHEMA_MAJOR),
+    requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` },
+    HOST_PACKAGE_VERBS: {
+      kind: 'verbs', since: '0.1.0', doc: 'a host package whose verb names a code no fixture carries',
+      verbs: { hostOnly: { verb: 'host_only', format: 'host_only', reply: 'resp 0', codes: [{ ref: 'HOST_REPLY_CODES.nowhere' }], implementedBy: { 'plugin-hostd': 'required' }, doc: 'a host verb' } },
+    },
+  });
+  write(pdir, 'MANIFEST.json', { package: 'host-package', version: '0.1.0', schemaMajor: SCHEMA_MAJOR, files: { 'verbs.json': sha256(readFileSync(join(pdir, 'verbs.json'))) } });
+  const pc = fresh('pc');
+  write(pc, 'omx-contract.pc', `contractdir=${host}\n\nName: omx-contract\nDescription: a host's installed contract\nVersion: ${packageVersion(ROOT)}\n`);
+  const saved = { PKG_CONFIG_PATH: process.env.PKG_CONFIG_PATH, PKG_CONFIG_LIBDIR: process.env.PKG_CONFIG_LIBDIR };
+  process.env.PKG_CONFIG_PATH = pc;
+  process.env.PKG_CONFIG_LIBDIR = pc;
+  try {
+    // positive control: this host's pkg-config names the directory, and a read that looks there is refused
+    assert.equal(execFileSync('pkg-config', ['--variable=contractdir', 'omx-contract'], { encoding: 'utf8' }).trim(), host);
+    const tree = hostdTree();
+    const dir = contractDir();
+    const raw = spawnSync(process.execPath, [CLI, 'translate', '--check', '--owner', tree, '--lang', 'ca', '--package', 'fixture'], { env: { ...process.env, OMX_CONTRACT_PATH: dir }, encoding: 'utf8' });
+    assert.notEqual(raw.status, 0, 'positive control: the host directory breaks a read that looks in it');
+    const r = run(tree, { OMX_CONTRACT_PATH: dir });
+    assert.equal(r.status, 0, r.stderr + r.stdout);
+  } finally {
+    for (const [k, v] of Object.entries(saved)) if (v === undefined) delete process.env[k]; else process.env[k] = v;
+  }
+});
 
 test('a tree whose refs point into a required package is green when OMX_CONTRACT_PATH holds it: no false undeclared', () => {
   const r = run(hostdTree(), { OMX_CONTRACT_PATH: contractDir() });

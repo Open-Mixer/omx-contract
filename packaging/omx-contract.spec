@@ -52,7 +52,6 @@ License: GPL-3.0-or-later
 Summary: The OpenMixer declarations a reader reads at run time: contract directory, schema, json
 # the files every reader of the contract directory reads at run time, the same on every architecture
 # 3.13.0: OMX_PLUGIN_FACE_IDS is installed by omx-plugins-contract 0.19.3 on; an older one leaves it declared by no one
-Conflicts: omx-plugins-contract < 0.19.3~
 
 %description data
 The files a program reads at run time to know the OpenMixer declarations:
@@ -167,9 +166,6 @@ Requires: %{name}-data = %{version}-%{release}
 Recommends: %{name} = %{version}-%{release}
 Provides: %{name}-static = %{version}-%{release}
 # the owners' releases before schema 3 read words and names this release no longer carries
-Conflicts: omx-dsp-devel < 0.25.0~
-Conflicts: omx-clap-core-devel < 0.13.0~
-Conflicts: omx-plugins-devel < 0.13.0~
 
 %description devel
 Everything you need to build against omx-contract: the C render of
@@ -208,12 +204,14 @@ Its documentation is on openmixer.org.
 %dir %{_datadir}/omx-contract
 %{_datadir}/omx-contract/contract.d/
 %{_datadir}/omx-contract/omx-contract.schema.json
+%{_datadir}/omx-contract/shapes/
 %{_datadir}/omx-contract/omx-contract.json
 %{_datadir}/omx-contract/omx-vocabulary.schema.json
 %{_datadir}/omx-contract/omx_contract.py
 %{_datadir}/omx-contract/omx_contract_catalog.py
 %{_datadir}/omx-contract/omx_contract_scale.py
 %{_datadir}/omx-contract/scale-vectors.json
+%{_datadir}/omx-contract/clap-kind-vectors.json
 %{_datadir}/omx-contract/languages.json
 %dir %{_datadir}/omx-contract/catalogs
 %{_datadir}/omx-contract/omx-resource-hints.ttl

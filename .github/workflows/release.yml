@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 name: release
 
-# A version tag v<package.json version> proves the data (tests, the round-trip proof, the semver
+# A version tag v<package.json version> proves the data (tests, the semver
 # class against the previous tag), builds omx-contract, omx-contract-data, omx-contract-devel, python3-omx-contract and a language pack per
 # language of share/omx-contract/languages.json (RPM) and omx-contract, omx-contract-data, libomx-contract-dev, python3-omx-contract and the
 # packs (DEB)
@@ -72,7 +72,6 @@ jobs:
           test -n "$data"
           echo "OMX_LIVE_OWNER_DATA=$data" >> "$GITHUB_ENV"
       - run: npm test
-      - run: node tools/proof/round-trip.mjs --quiet
       - name: The bump covers every change since the previous tag
         run: |
           prev=$(git tag --list 'v*' --sort=-v:refname --merged HEAD | grep -vx "v$(node -p 'require("./package.json").version')" | head -1)

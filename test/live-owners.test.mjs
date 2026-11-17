@@ -24,7 +24,7 @@ import { DATA, HOSTING, ROOT, scratchDir } from './helpers.mjs';
 const live = (process.env.OMX_LIVE_OWNER_DATA ?? '').split(':').filter(Boolean);
 const skip = live.length === 0 && !process.env.GITHUB_ACTIONS && 'OMX_LIVE_OWNER_DATA names no live owner data directory';
 
-/** data/, every live owner's data and omx-clap-core's hosting file in one data directory (schema/ beside it). */
+/** data/, every live owner's data and the tool hosting file in one data directory (schema/ beside it). */
 const liveUnion = () => {
   const dir = scratchDir('omx-contract-live-');
   cpSync(DATA, join(dir, 'data'), { recursive: true });
@@ -95,11 +95,7 @@ test('the schema unit enum lists exactly the units the live items and readouts u
 });
 
 test('the tool names no item an owner installs: the owner\'s file is the only place its spelling and its rules live', { skip }, () => {
-  // The console engine's renderer, moved unchanged, writes the frozen header of the round-trip proof: its prose is that
-  // header's bytes (tools/proof/round-trip.mjs), not a rule of the tool.
-  const FROZEN = 'render/c/contract-limits-render.mjs';
-  const sources = ['lib', 'render', 'render/c', 'bin'].flatMap((d) => readdirSync(join(ROOT, d)).filter((f) => f.endsWith('.mjs')).map((f) => [`${d}/${f}`, readFileSync(join(ROOT, d, f), 'utf8')]))
-    .filter(([file]) => file !== FROZEN);
+  const sources = ['lib', 'render', 'render/c', 'bin'].flatMap((d) => readdirSync(join(ROOT, d)).filter((f) => f.endsWith('.mjs')).map((f) => [`${d}/${f}`, readFileSync(join(ROOT, d, f), 'utf8')]));
   const own = new Set(loadData(DATA).items.keys());
   const owned = [...loadData(liveUnion()).items.keys()].filter((n) => !own.has(n));
   assert.ok(owned.includes('HOSTED_STAGE_LIMITS') && owned.length > 150, 'positive control: the owners\' items');

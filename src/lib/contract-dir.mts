@@ -12,7 +12,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { refuse } from './codes.mjs';
 import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data.mjs';
-import { SCHEMA_VERSION, fileProblems, useProblems, validatesWhole } from './validate.mjs';
+import { SCHEMA_VERSION, fileProblems, useProblems } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
 import type { Json, JsonObject } from './json.mjs';
@@ -25,10 +25,8 @@ export const SCHEMA_PACKAGE = 'omx-contract';
 
 /** The `$schema` an installed file carries: the schema of its major, by URL. */
 export const installedSchemaUrl = (major) => `https://openmixer.org/schema/omx-contract/v${major}/omx-contract.schema.json`;
-// the schema a contract file names: its id on openmixer.org, which this package writes; an installed package written
-// before that names the code host's address, under either organisation, and is read all the same until it is released
-// again (the id moved, the schema did not)
-const INSTALLED_SCHEMA = /^https:\/\/(?:openmixer\.org\/schema\/omx-contract\/v(\d+)\/|github\.com\/(?:FreeMixer|Open-Mixer)\/omx-contract\/raw\/v(\d+)\/schema\/)omx-contract\.schema\.json$/;
+// the schema a contract file names: its id on openmixer.org, which this package writes
+const INSTALLED_SCHEMA = /^https:\/\/openmixer\.org\/schema\/omx-contract\/v(\d+)\/omx-contract\.schema\.json$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const FLOOR = /^>= ((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*))$/;
@@ -48,31 +46,6 @@ export const floorOf = (s) => (typeof s === 'string' ? FLOOR.exec(s)?.[1] : unde
 
 /** The sha256 of a file's bytes, as the manifest lists it. */
 export const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
-
-const HISTORY_DIR = new URL('../schema/history/', import.meta.url);
-const historySchemas = new Map();
-
-/** `major.minor.0` of a version: the schema's vocabulary only ever grows at a minor, so a floor's patch names no
- * schema of its own. */
-const minorOf = (v) => `${v.split('.').slice(0, 2).join('.')}.0`;
-
-/** The schema object as it stood at the minor `floor` names (its `major.minor.0`), read from the frozen copy under
- * `schema/history/`, cached. `undefined` when `floor` names the bundled schema's own minor (nothing further to
- * check: `fileProblems` already checked against it) or a major schema has since gone by (a major is free to
- * remove or narrow a kind, unit, scale or field, so a floor from before it is no longer a vocabulary this reader's
- * major carries at all, and `contract.schema.too-old` already reads a floor's position, not its major, against
- * `SCHEMA_VERSION`). */
-function schemaAt(floor) {
-  if (Number(floor.split('.')[0]) !== SCHEMA_MAJOR) return undefined;
-  const key = minorOf(floor);
-  if (key === minorOf(SCHEMA_VERSION)) return undefined;
-  if (!historySchemas.has(key)) {
-    const p = new URL(`${key}.schema.json`, HISTORY_DIR);
-    if (!existsSync(p)) throw new Error(`schema/history/${key}.schema.json is missing: every past minor needs a frozen copy (docs/contract-dir.md)`);
-    historySchemas.set(key, { key, schema: JSON.parse(readFileSync(p, 'utf8')) });
-  }
-  return historySchemas.get(key);
-}
 
 /**
  * The directories that stand where `contractdir` stands, in their order: `dir` (a path or a list) when given, else
@@ -242,7 +215,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (typeof doc !== 'object' || doc === null || Array.isArray(doc)) refuse('fileInvalid', at, 'a data file is an object');
       const m = INSTALLED_SCHEMA.exec(doc.$schema ?? '');
       if (!m) refuse('schemaMajor', at, `$schema ${JSON.stringify(doc.$schema)} is not ${installedSchemaUrl(major)}`);
-      const named = m[1] ?? m[2];
+      const named = m[1];
       if (Number(named) !== major) refuse('schemaMajor', at, `$schema names schema major ${named}; this reader reads ${major}`);
       if (doc.requires !== undefined && (typeof doc.requires !== 'object' || doc.requires === null || Array.isArray(doc.requires))) refuse('fileInvalid', at, 'requires is not a map');
       const req = doc.requires ?? {};
@@ -258,12 +231,6 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const coded = problems.find((p) => p.name);
       if (coded) refuse(coded.name, at, problems.filter((p) => p.name === coded.name).map((p) => `${p.item}: ${p.message}`).join('; '));
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-      if (floor !== undefined) {
-        const hist = schemaAt(floor);
-        if (hist && !validatesWhole(hist.schema, hist.key, file)) {
-          refuse('schemaFloorUnderstated', at, `requires omx-contract-schema >= ${floor}; this file does not validate against the schema at that floor, only against a newer one`);
-        }
-      }
       files.push(file);
     }
   }

@@ -9,6 +9,8 @@
  * project here.
  */
 
+import { documented, doxyLine } from './c-literals.mjs';
+
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
 /**
@@ -56,11 +58,11 @@ const licence = (project) => `/* SPDX-License-Identifier: GPL-3.0-or-later */
 
 `;
 
-/** A define with its prose as a trailing member comment; a one-line prose only, or the rest would be read as C. */
-function documented(define, prose, where) {
-  if (prose === undefined) return define;
-  if (typeof prose !== 'string' || prose.length === 0 || /[\n\r]/.test(prose)) throw new Error(`render.c: ${where} is no one-line description`);
-  return `${define}  ///< ${prose}`;
+/** A declaration's prose as its one doxygen line; a one-line prose only (`where` names it when it is not), or the rest would be read as C. */
+function prose(text, where) {
+  if (text === undefined) return undefined;
+  if (typeof text !== 'string' || text.length === 0 || /[\n\r]/.test(text)) throw new Error(`render.c: ${where} is no one-line description`);
+  return doxyLine(text);
 }
 
 /** The C names a header gives item `r` through its numbers and codes sections: `[[name, field]]`. */
@@ -80,7 +82,7 @@ function numbersSection(spec, items, header) {
       const level = spec.levels !== undefined && globMatch(spec.levels, field);
       const literal = level ? `${Number.isInteger(v) ? `${v}.0` : v}f` : Number.isInteger(v) && v >= 0 ? `${v}u` : null;
       if (literal === null) throw new Error(`${header}: ${r.name}.${field} is neither a level (${spec.levels}) nor a non-negative integer`);
-      lines.push(documented(`#define ${name} ${literal}`, r.docs?.[field], `${r.name}.docs.${field}`));
+      lines.push(documented(`#define ${name} ${literal}`, prose(r.docs?.[field], `${r.name}.docs.${field}`)));
     }
   }
   if (!lines.length) throw new Error(`${header}: a numbers section with no sheet to render`);
@@ -104,7 +106,7 @@ function tableOf(spec, items, header) {
 /** codes: every codes item, a code per define. */
 function codesSection(spec, items, header) {
   const lines = items.filter((x) => x.kind === 'codes').flatMap((r) =>
-    ownerNames({ codes: spec }, r).flatMap(([name, n]) => [documented(`#define ${name} ${JSON.stringify(r.value[n].code)}`, r.value[n].doc, `${r.name}.${n}.doc`), ...codeTextDefines(name, r.value[n], JSON.stringify)]));
+    ownerNames({ codes: spec }, r).flatMap(([name, n]) => [documented(`#define ${name} ${JSON.stringify(r.value[n].code)}`, prose(r.value[n].doc, `${r.name}.${n}.doc`)), ...codeTextDefines(name, r.value[n], JSON.stringify)]));
   if (!lines.length) throw new Error(`${header}: a codes section with no codes item to render`);
   return `/** ${spec.comment} */\n${lines.join('\n')}`;
 }

@@ -13,7 +13,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { texts, scratchDir } from './helpers.mjs';
+import { scratchDir, texts, undocumented } from './helpers.mjs';
 
 // the swell's kinds (soft, hard) planted with values: hard carries 4, soft none
 const planted = () => resolveData(loadData(null, texts((d, at) => { const s = at('data/kernels/swell.json', 'SWELL_KINDS'); s.values = [null, 4]; s.unit = 'x'; })));
@@ -31,7 +31,7 @@ test('ts: <SET>_VALUES maps each id to its value, null for none', () => {
 });
 
 test('c: the value of each id that carries one, and no define for an id that carries none', () => {
-  const h = renderC(planted())[0].text;
+  const h = undocumented(renderC(planted())[0].text);
   assert.match(h, /^#define OMX_SWELL_KINDS_UNIT "x"\n#define OMX_SWELL_KINDS_HARD_VALUE 4\.0f\nstatic inline int omx_swell_kinds_value\(int id, float \*out\) \{$/m);
   assert.doesNotMatch(h, /OMX_SWELL_KINDS_SOFT_VALUE/);
 });

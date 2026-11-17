@@ -4,9 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
-- REMOVED: `SCAN_DOCUMENTS` and `SCAN_FIELD_SCOPES` (data/scan.json) and their catalog messages. They are omx-clap-core's `scan`
+- REMOVED: `SCAN_DOCUMENTS` and `SCAN_FIELD_SCOPES` (data/scan.json); their translations travel with the domain. They are omx-clap-core's `scan`
   domain (`contract.d/scan/scan.json` there, `scan_vocabulary.h`, the same `OMX_SCAN_*` macros byte for byte); a reader that
   took them from `omxcontract/omx_vocabulary.h` includes omx-clap-core's header instead (omx-contract#81, move 1).
+- A domain's words may carry `x-group` (with the item's `x-groups`, a words schema of the same document), `x-from` (`$ref` by a domain `$id` + `x-term`), and a domain directory holds `catalogs/<lang>.json`, read by `validate` with the owner taken from `info.x-owner` (docs/contract-dir.md, omx-contract#81).
 - The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,
   `info{title,version,x-owner}` and `components.schemas`, a words item a `oneOf` of `const` words (docs/contract-dir.md,
   "Domains"). The domain's owner is metadata, its version its own; `render --package <domain>` renders `<domain>_vocabulary.h`

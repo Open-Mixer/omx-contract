@@ -104,6 +104,18 @@ function catalogFiles(argv) {
   });
 }
 
+/** The catalogs of the domains of a read, `<domain>/catalogs/<lang>.json` (docs/contract-dir.md, "Domains"). */
+function domainCatalogFiles(data) {
+  const out = [];
+  for (const [name, p] of data.packages ?? []) {
+    if (p.manifest.owner === undefined) continue;
+    const dir = join(p.dir, 'catalogs');
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) out.push({ domain: p.manifest.owner, rel: `${name}/catalogs/${f}`, doc: JSON.parse(readFileSync(join(dir, f), 'utf8')) });
+  }
+  return out;
+}
+
 /** Every file under `dir`, relative to it. */
 function filesUnder(dir) {
   if (!existsSync(dir)) return [];
@@ -123,12 +135,14 @@ function cmdValidate(argv) {
   const data = load(argv);
   const tools = toolFiles(argv);
   const problems = [...validateData(data), ...tools.flatMap(fileProblems)];
-  const catalogs = problems.length ? [] : catalogFiles(argv);
+  const catalogs = problems.length ? [] : [...catalogFiles(argv), ...domainCatalogFiles(data)];
+  const ownerOf = new Map([...(data.packages ?? [])].filter(([, p]) => p.manifest.owner !== undefined).map(([n, p]) => [n, p.manifest.owner]));
   if (catalogs.length) {
     const resolved = resolveData(data);
     const extra = tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind));
     // from a contract directory, a catalog's keys are its owner's package's codes and words only
-    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, catalogKeys(resolved, { extra, ...(data.packages ? { owner: c.doc?.owner } : {}) })));
+    for (const c of catalogs.filter((x) => x.domain !== undefined)) if (c.doc?.owner !== c.domain) problems.push({ file: c.rel, item: 'owner', rule: 'catalog-schema', message: `owner ${JSON.stringify(c.doc?.owner)} is not ${c.domain}, the info.x-owner of the domain it sits in` });
+    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, catalogKeys(resolved, { extra, ownerOf, ...(data.packages ? { owner: c.doc?.owner } : {}) })));
   }
   for (const p of problems) console.error(`${p.file}: ${p.item}: ${p.rule}: ${p.message}`);
   if (problems.length) return 1;

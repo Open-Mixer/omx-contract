@@ -109,7 +109,7 @@ stated here and held by the vectors below; no host keeps a rule of its own.
 
 `share/omx-contract/clap-kind-vectors.json` holds the vectors: per case the inputs (the flags, the range, the default,
 the contract entry or none, whether value texts exist) and the kind and default a host must read. The C reader
-(plugin-hostd `src/describe.c`) and the TypeScript one (openmixer `packages/catalog/src/scanned-descriptors.ts`) are
+(plugin-hostd `src/describe.c`) and the console's TypeScript one are
 held to this one file by their own tests; neither restates the table. It is no declaration: not loaded, rendered or
 installed in the contract directory.
 

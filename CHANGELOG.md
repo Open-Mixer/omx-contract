@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- A scanned CLAP parameter's kind is read by one rule, stated in `docs/descriptors.md` and held by
+  `share/omx-contract/clap-kind-vectors.json`: the merged scale word (the contract entry's, else the stepped flag), an
+  enumeration a choice, a stepped 0..1 with step 1 a toggle (default on at 0.5 and above), everything else a travel.
+  plugin-hostd's describe and the console's catalog are held to the vectors, keeping no rule of their own.
 - The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
   balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their
   order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.

@@ -225,9 +225,13 @@ function finishRender(target, out, files, argv, shapes) {
       named.add('omx_contract_scale.py');
       // and the language list (hand-written: the languages every owner ships a catalog of, omx-contract#21)
       named.add('languages.json');
+      // and the CLAP kind vectors (hand-written goldens, docs/descriptors.md; omx-contract#70)
+      named.add('clap-kind-vectors.json');
+      // and the shapes' Python renders (docs/shapes.md), committed beside them
+      for (const p of shapePaths(ROOT, 'py', shapesDir)) named.add(p);
     }
     // the shapes' renders (docs/shapes.md) are committed beside the declarations' for c, ts and py: each check knows the other's files
-    if (['c', 'ts', 'py'].includes(target)) for (const p of shapePaths(ROOT, target, shapesDir)) named.add(p);
+    if (['c', 'ts'].includes(target)) for (const p of shapePaths(ROOT, target, shapesDir)) named.add(p);
     if (shapes && ['c', 'ts'].includes(target)) for (const f of renderTarget(target, argv)) named.add(f.path);
     if (opt(argv, '--package') === undefined) for (const rel of filesUnder(join(dir, scope))) if (!named.has(join(scope, rel))) bad.push(`${join(scope, rel)} is extra`);
     for (const b of bad) console.error(`omx-contract render --check: ${out.replace(/\/$/, '')}/${b}`);

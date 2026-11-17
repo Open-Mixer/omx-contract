@@ -247,17 +247,33 @@ Its documentation is on openmixer.org.
 %{_rpmmacrodir}/macros.omx-contract
 
 %changelog
-* Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.0-1
+* Tue Nov 17 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.0-1
 - Schema 3.19.0: a catalog entry may be by: same, the sentence the source
   sentence is, with its source hash; readers keep it and no generator
-  rewrites it. The Catalan catalog's plain entries carry their by form (#44).
+  rewrites it. The Catalan catalog's plain entries carry their by form (#44,
+  which carries #37, the Catalan catalog's by form).
 - The C vocabulary renders every words item as an X-macro (#52), and the panel
   declares its display kinds, display sources and placements (#52, #73), each
   since 3.19.0. The panel vocabulary also reads as a domain document,
   <domain>/<domain>.json, beside the package layout (#79), and an ownership
   gate refuses a new word in an item moving out of the contract (#82).
-- The -devel floors stay: omx-dsp-devel before 0.25.0, omx-clap-core-devel
-  before 0.13.0 and omx-plugins-devel before 0.13.0.
+- A typed-contract shapes facility, a new public generator: a document's shape
+  is one JSON Schema file under shapes/, rendered by render --shapes to a
+  TypeScript interface, a Python TypedDict and the C keys as X-macros, held by
+  --check; the first shape is the travel (#69).
+- Back-compat REMOVED, consumers must know: the schema history and the
+  floor-understated check, the Conflicts, Breaks and Replaces lines, the bare
+  string catalog entry, the old code-host $schema address, the alias fixtures
+  and render --sheet are gone (#58, #55).
+- The C text helpers live in their own module, render/c/c-literals.mjs, and the
+  ./contract-limits-render export is gone (#60).
+- A scanned CLAP parameter's kind is decided by one rule, with the vectors every
+  reader is held to in share/omx-contract/clap-kind-vectors.json (#67).
+- translate --owner resolves a tree's requires and its declared code
+  locations, or refuses by name (#41).
+- The utility panel family joins the panel families (#50).
+- The -devel floors are unchanged: the lowest accepted are omx-dsp-devel
+  0.25.0, omx-clap-core-devel 0.13.0 and omx-plugins-devel 0.13.0.
 * Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 3.18.1-1
 - python3-omx-contract (#28), one package on RPM and DEB from the same source:
   omx_contract in the interpreter's site-packages with catalog, scale and clap

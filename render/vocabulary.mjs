@@ -9,7 +9,7 @@
  */
 import { packageItems } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
-import { cStringLiteral, documented, doxyLine } from './c/c-literals.mjs';
+import { cStringLiteral, described, documented, doxyLine } from './c/c-literals.mjs';
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 
@@ -59,8 +59,14 @@ export function renderVocabularyHeader(resolved, pkg) {
         lines.push(documented(`#define ${wordMacro(r.name, n)} ${cStringLiteral(w.word)}`, w.doc && doxyLine(w.doc)));
         lines.push(...codeTextDefines(wordMacro(r.name, n), w, cStringLiteral));
       }
-      lines.push(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`);
-      lines.push(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`);
+      lines.push(described(`#define OMX_${r.name}_COUNT ${Object.keys(r.value).length}u`, `The number of words of ${r.name}.`));
+      lines.push(described(`#define OMX_${r.name}_INIT { ${wordsOf(r).map(cStringLiteral).join(', ')} }`, `The words of ${r.name} in their declared order, as a C initializer list.`));
+      // X(<code>u, "<word>", <NAME>) per word, the code its place in the order: a consumer's tables follow the item
+      const xs = Object.entries(r.value).map(([n, w], i) => `X(${i}u, ${cStringLiteral(w.word)}, ${constCase(n)})`);
+      const rows = [];
+      for (let i = 0; i < xs.length; i += 4) rows.push(`    ${xs.slice(i, i + 4).join(' ')}`);
+      const doc = `Expands \`X(code, "word", NAME)\` once per word of ${r.name}, in order, the code being its place in the order.${r.doc ? ` ${doxyLine(r.doc)}` : ''}`;
+      lines.push(`/** ${doc} */`, `#define OMX_${r.name}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
     }
     return lines.join('\n');
   });

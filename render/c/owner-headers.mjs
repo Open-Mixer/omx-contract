@@ -19,7 +19,7 @@ const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUppe
  */
 export function codeTextDefines(macro, c, literal) {
   if (c.text === undefined) return [];
-  const lines = [`#define ${macro}_TEXT_EN ${literal(c.text.en)}`];
+  const lines = [`/** The source sentence (English) of ${macro}. */\n#define ${macro}_TEXT_EN ${literal(c.text.en)}`];
   if (c.args?.length) lines.push(`#define ${macro}_ARGS_COUNT ${c.args.length}u`, `#define ${macro}_ARGS_INIT { ${c.args.map(literal).join(', ')} }`);
   return lines;
 }

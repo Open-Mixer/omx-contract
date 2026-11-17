@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- Every words item renders one X-macro in the C vocabulary, `OMX_<ITEM>(X)` with `X(<code>u, "<word>", <NAME>)` per word,
+  the code being its place in the declared order: a consumer builds its tables from the item instead of restating it
+  (omx-clap-core's panel families, widgets and display kinds, Open-Mixer/omx-clap-core#104). Its name is held unique with
+  every other C name.
+- `PANEL_DISPLAY_KINDS` (data/panel.json): the displays a panel description serves, `gain_reduction_bar`,
+  `transfer_curve`, `eq_response`, `meter` and `time_response` (omx-panel's, code 4), in the order of their codes; declared here, no longer restated by hand in
+  omx-clap-core. The six catalogs carry their sentences as drafts.
 - Shapes (`docs/shapes.md`, the typed-contracts spec `docs/typed-contracts-shared-behaviour.md`
   §3, lane S1): a document's shape is one JSON Schema 2020-12 file under `shapes/`, rendered by
   `render --target ts|py|c --shapes` to a TypeScript interface (json-schema-to-typescript, pinned), a Python `TypedDict`

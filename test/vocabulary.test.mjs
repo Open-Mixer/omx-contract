@@ -127,6 +127,25 @@ test('the panel display kinds carry time_response at code 4', () => {
   assert.equal(words.indexOf('time_response'), 4, 'time_response is the fifth display kind, code 4');
 });
 
+// The panel description's display sources and placements were restated by hand in omx-clap-core and omx-plugins; they are
+// declared once, here, with the codes omx-clap-core serves (the place in the declared order).
+test('the panel display sources and placements are declared here, with the codes a panel description serves', () => {
+  const want = {
+    PANEL_DISPLAY_SOURCES: ['family', 'meters', 'gain_adjustment', 'curve'],
+    PANEL_PLACEMENTS: ['insert', 'return', 'bus', 'master'],
+  };
+  const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
+  for (const [name, words] of Object.entries(want)) {
+    const r = resolved.get(name);
+    assert.ok(r && r.kind === 'words', `${name} is a words item`);
+    assert.deepEqual(Object.values(r.value).map((w) => w.word), words);
+    const m = h.match(new RegExp(`^#define OMX_${name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
+    assert.ok(m, `${name} renders an X-macro`);
+    const codes = [...m[1].matchAll(/X\((\d+)u, "([^"]*)"/g)].map(([, c, w]) => [Number(c), w]);
+    assert.deepEqual(codes, words.map((w, i) => [i, w]), `${name}: the codes are the place in the order`);
+  }
+});
+
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {
   const f = JSON.parse(renderJson(withCodes, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text);
   assert.deepEqual(f.$defs.MEASUREMENT_LATENCY_METHODS.enum, ['impulse-onset', 'declared-port', 'note-onset']);

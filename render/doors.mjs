@@ -13,14 +13,23 @@ const isSheet = (v) => typeof v === 'object' && v !== null && !Array.isArray(v) 
 const isTravel = (v) => typeof v.min === 'number' && typeof v.max === 'number';
 const TRAVEL_LABELS = new Set(['unit', 'defaultFrom']);
 
-/** Every leaf of `v` when ALL its leaves are finite numbers; `undefined` when any is not (declared-scalars.ts). */
-function numberLeaves(v, path, macro) {
-  if (typeof v === 'number') return Number.isFinite(v) ? [{ path, macro, value: v }] : undefined;
+/**
+ * Every leaf of `v` when ALL its leaves are finite numbers; `undefined` when any is not (declared-scalars.ts). A leaf
+ * carries what its define is documented with: `head` the item's name, the item's `doc`, `unit` and `since`, and
+ * `fieldDoc`, the `docs[field]` line of a sheet's top-level field that has one.
+ */
+function numberLeaves(v, path, macro, item = {}) {
+  if (typeof v === 'number') {
+    if (!Number.isFinite(v)) return undefined;
+    const [head, field, ...deeper] = path.split('.');
+    const fieldDoc = field !== undefined && !deeper.length ? item.docs?.[field] : undefined;
+    return [{ path, macro, value: v, head, doc: item.doc, unit: item.unit, since: item.since, fieldDoc }];
+  }
   if (!isSheet(v)) return undefined;
   const out = [];
   for (const [key, leaf] of Object.entries(v)) {
     if (TRAVEL_LABELS.has(key) && typeof leaf === 'string' && !path.includes('.') && isTravel(v)) continue;
-    const leaves = numberLeaves(leaf, `${path}.${key}`, `${macro}_${constantCase(key)}`);
+    const leaves = numberLeaves(leaf, `${path}.${key}`, `${macro}_${constantCase(key)}`, item);
     if (leaves === undefined) return undefined;
     out.push(...leaves);
   }
@@ -39,7 +48,7 @@ export function doors(resolved) {
   const byMacro = new Map();
   for (const r of items) {
     if (isNativeTable(r) || r.kind === 'list' || r.kind === 'set') continue;
-    const leaves = numberLeaves(r.value, r.name, r.name.replace(/^OMX_/, '').replace(/_(KERNEL|LIMITS)$/, ''));
+    const leaves = numberLeaves(r.value, r.name, r.name.replace(/^OMX_/, '').replace(/_(KERNEL|LIMITS)$/, ''), r);
     if (leaves === undefined) continue;
     for (const s of leaves) {
       const seen = byMacro.get(s.macro);
@@ -49,10 +58,10 @@ export function doors(resolved) {
   }
   const DECLARED_SCALARS = [...byMacro.values()].sort((a, b) => (a.macro < b.macro ? -1 : a.macro > b.macro ? 1 : 0));
   const DECLARED_LISTS = items.filter((r) => r.kind === 'list' && r.c?.render !== false)
-    .map((r) => ({ name: r.name, values: r.value }))
+    .map((r) => ({ name: r.name, values: r.value, doc: r.doc, unit: r.unit, since: r.since }))
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const DECLARED_SET_ITEMS = items.filter((r) => r.kind === 'set')
-    .map((r) => ({ name: r.name, ids: r.value, default: r.default, ...(r.values ? { values: r.values, unit: r.unit } : {}) }))
+    .map((r) => ({ name: r.name, ids: r.value, default: r.default, doc: r.doc, since: r.since, labels: r.labels, ...(r.values ? { values: r.values, unit: r.unit } : {}) }))
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const STANDARD_SAMPLE_RATES = resolved.get('STANDARD_SAMPLE_RATES')?.value;
   return { NATIVE_LIMIT_TABLES, DECLARED_SCALARS, DECLARED_LISTS, DECLARED_SET_ITEMS, STANDARD_SAMPLE_RATES };

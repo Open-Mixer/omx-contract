@@ -95,7 +95,7 @@ test('move a scalar a sheet refers to, a travel default, a kernel constant and a
 
 test('move a set, a band count, a rate set and a kernel constant: every target follows', () => {
   const s = moved('kernels/wave.json', (d, at) => { at('WAVE_MODES').ids.push('ring'); });
-  assert.match(s.c, /^ {2}OMX_WAVE_MODES_RING = 2,$/m);
+  assert.match(s.c, /^ {2}OMX_WAVE_MODES_RING = 2, \/\/\/< The id `ring`\.$/m);
   assert.match(s.c, /^#define OMX_WAVE_MODES_COUNT 3u$/m);
   assert.deepEqual(s.json.WAVE_MODES.value, ['level', 'pan', 'ring']);
   assert.match(s.ts, /"ring"/);

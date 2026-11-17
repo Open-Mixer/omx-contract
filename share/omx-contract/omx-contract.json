@@ -7,6 +7,7 @@
       "kind": "words",
       "doc": "The axes a curve kind is drawn on, each with its unit and how a host draws it (docs/curves.md). A curve's values are in these units, so the drawn values can be held equal to the closed form a kernel's controls give.",
       "why": "A curve kind names its axes (the remaining-FX wave, FreeMixer/omx-contract#107): an axis is declared once and every kind drawn on it reads the same unit and scale.",
+      "since": "3.1.0",
       "value": {
         "frequency": {
           "word": "frequency",
@@ -132,6 +133,7 @@
       "kind": "words",
       "doc": "The kinds of picture a plugin's panel section draws and a console's card shows, each with the two axes it is drawn on (docs/curves.md). A kernel file and a plugin declaration name a kind by its word; a host keeps only its kind-to-drawing map. Append-only: a kind is never renamed, moved or removed while a reader draws it.",
       "why": "Declared once here and read by the omx-plugins schema and the console's curve registry (the remaining-FX wave, FreeMixer/omx-contract#107). The first five are the omx-plugins schema's graph kinds as they were; comb-response, modulation-shape and interval-map are the kinds the wave adds for the modulation and pitch plugins. modulation-shape is the picture the schema's unused lfo stood for.",
+      "since": "3.1.0",
       "axes": "CURVE_AXES",
       "value": {
         "eqCurve": {
@@ -212,6 +214,7 @@
       "rel": "data/formats/clap/color.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/color.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/color.h",
       "version": "1.2.10",
@@ -228,6 +231,7 @@
       "rel": "data/formats/clap/events.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/events.h",
       "version": "1.2.10",
@@ -499,6 +503,7 @@
       "rel": "data/formats/clap/ext/ambisonic.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/ambisonic.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/ambisonic.h",
       "version": "1.2.10",
@@ -572,6 +577,7 @@
       "rel": "data/formats/clap/ext/audio-ports-activation.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/audio-ports-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/audio-ports-activation.h",
       "version": "1.2.10",
@@ -596,6 +602,7 @@
       "rel": "data/formats/clap/ext/audio-ports-config.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/audio-ports-config.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/audio-ports-config.h",
       "version": "1.2.10",
@@ -627,6 +634,7 @@
       "rel": "data/formats/clap/ext/audio-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/audio-ports.h",
       "version": "1.2.10",
@@ -737,6 +745,7 @@
       "rel": "data/formats/clap/ext/configurable-audio-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/configurable-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/configurable-audio-ports.h",
       "version": "1.2.10",
@@ -761,6 +770,7 @@
       "rel": "data/formats/clap/ext/context-menu.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/context-menu.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/context-menu.h",
       "version": "1.2.10",
@@ -833,6 +843,7 @@
       "rel": "data/formats/clap/ext/draft/background-activation.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/background-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/background-activation.h",
       "version": "1.2.10",
@@ -850,6 +861,7 @@
       "rel": "data/formats/clap/ext/draft/background-progress.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/background-progress.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/background-progress.h",
       "version": "1.2.10",
@@ -867,6 +879,7 @@
       "rel": "data/formats/clap/ext/draft/background-state-context.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/background-state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/background-state-context.h",
       "version": "1.2.10",
@@ -884,6 +897,7 @@
       "rel": "data/formats/clap/ext/draft/extensible-audio-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/extensible-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/extensible-audio-ports.h",
       "version": "1.2.10",
@@ -901,6 +915,7 @@
       "rel": "data/formats/clap/ext/draft/flush-events.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/flush-events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/flush-events.h",
       "version": "1.2.10",
@@ -918,6 +933,7 @@
       "rel": "data/formats/clap/ext/draft/gain-adjustment-metering.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/gain-adjustment-metering.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/gain-adjustment-metering.h",
       "version": "1.2.10",
@@ -937,6 +953,7 @@
       "rel": "data/formats/clap/ext/draft/mini-curve-display.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/mini-curve-display.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/mini-curve-display.h",
       "version": "1.2.10",
@@ -1002,6 +1019,7 @@
       "rel": "data/formats/clap/ext/draft/octave-number.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/octave-number.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/octave-number.h",
       "version": "1.2.10",
@@ -1019,6 +1037,7 @@
       "rel": "data/formats/clap/ext/draft/param-hovered.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/param-hovered.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/param-hovered.h",
       "version": "1.2.10",
@@ -1036,6 +1055,7 @@
       "rel": "data/formats/clap/ext/draft/params-origin.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/params-origin.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/params-origin.h",
       "version": "1.2.10",
@@ -1053,6 +1073,7 @@
       "rel": "data/formats/clap/ext/draft/project-location.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/project-location.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/project-location.h",
       "version": "1.2.10",
@@ -1142,6 +1163,7 @@
       "rel": "data/formats/clap/ext/draft/resource-directory.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/resource-directory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/resource-directory.h",
       "version": "1.2.10",
@@ -1159,6 +1181,7 @@
       "rel": "data/formats/clap/ext/draft/scratch-memory.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/scratch-memory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/scratch-memory.h",
       "version": "1.2.10",
@@ -1176,6 +1199,7 @@
       "rel": "data/formats/clap/ext/draft/transport-control.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/transport-control.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/transport-control.h",
       "version": "1.2.10",
@@ -1193,6 +1217,7 @@
       "rel": "data/formats/clap/ext/draft/triggers.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/triggers.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/triggers.h",
       "version": "1.2.10",
@@ -1264,6 +1289,7 @@
       "rel": "data/formats/clap/ext/draft/tuning.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/tuning.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/tuning.h",
       "version": "1.2.10",
@@ -1281,6 +1307,7 @@
       "rel": "data/formats/clap/ext/draft/undo.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/undo.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/undo.h",
       "version": "1.2.10",
@@ -1312,6 +1339,7 @@
       "rel": "data/formats/clap/ext/draft/webview.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/webview.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/draft/webview.h",
       "version": "1.2.10",
@@ -1336,6 +1364,7 @@
       "rel": "data/formats/clap/ext/event-registry.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/event-registry.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/event-registry.h",
       "version": "1.2.10",
@@ -1353,6 +1382,7 @@
       "rel": "data/formats/clap/ext/gui.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/gui.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/gui.h",
       "version": "1.2.10",
@@ -1405,6 +1435,7 @@
       "rel": "data/formats/clap/ext/latency.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/latency.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/latency.h",
       "version": "1.2.10",
@@ -1427,6 +1458,7 @@
       "rel": "data/formats/clap/ext/log.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/log.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/log.h",
       "version": "1.2.10",
@@ -1494,6 +1526,7 @@
       "rel": "data/formats/clap/ext/note-name.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/note-name.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/note-name.h",
       "version": "1.2.10",
@@ -1514,6 +1547,7 @@
       "rel": "data/formats/clap/ext/note-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/note-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/note-ports.h",
       "version": "1.2.10",
@@ -1595,6 +1629,7 @@
       "rel": "data/formats/clap/ext/param-indication.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/param-indication.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/param-indication.h",
       "version": "1.2.10",
@@ -1649,6 +1684,7 @@
       "rel": "data/formats/clap/ext/params.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/params.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/params.h",
       "version": "1.2.10",
@@ -1885,6 +1921,7 @@
       "rel": "data/formats/clap/ext/posix-fd-support.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/posix-fd-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/posix-fd-support.h",
       "version": "1.2.10",
@@ -1920,6 +1957,7 @@
       "rel": "data/formats/clap/ext/preset-load.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/preset-load.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/preset-load.h",
       "version": "1.2.10",
@@ -1951,6 +1989,7 @@
       "rel": "data/formats/clap/ext/remote-controls.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/remote-controls.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/remote-controls.h",
       "version": "1.2.10",
@@ -1993,6 +2032,7 @@
       "rel": "data/formats/clap/ext/render.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/render.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/render.h",
       "version": "1.2.10",
@@ -2022,6 +2062,7 @@
       "rel": "data/formats/clap/ext/state-context.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/state-context.h",
       "version": "1.2.10",
@@ -2057,6 +2098,7 @@
       "rel": "data/formats/clap/ext/state.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/state.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/state.h",
       "version": "1.2.10",
@@ -2078,6 +2120,7 @@
       "rel": "data/formats/clap/ext/surround.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/surround.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/surround.h",
       "version": "1.2.10",
@@ -2232,6 +2275,7 @@
       "rel": "data/formats/clap/ext/tail.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/tail.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/tail.h",
       "version": "1.2.10",
@@ -2249,6 +2293,7 @@
       "rel": "data/formats/clap/ext/thread-check.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/thread-check.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/thread-check.h",
       "version": "1.2.10",
@@ -2270,6 +2315,7 @@
       "rel": "data/formats/clap/ext/thread-pool.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/thread-pool.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/thread-pool.h",
       "version": "1.2.10",
@@ -2287,6 +2333,7 @@
       "rel": "data/formats/clap/ext/timer-support.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/timer-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/timer-support.h",
       "version": "1.2.10",
@@ -2304,6 +2351,7 @@
       "rel": "data/formats/clap/ext/track-info.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/track-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/track-info.h",
       "version": "1.2.10",
@@ -2387,6 +2435,7 @@
       "rel": "data/formats/clap/ext/voice-info.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/voice-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/ext/voice-info.h",
       "version": "1.2.10",
@@ -2418,6 +2467,7 @@
       "rel": "data/formats/clap/factory/draft/plugin-invalidation.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/draft/plugin-invalidation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/factory/draft/plugin-invalidation.h",
       "version": "1.2.10",
@@ -2435,6 +2485,7 @@
       "rel": "data/formats/clap/factory/draft/plugin-state-converter.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/draft/plugin-state-converter.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/factory/draft/plugin-state-converter.h",
       "version": "1.2.10",
@@ -2452,6 +2503,7 @@
       "rel": "data/formats/clap/factory/plugin-factory.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/plugin-factory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/factory/plugin-factory.h",
       "version": "1.2.10",
@@ -2473,6 +2525,7 @@
       "rel": "data/formats/clap/factory/preset-discovery.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/preset-discovery.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/factory/preset-discovery.h",
       "version": "1.2.10",
@@ -2538,6 +2591,7 @@
       "rel": "data/formats/clap/fixedpoint.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/fixedpoint.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/fixedpoint.h",
       "version": "1.2.10",
@@ -2565,6 +2619,7 @@
       "rel": "data/formats/clap/id.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/id.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/id.h",
       "version": "1.2.10",
@@ -2585,6 +2640,7 @@
       "rel": "data/formats/clap/plugin-features.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/plugin-features.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/plugin-features.h",
       "version": "1.2.10",
@@ -2957,6 +3013,7 @@
       "rel": "data/formats/clap/process.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/process.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/process.h",
       "version": "1.2.10",
@@ -3005,6 +3062,7 @@
       "rel": "data/formats/clap/string-sizes.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/string-sizes.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/string-sizes.h",
       "version": "1.2.10",
@@ -3031,6 +3089,7 @@
       "rel": "data/formats/clap/timestamp.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/timestamp.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/timestamp.h",
       "version": "1.2.10",
@@ -3047,6 +3106,7 @@
       "rel": "data/formats/clap/version.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/version.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "clap",
       "spec": "clap/version.h",
       "version": "1.2.10",
@@ -3083,6 +3143,7 @@
       "rel": "data/formats/lv2/atom.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Atom specification (atom.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/atom",
       "version": "2.4",
@@ -3322,6 +3383,7 @@
       "rel": "data/formats/lv2/buf-size.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Buf Size specification (buf-size.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/buf-size",
       "version": "1.4",
@@ -3412,6 +3474,7 @@
       "rel": "data/formats/lv2/core.json",
       "kind": "terms",
       "doc": "The terms of the LV2 specification (core.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/lv2core",
       "version": "18.6",
@@ -4232,6 +4295,7 @@
       "rel": "data/formats/lv2/data-access.json",
       "kind": "terms",
       "doc": "The terms of the data access specification (data-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/data-access",
       "version": "1.6",
@@ -4250,6 +4314,7 @@
       "rel": "data/formats/lv2/dynmanifest.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Dyn Manifest specification (dynmanifest.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/dynmanifest",
       "version": "1.6",
@@ -4272,6 +4337,7 @@
       "rel": "data/formats/lv2/event.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Event specification (event.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/event",
       "version": "1.14",
@@ -4356,6 +4422,7 @@
       "rel": "data/formats/lv2/instance-access.json",
       "kind": "terms",
       "doc": "The terms of the instance access specification (instance-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/instance-access",
       "version": "1.6",
@@ -4374,6 +4441,7 @@
       "rel": "data/formats/lv2/log.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Log specification (log.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/log",
       "version": "2.4",
@@ -4440,6 +4508,7 @@
       "rel": "data/formats/lv2/midi.json",
       "kind": "terms",
       "doc": "The terms of the LV2 MIDI specification (midi.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/midi",
       "version": "1.10",
@@ -4710,6 +4779,7 @@
       "rel": "data/formats/lv2/morph.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Morph specification (morph.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/morph",
       "version": "1.0",
@@ -4750,6 +4820,7 @@
       "rel": "data/formats/lv2/options.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Options specification (options.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/options",
       "version": "1.4",
@@ -4803,6 +4874,7 @@
       "rel": "data/formats/lv2/parameters.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Parameters specification (parameters.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/parameters",
       "version": "1.4",
@@ -5012,6 +5084,7 @@
       "rel": "data/formats/lv2/patch.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Patch specification (patch.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/patch",
       "version": "2.10",
@@ -5213,6 +5286,7 @@
       "rel": "data/formats/lv2/port-groups.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Port Groups specification (port-groups.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/port-groups",
       "version": "1.4",
@@ -5631,6 +5705,7 @@
       "rel": "data/formats/lv2/port-props.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Port Properties specification (port-props.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/port-props",
       "version": "1.2",
@@ -5734,6 +5809,7 @@
       "rel": "data/formats/lv2/presets.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Presets specification (presets.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/presets",
       "version": "2.8",
@@ -5787,6 +5863,7 @@
       "rel": "data/formats/lv2/resize-port.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Resize Port specification (resize-port.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/resize-port",
       "version": "1.0",
@@ -5825,6 +5902,7 @@
       "rel": "data/formats/lv2/state.json",
       "kind": "terms",
       "doc": "The terms of the LV2 State specification (state.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/state",
       "version": "2.10",
@@ -5910,6 +5988,7 @@
       "rel": "data/formats/lv2/time.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Time specification (time.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/time",
       "version": "1.6",
@@ -6025,6 +6104,7 @@
       "rel": "data/formats/lv2/ui.json",
       "kind": "terms",
       "doc": "The terms of the LV2 UI specification (ui.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/extensions/ui",
       "version": "2.24",
@@ -6260,6 +6340,7 @@
       "rel": "data/formats/lv2/units.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Units specification (units.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/extensions/units",
       "version": "5.12",
@@ -6557,6 +6638,7 @@
       "rel": "data/formats/lv2/uri-map.json",
       "kind": "terms",
       "doc": "The terms of the LV2 URI Map specification (uri-map.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/uri-map",
       "version": "1.6",
@@ -6575,6 +6657,7 @@
       "rel": "data/formats/lv2/urid.json",
       "kind": "terms",
       "doc": "The terms of the LV2 URID specification (urid.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/urid",
       "version": "1.4",
@@ -6614,6 +6697,7 @@
       "rel": "data/formats/lv2/worker.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Worker specification (worker.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
+      "since": "2.18.0",
       "format": "lv2",
       "spec": "http://lv2plug.in/ns/ext/worker",
       "version": "1.2",
@@ -6651,6 +6735,7 @@
       "rel": "data/machine-class.json",
       "kind": "words",
       "doc": "What identifies the machine a figure was taken on (plugin-qualify#115): a verdict for a host profile reads only figures of the class it names.",
+      "since": "2.18.0",
       "value": {
         "arch": {
           "word": "arch",
@@ -6700,6 +6785,7 @@
       "rel": "data/machine-class.json",
       "kind": "words",
       "doc": "How the machine was set when a figure was taken: the frequency policy and isolation a figure depends on.",
+      "since": "2.18.0",
       "value": {
         "governor": {
           "word": "governor",
@@ -6737,6 +6823,7 @@
       "rel": "data/machine-class.json",
       "kind": "words",
       "doc": "The bands a machine's core count falls in, ascending.",
+      "since": "2.18.0",
       "value": {
         "cores1To2": {
           "word": "1-2",
@@ -6780,6 +6867,7 @@
       "rel": "data/machine-class.json",
       "kind": "words",
       "doc": "The bands a machine's clock falls in, ascending.",
+      "since": "2.18.0",
       "value": {
         "under1500MHz": {
           "word": "<1.5GHz",
@@ -6817,6 +6905,7 @@
       "rel": "data/machine-class.json",
       "kind": "words",
       "doc": "The architectures a host profile names, as uname -m spells them.",
+      "since": "2.18.0",
       "value": {
         "x8664": {
           "word": "x86_64",
@@ -6836,6 +6925,7 @@
       "rel": "data/machine-class.json",
       "kind": "words",
       "doc": "The machine classes a host profile budgets for (plugin-qualify#114, #115): the desk, and the Raspberry Pi 4 and 5 a small console runs on.",
+      "since": "2.18.0",
       "value": {
         "desk": {
           "word": "desk",
@@ -6864,6 +6954,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "The measurable dimensions a measurement document declares it covers: latency and cost since the format's 1.0, stability, RT safety and features since 1.1, for the hosting verdict.",
+      "since": "2.18.0",
       "value": {
         "latency": {
           "word": "latency",
@@ -6901,6 +6992,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "What an absent figure means for a merge, the one distinction that changes behaviour: a property of the plugin, a failure of this run, or a dimension the run did not cover.",
+      "since": "2.18.0",
       "value": {
         "nothingToMeasure": {
           "word": "nothing-to-measure",
@@ -6929,6 +7021,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "Every reason a figure may be absent, each of its kind: an outcome a sweep produced, never a hypothetical. A reader that meets a reason it does not know treats it as probe-failed.",
+      "since": "2.18.0",
       "groups": "MEASUREMENT_UNMEASURED_KINDS",
       "value": {
         "noAudioIn": {
@@ -7081,6 +7174,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "How a latency figure was taken. note-onset is an instrument's: a held note's first sound.",
+      "since": "2.18.0",
       "value": {
         "impulseOnset": {
           "word": "impulse-onset",
@@ -7117,6 +7211,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "How a cost figure was taken.",
+      "since": "2.18.0",
       "value": {
         "blockTimePercentile": {
           "word": "block-time-percentile",
@@ -7131,6 +7226,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "How latency moves with the sample rate, derived from readings at several rates, never assumed from a plugin's name.",
+      "since": "2.18.0",
       "value": {
         "fixedFrame": {
           "word": "fixed-frame",
@@ -7180,6 +7276,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "Why a derived scaling class is not the naive fit over every reading.",
+      "since": "2.18.0",
       "value": {
         "belowBudget": {
           "word": "below-budget",
@@ -7201,6 +7298,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "Why one rate's reading was left out of the fit and of every rate resolution.",
+      "since": "2.18.0",
       "value": {
         "impossibleZero": {
           "word": "impossible-zero",
@@ -7215,6 +7313,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "Where the number of notes an instrument's cost was measured with came from: the voice capacity the plugin declares (CLAP voice-info), or a count the caller gave.",
+      "since": "2.18.0",
       "value": {
         "declared": {
           "word": "declared",
@@ -7237,6 +7336,7 @@
       "rel": "data/measurement.json",
       "kind": "words",
       "doc": "The four ratings a verdict speaks, in order from the best.",
+      "since": "2.18.0",
       "value": {
         "suitable": {
           "word": "suitable",
@@ -7269,6 +7369,7 @@
       "kind": "words",
       "doc": "The panel families of a plugin (omx-panel docs/panel-layout.md): the kind of processor its panel is laid out for. The words and their order are the contract; omx-panel's tools/panel-description.mjs FAMILIES and the skin package schema read them, and keep their code.",
       "why": "Panel families and widgets are declarations, so they live here (vocabulary-owner rule, FreeMixer/omx-contract#157).",
+      "since": "3.7.0",
       "value": {
         "none": {
           "word": "none",
@@ -7367,6 +7468,7 @@
       "rel": "data/panel.json",
       "kind": "words",
       "doc": "The standard widgets a panel picks from a descriptor and a representation (a skin) draws, in the order omx-panel's tools/panel-description.mjs STANDARD_WIDGETS lists them.",
+      "since": "3.7.0",
       "value": {
         "knob": {
           "word": "knob",
@@ -7430,6 +7532,7 @@
       "rel": "data/panel.json",
       "kind": "words",
       "doc": "The widgets a declared panel may name for a control, and the extension serves (org.openmixer.panel-description/1): auto leaves the choice to the panel layout. The four others are the shared widgets of omx-panel's schema/panel.schema.json.",
+      "since": "3.7.0",
       "value": {
         "auto": {
           "word": "auto",
@@ -7472,6 +7575,7 @@
       "rel": "data/param-contract.json",
       "kind": "sheet",
       "doc": "The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.",
+      "since": "3.6.0",
       "value": {
         "none": 0,
         "s": 1,
@@ -7509,6 +7613,7 @@
       "kind": "words",
       "doc": "The CLAP plugin features and LV2 plugin classes that become the descriptor feature audio-effect: every kind of effect, a filter, a dynamics processor, a modulation or a space, and the channel-less roles of a processor (utility, mixing, mastering).",
       "why": "The four feature words stay; every CLAP plugin feature and LV2 plugin class is mapped onto them, or onto other, as data (FreeMixer/omx-contract#120). One item per target, so a word is the source term and is named once; a test holds the five items to the terms.",
+      "since": "3.7.0",
       "value": {
         "clapAudioEffect": {
           "word": "clap.audio-effect",
@@ -8038,6 +8143,7 @@
       "rel": "data/plugin-features.json",
       "kind": "words",
       "doc": "The CLAP plugin features and LV2 plugin classes that become the descriptor feature instrument: notes in, audio out.",
+      "since": "3.7.0",
       "value": {
         "clapDrum": {
           "word": "clap.drum",
@@ -8099,6 +8205,7 @@
       "rel": "data/plugin-features.json",
       "kind": "words",
       "doc": "The CLAP plugin features and LV2 plugin classes that become the descriptor feature note-effect: notes in, notes out.",
+      "since": "3.7.0",
       "value": {
         "clapNoteEffect": {
           "word": "clap.note-effect",
@@ -8124,6 +8231,7 @@
       "rel": "data/plugin-features.json",
       "kind": "words",
       "doc": "The CLAP plugin features and LV2 plugin classes that become the descriptor feature analyzer: audio in, a reading out (a note detector reads pitch from audio).",
+      "since": "3.7.0",
       "value": {
         "clapAnalyzer": {
           "word": "clap.analyzer",
@@ -8158,6 +8266,7 @@
       "rel": "data/plugin-features.json",
       "kind": "words",
       "doc": "The CLAP plugin features and LV2 plugin classes that fit none of the four feature words: a channel layout stated as a feature (mono, stereo, surround, ambisonic), and the LV2 classes of a generator, an oscillator, a constant and a function, which take no notes and so are no instrument. A scan carries them in the extension bag.",
+      "since": "3.7.0",
       "value": {
         "clapAmbisonic": {
           "word": "clap.ambisonic",
@@ -8246,6 +8355,7 @@
       "rel": "data/primitives.json",
       "kind": "set",
       "doc": "How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.",
+      "since": "1.3.0",
       "default": "linear",
       "value": [
         "linear",
@@ -8257,6 +8367,7 @@
       "rel": "data/primitives.json",
       "kind": "scalar",
       "doc": "How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md).",
+      "since": "2.4.0",
       "unit": "Hz",
       "value": 50
     },
@@ -8278,6 +8389,7 @@
       "rel": "data/rates.json",
       "kind": "list",
       "doc": "The quanta (buffer sizes, in frames, a count with no unit of its own) the console offers: the set a measurement grid or a probe takes its quanta from, beside the rates STANDARD_SAMPLE_RATES lists. A consumer that measures at fewer quanta takes a subset of this list and states it; it never keeps a list of its own. What the operator is OFFERED is still the engine's own choice, this is the ceiling a request is refused by.",
+      "since": "3.5.0",
       "unit": "",
       "value": [
         32,
@@ -8301,6 +8413,7 @@
       "rel": "data/rates.json",
       "kind": "list",
       "doc": "The four rates every kernel oracle runs at, whatever STANDARD_SAMPLE_RATES says: a declared list missing one of them stops a suite instead of testing less (omx-dsp, omx-plugins and omx-clap-host run their oracles at these).",
+      "since": "1.3.0",
       "unit": "Hz",
       "value": [
         44100,
@@ -8313,6 +8426,7 @@
       "rel": "data/rates.json",
       "kind": "list",
       "doc": "The full grid of rates a professional interface can clock at, nine of them from 32 to 192 kHz: where ORACLE_FLOOR_RATES is the four rates every kernel oracle must run at, this is the whole grid an oracle runs at when it runs at all of them. STANDARD_SAMPLE_RATES is a subset of it; an oracle that runs here also covers 32, 64 and 128 kHz, where a kernel still has to meet its closed form even though the console never asks for them.",
+      "since": "1.3.0",
       "unit": "Hz",
       "value": [
         32000,
@@ -8330,6 +8444,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "Every resource a host plans a plugin for (FreeMixer/plugin-qualify#116): each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.",
+      "since": "2.18.0",
       "value": {
         "cpu": {
           "word": "cpu",
@@ -8466,6 +8581,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "The units a resource figure is given in; an LV2 unit's name where LV2 has one.",
+      "since": "2.18.0",
       "value": {
         "nsPerSample": {
           "word": "ns-per-sample",
@@ -8537,6 +8653,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "How a resource figure was known: what the plugin declares, what a run measured, or a count the caller gave the probe.",
+      "since": "2.18.0",
       "value": {
         "declared": {
           "word": "declared",
@@ -8562,6 +8679,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "When a plugin's memory is read, per instance (plugin-qualify#114): after instantiate, after activate, at rest after processing, with notes held, and for a second instance, so a shared one-time load is told apart from the per-instance cost.",
+      "since": "2.18.0",
       "value": {
         "afterInstantiate": {
           "word": "after-instantiate",
@@ -8599,6 +8717,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "Why a resource has no figure a host profile can read, beside the measurement's own reasons (MEASUREMENT_UNMEASURED_REASONS).",
+      "since": "2.18.0",
       "value": {
         "unmeasuredOnClass": {
           "word": "unmeasured-on-class",
@@ -8620,6 +8739,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "What a host profile's budget for a resource is counted over (plugin-qualify#114, #115): one plugin instance, or the whole console.",
+      "since": "2.18.0",
       "value": {
         "perInstance": {
           "word": "per-instance",
@@ -8639,6 +8759,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "How a host runs its plugins.",
+      "since": "2.18.0",
       "value": {
         "inProcess": {
           "word": "in-process",
@@ -8664,6 +8785,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "Whether a host aligns on a plugin's reported latency or only passes it on.",
+      "since": "2.18.0",
       "value": {
         "compensated": {
           "word": "compensated",
@@ -8683,6 +8805,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "The scheduling class a host gives its plugin's threads, as the probe output records it.",
+      "since": "2.18.0",
       "value": {
         "none": {
           "word": "none",
@@ -8702,6 +8825,7 @@
       "rel": "data/resource-profile.json",
       "kind": "words",
       "doc": "What a plugin declares about its own footprint, in openmixer's own hints (FreeMixer/plugin-qualify#116): each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.",
+      "since": "3.1.0",
       "groups": "RESOURCE_KINDS",
       "units": "RESOURCE_UNITS",
       "bases": "RESOURCE_BASES",
@@ -8790,6 +8914,7 @@
       "kind": "words",
       "doc": "The documents a plugin scan writes, named here and owned elsewhere: the contract names them so the writers and readers cite one word, and keeps no shape of its own for them.",
       "why": "omx-clap-core and plugin-qualify write one scan document (FreeMixer/omx-contract#157).",
+      "since": "3.7.0",
       "value": {
         "clapScanDocument": {
           "word": "CLAP_SCAN_DOCUMENT",
@@ -8811,6 +8936,7 @@
       "rel": "data/scan.json",
       "kind": "words",
       "doc": "The scopes of a field dump record, as written before the first TAB; an indexed scope is followed by `:<index>`. Named here, owned by their writers: omx-clap-core's scan (docs/scan.md there) and plugin-hostd's field dump (docs/formats.md there) keep the code that writes them.",
+      "since": "3.7.0",
       "value": {
         "plugin": {
           "word": "plugin",
@@ -8910,6 +9036,7 @@
       "kind": "words",
       "doc": "The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing.",
       "why": "A host's verbs were typed twice, in plugin-hostd's protocol.h and in omx-clap-core's command table; a verbs item declares them once, and the hosts it names are a closed list, so a misspelt host is refused rather than read as a host that owes nothing.",
+      "since": "3.3.0",
       "value": {
         "pluginHostd": {
           "word": "plugin-hostd",

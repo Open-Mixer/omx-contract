@@ -5,6 +5,33 @@
  * are spelled with. Pure functions of the declarations they are handed.
  */
 
+/**
+ * One line of doxygen prose from an item's text (docs/render.md "Documentation"): whitespace folded to one space, a
+ * comment end broken, and doxygen's command and markup characters (`\\`, `@`, `<`, `>`) escaped outside a backtick code
+ * span (doxygen reads a span literally), so the text is read as prose and never as a command or a tag.
+ */
+export function doxyLine(text) {
+  const spans = String(text).replace(/\*\//g, '* /').replace(/\s+/g, ' ').trim().split('`');
+  return spans.map((s, i) => (i % 2 ? s : s.replace(/\\/g, '\\\\').replace(/@/g, '\\@').replace(/</g, '\\<').replace(/>/g, '\\>'))).join('`');
+}
+
+/**
+ * The contract of a declaration as one line: its prose, then in brackets its unit (`unitless` for a unit declared
+ * empty, a count) and the version it is declared since, each when the item states it.
+ */
+export function contractLine(doc, { unit, since } = {}) {
+  const facts = [];
+  if (unit !== undefined) facts.push(unit === '' ? 'unitless' : doxyLine(unit));
+  if (since !== undefined) facts.push(`since ${doxyLine(since)}`);
+  return `${doxyLine(doc)}${facts.length ? ` (${facts.join('; ')})` : ''}`;
+}
+
+/** A member (an enumerator, a struct field, a word) with its one-line contract as a trailing comment; the member alone when there is none. */
+export const documented = (declaration, line) => (line ? `${declaration} ///< ${line}` : declaration);
+
+/** A define or a function with its contract as a block above it, so the line itself stays as a reader greps it; the declaration alone when there is none. */
+export const described = (declaration, line) => (line ? `/** ${line} */\n${declaration}` : declaration);
+
 /** a limit-table field name -> a C constant prefix (`thresholdDb` -> `THRESHOLD_DB`). */
 function fieldConstName(field) {
   return field.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
@@ -16,15 +43,20 @@ function numLiteral(n) {
   return Number.isInteger(n) ? `${n}.0` : `${n}`;
 }
 
+/**
+ * One `travels` table's fields as `_MIN`, `_MAX` and `_DEFAULT` float literals, each with its contract: the field's
+ * own prose where it carries one, the bound it is, and the field's unit.
+ */
 function genLimitBlock(prefix, table) {
   const lines = [];
   for (const [field, limit] of Object.entries(table)) {
     const c = fieldConstName(field);
-    lines.push(`#define OMX_${prefix}_${c}_MIN ${numLiteral(limit.min)}f`);
-    lines.push(`#define OMX_${prefix}_${c}_MAX ${numLiteral(limit.max)}f`);
+    const about = (bound) => contractLine(`${limit.doc ? `${limit.doc} ` : ''}The ${bound} of \`${field}\`.`, { unit: limit.unit });
+    lines.push(described(`#define OMX_${prefix}_${c}_MIN ${numLiteral(limit.min)}f`, about('least value')));
+    lines.push(described(`#define OMX_${prefix}_${c}_MAX ${numLiteral(limit.max)}f`, about('greatest value')));
     // a field with no come-up value (the gate key filter's edges) has no DEFAULT, as in genCoreLimitBlock
     if (limit.default !== undefined) {
-      lines.push(`#define OMX_${prefix}_${c}_DEFAULT ${numLiteral(limit.default)}f`);
+      lines.push(described(`#define OMX_${prefix}_${c}_DEFAULT ${numLiteral(limit.default)}f`, about('come-up value')));
     }
   }
   return lines.join('\n');
@@ -42,7 +74,9 @@ function genDeclaredRates(STANDARD_SAMPLE_RATES) {
     if (!Number.isInteger(r) || r <= 0) throw new Error(`contract-limits-gen: a declared rate must be a positive integer, got ${r}`);
   }
   return [
+    '/** The number of declared sample rates, the length of OMX_DECLARED_RATES. */',
     `#define OMX_DECLARED_RATE_COUNT ${STANDARD_SAMPLE_RATES.length}u`,
+    '/** The declared sample rates (Hz) in declaration order, as floats: the set a rate is checked against and the grid a tool iterates. */',
     `static const float OMX_DECLARED_RATES[OMX_DECLARED_RATE_COUNT] = { ${STANDARD_SAMPLE_RATES.map((r) => `${numLiteral(r)}f`).join(', ')} };`,
   ].join('\n');
 }
@@ -67,19 +101,40 @@ export function scalarDoubleLiteral(n) {
  * ONE block for every declared scalar and sheet leaf (core's declaredScalars over the core barrel
  * and the declarations): `#define OMX_<macro> <literal>`, sorted by macro. This generator names
  * none of them — a kernel's scalars are its exports. A macro another block already defined is a
- * collision, refused.
+ * collision, refused. A scalar carries its item's contract on its line; a sheet's leaves stand in one doxygen member
+ * group under the item's name and contract, each leaf its field's own line (`docs[field]`) or its path.
  */
 function genDeclaredScalarsBlock(DECLARED_SCALARS, definedBefore) {
   if (!Array.isArray(DECLARED_SCALARS) || DECLARED_SCALARS.length === 0) {
     throw new Error('contract-limits-gen: the declared-scalar discovery is empty — nothing declared');
   }
-  return DECLARED_SCALARS.flatMap(({ macro, value }) => {
+  const defines = ({ macro, value }, line) => {
     for (const name of [`OMX_${macro}`, `OMX_${macro}_DOUBLE`]) {
       if (definedBefore.has(name)) throw new Error(`contract-limits-gen: ${name} is a declared scalar AND another block's define — rename one`);
     }
     return Number.isInteger(value)
-      ? [`#define OMX_${macro} ${scalarLiteral(value)}`]
-      : [`#define OMX_${macro} ${scalarLiteral(value)}`, `#define OMX_${macro}_DOUBLE ${scalarDoubleLiteral(value)}`];
+      ? [described(`#define OMX_${macro} ${scalarLiteral(value)}`, line)]
+      : [described(`#define OMX_${macro} ${scalarLiteral(value)}`, line), described(`#define OMX_${macro}_DOUBLE ${scalarDoubleLiteral(value)}`, `OMX_${macro} as a double literal.`)];
+  };
+  // consecutive leaves of one sheet are one run; a scalar (its path is its name) stands alone
+  const runs = [];
+  for (const s of DECLARED_SCALARS) {
+    const last = runs[runs.length - 1];
+    if (last && last[0].head === s.head && s.path !== s.head && last[0].path !== last[0].head) last.push(s);
+    else runs.push([s]);
+  }
+  return runs.flatMap((run) => {
+    const [first] = run;
+    if (run.length === 1 && first.path === first.head) return defines(first, first.doc === undefined ? undefined : contractLine(first.doc, { unit: first.unit, since: first.since }));
+    return [
+      '/**',
+      ` * @name ${first.head}`,
+      ...(first.doc === undefined ? [] : [` * ${contractLine(first.doc, { unit: first.unit, since: first.since })}`]),
+      ' */',
+      '/// @{',
+      ...run.flatMap((s) => defines(s, s.fieldDoc !== undefined ? doxyLine(s.fieldDoc) : `The \`${s.path.slice(s.head.length + 1)}\` of ${s.head}.`)),
+      '/// @}',
+    ];
   }).join('\n');
 }
 
@@ -110,14 +165,17 @@ function genDeclaredListsBlock(DECLARED_LISTS, definedElsewhere) {
   if (!Array.isArray(DECLARED_LISTS) || DECLARED_LISTS.length === 0) {
     throw new Error('contract-limits-gen: the declared-list discovery is empty — nothing declared');
   }
-  return DECLARED_LISTS.map(({ name, values }) => {
+  return DECLARED_LISTS.map(({ name, values, doc, unit, since }) => {
     for (const macro of [`OMX_${name}_COUNT`, `OMX_${name}_INIT`]) {
       if (definedElsewhere.has(macro)) throw new Error(`contract-limits-gen: ${macro} is a declared list AND another block's define — rename one`);
     }
     if (!values.every((v) => typeof v === 'number' && Number.isFinite(v))) {
       throw new Error(`contract-limits-gen: OMX_${name}_INIT refused — an element is not a finite number`);
     }
-    return [`#define OMX_${name}_COUNT ${values.length}u`, `#define OMX_${name}_INIT { ${values.map(scalarLiteral).join(', ')} }`].join('\n');
+    return [
+      described(`#define OMX_${name}_COUNT ${values.length}u`, `The number of values of ${name}, the length of OMX_${name}_INIT.`),
+      described(`#define OMX_${name}_INIT { ${values.map(scalarLiteral).join(', ')} }`, doc === undefined ? undefined : contractLine(`${doc} The values in declaration order, an initialiser.`, { unit, since })),
+    ].join('\n');
   }).join('\n');
 }
 

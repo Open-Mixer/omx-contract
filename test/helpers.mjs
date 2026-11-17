@@ -134,6 +134,9 @@ export function texts(fn) {
 
 export const resolvedOf = (t) => resolveData(loadData(null, t));
 
+/** A C render with its doxygen prose taken out (the blocks above a define, the trailing member lines), for a test of the declarations' adjacency. */
+export const undocumented = (c) => c.replace(/^ *\/\*\*[\s\S]*?\*\/\n/gm, '').replace(/^\/\/\/ @[{}]\n/gm, '').replace(/ \/\/\/<.*$/gm, '');
+
 /**
  * The files `npm pack` lists for this package, from a staged copy of the tree: `npm pack` runs prepack (`npm run build`)
  * even with --ignore-scripts, and run in ROOT it rewrote lib/*.mjs while the suite's other files loaded them

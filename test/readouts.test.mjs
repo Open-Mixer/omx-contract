@@ -11,7 +11,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { UNION, resolvedOf, texts } from './helpers.mjs';
+import { UNION, resolvedOf, texts, undocumented } from './helpers.mjs';
 
 const swell = 'data/kernels/swell.json';
 const readout = (over = {}) => ({ name: 'gainReductionDb', doc: 'The swell gain reduction.', unit: 'dB', min: { ref: 'SWELL_LIMITS.rangeDb.min' }, max: 0, scale: 'linear', rateHz: 50, ...over });
@@ -50,7 +50,7 @@ test('a readout declares no item, and fmt spells it in its one key order after t
 });
 
 test('the c render: an enum of the readouts at their position, the count, and each one\'s range, rate, scale and unit', () => {
-  const h = renderC(resolvedOf(withReadouts([readout(), second])))[0].text;
+  const h = undocumented(renderC(resolvedOf(withReadouts([readout(), second])))[0].text);
   assert.match(h, /^enum omx_swell_readouts \{\n {2}OMX_SWELL_READOUT_GAIN_REDUCTION_DB = 0,\n {2}OMX_SWELL_READOUT_KEY_LEVEL_DB = 1,\n\};\n#define OMX_SWELL_READOUT_COUNT 2u$/m);
   assert.match(h, /^#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_MIN -80\.0f\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_MAX 0\.0f\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_RATE_HZ 50\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_SCALE OMX_PARAM_SCALES_LINEAR\n#define OMX_SWELL_READOUT_GAIN_REDUCTION_DB_UNIT "dB"$/m);
   assert.match(h, /^#define OMX_SWELL_READOUT_KEY_LEVEL_DB_MIN -80\.0f$/m);
@@ -112,10 +112,10 @@ test('per-band readouts: the dynamic EQ\'s six band gains and the multiband\'s f
   assert.equal(problems(withReadouts(dyneq())), '');
   assert.equal(problems(withReadouts(multiband())), '');
   assert.equal(problems(withReadouts([readout(), ...multiband()])), '', 'a band run after a single-band readout');
-  const h = renderC(resolvedOf(withReadouts(dyneq())))[0].text;
+  const h = undocumented(renderC(resolvedOf(withReadouts(dyneq())))[0].text);
   assert.match(h, /^ {2}OMX_SWELL_READOUT_BAND1_GAIN_DB = 0,\n {2}OMX_SWELL_READOUT_BAND2_GAIN_DB = 1,\n {2}OMX_SWELL_READOUT_BAND3_GAIN_DB = 2,\n {2}OMX_SWELL_READOUT_BAND4_GAIN_DB = 3,\n {2}OMX_SWELL_READOUT_BAND5_GAIN_DB = 4,\n {2}OMX_SWELL_READOUT_BAND6_GAIN_DB = 5,\n\};\n#define OMX_SWELL_READOUT_COUNT 6u$/m);
   assert.match(h, /^#define OMX_SWELL_READOUT_BAND6_GAIN_DB_MIN -24\.0f\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_MAX 12\.0f\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_RATE_HZ 50\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_SCALE OMX_PARAM_SCALES_LINEAR\n#define OMX_SWELL_READOUT_BAND6_GAIN_DB_UNIT "dB"$/m);
-  const m = renderC(resolvedOf(withReadouts([readout(), ...multiband()])))[0].text;
+  const m = undocumented(renderC(resolvedOf(withReadouts([readout(), ...multiband()])))[0].text);
   assert.match(m, /^ {2}OMX_SWELL_READOUT_BAND1_GAIN_REDUCTION_DB = 1,$/m);
   assert.match(m, /^ {2}OMX_SWELL_READOUT_BAND5_GAIN_REDUCTION_DB = 5,$/m);
   assert.match(m, /^#define OMX_SWELL_READOUT_BAND5_GAIN_REDUCTION_DB_MIN -60\.0f$/m);

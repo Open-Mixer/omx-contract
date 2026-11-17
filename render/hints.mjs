@@ -7,7 +7,7 @@
  * the types and the prose are read from the item.
  */
 import { constOf, hintItems, memberOf, unitOf } from '../lib/hints.mjs';
-import { cStringLiteral } from './c/c-literals.mjs';
+import { cStringLiteral, doxyLine } from './c/c-literals.mjs';
 
 const oneLine = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
 const ttlString = (s) => `"${oneLine(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
@@ -22,8 +22,8 @@ export function renderHintsHeader(resolved) {
   if (!item) return undefined;
   const hints = Object.entries(item.value);
   const id = item.extension.clap;
-  const bits = hints.map(([k, w], i) => `#define OMX_RESOURCE_HINT_${constOf(k)} (1u << ${i}) ///< ${oneLine(w.doc)} (${w.figureUnit})`);
-  const members = hints.map(([k, w]) => `    ${unitOf(k, w).c} ${memberOf(w.word)}; ///< ${oneLine(w.doc)} (${w.figureUnit})`);
+  const bits = hints.map(([k, w], i) => `#define OMX_RESOURCE_HINT_${constOf(k)} (1u << ${i}) ///< ${doxyLine(w.doc)} (${w.figureUnit})`);
+  const members = hints.map(([k, w]) => `    ${unitOf(k, w).c} ${memberOf(w.word)}; ///< ${doxyLine(w.doc)} (${w.figureUnit})`);
   return `// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 #ifndef OMX_RESOURCE_HINTS_H

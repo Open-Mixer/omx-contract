@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/sample",
+  "info": {
+    "title": "A sample domain for the loader's tests",
+    "version": "1.0.0",
+    "x-owner": "omx-sample"
+  },
+  "components": {
+    "schemas": {
+      "SAMPLE_KINDS": {
+        "description": "The kinds a sample thing has.",
+        "x-since": "1.0.0",
+        "oneOf": [
+          {
+            "const": "alpha",
+            "title": "alpha",
+            "description": "the first kind",
+            "x-code": 0,
+            "x-text": "The first kind."
+          },
+          {
+            "const": "beta",
+            "title": "beta",
+            "description": "the second kind",
+            "x-code": 1,
+            "x-text": "The second kind."
+          },
+          {
+            "const": "gamma_ray",
+            "title": "gammaRay",
+            "description": "the third kind",
+            "x-code": 2,
+            "x-text": "The third kind."
+          }
+        ]
+      },
+      "SAMPLE_PLACES": {
+        "description": "Where a sample thing sits.",
+        "x-since": "1.0.0",
+        "x-why": "a test of x-why",
+        "oneOf": [
+          {
+            "const": "one",
+            "title": "one",
+            "description": "the one place",
+            "x-code": 0,
+            "x-text": "The one place."
+          },
+          {
+            "const": "two",
+            "title": "two",
+            "description": "the second place",
+            "x-code": 1,
+            "x-text": "The second place."
+          },
+          {
+            "const": "three",
+            "title": "three",
+            "description": "the third place",
+            "x-code": 2,
+            "x-text": "The third place."
+          },
+          {
+            "const": "four",
+            "title": "four",
+            "description": "the fourth place",
+            "x-code": 3,
+            "x-text": "The fourth place."
+          }
+        ]
+      }
+    }
+  }
+}

@@ -148,7 +148,7 @@
           "required": ["paramsFingerprint"],
           "additionalProperties": false
         },
-        "family": { "enum": ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility"], "description": "One word of PANEL_FAMILIES." },
+        "family": { "type": "string", "minLength": 1, "description": "A panel family word. omx-panel's panel domain owns the words and validates this one; omx-contract holds no list of them." },
         "controls": { "type": "object", "propertyNames": { "pattern": "^[A-Za-z0-9_]+$" }, "additionalProperties": { "$ref": "#/$defs/overrideControl" } },
         "made": {
           "type": "object",

@@ -34,13 +34,12 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   and `<ITEM>_WORDS`, and the Python literal, byte for byte what the words item of the old layout renders.
   Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
   disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
-- `$id` is the domain's stable URL. A domain refers to another by `$ref` to that `$id` (`https://openmixer.org/contract/<other>#/components/schemas/<Name>`),
-  never to a file path, so a move of files breaks no reference.
-- `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
-  that owns it now. Neither is read from the path.
-- `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
-  the version it declares, so a domain evolves on its own line and a change in one domain touches no other domain's
-  consumers, and needs no omx-contract release.
+- `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read. `$id` is the domain's stable
+  URL, `https://openmixer.org/contract/<domain>`, and must name the directory it sits in.
+- `info.version` is the DOMAIN's own semver, the one a consumer's floor (`needs`) is compared to; `info.x-owner` is the
+  package that owns it now. Neither is read from the path.
+- A domain's words are its own: a `$ref` in a domain document is refused today. Cross-domain `$ref` by `$id`, and the
+  validation of each domain against the version it declares, are omx-contract#84.
 - omx-contract holds the document kind, the loader check and the renderers, and no domain it does not own; the renders
   of a domain are produced at its owner's build time (`render --package <domain>`, docs/render.md).
 - There is no compatibility with the `<major>/<owner>/` layout below: it is migrated domain by domain (omx-contract's

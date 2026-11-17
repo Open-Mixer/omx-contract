@@ -207,7 +207,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const path = join(ddir, `${name}.json`);
       const at = `${name}/${name}.json`;
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${name}.json`);
-      const present = filesUnder(ddir);
+      const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
       if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${name}.json`).join(', ')} is beside it`);
       const text = readFileSync(path, 'utf8');
       let raw;

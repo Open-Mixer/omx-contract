@@ -4,6 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- A domain's words may carry `x-group` (with the item's `x-groups`, a words schema of the same document), `x-from` (`$ref` by a domain `$id` + `x-term`), and a domain directory holds `catalogs/<lang>.json`, read by `validate` with the owner taken from `info.x-owner` (docs/contract-dir.md, omx-contract#81).
 - The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,
   `info{title,version,x-owner}` and `components.schemas`, a words item a `oneOf` of `const` words (docs/contract-dir.md,
   "Domains"). The domain's owner is metadata, its version its own; `render --package <domain>` renders `<domain>_vocabulary.h`

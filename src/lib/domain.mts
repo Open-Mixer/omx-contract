@@ -18,6 +18,7 @@ export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const PACKAGE = /^[a-z][a-z0-9-]*$/;
 const ITEM = /^[A-Z][A-Z0-9_]*$/;
+const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
 
 const only = (o: JsonObject, keys: string[], at: string, what: string): void => {
   for (const k of Object.keys(o)) if (!keys.includes(k)) refuse('fileInvalid', at, `${what}: unknown key ${k} (a ${what} holds ${keys.join(', ')})`);
@@ -50,23 +51,42 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     if (!ITEM.test(item)) refuse('fileInvalid', at, `${w}: the name of a schema is the item's, upper snake case`);
     if (typeof s !== 'object' || s === null || Array.isArray(s)) refuse('fileInvalid', at, `${w}: not an object`);
     if ('$ref' in s) refuse('fileInvalid', at, `${w}: a $ref is not read yet; a domain's words are its own`);
-    only(s, ['description', 'x-since', 'x-why', 'oneOf'], at, w);
+    only(s, ['description', 'x-since', 'x-why', 'x-groups', 'oneOf'], at, w);
+    if (s['x-groups'] !== undefined && (typeof s['x-groups'] !== 'string' || !(s['x-groups'] in schemas))) refuse('fileInvalid', at, `${w}.x-groups ${JSON.stringify(s['x-groups'])} is no words schema of this document`);
     if (!Array.isArray(s.oneOf) || !s.oneOf.length) refuse('fileInvalid', at, `${w}: only a words item is read, a oneOf of const words`);
     if (typeof s.description !== 'string') refuse('fileInvalid', at, `${w}.description is the item's doc`);
     const words: JsonObject = {};
     s.oneOf.forEach((e: JsonObject, i: number) => {
       const ew = `${w}.oneOf[${i}]`;
       if (typeof e !== 'object' || e === null || Array.isArray(e)) refuse('fileInvalid', at, `${ew}: not an object`);
-      only(e, ['const', 'title', 'description', 'x-code', 'x-text'], at, ew);
+      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from'], at, ew);
       if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a word`);
       if (typeof e.title !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(e.title)) refuse('fileInvalid', at, `${ew}.title is not the word's key`);
       if (typeof e.description !== 'string') refuse('fileInvalid', at, `${ew}.description is not the word's line`);
       if (e['x-code'] !== i) refuse('fileInvalid', at, `${ew}.x-code is ${JSON.stringify(e['x-code'])}, and a code is the word's place in the order (${i})`);
       if (e['x-text'] !== undefined && typeof e['x-text'] !== 'string') refuse('fileInvalid', at, `${ew}.x-text is not a sentence`);
+      if (e['x-group'] !== undefined) {
+        const g = typeof s['x-groups'] === 'string' ? schemas[s['x-groups']] : undefined;
+        const known = Array.isArray(g?.oneOf) ? g.oneOf.map((x: JsonObject) => x.const) : [];
+        if (!known.includes(e['x-group'])) refuse('fileInvalid', at, `${ew}.x-group ${JSON.stringify(e['x-group'])} is no word of the schema ${w}.x-groups names`);
+      }
+      const from: string[] = [];
+      if (e['x-from'] !== undefined) {
+        if (!Array.isArray(e['x-from']) || !e['x-from'].length) refuse('fileInvalid', at, `${ew}.x-from is not a list of at least one term`);
+        e['x-from'].forEach((r: JsonObject, j: number) => {
+          const rw = `${ew}.x-from[${j}]`;
+          if (typeof r !== 'object' || r === null || Array.isArray(r)) refuse('fileInvalid', at, `${rw}: not an object`);
+          only(r, ['$ref', 'x-term'], at, rw);
+          const m = typeof r.$ref === 'string' ? REF.exec(r.$ref) : null;
+          if (!m) refuse('fileInvalid', at, `${rw}.$ref ${JSON.stringify(r.$ref)} is not ${domainId('<domain>')}#/components/schemas/<ITEM>, a domain id and an item`);
+          if (typeof r['x-term'] !== 'string' || !r['x-term']) refuse('fileInvalid', at, `${rw}.x-term is not a term's key`);
+          from.push(`${m![1]}#${r['x-term']}`);
+        });
+      }
       if (e.title in words) refuse('fileInvalid', at, `${ew}.title ${e.title} is used twice in ${item}`);
-      words[e.title] = { word: e.const, doc: e.description, ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }) };
+      words[e.title] = { word: e.const, ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), doc: e.description, ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }) };
     });
-    out[item] = { kind: 'words', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), words };
+    out[item] = { kind: 'words', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), words };
   }
   return { doc: out, manifest: { package: name, owner: info['x-owner'], version: info.version, schemaMajor, title: info.title } };
 }

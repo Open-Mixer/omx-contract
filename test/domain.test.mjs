@@ -4,6 +4,7 @@
 // <major>/<package>/ layout. Its words render byte for byte what the same words item of the old layout renders, and
 // every refusal is raised by the reader's own code.
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -119,4 +120,67 @@ test('a consumer needs a domain at its floor, compared to the domain\'s own vers
   const root = dirWith(panelDomain());
   assert.doesNotThrow(() => loadContractDir({ dir: root, needs: { panel: '>= 1.0.0' } }));
   try { loadContractDir({ dir: root, needs: { panel: '>= 1.1.0' } }); assert.fail('read'); } catch (e) { assert.equal(e.code, CONTRACT_CODES.packageTooOld); }
+});
+
+/** A domain of a groups schema, a words schema that names it, and a word taken from format terms. */
+function groupedDomain() {
+  const w = (c, key, extra = {}) => ({ const: c, title: key, description: `${c}.`, ...extra });
+  const code = (list) => list.map((e, i) => ({ ...e, 'x-code': i }));
+  return {
+    $id: 'https://openmixer.org/contract/grouped',
+    info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner' },
+    components: {
+      schemas: {
+        GROUPED_KINDS: { description: 'The groups.', 'x-since': '3.0.0', oneOf: code([w('nothing-to-measure', 'nothing'), w('cannot', 'cannot')]) },
+        GROUPED_REASONS: {
+          description: 'Reasons.', 'x-since': '3.0.0', 'x-groups': 'GROUPED_KINDS',
+          oneOf: code([
+            w('no-audio-in', 'noAudioIn', { 'x-group': 'nothing-to-measure' }),
+            w('impulse', 'impulse', { 'x-group': 'cannot', 'x-from': [{ $ref: 'https://openmixer.org/contract/omx-contract#/components/schemas/LV2_CORE_TERMS', 'x-term': 'latency' }] }),
+          ]),
+        },
+      },
+    },
+  };
+}
+
+test('a word names its group (x-group), its item the words schema of the groups (x-groups), a word its terms ($ref + x-term)', () => {
+  const d = loadContractDir({ dir: dirWith(groupedDomain(), 'grouped') });
+  const it = d.items.get('GROUPED_REASONS').item;
+  assert.equal(it.groups, 'GROUPED_KINDS');
+  assert.equal(it.words.noAudioIn.group, 'nothing-to-measure');
+  assert.deepEqual(it.words.impulse.from, ['LV2_CORE_TERMS#latency']);
+});
+
+test('a group no word of the groups schema names, and a $ref that is no domain id, are refused', () => {
+  const bad = groupedDomain();
+  bad.components.schemas.GROUPED_REASONS.oneOf[0]['x-group'] = 'nope';
+  assert.equal(refusalOf(dirWith(bad, 'grouped')), CONTRACT_CODES.fileInvalid);
+  const path = groupedDomain();
+  path.components.schemas.GROUPED_REASONS.oneOf[1]['x-from'][0].$ref = '../formats/formats.json#/x';
+  assert.equal(refusalOf(dirWith(path, 'grouped')), CONTRACT_CODES.fileInvalid);
+});
+
+test('a domain directory may hold catalogs/<lang>.json, and nothing else beside its document', () => {
+  const root = dirWith(groupedDomain(), 'grouped');
+  mkdirSync(join(root, 'grouped', 'catalogs'));
+  writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), '{}\n');
+  assert.ok(loadContractDir({ dir: root }).items.has('GROUPED_REASONS'));
+  writeFileSync(join(root, 'grouped', 'other.json'), '{}\n');
+  assert.equal(refusalOf(root), CONTRACT_CODES.manifestMismatch);
+});
+
+test('validate reads a domain catalog: the owner is the domain x-owner, and a key is a word of the domain', () => {
+  const dom = groupedDomain();
+  delete dom.components.schemas.GROUPED_REASONS.oneOf[1]['x-from']; // validate would (rightly) look for the terms
+  const root = dirWith(dom, 'grouped');
+  const cat = (owner, key) => JSON.stringify({ kind: 'catalog', lang: 'ca', owner, messages: { [key]: { text: 'Cap.', by: 'human' } } });
+  mkdirSync(join(root, 'grouped', 'catalogs'));
+  const run = () => spawnSync(process.execPath, [join(ROOT, 'bin', 'omx-contract.mjs'), 'validate', '--contract-dir', root], { encoding: 'utf8' });
+  writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), cat('some-owner', 'GROUPED_REASONS.no-audio-in'));
+  assert.equal(run().status, 0, run().stderr);
+  writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), cat('grouped', 'GROUPED_REASONS.no-audio-in'));
+  assert.match(run().stderr, /x-owner/);
+  writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), cat('some-owner', 'GROUPED_REASONS.nope'));
+  assert.match(run().stderr, /catalog-key/);
 });

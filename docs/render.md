@@ -75,7 +75,10 @@ its key; a word is `OMX_<ITEM>_<NAME>`, each words item with its `_COUNT` and `_
 exported under its name, and `<ITEM>_WORDS`), at the top of `--out`. The stem is the package's name, `omx` for
 omx-contract: `render --target c --package omx-contract --out include/omxcontract` is `omx_vocabulary.h` byte for byte,
 and omx-clap-core's is `omx_clap_core_vocabulary.h`, guard `OMX_CLAP_CORE_VOCABULARY_H`, so the two include together.
-A package with no such item renders no vocabulary file.
+A package with no such item renders no vocabulary file. A domain (docs/contract-dir.md, "Domains") is rendered as a package of its own name:
+`render --target c --package panel` writes `panel_vocabulary.h` (guard `PANEL_VOCABULARY_H`, items `OMX_PANEL_FAMILIES_*`), installed
+as `<includedir>/omxdomain/<domain>_vocabulary.h`, the one header a consumer of the domain includes; the owner commits
+the render and runs `render --check` at its own build, so a change of a domain's words needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of
 its `verbs` items as `<stem>_host_verbs.h` (guard `<STEM>_HOST_VERBS_H`), omx-clap-core's `omx_clap_core_host_verbs.h`.

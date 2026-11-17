@@ -7,6 +7,46 @@ directory through one call. This page states the directory's layout, the schema 
 there (`requires`, `source`, `render`), the refusals the reader names by code, and the `links` check. The bundled `data/`
 stays the default input of every command; the directory is read only when it is asked for.
 
+## Domains (owner ruling 2026-11-17, supersedes the layout below for every new definition)
+
+The contract directory is keyed by DOMAIN, never by owner and never by schema major: a domain is a vocabulary with one
+name for as long as it is used (`panel`, `gestures`, `look`), and the package that owns it today is metadata, so a
+domain changes owner without a path, an include or a consumer's reference moving. Each domain is modelled as an
+OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes, docs/shapes.md):
+
+```
+<contractdir>/<domain>/<domain>.json      ONE self-describing document
+<contractdir>/<domain>/catalogs/<lang>.json   the translations of its words, one per language
+```
+
+```json
+{ "$id": "https://openmixer.org/contract/panel",
+  "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel" },
+  "components": { "schemas": { "PanelFamilies": { "...": "JSON Schema 2020-12 shape of the item" } } } }
+```
+
+- A words item is pure JSON Schema 2020-12: a `components.schemas` entry named by the item (`PANEL_FAMILIES`), its
+  `description` the item's `doc`, its `x-since` and optional `x-why` as written today, and a `oneOf` of one
+  `{ "const": "<word as written>", "title": "<key, the name of the word's macro>", "description": "<one line>",
+  "x-code": <int>, "x-text": "<the English source sentence>" }` per word, in their declared order. A word is any
+  string (`-`, `fbs-fixed`), not only an identifier. `x-code` is the word's code, today its place in the order
+  (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
+  the sentence they translate. The renders map `oneOf`/`const` to the C X-macros and defines, the TypeScript union
+  and `<ITEM>_WORDS`, and the Python literal, byte for byte what the words item of the old layout renders.
+  Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
+  disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
+- `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read. `$id` is the domain's stable
+  URL, `https://openmixer.org/contract/<domain>`, and must name the directory it sits in.
+- `info.version` is the DOMAIN's own semver, the one a consumer's floor (`needs`) is compared to; `info.x-owner` is the
+  package that owns it now. Neither is read from the path.
+- A domain's words are its own: a `$ref` in a domain document is refused today. Cross-domain `$ref` by `$id`, and the
+  validation of each domain against the version it declares, are omx-contract#84.
+- omx-contract holds the document kind, the loader check and the renderers, and no domain it does not own; the renders
+  of a domain are produced at its owner's build time (`render --package <domain>`, docs/render.md).
+- There is no compatibility with the `<major>/<owner>/` layout below: it is migrated domain by domain (omx-contract's
+  own `data/` into domains is a series of follow-up lanes) and then removed from this page. Until a domain is
+  migrated, the sections below describe how its files are read.
+
 ## The layout
 
 ```

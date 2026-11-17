@@ -106,7 +106,7 @@ exists because a port can miss a rule.
 JSON Schema 2020-12, one file per document shape, in the owner's `shapes/` directory (`shapes/<name>.schema.json`,
 as lane S1 built it: `docs/shapes.md`) and installed for a reader that validates: omx-contract's own under its data
 directory (`share/omx-contract/shapes/`, S1); another owner's in the contract directory beside its declarations
-(`<contractdir>/3/<package>/shapes/<name>.schema.json`, by `contract-dir.md`'s rules, so a reader finds a shape the
+(a shape is a `components.schemas` entry of its DOMAIN's document, `<contractdir>/<domain>/<domain>.json`, by `contract-dir.md`'s "Domains" (owner ruling 2026-11-17: keyed by domain, the owner is `info.x-owner`, no major in the path), so a reader finds a shape the
 way it finds a declaration — the rule lane S2 adds with the first owner that needs it). The schemas that exist stay where they are
 (`omx-panel/schema/panel.schema.json`, `skin-package.schema.json`, `plugin-hostd-protocol/protocol/plugin-hostd.schema.json`)
 and are installed. New ones are written for the documents that have none:

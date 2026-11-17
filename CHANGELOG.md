@@ -4,6 +4,11 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,
+  `info{title,version,x-owner}` and `components.schemas`, a words item a `oneOf` of `const` words (docs/contract-dir.md,
+  "Domains"). The domain's owner is metadata, its version its own; `render --package <domain>` renders `<domain>_vocabulary.h`
+  byte for byte as the old layout renders the same words. The panel words (data/panel.json) are MOVING to omx-panel's
+  `panel` domain and leave omx-contract in its next release.
 - Every words item renders one X-macro in the C vocabulary, `OMX_<ITEM>(X)` with `X(<code>u, "<word>", <NAME>)` per word,
   the code being its place in the declared order: a consumer builds its tables from the item instead of restating it
   (omx-clap-core's panel families, widgets and display kinds, Open-Mixer/omx-clap-core#104). Its name is held unique with

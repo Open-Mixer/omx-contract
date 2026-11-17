@@ -621,7 +621,7 @@
 #define OMX_PANEL_DISPLAY_SOURCES_COUNT 4u
 /** The words of PANEL_DISPLAY_SOURCES in their declared order, as a C initializer list. */
 #define OMX_PANEL_DISPLAY_SOURCES_INIT { "family", "meters", "gain_adjustment", "curve" }
-/** Expands `X(code, "word", NAME)` once per word of PANEL_DISPLAY_SOURCES, in order, the code being its place in the order. Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code. */
+/** Expands `X(code, "word", NAME)` once per word of PANEL_DISPLAY_SOURCES, in order, the code being its place in the order. Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code. */
 #define OMX_PANEL_DISPLAY_SOURCES(X) \
     X(0u, "family", FAMILY) X(1u, "meters", METERS) X(2u, "gain_adjustment", GAIN_ADJUSTMENT) X(3u, "curve", CURVE)
 
@@ -642,7 +642,7 @@
 #define OMX_PANEL_PLACEMENTS_COUNT 4u
 /** The words of PANEL_PLACEMENTS in their declared order, as a C initializer list. */
 #define OMX_PANEL_PLACEMENTS_INIT { "insert", "return", "bus", "master" }
-/** Expands `X(code, "word", NAME)` once per word of PANEL_PLACEMENTS, in order, the code being its place in the order. Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code. */
+/** Expands `X(code, "word", NAME)` once per word of PANEL_PLACEMENTS, in order, the code being its place in the order. Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code. */
 #define OMX_PANEL_PLACEMENTS(X) \
     X(0u, "insert", INSERT) X(1u, "return", RETURN) X(2u, "bus", BUS) X(3u, "master", MASTER)
 

@@ -6343,7 +6343,7 @@ export declare const PANEL_DISPLAY_KINDS: {
 };
 
 /**
- * Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ * Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
  *
  * Why: omx-clap-core and omx-plugins restated these words by hand beside the families, widgets and display kinds; a display source is a declaration, so it lives here (vocabulary-owner rule).
  * @see data/panel.json
@@ -6380,7 +6380,7 @@ export declare const PANEL_DISPLAY_SOURCES: {
 };
 
 /**
- * Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ * Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
  *
  * Why: omx-clap-core and omx-plugins restated these words by hand; a placement is a declaration, so it lives here (vocabulary-owner rule).
  * @see data/panel.json

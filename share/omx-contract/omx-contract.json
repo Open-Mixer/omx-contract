@@ -7615,6 +7615,80 @@
         }
       }
     },
+    "PANEL_DISPLAY_SOURCES": {
+      "rel": "data/panel.json",
+      "kind": "words",
+      "doc": "Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+      "why": "omx-clap-core and omx-plugins restated these words by hand beside the families, widgets and display kinds; a display source is a declaration, so it lives here (vocabulary-owner rule).",
+      "since": "3.20.0",
+      "value": {
+        "family": {
+          "word": "family",
+          "doc": "the data the panel family itself implies",
+          "text": {
+            "en": "The data the panel family implies."
+          }
+        },
+        "meters": {
+          "word": "meters",
+          "doc": "the plugin's meter readouts",
+          "text": {
+            "en": "The plugin's meter readouts."
+          }
+        },
+        "gainAdjustment": {
+          "word": "gain_adjustment",
+          "doc": "the gain the processor applies",
+          "text": {
+            "en": "The gain the processor applies."
+          }
+        },
+        "curve": {
+          "word": "curve",
+          "doc": "a curve the plugin declares",
+          "text": {
+            "en": "A curve the plugin declares."
+          }
+        }
+      }
+    },
+    "PANEL_PLACEMENTS": {
+      "rel": "data/panel.json",
+      "kind": "words",
+      "doc": "Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
+      "why": "omx-clap-core and omx-plugins restated these words by hand; a placement is a declaration, so it lives here (vocabulary-owner rule).",
+      "since": "3.20.0",
+      "value": {
+        "insert": {
+          "word": "insert",
+          "doc": "an instance on a track's insert chain",
+          "text": {
+            "en": "An instance on an insert chain."
+          }
+        },
+        "return": {
+          "word": "return",
+          "doc": "an instance on a return track",
+          "text": {
+            "en": "An instance on a return track."
+          }
+        },
+        "bus": {
+          "word": "bus",
+          "doc": "an instance on a bus",
+          "text": {
+            "en": "An instance on a bus."
+          }
+        },
+        "master": {
+          "word": "master",
+          "doc": "an instance on the master",
+          "text": {
+            "en": "An instance on the master."
+          }
+        }
+      }
+    },
     "OMX_PARAM_CONTRACT_UNITS": {
       "rel": "data/param-contract.json",
       "kind": "sheet",

@@ -6343,6 +6343,80 @@ export declare const PANEL_DISPLAY_KINDS: {
 };
 
 /**
+ * Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ *
+ * Why: omx-clap-core and omx-plugins restated these words by hand beside the families, widgets and display kinds; a display source is a declaration, so it lives here (vocabulary-owner rule).
+ * @see data/panel.json
+ */
+export declare const PANEL_DISPLAY_SOURCES: {
+  readonly family: {
+    readonly word: "family";
+    readonly doc: "the data the panel family itself implies";
+    readonly text: {
+      readonly en: "The data the panel family implies.";
+    };
+  };
+  readonly meters: {
+    readonly word: "meters";
+    readonly doc: "the plugin's meter readouts";
+    readonly text: {
+      readonly en: "The plugin's meter readouts.";
+    };
+  };
+  readonly gainAdjustment: {
+    readonly word: "gain_adjustment";
+    readonly doc: "the gain the processor applies";
+    readonly text: {
+      readonly en: "The gain the processor applies.";
+    };
+  };
+  readonly curve: {
+    readonly word: "curve";
+    readonly doc: "a curve the plugin declares";
+    readonly text: {
+      readonly en: "A curve the plugin declares.";
+    };
+  };
+};
+
+/**
+ * Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-plugins' tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.
+ *
+ * Why: omx-clap-core and omx-plugins restated these words by hand; a placement is a declaration, so it lives here (vocabulary-owner rule).
+ * @see data/panel.json
+ */
+export declare const PANEL_PLACEMENTS: {
+  readonly insert: {
+    readonly word: "insert";
+    readonly doc: "an instance on a track's insert chain";
+    readonly text: {
+      readonly en: "An instance on an insert chain.";
+    };
+  };
+  readonly return: {
+    readonly word: "return";
+    readonly doc: "an instance on a return track";
+    readonly text: {
+      readonly en: "An instance on a return track.";
+    };
+  };
+  readonly bus: {
+    readonly word: "bus";
+    readonly doc: "an instance on a bus";
+    readonly text: {
+      readonly en: "An instance on a bus.";
+    };
+  };
+  readonly master: {
+    readonly word: "master";
+    readonly doc: "an instance on the master";
+    readonly text: {
+      readonly en: "An instance on the master.";
+    };
+  };
+};
+
+/**
  * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.
  * @see data/param-contract.json
  */
@@ -7708,6 +7782,18 @@ export declare const PANEL_WIDGETS_WORDS: readonly ["auto", "knob", "fader", "sw
  * @see data/panel.json
  */
 export declare const PANEL_DISPLAY_KINDS_WORDS: readonly ["gain_reduction_bar", "transfer_curve", "eq_response", "meter", "time_response"];
+
+/**
+ * The words of PANEL_DISPLAY_SOURCES, in their declared order.
+ * @see data/panel.json
+ */
+export declare const PANEL_DISPLAY_SOURCES_WORDS: readonly ["family", "meters", "gain_adjustment", "curve"];
+
+/**
+ * The words of PANEL_PLACEMENTS, in their declared order.
+ * @see data/panel.json
+ */
+export declare const PANEL_PLACEMENTS_WORDS: readonly ["insert", "return", "bus", "master"];
 
 /**
  * The words of PLUGIN_FEATURE_AUDIO_EFFECT, in their declared order.

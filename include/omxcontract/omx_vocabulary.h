@@ -414,6 +414,34 @@
     X(0u, "gain_reduction_bar", GAIN_REDUCTION_BAR) X(1u, "transfer_curve", TRANSFER_CURVE) X(2u, "eq_response", EQ_RESPONSE) X(3u, "meter", METER) \
     X(4u, "time_response", TIME_RESPONSE)
 
+/* PANEL_DISPLAY_SOURCES (data/panel.json) */
+#define OMX_PANEL_DISPLAY_SOURCES_FAMILY "family" ///< the data the panel family itself implies
+#define OMX_PANEL_DISPLAY_SOURCES_FAMILY_TEXT_EN "The data the panel family implies."
+#define OMX_PANEL_DISPLAY_SOURCES_METERS "meters" ///< the plugin's meter readouts
+#define OMX_PANEL_DISPLAY_SOURCES_METERS_TEXT_EN "The plugin's meter readouts."
+#define OMX_PANEL_DISPLAY_SOURCES_GAIN_ADJUSTMENT "gain_adjustment" ///< the gain the processor applies
+#define OMX_PANEL_DISPLAY_SOURCES_GAIN_ADJUSTMENT_TEXT_EN "The gain the processor applies."
+#define OMX_PANEL_DISPLAY_SOURCES_CURVE "curve" ///< a curve the plugin declares
+#define OMX_PANEL_DISPLAY_SOURCES_CURVE_TEXT_EN "A curve the plugin declares."
+#define OMX_PANEL_DISPLAY_SOURCES_COUNT 4u
+#define OMX_PANEL_DISPLAY_SOURCES_INIT { "family", "meters", "gain_adjustment", "curve" }
+#define OMX_PANEL_DISPLAY_SOURCES(X) \
+    X(0u, "family", FAMILY) X(1u, "meters", METERS) X(2u, "gain_adjustment", GAIN_ADJUSTMENT) X(3u, "curve", CURVE)
+
+/* PANEL_PLACEMENTS (data/panel.json) */
+#define OMX_PANEL_PLACEMENTS_INSERT "insert" ///< an instance on a track's insert chain
+#define OMX_PANEL_PLACEMENTS_INSERT_TEXT_EN "An instance on an insert chain."
+#define OMX_PANEL_PLACEMENTS_RETURN "return" ///< an instance on a return track
+#define OMX_PANEL_PLACEMENTS_RETURN_TEXT_EN "An instance on a return track."
+#define OMX_PANEL_PLACEMENTS_BUS "bus" ///< an instance on a bus
+#define OMX_PANEL_PLACEMENTS_BUS_TEXT_EN "An instance on a bus."
+#define OMX_PANEL_PLACEMENTS_MASTER "master" ///< an instance on the master
+#define OMX_PANEL_PLACEMENTS_MASTER_TEXT_EN "An instance on the master."
+#define OMX_PANEL_PLACEMENTS_COUNT 4u
+#define OMX_PANEL_PLACEMENTS_INIT { "insert", "return", "bus", "master" }
+#define OMX_PANEL_PLACEMENTS(X) \
+    X(0u, "insert", INSERT) X(1u, "return", RETURN) X(2u, "bus", BUS) X(3u, "master", MASTER)
+
 /* PLUGIN_FEATURE_AUDIO_EFFECT (data/plugin-features.json) */
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_CLAP_AUDIO_EFFECT "clap.audio-effect"
 #define OMX_PLUGIN_FEATURE_AUDIO_EFFECT_CLAP_AUDIO_EFFECT_TEXT_EN "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared."

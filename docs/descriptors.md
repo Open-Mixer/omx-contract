@@ -90,6 +90,29 @@ measurements of one machine and belong to a qualification record, which no descr
 | `toggle` | optionally a boolean `default` | `travel`, `ids` |
 | `trigger` | nothing more: a trigger has no state, so no `default` | `travel`, `ids`, `default` |
 
+### A scanned CLAP parameter's kind
+
+CLAP states no kind: a parameter has a range, a default, flags and, for an enumeration, a text per value. A describing
+host (plugin-hostd's `describe`, the console's catalog of a scanned descriptor) reads the kind from them by one rule,
+stated here and held by the vectors below; no host keeps a rule of its own.
+
+- The parameter's **scale** is the merged word: its contract entry's `scale` when it has one
+  (`org.openmixer.param-contract/1`), else `stepped` when `CLAP_PARAM_IS_STEPPED` is set, else the flag's absence, a
+  continuous travel. The contract entry wins over the raw flag both ways.
+- A parameter flagged `CLAP_PARAM_IS_ENUM`, or one with value texts, is a `choice`, whatever its range.
+- Else a parameter whose scale is stepped, whose `min` is 0 and `max` is 1, and whose step is 1 (the contract entry's
+  `step` when it states one; CLAP's stepped means integer positions, so one is implied) is a **`toggle`**: CLAP states
+  a boolean in no other way, and a plugin that draws it as a switch is right to. Its `default` is `true` when the
+  parameter's default is at least 0.5, the nearer of its two positions.
+- Else it is a `travel`, with the merged scale word: a stepped 0..2, a stepped 1..2, a continuous 0..1, and a stepped
+  0..1 whose contract step is 0.25 (five positions, not two) all stay travels.
+
+`share/omx-contract/clap-kind-vectors.json` holds the vectors: per case the inputs (the flags, the range, the default,
+the contract entry or none, whether value texts exist) and the kind and default a host must read. The C reader
+(plugin-hostd `src/describe.c`) and the console's TypeScript one are
+held to this one file by their own tests; neither restates the table. It is no declaration: not loaded, rendered or
+installed in the contract directory.
+
 ### Units
 
 A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st % x`, `""` and, since

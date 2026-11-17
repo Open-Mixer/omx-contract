@@ -122,6 +122,12 @@ jobs:
       - id: handback-layout
         name: Every word in the file its rule places it; every installed LV2 and CLAP term mapped with a status
         run: make layout
+      - id: handback-ownership
+        name: Every item of data/ is owned here or moving out, and the moving-out list only shrinks (omx-contract#81)
+        run: |
+          git fetch --no-tags origin main
+          make ownership OWNERSHIP_BASE=origin/main
+          node --test test/ownership.test.mjs
       - name: Install the C toolchain where the runner has none (arc-freemixer's image carries no make or cc)
         run: |
           command -v make >/dev/null && command -v cc >/dev/null || {

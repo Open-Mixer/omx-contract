@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib check doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -144,6 +144,12 @@ doxygen-check:
 # (docs/data-layout.md).
 layout:
 	node tools/data-layout.mjs
+
+# Every item of data/ owned here or on its way out, the moving-out list only shrinking against OWNERSHIP_BASE
+# (docs/contract-dir.md "What omx-contract owns").
+OWNERSHIP_BASE ?= origin/main
+ownership:
+	node tools/check-ownership.mjs --base $(OWNERSHIP_BASE)
 
 # inventory/ is the LV2 and CLAP installed here (needs serdi, the LV2 bundles and the CLAP headers).
 inventory-check:

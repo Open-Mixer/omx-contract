@@ -5,7 +5,7 @@
 #define OMX_TRAVEL_SHAPE_H
 
 /** @file omx_travel_shape.h
- *  @brief The shape Travel (shapes/travel.schema.json): A travel as the scale position law reads it (docs/scale-position.md): a scale word with its ends and, for a stepped one, its step; or the override module's map, linear between its points. The document @openmixer/omx-contract/scale and omx_contract.scale take; the shape every surface that nudges or draws a control reads.
+ *  @brief The shape Travel (shapes/travel.schema.json): A travel as the scale position law reads it (docs/scale-position.md): a scale word with its ends and, for a stepped one, its step; or the override module's map, linear between its points. The document \@openmixer/omx-contract/scale and omx_contract.scale take; the shape every surface that nudges or draws a control reads.
  *  A C reader parses the document by key; these macros name every key, every word and the required set, so no name is
  *  typed twice. The schema itself is installed under the data directory for a reader that validates. */
 

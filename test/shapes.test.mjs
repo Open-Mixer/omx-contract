@@ -133,7 +133,7 @@ test('a shape that breaks a rule is refused by name and nothing is rendered (sab
 
 test('the C render is right where a grep would not see it: a nested object has its own macros, prose with a quote or a comment close is a literal, and a compiler accepts it', { skip: !hasCc && 'no cc' }, () => {
   const s = travel();
-  s.description = 'A travel, said "plainly" */ with a backslash \\ and a line\nbreak.';
+  s.description = 'A travel, said "plainly" */ with a backslash \\ and a package @openmixer/x and a line\nbreak.';
   s.$defs.ScaleMap.properties.origin = {
     type: 'object', title: 'Origin', description: 'Where the map came from: the "override" file.', additionalProperties: false,
     properties: { file: { type: 'string', description: 'The file.' }, kind: { type: 'string', enum: ['scan', 'hand'], description: 'Scanned or by hand.' } }, required: ['file'],
@@ -144,6 +144,8 @@ test('the C render is right where a grep would not see it: a nested object has i
   assert.match(text, /#define OMX_SHAPE_ORIGIN_REQUIRED\(X\) X\(file, "file"\)/, 'and its required keys');
   assert.match(text, /#define OMX_SHAPE_ORIGIN_KIND_WORDS\(X\) X\(scan, "scan"\) X\(hand, "hand"\)/, 'and its words');
   assert.doesNotMatch(text, /[^\\]\*\/ with a backslash/, 'a comment close inside prose is broken');
+  assert.doesNotMatch(text.replace(/\\@/g, ''), /@(?!brief\b|\w+ )[a-z]/, 'no doxygen command is started by prose: an at sign is escaped');
+  assert.match(text, /\\@openmixer\/x/, 'the package name keeps its at sign, escaped');
   assert.doesNotMatch(text, /\n(?!\s*\*|\/|#|\n|$)./, 'no prose line stands outside a comment or a define');
   const file = join(dir, 'omx_travel_shape.h');
   writeFileSync(file, text);

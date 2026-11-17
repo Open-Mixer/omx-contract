@@ -127,8 +127,8 @@ export function shapePaths(root, target, dir) {
   return shapesOf(root, dir).map((s) => shapePath(target, s.name));
 }
 
-/** Prose inside a C comment: a comment close is broken, a line break is a space. */
-const inComment = (text) => String(text).replace(/\*\//g, '*\\/').replace(/\s*\n\s*/g, ' ');
+/** Prose inside a C comment: a comment close is broken, a doxygen command character is escaped, a line break is a space. */
+const inComment = (text) => String(text).replace(/\*\//g, '*\\/').replace(/[@\\]/g, '\\$&').replace(/\s*\n\s*/g, ' ');
 const doxy = (text) => `/** ${inComment(text)} */`;
 const macroStem = (s) => upper(s).replace(/[^A-Z0-9_]/g, '_');
 

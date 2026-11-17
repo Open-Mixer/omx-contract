@@ -1,5 +1,6 @@
 usr/share/omx-contract/contract.d
 usr/share/omx-contract/omx-contract.schema.json
+usr/share/omx-contract/shapes
 usr/share/omx-contract/omx-contract.json
 usr/share/omx-contract/omx-vocabulary.schema.json
 usr/share/omx-contract/omx-resource-hints.ttl

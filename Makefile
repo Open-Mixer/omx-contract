@@ -63,6 +63,7 @@ check: all
 	rm -f check-headers check-headers.c
 
 # The Python readers as the package omx_contract (omx-contract#28): catalog, scale and clap are the files share/omx-contract/
+# holds, and the shapes' TypedDicts (docs/shapes.md) as omx_contract.shapes.<name>; all of them the files share/omx-contract/
 # holds (one source), installed under PYTHONDIR, where this python3 keeps pure modules under PREFIX; a package build names
 # its own (the spec's python3_sitelib, Debian's dist-packages)
 PYTHONDIR = $(shell python3 -c 'import sysconfig; print(sysconfig.get_path("purelib", vars={"base": "$(PREFIX)"}))')
@@ -73,12 +74,17 @@ install-python:
 	install -m 0644 share/omx-contract/omx_contract_catalog.py $(DESTDIR)$(PYTHONDIR)/omx_contract/catalog.py
 	install -m 0644 share/omx-contract/omx_contract_scale.py $(DESTDIR)$(PYTHONDIR)/omx_contract/scale.py
 	install -m 0644 share/omx-contract/omx_contract.py $(DESTDIR)$(PYTHONDIR)/omx_contract/clap.py
+	install -d $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes
+	install -m 0644 python/omx_contract/shapes/__init__.py $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes/__init__.py
+	for f in share/omx-contract/omx_contract_*_shape.py; do n=$$(basename "$$f" _shape.py | sed 's/^omx_contract_//'); install -m 0644 "$$f" $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes/$$n.py || exit 1; done
 
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
 	install -m 0644 include/omxcontract/*.h $(DESTDIR)$(INCLUDEDIR)/omxcontract/
 	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
+	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
+	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
 	sh tools/install-contract-dir.sh -x codes.json -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data

@@ -41,8 +41,10 @@ jobs:
         with:
           node-version: 22
       - id: handback-install
-        name: Install the one runtime dependency
-        run: npm ci
+        name: Install the one runtime dependency, and the two pinned shape generators (docs/shapes.md)
+        run: |
+          npm ci
+          python3 -m pip install --user -r tools/shapes-requirements.txt
       - id: handback-validate
         name: The data is valid and in the one formatting
         run: |
@@ -56,6 +58,12 @@ jobs:
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check
           node bin/omx-contract.mjs render --target py --out share/omx-contract --check
+      - id: handback-shapes
+        name: The committed shape renders are the render of the shapes, by the pinned generators (docs/shapes.md)
+        run: |
+          node bin/omx-contract.mjs render --target c --shapes --out include --check
+          node bin/omx-contract.mjs render --target ts --shapes --out test/golden/ts --check
+          node bin/omx-contract.mjs render --target py --shapes --out share/omx-contract --check
       - id: handback-contract-dir
         name: The data installed as the contract directory renders the same bytes, and its links hold
         run: |

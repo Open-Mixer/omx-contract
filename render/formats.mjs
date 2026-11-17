@@ -72,6 +72,10 @@ export function renderFormatsHeader(resolved) {
  * writes and compares these, never a literal of its own.
  */
 
+/** @file
+ * @brief The identifiers and numbers of the plugin formats: the CLAP extension, factory, feature and window ids and
+ * the numbers the CLAP headers declare, and the LV2 specifications' URIs and namespaces. */
+
 ${lines.join('\n').replace(/\n+$/, '')}
 
 #endif /* OMX_FORMATS_H */

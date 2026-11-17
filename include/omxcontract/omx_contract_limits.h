@@ -12,6 +12,10 @@
  * A C contract (OMX_PRE/OMX_POST/OMX_INVARIANT) reads a limit from HERE, never a literal.
  */
 
+/** @file
+ * @brief The numbers of the contract: every declared limit, scalar, list and set as an OMX_ define or enum, and the
+ * declared sample rates. */
+
 /* Every scalar, sheet leaf and single travel's numbers, one block sorted by macro. An integer value
  * is an integer literal, any other a float literal AND its OMX_<macro>_DOUBLE spelling. */
 #define OMX_PARAM_CONTRACT_UNITS_BAR 4

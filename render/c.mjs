@@ -173,6 +173,10 @@ export function renderLimitsHeader(resolved) {
  * A C contract (OMX_PRE/OMX_POST/OMX_INVARIANT) reads a limit from HERE, never a literal.
  */
 
+/** @file
+ * @brief The numbers of the contract: every declared limit, scalar, list and set as an OMX_ define or enum, and the
+ * declared sample rates. */
+
 ${limitsSections(resolved)}
 
 #endif /* OMX_CONTRACT_LIMITS_H */

@@ -78,6 +78,10 @@ export function renderVocabularyHeader(resolved, pkg) {
  * literal of its own.
  */
 
+/** @file
+ * @brief The vocabulary of ${pkg ?? 'omx-contract'}: every code and every word as a string define, with its sentence
+ * where it carries one. */
+
 ${blocks.join('\n\n')}
 
 #endif /* ${guard} */

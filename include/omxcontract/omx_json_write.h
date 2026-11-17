@@ -32,12 +32,16 @@
  * slash is never escaped.
  */
 
+/** @file
+ * @brief The one JSON string writer of the OpenMixer C programs: the escape of one byte, a quoted literal into a FILE
+ * and a quoted literal into a buffer. */
+
 #include <stddef.h>
 #include <stdio.h>
 
 /**
  * The escape of byte `c` into `out` (no NUL): its length, 1 for a byte written as it is, 2 for a short escape, 6 for
- * \u00XX. `out` holds at least OMX_JSON_ESCAPE_MAX bytes.
+ * `\\u00XX`. `out` holds at least OMX_JSON_ESCAPE_MAX bytes.
  */
 #define OMX_JSON_ESCAPE_MAX 6
 

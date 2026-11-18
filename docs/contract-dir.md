@@ -21,7 +21,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 
 ```json
 { "$id": "https://openmixer.org/contract/panel",
-  "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel" },
+  "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel", "x-stability": "experimental" },
   "components": { "schemas": { "PANEL_FAMILIES": { "...": "JSON Schema 2020-12 shape of the item" } } } }
 ```
 
@@ -68,6 +68,8 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   never to a file path, so a move of files breaks no reference.
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
   that owns it now. Neither is read from the path.
+- `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
+  refused (`contract.manifest.invalid`).
 - `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
   the version it declares, so a domain evolves on its own line and a change in one domain touches no other domain's
   consumers, and needs no omx-contract release.

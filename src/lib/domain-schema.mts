@@ -6,7 +6,7 @@ export const domainSchema = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<domain>.json, one JSON Schema 2020-12 document of a vocabulary, its words items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": [
     "$schema",
@@ -29,7 +29,8 @@ export const domainSchema = {
       "required": [
         "title",
         "version",
-        "x-owner"
+        "x-owner",
+        "x-stability"
       ],
       "additionalProperties": false,
       "properties": {
@@ -46,6 +47,13 @@ export const domainSchema = {
           "description": "The package that owns the domain today: metadata, never a path.",
           "type": "string",
           "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "x-stability": {
+          "description": "The domain's stability level: every document carries it, and there is no default.",
+          "enum": [
+            "experimental",
+            "stable"
+          ]
         }
       }
     },
@@ -174,7 +182,7 @@ export const domainSchema = {
             "properties": {
               "$ref": {
                 "type": "string",
-                "pattern": "^https://openmixer\\.org/contract/[a-z][a-z0-9-]*#/components/schemas/[A-Z][A-Z0-9_]*$"
+                "pattern": "^https://openmixer\\.org/contract/[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*#/components/schemas/[A-Z][A-Z0-9_]*$"
               },
               "x-term": {
                 "type": "string",

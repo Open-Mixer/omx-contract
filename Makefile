@@ -94,7 +94,8 @@ install: all
 	chmod 0644 $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
 
 # The RPM macros of the contract directory (packaging/macros.omx-contract.in): an owner's spec says
-# %{omx_contract_dir}/<owner>/ and never types the schema major. The RPM build installs them into the devel package.
+# %{omx_contract_dir}/<owner>/ and never types the schema major, and %{omx_contract_domain_dir}/<domain>/ for a domain.
+# The RPM build installs them into the devel package.
 install-rpm-macros: all
 	install -d $(DESTDIR)$(RPMMACRODIR)
 	sed -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' packaging/macros.omx-contract.in > $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract

@@ -127,6 +127,9 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   file named): no `<leaf>.json`, any other file, a symlink. A subdirectory that holds its own `<its name>.json` is a
   nested domain: it is skipped, and installed by its own call (`formats/clap` beside `formats`); a reinstall replaces
   the domain's own document and catalogs and never a nested domain beside them.
+  A domain ships in its owner's `<pkg>-contract` subpackage (noarch rpm, deb `<pkg>-contract`); the spec's `%files`
+  names `%{omx_contract_domain_dir}/<domain>/`, the contract directory with no schema major (packaging/
+  macros.omx-contract.in, installed by omx-contract-devel beside `%{omx_contract_dir}`).
 
 `$OMX_CONTRACT_PATH`, a `:` list of directories each standing where `contractdir` stands, replaces the pkg-config
 lookup for a developer's checkout and for a test. A release build never sets it. When two of its directories hold

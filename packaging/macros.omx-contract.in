@@ -5,6 +5,9 @@
 # it: the schema major as this omx-contract reads it, and the directory a -contract subpackage's %files names,
 #   %{omx_contract_dir}/<owner>/
 # so no spec types the major a second time. Installed by omx-contract-devel; the same number is pkg-config's
-# schema_major variable of omx-contract.pc.
+# schema_major variable of omx-contract.pc. A domain (install-contract-dir.sh --domain) sits in the contract directory
+# itself, with no major: a -contract subpackage that ships one names
+#   %{omx_contract_domain_dir}/<domain>/
 %omx_contract_schema_major @SCHEMA_MAJOR@
-%omx_contract_dir %{_datadir}/omx-contract/contract.d/%{omx_contract_schema_major}
+%omx_contract_domain_dir %{_datadir}/omx-contract/contract.d
+%omx_contract_dir %{omx_contract_domain_dir}/%{omx_contract_schema_major}

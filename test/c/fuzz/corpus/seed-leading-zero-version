@@ -1,1 +1,1 @@
-D{"$id":"https://openmixer.org/contract/demo","info":{"version":"01.0.0","x-owner":"o"},"components":{"schemas":{}}}
+D{"$id":"https://openmixer.org/contract/demo","info":{"version":"01.0.0","x-owner":"o","x-stability":"experimental"},"components":{"schemas":{}}}

@@ -30,6 +30,18 @@ case $out in *contract.package.too-old*) ;; *) echo "cli_test: floor: unexpected
 out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 NO_SUCH 2>&1); check "an unknown item" 1 $?
 case $out in *contract.item.unknown*) ;; *) echo "cli_test: unknown item: unexpected message: $out" >&2; fail=1 ;; esac
 
+# a range item: the parameter's range, its default (0 when it has none), unit and scale
+out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 DEMO_PARAMS freq 2>&1); check "a range" 0 $?
+[ "$out" = "min=20 max=20000 default=1000 unit=Hz scale=log" ] || { echo "cli_test: a range: unexpected output: $out" >&2; fail=1; }
+out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 DEMO_PARAMS pad 2>&1); check "a range with no default" 0 $?
+[ "$out" = "min=0 max=1 default=0 unit= scale=" ] || { echo "cli_test: a range with no default: unexpected output: $out" >&2; fail=1; }
+out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 DEMO_PARAMS volume 2>&1); check "an unknown range name" 1 $?
+case $out in *contract.word.unknown*) ;; *) echo "cli_test: unknown range name: unexpected message: $out" >&2; fail=1 ;; esac
+out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 NO_SUCH gain 2>&1); check "a range of an unknown item" 1 $?
+case $out in *contract.item.unknown*) ;; *) echo "cli_test: unknown item with a name: unexpected message: $out" >&2; fail=1 ;; esac
+out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 DEMO_PARAMS 2>&1); check "the words of a range item" 0 $?
+[ -z "$out" ] || { echo "cli_test: a range item has no words, printed: $out" >&2; fail=1; }
+
 out=$("$bin" 2>&1); check "no argument" 64 $?
 
 # no OMX_CONTRACT_PATH: the installed directory (the fixtures, as the library was built here)

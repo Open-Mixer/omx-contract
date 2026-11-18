@@ -8,7 +8,9 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
+#include <errno.h>
 #include <jansson.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +19,7 @@
 #include <unistd.h>
 
 static int failures;
+static int skips; /* tests that could not run here, each named by a skip line */
 #define CHECK(cond) do { if (!(cond)) { failures++; fprintf(stderr, "%s:%d: FAILED %s\n", __FILE__, __LINE__, #cond); } } while (0)
 #define CHECK_STR(got, want) do { const char *g_ = (got); if (!g_ || strcmp(g_, (want)) != 0) { failures++; fprintf(stderr, "%s:%d: got \"%s\", want \"%s\"\n", __FILE__, __LINE__, g_ ? g_ : "(null)", (want)); } } while (0)
 
@@ -227,8 +230,15 @@ static void test_open_or_exit(void) {
     _exit(0); /* reached only if it did not exit */
   }
   close(fds[1]);
+  /* read to EOF: one read() can return a part of what the child wrote (the code and the message are two writes of stderr) */
   char msg[512] = "";
-  ssize_t got = read(fds[0], msg, sizeof msg - 1);
+  size_t got = 0;
+  for (;;) {
+    ssize_t n = read(fds[0], msg + got, sizeof msg - 1 - got);
+    if (n < 0 && errno == EINTR) continue;
+    if (n <= 0 || (got += (size_t)n) >= sizeof msg - 1) break;
+  }
+  msg[got] = '\0';
   CHECK(got > 0);
   close(fds[0]);
   int st = 0;
@@ -258,6 +268,9 @@ static void test_codes_are_contract_codes(void) {
     CHECK_STR(omx_domain_code(place), want);
   }
   CHECK(omx_domain_code(0) == NULL);
+  CHECK(omx_domain_code(-1) == NULL);
+  CHECK(omx_domain_code(INT_MIN) == NULL);
+  CHECK(omx_domain_code(INT_MAX) == NULL);
   CHECK(omx_domain_code(OMX_CONTRACT_CODE_LAST + 1) == NULL);
   CHECK(OMX_CONTRACT_CODE_ITEM_UNKNOWN != OMX_CONTRACT_CODE_WORD_UNKNOWN && OMX_CONTRACT_CODE_WORD_UNKNOWN != OMX_CONTRACT_CODE_INDEX_RANGE);
   json_decref(root);
@@ -567,6 +580,339 @@ static void test_empty_owner_refused(void) {
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", 0, NULL);
 }
 
+
+/* ---- paths of the loader no test reached: shapes, versions, catalogs, ranges (each asserts the code) ---- */
+
+#define ONE_W "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}"
+
+/* A catalog `es.json` with `content` in a domain with a valid document: the status of opening, the message in err, the handle in *dp. */
+static int catalog_is(const char *content, omx_domain **dp, omx_domain_error *err) {
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
+  put_file(path, content);
+  return open_scratch("dom", NULL, dp, err);
+}
+
+static void catalog_refused(const char *content, const char *has) {
+  omx_domain *d;
+  omx_domain_error err;
+  int rc = catalog_is(content, &d, &err);
+  if (rc != OMX_CONTRACT_CODE_CATALOG_INVALID) { failures++; fprintf(stderr, "%s:%d: FAIL catalog %s: got status %d, want %d\n", __FILE__, __LINE__, content, rc, OMX_CONTRACT_CODE_CATALOG_INVALID); }
+  else {
+    CHECK_STR(err.code, omx_domain_code(OMX_CONTRACT_CODE_CATALOG_INVALID));
+    if (!strstr(err.message, has)) { failures++; fprintf(stderr, "%s:%d: FAIL message \"%s\" lacks \"%s\"\n", __FILE__, __LINE__, err.message, has); }
+    CHECK(strstr(err.message, "es.json") != NULL);
+  }
+  if (rc == 0 && d) omx_domain_close(d);
+  drop_scratch();
+}
+
+static void test_catalog_shapes_refused(void) {
+  catalog_refused("[]", "messages");                                  /* root not an object */
+  catalog_refused("{}", "messages");                                  /* no messages */
+  catalog_refused("{\"messages\":[]}", "messages");                   /* messages not an object */
+  catalog_refused("{\"messages\":{\"DOM_W.a\":\"Hola\"}}", "DOM_W.a"); /* an entry that is not an object */
+  catalog_refused("{\"messages\":{\"DOM_W.a\":null}}", "DOM_W.a");
+  catalog_refused("{\"messages\":{\"DOM_W.a\":[]}}", "DOM_W.a");
+  catalog_refused("{\"messages\":{\"DOM_W.a\":{}}}", "DOM_W.a");      /* an entry without text */
+  catalog_refused("{\"messages\":{\"DOM_W.a\":{\"text\":1}}}", "DOM_W.a"); /* text not a string */
+  catalog_refused("{\"messages\":{\"DOM_W.a\":{\"text\":null}}}", "DOM_W.a");
+  catalog_refused("{\"messages\":{\"DOM_W.a\":{\"text\":\"ok\"},\"DOM_W.b\":{\"text\":[\"x\"]}}}", "DOM_W.b"); /* the second entry is the bad one */
+}
+
+/* A catalog that is not JSON is a bad catalog too, naming the file: never the document's contract.file.not-json. */
+static void test_catalog_not_json(void) {
+  omx_domain *d;
+  omx_domain_error err;
+  /* a scalar root is no JSON either: the parser is not asked to accept one */
+  const char *bad[] = { "", "{", "{\"messages\":{}} x", "not json", "\"messages\"", "7", "null" };
+  for (size_t i = 0; i < sizeof bad / sizeof bad[0]; i++) {
+    int rc = catalog_is(bad[i], &d, &err);
+    if (rc != OMX_CONTRACT_CODE_CATALOG_INVALID) { failures++; fprintf(stderr, "%s:%d: FAIL catalog \"%s\": got status %d, want contract.catalog.invalid\n", __FILE__, __LINE__, bad[i], rc); }
+    else { CHECK_STR(err.code, "contract.catalog.invalid"); CHECK(strstr(err.message, "es.json") != NULL); }
+    drop_scratch();
+  }
+}
+
+/* A catalog the process cannot read is refused with the code of a bad catalog (skipped as root, which reads anything). */
+static void test_catalog_unreadable(void) {
+  if (geteuid() == 0) { skips++; puts("skip test_catalog_unreadable: run as root, which reads a mode-0 file"); return; }
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
+  put_file(path, "{\"messages\":{}}");
+  CHECK(chmod(path, 0) == 0);
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK_STR(err.code, omx_domain_code(OMX_CONTRACT_CODE_CATALOG_INVALID));
+  CHECK(strstr(err.message, "es.json") != NULL);
+  drop_scratch();
+}
+
+/* What the loader accepts of a catalog: no catalogs/ directory; an empty messages; a "by" of any type (the loader reads only
+   "text", so a "by" that is not a string opens); other files of catalogs/ that are not .json. */
+static void test_catalog_accepted(void) {
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(catalog_is("{\"messages\":{}}", &d, &err) == 0);
+  if (d) { CHECK(omx_domain_text(d, "DOM_W.a", "es") == NULL); omx_domain_close(d); } /* a has no x-text: no sentence in any language */
+  drop_scratch();
+  CHECK(catalog_is("{\"messages\":{\"DOM_W.a\":{\"text\":\"Hola\",\"by\":7}}}", &d, &err) == 0);
+  if (d) { CHECK_STR(omx_domain_text(d, "DOM_W.a", "es"), "Hola"); omx_domain_close(d); }
+  drop_scratch();
+  CHECK(catalog_is("{\"messages\":{\"DOM_W.a\":{\"text\":\"Hola\",\"by\":\"me\"}},\"other\":1}", &d, &err) == 0);
+  if (d) { CHECK_STR(omx_domain_text(d, "DOM_W.a", "es"), "Hola"); omx_domain_close(d); }
+  drop_scratch();
+  /* a key that is no word of the domain is kept and never found */
+  CHECK(catalog_is("{\"messages\":{\"DOM_W.zz\":{\"text\":\"x\"}}}", &d, &err) == 0);
+  if (d) { CHECK(omx_domain_text(d, "DOM_W.zz", "es") == NULL); omx_domain_close(d); }
+  drop_scratch();
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/README.txt", scratch);
+  put_file(path, "not a catalog");
+  snprintf(path, sizeof path, "%s/dom/catalogs/.json", scratch); /* five bytes or fewer is no catalog name */
+  put_file(path, "not json");
+  CHECK(open_scratch("dom", NULL, &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  drop_scratch();
+}
+
+/* The document's top shape: root, $id, info, version, owner. */
+static void test_document_shape_refused(void) {
+  const int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  omx_domain *d;
+  omx_domain_error err;
+  const char *roots[] = { "[]", "[{\"$id\":\"https://openmixer.org/contract/dom\"}]" };
+  for (size_t i = 0; i < sizeof roots / sizeof roots[0]; i++) {
+    make_scratch();
+    make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+    char path[600];
+    snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
+    put_file(path, roots[i]);
+    int rc = open_scratch("dom", NULL, &d, &err);
+    if (rc != bad) { failures++; fprintf(stderr, "%s:%d: FAIL root %s: got status %d, want %d\n", __FILE__, __LINE__, roots[i], rc, bad); }
+    else { CHECK_STR(err.code, "contract.file.invalid"); CHECK(strstr(err.message, "JSON object") != NULL); }
+    drop_scratch();
+  }
+  const char *scalars[] = { "\"dom\"", "7", "null", "true" }; /* the parser takes an object or an array as a root only */
+  for (size_t i = 0; i < sizeof scalars / sizeof scalars[0]; i++) {
+    make_scratch();
+    make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+    char path[600];
+    snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
+    put_file(path, scalars[i]);
+    int rc = open_scratch("dom", NULL, &d, &err);
+    if (rc != OMX_CONTRACT_CODE_FILE_NOT_JSON) { failures++; fprintf(stderr, "%s:%d: FAIL root %s: got status %d, want not-json\n", __FILE__, __LINE__, scalars[i], rc); }
+    drop_scratch();
+  }
+  doc_is("{\"x-owner\":\"o\"}", ONE_W, bad, "info.version");                    /* no version */
+  doc_is("{\"version\":1,\"x-owner\":\"o\"}", ONE_W, bad, "info.version");      /* version not a string */
+  doc_is("{\"version\":null,\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
+  doc_is("{\"version\":\"1.0\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
+  doc_is("{\"version\":\"1.0.0.0\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
+  doc_is("{\"version\":\"1.0.0-rc1\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
+  doc_is("{\"version\":\"\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
+  doc_is("{\"version\":\"1.0.0\"}", ONE_W, bad, "x-owner");                     /* no owner */
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":7}", ONE_W, bad, "x-owner");       /* owner not a string */
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":null}", ONE_W, bad, "x-owner");
+  doc_is("[]", ONE_W, bad, "info.version");                                     /* info not an object */
+  doc_is("\"1.0.0\"", ONE_W, bad, "info.version");
+  doc_is("null", ONE_W, bad, "info.version");
+  /* an absent info, and an absent or non-string $id */
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"components\":{\"schemas\":{}}}");
+  CHECK(open_scratch("dom", NULL, &d, &err) == bad);
+  CHECK(strstr(err.message, "info.version") != NULL);
+  put_file(path, "{\"info\":" INFO_OK ",\"components\":{\"schemas\":{}}}");
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
+  CHECK(strstr(err.message, "(absent)") != NULL);
+  put_file(path, "{\"$id\":7,\"info\":" INFO_OK ",\"components\":{\"schemas\":{}}}");
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":" INFO_OK "}"); /* no components */
+  CHECK(open_scratch("dom", NULL, &d, &err) == bad);
+  CHECK(strstr(err.message, "schemas") != NULL);
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":" INFO_OK ",\"components\":{\"schemas\":[]}}");
+  CHECK(open_scratch("dom", NULL, &d, &err) == bad);
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":" INFO_OK ",\"components\":[]}");
+  CHECK(open_scratch("dom", NULL, &d, &err) == bad);
+  drop_scratch();
+}
+
+/* The floor is compared to the patch: 1.2.3 against 1.2.2 is refused; equal and above open; each part decides in turn. */
+static void test_patch_level_floor(void) {
+  make_scratch();
+  omx_domain *d;
+  omx_domain_error err;
+  make_domain("p", "https://openmixer.org/contract/p", "1.2.3");
+  CHECK(open_scratch("p", "1.2.4", &d, &err) == OMX_CONTRACT_CODE_PACKAGE_TOO_OLD);
+  CHECK_STR(err.code, "contract.package.too-old");
+  CHECK(strstr(err.message, "1.2.3") != NULL && strstr(err.message, "1.2.4") != NULL);
+  CHECK(open_scratch("p", "1.2.3", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  CHECK(open_scratch("p", "1.2.2", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  CHECK(open_scratch("p", "1.3.0", &d, &err) == OMX_CONTRACT_CODE_PACKAGE_TOO_OLD);
+  CHECK(open_scratch("p", "2.0.0", &d, &err) == OMX_CONTRACT_CODE_PACKAGE_TOO_OLD);
+  CHECK(open_scratch("p", "1.1.99", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  CHECK(open_scratch("p", "0.99.99", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  make_domain("q", "https://openmixer.org/contract/q", "1.2.2"); /* the document is the older: floor 1.2.3 refused */
+  CHECK(open_scratch("q", "1.2.3", &d, &err) == OMX_CONTRACT_CODE_PACKAGE_TOO_OLD);
+  CHECK(open_scratch("q", "1.2.2", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  make_domain("r", "https://openmixer.org/contract/r", "1.2.4");
+  CHECK(open_scratch("r", "1.2.3", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  /* the floor "" is not x.y.z (a program asks NULL for none) */
+  CHECK(open_scratch("r", "", &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  drop_scratch();
+}
+
+/* A word or a range with a value of the wrong type is refused naming it; a schema that is neither kind is not served. */
+static void test_wrong_types_refused(void) {
+  const int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  doc_is(INFO_OK, "{\"DOM_W\":1}", bad, "DOM_W");                                  /* a schema not an object */
+  doc_is(INFO_OK, "{\"DOM_W\":[]}", bad, "DOM_W");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[1]}}", bad, "const");                   /* a word not an object */
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[\"a\"]}}", bad, "const");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[null]}}", bad, "const");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[[]]}}", bad, "const");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":1,\"title\":\"T\",\"description\":\"d\",\"x-code\":0}]}}", bad, "const");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"title\":\"T\",\"description\":\"d\",\"x-code\":0}]}}", bad, "const");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"description\":\"d\",\"x-code\":0}]}}", bad, "title");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":1,\"description\":\"d\",\"x-code\":0}]}}", bad, "title");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":[],\"x-code\":0}]}}", bad, "description");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\"}]}}", bad, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":\"0\"}]}}", bad, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":0.0}]}}", bad, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":-1}]}}", bad, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":2147483648}]}}", bad, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":0,\"x-text\":1}]}}", bad, "x-text");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":0,\"x-text\":\"Hi\"}]}}", 0, NULL);
+  /* a range parameter */
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":1}}}", bad, "\"g\"");        /* a parameter not an object */
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"maximum\":1}}}}", bad, "minimum");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0}}}}", bad, "maximum");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":\"0\",\"maximum\":1}}}}", bad, "minimum");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":null}}}}", bad, "maximum");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1,\"default\":\"0\"}}}}", bad, "default");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1,\"x-unit\":1}}}}", bad, "x-unit");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1,\"x-scale\":[]}}}}", bad, "x-scale");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0.5,\"maximum\":1.5,\"default\":1,\"x-unit\":\"dB\",\"x-scale\":\"log\"}}}}", 0, NULL);
+  /* a schema whose oneOf or properties is the wrong type is neither kind: opened and not served (the loader's documented skip) */
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":\"a\"}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":{}}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":[]}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":\"g\"}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_P\":{\"type\":\"object\"}}", 0, NULL);
+  doc_is(INFO_OK, "{}", 0, NULL);
+}
+
+/* An open that skipped a schema serves nothing for it. */
+static void test_skipped_schema_is_not_served(void) {
+  make_scratch();
+  make_doc(INFO_OK, "{\"A\":{\"oneOf\":\"a\"},\"B\":{\"properties\":[]},\"C\":{\"type\":\"string\"},\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}");
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == 0);
+  if (d) {
+    CHECK(omx_domain_word_count(d, "A") == -1 && omx_domain_word_count(d, "B") == -1 && omx_domain_word_count(d, "C") == -1);
+    CHECK(omx_domain_word_count(d, "DOM_W") == 1);
+    CHECK(omx_domain_word(d, "A", "a", NULL) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+    omx_domain_close(d);
+  }
+  drop_scratch();
+}
+
+/* A words item with an empty oneOf is a words item with no words: it opens, counts 0, has no word at any index, and
+   an empty properties is a range item with no parameter. */
+static void test_empty_items(void) {
+  make_scratch();
+  make_doc(INFO_OK, "{\"DOM_E\":{\"oneOf\":[]},\"DOM_R\":{\"properties\":{}}}");
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == 0);
+  if (d) {
+    omx_domain_word_info w;
+    omx_domain_range_info r;
+    CHECK(omx_domain_word_count(d, "DOM_E") == 0);
+    CHECK(omx_domain_word_at(d, "DOM_E", 0, &w) == OMX_CONTRACT_CODE_INDEX_RANGE);
+    CHECK(omx_domain_word_at(d, "DOM_E", -1, &w) == OMX_CONTRACT_CODE_INDEX_RANGE);
+    CHECK(omx_domain_word(d, "DOM_E", "a", &w) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+    CHECK(omx_domain_text(d, "DOM_E.a", "es") == NULL);
+    CHECK(omx_domain_word_count(d, "DOM_R") == 0);
+    CHECK(omx_domain_range(d, "DOM_R", "g", &r) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+    CHECK(omx_domain_word_at(d, "DOM_R", 0, &w) == OMX_CONTRACT_CODE_INDEX_RANGE);
+    omx_domain_close(d);
+  }
+  drop_scratch();
+}
+
+/* Two words with the same const, and a long word, a long item name and an empty const: words are any string. */
+static void test_words_are_any_string(void) {
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "," WORD("a", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-code"); /* the place comes first */
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "," WORD("b", "1") "," WORD("a", "2") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "twice");
+  make_scratch();
+  char schemas[2200], longw[1100], longitem[400];
+  memset(longw, 'w', 1000); longw[1000] = '\0';
+  memset(longitem, 'I', 300); longitem[300] = '\0';
+  snprintf(schemas, sizeof schemas, "{\"%s\":{\"oneOf\":[" WORD("", "0") "," WORD("%s", "1") "]}}", longitem, longw);
+  make_doc(INFO_OK, schemas);
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == 0);
+  if (d) {
+    omx_domain_word_info w;
+    CHECK(omx_domain_word_count(d, longitem) == 2);
+    CHECK(omx_domain_word(d, longitem, "", &w) == 0 && w.code == 0);
+    CHECK(omx_domain_word(d, longitem, longw, &w) == 0 && w.code == 1);
+    CHECK_STR(w.word, longw);
+    /* a key whose item part is over the 255 bytes the text lookup holds is no word: NULL, never a truncated item */
+    char key[1500];
+    snprintf(key, sizeof key, "%s.%s", longitem, longw);
+    CHECK(omx_domain_text(d, key, "es") == NULL);
+    omx_domain_close(d);
+  }
+  drop_scratch();
+}
+
+/* NULL arguments the header does not forbid. */
+static void test_null_arguments(void) {
+  omx_domain *d = open_ok("demo", NULL);
+  omx_domain_word_info w;
+  omx_domain_range_info r;
+  CHECK(omx_domain_word(d, NULL, "red", &w) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", NULL, &w) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", "red", NULL) == 0);
+  CHECK(omx_domain_word_at(d, "DEMO_COLORS", 0, NULL) == 0);
+  CHECK(omx_domain_word_count(d, NULL) == -1 && omx_domain_word_count(NULL, "DEMO_COLORS") == -1);
+  CHECK(omx_domain_range(d, "DEMO_PARAMS", NULL, &r) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+  CHECK(omx_domain_range(d, "DEMO_PARAMS", "gain", NULL) == 0);
+  CHECK(omx_domain_range(NULL, "DEMO_PARAMS", "gain", &r) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+  CHECK(omx_domain_text(NULL, "DEMO_COLORS.red", "ca") == NULL && omx_domain_text(d, NULL, "ca") == NULL);
+  omx_domain_close(d);
+  /* open with no err, and with no out */
+  CHECK(omx_domain_open_at(FIX, "absent", NULL, &d, NULL) == OMX_CONTRACT_CODE_DIR_ABSENT && d == NULL);
+  omx_domain_error err;
+  CHECK(omx_domain_open_at(FIX, "demo", NULL, NULL, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+}
+
 /* DOMAIN_TEST_ONLY=<name> runs just that one of the hostile-directory tests (an ASan abort ends the process). */
 #define RUN(fn) do { const char *only_ = getenv("DOMAIN_TEST_ONLY"); if (!only_ || strcmp(only_, #fn) == 0) fn(); } while (0)
 
@@ -610,8 +956,20 @@ int main(void) {
   RUN(test_incoherent_items_refused);
   RUN(test_bad_catalogs_refused);
   RUN(test_empty_owner_refused);
+  RUN(test_catalog_shapes_refused);
+  RUN(test_catalog_not_json);
+  RUN(test_catalog_unreadable);
+  RUN(test_catalog_accepted);
+  RUN(test_document_shape_refused);
+  RUN(test_patch_level_floor);
+  RUN(test_wrong_types_refused);
+  RUN(test_skipped_schema_is_not_served);
+  RUN(test_empty_items);
+  RUN(test_words_are_any_string);
+  RUN(test_null_arguments);
   RUN(test_stability);
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
-  puts("domain_test: all checks passed");
+  if (skips) printf("domain_test: all checks passed, %d test(s) skipped\n", skips);
+  else puts("domain_test: all checks passed");
   return 0;
 }

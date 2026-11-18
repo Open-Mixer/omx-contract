@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.19.1
+Version: 3.20.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -308,6 +308,31 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Wed Nov 18 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.0-1
+- Schema 3.20.0: the domain document, <domain>/<domain>.json, one JSON Schema
+  document with info{title,version,x-owner,x-stability}; words may carry
+  x-group, x-groups and x-from, and a domain directory holds
+  catalogs/<lang>.json. info.x-stability (experimental or stable) is required by
+  the TypeScript reader and the C loader. The document has its own schema,
+  schema/domain.schema.json (#84, #113). A domain renders its codes header only,
+  and its item names carry the domain prefix. Schema ids name the major version
+  only (#108).
+- REMOVED: the scan words (SCAN_DOCUMENTS, SCAN_FIELD_SCOPES), the machine words
+  (MACHINE_CLASS_FIELDS, MACHINE_PROFILE_FIELDS, MACHINE_CORE_BANDS,
+  MACHINE_CLOCK_BANDS, MACHINE_ARCHES) and the qualification words (MEASUREMENT_*,
+  six RESOURCE_* items, MACHINE_CLASSES) leave this package, with their
+  translations; they are the scan, machine and qualification domains of their
+  owners, the same OMX_* macros byte for byte (#83, #85, #86).
+- A C loader of the domain document: libomx-domain and libomx-domain-devel, and
+  the omx-domain command, on jansson (#105). Its memory safety, strict versions
+  and a fuzz target are in #110, its spec gaps and the contract.catalog.invalid
+  code in #115, a word with no description in #116; the library's ABI list gives
+  a consumer a version floor (#109).
+- A word's description is optional (#116).
+- install-contract-dir.sh --domain installs a domain as it is, and the RPM macro
+  %%{omx_contract_domain_dir} names its directory (#117).
+- fmt formats a domain document by the one rule (#119).
+- docs/consumer-move.md: the recipe of one consumer move onto a domain (#114).
 * Tue Nov 17 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.1-1
 - The npm package @openmixer/omx-contract is now published with the release: the
   publish workflow's prove step installs the shape generators' requirements

@@ -206,7 +206,7 @@
   },
   "PANEL_DISPLAY_KINDS": {
     "kind": "words",
-    "since": "3.20.0",
+    "since": "3.19.0",
     "doc": "The displays a declared panel may carry, and the extension serves (org.openmixer.panel-description/1), in the order of their codes: a panel description names a display by its place here. omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
     "why": "omx-clap-core restated these words by hand beside the families and widgets; a display kind is a declaration, so it lives here (vocabulary-owner rule).",
     "words": {
@@ -249,7 +249,7 @@
   },
   "PANEL_DISPLAY_SOURCES": {
     "kind": "words",
-    "since": "3.20.0",
+    "since": "3.19.0",
     "doc": "Where a panel description's display takes its data from, in the order of their codes (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
     "why": "omx-clap-core and omx-plugins restated these words by hand beside the families, widgets and display kinds; a display source is a declaration, so it lives here (vocabulary-owner rule).",
     "words": {
@@ -285,7 +285,7 @@
   },
   "PANEL_PLACEMENTS": {
     "kind": "words",
-    "since": "3.20.0",
+    "since": "3.19.0",
     "doc": "Where an instance sits, in the order of their codes: the clap.track-info/1 flags read as one value (org.openmixer.panel-description/1). omx-panel's tools/panel-description.mjs and omx-clap-core's panel tables read them, and keep their code.",
     "why": "omx-clap-core and omx-plugins restated these words by hand; a placement is a declaration, so it lives here (vocabulary-owner rule).",
     "words": {

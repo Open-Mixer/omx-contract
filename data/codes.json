@@ -105,6 +105,17 @@
           "item"
         ]
       },
+      "itemPrefix": {
+        "code": "contract.item.prefix",
+        "doc": "an item of a domain does not start with its domain's name, or starts with the name of a longer domain",
+        "text": {
+          "en": "{item} breaks the naming of the domain {domain}. Start an item name with the domain's name in upper snake case and an underscore, and with no longer domain's name."
+        },
+        "args": [
+          "item",
+          "domain"
+        ]
+      },
       "kernelDuplicate": {
         "code": "contract.kernel.duplicate",
         "doc": "two packages each declare a file of one kernel",

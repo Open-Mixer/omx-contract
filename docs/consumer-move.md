@@ -89,19 +89,25 @@ one line of its `--help`. A test points the variable at a fixture directory or a
 
 ## 6. Packaging
 
-The owner installs its domain beside omx-contract's, with the script omx-contract installs (it is plain shell, so a
-release build runs no node):
+The loader reads `<contractdir>/<domain>/<last segment>.json` and its `catalogs/`, with no schema major and no
+package directory in the path. A domain is installed there by ONE implementation, the domain mode of the installer
+omx-contract ships (`install-contract-dir.sh --domain`, its own omx-contract PR): it copies the domain directory as
+it is, catalogs included, to `<contractdir>/<domain>/`, and rewrites nothing (no `$schema` rewrite). A package
+writes no `install -D` lines of its own for its domain. The package mode of the same script (without `--domain`)
+installs a package's classic definition files under `<contractdir>/<schema major>/<package>/` and is not for
+domains.
 
 ```sh
 D=$(pkg-config --variable=datadir omx-contract)   # <datadir>/omx-contract
-sh "$D/install-contract-dir.sh" <package> <version> \
-  "$(pkg-config --variable=schema_major omx-contract)" contract.d \
+sh "$D/install-contract-dir.sh" --domain contract.d/<domain> \
   "$DESTDIR$(pkg-config --variable=contractdir omx-contract)"
 ```
 
 in `make install`, with the installed files listed in the rpm spec and `debian/*.install`. A reader requires the
-owner's data package and omx-contract >= 3.20.0 (the loader) at build and
-run time. A CI that installs omx-contract from a commit pins it by SHA until the 3.20.0 tag replaces it.
+owner's data package and omx-contract >= 3.20.0 (the loader) at build and run time; where that requirement would be
+a cycle, it requires nothing and refuses by name (exit 78, naming the domain and the directories) when the domain
+is absent at the moment it needs it, with a test arm. A CI that installs omx-contract from a commit pins it by SHA
+until the 3.20.0 tag replaces it.
 
 ## 7. The red-first tests
 
@@ -115,6 +121,9 @@ One commit, tests only, failing before the move:
 4. the codes header holds only the `x-c-codes` items and is the render (`--check`), or there is none;
 5. a CLI reads `OMX_CONTRACT_PATH`, and the library entry ignores it;
 6. a missing, invalid or too-old domain is refused by name at start-up.
+7. the installed tree is the one the loader reads (owner only): `make install DESTDIR=<tmp>`, then
+   `omx_domain_open_at("<tmp><contractdir>", "<domain>", "<floor>", ...)` opens it and finds a word and a catalog
+   text.
 
 Each arm is then sabotaged once (uncommitted, restored) and the failing line goes in the PR body with the red and
 the green, and the runs.

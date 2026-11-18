@@ -120,6 +120,13 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   under `<from>` to `<to>/<package>/`, writes `$schema` in its installed form (below) and writes the manifest. It
   is plain shell and coreutils, so a release build runs no node. `make install` installs omx-contract's own
   `data/` as the package `omx-contract` with it.
+- `tools/install-contract-dir.sh --domain <path>/contract.d/<domain> <contractdir>` installs one domain: it copies the
+  directory as it is, byte for byte, to `<contractdir>/<domain>/`: its document `<leaf>.json` and `catalogs/<lang>.json`,
+  with no `$schema` rewrite and no manifest. The domain is the path after the last `contract.d/` component; a name whose
+  segments are not `[a-z][a-z0-9-]*` is a usage error (exit 2). What the reader would refuse is refused (exit 1, the
+  file named): no `<leaf>.json`, any other file, a symlink. A subdirectory that holds its own `<its name>.json` is a
+  nested domain: it is skipped, and installed by its own call (`formats/clap` beside `formats`); a reinstall replaces
+  the domain's own document and catalogs and never a nested domain beside them.
 
 `$OMX_CONTRACT_PATH`, a `:` list of directories each standing where `contractdir` stands, replaces the pkg-config
 lookup for a developer's checkout and for a test. A release build never sets it. When two of its directories hold

@@ -58,8 +58,9 @@ exit.
 
 A test points the loader elsewhere through a path argument of a separate, test-only entry point (`omx_domain_open_at`,
 below). A production entry point takes no path and reads no environment variable: a stray variable in a service's
-environment must not change which vocabulary it runs on. `OMX_CONTRACT_PATH` is a test and development override only: a
-production program reads the installed path, and when no domain is found there it refuses (ruling 2).
+environment must not change which vocabulary it runs on. `OMX_CONTRACT_PATH` is read only by test harnesses and by the
+command-line tool, which pass it to `omx_domain_open_at`; `omx_domain_open` never reads it. A production program reads
+the installed path, and when no domain is found there it refuses (ruling 2).
 
 ## The C loader
 
@@ -94,15 +95,18 @@ int  omx_domain_range(const omx_domain *d, const char *item, const char *name, o
 const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang);
 ```
 
-- **Return values.** Every function returns 0 on success and a nonzero error on failure, except
-  `omx_domain_text`, which returns NULL when the key is no word or code of the domain. A failure is an unknown item,
-  an unknown word or name, or an index out of range; none of them returns a default value in the output. The error
-  codes are the codes of `CONTRACT_CODES`, so the message a person reads is the sentence of a code that already
-  exists.
-- **Ownership and lifetime.** The handle owns every string it returns. A `const char *` and every pointer inside an
-  `omx_domain_word_info` or `omx_domain_range_info` is valid from the call until `omx_domain_close`, is never
-  modified and never freed by the caller, and is read-only memory the program may share between threads after
-  `omx_domain_open` returns (the handle is immutable once open). A program that needs a value after close, or in a
+- **Return values.** Every function returns 0 on success, and on failure the nonzero value of a code of
+  `CONTRACT_CODES` from its generated codes header; `omx_domain_text` alone returns NULL when the key is no word or
+  code of the domain. Opening refuses with the reader's existing codes (`contract.dir.absent`,
+  `contract.file.not-json`, `contract.file.invalid`, `contract.schema.too-old`, ...). A lookup fails with one of three
+  codes the loader lane adds to `CONTRACT_CODES`, each with its sentence: `contract.item.unknown` (no such item in the
+  domain), `contract.word.unknown` (no such word or name in the item) and `contract.index.range` (an index past the
+  item's count). None of them returns a default value in the output.
+- **Ownership and lifetime.** At open the handle copies everything it will return into its own immutable storage,
+  and releases the JSON library's document before `omx_domain_open` returns; sharing between threads never rests on
+  the JSON library's internals. A `const char *` and every pointer inside an `omx_domain_word_info` or
+  `omx_domain_range_info` points into that storage, is valid from the call until `omx_domain_close`, is never modified
+  and never freed by the caller, and may be shared between threads after `omx_domain_open` returns. A program that needs a value after close, or in a
   thread with a real-time deadline, copies it at start-up into storage of its own.
 - **Never in the audio thread.** The family allocates (open parses and validates the document) and looks up by string.
   The header says so in its `@file` block, and a program calls it only from its start-up path. A value the audio
@@ -119,12 +123,13 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 No generator for either. The domain document is JSON Schema 2020-12 data, and each language reads it with a standard
 tool.
 
-- **TypeScript.** Load the installed JSON and validate it with a standard JSON Schema validator (Ajv, for example).
-  The types come from the schema as a TypeScript type, `FromSchema<typeof schema>` (json-schema-to-ts), not from a
-  rendered `.d.ts`: the schema is imported as a typed constant, and no file is written. A missing or invalid document
-  throws at start-up with the same message the C loader prints.
-- **Python.** Load the installed JSON and validate it with `jsonschema` (Draft 2020-12). No `TypedDict` render; a
-  surface that wants a typed view writes the three lines of its own.
+- **TypeScript.** The types come from the schema as a TypeScript type, `FromSchema<typeof schema>`
+  (json-schema-to-ts), not from a rendered `.d.ts`. The schema is imported as a typed constant from the owner's package
+  at the version floor the consumer declares; the consumer keeps no copy of it, and no file is written. At run time the
+  installed JSON is loaded and validated with a standard JSON Schema validator (Ajv, for example), and its
+  `info.version` is checked to be at least the consumer's need. A missing, invalid or too-old document throws at
+  start-up with the same message the C loader prints.
+- **Python.** Load the installed JSON and validate it with `jsonschema` (Draft 2020-12). No `TypedDict` render.
 - The catalog readers that already exist (`@openmixer/omx-contract/catalog`, `omx_contract_catalog.py`,
   docs/data-layout.md) read installed JSON at run time and are in the spirit of the rule; they stay.
 
@@ -137,7 +142,7 @@ tool.
 | The LV2 and MOD GUI files (the Turtle manifests, the GUI bundles) | A build artifact: a host reads them from the installed bundle, not from our loader, and they are made once at package build from the data. |
 | Packaging lists (file lists of the rpm and the deb) | A build artifact of the package build, read by the packaging tool before any program of ours runs. |
 | The site | A build artifact: static pages made from the data at release, read by a browser, not by our code. |
-| WebAssembly | A compile-time artifact: the module is built from C, runs where no installed contract directory exists (a browser), and so carries what it needs inside; the JavaScript that loads it is outside this rule. |
+| WebAssembly: the codes only | The module is built from C, so the codes it switches on are compiled in. Its data is not: the module is HANDED the domain document at start-up by the page that loads it, since a browser has no installed contract directory (ruling 8). |
 
 The test for a new generated file is the rule's: does a compiler, a packager or a host other than ours need it before
 a program of ours runs? If not, it is a function.
@@ -193,7 +198,7 @@ dual header and no period in which both paths exist; one would need the owner's 
 - `dsp/rates`: the standard rates, quanta and real-time targets.
 - `dsp/meters`: the readout rates and the meter shapes.
 
-The moves of omx-contract#81 bring omx-contract's curve kinds and axes, its rates and its readout rate there. The move also runs the other way: the curve origins and the operator EQ band reserve of omx-dsp's `eq.json` move to a console domain, since they are the console's words, not the kernel's. Under this rule omx-dsp's C keeps only the codes it switches on (a buffer-sizing limit among them, ruling 3) and reads nothing in the audio thread: a face resolves its parameters at start-up.
+The moves of omx-contract#81 bring omx-contract's curve kinds and axes, its rates and its readout rate there. The move also runs the other way: the curve origins and the operator EQ band reserve of omx-dsp's `eq.json` move to the console's domain `console/eq` (`x-owner: openmixer`), since they are the console's words, not the kernel's. Under this rule omx-dsp's C keeps only the codes it switches on (a buffer-sizing limit among them, ruling 3) and reads nothing in the audio thread: a face resolves its parameters at start-up.
 
 ## Panels and stored data
 

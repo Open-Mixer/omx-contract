@@ -125,7 +125,8 @@ sh "$D/install-contract-dir.sh" --domain contract.d/<domain> \
   "$DESTDIR$(pkg-config --variable=contractdir omx-contract)"
 ```
 
-in `make install`. The domain ships in a `<pkg>-contract` subpackage, uniformly: noarch data in the rpm, the binary
+in `make install`; a repository without a Makefile makes the same one-line call from the rpm spec's `%install`
+(into `%{buildroot}`) and from `debian/rules` (`DESTDIR=debian/tmp`), and adds no Makefile for it. The domain ships in a `<pkg>-contract` subpackage, uniformly: noarch data in the rpm, the binary
 package `<pkg>-contract` in debian, never in the main package. Its rpm `%files` names the directory with
 `%{omx_contract_domain_dir}/<domain>/` (the contract directory without a schema major; the macro comes with the
 installer's domain mode, omx-contract#117), and `debian/<pkg>-contract.install` lists the same path.

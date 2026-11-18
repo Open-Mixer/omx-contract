@@ -72,7 +72,7 @@ export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const PACKAGE = /^[a-z][a-z0-9-]*$/;
 const ITEM = /^[A-Z][A-Z0-9_]*$/;
-const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
+const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
 
 const only = (o: JsonObject, keys: string[], at: string, what: string): void => {
   for (const k of Object.keys(o)) if (!keys.includes(k)) refuse('fileInvalid', at, `${what}: unknown key ${k} (a ${what} holds ${keys.join(', ')})`);
@@ -92,10 +92,11 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
   if (doc.$schema !== DOMAIN_SCHEMA) refuse('fileInvalid', at, `$schema ${JSON.stringify(doc.$schema)} is not ${DOMAIN_SCHEMA}: a domain document is JSON Schema 2020-12`);
   const info = doc.info as JsonObject | undefined;
   if (typeof info !== 'object' || info === null || Array.isArray(info)) refuse('manifestInvalid', at, 'info is not an object');
-  only(info, ['title', 'version', 'x-owner'], at, 'info');
+  only(info, ['title', 'version', 'x-owner', 'x-stability'], at, 'info');
   if (typeof info.title !== 'string' || !info.title) refuse('manifestInvalid', at, 'info.title is not a sentence');
   if (typeof info.version !== 'string' || !VERSION.test(info.version)) refuse('manifestInvalid', at, `info.version ${JSON.stringify(info.version)} is not x.y.z`);
   if (typeof info['x-owner'] !== 'string' || !PACKAGE.test(info['x-owner'])) refuse('manifestInvalid', at, `info.x-owner ${JSON.stringify(info['x-owner'])} is not a package name`);
+  if (info['x-stability'] !== 'experimental' && info['x-stability'] !== 'stable') refuse('manifestInvalid', at, `info.x-stability ${JSON.stringify(info['x-stability'])} is not experimental or stable`);
   const comp = doc.components as JsonObject | undefined;
   if (typeof comp !== 'object' || comp === null || Array.isArray(comp)) refuse('fileInvalid', at, 'components is not an object');
   only(comp, ['schemas'], at, 'components');

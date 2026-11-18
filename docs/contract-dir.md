@@ -21,7 +21,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 
 ```json
 { "$id": "https://openmixer.org/contract/panel",
-  "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel" },
+  "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel", "x-stability": "experimental" },
   "components": { "schemas": { "PANEL_FAMILIES": { "...": "JSON Schema 2020-12 shape of the item" } } } }
 ```
 
@@ -35,10 +35,30 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   its codes header (docs/render.md); one C also uses as struct fields or enum values carries `"x-c-xmacro": true` as
   well (ruling 5 of docs/runtime-data.md). `x-c-xmacro` without `x-c-codes` is invalid. An item's name starts with
   its domain's name in upper snake case (`PANEL_FAMILIES` in `panel`); a check refuses one that does not, naming the
-  item and the domain. Every other item renders
-  nothing and is read at run time.
+  item and the domain, and so does an item that starts with a LONGER domain's prefix (`DSP_KERNELS_X` in `dsp`, when the
+  read holds `dsp/kernels`): two codes headers never define one name. A name alone cannot say that `DSP_KERNELS_` is a
+  domain, so the second rule compares against the domains of the read. Every other item renders nothing and is read
+  at run time.
   Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
-  disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
+  disagrees is `contract.manifest.invalid`, and an item name that breaks the prefix rule is `contract.item.prefix`. No two domains can declare one name: it would have to start with both domains' names, which the prefix rule refuses.
+- A word may carry what the classic layout calls a `group` and a `from` (owner ruling 2026-11-17, omx-contract#81):
+  - `group` is `x-group` on its `oneOf` entry: the `const` of a word of the words schema its item's `x-groups` names.
+  - `groups` of the classic item is its own words schema in the SAME domain document: the item names it as
+    `"x-groups": "<SchemaName>"`, and the schema is read as any words item. Two domains never share a group schema.
+  - `from` (the format terms a word is taken from) is `x-from`, one `{ "$ref", "x-term" }` per term: the `$ref` is the
+    `$id` of the domain that declares the terms item plus the schema, `https://openmixer.org/contract/<domain>#/components/schemas/<ITEM>`,
+    and `x-term` the term's key, so `{ "$ref": ".../omx-contract#/components/schemas/LV2_CORE_TERMS", "x-term": "latency" }`
+    is the classic `from` string `LV2_CORE_TERMS#latency`. Until omx-contract's own data/ is migrated into domains, its
+    items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
+    a file path is never a reference.
+- A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
+- A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
+  (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
+  key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds
+  beside its document.
+- A consumer of a domain's words that is not a C or TypeScript render (a Python reader, a template) reads the domain
+  document itself, `<contractdir>/<domain>/<domain>.json`; the json render of the whole read is not a reader of a
+  domain's items.
 - A range item is a `components.schemas` entry with `properties`: one per named parameter, each
   `{ "minimum": <number>, "maximum": <number>, "default": <number>, "x-unit": "<unit>", "x-scale": "<scale>" }`,
   `minimum` and `maximum` required, the others optional. A function of the C loader reads it
@@ -50,12 +70,16 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   it is `https://openmixer.org/contract/<domain>` with the whole domain path and no `.json` (`.../contract/dsp/kernels`). A C name made from a domain
   (its codes header, its macros) turns each `/` into `_`: `dsp_kernels_codes.h`, `OMX_DSP_KERNELS_*`. The C loader refuses
   an invalid name with `contract.file.invalid` before it reads anything.
-- `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read. `$id` is the domain's stable
-  URL, `https://openmixer.org/contract/<domain>`, and must name the directory it sits in.
-- `info.version` is the DOMAIN's own semver, the one a consumer's floor (`needs`) is compared to; `info.x-owner` is the
-  package that owns it now. Neither is read from the path.
-- A domain's words are its own: a `$ref` in a domain document is refused today. Cross-domain `$ref` by `$id`, and the
-  validation of each domain against the version it declares, are omx-contract#84.
+- `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read.
+- `$id` is the domain's stable URL, `https://openmixer.org/contract/<domain>`, and must name the directory it sits in. A domain refers to another by `$ref` to that `$id` (`https://openmixer.org/contract/<other>#/components/schemas/<Name>`),
+  never to a file path, so a move of files breaks no reference.
+- `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
+  that owns it now. Neither is read from the path.
+- `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
+  refused (`contract.manifest.invalid`).
+- `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
+  the version it declares, so a domain evolves on its own line and a change in one domain touches no other domain's
+  consumers, and needs no omx-contract release.
 - omx-contract holds the document kind, the loader check and the renderers, and no domain it does not own; the renders
   of a domain are produced at its owner's build time (`render --package <domain>`, docs/render.md).
 - There is no compatibility with the `<major>/<owner>/` layout below: it is migrated domain by domain (omx-contract's
@@ -277,6 +301,7 @@ carry it and it is not installed in the directory.
 | `contract.file.not-json` | A file that does not parse. |
 | `contract.file.invalid` | A schema or shape violation, an unknown key or word included. |
 | `contract.item.duplicate` | Two files declare one name. |
+| `contract.item.prefix` | An item of a domain that does not start with its domain's name (upper snake case, with its underscore), or that starts with the name of a longer domain of the read. |
 | `contract.kernel.duplicate` | Two packages each install a file of one kernel (`kernels/<k>.json`): a kernel's controls are one file's, in its order. |
 | `contract.ref.unresolved` | A reference names no item. |
 | `contract.ref.undeclared` | A reference names an item of a package the file does not require. |

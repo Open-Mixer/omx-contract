@@ -432,6 +432,7 @@
     "fileNotJson",
     "indexRange",
     "itemDuplicate",
+    "itemPrefix",
     "itemUnknown",
     "kernelDuplicate",
     "manifestAbsent",

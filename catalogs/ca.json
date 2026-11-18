@@ -23,6 +23,7 @@
     "contract.file.not-json": { "text": "El fitxer {path} no és JSON vàlid. Corregiu-ne la sintaxi.", "by": "human" },
     "contract.index.range": { "text": "L’índex {index} és més enllà del final de l’element {item}, que té {count} paraules. Demaneu un índex per sota del recompte.", "by": "machine", "model": "lane-draft", "source": "b6c2a9b4a3b1d70d2f535dafefb239ee727a0c33f8a59730d2e829d7e307aeaf" },
     "contract.item.duplicate": { "text": "El {item} està declarat per dos fitxers. Elimineu el duplicat perquè només un paquet el declari.", "by": "human" },
+    "contract.item.prefix": { "text": "El {item} incompleix la nomenclatura del domini {domain}. Comenceu el nom d'un element amb el nom del domini en majúscules amb guions baixos i un guió baix, i no amb el nom d'un domini més llarg.", "by": "human" },
     "contract.item.unknown": { "text": "{item} no és cap element del domini {domain}. Demaneu un element que el domini declari.", "by": "machine", "model": "lane-draft", "source": "01ac69b7298d2dcf5c8dd13a8e2df1a5c1fb46a89e5b29581273b04863967e2f" },
     "contract.kernel.duplicate": { "text": "El kernel {kernel} està declarat per dos paquets. Mantingueu la declaració en un sol paquet.", "by": "human" },
     "contract.manifest.absent": { "text": "El directori del paquet {path} no té cap MANIFEST.json. Afegiu-ne un que llisti els seus fitxers.", "by": "human" },

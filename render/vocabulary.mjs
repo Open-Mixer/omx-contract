@@ -11,7 +11,7 @@ import { packageItems } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
 import { cStringLiteral, described, documented, doxyLine } from './c/c-literals.mjs';
 
-const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
+export const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 
 /** The items the vocabulary renders: codes and words items of files with no render word, in file order. */
 export function vocabularyItems(resolved) {

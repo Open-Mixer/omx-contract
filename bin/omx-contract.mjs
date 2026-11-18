@@ -33,6 +33,7 @@ import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
 import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC } from '../render/c.mjs';
+import { domainCodesC } from '../render/codes.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
@@ -178,6 +179,12 @@ export function renderTarget(target, argv) {
     // from a data directory (the owner's tree) every file.
     if (data.packages && !data.packages.has(pkg)) throw new Usage(`no package ${pkg} is installed`);
     const files = data.files.filter((f) => (f.pkg ?? pkg) === pkg);
+    // A domain is read at run time: its one render is its codes header (docs/render.md)
+    const marked = data.packages?.get(pkg)?.codes;
+    if (marked !== undefined) {
+      if (target === 'c') return domainCodesC(resolved, pkg, marked);
+      throw new Usage(`${pkg} is a domain: it renders its codes header only (--target c), its words are read at run time`);
+    }
     if (target === 'c') return renderC(resolved, { pkg });
     if (target === 'ts') return renderOwnerTs(resolved, pkg, files);
     throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');

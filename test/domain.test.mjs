@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A domain document (docs/contract-dir.md, "Domains"): <contractdir>/<domain>/<domain>.json, read beside the
-// <major>/<package>/ layout. Its words render byte for byte what the same words item of the old layout renders, and
-// every refusal is raised by the reader's own code.
+// <major>/<package>/ layout. Its marked words render as codes (test/domain-codes.test.mjs), and every refusal is
+// raised by the reader's own code.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -12,7 +12,7 @@ import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
 import { loadContractDir } from '../lib/contract-dir.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
-import { packageVocabularyC, wordsExports } from '../render/vocabulary.mjs';
+import { domainCodesC } from '../render/codes.mjs';
 import { DATA, ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-'));
@@ -57,19 +57,18 @@ test('a domain is read: a package of its own name, its owner metadata, its own v
   assert.ok(d.items.has('PANEL_FAMILIES') && d.items.get('PANEL_FAMILIES').pkg === 'panel');
 });
 
-test('its words render byte for byte what the old layout renders: C defines, X-macros, ts words', () => {
-  const old = resolveData(loadData(DATA));
-  const oldHeader = packageVocabularyC(old, undefined)[0].text;
-  const resolved = resolveData(loadContractDir({ dir: dirWith(panelDomain()) }));
-  const [h] = packageVocabularyC(resolved, 'panel');
-  assert.equal(h.path, 'panel_vocabulary.h');
-  const block = (text, item) => text.slice(text.indexOf(`/* ${item} (`), text.indexOf('\n\n', text.indexOf(`/* ${item} (`))).replace(/^\/\* (\w+) \([^)]*\) \*\//, '/* $1 */');
-  for (const item of ['PANEL_FAMILIES', 'PANEL_WIDGETS', 'PANEL_STANDARD_WIDGETS', 'PANEL_DISPLAY_KINDS', 'PANEL_DISPLAY_SOURCES', 'PANEL_PLACEMENTS']) {
-    assert.ok(block(h.text, item).length > 100, item);
-    assert.equal(block(h.text, item), block(oldHeader, item), item);
-  }
-  const ts = wordsExports(resolved, (w) => JSON.stringify(w));
-  assert.match(ts.js, /PANEL_PLACEMENTS_WORDS = \[\s*"insert",\s*"return",\s*"bus",\s*"master"\s*\]/);
+test('a domain renders its marked words as codes only: one define per word and the count, no string, no text', () => {
+  const doc = panelDomain();
+  doc.components.schemas.PANEL_FAMILIES['x-c-codes'] = true;
+  const resolved = resolveData(loadContractDir({ dir: dirWith(doc) }));
+  const old = resolveData(loadData(DATA)).get('PANEL_FAMILIES').value;
+  const [h] = domainCodesC(resolved, 'panel', loadContractDir({ dir: dirWith(doc) }).packages.get('panel').codes);
+  assert.equal(h.path, 'panel_codes.h');
+  const defines = h.text.split('\n').filter((l) => l.startsWith('#define OMX_PANEL_FAMILIES_'));
+  assert.deepEqual(defines.slice(0, -1), Object.keys(old).map((k, i) => `#define OMX_PANEL_FAMILIES_${k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase()} ${i}u`));
+  assert.equal(defines.at(-1), `#define OMX_PANEL_FAMILIES_COUNT ${Object.keys(old).length}u`);
+  assert.doesNotMatch(h.text, /_INIT|_TEXT_EN|PANEL_WIDGETS/);
+  assert.deepEqual(h.text.split('\n').filter((l) => l.startsWith('#define') && l.includes('"')), []);
 });
 
 test('a word is any string, not only an identifier', () => {
@@ -118,13 +117,13 @@ test('refused: a second file beside the document, and no document', () => {
   assert.equal(refusalOf(empty), CONTRACT_CODES.manifestAbsent);
 });
 
-test('refused: a name two domains declare', () => {
+test('refused: a name two domains declare, by the prefix: no name starts with two domains\' own names', () => {
   const root = dirWith(panelDomain());
   const other = panelDomain();
   other.$id = 'https://openmixer.org/contract/panel2';
   mkdirSync(join(root, 'panel2'));
   writeFileSync(join(root, 'panel2', 'panel2.json'), JSON.stringify(other));
-  assert.equal(refusalOf(root), CONTRACT_CODES.itemDuplicate);
+  assert.equal(refusalOf(root), CONTRACT_CODES.itemPrefix);
 });
 
 test('a consumer needs a domain at its floor, compared to the domain\'s own version', () => {

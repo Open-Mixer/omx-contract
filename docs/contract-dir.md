@@ -35,10 +35,12 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   its codes header (docs/render.md); one C also uses as struct fields or enum values carries `"x-c-xmacro": true` as
   well (ruling 5 of docs/runtime-data.md). `x-c-xmacro` without `x-c-codes` is invalid. An item's name starts with
   its domain's name in upper snake case (`PANEL_FAMILIES` in `panel`); a check refuses one that does not, naming the
-  item and the domain. Every other item renders
-  nothing and is read at run time.
+  item and the domain, and so does an item that starts with a LONGER domain's prefix (`DSP_KERNELS_X` in `dsp`, when the
+  read holds `dsp/kernels`): two codes headers never define one name. A name alone cannot say that `DSP_KERNELS_` is a
+  domain, so the second rule compares against the domains of the read. Every other item renders nothing and is read
+  at run time.
   Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
-  disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
+  disagrees is `contract.manifest.invalid`, and an item name that breaks the prefix rule is `contract.item.prefix`. No two domains can declare one name: it would have to start with both domains' names, which the prefix rule refuses.
 - A word may carry what the classic layout calls a `group` and a `from` (owner ruling 2026-11-17, omx-contract#81):
   - `group` is `x-group` on its `oneOf` entry: the `const` of a word of the words schema its item's `x-groups` names.
   - `groups` of the classic item is its own words schema in the SAME domain document: the item names it as
@@ -285,6 +287,7 @@ carry it and it is not installed in the directory.
 | `contract.file.not-json` | A file that does not parse. |
 | `contract.file.invalid` | A schema or shape violation, an unknown key or word included. |
 | `contract.item.duplicate` | Two files declare one name. |
+| `contract.item.prefix` | An item of a domain that does not start with its domain's name (upper snake case, with its underscore), or that starts with the name of a longer domain of the read. |
 | `contract.kernel.duplicate` | Two packages each install a file of one kernel (`kernels/<k>.json`): a kernel's controls are one file's, in its order. |
 | `contract.ref.unresolved` | A reference names no item. |
 | `contract.ref.undeclared` | A reference names an item of a package the file does not require. |

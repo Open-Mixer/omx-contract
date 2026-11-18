@@ -15,7 +15,8 @@ import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data
 import { SCHEMA_VERSION, fileProblems, useProblems } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
-import { DOMAIN_NAME, readDomain } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, readDomain } from './domain.mjs';
+import type { DomainCodes } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /** The schema major this reader reads, and the only directory under a contractdir it looks in. */
@@ -89,6 +90,8 @@ export interface ContractPackage {
   readonly name: string;
   readonly dir: string;
   readonly manifest: JsonObject;
+  /** A domain's items marked `x-c-codes` (docs/render.md); absent for a package of the other layout. */
+  readonly codes?: DomainCodes;
 }
 
 export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config' }: ContractRootsOptions = {}): string[] {
@@ -222,10 +225,11 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true };
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-      packages.set(name, { name, dir: ddir, manifest: d.manifest });
+      packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
       domainFiles.push(file);
     }
   }
+  checkItemPrefixes(domainFiles.map((f) => ({ name: f.pkg, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 
   const files: Json[] = [];

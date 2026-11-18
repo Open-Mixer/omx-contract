@@ -431,6 +431,7 @@
     "fileInvalid",
     "fileNotJson",
     "itemDuplicate",
+    "itemPrefix",
     "kernelDuplicate",
     "manifestAbsent",
     "manifestInvalid",

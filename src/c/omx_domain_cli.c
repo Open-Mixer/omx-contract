@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 static void print_word(const omx_domain_word_info *w) {
-  printf("word=%s title=%s description=%s code=%d\n", w->word, w->title, w->description, w->code);
+  printf("word=%s title=%s description=%s code=%d\n", w->word, w->title, w->description ? w->description : "", w->code);
 }
 
 int main(int argc, char **argv) {

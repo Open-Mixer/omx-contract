@@ -19,6 +19,7 @@ own directory the same way, in `<owner>-contract` (FreeMixer/omx-contract#74).
 npm ci
 make check                       # the committed C header compiles on its own, warnings as errors
 make doxygen-check [DOXYGEN_BASE=origin/main]   # every public declaration of the installed headers documented, to docs/doxygen-baseline.txt, held to the base's (needs doxygen)
+make test-c                      # the C domain loader on jansson (needs jansson-devel), with the sanitizers: tests, ABI list, omx-domain
 make test                        # the node suite: schema, semantic checks, goldens, perturbation, semver, round trip
 make install PREFIX=/usr DESTDIR=…   # headers, JSON render, schema, the contract directory and omx-contract.pc
 make install-cli PREFIX=/usr DESTDIR=…   # the omx-contract command, its files under CLIDIR (/usr/lib/omx-contract), its man page

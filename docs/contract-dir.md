@@ -35,6 +35,10 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   and `<ITEM>_WORDS`, and the Python literal, byte for byte what the words item of the old layout renders.
   Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
   disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
+- A range item is a `components.schemas` entry with `properties`: one per named parameter, each
+  `{ "minimum": <number>, "maximum": <number>, "default": <number>, "x-unit": "<unit>", "x-scale": "<scale>" }`,
+  `minimum` and `maximum` required, the others optional. A function of the C loader reads it
+  (`omx_domain_range`, [runtime-data.md](runtime-data.md)).
 - `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read. `$id` is the domain's stable
   URL, `https://openmixer.org/contract/<domain>`, and must name the directory it sits in.
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor (`needs`) is compared to; `info.x-owner` is the
@@ -282,6 +286,9 @@ carry it and it is not installed in the directory.
 | `contract.source.unevaluable` | A `from` link whose value the tool cannot read (a selector into a table, a definition that is not a number, a string or an enum). |
 | `contract.source.unread` | An `impl` link whose definition does not name the item. |
 | `contract.source.none` | With `--require-impl`: an item with no `impl` link. |
+| `contract.item.unknown` | A domain function of the C loader ([runtime-data.md](runtime-data.md)) was asked for an item the domain does not declare. |
+| `contract.word.unknown` | The same, for a word or a range name the item does not declare. |
+| `contract.index.range` | The same, for an index at or past the item's word count. |
 
 A plugin descriptor's own rules carry the `contract.descriptor.*` codes listed in [descriptors.md](descriptors.md).
 

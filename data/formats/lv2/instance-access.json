@@ -1,6 +1,6 @@
 {
   "$schema": "../../../schema/omx-contract.schema.json",
-  "LV2_INSTANCE_ACCESS_TERMS": {
+  "FORMATS_LV2_INSTANCE_ACCESS": {
     "kind": "terms",
     "since": "2.18.0",
     "doc": "The terms of the instance access specification (instance-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",

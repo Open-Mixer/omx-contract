@@ -1,8 +1,8 @@
 {
-  "CLAP_COLOR_TERMS": [
+  "FORMATS_CLAP_COLOR": [
     "colorTransparent"
   ],
-  "CLAP_EVENTS_TERMS": [
+  "FORMATS_CLAP_EVENTS": [
     "coreEventSpaceId",
     "eventDontRecord",
     "eventIsLive",
@@ -35,7 +35,7 @@
     "transportIsRecording",
     "transportIsWithinPreRoll"
   ],
-  "CLAP_EXT_AMBISONIC_TERMS": [
+  "FORMATS_CLAP_EXT_AMBISONIC": [
     "ambisonic",
     "ambisonic.draft/3",
     "ambisonic/3",
@@ -47,16 +47,16 @@
     "ambisonicOrderingAcn",
     "ambisonicOrderingFuma"
   ],
-  "CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS": [
+  "FORMATS_CLAP_EXT_AUDIO_PORTS_ACTIVATION": [
     "audio-ports-activation/2",
     "audio-ports-activation/draft-2"
   ],
-  "CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS": [
+  "FORMATS_CLAP_EXT_AUDIO_PORTS_CONFIG": [
     "audio-ports-config",
     "audio-ports-config-info/1",
     "audio-ports-config-info/draft-0"
   ],
-  "CLAP_EXT_AUDIO_PORTS_TERMS": [
+  "FORMATS_CLAP_EXT_AUDIO_PORTS": [
     "audio-ports",
     "audioPortIsMain",
     "audioPortPrefers64bits",
@@ -71,11 +71,11 @@
     "mono",
     "stereo"
   ],
-  "CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS": [
+  "FORMATS_CLAP_EXT_CONFIGURABLE_AUDIO_PORTS": [
     "configurable-audio-ports.draft1",
     "configurable-audio-ports/1"
   ],
-  "CLAP_EXT_CONTEXT_MENU_TERMS": [
+  "FORMATS_CLAP_EXT_CONTEXT_MENU": [
     "context-menu.draft/0",
     "context-menu/1",
     "contextMenuItemBeginSubmenu",
@@ -87,25 +87,25 @@
     "contextMenuTargetKindGlobal",
     "contextMenuTargetKindParam"
   ],
-  "CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION": [
     "background-activation/1"
   ],
-  "CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_PROGRESS": [
     "background-progress/1"
   ],
-  "CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT": [
     "background-state-context/1"
   ],
-  "CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS": [
     "extensible-audio-ports/1"
   ],
-  "CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_FLUSH_EVENTS": [
     "flush-events/1"
   ],
-  "CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING": [
     "gain-adjustment-metering/0"
   ],
-  "CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY": [
     "mini-curve-display/3",
     "miniCurveDisplayAxisNameChanged",
     "miniCurveDisplayCurveChanged",
@@ -116,16 +116,16 @@
     "miniCurveDisplayCurveKindTransferCurve",
     "miniCurveDisplayCurveKindUnspecified"
   ],
-  "CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_OCTAVE_NUMBER": [
     "octave-number/1"
   ],
-  "CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_PARAMS_ORIGIN": [
     "params-origin/1"
   ],
-  "CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_PARAM_HOVERED": [
     "param-hovered/1"
   ],
-  "CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_PROJECT_LOCATION": [
     "project-location/2",
     "projectLocationAudioTrack",
     "projectLocationDevice",
@@ -140,16 +140,16 @@
     "projectLocationTrack",
     "projectLocationTrackGroup"
   ],
-  "CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_RESOURCE_DIRECTORY": [
     "resource-directory/1"
   ],
-  "CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY": [
     "scratch-memory/1"
   ],
-  "CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_TRANSPORT_CONTROL": [
     "transport-control/2"
   ],
-  "CLAP_EXT_DRAFT_TRIGGERS_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_TRIGGERS": [
     "eventTrigger",
     "triggerClearAll",
     "triggerClearAutomations",
@@ -161,22 +161,22 @@
     "triggerRescanInfo",
     "triggers/1"
   ],
-  "CLAP_EXT_DRAFT_TUNING_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_TUNING": [
     "tuning/2"
   ],
-  "CLAP_EXT_DRAFT_UNDO_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_UNDO": [
     "undo/4",
     "undo_context/4",
     "undo_delta/4"
   ],
-  "CLAP_EXT_DRAFT_WEBVIEW_TERMS": [
+  "FORMATS_CLAP_EXT_DRAFT_WEBVIEW": [
     "webview",
     "webview/3"
   ],
-  "CLAP_EXT_EVENT_REGISTRY_TERMS": [
+  "FORMATS_CLAP_EXT_EVENT_REGISTRY": [
     "event-registry"
   ],
-  "CLAP_EXT_GUI_TERMS": [
+  "FORMATS_CLAP_EXT_GUI": [
     "cocoa",
     "gui",
     "uikit",
@@ -184,10 +184,10 @@
     "win32",
     "x11"
   ],
-  "CLAP_EXT_LATENCY_TERMS": [
+  "FORMATS_CLAP_EXT_LATENCY": [
     "latency"
   ],
-  "CLAP_EXT_LOG_TERMS": [
+  "FORMATS_CLAP_EXT_LOG": [
     "log",
     "logDebug",
     "logError",
@@ -197,10 +197,10 @@
     "logPluginMisbehaving",
     "logWarning"
   ],
-  "CLAP_EXT_NOTE_NAME_TERMS": [
+  "FORMATS_CLAP_EXT_NOTE_NAME": [
     "note-name"
   ],
-  "CLAP_EXT_NOTE_PORTS_TERMS": [
+  "FORMATS_CLAP_EXT_NOTE_PORTS": [
     "note-ports",
     "noteDialectClap",
     "noteDialectMidi",
@@ -209,7 +209,7 @@
     "notePortsRescanAll",
     "notePortsRescanNames"
   ],
-  "CLAP_EXT_PARAMS_TERMS": [
+  "FORMATS_CLAP_EXT_PARAMS": [
     "paramClearAll",
     "paramClearAutomations",
     "paramClearModulations",
@@ -236,7 +236,7 @@
     "paramRescanValues",
     "params"
   ],
-  "CLAP_EXT_PARAM_INDICATION_TERMS": [
+  "FORMATS_CLAP_EXT_PARAM_INDICATION": [
     "param-indication.draft/4",
     "param-indication/4",
     "paramIndicationAutomationNone",
@@ -245,36 +245,36 @@
     "paramIndicationAutomationPresent",
     "paramIndicationAutomationRecording"
   ],
-  "CLAP_EXT_POSIX_FD_SUPPORT_TERMS": [
+  "FORMATS_CLAP_EXT_POSIX_FD_SUPPORT": [
     "posix-fd-support",
     "posixFdError",
     "posixFdRead",
     "posixFdWrite"
   ],
-  "CLAP_EXT_PRESET_LOAD_TERMS": [
+  "FORMATS_CLAP_EXT_PRESET_LOAD": [
     "preset-load.draft/2",
     "preset-load/2"
   ],
-  "CLAP_EXT_REMOTE_CONTROLS_TERMS": [
+  "FORMATS_CLAP_EXT_REMOTE_CONTROLS": [
     "remote-controls.draft/2",
     "remote-controls/2",
     "remoteControlsCount"
   ],
-  "CLAP_EXT_RENDER_TERMS": [
+  "FORMATS_CLAP_EXT_RENDER": [
     "render",
     "renderOffline",
     "renderRealtime"
   ],
-  "CLAP_EXT_STATE_CONTEXT_TERMS": [
+  "FORMATS_CLAP_EXT_STATE_CONTEXT": [
     "state-context/2",
     "stateContextForDuplicate",
     "stateContextForPreset",
     "stateContextForProject"
   ],
-  "CLAP_EXT_STATE_TERMS": [
+  "FORMATS_CLAP_EXT_STATE": [
     "state"
   ],
-  "CLAP_EXT_SURROUND_TERMS": [
+  "FORMATS_CLAP_EXT_SURROUND": [
     "surround",
     "surround.draft/4",
     "surround/4",
@@ -299,19 +299,19 @@
     "surroundTsl",
     "surroundTsr"
   ],
-  "CLAP_EXT_TAIL_TERMS": [
+  "FORMATS_CLAP_EXT_TAIL": [
     "tail"
   ],
-  "CLAP_EXT_THREAD_CHECK_TERMS": [
+  "FORMATS_CLAP_EXT_THREAD_CHECK": [
     "thread-check"
   ],
-  "CLAP_EXT_THREAD_POOL_TERMS": [
+  "FORMATS_CLAP_EXT_THREAD_POOL": [
     "thread-pool"
   ],
-  "CLAP_EXT_TIMER_SUPPORT_TERMS": [
+  "FORMATS_CLAP_EXT_TIMER_SUPPORT": [
     "timer-support"
   ],
-  "CLAP_EXT_TRACK_INFO_TERMS": [
+  "FORMATS_CLAP_EXT_TRACK_INFO": [
     "track-info.draft/1",
     "track-info/1",
     "trackInfoHasAudioChannel",
@@ -321,20 +321,20 @@
     "trackInfoIsForMaster",
     "trackInfoIsForReturnTrack"
   ],
-  "CLAP_EXT_VOICE_INFO_TERMS": [
+  "FORMATS_CLAP_EXT_VOICE_INFO": [
     "voice-info",
     "voiceInfoSupportsOverlappingNotes"
   ],
-  "CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS": [
+  "FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION": [
     "plugin-invalidation-factory/1"
   ],
-  "CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS": [
+  "FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER": [
     "plugin-state-converter-factory/1"
   ],
-  "CLAP_FACTORY_PLUGIN_FACTORY_TERMS": [
+  "FORMATS_CLAP_FACTORY_PLUGIN_FACTORY": [
     "plugin-factory"
   ],
-  "CLAP_FACTORY_PRESET_DISCOVERY_TERMS": [
+  "FORMATS_CLAP_FACTORY_PRESET_DISCOVERY": [
     "preset-discovery-factory/2",
     "preset-discovery-factory/draft-2",
     "presetDiscoveryIsDemoContent",
@@ -344,14 +344,14 @@
     "presetDiscoveryLocationFile",
     "presetDiscoveryLocationPlugin"
   ],
-  "CLAP_FIXEDPOINT_TERMS": [
+  "FORMATS_CLAP_FIXEDPOINT": [
     "beattimeFactor",
     "sectimeFactor"
   ],
-  "CLAP_ID_TERMS": [
+  "FORMATS_CLAP_ID": [
     "invalidId"
   ],
-  "CLAP_PLUGIN_FEATURES_TERMS": [
+  "FORMATS_CLAP_PLUGIN_FEATURES": [
     "ambisonic",
     "analyzer",
     "audio-effect",
@@ -392,21 +392,21 @@
     "tremolo",
     "utility"
   ],
-  "CLAP_PROCESS_TERMS": [
+  "FORMATS_CLAP_PROCESS": [
     "processContinue",
     "processContinueIfNotQuiet",
     "processError",
     "processSleep",
     "processTail"
   ],
-  "CLAP_STRING_SIZES_TERMS": [
+  "FORMATS_CLAP_STRING_SIZES": [
     "nameSize",
     "pathSize"
   ],
-  "CLAP_TIMESTAMP_TERMS": [
+  "FORMATS_CLAP_TIMESTAMP": [
     "timestampUnknown"
   ],
-  "CLAP_VERSION_TERMS": [
+  "FORMATS_CLAP_VERSION": [
     "version",
     "versionMajor",
     "versionMinor",
@@ -492,7 +492,7 @@
     "modulationShape",
     "transferCurve"
   ],
-  "LV2_ATOM_TERMS": [
+  "FORMATS_LV2_ATOM": [
     "Atom",
     "AtomPort",
     "Blank",
@@ -526,7 +526,7 @@
     "frameTime",
     "supports"
   ],
-  "LV2_BUF_SIZE_TERMS": [
+  "FORMATS_LV2_BUF_SIZE": [
     "boundedBlockLength",
     "buf-size.lv2",
     "coarseBlockLength",
@@ -537,7 +537,7 @@
     "powerOf2BlockLength",
     "sequenceSize"
   ],
-  "LV2_CORE_TERMS": [
+  "FORMATS_LV2_CORE": [
     "AllpassPlugin",
     "AmplifierPlugin",
     "AnalyserPlugin",
@@ -633,14 +633,14 @@
     "symbol",
     "toggled"
   ],
-  "LV2_DATA_ACCESS_TERMS": [
+  "FORMATS_LV2_DATA_ACCESS": [
     "data-access.lv2"
   ],
-  "LV2_DYNMANIFEST_TERMS": [
+  "FORMATS_LV2_DYNMANIFEST": [
     "DynManifest",
     "dynmanifest.lv2"
   ],
-  "LV2_EVENT_TERMS": [
+  "FORMATS_LV2_EVENT": [
     "Event",
     "EventPort",
     "FrameStamp",
@@ -653,10 +653,10 @@
     "supportsEvent",
     "supportsTimeStamp"
   ],
-  "LV2_INSTANCE_ACCESS_TERMS": [
+  "FORMATS_LV2_INSTANCE_ACCESS": [
     "instance-access.lv2"
   ],
-  "LV2_LOG_TERMS": [
+  "FORMATS_LV2_LOG": [
     "Entry",
     "Error",
     "Note",
@@ -665,7 +665,7 @@
     "log",
     "log.lv2"
   ],
-  "LV2_MIDI_TERMS": [
+  "FORMATS_LV2_MIDI": [
     "ActiveSense",
     "Aftertouch",
     "Bender",
@@ -709,14 +709,14 @@
     "statusMask",
     "velocity"
   ],
-  "LV2_MORPH_TERMS": [
+  "FORMATS_LV2_MORPH": [
     "AutoMorphPort",
     "MorphPort",
     "currentType",
     "morph.lv2",
     "supportsType"
   ],
-  "LV2_OPTIONS_TERMS": [
+  "FORMATS_LV2_OPTIONS": [
     "Option",
     "interface",
     "options",
@@ -724,7 +724,7 @@
     "requiredOption",
     "supportedOption"
   ],
-  "LV2_PARAMETERS_TERMS": [
+  "FORMATS_LV2_PARAMETERS": [
     "CompressorControls",
     "ControlGroup",
     "EnvelopeControls",
@@ -752,7 +752,7 @@
     "wetDryRatio",
     "wetLevel"
   ],
-  "LV2_PATCH_TERMS": [
+  "FORMATS_LV2_PATCH": [
     "Ack",
     "Copy",
     "Delete",
@@ -782,7 +782,7 @@
     "wildcard",
     "writable"
   ],
-  "LV2_PORT_GROUPS_TERMS": [
+  "FORMATS_LV2_PORT_GROUPS": [
     "ACN0",
     "ACN1",
     "ACN10",
@@ -848,7 +848,7 @@
     "source",
     "subGroupOf"
   ],
-  "LV2_PORT_PROPS_TERMS": [
+  "FORMATS_LV2_PORT_PROPS": [
     "causesArtifacts",
     "continuousCV",
     "discreteCV",
@@ -863,7 +863,7 @@
     "supportsStrictBounds",
     "trigger"
   ],
-  "LV2_PRESETS_TERMS": [
+  "FORMATS_LV2_PRESETS": [
     "Bank",
     "Preset",
     "bank",
@@ -871,13 +871,13 @@
     "presets.lv2",
     "value"
   ],
-  "LV2_RESIZE_PORT_TERMS": [
+  "FORMATS_LV2_RESIZE_PORT": [
     "asLargeAs",
     "minimumSize",
     "resize",
     "resize-port.lv2"
   ],
-  "LV2_STATE_TERMS": [
+  "FORMATS_LV2_STATE": [
     "State",
     "StateChanged",
     "freePath",
@@ -889,7 +889,7 @@
     "state.lv2",
     "threadSafeRestore"
   ],
-  "LV2_TIME_TERMS": [
+  "FORMATS_LV2_TIME": [
     "Position",
     "Rate",
     "Time",
@@ -905,7 +905,7 @@
     "speed",
     "time.lv2"
   ],
-  "LV2_UI_TERMS": [
+  "FORMATS_LV2_UI": [
     "CocoaUI",
     "Gtk3UI",
     "GtkUI",
@@ -943,7 +943,7 @@
     "updateRate",
     "windowTitle"
   ],
-  "LV2_UNITS_TERMS": [
+  "FORMATS_LV2_UNITS": [
     "Conversion",
     "Unit",
     "bar",
@@ -979,15 +979,15 @@
     "unit",
     "units.lv2"
   ],
-  "LV2_URID_TERMS": [
+  "FORMATS_LV2_URID": [
     "map",
     "unmap",
     "urid.lv2"
   ],
-  "LV2_URI_MAP_TERMS": [
+  "FORMATS_LV2_URI_MAP": [
     "uri-map.lv2"
   ],
-  "LV2_WORKER_TERMS": [
+  "FORMATS_LV2_WORKER": [
     "interface",
     "schedule",
     "worker.lv2"

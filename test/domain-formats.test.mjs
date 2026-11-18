@@ -35,9 +35,9 @@ test('a group of modules is read: each a domain of its own name, version and own
     assert.equal(d.packages.get(m).manifest.version, '1.0.0', m);
     assert.equal(d.packages.get(m).manifest.owner, 'omx-formats', m);
   }
-  assert.equal(d.items.get('CLAP_ID_TERMS').pkg, 'formats/clap');
-  assert.equal(d.items.get('LV2_UNITS_TERMS').pkg, 'formats/lv2');
-  assert.equal(d.items.get('FORMAT_TERM_STATUSES').pkg, 'formats/common');
+  assert.equal(d.items.get('FORMATS_CLAP_ID').pkg, 'formats/clap');
+  assert.equal(d.items.get('FORMATS_LV2_UNITS').pkg, 'formats/lv2');
+  assert.equal(d.items.get('FORMATS_COMMON_STATUSES').pkg, 'formats/common');
 });
 
 test('the terms are the classic terms items, 297 CLAP terms and 452 LV2 terms, in their order', () => {
@@ -66,25 +66,25 @@ test('the formats renders are byte for byte the renders of the classic terms', (
 
 test('a module refers to the common words by $id, and a reference that names nothing is refused', () => {
   const docs = formatsModules(DATA);
-  docs['formats/clap'].components.schemas.CLAP_ID_TERMS['x-kinds'].$ref = 'https://openmixer.org/contract/formats/absent#/components/schemas/FORMAT_TERM_KINDS';
+  docs['formats/clap'].components.schemas.FORMATS_CLAP_ID['x-kinds'].$ref = 'https://openmixer.org/contract/formats/absent#/components/schemas/FORMATS_COMMON_KINDS';
   assert.equal(refusalOf(dirWith(docs)), CONTRACT_CODES.refUnresolved);
   const gone = formatsModules(DATA);
-  gone['formats/clap'].components.schemas.CLAP_ID_TERMS['x-statuses'].$ref = 'https://openmixer.org/contract/formats/common#/components/schemas/NO_SUCH_WORDS';
+  gone['formats/clap'].components.schemas.FORMATS_CLAP_ID['x-statuses'].$ref = 'https://openmixer.org/contract/formats/common#/components/schemas/NO_SUCH_WORDS';
   assert.equal(refusalOf(dirWith(gone)), CONTRACT_CODES.refUnresolved);
 });
 
 test('a term whose kind or status is no word of the common module is refused', () => {
   const docs = formatsModules(DATA);
-  docs['formats/clap'].components.schemas.CLAP_ID_TERMS.oneOf[0]['x-term'].kind = 'gizmo';
+  docs['formats/clap'].components.schemas.FORMATS_CLAP_ID.oneOf[0]['x-term'].kind = 'gizmo';
   assert.equal(refusalOf(dirWith(docs)), CONTRACT_CODES.fileInvalid);
   const st = formatsModules(DATA);
-  st['formats/clap'].components.schemas.CLAP_ID_TERMS.oneOf[0]['x-term'].status = 'maybe';
+  st['formats/clap'].components.schemas.FORMATS_CLAP_ID.oneOf[0]['x-term'].status = 'maybe';
   assert.equal(refusalOf(dirWith(st)), CONTRACT_CODES.fileInvalid);
 });
 
 test('a kind the schema allows and the common module lacks is refused: the common words decide', () => {
   const docs = formatsModules(DATA);
-  const kinds = docs['formats/common'].components.schemas.FORMAT_TERM_KINDS;
+  const kinds = docs['formats/common'].components.schemas.FORMATS_COMMON_KINDS;
   kinds.oneOf = kinds.oneOf.filter((w) => w.const !== 'flag').map((w, i) => ({ ...w, 'x-code': i }));
   assert.equal(refusalOf(dirWith(docs)), CONTRACT_CODES.fileInvalid);
 });
@@ -94,7 +94,7 @@ test('a module needs the $id of its own place, and a terms item names its format
   docs['formats/lv2'].$id = 'https://openmixer.org/contract/formats/clap';
   assert.equal(refusalOf(dirWith(docs)), CONTRACT_CODES.manifestInvalid);
   const bare = formatsModules(DATA);
-  delete bare['formats/lv2'].components.schemas.LV2_UNITS_TERMS['x-spec'];
+  delete bare['formats/lv2'].components.schemas.FORMATS_LV2_UNITS['x-spec'];
   assert.equal(refusalOf(dirWith(bare)), CONTRACT_CODES.fileInvalid);
 });
 
@@ -114,7 +114,7 @@ function treeRequiring(floor) {
   writeFileSync(join(tree, 'data', 'readings.json'), `${JSON.stringify({
     $schema: '../schema/omx-contract.schema.json',
     requires: { 'formats/lv2': floor },
-    READING_UNITS: { kind: 'words', since: '1.0.0', doc: 'A unit a reading is in.', words: { ms: { word: 'ms', from: ['LV2_UNITS_TERMS#ms'], doc: 'Milliseconds.' } } },
+    READING_UNITS: { kind: 'words', since: '1.0.0', doc: 'A unit a reading is in.', words: { ms: { word: 'ms', from: ['FORMATS_LV2_UNITS#ms'], doc: 'Milliseconds.' } } },
   }, null, 2)}\n`);
   return join(tree, 'data');
 }

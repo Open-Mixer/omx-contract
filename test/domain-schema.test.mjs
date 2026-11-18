@@ -35,7 +35,7 @@ function domainOf(file) {
 const wrap = (name, schemas) => ({
   $schema: 'https://json-schema.org/draft/2020-12/schema',
   $id: `https://openmixer.org/contract/${name}`,
-  info: { title: `The ${name} vocabulary`, version: '1.0.0', 'x-owner': 'omx-contract' },
+  info: { title: `The ${name} vocabulary`, version: '1.0.0', 'x-owner': 'omx-contract', 'x-stability': 'experimental' },
   components: { schemas },
 });
 const word = (title, c, i, more = {}) => ({ const: c, title, 'x-code': i, ...more });
@@ -47,6 +47,7 @@ const grouped = () => wrap('grouped', {
     oneOf: [word('impulse', 'impulse', 0, { 'x-group': 'cannot', 'x-from': [{ $ref: 'https://openmixer.org/contract/omx-contract#/components/schemas/LV2_CORE_TERMS', 'x-term': 'latency' }] })],
   },
 });
+const nestedRef = () => wrap('grouped', { GROUPED_REASONS: { description: 'Reasons.', oneOf: [word('impulse', 'impulse', 0, { 'x-from': [{ $ref: 'https://openmixer.org/contract/dsp/kernels#/components/schemas/X', 'x-term': 't' }] })] } });
 const nested = () => wrap('dsp/kernels', { DSP_KERNELS_KINDS: { description: 'Kinds.', oneOf: [word('a', 'a', 0)] } });
 
 test('the schema is JSON Schema 2020-12 with its $id on openmixer.org, major only', () => {
@@ -58,7 +59,7 @@ test('the schema is JSON Schema 2020-12 with its $id on openmixer.org, major onl
 test('the domain documents of the repo validate: every words file of data/ written as a domain, and the shapes the tests read', () => {
   const docs = readdirSync(DATA).filter((f) => f.endsWith('.json')).map(domainOf).filter(Boolean).map(({ name, schemas }) => wrap(name, schemas));
   assert.ok(docs.length > 0, 'data/ holds words files');
-  for (const doc of [...docs, small(), grouped(), nested()]) assert.ok(validate(doc), `${doc.$id}: ${JSON.stringify(validate.errors)}`);
+  for (const doc of [...docs, small(), grouped(), nested(), nestedRef(), { ...small(), info: { ...small().info, 'x-stability': 'stable' } }]) assert.ok(validate(doc), `${doc.$id}: ${JSON.stringify(validate.errors)}`);
 });
 
 const breaks = {
@@ -75,7 +76,9 @@ const breaks = {
   'an empty info.title': (d) => { d.info.title = ''; },
   'no info.x-owner': (d) => { delete d.info['x-owner']; },
   'an owner that is no package name': (d) => { d.info['x-owner'] = 'Omx_Panel'; },
-  'an unknown key of info': (d) => { d.info['x-stability'] = 'stable'; },
+  'no info.x-stability': (d) => { delete d.info['x-stability']; },
+  'an x-stability that is neither experimental nor stable': (d) => { d.info['x-stability'] = 'beta'; },
+  'an unknown key of info': (d) => { d.info['x-note'] = 'stable'; },
   'an unknown top-level key': (d) => { d.paths = {}; },
   'no components': (d) => { delete d.components; },
   'an unknown key of components': (d) => { d.components.parameters = {}; },
@@ -109,6 +112,11 @@ for (const [what, mutate] of Object.entries(breaks)) {
     assert.equal(validate(d), false);
   });
 }
+
+test('the schema says a document is <domain>/<last segment>.json, as the reader places it', () => {
+  assert.match(schema.description ?? '', /<contractdir>\/<domain>\/<last segment>\.json/);
+  assert.doesNotMatch(schema.description ?? '', /<domain>\/<domain>\.json/);
+});
 
 test('the schema names the rules it leaves to the reader', () => {
   for (const rule of ['prefix', 'x-code', 'x-groups', 'x-group', 'twice', 'directory']) assert.match(schema.description ?? '', new RegExp(rule), `description names the ${rule} rule`);

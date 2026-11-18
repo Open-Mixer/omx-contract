@@ -37,6 +37,9 @@ The document is `contract.d/<domain>/<last segment>.json` (`contract.d/scan/scan
   `{ "$ref": "https://openmixer.org/contract/<domain>#/components/schemas/<ITEM>", "x-term": "<key>" }`;
 - the translations beside it in `contract.d/<domain>/catalogs/<lang>.json`.
 
+A word's `description` is optional for every reader: the schema, `validate`, the TypeScript reader, and the C
+loader from omx-contract#116 on (before it, the loader refused a word without one).
+
 The document validates against `schema/domain.schema.json` and passes the reader:
 
 ```sh
@@ -50,8 +53,9 @@ paragraph goes when #118 is fixed.
 ## 2. The codes header, only for words C switches on
 
 An item gets `"x-c-codes": true` only when C code switches on its words: a `case` label, an array size, a limit of
-the real-time path. `"x-c-xmacro": true` adds the X-macro, only where a table needs it. No other item is marked,
-and a domain with no marked item has no header.
+the real-time path. `"x-c-xmacro": true` adds the X-macro, only where a table needs it. No other item is marked:
+C that only passes words on as strings (writes them into a record, compares them as text) reads them through the
+loader (step 4) and needs no mark. A domain with no marked item has no header.
 
 ```sh
 omx-contract render --target c --package <domain> --contract-dir contract.d --out include/<pkg>

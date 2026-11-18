@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib build-c check-abi test-c check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib build-c install-c check-abi test-c check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -141,10 +141,21 @@ $(CBUILD)/$(DOMAIN_SO): src/c/omx_domain.c include/omxcontract/omx_domain.h abi/
 	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 -fPIC -shared -Wl,-soname,$(DOMAIN_SO) -Wl,--version-script=abi/libomx-domain.map \
 	  -DOMX_CONTRACTDIR='"$(CONTRACTDIR)"' src/c/omx_domain.c -o $@ $(JANSSON_LIBS)
 
+# CLI_RPATH is the test's way to find the library beside the command; an installed command is found by ldconfig.
+CLI_RPATH ?=
 $(CBUILD)/omx-domain: src/c/omx_domain_cli.c $(CBUILD)/$(DOMAIN_SO)
-	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 src/c/omx_domain_cli.c -o $@ -L$(CBUILD) -Wl,-rpath,'$$ORIGIN' $(CBUILD)/$(DOMAIN_SO)
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 src/c/omx_domain_cli.c -o $@ $(CLI_RPATH) $(CBUILD)/$(DOMAIN_SO)
 
 build-c: $(CBUILD)/omx-domain
+
+# The library, its symlink and the omx-domain command (CONTRACTDIR is compiled into the library: the installed directory
+# omx_domain_open reads). Not part of `install`: the header is, and a package that ships the binaries (an arch-dependent
+# package with the library's soname) runs this target; needs no node.
+install-c: build-c
+	install -d $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR)
+	install -m 0755 $(CBUILD)/$(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/
+	ln -sf $(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/libomx-domain.so
+	install -m 0755 $(CBUILD)/omx-domain $(DESTDIR)$(BINDIR)/
 
 check-abi: $(CBUILD)/$(DOMAIN_SO)
 	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 == "T" { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
@@ -153,7 +164,7 @@ TESTC = build/test-c
 test-c:
 	rm -rf $(TESTC) && mkdir -p $(TESTC)
 	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' check-abi
-	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' build-c
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' CLI_RPATH='-Wl,-rpath,$$ORIGIN' build-c
 	$(CC) $(DOMAIN_CFLAGS) -g -fsanitize=address,undefined -fno-omit-frame-pointer -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
 	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
 	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS)

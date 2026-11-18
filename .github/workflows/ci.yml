@@ -166,6 +166,17 @@ jobs:
       - id: handback-headers
         name: The headers compile with no node (what a release build runs)
         run: make check
+      - name: Install jansson where the runner has none (the C domain loader's JSON library)
+        run: pkg-config --exists jansson || { sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends libjansson-dev pkg-config; }
+      - id: handback-c-loader
+        name: The C domain loader, under the sanitizers, its ABI list held, and the installed command refusing with 78
+        run: |
+          make test-c
+          make install-c DESTDIR="$RUNNER_TEMP/inst-c" PREFIX=/usr CONTRACTDIR=/usr/share/omx-contract/contract.d
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/inst-c/usr/lib"
+          rc=0
+          "$RUNNER_TEMP/inst-c/usr/bin/omx-domain" no-such-domain || rc=$?
+          test "$rc" -eq 78
       - name: Install doxygen where the runner has none
         run: command -v doxygen >/dev/null || { sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends doxygen; }
       - id: handback-doxygen

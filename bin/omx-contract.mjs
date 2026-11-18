@@ -216,7 +216,7 @@ function finishRender(target, out, files, argv, shapes) {
     const scope = target === 'c' ? 'omxcontract' : '';
     const named = new Set(files.map((f) => f.path));
     // include/omxcontract/ also holds the hand-written C of the package (not rendered), which the npm tarball and the -devel packages ship beside the renders
-    if (target === 'c') named.add('omxcontract/omx_json_write.h');
+    if (target === 'c') { named.add('omxcontract/omx_json_write.h'); named.add('omxcontract/omx_domain.h'); }
     // the json, lv2 and py renders are committed side by side (share/omx-contract/): each knows the others' files
     if (['json', 'lv2', 'py'].includes(target) || (shapes && target === 'py')) {
       for (const t of ['json', 'lv2', 'py']) for (const f of renderTarget(t, argv)) named.add(f.path);

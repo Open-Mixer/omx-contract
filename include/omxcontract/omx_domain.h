@@ -21,8 +21,7 @@
 #ifndef OMX_DOMAIN_H
 #define OMX_DOMAIN_H
 
-/**
- * @file omx_domain.h
+/** @file
  * @brief The C loader of a contract domain: data is read at run time by functions (docs/runtime-data.md).
  *
  * A domain is the installed document `<contractdir>/<domain>/<domain>.json` and its `catalogs/<lang>.json`

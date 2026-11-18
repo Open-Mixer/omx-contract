@@ -105,17 +105,6 @@
           "item"
         ]
       },
-      "itemPrefix": {
-        "code": "contract.item.prefix",
-        "doc": "an item of a domain does not start with its domain's name, or starts with the name of a longer domain",
-        "text": {
-          "en": "{item} breaks the naming of the domain {domain}. Start an item name with the domain's name in upper snake case and an underscore, and with no longer domain's name."
-        },
-        "args": [
-          "item",
-          "domain"
-        ]
-      },
       "kernelDuplicate": {
         "code": "contract.kernel.duplicate",
         "doc": "two packages each declare a file of one kernel",
@@ -535,6 +524,51 @@
         },
         "args": [
           "item"
+        ]
+      },
+      "itemUnknown": {
+        "code": "contract.item.unknown",
+        "doc": "a domain function was asked for an item the domain does not declare",
+        "text": {
+          "en": "{item} is not an item of the domain {domain}. Ask for an item the domain declares."
+        },
+        "args": [
+          "item",
+          "domain"
+        ]
+      },
+      "wordUnknown": {
+        "code": "contract.word.unknown",
+        "doc": "a domain function was asked for a word, or a range name, the item does not declare",
+        "text": {
+          "en": "{word} is not a word or a name of the item {item}. Ask for one the item declares."
+        },
+        "args": [
+          "word",
+          "item"
+        ]
+      },
+      "indexRange": {
+        "code": "contract.index.range",
+        "doc": "a domain function was asked for a word at an index past the item's count",
+        "text": {
+          "en": "Index {index} is past the end of the item {item}, which has {count} words. Ask for an index below the count."
+        },
+        "args": [
+          "index",
+          "item",
+          "count"
+        ]
+      },
+      "itemPrefix": {
+        "code": "contract.item.prefix",
+        "doc": "an item of a domain does not start with its domain's name, or starts with the name of a longer domain",
+        "text": {
+          "en": "{item} breaks the naming of the domain {domain}. Start an item name with the domain's name in upper snake case and an underscore, and with no longer domain's name."
+        },
+        "args": [
+          "item",
+          "domain"
         ]
       }
     }

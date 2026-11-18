@@ -89,6 +89,13 @@ export function descriptorProblems(rel: string, doc: Json, { scales = PARAM_SCAL
     }
   }
 
+  // choiceUnits names choice controls by name: a key that names no control, or one that is not a choice, has no value to type.
+  for (const key of Object.keys(doc.choiceUnits ?? {})) {
+    const c = controls.find((x) => x.name === key);
+    if (!c) say('descriptorChoice', 'choiceUnits', `${JSON.stringify(key)} names no control`);
+    else if (c.kind !== 'choice') say('descriptorChoice', 'choiceUnits', `${JSON.stringify(key)} is not a choice`);
+  }
+
   const ids = new Map();
   const names = new Map();
   const symbols = new Map();

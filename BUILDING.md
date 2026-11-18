@@ -3,15 +3,17 @@
 # Building omx-contract
 
 Needs Node.js 20 or newer and npm for the CLI and the test suite. The packages need no node to build, only `make` and
-a C compiler to check the header. Three binary packages come out of one build:
+a C compiler to check the header, and jansson (`jansson-devel`, `libjansson-dev`) for the C loader. These binary packages come out of one build:
 
 | RPM | deb | Holds | Needs at run time |
 |---|---|---|---|
 | omx-contract-data (noarch) | omx-contract-data (Architecture: all) | what a reader reads at run time: `/usr/share/omx-contract/contract.d/3/omx-contract/`, the JSON Schema, the resolved json render, the vocabulary's schema fragment and the resource hints' Turtle | nothing |
 | omx-contract-devel | libomx-contract-dev | what a build reads: the C render under `/usr/include/omxcontract`, `omx-contract.pc`, `install-contract-dir.sh` | omx-contract-data |
 | omx-contract | omx-contract | the command, its vendored npm packages and its man page | node, omx-contract-data |
+| libomx-domain (arch) | libomx-domain0 (Architecture: any) | the C loader of a contract domain, `libomx-domain.so.0` | jansson |
+| libomx-domain-devel (arch) | libomx-domain-dev (Architecture: any) | what a build on the loader reads: `omx_domain.h`, `omx_contract_codes.h`, `libomx-domain.pc`, the ABI list `abi/libomx-domain.abi`, the `omx-domain` command and its man page | the library at a floor, jansson-devel |
 
-The paths are the ones every release installed, so no reader changes. A program that reads the contract directory or
+The RPM omx-contract is arch-dependent because one spec builds the loader beside it; its content is the command and is the same on every architecture. The paths are the ones every release installed, so no reader changes. A program that reads the contract directory or
 the json render at run time requires omx-contract-data, never the development package; every other owner ships its
 own directory the same way, in `<owner>-contract` (FreeMixer/omx-contract#74).
 
@@ -19,6 +21,7 @@ own directory the same way, in `<owner>-contract` (FreeMixer/omx-contract#74).
 npm ci
 make check                       # the committed C header compiles on its own, warnings as errors
 make doxygen-check [DOXYGEN_BASE=origin/main]   # every public declaration of the installed headers documented, to docs/doxygen-baseline.txt, held to the base's (needs doxygen)
+make test-c                      # the C domain loader on jansson (needs jansson-devel), with the sanitizers: tests, ABI list, omx-domain
 make test                        # the node suite: schema, semantic checks, goldens, perturbation, semver, round trip
 make install PREFIX=/usr DESTDIR=…   # headers, JSON render, schema, the contract directory and omx-contract.pc
 make install-cli PREFIX=/usr DESTDIR=…   # the omx-contract command, its files under CLIDIR (/usr/lib/omx-contract), its man page

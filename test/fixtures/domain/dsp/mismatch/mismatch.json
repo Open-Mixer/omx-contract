@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/dsp/other",
+  "info": { "title": "The demo vocabulary", "version": "1.2.0", "x-owner": "omx-fixture" },
+  "components": {
+    "schemas": {
+      "DEMO_COLORS": {
+        "description": "The colours of the demo.",
+        "x-since": "1.0.0",
+        "oneOf": [
+          { "const": "red", "title": "red", "description": "The warm one.", "x-code": 0, "x-text": "Red" },
+          { "const": "fbs-fixed", "title": "fbsFixed", "description": "A dashed word.", "x-code": 1, "x-text": "Fixed bus" },
+          { "const": "blue", "title": "blue", "description": "The cold one.", "x-code": 2 }
+        ]
+      },
+      "DEMO_PARAMS": {
+        "description": "The demo's parameters.",
+        "x-since": "1.0.0",
+        "type": "object",
+        "properties": {
+          "gain": { "minimum": -60, "maximum": 12, "default": 0, "x-unit": "dB", "x-scale": "linear" },
+          "freq": { "minimum": 20, "maximum": 20000, "default": 1000, "x-unit": "Hz", "x-scale": "log" },
+          "pad": { "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

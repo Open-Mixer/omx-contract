@@ -14,6 +14,7 @@ import {
 import { ownerNames, renderOwnerHeader } from './c/owner-headers.mjs';
 import { doors, isNativeTable } from './doors.mjs';
 import { packageItems } from '../lib/data.mjs';
+import { renderCodesFile } from './codes.mjs';
 import { renderFormatsHeader } from './formats.mjs';
 import { HINTS_HEADER, renderHintsHeader } from './hints.mjs';
 import { packageVocabularyC, renderVocabularyHeader } from './vocabulary.mjs';
@@ -254,5 +255,6 @@ export function renderC(resolved, { pkg } = {}) {
   if (hints) files.push({ path: HINTS_HEADER, text: hints });
   const verbs = renderVerbsHeader(resolved);
   if (verbs) files.push({ path: VERBS_HEADER, text: verbs });
+  files.push(renderCodesFile());
   return files;
 }

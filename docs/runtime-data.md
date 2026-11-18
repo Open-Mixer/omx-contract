@@ -31,12 +31,23 @@ Why the rule:
 - A domain's words stay its owner's. A consumer that reads them at run time holds no copy of them, so a lower layer
   cannot hold a higher layer's words by accident (the first ruling of omx-contract#81).
 
+**Precedents.** The rule is how other plugin and system stacks already work:
+- LV2: a host reads each plugin's `.ttl` at run time, and new vocabulary arrives as namespaced extensions.
+- PipeWire's SPA: enum ids are compiled constants, and a node's `PropInfo` (names, ranges, defaults) is asked at run time.
+- D-Bus: introspection answers an object's interfaces from the running service.
+- Kubernetes custom resources: each group/version publishes an OpenAPI schema that clients read rather than compile in.
+
 ## Where the data comes from
 
 The installed contract directory, `contract.d/<domain>/`, the one the reader already finds through
 `pkg-config --variable=contractdir omx-contract` (docs/contract-dir.md). A domain is read by name, and its
 `info.version` is compared to the floor the consumer declares (`needs`). Nothing else is a source: no copy in the
 consumer's tree, no default compiled in.
+
+Every domain document carries `info.x-stability`: `experimental` or `stable`. This follows Kubernetes' alpha, beta and
+stable API levels and LV2's unstable extensions. While the project is in development every domain is `experimental`.
+A domain becomes `stable` only at a release, when the owner rules on its compatibility; until then its shape may change
+without a compatibility mechanism.
 
 A missing or invalid installed domain is a LOUD REFUSAL AT START-UP: the program exits with a message that names the
 domain, the place looked, and the reason (absent, unreadable, not valid against the schema it declares, below the

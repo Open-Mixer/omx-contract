@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib build-c check-abi test-c check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -123,6 +123,42 @@ install-cli: all build-lib
 
 test:
 	npm test
+
+# The C domain loader (docs/runtime-data.md "The C loader"): libomx-domain, its header include/omxcontract/omx_domain.h,
+# and the command omx-domain, on the distribution's jansson. A start-up library, never linked into an audio thread.
+# The library's exports are exactly abi/libomx-domain.abi (abi/libomx-domain.map is the linker's view of it); `make
+# check-abi` compares them. `make test-c` builds it against the fixtures of test/fixtures/domain/ (as the installed
+# directory) with the sanitizers, and runs test/c/. Needs a C compiler, jansson-devel and pkg-config.
+LIBDIR ?= $(PREFIX)/lib
+DOMAIN_SO = libomx-domain.so.0
+JANSSON_CFLAGS ?= $(shell pkg-config --cflags jansson)
+JANSSON_LIBS ?= $(shell pkg-config --libs jansson)
+DOMAIN_CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic -Iinclude $(JANSSON_CFLAGS)
+CBUILD ?= build/c
+
+$(CBUILD)/$(DOMAIN_SO): src/c/omx_domain.c include/omxcontract/omx_domain.h abi/libomx-domain.map
+	@mkdir -p $(CBUILD)
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 -fPIC -shared -Wl,-soname,$(DOMAIN_SO) -Wl,--version-script=abi/libomx-domain.map \
+	  -DOMX_CONTRACTDIR='"$(CONTRACTDIR)"' src/c/omx_domain.c -o $@ $(JANSSON_LIBS)
+
+$(CBUILD)/omx-domain: src/c/omx_domain_cli.c $(CBUILD)/$(DOMAIN_SO)
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 src/c/omx_domain_cli.c -o $@ -L$(CBUILD) -Wl,-rpath,'$$ORIGIN' $(CBUILD)/$(DOMAIN_SO)
+
+build-c: $(CBUILD)/omx-domain
+
+check-abi: $(CBUILD)/$(DOMAIN_SO)
+	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 == "T" { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
+
+TESTC = build/test-c
+test-c:
+	rm -rf $(TESTC) && mkdir -p $(TESTC)
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' check-abi
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' build-c
+	$(CC) $(DOMAIN_CFLAGS) -g -fsanitize=address,undefined -fno-omit-frame-pointer -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
+	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
+	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS)
+	$(TESTC)/domain_test
+	sh test/c/cli_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain
 
 # Every public declaration of the installed headers documented (docs/render.md "Documentation", omx-contract#64):
 # doxygen's undocumented-member warnings held to docs/doxygen-baseline.txt, red on a new one and on a stale line. With

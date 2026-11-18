@@ -134,6 +134,34 @@ static void test_open_refusals(void) {
   CHECK(omx_domain_open_at(NULL, "demo", NULL, &d, &err) != 0 && d == NULL);
 }
 
+/* A domain name is a slash-separated path (docs/contract-dir.md): `dsp/kernels` is dsp/kernels/kernels.json, its $id names
+   the whole path; a name with an empty, `.` or `..` segment, or a leading or trailing slash, is refused by name. */
+static void test_nested_domains(void) {
+  omx_domain *d = open_ok("dsp/kernels", "1.0.0");
+  omx_domain_word_info w;
+  CHECK(omx_domain_word(d, "KERNEL_COLORS", "red", &w) == 0);
+  CHECK(omx_domain_range(d, "KERNEL_PARAMS", "gain", &(omx_domain_range_info){0}) == 0);
+  omx_domain_close(d);
+  d = open_ok("formats/clap", NULL);
+  CHECK(omx_domain_word_count(d, "CLAP_COLORS") == 3);
+  omx_domain_close(d);
+  /* the $id must name the same path as the place */
+  refused("dsp/mismatch", NULL, OMX_CONTRACT_CODE_MANIFEST_INVALID, "$id");
+  /* a path that is a valid name but holds no document: absent, naming the path */
+  refused("dsp/none", NULL, OMX_CONTRACT_CODE_DIR_ABSENT, "dsp/none");
+  const char *bad[] = { "dsp/../demo", "/demo", "dsp//kernels", "dsp/", "./demo", "dsp/./kernels", "..", "a/b/../c", "dsp\\kernels", "dsp/ker nels" };
+  for (size_t i = 0; i < sizeof bad / sizeof bad[0]; i++) {
+    omx_domain *x = (omx_domain *)0x1;
+    omx_domain_error err;
+    memset(&err, 0, sizeof err);
+    int rc = omx_domain_open_at(FIX, bad[i], NULL, &x, &err);
+    if (rc != OMX_CONTRACT_CODE_FILE_INVALID || x != NULL || strstr(err.message, bad[i]) == NULL) {
+      failures++;
+      fprintf(stderr, "%s:%d: \"%s\" was not refused by name (rc %d)\n", __FILE__, __LINE__, bad[i], rc);
+    }
+  }
+}
+
 /* The handle holds its own copy: after open the files are gone and the answers are the same, at the same address. */
 static void test_handle_owns_its_data(void) {
   char tmpl[] = "/tmp/omx-domain-test-XXXXXX";
@@ -225,6 +253,7 @@ int main(void) {
   test_ranges();
   test_text();
   test_open_refusals();
+  test_nested_domains();
   test_handle_owns_its_data();
   test_open_installed();
   test_open_or_exit();

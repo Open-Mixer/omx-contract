@@ -94,11 +94,11 @@ export const wordKey = (item: string, word: string): string => `${item}.${word}`
 /**
  * Every code and word an owner declares, by its catalog key: `Map<key, { args, en }>`. `resolved` is the resolved data
  * (`resolveData`), and `extra` more items as `[name, item]` (a tool's own table, data/codes.json); `owner`, when the
- * data names packages, keeps only that package's items.
+ * data names packages, keeps only that package's items; `ownerOf` maps a package to its owner (a domain's `info.x-owner`), the package itself when absent.
  */
 export function catalogKeys(
   resolved: ResolvedItems,
-  { owner, extra = [] }: { owner?: string; extra?: readonly [string, JsonObject][] } = {},
+  { owner, extra = [], ownerOf }: { owner?: string; extra?: readonly [string, JsonObject][]; ownerOf?: ReadonlyMap<string, string> } = {},
 ): Map<string, CatalogKey> {
   const keys = new Map<string, CatalogKey>();
   const add = (name: string, kind: string, value: Json) => {
@@ -109,7 +109,7 @@ export function catalogKeys(
   };
   for (const [name, r] of resolved) {
     if (r.kind !== 'codes' && r.kind !== 'words') continue;
-    if (owner !== undefined && resolved.packageOf?.get(name) !== undefined && resolved.packageOf.get(name) !== owner) continue;
+    if (owner !== undefined && resolved.packageOf?.get(name) !== undefined && (ownerOf?.get(resolved.packageOf.get(name)!) ?? resolved.packageOf.get(name)) !== owner) continue;
     add(name, r.kind, r.value);
   }
   for (const [name, item] of extra) add(name, item.kind, item.kind === 'codes' ? item.codes : item.words);

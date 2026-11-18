@@ -4,7 +4,7 @@
 // synonyms they refuse, and the table that maps every CLAP plugin feature and LV2 plugin class onto the four feature
 // words or other (#120).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { MEANING_SYNONYMS } from '../lib/descriptor.mjs';
@@ -82,15 +82,18 @@ test('an instrument class is only one that takes notes: generators and oscillato
   assert.deepEqual(rows.get('CLAP_PLUGIN_FEATURES_TERMS#compressor'), ['audio-effect']);
 });
 
-test('the panel families and widgets, and the names of the scan documents, are declared here (#157)', () => {
+test('the panel families and widgets are declared here, the scan words are a domain of omx-clap-core (#157, #81)', () => {
   const panel = read('data/panel.json');
   const ws = (it) => Object.values(it.words).map((w) => w.word);
   assert.deepEqual(ws(panel.PANEL_FAMILIES), ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility']);
   assert.deepEqual(ws(panel.PANEL_WIDGETS), ['auto', 'knob', 'fader', 'switch', 'selector']);
   assert.deepEqual(ws(panel.PANEL_STANDARD_WIDGETS), ['knob', 'fader', 'switch', 'selector', 'meter', 'curve', 'xy', 'display']);
-  const scan = read('data/scan.json');
-  assert.deepEqual(ws(scan.SCAN_FIELD_SCOPES), ['plugin', 'param', 'audio_in', 'audio_out', 'note_in', 'note_out', 'port', 'panel', 'section', 'control', 'role', 'display', 'placement_default']);
-  assert.deepEqual(ws(scan.SCAN_DOCUMENTS), ['CLAP_SCAN_DOCUMENT', 'FIELD_DUMP']);
-  assert.match(scan.SCAN_DOCUMENTS.words.clapScanDocument.doc, /Owned by omx-clap-core/);
-  assert.match(scan.SCAN_FIELD_SCOPES.doc, /owned by their writers: omx-clap-core's scan .* plugin-hostd's field dump/);
+  // the scan words are omx-clap-core's domain (contract.d/scan/), never a file of this tree (omx-contract#81)
+  assert.equal(existsSync(join(ROOT, 'data', 'scan.json')), false);
+});
+
+test('the machine, measurement and qualification words are plugin-hostd\'s and plugin-qualify\'s domains, not files of this tree (#81)', () => {
+  for (const f of ['machine-class.json', 'measurement.json']) assert.equal(existsSync(join(ROOT, 'data', f)), false, f);
+  const left = Object.keys(read('data/resource-profile.json')).filter((k) => k !== '$schema');
+  assert.deepEqual(left, ['RESOURCE_KINDS', 'RESOURCE_UNITS', 'RESOURCE_BASES', 'RESOURCE_HINTS']);
 });

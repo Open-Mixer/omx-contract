@@ -24,13 +24,13 @@ test('the paths: catalog_dir_of and catalog_path_of, the same shape lib/catalog.
 print(m["catalog_dir_of"]("plugin-db"))
 print(m["catalog_path_of"]("plugin-db", "ca", "/tmp/root"))
 print(m["code_key"]("contract.dir.absent"))
-print(m["word_key"]("MEASUREMENT_UNMEASURED_REASONS", "no-audio-in"))
+print(m["word_key"]("QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS", "no-audio-in"))
 `);
   assert.deepEqual(out.trim().split('\n'), [
     '/usr/share/plugin-db/catalogs',
     '/tmp/root/plugin-db/catalogs/ca.json',
     'contract.dir.absent',
-    'MEASUREMENT_UNMEASURED_REASONS.no-audio-in',
+    'QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS.no-audio-in',
   ]);
 });
 
@@ -43,7 +43,7 @@ test('the lookup: the catalog\'s sentence, else the source sentence, its placeho
   const out = run(`
 ca = m["load_catalog"]("omx-contract", "ca", ${JSON.stringify(root)})
 print(m["fill"](m["sentence_of"](ca, "contract.dir.absent", "No contract directory at {path}"), {"path": "/x"}))
-print(m["sentence_of"](ca, "MEASUREMENT_UNMEASURED_REASONS.no-audio-in", "{plugin} has no audio input."))
+print(m["sentence_of"](ca, "QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS.no-audio-in", "{plugin} has no audio input."))
 print(m["load_catalog"]("omx-contract", "es", ${JSON.stringify(root)}))
 print(m["sentence_of"](None, "contract.dir.absent", "No contract directory at {path}"))
 print(m["load_catalog"]("plugin-db", "ca", ${JSON.stringify(root)}))

@@ -33,6 +33,7 @@ import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
 import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC } from '../render/c.mjs';
+import { domainCodesC } from '../render/codes.mjs';
 import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
@@ -104,6 +105,18 @@ function catalogFiles(argv) {
   });
 }
 
+/** The catalogs of the domains of a read, `<domain>/catalogs/<lang>.json` (docs/contract-dir.md, "Domains"). */
+function domainCatalogFiles(data) {
+  const out = [];
+  for (const [name, p] of data.packages ?? []) {
+    if (p.manifest.owner === undefined) continue;
+    const dir = join(p.dir, 'catalogs');
+    if (!existsSync(dir)) continue;
+    for (const f of readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) out.push({ domain: p.manifest.owner, rel: `${name}/catalogs/${f}`, doc: JSON.parse(readFileSync(join(dir, f), 'utf8')) });
+  }
+  return out;
+}
+
 /** Every file under `dir`, relative to it. */
 function filesUnder(dir) {
   if (!existsSync(dir)) return [];
@@ -123,12 +136,14 @@ function cmdValidate(argv) {
   const data = load(argv);
   const tools = toolFiles(argv);
   const problems = [...validateData(data), ...tools.flatMap(fileProblems)];
-  const catalogs = problems.length ? [] : catalogFiles(argv);
+  const catalogs = problems.length ? [] : [...catalogFiles(argv), ...domainCatalogFiles(data)];
+  const ownerOf = new Map([...(data.packages ?? [])].filter(([, p]) => p.manifest.owner !== undefined).map(([n, p]) => [n, p.manifest.owner]));
   if (catalogs.length) {
     const resolved = resolveData(data);
     const extra = tools.flatMap((f) => Object.entries(f.doc).filter(([, v]) => v && typeof v === 'object' && v.kind));
     // from a contract directory, a catalog's keys are its owner's package's codes and words only
-    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, catalogKeys(resolved, { extra, ...(data.packages ? { owner: c.doc?.owner } : {}) })));
+    for (const c of catalogs.filter((x) => x.domain !== undefined)) if (c.doc?.owner !== c.domain) problems.push({ file: c.rel, item: 'owner', rule: 'catalog-schema', message: `owner ${JSON.stringify(c.doc?.owner)} is not ${c.domain}, the info.x-owner of the domain it sits in` });
+    for (const c of catalogs) problems.push(...catalogProblems(c.rel, c.doc, catalogKeys(resolved, { extra, ownerOf, ...(data.packages ? { owner: c.doc?.owner } : {}) })));
   }
   for (const p of problems) console.error(`${p.file}: ${p.item}: ${p.rule}: ${p.message}`);
   if (problems.length) return 1;
@@ -164,6 +179,12 @@ export function renderTarget(target, argv) {
     // from a data directory (the owner's tree) every file.
     if (data.packages && !data.packages.has(pkg)) throw new Usage(`no package ${pkg} is installed`);
     const files = data.files.filter((f) => (f.pkg ?? pkg) === pkg);
+    // A domain is read at run time: its one render is its codes header (docs/render.md)
+    const marked = data.packages?.get(pkg)?.codes;
+    if (marked !== undefined) {
+      if (target === 'c') return domainCodesC(resolved, pkg, marked);
+      throw new Usage(`${pkg} is a domain: it renders its codes header only (--target c), its words are read at run time`);
+    }
     if (target === 'c') return renderC(resolved, { pkg });
     if (target === 'ts') return renderOwnerTs(resolved, pkg, files);
     throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');

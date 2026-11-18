@@ -118,7 +118,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 - **What it reads.** A words item is a `components.schemas` entry with a `oneOf` of words, a range item one with
   `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. A domain name is a slash-separated path
   (`dsp/kernels`, docs/contract-dir.md): each segment a name of letters, digits, `-` and `_`, never empty, `.` or `..`, no
-  leading or trailing `/`, at most `OMX_DOMAIN_NAME_MAX` (255) bytes (a longer name is refused as `contract.manifest.invalid`); the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
+  leading or trailing `/`, at most `OMX_DOMAIN_NAME_MAX` (255) bytes (a longer name is refused as `contract.manifest.invalid`, and so is a contract directory whose paths do not fit the loader's 4096-byte path: it may exist, it is not absent); the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
   name is refused with `contract.file.invalid` before any file is read. Open checks
   the structure of what the functions read (the required fields, their types, `info.version` against the floor), so no
   function answers from a document that is not of that shape. The FULL JSON Schema validation of a domain is done at

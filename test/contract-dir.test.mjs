@@ -256,6 +256,14 @@ test('contract.item.duplicate: two packages declare one name', () => {
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.itemDuplicate);
 });
 
+test('contract.item.prefix: an item of a domain that does not start with its domain\'s name', () => {
+  const root = installed();
+  const doc = { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas: { WIDGETS: { description: 'The widgets.', oneOf: [{ const: 'knob', title: 'knob', 'x-code': 0 }] } } } };
+  mkdirSync(join(root, 'panel'));
+  writeFileSync(join(root, 'panel', 'panel.json'), JSON.stringify(doc));
+  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.itemPrefix);
+});
+
 test('contract.kernel.duplicate: two packages each install a file of one kernel, even with names of their own', () => {
   const root = installed();
   addPackage(root, 'omx-dsp', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'amount', kind: 'travel', doc: 'the kernel\'s row', travel: { min: 0, max: 1, unit: '' } }] } });

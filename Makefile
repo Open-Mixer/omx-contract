@@ -54,7 +54,7 @@ lib/codes.mjs: $(wildcard src/lib/*.mts) tsconfig.lib.json
 
 # The headers compile on their own, warnings as errors: the committed renders and the verbs fixture's (test/golden/verbs/).
 check: all
-	printf '#include <omxcontract/omx_contract_limits.h>\n#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_resource_hints.h>\n#include <omxcontract/omx_param_units.h>\n#include <omxcontract/omx_formats.h>\n#include <omxcontract/omx_json_write.h>\nstatic const char *const voice_bases[] = OMX_MEASUREMENT_VOICE_BASES_INIT;\nint main(void) { return OMX_READOUT_RATE_HZ > 0 && OMX_DECLARED_RATE_COUNT > 0 && OMX_PARAM_SCALES_LINEAR < OMX_PARAM_SCALES_COUNT && sizeof voice_bases / sizeof voice_bases[0] == OMX_MEASUREMENT_VOICE_BASES_COUNT && OMX_MACHINE_CLASS_FIELDS_ARCH[0] == 0x61 && OMX_RESOURCE_HINT_COUNT > 0u && OMX_CLAP_REMOTE_CONTROLS_COUNT == 8u && OMX_CLAP_UNIT_DBFS == 256u && omx_json_string(0, 0, "a") == 3 ? 0 : 1; }\n' > check-headers.c
+	printf '#include <omxcontract/omx_contract_limits.h>\n#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_resource_hints.h>\n#include <omxcontract/omx_param_units.h>\n#include <omxcontract/omx_formats.h>\n#include <omxcontract/omx_json_write.h>\nint main(void) { return OMX_READOUT_RATE_HZ > 0 && OMX_DECLARED_RATE_COUNT > 0 && OMX_PARAM_SCALES_LINEAR < OMX_PARAM_SCALES_COUNT && OMX_RESOURCE_HINT_COUNT > 0u && OMX_CLAP_REMOTE_CONTROLS_COUNT == 8u && OMX_CLAP_UNIT_DBFS == 256u && omx_json_string(0, 0, "a") == 3 ? 0 : 1; }\n' > check-headers.c
 	$(CC) -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Iinclude -Isrc check-headers.c -o check-headers
 	./check-headers
 	printf '#include "omx_host_verbs.h"\n#include "c/verbs_fixture_host_verbs.h"\n#include "c/verbs_fixture_vocabulary.h"\nint main(void) { return omx_host_verb_level(OMX_VERB_CHAIN, OMX_HOST_VERB_HOST_PLUGIN_HOSTD) == OMX_HOST_VERB_REQUIRED && verbs_fixture_host_verb_find(OMX_VERB_PARAM_INFO) != NULL ? 0 : 1; }\n' > check-headers.c
@@ -81,7 +81,7 @@ install-python:
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
 	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
-	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
+	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json schema/domain.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
@@ -107,7 +107,7 @@ install-cli: all build-lib
 	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
 	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
-	install -m 0644 schema/omx-contract.schema.json $(DESTDIR)$(CLIDIR)/schema/
+	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
 	install -m 0644 package.json $(DESTDIR)$(CLIDIR)/
 	for t in vendor/*.tgz; do \
@@ -166,8 +166,9 @@ install-c: build-c
 	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@VERSION@|$(VERSION)|' libomx-domain.pc.in > $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 	chmod 0644 $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 
+# Every exported symbol, a function (T, W) or a global variable (D, B, R, V): a data export is ABI as much as a function.
 check-abi: $(CBUILD)/$(DOMAIN_SO)
-	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 == "T" { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
+	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 ~ /^[TWDBRV]$$/ { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
 
 TESTC = build/test-c
 # -fno-sanitize-recover=all: a UBSan finding stops the program (and so fails the suite) instead of printing and going on.
@@ -175,6 +176,7 @@ SANFLAGS = -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-f
 test-c:
 	rm -rf $(TESTC) && mkdir -p $(TESTC)
 	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' check-abi
+	sh test/c/abi_selftest.sh
 	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' CLI_RPATH=-Wl,-rpath,$(CURDIR)/$(TESTC) build-c
 	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
 	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \

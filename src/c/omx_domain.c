@@ -68,7 +68,7 @@ static int refuse(omx_domain_error *err, int status, const char *fmt, ...) {
 }
 
 static int path_too_long(omx_domain_error *err, const char *domain) {
-  return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s: a path of it is too long.", domain);
+  return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s: a path of it is too long for the loader.", domain);
 }
 
 static char *dup_str(const char *s) {
@@ -399,6 +399,7 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   const char *id = str_of(root, "$id");
   json_t *info = json_object_get(root, "info");
   const char *version = str_of(info, "version");
+  const char *stability = str_of(info, "x-stability");
   char want_id[512];
   int id_fits = fits(snprintf(want_id, sizeof want_id, DOMAIN_ID_PREFIX "%s", domain), sizeof want_id); /* always, for a name within OMX_DOMAIN_NAME_MAX */
   if (!id_fits) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s: the $id it must carry does not fit.", domain);
@@ -406,6 +407,7 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   else if (!id || strcmp(id, want_id) != 0) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: $id is \"%s\", and must be \"%s\".", domain, path, id ? id : "(absent)", want_id);
   else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
   else if (!str_of(info, "x-owner") || !*str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
+  else if (!stability || (strcmp(stability, "experimental") != 0 && strcmp(stability, "stable") != 0)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-stability is %s%s%s, and must be \"experimental\" or \"stable\".", domain, path, stability ? "\"" : "", stability ? stability : "(absent)", stability ? "\"" : "");
   else if (needs_version && version_below(have, floor_)) rc = refuse(err, OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "The domain %s at %s is version %s, below the floor %s the program needs.", domain, path, version, needs_version);
   else rc = read_items(d, root, path, domain, err);
   json_decref(root); /* the JSON is released here: the handle holds its own copy of all it returns */

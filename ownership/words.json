@@ -432,6 +432,7 @@
     "fileNotJson",
     "indexRange",
     "itemDuplicate",
+    "itemPrefix",
     "itemUnknown",
     "kernelDuplicate",
     "manifestAbsent",
@@ -994,110 +995,6 @@
     "schedule",
     "worker.lv2"
   ],
-  "MACHINE_ARCHES": [
-    "aarch64",
-    "x8664"
-  ],
-  "MACHINE_CLASSES": [
-    "desk",
-    "raspberryPi4",
-    "raspberryPi5"
-  ],
-  "MACHINE_CLASS_FIELDS": [
-    "arch",
-    "clockBand",
-    "coreBand",
-    "cstatesLimited",
-    "family",
-    "preemptRt"
-  ],
-  "MACHINE_CLOCK_BANDS": [
-    "from1500To2500MHz",
-    "from2500To3500MHz",
-    "from3500To4500MHz",
-    "from4500MHz",
-    "under1500MHz"
-  ],
-  "MACHINE_CORE_BANDS": [
-    "cores17To32",
-    "cores1To2",
-    "cores33Up",
-    "cores3To4",
-    "cores5To8",
-    "cores9To16"
-  ],
-  "MACHINE_PROFILE_FIELDS": [
-    "cpuidle",
-    "governor",
-    "preempt",
-    "smt",
-    "turbo"
-  ],
-  "MEASUREMENT_COST_METHODS": [
-    "blockTimePercentile"
-  ],
-  "MEASUREMENT_DIMENSIONS": [
-    "cost",
-    "features",
-    "latency",
-    "rtSafety",
-    "stability"
-  ],
-  "MEASUREMENT_LATENCY_EXCLUSIONS": [
-    "impossibleZero"
-  ],
-  "MEASUREMENT_LATENCY_METHODS": [
-    "declaredPort",
-    "impulseOnset",
-    "noteOnset"
-  ],
-  "MEASUREMENT_LATENCY_SCALING": [
-    "fixedFrame",
-    "fixedTime",
-    "nonconforming",
-    "singleRate",
-    "unmeasured",
-    "zero"
-  ],
-  "MEASUREMENT_LATENCY_SCALING_NOTES": [
-    "belowBudget",
-    "informationalRate"
-  ],
-  "MEASUREMENT_UNMEASURED_KINDS": [
-    "notAttempted",
-    "nothingToMeasure",
-    "probeFailed"
-  ],
-  "MEASUREMENT_UNMEASURED_REASONS": [
-    "needsCarrier",
-    "needsContent",
-    "needsImpulseResponse",
-    "noAudioIn",
-    "noAudioOut",
-    "noVoices",
-    "nonFiniteOutput",
-    "notAttempted",
-    "notInstalled",
-    "notesUnplayable",
-    "probeCrashed",
-    "probeError",
-    "probeTimeout",
-    "refusedInstantiation",
-    "silentOutput",
-    "unpinnable",
-    "voicesUnknown",
-    "workerNonconforming"
-  ],
-  "MEASUREMENT_VERDICT_RATINGS": [
-    "conditional",
-    "suitable",
-    "unknown",
-    "unsuitable"
-  ],
-  "MEASUREMENT_VOICE_BASES": [
-    "declared",
-    "probe"
-  ],
   "OMX_PARAM_CONTRACT_UNITS": [
     "bar",
     "beat",
@@ -1296,10 +1193,6 @@
     "measured",
     "probe"
   ],
-  "RESOURCE_BUDGET_SCOPES": [
-    "perConsole",
-    "perInstance"
-  ],
   "RESOURCE_HINTS": [
     "activateTime",
     "footprintAtRest",
@@ -1308,15 +1201,6 @@
     "sharedLoad",
     "streamsFromDisk",
     "threadsSpawned"
-  ],
-  "RESOURCE_HOST_ISOLATIONS": [
-    "inProcess",
-    "perProcess",
-    "sharedProcess"
-  ],
-  "RESOURCE_HOST_LATENCY_HANDLING": [
-    "compensated",
-    "uncompensated"
   ],
   "RESOURCE_KINDS": [
     "blockLength",
@@ -1334,17 +1218,6 @@
     "voices",
     "worker"
   ],
-  "RESOURCE_MEMORY_PHASES": [
-    "afterActivate",
-    "afterInstantiate",
-    "atRest",
-    "notesHeld",
-    "secondInstance"
-  ],
-  "RESOURCE_THREAD_SCHEDULING": [
-    "fifo",
-    "none"
-  ],
   "RESOURCE_UNITS": [
     "bytes",
     "flag",
@@ -1356,32 +1229,9 @@
     "s",
     "us"
   ],
-  "RESOURCE_UNMEASURED_REASONS": [
-    "limitExceeded",
-    "unmeasuredOnClass"
-  ],
   "RT_HARD_TARGET": [
     "quantum",
     "rate"
-  ],
-  "SCAN_DOCUMENTS": [
-    "clapScanDocument",
-    "fieldDump"
-  ],
-  "SCAN_FIELD_SCOPES": [
-    "audioIn",
-    "audioOut",
-    "control",
-    "display",
-    "noteIn",
-    "noteOut",
-    "panel",
-    "param",
-    "placementDefault",
-    "plugin",
-    "port",
-    "role",
-    "section"
   ],
   "STANDARD_QUANTA": [
     "1024",

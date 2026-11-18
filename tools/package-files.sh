@@ -117,7 +117,7 @@ LC_ALL=C sort "$tmp"/got-* | uniq -d > "$tmp/twice"
 f=$(pkgfile "$ddev")
 if [ "$kind" = rpm ]; then
   v=$(rpm -qp --qf '%{VERSION}-%{RELEASE}' "$f")
-  rpm -qp --requires "$f" | grep -q "^libomx-domain\(x86-64\)\? >= $v" || { echo "$ddev: does not require libomx-domain >= $v"; bad=1; }
+  rpm -qp --requires "$f" | grep -Eq "^libomx-domain(\\([a-z0-9_-]+\\))? >= $v" || { echo "$ddev: does not require libomx-domain >= $v"; bad=1; }
   rpm2cpio "$f" | cpio -i --to-stdout --quiet './usr/share/omx-contract/abi/libomx-domain.abi' | diff -u abi/libomx-domain.abi - || { echo "$ddev: the installed ABI list differs from the tree's"; bad=1; }
 else
   dpkg-deb -f "$f" Depends | tr ',' '\n' | sed 's/^ *//' | grep -q '^libomx-domain0 (>= ' || { echo "$ddev: does not depend on libomx-domain0 (>= version)"; bad=1; }

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 static int failures;
@@ -168,6 +169,31 @@ static void test_open_installed(void) {
   unsetenv("OMX_CONTRACT_PATH");
 }
 
+/* A refused start-up exits 78 (EX_CONFIG) and prints the code and the reason; an opened one returns the handle. */
+static void test_open_or_exit(void) {
+  int fds[2];
+  CHECK(pipe(fds) == 0);
+  pid_t pid = fork();
+  if (pid == 0) {
+    dup2(fds[1], 2);
+    close(fds[0]);
+    omx_domain_open_or_exit("absent", NULL);
+    _exit(0); /* reached only if it did not exit */
+  }
+  close(fds[1]);
+  char msg[512] = "";
+  ssize_t got = read(fds[0], msg, sizeof msg - 1);
+  CHECK(got > 0);
+  close(fds[0]);
+  int st = 0;
+  CHECK(waitpid(pid, &st, 0) == pid);
+  CHECK(WIFEXITED(st) && WEXITSTATUS(st) == 78);
+  CHECK(strstr(msg, "contract.dir.absent") != NULL && strstr(msg, "absent") != NULL);
+  omx_domain *d = omx_domain_open_or_exit("demo", "1.0.0");
+  CHECK(d != NULL);
+  omx_domain_close(d);
+}
+
 /* Every code the loader returns is a code of CONTRACT_CODES (data/codes.json), with its English sentence. */
 static void test_codes_are_contract_codes(void) {
   json_error_t jerr;
@@ -202,6 +228,7 @@ int main(void) {
   test_open_refusals();
   test_handle_owns_its_data();
   test_open_installed();
+  test_open_or_exit();
   test_codes_are_contract_codes();
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
   puts("domain_test: all checks passed");

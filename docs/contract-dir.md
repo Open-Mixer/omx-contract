@@ -22,7 +22,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 ```json
 { "$id": "https://openmixer.org/contract/panel",
   "info": { "title": "The panel vocabulary", "version": "1.0.0", "x-owner": "omx-panel" },
-  "components": { "schemas": { "PanelFamilies": { "...": "JSON Schema 2020-12 shape of the item" } } } }
+  "components": { "schemas": { "PANEL_FAMILIES": { "...": "JSON Schema 2020-12 shape of the item" } } } }
 ```
 
 - A words item is pure JSON Schema 2020-12: a `components.schemas` entry named by the item (`PANEL_FAMILIES`), its
@@ -31,8 +31,12 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   "x-code": <int>, "x-text": "<the English source sentence>" }` per word, in their declared order. A word is any
   string (`-`, `fbs-fixed`), not only an identifier. `x-code` is the word's code, today its place in the order
   (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
-  the sentence they translate. The renders map `oneOf`/`const` to the C X-macros and defines, the TypeScript union
-  and `<ITEM>_WORDS`, and the Python literal, byte for byte what the words item of the old layout renders.
+  the sentence they translate. An item C switches on carries `"x-c-codes": true`: the whole item becomes constants,
+  its codes header (docs/render.md); one C also uses as struct fields or enum values carries `"x-c-xmacro": true` as
+  well (ruling 5 of docs/runtime-data.md). `x-c-xmacro` without `x-c-codes` is invalid. An item's name starts with
+  its domain's name in upper snake case (`PANEL_FAMILIES` in `panel`); a check refuses one that does not, naming the
+  item and the domain. Every other item renders
+  nothing and is read at run time.
   Refusals reuse the reader's codes: a malformed document is `contract.file.invalid`, a `$id`, `info` or place that
   disagrees is `contract.manifest.invalid`, a name two domains declare is `contract.item.duplicate`.
 - `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read. `$id` is the domain's stable

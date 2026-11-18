@@ -195,7 +195,7 @@ Summary: The C loader of an OpenMixer contract domain
 
 %description -n libomx-domain
 libomx-domain reads a contract domain (the installed
-contract.d/<domain>/<domain>.json and its catalogs, omx-contract-data and the
+contract.d/<domain>/<last segment>.json and its catalogs, omx-contract-data and the
 owners' packages install them) at program start-up: a word, a range, a sentence,
 looked up by function instead of compiled in. A missing or invalid domain is
 refused with a code of CONTRACT_CODES. It is a start-up library and is never
@@ -309,7 +309,7 @@ a floor, the lowest release whose functions it calls.
 
 %changelog
 * Wed Nov 18 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.0-1
-- Schema 3.20.0: the domain document, <domain>/<domain>.json, one JSON Schema
+- Schema 3.20.0: the domain document, <domain>/<last segment>.json, one JSON Schema
   document with info{title,version,x-owner,x-stability}; words may carry
   x-group, x-groups and x-from, and a domain directory holds
   catalogs/<lang>.json. info.x-stability (experimental or stable) is required by

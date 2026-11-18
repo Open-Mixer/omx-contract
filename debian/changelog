@@ -1,7 +1,7 @@
 omx-contract (3.20.0) unstable; urgency=medium
 
   * Schema 3.20.0: the domain document. A domain is one JSON Schema
-    document, <domain>/<domain>.json, with info{title,version,x-owner,
+    document, <domain>/<last segment>.json, with info{title,version,x-owner,
     x-stability}; its words may carry x-group, x-groups and x-from, and a
     domain directory holds catalogs/<lang>.json. info.x-stability
     (experimental or stable) is required, by the TypeScript reader and the

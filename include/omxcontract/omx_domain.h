@@ -57,6 +57,11 @@ typedef struct {
   char message[256];     /**< what was found, in English, for the program's own stderr */
 } omx_domain_error;
 
+/** The longest domain name omx_domain_open() accepts, in bytes (`dsp/kernels` is 11): a longer one is refused with
+ *  OMX_CONTRACT_CODE_MANIFEST_INVALID. Chosen so `https://openmixer.org/contract/<name>` fits the loader's 512-byte
+ *  `$id` buffer with room to spare; docs/runtime-data.md, "The C loader". */
+#define OMX_DOMAIN_NAME_MAX 255
+
 /** A word of a word item. The strings belong to the handle (see omx_domain_open()). */
 typedef struct {
   const char *word;         /**< the word as written (`const`), any string */

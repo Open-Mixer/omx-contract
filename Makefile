@@ -166,8 +166,9 @@ install-c: build-c
 	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@VERSION@|$(VERSION)|' libomx-domain.pc.in > $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 	chmod 0644 $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 
+# Every exported symbol, a function (T, W) or a global variable (D, B, R, V): a data export is ABI as much as a function.
 check-abi: $(CBUILD)/$(DOMAIN_SO)
-	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 == "T" { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
+	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 ~ /^[TWDBRV]$$/ { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
 
 TESTC = build/test-c
 test-c:

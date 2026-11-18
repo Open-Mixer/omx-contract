@@ -42,8 +42,8 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - **A domain name is a slash-separated path** (`panel`, `dsp/kernels`, `formats/clap`): one segment or more, each a name
   (letters, digits, `-` and `_`), with no empty segment, no `.` or `..` segment and no leading or trailing `/`. The
   document of `dsp/kernels` is `<contractdir>/dsp/kernels/kernels.json` and its catalogs `dsp/kernels/catalogs/<lang>.json`;
-  a one-segment domain is `<contractdir>/panel/panel.json` as before. The file is named by the LAST segment. `$id` is
-  `https://openmixer.org/contract/<domain>` with the whole path (`.../contract/dsp/kernels`). A C name made from a domain
+  a one-segment domain is `<contractdir>/panel/panel.json` as before. The FILE path is `<contractdir>/<domain>/<last segment>.json`, named by the LAST segment; the `$id` is not a file path:
+  it is `https://openmixer.org/contract/<domain>` with the whole domain path and no `.json` (`.../contract/dsp/kernels`). A C name made from a domain
   (its codes header, its macros) turns each `/` into `_`: `dsp_kernels_codes.h`, `OMX_DSP_KERNELS_*`. The C loader refuses
   an invalid name with `contract.file.invalid` before it reads anything.
 - `$schema` is `https://json-schema.org/draft/2020-12/schema`, and nothing else is read. `$id` is the domain's stable

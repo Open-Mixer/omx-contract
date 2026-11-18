@@ -335,7 +335,8 @@ static void test_long_name(void) {
   drop_scratch();
 }
 
-/* A directory too long for the path buffer is refused by name, not opened as a truncated path. */
+/* A directory too long for the path buffer is refused as an unusable input (the directory may well exist), by name,
+ * not opened as a truncated path. */
 static void test_long_dir(void) {
   static char dir[5000];
   memset(dir, 'd', sizeof dir - 1);
@@ -344,7 +345,7 @@ static void test_long_dir(void) {
   omx_domain *d = NULL;
   omx_domain_error err;
   memset(&err, 0, sizeof err);
-  CHECK(omx_domain_open_at(dir, "demo", NULL, &d, &err) != 0 && d == NULL);
+  CHECK(omx_domain_open_at(dir, "demo", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID && d == NULL);
   CHECK(strstr(err.message, "too long") != NULL);
 }
 

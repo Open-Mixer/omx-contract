@@ -995,44 +995,10 @@
     "schedule",
     "worker.lv2"
   ],
-  "MACHINE_ARCHES": [
-    "aarch64",
-    "x8664"
-  ],
   "MACHINE_CLASSES": [
     "desk",
     "raspberryPi4",
     "raspberryPi5"
-  ],
-  "MACHINE_CLASS_FIELDS": [
-    "arch",
-    "clockBand",
-    "coreBand",
-    "cstatesLimited",
-    "family",
-    "preemptRt"
-  ],
-  "MACHINE_CLOCK_BANDS": [
-    "from1500To2500MHz",
-    "from2500To3500MHz",
-    "from3500To4500MHz",
-    "from4500MHz",
-    "under1500MHz"
-  ],
-  "MACHINE_CORE_BANDS": [
-    "cores17To32",
-    "cores1To2",
-    "cores33Up",
-    "cores3To4",
-    "cores5To8",
-    "cores9To16"
-  ],
-  "MACHINE_PROFILE_FIELDS": [
-    "cpuidle",
-    "governor",
-    "preempt",
-    "smt",
-    "turbo"
   ],
   "MEASUREMENT_COST_METHODS": [
     "blockTimePercentile"

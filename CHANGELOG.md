@@ -4,6 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- REMOVED: `MACHINE_CLASS_FIELDS`, `MACHINE_PROFILE_FIELDS`, `MACHINE_CORE_BANDS`, `MACHINE_CLOCK_BANDS` and `MACHINE_ARCHES` (data/machine-class.json) with their translations. They are plugin-hostd's `machine` domain (`contract.d/machine/` there, `machine_vocabulary.h`, the same `OMX_MACHINE_*` macros byte for byte); the json schema fragment no longer carries them, a reader reads the domain document (omx-contract#81, move 3).
 - REMOVED: `SCAN_DOCUMENTS` and `SCAN_FIELD_SCOPES` (data/scan.json); their translations travel with the domain. They are omx-clap-core's `scan`
   domain (`contract.d/scan/scan.json` there, `scan_vocabulary.h`, the same `OMX_SCAN_*` macros byte for byte); a reader that
   took them from `omxcontract/omx_vocabulary.h` includes omx-clap-core's header instead (omx-contract#81, move 1).

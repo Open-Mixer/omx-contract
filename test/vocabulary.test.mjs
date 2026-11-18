@@ -83,7 +83,6 @@ test('the C render defines every code and word once, by its code and by its item
   assert.match(h, /^#define OMX_HOSTING_COST_SPIKY_TAIL "hosting\.cost\.spiky-tail"$/m, 'a code by its code');
   assert.doesNotMatch(h, /OMX_HOSTING_COST_COST_SPIKY|OMX_HOSTING_COST_SPIKY /, 'never by its key');
   assert.match(h, /^#define OMX_MEASUREMENT_LATENCY_METHODS_NOTE_ONSET "note-onset" \/\/\/< /m);
-  assert.match(h, /^#define OMX_MACHINE_CLOCK_BANDS_INIT \{ "<1\.5GHz", "1\.5-2\.5GHz", "2\.5-3\.5GHz", "3\.5-4\.5GHz", "4\.5GHz\+" \}$/m);
   assert.match(h, /^#define OMX_MEASUREMENT_VOICE_BASES_COUNT 2u$/m);
   assert.doesNotMatch(h, /TERMS/, 'a terms item has no C render');
 });
@@ -150,7 +149,6 @@ test('the JSON Schema fragment gives one enum per codes and words item, in order
   const f = JSON.parse(renderJson(withCodes, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text);
   assert.deepEqual(f.$defs.MEASUREMENT_LATENCY_METHODS.enum, ['impulse-onset', 'declared-port', 'note-onset']);
   assert.deepEqual(f.$defs.MEASUREMENT_VOICE_BASES.enum, ['declared', 'probe']);
-  assert.deepEqual(f.$defs.MACHINE_CORE_BANDS.enum, ['1-2', '3-4', '5-8', '9-16', '17-32', '33+']);
   assert.deepEqual(f.$defs.HOSTING_COST_CODES.enum, ['hosting.cost.above-ceiling', 'hosting.cost.fields-missing', 'hosting.cost.spiky-tail', 'hosting.cost.unmeasured-at-rate-and-quantum', 'hosting.cost.within-ceiling']);
   assert.equal(f.$defs.LV2_CORE_TERMS, undefined);
 });

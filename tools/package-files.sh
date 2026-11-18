@@ -31,7 +31,7 @@ files() {
   if [ "$kind" = rpm ]; then
     rpm -qp --qf '[%{FILEMODES:perms} %{FILENAMES}\n]' "$1" | grep -v -e '^d' -e '/\.build-id/' | cut -d' ' -f2
   else
-    dpkg-deb -c "$1" | awk '$1 !~ /^d/ { print $NF }' | sed 's|^\./|/|'
+    dpkg-deb -c "$1" | awk '$1 !~ /^d/ { print $6 }' | sed 's|^\./|/|'
   fi | grep -v -e '^/usr/share/licenses/' -e '^/usr/share/doc/' | LC_ALL=C sort
 }
 

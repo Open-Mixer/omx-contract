@@ -96,8 +96,11 @@ one line of its `--help`. A test points the variable at a fixture directory or a
 
 The loader reads `<contractdir>/<domain>/<last segment>.json` and its `catalogs/`, with no schema major and no
 package directory in the path. A domain is installed there by ONE implementation, the domain mode of the installer
-omx-contract ships (`install-contract-dir.sh --domain`, its own omx-contract PR): it copies the domain directory as
-it is, catalogs included, to `<contractdir>/<domain>/`, and rewrites nothing (no `$schema` rewrite). A package
+omx-contract ships (`install-contract-dir.sh --domain`, omx-contract#117): it copies the domain directory as
+it is, catalogs included, to `<contractdir>/<domain>/`, and rewrites nothing (no `$schema` rewrite). The domain is
+the path after the last `contract.d/`. It refuses (exit 1) any file beside `<last segment>.json` and
+`catalogs/<lang>.json`, and a symlink; a nested domain directory (one holding its own `<name>.json`) is skipped, so
+each domain is installed with its own call. A package
 writes no `install -D` lines of its own for its domain. The package mode of the same script (without `--domain`)
 installs a package's classic definition files under `<contractdir>/<schema major>/<package>/` and is not for
 domains.

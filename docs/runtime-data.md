@@ -1,0 +1,182 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> -->
+# Functions for data, generated constants only for codes
+
+Status: SPEC, PROPOSED. A design, no code and no data change: nothing here is built until the owner rules on it and
+the open questions at the end are answered. It follows the design direction on omx-contract#81 (the comment "functions
+instead of generators in contracts?") and builds on the domain model of docs/contract-dir.md ("Domains").
+
+## The rule
+
+**Data is read at run time by functions. A constant is generated only for a code that code branches on.**
+
+- A DATUM is anything a program reads and does not branch on at compile time: a description, a catalog sentence or
+  its translation, a range, a unit, a default, a group, an order, a word list a UI shows, the shape a document must
+  have. It lives in the installed domain document, `<contractdir>/<domain>/<domain>.json` and its
+  `catalogs/<lang>.json` (docs/contract-dir.md), and a function reads it.
+- A CODE is a value the compiler must see: the enum value a C `switch` branches on, a refusal code a caller compares,
+  a struct layout. It is generated into a header, because a `case` label, an array bound or a `static_assert` cannot
+  be read from a file.
+- Nothing in the audio thread reads a file, calls a loader function or parses JSON. A program reads what it needs once,
+  at start-up, and keeps its own copy.
+
+Why the rule:
+
+- Most generated files, and the byte-identity checks that hold each to its data, go away. A render that is not
+  committed cannot drift.
+- A contract minor that changes no code needs no regeneration in a consumer. The case that shows it: a release settle
+  refused on three values that a consumer had compiled in from 3.18, against an installed 3.19.1. The values were
+  data; had the consumer read them at start-up from the installed domain, the installed document would have been the
+  only copy and there would have been nothing to refuse.
+- A domain's words stay its owner's. A consumer that reads them at run time holds no copy of them, so a lower layer
+  cannot hold a higher layer's words by accident (the first ruling of omx-contract#81).
+
+## Where the data comes from
+
+The installed contract directory, `contract.d/<domain>/`, the one the reader already finds through
+`pkg-config --variable=contractdir omx-contract` (docs/contract-dir.md). A domain is read by name, and its
+`info.version` is compared to the floor the consumer declares (`needs`). Nothing else is a source: no copy in the
+consumer's tree, no default compiled in.
+
+A missing or invalid installed domain is a LOUD REFUSAL AT START-UP: the program exits with a message that names the
+domain, the place looked, and the reason (absent, unreadable, not valid against the schema it declares, below the
+floor). It never continues on a built-in default, never reads "what it can", and never retries silently. This is the
+refusal the codes of docs/contract-dir.md already name for a reader (`contract.dir.absent`,
+`contract.file.invalid`, `contract.manifest.invalid`); the loader returns them and the program turns them into its
+exit.
+
+A test points the loader elsewhere through a path argument of a separate, test-only entry point (`omx_domain_open_at`,
+below). A production entry point takes no path and reads no environment variable: a stray variable in a service's
+environment must not change which vocabulary it runs on. (Whether the tool's `OMX_CONTRACT_PATH`, which the command
+line already reads, is honoured by the C loader in tests is an open question.)
+
+## The C loader
+
+A small family in one header, `omxcontract/omx_domain.h`, written by hand and documented like every installed header
+(docs/render.md "Documentation"). The names below are the proposal; the signatures are a sketch the owner rules on.
+
+```c
+typedef struct omx_domain omx_domain;            /* an opened, validated domain; opaque */
+
+typedef struct { const char *code;               /* a code of CONTRACT_CODES, e.g. "contract.dir.absent" */
+                 char message[256]; } omx_domain_error;   /* names the domain, the place and the reason */
+
+/* Open <domain> from the installed contract directory and validate it; needs_version is the floor ("1.2.0").
+   Returns 0 and *out, or nonzero and *err (never both). Start-up only. */
+int  omx_domain_open(const char *domain, const char *needs_version, omx_domain **out, omx_domain_error *err);
+/* The same from <dir>/<domain>/. TEST ONLY: a production binary does not call it. */
+int  omx_domain_open_at(const char *dir, const char *domain, const char *needs_version,
+                        omx_domain **out, omx_domain_error *err);
+/* Open or exit: prints err->message to stderr and exits with status 78 (EX_CONFIG). The start-up of a daemon. */
+omx_domain *omx_domain_open_or_exit(const char *domain, const char *needs_version);
+void omx_domain_close(omx_domain *d);
+
+/* A word of an item: the word as written, its title (the key), its one-line description, its code. */
+int  omx_domain_word(const omx_domain *d, const char *item, const char *word, omx_domain_word_info *out);
+int  omx_domain_word_count(const omx_domain *d, const char *item);               /* in declared order */
+int  omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_domain_word_info *out);
+
+/* A range, unit and default of a sheet field or a parameter: min, max, default, unit, scale. */
+int  omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out);
+
+/* The sentence a person sees for a word or a code, in <lang>, else the English source sentence. */
+const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang);
+```
+
+- **Return values.** Every function returns 0 on success and a nonzero error on failure, except
+  `omx_domain_text`, which returns NULL when the key is no word or code of the domain. A failure is an unknown item,
+  an unknown word or name, or an index out of range; none of them returns a default value in the output. The error
+  codes are the codes of `CONTRACT_CODES`, so the message a person reads is the sentence of a code that already
+  exists.
+- **Ownership and lifetime.** The handle owns every string it returns. A `const char *` and every pointer inside an
+  `omx_domain_word_info` or `omx_domain_range_info` is valid from the call until `omx_domain_close`, is never
+  modified and never freed by the caller, and is read-only memory the program may share between threads after
+  `omx_domain_open` returns (the handle is immutable once open). A program that needs a value after close, or in a
+  thread with a real-time deadline, copies it at start-up into storage of its own.
+- **Never in the audio thread.** The family allocates (open parses and validates the document) and looks up by string.
+  The header says so in its `@file` block, and a program calls it only from its start-up path. A value the audio
+  thread needs is copied into a plain struct of the program's before the thread starts.
+- **Validation at open.** `omx_domain_open` validates the document against the domain's own schema before it returns,
+  so a function never returns a value from a document that is not valid. A domain with a `$ref` to another domain
+  resolves it by `$id` from the same installed directory, and opens the other domain with the same refusals.
+- **One parser.** The loader's JSON reader is the only one in the C code of the project that reads a domain; a program
+  holds no parser of its own for contract data.
+
+## TypeScript and Python
+
+No generator for either. The domain document is JSON Schema 2020-12 data, and each language reads it with a standard
+tool.
+
+- **TypeScript.** Load the installed JSON and validate it with a standard JSON Schema validator (Ajv, for example).
+  The types come from the schema as a TypeScript type, `FromSchema<typeof schema>` (json-schema-to-ts), not from a
+  rendered `.d.ts`: the schema is imported as a typed constant, and no file is written. A missing or invalid document
+  throws at start-up with the same message the C loader prints.
+- **Python.** Load the installed JSON and validate it with `jsonschema` (Draft 2020-12). No `TypedDict` render; a
+  surface that wants a typed view writes the three lines of its own.
+- The catalog readers that already exist (`@openmixer/omx-contract/catalog`, `omx_contract_catalog.py`,
+  docs/data-layout.md) read installed JSON at run time and are in the spirit of the rule; they stay.
+
+## What stays generated, and why
+
+| Stays generated | Why |
+|---|---|
+| The codes headers: the enum values and refusal codes C switches on, `<domain>_codes.h` | A `case` label needs a compile-time constant. This is the one generated artifact of a domain, and it holds codes only: no description, no text, no word list. |
+| ABI structs and their layout checks | A struct is a compile-time layout shared by two binaries; a function cannot declare one. The struct stays the ABI and the schema its JSON form, held equal by a conformance test in the owner (docs/data-layout.md "The renders"). |
+| The LV2 and MOD GUI files (the Turtle manifests, the GUI bundles) | A build artifact: a host reads them from the installed bundle, not from our loader, and they are made once at package build from the data. |
+| Packaging lists (file lists of the rpm and the deb) | A build artifact of the package build, read by the packaging tool before any program of ours runs. |
+| The site | A build artifact: static pages made from the data at release, read by a browser, not by our code. |
+| WebAssembly | A compile-time artifact: the module is built from C, runs where no installed contract directory exists (a browser), and so carries what it needs inside; the JavaScript that loads it is outside this rule. |
+
+The test for a new generated file is the rule's: does a compiler, a packager or a host other than ours need it before
+a program of ours runs? If not, it is a function.
+
+## The migration
+
+Each domain moves to its owner (omx-contract#81, docs/contract-dir.md "What omx-contract owns"). As it moves, it ships
+its JSON and its catalogs, and **a codes header only, with no other render**. omx-contract is left holding the
+loader, the validator and the ownership gate, and the codes header generator.
+
+The renders of docs/render.md that stop, and what replaces each:
+
+| Render that stops | Replaced by |
+|---|---|
+| The words, `_COUNT`, `_INIT`, `_TEXT_EN` and `_ARGS_*` macros of `omx_vocabulary.h` and of each `<stem>_vocabulary.h` / `omxdomain/<domain>_vocabulary.h` | The codes header keeps the values C branches on; the words, counts and sentences are read by `omx_domain_word`, `omx_domain_word_count` and `omx_domain_text`. |
+| `omx-vocabulary.schema.json`, the resolved JSON fragment of the words (`x-omx-texts` included) | The domain document itself, which is the installed JSON Schema; a schema that references a word references the domain by `$id`. |
+| The TypeScript `<stem>-vocabulary.js` and `.d.ts`, `<ITEM>_WORDS` | The installed JSON, a standard validator, and `FromSchema<typeof schema>`. |
+| The Python vocabulary module of `omx_contract.py` and the `omx_contract.clap` submodule's word lists | The installed JSON and `jsonschema`. |
+| The `numbers`, `scalars`, `limits` and `table` sections of an owner's headers (`clap_host_limits.h`, `omx_contract_limits.h`, the `<table>(X)` X-macros) | `omx_domain_range` for a range, unit, default or limit read at start-up. A number the compiler needs (an array bound, a `static_assert`) is a code: it stays in the codes header. Which numbers are which is open question 3. |
+| The `<stem>_host_verbs.h` verb tables and `<stem>_host_verbs()` | The verb word, as a code, in the codes header; the format string and the host are read from the domain. Open question 4. |
+| The shapes renders of docs/shapes.md: the TypeScript interface (`json-schema-to-typescript`) and the Python `TypedDict` (`datamodel-code-generator`) | `FromSchema` and `jsonschema`. The two pinned generators, their requirements file and the drift check of `render --shapes` for those targets go. The C key X-macros are open question 5. |
+| The `--check` byte-identity gates of all the above, in each consumer and in the owner | Nothing: the file they held no longer exists. A codes header keeps one `render --check`, at its owner's build. |
+
+The doxygen baseline (docs/render.md "Documentation") shrinks with the headers; the loader header is documented in full
+and adds no line to it. The data of every domain, its `info.version` and its `x-owner` do not change by this spec.
+
+A domain that has not moved keeps its current renders until it moves; the renders above stop domain by domain, in the
+same order as the moves of omx-contract#81, one change each, red first. A consumer switches in the same step as its
+domain: it drops the include or the module the render gave and calls the function. This spec proposes no shim, no
+dual header and no period in which both paths exist; one would need the owner's approval, and none is proposed.
+
+## Open questions
+
+Not decided here.
+
+1. **The C JSON reader.** The loader needs a parser and a schema validator in C. Write a small one in this package, or
+   vendor an existing one? The size and the licence of the choice, and the memory the real-time programs can spare at
+   start-up, are the owner's to weigh.
+2. **The test path.** Is the C loader's test-only entry `omx_domain_open_at(dir, ...)` enough, or does the tool's
+   `OMX_CONTRACT_PATH` environment variable also apply in tests? This page proposes the argument only.
+3. **Which numbers are codes.** A limit that sizes an array or is checked by a `static_assert` is a code; one a program
+   only reads at start-up is a range. Each current limits header (docs/render.md "A header") needs that split made,
+   item by item, by its owner.
+4. **Verbs.** Is a verb a code (the name a handler dispatches on) with its format and hosts as data, as sketched, or
+   is the whole verb table data read by `omx_domain_*`?
+5. **C shape keys.** The C X-macros of a shape's keys and words (docs/shapes.md) are compile-time names a parser
+   branches on. Do they stay as a codes header, or does the loader read the keys?
+6. **The exit status.** `omx_domain_open_or_exit` exits 78 (EX_CONFIG) in this sketch; is that the status every
+   program of the project uses for a refused start-up?
+7. **The resolved JSON.** `omx-contract render --target json` writes the whole read. Once domains are read at run time
+   it has no consumer named here; does it stay as a tool command, or go with the renders?
+8. **WebAssembly and the browser.** A browser has no installed contract directory. This page leaves the JavaScript
+   side of a wasm module outside the rule; whether the module is built with the data it needs inside, or is handed
+   the document at start-up, is for the owner.

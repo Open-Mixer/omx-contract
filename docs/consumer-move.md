@@ -43,6 +43,9 @@ The document validates against `schema/domain.schema.json` and passes the reader
 omx-contract validate --contract-dir contract.d
 ```
 
+`omx-contract fmt` is not part of a move: it formats the classic data files, and a domain document has no
+formatting of its own yet (`fmt --check` flags every domain document, the merged ones included).
+
 ## 2. The codes header, only for words C switches on
 
 An item gets `"x-c-codes": true` only when C code switches on its words: a `case` label, an array size, a limit of
@@ -81,7 +84,8 @@ const char *t = omx_domain_text(d, "<key>", "<lang>");  /* a translated text */
 omx_domain_close(d);
 ```
 
-A program links `libomx-domain` (`pkg-config --cflags --libs libomx-domain`). `<floor>` is the `info.version` the
+A program that opens its domain refuses (exit 78) on an install without it, so the read (this step) and the
+install and requirement (step 6) land in the same release. A program links `libomx-domain` (`pkg-config --cflags --libs libomx-domain`). `<floor>` is the `info.version` the
 code needs. TypeScript reads the installed JSON with Ajv 2020 and `FromSchema<typeof domainSchema>`
 (`@openmixer/omx-contract/domain-schema`); a browser bundle is handed the document by the page (`init(doc)`).
 
@@ -127,7 +131,8 @@ One commit, tests only, failing before the move:
 3. the words come from the domain read at start-up: a fixture directory through the test path with one word
    changed, and the consumer sees the change;
 4. the codes header holds only the `x-c-codes` items and is the render (`--check`), or there is none;
-5. a CLI reads `OMX_CONTRACT_PATH`, and the library entry ignores it;
+5. a CLI reads `OMX_CONTRACT_PATH`, and the library entry ignores it (when only a CLI opens the domain, the arm
+   is stated n/a in the PR body, with the reason);
 6. a missing, invalid or too-old domain is refused by name at start-up.
 7. the installed tree is the one the loader reads (owner only): `make install DESTDIR=<tmp>`, then
    `omx_domain_open_at("<tmp><contractdir>", "<domain>", "<floor>", ...)` opens it and finds a word and a catalog

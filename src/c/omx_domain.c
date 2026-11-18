@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <jansson.h>
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +49,9 @@ const char *omx_domain_code(int status) {
   return status > 0 && status <= OMX_CONTRACT_CODE_LAST ? CODES[status] : NULL;
 }
 
+/* True when snprintf's result n says the whole text fitted a buffer of size. */
+static int fits(int n, size_t size) { return n >= 0 && (size_t)n < size; }
+
 /* A refusal: the status, and its code and message in err. */
 static int refuse(omx_domain_error *err, int status, const char *fmt, ...) {
   if (err) {
@@ -58,6 +62,10 @@ static int refuse(omx_domain_error *err, int status, const char *fmt, ...) {
     va_end(ap);
   }
   return status;
+}
+
+static int path_too_long(omx_domain_error *err, const char *domain) {
+  return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s: a path of it is too long.", domain);
 }
 
 static char *dup_str(const char *s) {
@@ -100,13 +108,19 @@ void omx_domain_close(omx_domain *d) {
   free(d);
 }
 
-/* "x.y.z" into three numbers; 0 when it is not that. */
+/* "x.y.z" into three numbers; 0 when it is not that: each part plain decimal digits (no sign, no leading zero but "0"
+   itself) and small enough for an unsigned long. */
 static int parse_version(const char *s, unsigned long v[3]) {
-  char *end;
   for (int i = 0; i < 3; i++) {
     if (*s < '0' || *s > '9') return 0;
-    v[i] = strtoul(s, &end, 10);
-    s = end;
+    if (*s == '0' && s[1] >= '0' && s[1] <= '9') return 0;
+    unsigned long n = 0;
+    for (; *s >= '0' && *s <= '9'; s++) {
+      unsigned long digit = (unsigned long)(*s - '0');
+      if (n > (ULONG_MAX - digit) / 10) return 0;
+      n = n * 10 + digit;
+    }
+    v[i] = n;
     if (i < 2) { if (*s != '.') return 0; s++; }
   }
   return *s == '\0';
@@ -271,7 +285,12 @@ static int read_catalog(omx_domain *d, const char *file, const char *lang, const
   json_t *m;
   json_object_foreach(msgs, key, m) {
     const char *text = str_of(m, "text");
-    if (!text) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s: the entry \"%s\" has no string \"text\".", file, domain, key); }
+    if (!text) {
+      /* the message is built before the JSON is released: key belongs to root */
+      int bad = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s: the entry \"%s\" has no string \"text\".", file, domain, key);
+      json_decref(root);
+      return bad;
+    }
     message_t *o = &c->messages[c->n++];
     o->key = dup_str(key);
     o->text = dup_str(text);
@@ -283,7 +302,7 @@ static int read_catalog(omx_domain *d, const char *file, const char *lang, const
 
 static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx_domain_error *err) {
   char path[4096];
-  snprintf(path, sizeof path, "%s/%s/catalogs", dir, domain);
+  if (!fits(snprintf(path, sizeof path, "%s/%s/catalogs", dir, domain), sizeof path)) return path_too_long(err, domain);
   DIR *dh = opendir(path);
   if (!dh) return 0; /* no catalogs: the source sentences are the only language */
   size_t count = 0;
@@ -299,11 +318,13 @@ static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx
   while (!rc && (e = readdir(dh))) {
     size_t n = strlen(e->d_name);
     if (n <= 5 || strcmp(e->d_name + n - 5, ".json") != 0) continue;
+    /* the array holds what the first pass counted: a directory that gained a catalog since is refused, never written past */
+    if (d->n_catalogs >= count) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalogs of the domain %s at %s changed while they were read.", domain, path); break; }
     char file[4352], lang[64];
     if (n - 5 >= sizeof lang) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s/%s of the domain %s has no language name.", path, e->d_name, domain); break; }
     memcpy(lang, e->d_name, n - 5);
     lang[n - 5] = '\0';
-    snprintf(file, sizeof file, "%s/%s", path, e->d_name);
+    if (!fits(snprintf(file, sizeof file, "%s/%s", path, e->d_name), sizeof file)) { rc = path_too_long(err, domain); break; }
     rc = read_catalog(d, file, lang, domain, err);
   }
   closedir(dh);
@@ -314,13 +335,14 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   if (out) *out = NULL;
   if (!out) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "omx_domain_open was given no place to put the handle.");
   if (!is_name(domain)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "\"%s\" is no domain name: slash-separated segments of letters, digits, - and _, none empty, \".\" or \"..\".", domain ? domain : "(null)");
+  if (strlen(domain) > OMX_DOMAIN_NAME_MAX) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain name is %zu bytes, longer than OMX_DOMAIN_NAME_MAX (%d).", strlen(domain), OMX_DOMAIN_NAME_MAX);
   if (!dir) return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s was asked of no contract directory.", domain);
   unsigned long floor_[3] = {0, 0, 0};
   if (needs_version && !parse_version(needs_version, floor_))
     return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The version floor \"%s\" asked of the domain %s is not x.y.z.", needs_version, domain);
 
   char path[4096];
-  snprintf(path, sizeof path, "%s/%s/%s.json", dir, domain, last_segment(domain));
+  if (!fits(snprintf(path, sizeof path, "%s/%s/%s.json", dir, domain, last_segment(domain)), sizeof path)) return path_too_long(err, domain);
   json_t *root = NULL;
   int rc = load_json(path, domain, &root, err);
   if (rc) return rc;
@@ -332,8 +354,9 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   json_t *info = json_object_get(root, "info");
   const char *version = str_of(info, "version");
   char want_id[512];
-  snprintf(want_id, sizeof want_id, DOMAIN_ID_PREFIX "%s", domain);
-  if (!json_is_object(root)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s is not a JSON object.", domain, path);
+  int id_fits = fits(snprintf(want_id, sizeof want_id, DOMAIN_ID_PREFIX "%s", domain), sizeof want_id); /* always, for a name within OMX_DOMAIN_NAME_MAX */
+  if (!id_fits) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s: the $id it must carry does not fit.", domain);
+  else if (!json_is_object(root)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s is not a JSON object.", domain, path);
   else if (!id || strcmp(id, want_id) != 0) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: $id is \"%s\", and must be \"%s\".", domain, path, id ? id : "(absent)", want_id);
   else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
   else if (!str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);

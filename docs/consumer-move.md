@@ -125,11 +125,12 @@ sh "$D/install-contract-dir.sh" --domain contract.d/<domain> \
   "$DESTDIR$(pkg-config --variable=contractdir omx-contract)"
 ```
 
-in `make install`; a repository without a Makefile makes the same one-line call from the rpm spec's `%install`
-(into `%{buildroot}`) and from `debian/rules` (`DESTDIR=debian/tmp`), and adds no Makefile for it. The domain ships in a `<pkg>-contract` subpackage, uniformly: noarch data in the rpm, the binary
-package `<pkg>-contract` in debian, never in the main package. Its rpm `%files` names the directory with
-`%{omx_contract_domain_dir}/<domain>/` (the contract directory without a schema major; the macro comes with the
-installer's domain mode, omx-contract#117), and `debian/<pkg>-contract.install` lists the same path.
+in `make install`; a repository without a Makefile makes the same one-line call from the rpm spec's `%install` (into
+`%{buildroot}`) and from `debian/rules` (`DESTDIR=debian/tmp`), and adds no Makefile for it. The domain ships in a
+`<pkg>-contract` subpackage, uniformly: noarch data in the rpm, the binary package `<pkg>-contract` in debian, never
+in the main package. Its rpm `%files` names the directory with `%{omx_contract_domain_dir}/<domain>/` (the contract
+directory without a schema major; the macro comes with the installer's domain mode, omx-contract#117), and
+`debian/<pkg>-contract.install` lists the same path.
 
 A reader requires the owner's `<pkg>-contract` (rpm `Requires`, deb `Depends`) at its floor, and omx-contract >=
 3.20.0 (the loader), at build and run time. Requiring the data without the program leaves no cycle (plugin-hostd

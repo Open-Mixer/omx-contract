@@ -24,7 +24,7 @@
 /** @file
  * @brief The C loader of a contract domain: data is read at run time by functions (docs/runtime-data.md).
  *
- * A domain is the installed document `<contractdir>/<domain>/<domain>.json` and its `catalogs/<lang>.json`
+ * A domain is the installed document `<contractdir>/<domain>/<last segment of domain>.json` and its `catalogs/<lang>.json`
  * (docs/contract-dir.md, "Domains"). omx_domain_open() reads and checks one, copies everything the lookups return into
  * storage of the handle's own, and releases the JSON library's document before it returns; the lookups then read
  * that storage and nothing else. The JSON is read with the distribution's jansson, the one parser; this header
@@ -87,7 +87,7 @@ typedef struct {
  * Everything a lookup returns is copied into the handle's own immutable storage, and the JSON document is released,
  * before this function returns.
  *
- * @param domain        the domain's name: letters, digits, `-` and `_`, never a path
+ * @param domain        the domain's name, a slash-separated path (`panel`, `dsp/kernels`): each segment letters, digits, `-` and `_`, none empty, `.` or `..`, no leading or trailing `/`; the document is `<contractdir>/<domain>/<last segment>.json`
  * @param needs_version the floor `"x.y.z"` the consumer needs, or NULL for none
  * @param out           receives the handle on success; set to NULL on failure
  * @param err           receives the code and the message on failure; may be NULL

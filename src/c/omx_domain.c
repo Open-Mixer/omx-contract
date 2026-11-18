@@ -119,13 +119,27 @@ static int version_below(const unsigned long have[3], const unsigned long floor_
   return 0;
 }
 
-/* A domain name is a name, never a path. */
+static int is_segment_char(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_';
+}
+
+/* A domain name is a slash-separated path: each segment a name of letters, digits, - and _ (so never empty, "." or
+   ".."), no leading or trailing slash. */
 static int is_name(const char *s) {
   if (!s || !*s) return 0;
+  size_t seg = 0;
   for (; *s; s++) {
-    if (!((*s >= 'a' && *s <= 'z') || (*s >= 'A' && *s <= 'Z') || (*s >= '0' && *s <= '9') || *s == '-' || *s == '_')) return 0;
+    if (*s == '/') { if (seg == 0) return 0; seg = 0; }
+    else if (is_segment_char(*s)) seg++;
+    else return 0;
   }
-  return 1;
+  return seg > 0;
+}
+
+/* The last segment of a valid name: the document's file stem. */
+static const char *last_segment(const char *name) {
+  const char *slash = strrchr(name, '/');
+  return slash ? slash + 1 : name;
 }
 
 /* The whole file parsed, or a refusal naming the path. */
@@ -299,14 +313,14 @@ static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx
 int omx_domain_open_at(const char *dir, const char *domain, const char *needs_version, omx_domain **out, omx_domain_error *err) {
   if (out) *out = NULL;
   if (!out) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "omx_domain_open was given no place to put the handle.");
-  if (!is_name(domain)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "\"%s\" is no domain name: use letters, digits, - and _.", domain ? domain : "(null)");
+  if (!is_name(domain)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "\"%s\" is no domain name: slash-separated segments of letters, digits, - and _, none empty, \".\" or \"..\".", domain ? domain : "(null)");
   if (!dir) return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s was asked of no contract directory.", domain);
   unsigned long floor_[3] = {0, 0, 0};
   if (needs_version && !parse_version(needs_version, floor_))
     return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The version floor \"%s\" asked of the domain %s is not x.y.z.", needs_version, domain);
 
   char path[4096];
-  snprintf(path, sizeof path, "%s/%s/%s.json", dir, domain, domain);
+  snprintf(path, sizeof path, "%s/%s/%s.json", dir, domain, last_segment(domain));
   json_t *root = NULL;
   int rc = load_json(path, domain, &root, err);
   if (rc) return rc;

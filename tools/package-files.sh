@@ -11,10 +11,11 @@
 # omx-contract-data holds data/ installed as contract.d/<schema major>/omx-contract/ (less codes.json and scale-vectors.json, with its
 # MANIFEST.json), the schema, the committed renders and languages.json under share/omx-contract; each language pack its one catalog
 # (share/omx-contract/catalogs/<lang>.json, a pack per language of languages.json); the development package the C
-# render, the hand-written C beside it, omx-contract.pc, install-contract-dir.sh and (RPM) the rpm macros; the command package the command, its tree under
+# render, the hand-written C beside it (less omx_domain.h and omx_contract_codes.h), omx-contract.pc, install-contract-dir.sh and (RPM) the rpm macros; the command package the command, its tree under
 # /usr/lib/omx-contract and its man page; python3-omx-contract the package omx_contract (catalog, scale and clap, the
 # share/omx-contract readers under their module names) in the interpreter's site-packages (RPM) or dist-packages (deb),
-# shown as /SITE with the bytecode left out. No file is in two packages, and the command, the development package and
+# shown as /SITE with the bytecode left out; the C loader's two arch-dependent packages (libomx-domain, libomx-domain-devel; deb libomx-domain0, libomx-domain-dev) the library, and
+# its two headers, libomx-domain.pc, the ABI list and the omx-domain command. No file is in two packages, and the command, the development package and
 # each pack require omx-contract-data at their own version. Prints each package's list; exit 0 equal, 1 a difference, 2 usage.
 set -eu
 
@@ -35,13 +36,27 @@ files() {
 }
 
 pkgfile() {
-  if [ "$kind" = rpm ]; then set -- "$dir/$1"-[0-9]*.noarch.rpm; else set -- "$dir/$1"_*_all.deb; fi
+  # the C loader's packages are arch-dependent, every other package is noarch (rpm) or all (deb); the main rpm is arch-dependent too
+  if [ "$kind" = rpm ]; then
+    case $1 in omx-contract|libomx-domain|libomx-domain-devel) set -- "$dir/$1"-[0-9]*."$(uname -m)".rpm ;; *) set -- "$dir/$1"-[0-9]*.noarch.rpm ;; esac
+  else
+    case $1 in libomx-domain0|libomx-domain-dev) set -- "$dir/$1"_*_"$(dpkg --print-architecture)".deb ;; *) set -- "$dir/$1"_*_all.deb ;; esac
+  fi
   [ "$#" -eq 1 ] && [ -f "$1" ] || { echo "package-files.sh: not one package file for $pkg under $dir" >&2; exit 1; }
   echo "$1"
 }
 
 if [ "$kind" = rpm ]; then data=omx-contract-data devel=omx-contract-devel; else data=omx-contract-data devel=libomx-contract-dev; fi
 cli=omx-contract py=python3-omx-contract
+# the C loader (libomx-domain): the library package and its development package, arch-dependent; /LIB is the library
+# directory of the platform (/usr/lib64, or /usr/lib/<triplet>)
+if [ "$kind" = rpm ]; then dlib=libomx-domain ddev=libomx-domain-devel; else dlib=libomx-domain0 ddev=libomx-domain-dev; fi
+echo /LIB/libomx-domain.so.0 > "$tmp/want-$dlib"
+{ for h in omx_domain.h omx_contract_codes.h; do echo "/usr/include/omxcontract/$h"; done
+  echo /LIB/libomx-domain.so
+  echo /LIB/pkgconfig/libomx-domain.pc
+  echo /usr/share/omx-contract/abi/libomx-domain.abi
+  echo /usr/bin/omx-domain; } | LC_ALL=C sort > "$tmp/want-$ddev"
 # the shipped languages, from the one line of languages.json that lists them
 langs=$(sed -n 's/^  "languages": \[\(.*\)\],*$/\1/p' share/omx-contract/languages.json | tr -d '" ' | tr ',' ' ')
 [ -n "$langs" ] || { echo "package-files.sh: share/omx-contract/languages.json lists no language" >&2; exit 2; }
@@ -59,7 +74,7 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
 # (the shapes' schemas, docs/shapes.md, beside the schema; the shapes' TypedDicts under omx_contract/shapes/)
 # the renders and the hand-written C (omx_json_write.h) both live in include/omxcontract; the RPM macros of the
 # contract directory are the RPM's alone (a deb has no rpm macros directory)
-(for h in include/omxcontract/*.h; do echo "/usr/include/omxcontract/$(basename "$h")"; done
+(for h in include/omxcontract/*.h; do case $(basename "$h") in omx_domain.h|omx_contract_codes.h) ;; *) echo "/usr/include/omxcontract/$(basename "$h")" ;; esac; done
   echo /usr/share/omx-contract/install-contract-dir.sh
   echo /usr/share/pkgconfig/omx-contract.pc
   [ "$kind" = rpm ] && echo /usr/lib/rpm/macros.d/macros.omx-contract) | LC_ALL=C sort > "$tmp/want-$devel"
@@ -67,12 +82,15 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
   for f in share/omx-contract/omx_contract_*_shape.py; do echo "/SITE/omx_contract/shapes/$(basename "$f" _shape.py | sed 's/^omx_contract_//').py"; done) | LC_ALL=C sort > "$tmp/want-$py"
 
 bad=0
-for pkg in "$data" "$devel" "$cli" "$py" $packs; do
+for pkg in "$data" "$devel" "$cli" "$py" "$dlib" "$ddev" $packs; do
   f=$(pkgfile "$pkg")
   echo "== $pkg ($(basename "$f"))"
   if [ "$pkg" = "$py" ]; then
     # one interpreter's directory, whatever its version; the bytecode the RPM build compiles is not the tree's
     files "$f" | grep -v '/__pycache__/' | sed 's|^/usr/lib/python3[.0-9]*/[a-z]*-packages/|/SITE/|' > "$tmp/got-$pkg"
+  elif [ "$pkg" = "$dlib" ] || [ "$pkg" = "$ddev" ]; then
+    # the platform's library directory as /LIB; a symlink's target is no file of the list
+    files "$f" | sed -e 's|^/usr/lib64/|/LIB/|' -e 's|^/usr/lib/[a-z0-9_]*-linux-gnu[a-z0-9]*/|/LIB/|' | LC_ALL=C sort > "$tmp/got-$pkg"
   else
     files "$f" > "$tmp/got-$pkg"
   fi
@@ -94,6 +112,17 @@ done
 # one file, one package
 LC_ALL=C sort "$tmp"/got-* | uniq -d > "$tmp/twice"
 [ ! -s "$tmp/twice" ] || { echo "files in two packages:"; cat "$tmp/twice"; bad=1; }
+
+# the development package of the loader requires its library at a floor (>=), and ships the tree's ABI list
+f=$(pkgfile "$ddev")
+if [ "$kind" = rpm ]; then
+  v=$(rpm -qp --qf '%{VERSION}-%{RELEASE}' "$f")
+  rpm -qp --requires "$f" | grep -q "^libomx-domain\(x86-64\)\? >= $v" || { echo "$ddev: does not require libomx-domain >= $v"; bad=1; }
+  rpm2cpio "$f" | cpio -i --to-stdout --quiet './usr/share/omx-contract/abi/libomx-domain.abi' | diff -u abi/libomx-domain.abi - || { echo "$ddev: the installed ABI list differs from the tree's"; bad=1; }
+else
+  dpkg-deb -f "$f" Depends | tr ',' '\n' | sed 's/^ *//' | grep -q '^libomx-domain0 (>= ' || { echo "$ddev: does not depend on libomx-domain0 (>= version)"; bad=1; }
+  dpkg-deb --fsys-tarfile "$f" | tar -xO ./usr/share/omx-contract/abi/libomx-domain.abi | diff -u abi/libomx-domain.abi - || { echo "$ddev: the installed ABI list differs from the tree's"; bad=1; }
+fi
 
 # the command, the development package and each pack require the data at their own version
 for pkg in "$cli" "$devel" $packs; do

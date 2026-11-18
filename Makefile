@@ -80,7 +80,7 @@ install-python:
 
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
-	install -m 0644 include/omxcontract/*.h $(DESTDIR)$(INCLUDEDIR)/omxcontract/
+	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
 	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
@@ -138,24 +138,32 @@ CBUILD ?= build/c
 
 $(CBUILD)/$(DOMAIN_SO): src/c/omx_domain.c include/omxcontract/omx_domain.h abi/libomx-domain.map
 	@mkdir -p $(CBUILD)
-	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 -fPIC -shared -Wl,-soname,$(DOMAIN_SO) -Wl,--version-script=abi/libomx-domain.map \
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 -fPIC -shared -Wl,-soname,$(DOMAIN_SO) -Wl,--version-script=abi/libomx-domain.map $(LDFLAGS) \
 	  -DOMX_CONTRACTDIR='"$(CONTRACTDIR)"' src/c/omx_domain.c -o $@ $(JANSSON_LIBS)
 
 # CLI_RPATH is the test's way to find the library beside the command; an installed command is found by ldconfig.
 CLI_RPATH ?=
 $(CBUILD)/omx-domain: src/c/omx_domain_cli.c $(CBUILD)/$(DOMAIN_SO)
-	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 src/c/omx_domain_cli.c -o $@ $(CLI_RPATH) $(CBUILD)/$(DOMAIN_SO)
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 src/c/omx_domain_cli.c -o $@ $(LDFLAGS) $(CLI_RPATH) $(CBUILD)/$(DOMAIN_SO)
 
 build-c: $(CBUILD)/omx-domain
 
-# The library, its symlink and the omx-domain command (CONTRACTDIR is compiled into the library: the installed directory
-# omx_domain_open reads). Not part of `install`: the header is, and a package that ships the binaries (an arch-dependent
-# package with the library's soname) runs this target; needs no node.
+# The library, its symlink, its headers, its ABI list, libomx-domain.pc and the omx-domain command: the package of the C
+# loader (an arch-dependent package, its -devel beside it), apart from `install`, which installs what needs no compiler.
+# CONTRACTDIR is compiled into the library: the installed directory omx_domain_open reads. CFLAGS and LDFLAGS are the
+# package build's own.
+DOMAIN_HEADERS = include/omxcontract/omx_domain.h include/omxcontract/omx_contract_codes.h
+CPKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
 install-c: build-c
-	install -d $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR)
+	install -d $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(CPKGCONFIGDIR) $(DESTDIR)$(DATADIR)/omx-contract/abi
 	install -m 0755 $(CBUILD)/$(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/
 	ln -sf $(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/libomx-domain.so
 	install -m 0755 $(CBUILD)/omx-domain $(DESTDIR)$(BINDIR)/
+	install -m 0644 $(DOMAIN_HEADERS) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
+	install -m 0644 abi/libomx-domain.abi $(DESTDIR)$(DATADIR)/omx-contract/abi/
+	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@LIBDIR@|$(LIBDIR)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' \
+	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@VERSION@|$(VERSION)|' libomx-domain.pc.in > $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
+	chmod 0644 $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 
 check-abi: $(CBUILD)/$(DOMAIN_SO)
 	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 == "T" { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -

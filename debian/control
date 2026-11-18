@@ -6,7 +6,10 @@ Build-Depends: debhelper-compat (= 13),
                nodejs,
                node-typescript (>= 4.8.4~), node-typescript (<< 7~),
                dh-sequence-python3,
-               python3
+               python3,
+               libjansson-dev,
+               pkgconf | pkg-config,
+               binutils
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/omx-contract
 Rules-Requires-Root: no
@@ -153,3 +156,29 @@ Description: Portuguese sentences of the OpenMixer declarations' codes and words
  (/usr/share/omx-contract/catalogs/pt.json): a surface shows these sentences
  on a host in that language, and the English source sentence for any key the
  catalog lacks.
+
+Package: libomx-domain0
+Architecture: any
+Multi-Arch: same
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: C loader of an OpenMixer contract domain: the library
+ libomx-domain reads a contract domain (the installed
+ contract.d/<domain>/<domain>.json and its catalogs, which
+ omx-contract-data and the owners' packages install) at program start-up: a
+ word, a range, a sentence, looked up by function instead of compiled in. A
+ missing or invalid domain is refused with a code of CONTRACT_CODES. It is a
+ start-up library and is never called from an audio thread. It reads JSON
+ with jansson.
+
+Package: libomx-domain-dev
+Architecture: any
+Section: libdevel
+Depends: libomx-domain0 (>= ${binary:Version}), libjansson-dev, pkgconf | pkg-config, ${misc:Depends}
+Description: C loader of an OpenMixer contract domain: headers and ABI list
+ Everything to build a program on libomx-domain: omxcontract/omx_domain.h,
+ omxcontract/omx_contract_codes.h (the CONTRACT_CODES values the functions
+ return), libomx-domain.pc, the list of the library's exports
+ (/usr/share/omx-contract/abi/libomx-domain.abi) and the omx-domain command,
+ which opens a domain and prints a word or a range. A consumer requires the
+ library at a floor, the lowest release whose functions it calls.

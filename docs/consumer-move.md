@@ -46,9 +46,13 @@ The document validates against `schema/domain.schema.json` and passes the reader
 omx-contract validate --contract-dir contract.d
 ```
 
-`omx-contract fmt` is not part of a move: it formats the classic data files, and a domain document has no
-formatting of its own yet: `fmt --check` flags every domain document, a defect filed as omx-contract#118. This
-paragraph goes when #118 is fixed.
+The document is in the one formatting (omx-contract#119: keys in the order of `domain.schema.json`, words, items
+and `x-from` entries never reordered):
+
+```sh
+omx-contract fmt --contract-dir contract.d          # writes the tree
+omx-contract fmt --check --contract-dir contract.d  # the repository's own check holds it
+```
 
 ## 2. The codes header, only for words C switches on
 
@@ -136,7 +140,8 @@ omx-contract from a commit pins it by SHA until the 3.20.0 tag replaces it.
 
 One commit, tests only, failing before the move:
 
-1. the document conforms: `$schema`, `$id`, `info.x-stability`, every item prefixed (`omx-contract validate`, and
+1. the document conforms and is in the one formatting: `$schema`, `$id`, `info.x-stability`, every item prefixed
+   (`omx-contract validate`, `omx-contract fmt --check --contract-dir contract.d`, and
    the schema with Ajv 2020 where the repository is TypeScript) (owner only);
 2. no `*_vocabulary.h` of the domain exists or is included;
 3. the words come from the domain read at start-up: a fixture directory through the test path with one word

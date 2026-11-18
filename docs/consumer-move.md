@@ -38,7 +38,7 @@ The document is `contract.d/<domain>/<last segment>.json` (`contract.d/scan/scan
 - the translations beside it in `contract.d/<domain>/catalogs/<lang>.json`.
 
 A word's `description` is optional for every reader: the schema, `validate`, the TypeScript reader, and the C
-loader from omx-contract#116 on (before it, the loader refused a word without one).
+loader from omx-contract#116 on.
 
 The document validates against `schema/domain.schema.json` and passes the reader:
 

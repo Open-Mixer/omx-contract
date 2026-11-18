@@ -120,11 +120,24 @@ static void test_text(void) {
   omx_domain_close(d);
 }
 
+static void test_absent_description(void) {
+  omx_domain *d = open_ok("nodesc", NULL);
+  omx_domain_word_info w;
+  CHECK(omx_domain_word_count(d, "DEMO_COLORS") == 3);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", "blue", &w) == 0);
+  CHECK_STR(w.word, "blue");
+  CHECK(w.description == NULL);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", "red", &w) == 0);
+  CHECK_STR(w.description, "The warm one.");
+  omx_domain_close(d);
+}
+
 static void test_open_refusals(void) {
   refused("absent", NULL, OMX_CONTRACT_CODE_DIR_ABSENT, FIX);
   refused("notjson", NULL, OMX_CONTRACT_CODE_FILE_NOT_JSON, "notjson.json");
   refused("badshape", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "title");
   refused("dupword", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "red");
+  refused("baddesc", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "description");
   refused("badid", NULL, OMX_CONTRACT_CODE_MANIFEST_INVALID, "$id");
   refused("demo", "1.3.0", OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "1.2.0");
   refused("demo", "not-a-version", OMX_CONTRACT_CODE_FILE_INVALID, "not-a-version");
@@ -294,8 +307,18 @@ static void make_domain(const char *name, const char *id, const char *version) {
   }
   mkdir(path, 0700);
   const char *stem = strrchr(name, '/') ? strrchr(name, '/') + 1 : name;
-  snprintf(doc, sizeof doc, "{\"$id\":\"%s\",\"info\":{\"version\":\"%s\",\"x-owner\":\"o\"},\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", id, version);
+  snprintf(doc, sizeof doc, "{\"$id\":\"%s\",\"info\":{\"version\":\"%s\",\"x-owner\":\"o\",\"x-stability\":\"experimental\"},\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", id, version);
   snprintf(path, sizeof path, "%s/%s/%s.json", scratch, name, stem);
+  put_file(path, doc);
+}
+
+/* A domain `name` whose info is `info` (a JSON object text), for the refusals of info members. */
+static void make_domain_info(const char *name, const char *info) {
+  char path[4096], doc[1024];
+  snprintf(path, sizeof path, "%s/%s", scratch, name);
+  mkdir(path, 0700);
+  snprintf(doc, sizeof doc, "{\"$id\":\"https://openmixer.org/contract/%s\",\"info\":%s,\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", name, info);
+  snprintf(path, sizeof path, "%s/%s/%s.json", scratch, name, name);
   put_file(path, doc);
 }
 
@@ -347,7 +370,8 @@ static void test_long_name(void) {
   drop_scratch();
 }
 
-/* A directory too long for the path buffer is refused by name, not opened as a truncated path. */
+/* A directory too long for the path buffer is refused as an unusable input (the directory may well exist), by name,
+ * not opened as a truncated path. */
 static void test_long_dir(void) {
   static char dir[5000];
   memset(dir, 'd', sizeof dir - 1);
@@ -356,7 +380,7 @@ static void test_long_dir(void) {
   omx_domain *d = NULL;
   omx_domain_error err;
   memset(&err, 0, sizeof err);
-  CHECK(omx_domain_open_at(dir, "demo", NULL, &d, &err) != 0 && d == NULL);
+  CHECK(omx_domain_open_at(dir, "demo", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID && d == NULL);
   CHECK(strstr(err.message, "too long") != NULL);
 }
 
@@ -426,7 +450,7 @@ static void make_doc(const char *info, const char *schemas) {
   put_file(path, doc);
 }
 
-#define INFO_OK "{\"version\":\"1.0.0\",\"x-owner\":\"o\"}"
+#define INFO_OK "{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-stability\":\"experimental\"}"
 #define WORD(c, code) "{\"const\":\"" c "\",\"title\":\"T\",\"description\":\"d\",\"x-code\":" code "}"
 
 /* A document and the status it must be refused with (0 when it must open), the message naming `has`. */
@@ -551,7 +575,7 @@ static void test_unreadable_catalogs_refused(void) {
 
 /* (8) an empty x-owner is no owner. */
 static void test_empty_owner_refused(void) {
-  doc_is("{\"version\":\"1.0.0\",\"x-owner\":\"\"}", "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-owner");
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":\"\",\"x-stability\":\"experimental\"}", "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-owner");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", 0, NULL);
 }
 
@@ -772,7 +796,6 @@ static void test_wrong_types_refused(void) {
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"title\":\"T\",\"description\":\"d\",\"x-code\":0}]}}", bad, "const");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"description\":\"d\",\"x-code\":0}]}}", bad, "title");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":1,\"description\":\"d\",\"x-code\":0}]}}", bad, "title");
-  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"x-code\":0}]}}", bad, "description");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":[],\"x-code\":0}]}}", bad, "description");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\"}]}}", bad, "x-code");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":\"0\"}]}}", bad, "x-code");
@@ -892,11 +915,29 @@ static void test_null_arguments(void) {
 /* DOMAIN_TEST_ONLY=<name> runs just that one of the hostile-directory tests (an ASan abort ends the process). */
 #define RUN(fn) do { const char *only_ = getenv("DOMAIN_TEST_ONLY"); if (!only_ || strcmp(only_, #fn) == 0) fn(); } while (0)
 
+/* info.x-stability is required and is experimental or stable, as the TypeScript reader requires: refused as MANIFEST_INVALID, naming it. */
+static void test_stability(void) {
+  make_scratch();
+  omx_domain *d;
+  omx_domain_error err;
+  make_domain_info("nostab", "{\"version\":\"1.0.0\",\"x-owner\":\"o\"}");
+  CHECK(open_scratch("nostab", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
+  CHECK(strstr(err.message, "x-stability") != NULL);
+  make_domain_info("beta", "{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-stability\":\"beta\"}");
+  CHECK(open_scratch("beta", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
+  CHECK(strstr(err.message, "x-stability") != NULL);
+  make_domain_info("stab", "{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-stability\":\"stable\"}");
+  CHECK(open_scratch("stab", NULL, &d, &err) == 0);
+  omx_domain_close(d);
+  drop_scratch();
+}
+
 int main(void) {
   test_words();
   test_lookup_refusals();
   test_ranges();
   test_text();
+  test_absent_description();
   test_open_refusals();
   test_nested_domains();
   test_handle_owns_its_data();
@@ -925,6 +966,7 @@ int main(void) {
   RUN(test_empty_items);
   RUN(test_words_are_any_string);
   RUN(test_null_arguments);
+  RUN(test_stability);
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
   puts("domain_test: all checks passed");
   return 0;

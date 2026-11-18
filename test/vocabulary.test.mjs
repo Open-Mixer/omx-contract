@@ -30,9 +30,9 @@ test('a word two names carry is refused', () => {
 });
 
 test('a group that is no word of the item groups names, or a group with no groups, is refused', () => {
-  assert.ok(has(texts((d) => { d[M].MEASUREMENT_UNMEASURED_REASONS.words.noAudioIn.group = 'nothing-at-all'; }), 'MEASUREMENT_UNMEASURED_REASONS', 'word-group'));
-  assert.ok(has(texts((d) => { d[M].MEASUREMENT_VOICE_BASES.words.probe.group = 'probe-failed'; }), 'MEASUREMENT_VOICE_BASES', 'word-group'));
-  assert.ok(has(texts((d) => { d[M].MEASUREMENT_UNMEASURED_REASONS.groups = 'RT_HARD_TARGET'; }), 'MEASUREMENT_UNMEASURED_REASONS', 'word-group'));
+  assert.ok(has(texts((d) => { d[M].QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS.words.noAudioIn.group = 'nothing-at-all'; }), 'QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS', 'word-group'));
+  assert.ok(has(texts((d) => { d[M].QUALIFICATION_MEASUREMENT_VOICE_BASES.words.probe.group = 'probe-failed'; }), 'QUALIFICATION_MEASUREMENT_VOICE_BASES', 'word-group'));
+  assert.ok(has(texts((d) => { d[M].QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS.groups = 'RT_HARD_TARGET'; }), 'QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS', 'word-group'));
 });
 
 test('a unit or a basis that is no word of the item named, or one with no item named, is refused', () => {
@@ -67,7 +67,13 @@ test('a word whose C name meets a words item\'s _COUNT is refused', () => {
   assert.ok(problems(texts((d) => { d[R].RESOURCE_BASES.words.count = { word: 'counted' }; })).some((p) => p.rule === 'c-name-unique' && /OMX_RESOURCE_BASES_COUNT/.test(p.message)));
 });
 
-const resolved = resolveData(loadData(DATA));
+// the moved words (test/fixtures/moved-words/) stand in as a words item with groups, text and args
+const SCRATCH0 = mkdtempSync(join(tmpdir(), 'omx-contract-moved-'));
+after(() => rmSync(SCRATCH0, { recursive: true, force: true }));
+cpSync(DATA, join(SCRATCH0, 'data'), { recursive: true });
+cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH0, 'data', 'measurement.json'));
+cpSync(join(ROOT, 'schema'), join(SCRATCH0, 'schema'), { recursive: true });
+const resolved = resolveData(loadData(join(SCRATCH0, 'data')));
 
 // data/ holds no codes item to render since the hosting codes moved to omx-clap-core (docs/hosting.md): the codes
 // kind is read beside it from an owner's codes file (test/fixtures/package-codes/hosting/cost.json).
@@ -75,6 +81,7 @@ const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-codes-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 cpSync(DATA, join(SCRATCH, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/package-codes'), join(SCRATCH, 'data'), { recursive: true });
+cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH, 'data', 'measurement.json'));
 cpSync(join(ROOT, 'schema'), join(SCRATCH, 'schema'), { recursive: true });
 const withCodes = resolveData(loadData(join(SCRATCH, 'data')));
 
@@ -82,9 +89,8 @@ test('the C render defines every code and word once, by its code and by its item
   const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
   assert.match(h, /^#define OMX_HOSTING_COST_SPIKY_TAIL "hosting\.cost\.spiky-tail"$/m, 'a code by its code');
   assert.doesNotMatch(h, /OMX_HOSTING_COST_COST_SPIKY|OMX_HOSTING_COST_SPIKY /, 'never by its key');
-  assert.match(h, /^#define OMX_MEASUREMENT_LATENCY_METHODS_NOTE_ONSET "note-onset" \/\/\/< /m);
-  assert.match(h, /^#define OMX_MACHINE_CLOCK_BANDS_INIT \{ "<1\.5GHz", "1\.5-2\.5GHz", "2\.5-3\.5GHz", "3\.5-4\.5GHz", "4\.5GHz\+" \}$/m);
-  assert.match(h, /^#define OMX_MEASUREMENT_VOICE_BASES_COUNT 2u$/m);
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_LATENCY_METHODS_NOTE_ONSET "note-onset" \/\/\/< /m);
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_VOICE_BASES_COUNT 2u$/m);
   assert.doesNotMatch(h, /TERMS/, 'a terms item has no C render');
 });
 
@@ -94,7 +100,7 @@ test('the C render defines every code and word once, by its code and by its item
 // with no edit in the consumer.
 test('every words item renders an X-macro, X(code, "word", NAME), in its declared order', () => {
   const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
-  assert.match(h, /^#define OMX_MEASUREMENT_VOICE_BASES\(X\) \\\n {4}X\(0u, "declared", DECLARED\) X\(1u, "probe", PROBE\)$/m);
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_VOICE_BASES\(X\) \\\n {4}X\(0u, "declared", DECLARED\) X\(1u, "probe", PROBE\)$/m);
   for (const r of [...withCodes.values()].filter((x) => x.kind === 'words')) {
     const m = h.match(new RegExp(`^#define OMX_${r.name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
     assert.ok(m, `${r.name} renders an X-macro`);
@@ -148,16 +154,15 @@ test('the panel display sources and placements are declared here, with the codes
 
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {
   const f = JSON.parse(renderJson(withCodes, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text);
-  assert.deepEqual(f.$defs.MEASUREMENT_LATENCY_METHODS.enum, ['impulse-onset', 'declared-port', 'note-onset']);
-  assert.deepEqual(f.$defs.MEASUREMENT_VOICE_BASES.enum, ['declared', 'probe']);
-  assert.deepEqual(f.$defs.MACHINE_CORE_BANDS.enum, ['1-2', '3-4', '5-8', '9-16', '17-32', '33+']);
+  assert.deepEqual(f.$defs.QUALIFICATION_MEASUREMENT_LATENCY_METHODS.enum, ['impulse-onset', 'declared-port', 'note-onset']);
+  assert.deepEqual(f.$defs.QUALIFICATION_MEASUREMENT_VOICE_BASES.enum, ['declared', 'probe']);
   assert.deepEqual(f.$defs.HOSTING_COST_CODES.enum, ['hosting.cost.above-ceiling', 'hosting.cost.fields-missing', 'hosting.cost.spiky-tail', 'hosting.cost.unmeasured-at-rate-and-quantum', 'hosting.cost.within-ceiling']);
   assert.equal(f.$defs.LV2_CORE_TERMS, undefined);
 });
 
 test('the ts render exports each words item\'s words in order', () => {
   const js = renderTs(resolved).find((f) => f.path === 'omx-contract.js').text;
-  assert.match(js, /export const MEASUREMENT_VERDICT_RATINGS_WORDS = \[\n {2}"suitable",\n {2}"conditional",\n {2}"unknown",\n {2}"unsuitable"\n\];/);
+  assert.match(js, /export const QUALIFICATION_MEASUREMENT_VERDICT_RATINGS_WORDS = \[\n {2}"suitable",\n {2}"conditional",\n {2}"unknown",\n {2}"unsuitable"\n\];/);
 });
 
 test('an owner\'s codes item, in a file with its own render word, stays out of the vocabulary renders', () => {

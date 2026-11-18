@@ -51,6 +51,9 @@ export function scratchUnion() {
   cpSync(DATA, join(dir, 'data'), { recursive: true });
   for (const d of ['kernels', 'primitives']) cpSync(join(TOOL_KERNELS, d), join(dir, 'data', d), { recursive: true });
   cpSync(HOSTING, join(dir, 'data/hosting.json'));
+  // the measurement words are plugin-qualify's domain now (omx-contract#81); the tests that read a words item with
+  // groups, text and args take this copy of them as their fixture
+  cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(dir, 'data/measurement.json'));
   cpSync(join(ROOT, 'schema'), join(dir, 'schema'), { recursive: true });
   return join(dir, 'data');
 }

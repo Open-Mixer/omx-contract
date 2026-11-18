@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/widget",
+  "info": { "title": "The widget vocabulary", "version": "1.2.0", "x-owner": "omx-fixture", "x-stability": "experimental" },
+  "components": {
+    "schemas": {
+      "WIDGET_COLORS": {
+        "description": "The colours of the widget.",
+        "x-since": "1.0.0",
+        "oneOf": [
+          { "const": "red", "title": "red", "description": "The warm one.", "x-code": 0, "x-text": "Red" },
+          { "const": "blue", "title": "blue", "description": "The cold one.", "x-code": 1 }
+        ]
+      }
+    }
+  }
+}

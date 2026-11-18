@@ -13,16 +13,13 @@ vocabulary is mapped beside them, so a word is there before a consumer asks for 
 data/
   codes.json                   CONTRACT_CODES, the reader's own refusals (a tool table: not installed, not rendered)
   primitives.json  rates.json  the parameter scales, the readout rate, the sample rates
-  measurement.json             MEASUREMENT_*: how a figure was taken, why it is absent, what a verdict says
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
-  machine-class.json           MACHINE_*: the machine a figure was taken on, and the classes a profile names
   curves.json                  CURVE_*: the kinds of picture a panel draws, and the axes each is drawn on
   param-contract.json          OMX_PARAM_CONTRACT_*: the unit codes of org.openmixer.param-contract/1, rendered to
                                omx_param_units.h, read as data by omx-panel and plugin-hostd
   plugin-features.json         PLUGIN_FEATURE_*: every CLAP plugin feature and LV2 plugin class onto a descriptor feature word, or other
   panel.json                   PANEL_*: the panel families and widgets
-  scan.json                    SCAN_*: the names of the scan documents and the scopes of the field dump (owned elsewhere)
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
   formats/lv2/<spec>.json      LV2_<SPEC>_TERMS: the terms of the LV2 specification bundle <spec>.lv2
   formats/clap/<header>.json   CLAP_<HEADER>_TERMS: the identifiers of the CLAP header clap/<header>.h
@@ -38,14 +35,11 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 
 | A word that is | Goes in | Its item |
 |---|---|---|
-| a word of the measurement format: a method, an absent figure's reason, a rating | `measurement.json` | `MEASUREMENT_<LIST>`, kind `words` |
 | a resource a host plans for, its unit, its basis, a budget's scope | `resource-profile.json` | `RESOURCE_<LIST>`, kind `words` |
-| a field of a machine class, a band, a named class | `machine-class.json` | `MACHINE_<LIST>`, kind `words` |
 | a curve kind a panel draws, or an axis one is drawn on | `curves.json` | `CURVE_KINDS`, `CURVE_AXES`, kind `words` |
 | a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
 | a CLAP feature or LV2 class and the feature word it becomes | `plugin-features.json` | `PLUGIN_FEATURE_<WORD>`, kind `words`, one item per target |
 | a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
-| a document a scan writes, or a scope of its field dump | `scan.json` | `SCAN_<LIST>`, kind `words`; named here, owned by the writer |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | `formats/lv2/<spec>.json`, `<spec>` the bundle it is defined in | `LV2_<SPEC>_TERMS`, kind `terms` |
 | a CLAP identifier declared in `clap/<header>.h` | `formats/clap/<header>.json` | `CLAP_<HEADER>_TERMS`, the path in upper snake case |

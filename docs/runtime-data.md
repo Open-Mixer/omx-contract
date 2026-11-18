@@ -43,6 +43,7 @@ The installed contract directory, `contract.d/<domain>/`, the one the reader alr
 `pkg-config --variable=contractdir omx-contract` (docs/contract-dir.md). A domain is read by name, and its
 `info.version` is compared to the floor the consumer declares (`needs`). Nothing else is a source: no copy in the
 consumer's tree, no default compiled in.
+A domain is installed into it by `tools/install-contract-dir.sh --domain contract.d/<domain> <contractdir>` (docs/contract-dir.md).
 
 Every domain document carries `info.x-stability`: `experimental` or `stable`. This follows Kubernetes' alpha, beta and
 stable API levels and LV2's unstable extensions. While the project is in development every domain is `experimental`.
@@ -90,7 +91,7 @@ int  omx_domain_open_at(const char *dir, const char *domain, const char *needs_v
 omx_domain *omx_domain_open_or_exit(const char *domain, const char *needs_version);
 void omx_domain_close(omx_domain *d);
 
-/* A word of an item: the word as written, its title (the key), its one-line description, its code. */
+/* A word of an item: the word as written, its title (the key), its one-line description (NULL when it has none), its code. */
 int  omx_domain_word(const omx_domain *d, const char *item, const char *word, omx_domain_word_info *out);
 int  omx_domain_word_count(const omx_domain *d, const char *item);               /* in declared order; -1: no such item */
 int  omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_domain_word_info *out);
@@ -118,7 +119,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 - **What it reads.** A words item is a `components.schemas` entry with a `oneOf` of words, a range item one with
   `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. A domain name is a slash-separated path
   (`dsp/kernels`, docs/contract-dir.md): each segment a name of letters, digits, `-` and `_`, never empty, `.` or `..`, no
-  leading or trailing `/`, at most `OMX_DOMAIN_NAME_MAX` (255) bytes (a longer name is refused as `contract.manifest.invalid`); the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
+  leading or trailing `/`, at most `OMX_DOMAIN_NAME_MAX` (255) bytes (a longer name is refused as `contract.manifest.invalid`, and so is a contract directory whose paths do not fit the loader's 4096-byte path: it may exist, it is not absent); the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
   name is refused with `contract.file.invalid` before any file is read. Open checks
   the structure of what the functions read (the required fields, their types, `info.version` against the floor), so no
   function answers from a document that is not of that shape. The FULL JSON Schema validation of a domain is done at

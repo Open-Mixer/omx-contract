@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/omx-contract",
-  "version": "3.19.1",
+  "version": "3.20.0",
   "description": "The OpenMixer declarations as data: a JSON Schema, the data, and one CLI that renders them into C, TypeScript and JSON",
   "type": "module",
   "license": "GPL-3.0-or-later",
@@ -26,6 +26,11 @@
     "./scale-vectors.json": "./data/scale-vectors.json",
     "./resolved.json": "./share/omx-contract/omx-contract.json",
     "./schema.json": "./schema/omx-contract.schema.json",
+    "./domain.schema.json": "./schema/domain.schema.json",
+    "./domain-schema": {
+      "types": "./lib/domain-schema.d.mts",
+      "import": "./lib/domain-schema.mjs"
+    },
     "./shapes/*.schema.json": "./shapes/*.schema.json",
     "./shapes/*": {
       "types": "./dist/ts/shapes/*.d.ts"

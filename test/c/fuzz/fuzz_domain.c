@@ -77,7 +77,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         const char *t = omx_domain_text(d, key, "ca");
         if (t) (void)strlen(t);
         (void)strlen(w.title);
-        (void)strlen(w.description);
+        if (w.description) (void)strlen(w.description); /* NULL when the word has none */
       }
       omx_domain_range_info r;
       omx_domain_range(d, items[i], "gain", &r);

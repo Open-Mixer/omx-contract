@@ -300,6 +300,7 @@ carry it and it is not installed in the directory.
 | `contract.item.unknown` | A domain function of the C loader ([runtime-data.md](runtime-data.md)) was asked for an item the domain does not declare. |
 | `contract.word.unknown` | The same, for a word or a range name the item does not declare. |
 | `contract.index.range` | The same, for an index at or past the item's word count. |
+| `contract.catalog.invalid` | A domain's catalog the C loader cannot read: not a regular file named by a language tag, not JSON, no `messages` object, an entry without a text, or a key twice. |
 
 A plugin descriptor's own rules carry the `contract.descriptor.*` codes listed in [descriptors.md](descriptors.md).
 

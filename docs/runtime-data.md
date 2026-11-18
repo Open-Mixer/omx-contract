@@ -110,7 +110,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   (no `x-text`; the catalog's sentence for it is still returned in a language the catalog holds). `omx_domain_word_count` returns -1
   when there is no such item. Opening refuses with the reader's existing codes (`contract.dir.absent`,
   `contract.file.not-json`, `contract.file.invalid`, `contract.manifest.invalid` for an `$id` that is not the domain's,
-  `contract.package.too-old` for an `info.version` below the floor). A lookup fails with one of three codes the loader
+  `contract.package.too-old` for an `info.version` below the floor), and `contract.catalog.invalid` for a catalog of the domain it cannot read. A lookup fails with one of three codes the loader
   adds to `CONTRACT_CODES`, each with its sentence and its translations: `contract.item.unknown` (no such item in the
   domain), `contract.word.unknown` (no such word or name in the item; an item that has no words has no word) and
   `contract.index.range` (an index below 0 or at the item's count and above). A refused call leaves its output as it
@@ -137,7 +137,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   thread needs is copied into a plain struct of the program's before the thread starts.
 - **Validation at open.** `omx_domain_open` checks the document before it returns (see "What it reads"), so a function
   never returns a value from a document that is not of the shape it reads: `$id` is the domain's, `info.version` and
-  `info.x-owner` are there, every word and every range is complete, a word is declared once and carries its place in its list as `x-code`, a range has `minimum` <= `default` <= `maximum`, a schema has `oneOf` or `properties` and not both, `info.x-owner` is not empty, no key is written twice, and a catalog is a regular file (never a symlink) named by a language tag (`es`, `pt-BR`); a bad catalog is `contract.file.invalid`. A `$ref` to another domain,
+  `info.x-owner` are there, every word and every range is complete, a word is declared once and carries its place in its list as `x-code`, a range has `minimum` <= `default` <= `maximum`, a schema has `oneOf` or `properties` and not both, `info.x-owner` is not empty, no key is written twice, and a catalog is a regular file (never a symlink) named by a language tag (`es`, `pt-BR`); a bad catalog (not such a file, not JSON, no `messages` object, an entry without a text, a key twice, a catalog directory that changes while it is read) is `contract.catalog.invalid`, its own code, never the document's. A `$ref` to another domain,
   resolved by `$id` from the same installed directory, is not read yet: a domain document refuses `$ref` today
   (docs/contract-dir.md, omx-contract#84), and the loader follows when the reader does.
 - **One parser, from the distribution.** The loader reads JSON with a library the distributions package (jansson or

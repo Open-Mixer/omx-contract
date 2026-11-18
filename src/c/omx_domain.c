@@ -161,14 +161,15 @@ static const char *last_segment(const char *name) {
 
 /* The whole file parsed, or a refusal naming the path. The domain's document is the file the contract directory names: a
    file that cannot be opened is the domain missing (contract.dir.absent). A catalog is a regular file the domain's
-   directory holds, never a symlink or a directory: any other is refused as contract.file.invalid. */
+   directory holds, never a symlink or a directory: any other, and one that does not parse, is refused as
+   contract.catalog.invalid. */
 static int load_json(const char *path, const char *domain, int is_catalog, json_t **out, omx_domain_error *err) {
   FILE *f = NULL;
   if (is_catalog) {
     int fd = open(path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
-    if (fd < 0) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s was not opened (a symlink is refused): %s.", path, domain, strerror(errno));
+    if (fd < 0) return refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s of the domain %s was not opened (a symlink is refused): %s.", path, domain, strerror(errno));
     struct stat st;
-    if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) { close(fd); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s is not a regular file.", path, domain); }
+    if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) { close(fd); return refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s of the domain %s is not a regular file.", path, domain); }
     f = fdopen(fd, "rb");
     if (!f) { close(fd); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s was not read: out of memory.", path, domain); }
   } else {
@@ -190,11 +191,11 @@ static int load_json(const char *path, const char *domain, int is_catalog, json_
   }
   int bad = ferror(f);
   fclose(f);
-  if (bad) { free(buf); return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s at %s was not read: %s.", domain, path, strerror(errno)); }
+  if (bad) { free(buf); return refuse(err, is_catalog ? OMX_CONTRACT_CODE_CATALOG_INVALID : OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s at %s was not read: %s.", domain, path, strerror(errno)); }
   json_error_t jerr;
   json_t *root = json_loadb(buf, len, JSON_REJECT_DUPLICATES, &jerr);
   free(buf);
-  if (!root) return refuse(err, OMX_CONTRACT_CODE_FILE_NOT_JSON, "The domain %s at %s does not parse as JSON: %s (line %d).", domain, path, jerr.text, jerr.line);
+  if (!root) return refuse(err, is_catalog ? OMX_CONTRACT_CODE_CATALOG_INVALID : OMX_CONTRACT_CODE_FILE_NOT_JSON, "The domain %s at %s does not parse as JSON: %s (line %d).", domain, path, jerr.text, jerr.line);
   *out = root;
   return 0;
 }
@@ -320,7 +321,7 @@ static int read_catalog(omx_domain *d, const char *file, const char *lang, const
   int rc = load_json(file, domain, 1, &root, err);
   if (rc) return rc;
   json_t *msgs = json_object_get(root, "messages");
-  if (!json_is_object(msgs)) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s has no \"messages\" object.", file, domain); }
+  if (!json_is_object(msgs)) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s of the domain %s has no \"messages\" object.", file, domain); }
   catalog_t *c = &d->catalogs[d->n_catalogs++];
   c->lang = dup_str(lang);
   c->messages = calloc(json_object_size(msgs) ? json_object_size(msgs) : 1, sizeof *c->messages);
@@ -331,7 +332,7 @@ static int read_catalog(omx_domain *d, const char *file, const char *lang, const
     const char *text = str_of(m, "text");
     if (!text) {
       /* the message is built before the JSON is released: key belongs to root */
-      int bad = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s: the entry \"%s\" has no string \"text\".", file, domain, key);
+      int bad = refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s of the domain %s: the entry \"%s\" has no string \"text\".", file, domain, key);
       json_decref(root);
       return bad;
     }
@@ -363,12 +364,12 @@ static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx
     size_t n = strlen(e->d_name);
     if (n <= 5 || strcmp(e->d_name + n - 5, ".json") != 0) continue;
     /* the array holds what the first pass counted: a directory that gained a catalog since is refused, never written past */
-    if (d->n_catalogs >= count) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalogs of the domain %s at %s changed while they were read.", domain, path); break; }
+    if (d->n_catalogs >= count) { rc = refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalogs of the domain %s at %s changed while they were read.", domain, path); break; }
     char file[4352], lang[64];
-    if (n - 5 >= sizeof lang) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s/%s of the domain %s has no language name.", path, e->d_name, domain); break; }
+    if (n - 5 >= sizeof lang) { rc = refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s/%s of the domain %s has no language name.", path, e->d_name, domain); break; }
     memcpy(lang, e->d_name, n - 5);
     lang[n - 5] = '\0';
-    if (!is_lang_tag(lang, n - 5)) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s/%s of the domain %s is not named by a language tag (es, pt-BR).", path, e->d_name, domain); break; }
+    if (!is_lang_tag(lang, n - 5)) { rc = refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s/%s of the domain %s is not named by a language tag (es, pt-BR).", path, e->d_name, domain); break; }
     if (!fits(snprintf(file, sizeof file, "%s/%s", path, e->d_name), sizeof file)) { rc = path_too_long(err, domain); break; }
     rc = read_catalog(d, file, lang, domain, err);
   }

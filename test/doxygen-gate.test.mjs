@@ -110,20 +110,30 @@ test('refused by name, exit 2: no Doxyfile where it runs, no baseline file, no h
 });
 
 test('tracked headers only: a stray undocumented header beside the installed ones counts on neither side', { skip: noDoxygen }, () => {
-  const stray = join(HEADERS, 'omx_stray_fixture.h');
-  assert.ok(!existsSync(stray));
+  // a scratch repository holding the gate, the Doxyfile, the baseline and the tracked headers: the stray file is
+  // written there, never into this tree, where the render checks of the parallel suites would read it as extra
+  const dir = scratchDir('omx-doxygen-repo-');
+  const git = (...a) => spawnSync('git', ['-C', dir, '-c', 'user.name=t', '-c', 'user.email=t@t', ...a], { encoding: 'utf8' });
+  cpSync(HEADERS, join(dir, 'include/omxcontract'), { recursive: true });
+  cpSync(join(ROOT, 'tools/doxygen-gate.sh'), join(dir, 'tools/doxygen-gate.sh'));
+  cpSync(join(ROOT, 'Doxyfile'), join(dir, 'Doxyfile'));
+  cpSync(BASELINE, join(dir, 'docs/doxygen-baseline.txt'));
+  assert.equal(git('init', '-q').status, 0);
+  assert.equal(git('add', '-A').status, 0);
+  const inDir = (...args) => {
+    const r = spawnSync('sh', ['tools/doxygen-gate.sh', ...args], { cwd: dir, encoding: 'utf8' });
+    return { status: r.status, out: `${r.stdout}${r.stderr}` };
+  };
+  const stray = join(dir, 'include/omxcontract/omx_stray_fixture.h');
   writeFileSync(stray, '/** @file\n * @brief A stray. */\n#ifndef OMX_STRAY_H\n#define OMX_STRAY_H\nstatic inline int omx_stray_undocumented(int a) { return a; }\n#endif\n');
-  try {
-    const r = gate();
-    assert.equal(r.status, 0, r.out);
-    assert.doesNotMatch(gate('--list').out, /omx_stray/);
-    // the same header read through --input is seen: the tracked filter is the only thing that hid it
-    const seen = gate('--input', HEADERS, '--baseline', BASELINE);
-    assert.equal(seen.status, 1, seen.out);
-    assert.match(seen.out, /omx_stray_undocumented/);
-  } finally {
-    rmSync(stray);
-  }
+  const r = inDir();
+  assert.equal(r.status, 0, r.out);
+  assert.doesNotMatch(inDir('--list').out, /omx_stray/);
+  // the same header read through --input is seen: the tracked filter is the only thing that hid it
+  const seen = inDir('--input', join(dir, 'include/omxcontract'), '--baseline', join(dir, 'docs/doxygen-baseline.txt'));
+  assert.equal(seen.status, 1, seen.out);
+  assert.match(seen.out, /omx_stray_undocumented/);
+  assert.ok(!existsSync(join(HEADERS, 'omx_stray_fixture.h')), 'nothing was written into this tree');
 });
 
 test('--update only lowers: refused by name while a new warning stands, written when a line is struck', { skip: noDoxygen }, () => {

@@ -3,6 +3,7 @@
 /* The C domain loader (docs/runtime-data.md, "The C loader"): every function, every refusal. Run by `make test-c`,
    which builds the library against the fixtures of test/fixtures/domain/ (OMX_CONTRACTDIR is that directory). */
 #define _POSIX_C_SOURCE 200809L
+#include <omxcontract/omx_contract_codes.h>
 #include <omxcontract/omx_domain.h>
 
 #include <jansson.h>
@@ -29,15 +30,15 @@ static omx_domain *open_ok(const char *domain, const char *needs) {
 }
 
 /* One refusal: the status, the code string it prints, nothing returned, and a message that names the domain. */
-static void refused(const char *domain, const char *needs, const char *code, const char *msg_has) {
+static void refused(const char *domain, const char *needs, int want, const char *msg_has) {
   omx_domain *d = (omx_domain *)0x1;
   omx_domain_error err;
   memset(&err, 0, sizeof err);
   int rc = omx_domain_open_at(FIX, domain, needs, &d, &err);
   CHECK(rc != 0);
   CHECK(d == NULL);
-  CHECK_STR(omx_domain_code(rc), code);
-  CHECK_STR(err.code, code);
+  CHECK(rc == want);
+  CHECK_STR(err.code, omx_domain_code(want));
   CHECK(strstr(err.message, domain) != NULL);
   CHECK(strstr(err.message, msg_has) != NULL);
 }
@@ -63,23 +64,23 @@ static void test_lookup_refusals(void) {
   omx_domain *d = open_ok("demo", NULL);
   omx_domain_word_info w;
   memset(&w, 0x5a, sizeof w);
-  CHECK_STR(omx_domain_code(omx_domain_word(d, "NO_SUCH", "red", &w)), "contract.item.unknown");
-  CHECK_STR(omx_domain_code(omx_domain_word(d, "DEMO_COLORS", "green", &w)), "contract.word.unknown");
-  CHECK_STR(omx_domain_code(omx_domain_word_at(d, "DEMO_COLORS", 3, &w)), "contract.index.range");
-  CHECK_STR(omx_domain_code(omx_domain_word_at(d, "DEMO_COLORS", -1, &w)), "contract.index.range");
-  CHECK_STR(omx_domain_code(omx_domain_word_at(d, "NO_SUCH", 0, &w)), "contract.item.unknown");
+  CHECK(omx_domain_word(d, "NO_SUCH", "red", &w) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", "green", &w) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+  CHECK(omx_domain_word_at(d, "DEMO_COLORS", 3, &w) == OMX_CONTRACT_CODE_INDEX_RANGE);
+  CHECK(omx_domain_word_at(d, "DEMO_COLORS", -1, &w) == OMX_CONTRACT_CODE_INDEX_RANGE);
+  CHECK(omx_domain_word_at(d, "NO_SUCH", 0, &w) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
   CHECK(omx_domain_word_count(d, "NO_SUCH") < 0);
   /* a refusal returns no default value: the output is left as it was */
   unsigned char same[sizeof w];
   memset(same, 0x5a, sizeof same);
   CHECK(memcmp(&w, same, sizeof w) == 0);
   omx_domain_range_info r;
-  CHECK_STR(omx_domain_code(omx_domain_range(d, "NO_SUCH", "gain", &r)), "contract.item.unknown");
-  CHECK_STR(omx_domain_code(omx_domain_range(d, "DEMO_PARAMS", "volume", &r)), "contract.word.unknown");
+  CHECK(omx_domain_range(d, "NO_SUCH", "gain", &r) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+  CHECK(omx_domain_range(d, "DEMO_PARAMS", "volume", &r) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
   /* an item that is no ranges item has no such name */
-  CHECK_STR(omx_domain_code(omx_domain_range(d, "DEMO_COLORS", "red", &r)), "contract.word.unknown");
-  CHECK_STR(omx_domain_code(omx_domain_word(d, "DEMO_PARAMS", "gain", &w)), "contract.word.unknown");
-  CHECK_STR(omx_domain_code(omx_domain_word(NULL, "DEMO_COLORS", "red", &w)), "contract.item.unknown");
+  CHECK(omx_domain_range(d, "DEMO_COLORS", "red", &r) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+  CHECK(omx_domain_word(d, "DEMO_PARAMS", "gain", &w) == OMX_CONTRACT_CODE_WORD_UNKNOWN);
+  CHECK(omx_domain_word(NULL, "DEMO_COLORS", "red", &w) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
   omx_domain_close(d);
 }
 
@@ -115,13 +116,13 @@ static void test_text(void) {
 }
 
 static void test_open_refusals(void) {
-  refused("absent", NULL, "contract.dir.absent", FIX);
-  refused("notjson", NULL, "contract.file.not-json", "notjson.json");
-  refused("badshape", NULL, "contract.file.invalid", "title");
-  refused("dupword", NULL, "contract.file.invalid", "red");
-  refused("badid", NULL, "contract.manifest.invalid", "$id");
-  refused("demo", "1.3.0", "contract.package.too-old", "1.2.0");
-  refused("demo", "not-a-version", "contract.file.invalid", "not-a-version");
+  refused("absent", NULL, OMX_CONTRACT_CODE_DIR_ABSENT, FIX);
+  refused("notjson", NULL, OMX_CONTRACT_CODE_FILE_NOT_JSON, "notjson.json");
+  refused("badshape", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "title");
+  refused("dupword", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "red");
+  refused("badid", NULL, OMX_CONTRACT_CODE_MANIFEST_INVALID, "$id");
+  refused("demo", "1.3.0", OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "1.2.0");
+  refused("demo", "not-a-version", OMX_CONTRACT_CODE_FILE_INVALID, "not-a-version");
   /* a floor the document meets, and the exact floor */
   omx_domain_close(open_ok("demo", "1.2.0"));
   omx_domain_close(open_ok("demo", "0.9.9"));
@@ -165,6 +166,7 @@ static void test_open_installed(void) {
   omx_domain_close(d);
   d = (omx_domain *)0x1;
   CHECK(omx_domain_open("absent", NULL, &d, &err) != 0 && d == NULL);
+  CHECK(omx_domain_open("absent", NULL, &d, &err) == OMX_CONTRACT_CODE_DIR_ABSENT);
   CHECK_STR(err.code, "contract.dir.absent");
   unsetenv("OMX_CONTRACT_PATH");
 }
@@ -194,29 +196,26 @@ static void test_open_or_exit(void) {
   omx_domain_close(d);
 }
 
-/* Every code the loader returns is a code of CONTRACT_CODES (data/codes.json), with its English sentence. */
+/* The values the loader returns are the CONTRACT_CODES values of omx_contract_codes.h, and each prints the string of
+   data/codes.json at its place; every value of the header has a string. */
 static void test_codes_are_contract_codes(void) {
   json_error_t jerr;
   json_t *root = json_load_file(CODES_JSON, 0, &jerr);
   CHECK(root != NULL);
   if (!root) return;
   json_t *codes = json_object_get(json_object_get(root, "CONTRACT_CODES"), "codes");
-  for (int s = 1; s <= OMX_DOMAIN_STATUS_LAST; s++) {
-    const char *want = omx_domain_code(s);
-    CHECK(want != NULL);
-    int found = 0;
-    const char *k;
-    json_t *c;
-    json_object_foreach(codes, k, c) {
-      if (want && strcmp(json_string_value(json_object_get(c, "code")), want) == 0) {
-        found = 1;
-        CHECK(json_object_get(json_object_get(c, "text"), "en") != NULL);
-      }
-    }
-    if (!found) { failures++; fprintf(stderr, "status %d: %s is no code of CONTRACT_CODES\n", s, want ? want : "(null)"); }
+  CHECK((int)json_object_size(codes) == OMX_CONTRACT_CODE_LAST);
+  int place = 0;
+  const char *k;
+  json_t *c;
+  json_object_foreach(codes, k, c) {
+    place++;
+    const char *want = json_string_value(json_object_get(c, "code"));
+    CHECK_STR(omx_domain_code(place), want);
   }
   CHECK(omx_domain_code(0) == NULL);
-  CHECK(omx_domain_code(OMX_DOMAIN_STATUS_LAST + 1) == NULL);
+  CHECK(omx_domain_code(OMX_CONTRACT_CODE_LAST + 1) == NULL);
+  CHECK(OMX_CONTRACT_CODE_ITEM_UNKNOWN != OMX_CONTRACT_CODE_WORD_UNKNOWN && OMX_CONTRACT_CODE_WORD_UNKNOWN != OMX_CONTRACT_CODE_INDEX_RANGE);
   json_decref(root);
 }
 

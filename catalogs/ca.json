@@ -4,7 +4,7 @@
   "lang": "ca",
   "owner": "omx-contract",
   "messages": {
-    "contract.catalog.invalid": { "text": "El catàleg {path} no es pot llegir com a catàleg del seu domini. Corregiu el fitxer o el nom que assenyala el detall.", "by": "machine", "model": "claude-opus-5-5", "source": "13a6ecc6cd232189a5c3afbfc634798a734daaf431af5edb0264270e7d4f09c0" },
+    "contract.catalog.invalid": { "text": "El catàleg {path} no es pot llegir com a catàleg del seu domini. Corregiu el fitxer o el nom que assenyala el detall.", "by": "machine", "model": "lane-draft", "source": "13a6ecc6cd232189a5c3afbfc634798a734daaf431af5edb0264270e7d4f09c0" },
     "contract.descriptor.choice": { "text": "{descriptor} té un choice amb un default que no és cap dels seus ids, o amb labels o values que no coincideixen un a un amb els ids. Corregiu el choice que el detall assenyala.", "by": "human" },
     "contract.descriptor.control-duplicate": { "text": "{descriptor} declara dos controls amb el mateix id, nom o símbol. Doneu a cada control el seu propi.", "by": "human" },
     "contract.descriptor.easy": { "text": "La llista easy de {descriptor} no anomena cap control, n'anomena un dos cops, anomena un control amagat o de només lectura, o apareix en un descriptor escanejat. Corregiu la llista easy.", "by": "human" },

@@ -569,8 +569,8 @@
         "args": [
           "item",
           "domain"
-          ]
-        },
+        ]
+      },
       "catalogInvalid": {
         "code": "contract.catalog.invalid",
         "doc": "a domain's catalog is not a regular file named by a language tag, or is not an object of {text, by} entries",

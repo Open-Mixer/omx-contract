@@ -158,7 +158,7 @@ const char *omx_domain_code(int status);
  * @param item the item's name, e.g. `PANEL_FAMILIES`
  * @param word the word as written
  * @param out  receives the word on success; untouched on failure
- * @return 0; OMX_DOMAIN_ITEM_UNKNOWN when the item is no word item of the domain; OMX_DOMAIN_WORD_UNKNOWN when it has no such word
+ * @return 0; OMX_DOMAIN_ITEM_UNKNOWN when the domain has no such item; OMX_DOMAIN_WORD_UNKNOWN when it has no such word (a range item has none)
  */
 int omx_domain_word(const omx_domain *d, const char *item, const char *word, omx_domain_word_info *out);
 
@@ -167,7 +167,7 @@ int omx_domain_word(const omx_domain *d, const char *item, const char *word, omx
  *
  * @param d    the handle
  * @param item the item's name
- * @return the count, in declared order; -1 when the item is no word item of the domain
+ * @return the count, in declared order (0 for a range item); -1 when the domain has no such item
  */
 int omx_domain_word_count(const omx_domain *d, const char *item);
 

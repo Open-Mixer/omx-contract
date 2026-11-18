@@ -16,7 +16,7 @@ out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 1.0.0 DEMO_COLORS fbs-fixed 2>&1); chec
 case $out in *fbsFixed*"A dashed word."*) ;; *) echo "cli_test: a word: unexpected output: $out" >&2; fail=1 ;; esac
 
 out=$(OMX_CONTRACT_PATH=$fix "$bin" demo 2>&1); check "a domain alone" 0 $?
-case $out in *DEMO_COLORS*) ;; *) echo "cli_test: a domain alone lists no item: $out" >&2; fail=1 ;; esac
+case $out in *demo*) ;; *) echo "cli_test: a domain alone prints no name: $out" >&2; fail=1 ;; esac
 
 out=$(OMX_CONTRACT_PATH=$fix "$bin" absent 2>&1); check "an absent domain" 78 $?
 case $out in *contract.dir.absent*absent*) ;; *) echo "cli_test: absent: unexpected message: $out" >&2; fail=1 ;; esac

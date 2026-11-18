@@ -209,6 +209,11 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${name}.json`);
       const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
       if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${name}.json`).join(', ')} is beside it`);
+      for (const f of filesUnder(ddir).filter((x) => x.startsWith('catalogs/'))) {
+        let c;
+        try { c = JSON.parse(readFileSync(join(ddir, f), 'utf8')); } catch (e) { refuse('fileNotJson', `${name}/${f}`, (e as Error).message); }
+        if (c?.kind !== 'catalog' || c.lang !== f.slice(9, -5) || typeof c.owner !== 'string' || typeof c.messages !== 'object' || c.messages === null) refuse('fileInvalid', `${name}/${f}`, 'a domain catalog is { kind: "catalog", lang: <its file name>, owner, messages }');
+      }
       const text = readFileSync(path, 'utf8');
       let raw;
       try { raw = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }

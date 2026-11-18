@@ -56,7 +56,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm ci
+      - id: handback-install
+        name: Install the one runtime dependency, and the two pinned shape generators (docs/shapes.md)
+        run: |
+          npm ci
+          python3 -m pip install --user -r tools/shapes-requirements.txt
       - name: The tag names the package version
         if: github.ref_type == 'tag'
         env:

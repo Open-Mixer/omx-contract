@@ -12,6 +12,9 @@ import type { JsonObject } from './json.mjs';
 /** The stable `$id` of a domain: the URL every cross-domain reference names. */
 export const domainId = (name: string): string => `https://openmixer.org/contract/${name}`;
 
+/** The one JSON Schema dialect a domain document is written in. */
+export const DOMAIN_SCHEMA = 'https://json-schema.org/draft/2020-12/schema';
+
 /** A domain's name: what a directory under a contractdir is called when it is not a schema major. */
 export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 
@@ -34,6 +37,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
   const at = `${name}/${name}.json`;
   if (doc.$id !== domainId(name)) refuse('manifestInvalid', at, `$id ${JSON.stringify(doc.$id)} is not ${domainId(name)}, the id of the domain whose directory this is`);
   only(doc, ['$schema', '$id', 'info', 'components'], at, 'domain document');
+  if (doc.$schema !== DOMAIN_SCHEMA) refuse('fileInvalid', at, `$schema ${JSON.stringify(doc.$schema)} is not ${DOMAIN_SCHEMA}: a domain document is JSON Schema 2020-12`);
   const info = doc.info as JsonObject | undefined;
   if (typeof info !== 'object' || info === null || Array.isArray(info)) refuse('manifestInvalid', at, 'info is not an object');
   only(info, ['title', 'version', 'x-owner'], at, 'info');

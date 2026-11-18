@@ -32,7 +32,7 @@ function panelDomain() {
       oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
     };
   }
-  return { $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel' }, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel' }, components: { schemas } };
 }
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
@@ -80,6 +80,8 @@ test('a word is any string, not only an identifier', () => {
 });
 
 const refusals = [
+  ['a $schema that is not JSON Schema 2020-12', (d) => { d.$schema = 'http://json-schema.org/draft-07/schema#'; }, CONTRACT_CODES.fileInvalid],
+  ['no $schema', (d) => { delete d.$schema; }, CONTRACT_CODES.fileInvalid],
   ['a $id that is not the directory\'s', (d) => { d.$id = 'https://openmixer.org/contract/look'; }, CONTRACT_CODES.manifestInvalid],
   ['a version that is not x.y.z', (d) => { d.info.version = '1.0'; }, CONTRACT_CODES.manifestInvalid],
   ['an owner that is no package name', (d) => { d.info['x-owner'] = 'Omx Panel'; }, CONTRACT_CODES.manifestInvalid],
@@ -97,6 +99,15 @@ for (const [what, edit, code] of refusals) {
     assert.equal(refusalOf(dirWith(doc)), code);
   });
 }
+
+test('a domain\'s catalogs/<lang>.json sit beside its document; a malformed one is refused', () => {
+  const root = dirWith(panelDomain());
+  mkdirSync(join(root, 'panel', 'catalogs'));
+  writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'omx-panel', messages: {} }));
+  assert.ok(loadContractDir({ dir: root }).items.has('PANEL_FAMILIES'));
+  writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'de', owner: 'omx-panel', messages: {} }));
+  assert.equal(refusalOf(root), CONTRACT_CODES.fileInvalid);
+});
 
 test('refused: a second file beside the document, and no document', () => {
   const root = dirWith(panelDomain());
@@ -127,6 +138,7 @@ function groupedDomain() {
   const w = (c, key, extra = {}) => ({ const: c, title: key, description: `${c}.`, ...extra });
   const code = (list) => list.map((e, i) => ({ ...e, 'x-code': i }));
   return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
     $id: 'https://openmixer.org/contract/grouped',
     info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner' },
     components: {
@@ -164,7 +176,7 @@ test('a group no word of the groups schema names, and a $ref that is no domain i
 test('a domain directory may hold catalogs/<lang>.json, and nothing else beside its document', () => {
   const root = dirWith(groupedDomain(), 'grouped');
   mkdirSync(join(root, 'grouped', 'catalogs'));
-  writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), '{}\n');
+  writeFileSync(join(root, 'grouped', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'some-owner', messages: {} }));
   assert.ok(loadContractDir({ dir: root }).items.has('GROUPED_REASONS'));
   writeFileSync(join(root, 'grouped', 'other.json'), '{}\n');
   assert.equal(refusalOf(root), CONTRACT_CODES.manifestMismatch);

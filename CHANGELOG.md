@@ -4,6 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- FIXED: the C loader (`omx_domain_open`) accepts a word with no `description`, as docs/contract-dir.md, the TS reader and the schema do; `omx_domain_word_info.description` is NULL for it, and `omx-domain` prints an empty description. A present non-string `description` is still refused as FILE_INVALID.
 - REMOVED: `MEASUREMENT_*` (data/measurement.json), `RESOURCE_MEMORY_PHASES`, `RESOURCE_UNMEASURED_REASONS`, `RESOURCE_BUDGET_SCOPES`, `RESOURCE_HOST_ISOLATIONS`, `RESOURCE_HOST_LATENCY_HANDLING`, `RESOURCE_THREAD_SCHEDULING` and `MACHINE_CLASSES`, with their translations. They are plugin-qualify's `qualification` domain (`contract.d/qualification/` there, `qualification_vocabulary.h`, the same `OMX_*` macros byte for byte). `RESOURCE_KINDS`, `RESOURCE_UNITS` and `RESOURCE_BASES` stay with `RESOURCE_HINTS` until they move to omx-clap-core (omx-contract#81, move 2 and 6).
 - REMOVED: `MACHINE_CLASS_FIELDS`, `MACHINE_PROFILE_FIELDS`, `MACHINE_CORE_BANDS`, `MACHINE_CLOCK_BANDS` and `MACHINE_ARCHES` (data/machine-class.json) with their translations. They are plugin-hostd's `machine` domain (`contract.d/machine/` there, `machine_vocabulary.h`, the same `OMX_MACHINE_*` macros byte for byte); the json schema fragment no longer carries them, a reader reads the domain document (omx-contract#81, move 3).
 - REMOVED: `SCAN_DOCUMENTS` and `SCAN_FIELD_SCOPES` (data/scan.json); their translations travel with the domain. They are omx-clap-core's `scan`

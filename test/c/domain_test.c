@@ -118,11 +118,24 @@ static void test_text(void) {
   omx_domain_close(d);
 }
 
+static void test_absent_description(void) {
+  omx_domain *d = open_ok("nodesc", NULL);
+  omx_domain_word_info w;
+  CHECK(omx_domain_word_count(d, "DEMO_COLORS") == 3);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", "blue", &w) == 0);
+  CHECK_STR(w.word, "blue");
+  CHECK(w.description == NULL);
+  CHECK(omx_domain_word(d, "DEMO_COLORS", "red", &w) == 0);
+  CHECK_STR(w.description, "The warm one.");
+  omx_domain_close(d);
+}
+
 static void test_open_refusals(void) {
   refused("absent", NULL, OMX_CONTRACT_CODE_DIR_ABSENT, FIX);
   refused("notjson", NULL, OMX_CONTRACT_CODE_FILE_NOT_JSON, "notjson.json");
   refused("badshape", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "title");
   refused("dupword", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "red");
+  refused("baddesc", NULL, OMX_CONTRACT_CODE_FILE_INVALID, "description");
   refused("badid", NULL, OMX_CONTRACT_CODE_MANIFEST_INVALID, "$id");
   refused("demo", "1.3.0", OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "1.2.0");
   refused("demo", "not-a-version", OMX_CONTRACT_CODE_FILE_INVALID, "not-a-version");
@@ -437,6 +450,7 @@ int main(void) {
   test_lookup_refusals();
   test_ranges();
   test_text();
+  test_absent_description();
   test_open_refusals();
   test_nested_domains();
   test_handle_owns_its_data();

@@ -203,7 +203,7 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
     json_t *code = json_object_get(w, "x-code");
     if (!json_is_object(w) || !word) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s.oneOf[%zu] has no string \"const\".", domain, path, it->name, at);
     if (!title) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no string \"title\".", domain, path, word, it->name);
-    if (!desc) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no string \"description\".", domain, path, word, it->name);
+    if (json_object_get(w, "description") && !desc) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"description\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
     if (!json_is_integer(code) || json_integer_value(code) < 0 || json_integer_value(code) > 0x7fffffff)
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no non-negative integer \"x-code\".", domain, path, word, it->name);
     if (json_object_get(w, "x-text") && !text) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-text\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
@@ -213,11 +213,11 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
     word_t *o = &it->words[it->n_words];
     o->word = dup_str(word);
     o->title = dup_str(title);
-    o->description = dup_str(desc);
+    o->description = desc ? dup_str(desc) : NULL;
     o->text = text ? dup_str(text) : NULL;
     o->code = (int)json_integer_value(code);
     it->n_words++;
-    if (!o->word || !o->title || !o->description || (text && !o->text)) return OOM(path, domain);
+    if (!o->word || !o->title || (desc && !o->description) || (text && !o->text)) return OOM(path, domain);
   }
   return 0;
 }

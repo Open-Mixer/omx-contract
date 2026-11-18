@@ -66,7 +66,7 @@ typedef struct {
 typedef struct {
   const char *word;         /**< the word as written (`const`), any string */
   const char *title;        /**< its key, the name of the word's macro */
-  const char *description;  /**< its one-line description */
+  const char *description;  /**< its one-line description; NULL when the word has none */
   int code;                 /**< its code (`x-code`) */
 } omx_domain_word_info;
 

@@ -15,7 +15,7 @@ import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data
 import { SCHEMA_VERSION, fileProblems, useProblems } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
-import { DOMAIN_NAME, checkItemPrefixes, readDomain } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, domainLeaf, domainPath, readDomain } from './domain.mjs';
 import type { DomainCodes } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
@@ -207,9 +207,9 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
       if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || packages.has(name)) continue;
-      const path = join(ddir, `${name}.json`);
-      const at = `${name}/${name}.json`;
-      if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${name}.json`);
+      const path = join(ddir, `${domainLeaf(name)}.json`);
+      const at = domainPath(name);
+      if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
       const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
       if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${name}.json`).join(', ')} is beside it`);
       for (const f of filesUnder(ddir).filter((x) => x.startsWith('catalogs/'))) {
@@ -229,7 +229,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       domainFiles.push(file);
     }
   }
-  checkItemPrefixes(domainFiles.map((f) => ({ name: f.pkg, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
+  checkItemPrefixes(domainFiles.map((f) => ({ rel: f.rel, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 
   const files: Json[] = [];

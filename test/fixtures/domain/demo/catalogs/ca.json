@@ -1,0 +1,10 @@
+{
+  "$schema": "../../../../../schema/omx-contract.schema.json#/$defs/catalog",
+  "kind": "catalog",
+  "lang": "ca",
+  "owner": "omx-fixture",
+  "messages": {
+    "DEMO_COLORS.red": { "text": "Vermell", "by": "human" },
+    "DEMO_COLORS.fbs-fixed": { "text": "Bus fix", "by": "human" }
+  }
+}

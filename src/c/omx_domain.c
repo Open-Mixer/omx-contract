@@ -1,0 +1,447 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+/* Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> */
+/*
+ * The C loader of a contract domain (docs/runtime-data.md, "The C loader"; include/omxcontract/omx_domain.h).
+ *
+ * open reads `<dir>/<domain>/<domain>.json` and each catalog of `catalogs/` with jansson, checks the shape the lookups read, and
+ * copies every string and number a lookup returns into the handle's own arrays; the jansson documents are released
+ * before open returns, so a lookup touches no jansson object and the handle is read-only afterwards.
+ */
+#define _POSIX_C_SOURCE 200809L
+#include <omxcontract/omx_domain.h>
+
+#include <dirent.h>
+#include <errno.h>
+#include <jansson.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef OMX_CONTRACTDIR
+#error "OMX_CONTRACTDIR names the installed contract directory (the Makefile's CONTRACTDIR)"
+#endif
+
+#define DOMAIN_ID_PREFIX "https://openmixer.org/contract/"
+
+typedef struct { char *word, *title, *description, *text; int code; } word_t;
+typedef struct { char *name, *unit, *scale; double min, max, def; int has_default; } param_t;
+typedef struct { char *name; int is_words; word_t *words; size_t n_words; param_t *params; size_t n_params; } item_t;
+typedef struct { char *key, *text; } message_t;
+typedef struct { char *lang; message_t *messages; size_t n; } catalog_t;
+
+struct omx_domain {
+  item_t *items;
+  size_t n_items;
+  catalog_t *catalogs;
+  size_t n_catalogs;
+};
+
+static const char *const CODES[OMX_CONTRACT_CODE_LAST + 1] = {
+  NULL,
+#define OMX_CODE_ROW(name, value, string) string,
+  OMX_CONTRACT_CODES(OMX_CODE_ROW)
+#undef OMX_CODE_ROW
+};
+
+const char *omx_domain_code(int status) {
+  return status > 0 && status <= OMX_CONTRACT_CODE_LAST ? CODES[status] : NULL;
+}
+
+/* A refusal: the status, and its code and message in err. */
+static int refuse(omx_domain_error *err, int status, const char *fmt, ...) {
+  if (err) {
+    va_list ap;
+    err->code = omx_domain_code(status);
+    va_start(ap, fmt);
+    vsnprintf(err->message, sizeof err->message, fmt, ap);
+    va_end(ap);
+  }
+  return status;
+}
+
+static char *dup_str(const char *s) {
+  size_t n = strlen(s) + 1;
+  char *p = malloc(n);
+  if (p) memcpy(p, s, n);
+  return p;
+}
+
+static void free_item(item_t *it) {
+  free(it->name);
+  for (size_t i = 0; i < it->n_words; i++) {
+    free(it->words[i].word);
+    free(it->words[i].title);
+    free(it->words[i].description);
+    free(it->words[i].text);
+  }
+  free(it->words);
+  for (size_t i = 0; i < it->n_params; i++) {
+    free(it->params[i].name);
+    free(it->params[i].unit);
+    free(it->params[i].scale);
+  }
+  free(it->params);
+}
+
+void omx_domain_close(omx_domain *d) {
+  if (!d) return;
+  for (size_t i = 0; i < d->n_items; i++) free_item(&d->items[i]);
+  free(d->items);
+  for (size_t c = 0; c < d->n_catalogs; c++) {
+    for (size_t m = 0; m < d->catalogs[c].n; m++) {
+      free(d->catalogs[c].messages[m].key);
+      free(d->catalogs[c].messages[m].text);
+    }
+    free(d->catalogs[c].messages);
+    free(d->catalogs[c].lang);
+  }
+  free(d->catalogs);
+  free(d);
+}
+
+/* "x.y.z" into three numbers; 0 when it is not that. */
+static int parse_version(const char *s, unsigned long v[3]) {
+  char *end;
+  for (int i = 0; i < 3; i++) {
+    if (*s < '0' || *s > '9') return 0;
+    v[i] = strtoul(s, &end, 10);
+    s = end;
+    if (i < 2) { if (*s != '.') return 0; s++; }
+  }
+  return *s == '\0';
+}
+
+static int version_below(const unsigned long have[3], const unsigned long floor_[3]) {
+  for (int i = 0; i < 3; i++) {
+    if (have[i] != floor_[i]) return have[i] < floor_[i];
+  }
+  return 0;
+}
+
+static int is_segment_char(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_';
+}
+
+/* A domain name is a slash-separated path: each segment a name of letters, digits, - and _ (so never empty, "." or
+   ".."), no leading or trailing slash. */
+static int is_name(const char *s) {
+  if (!s || !*s) return 0;
+  size_t seg = 0;
+  for (; *s; s++) {
+    if (*s == '/') { if (seg == 0) return 0; seg = 0; }
+    else if (is_segment_char(*s)) seg++;
+    else return 0;
+  }
+  return seg > 0;
+}
+
+/* The last segment of a valid name: the document's file stem. */
+static const char *last_segment(const char *name) {
+  const char *slash = strrchr(name, '/');
+  return slash ? slash + 1 : name;
+}
+
+/* The whole file parsed, or a refusal naming the path. */
+static int load_json(const char *path, const char *domain, json_t **out, omx_domain_error *err) {
+  FILE *f = fopen(path, "rb");
+  if (!f) return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s was not found at %s: %s.", domain, path, strerror(errno));
+  char *buf = NULL;
+  size_t len = 0, cap = 0;
+  for (;;) {
+    if (len == cap) {
+      char *nb = realloc(buf, cap ? cap * 2 : 4096);
+      if (!nb) { free(buf); fclose(f); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s was not read: out of memory.", domain, path); }
+      buf = nb;
+      cap = cap ? cap * 2 : 4096;
+    }
+    size_t got = fread(buf + len, 1, cap - len, f);
+    len += got;
+    if (got == 0) break;
+  }
+  int bad = ferror(f);
+  fclose(f);
+  if (bad) { free(buf); return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s at %s was not read: %s.", domain, path, strerror(errno)); }
+  json_error_t jerr;
+  json_t *root = json_loadb(buf, len, 0, &jerr);
+  free(buf);
+  if (!root) return refuse(err, OMX_CONTRACT_CODE_FILE_NOT_JSON, "The domain %s at %s does not parse as JSON: %s (line %d).", domain, path, jerr.text, jerr.line);
+  *out = root;
+  return 0;
+}
+
+#define OOM(path, domain) refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s was not read: out of memory.", (domain), (path))
+
+static const char *str_of(json_t *obj, const char *key) {
+  json_t *v = json_object_get(obj, key);
+  return json_is_string(v) ? json_string_value(v) : NULL;
+}
+
+/* A words item: the `oneOf` of const words. */
+static int read_words(item_t *it, json_t *one_of, const char *path, const char *domain, omx_domain_error *err) {
+  size_t n = json_array_size(one_of), at;
+  json_t *w;
+  it->is_words = 1;
+  it->words = calloc(n ? n : 1, sizeof *it->words);
+  if (!it->words) return OOM(path, domain);
+  json_array_foreach(one_of, at, w) {
+    const char *word = str_of(w, "const"), *title = str_of(w, "title"), *desc = str_of(w, "description"), *text = str_of(w, "x-text");
+    json_t *code = json_object_get(w, "x-code");
+    if (!json_is_object(w) || !word) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s.oneOf[%zu] has no string \"const\".", domain, path, it->name, at);
+    if (!title) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no string \"title\".", domain, path, word, it->name);
+    if (!desc) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no string \"description\".", domain, path, word, it->name);
+    if (!json_is_integer(code) || json_integer_value(code) < 0 || json_integer_value(code) > 0x7fffffff)
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no non-negative integer \"x-code\".", domain, path, word, it->name);
+    if (json_object_get(w, "x-text") && !text) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-text\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
+    for (size_t k = 0; k < it->n_words; k++) {
+      if (strcmp(it->words[k].word, word) == 0) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s declares the word \"%s\" twice.", domain, path, it->name, word);
+    }
+    word_t *o = &it->words[it->n_words];
+    o->word = dup_str(word);
+    o->title = dup_str(title);
+    o->description = dup_str(desc);
+    o->text = text ? dup_str(text) : NULL;
+    o->code = (int)json_integer_value(code);
+    it->n_words++;
+    if (!o->word || !o->title || !o->description || (text && !o->text)) return OOM(path, domain);
+  }
+  return 0;
+}
+
+/* A range item: `properties`, each a named parameter with minimum and maximum. */
+static int read_params(item_t *it, json_t *props, const char *path, const char *domain, omx_domain_error *err) {
+  const char *name;
+  json_t *p;
+  it->params = calloc(json_object_size(props) ? json_object_size(props) : 1, sizeof *it->params);
+  if (!it->params) return OOM(path, domain);
+  json_object_foreach(props, name, p) {
+    json_t *mn = json_object_get(p, "minimum"), *mx = json_object_get(p, "maximum"), *df = json_object_get(p, "default");
+    const char *unit = str_of(p, "x-unit"), *scale = str_of(p, "x-scale");
+    if (!json_is_object(p) || !json_is_number(mn) || !json_is_number(mx))
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the parameter \"%s\" of %s has no numeric \"minimum\" and \"maximum\".", domain, path, name, it->name);
+    if (df && !json_is_number(df)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"default\" of the parameter \"%s\" of %s is not a number.", domain, path, name, it->name);
+    if ((json_object_get(p, "x-unit") && !unit) || (json_object_get(p, "x-scale") && !scale))
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-unit\" or \"x-scale\" of the parameter \"%s\" of %s is not a string.", domain, path, name, it->name);
+    param_t *o = &it->params[it->n_params];
+    o->name = dup_str(name);
+    o->unit = dup_str(unit ? unit : "");
+    o->scale = dup_str(scale ? scale : "");
+    o->min = json_number_value(mn);
+    o->max = json_number_value(mx);
+    o->has_default = df != NULL;
+    o->def = df ? json_number_value(df) : 0;
+    it->n_params++;
+    if (!o->name || !o->unit || !o->scale) return OOM(path, domain);
+  }
+  return 0;
+}
+
+static int read_items(omx_domain *d, json_t *root, const char *path, const char *domain, omx_domain_error *err) {
+  json_t *schemas = json_object_get(json_object_get(root, "components"), "schemas");
+  if (!json_is_object(schemas)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no \"components\".\"schemas\" object.", domain, path);
+  d->items = calloc(json_object_size(schemas) ? json_object_size(schemas) : 1, sizeof *d->items);
+  if (!d->items) return OOM(path, domain);
+  const char *name;
+  json_t *s;
+  json_object_foreach(schemas, name, s) {
+    json_t *one_of = json_object_get(s, "oneOf"), *props = json_object_get(s, "properties");
+    if (!json_is_object(s)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s is not an object.", domain, path, name);
+    if (!json_is_array(one_of) && !json_is_object(props)) continue; /* a schema that is neither a words nor a range item is not served */
+    item_t *it = &d->items[d->n_items++];
+    it->name = dup_str(name);
+    if (!it->name) return OOM(path, domain);
+    int rc = json_is_array(one_of) ? read_words(it, one_of, path, domain, err) : read_params(it, props, path, domain, err);
+    if (rc) return rc;
+  }
+  return 0;
+}
+
+/* One catalog file: its language is the file's name. */
+static int read_catalog(omx_domain *d, const char *file, const char *lang, const char *domain, omx_domain_error *err) {
+  json_t *root = NULL;
+  int rc = load_json(file, domain, &root, err);
+  if (rc) return rc;
+  json_t *msgs = json_object_get(root, "messages");
+  if (!json_is_object(msgs)) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s has no \"messages\" object.", file, domain); }
+  catalog_t *c = &d->catalogs[d->n_catalogs++];
+  c->lang = dup_str(lang);
+  c->messages = calloc(json_object_size(msgs) ? json_object_size(msgs) : 1, sizeof *c->messages);
+  if (!c->lang || !c->messages) { json_decref(root); return OOM(file, domain); }
+  const char *key;
+  json_t *m;
+  json_object_foreach(msgs, key, m) {
+    const char *text = str_of(m, "text");
+    if (!text) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s: the entry \"%s\" has no string \"text\".", file, domain, key); }
+    message_t *o = &c->messages[c->n++];
+    o->key = dup_str(key);
+    o->text = dup_str(text);
+    if (!o->key || !o->text) { json_decref(root); return OOM(file, domain); }
+  }
+  json_decref(root);
+  return 0;
+}
+
+static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx_domain_error *err) {
+  char path[4096];
+  snprintf(path, sizeof path, "%s/%s/catalogs", dir, domain);
+  DIR *dh = opendir(path);
+  if (!dh) return 0; /* no catalogs: the source sentences are the only language */
+  size_t count = 0;
+  struct dirent *e;
+  while ((e = readdir(dh))) {
+    size_t n = strlen(e->d_name);
+    if (n > 5 && strcmp(e->d_name + n - 5, ".json") == 0) count++;
+  }
+  rewinddir(dh);
+  d->catalogs = calloc(count ? count : 1, sizeof *d->catalogs);
+  if (!d->catalogs) { closedir(dh); return OOM(path, domain); }
+  int rc = 0;
+  while (!rc && (e = readdir(dh))) {
+    size_t n = strlen(e->d_name);
+    if (n <= 5 || strcmp(e->d_name + n - 5, ".json") != 0) continue;
+    char file[4352], lang[64];
+    if (n - 5 >= sizeof lang) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s/%s of the domain %s has no language name.", path, e->d_name, domain); break; }
+    memcpy(lang, e->d_name, n - 5);
+    lang[n - 5] = '\0';
+    snprintf(file, sizeof file, "%s/%s", path, e->d_name);
+    rc = read_catalog(d, file, lang, domain, err);
+  }
+  closedir(dh);
+  return rc;
+}
+
+int omx_domain_open_at(const char *dir, const char *domain, const char *needs_version, omx_domain **out, omx_domain_error *err) {
+  if (out) *out = NULL;
+  if (!out) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "omx_domain_open was given no place to put the handle.");
+  if (!is_name(domain)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "\"%s\" is no domain name: slash-separated segments of letters, digits, - and _, none empty, \".\" or \"..\".", domain ? domain : "(null)");
+  if (!dir) return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s was asked of no contract directory.", domain);
+  unsigned long floor_[3] = {0, 0, 0};
+  if (needs_version && !parse_version(needs_version, floor_))
+    return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The version floor \"%s\" asked of the domain %s is not x.y.z.", needs_version, domain);
+
+  char path[4096];
+  snprintf(path, sizeof path, "%s/%s/%s.json", dir, domain, last_segment(domain));
+  json_t *root = NULL;
+  int rc = load_json(path, domain, &root, err);
+  if (rc) return rc;
+
+  omx_domain *d = calloc(1, sizeof *d);
+  if (!d) { json_decref(root); return OOM(path, domain); }
+  unsigned long have[3];
+  const char *id = str_of(root, "$id");
+  json_t *info = json_object_get(root, "info");
+  const char *version = str_of(info, "version");
+  char want_id[512];
+  snprintf(want_id, sizeof want_id, DOMAIN_ID_PREFIX "%s", domain);
+  if (!json_is_object(root)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s is not a JSON object.", domain, path);
+  else if (!id || strcmp(id, want_id) != 0) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: $id is \"%s\", and must be \"%s\".", domain, path, id ? id : "(absent)", want_id);
+  else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
+  else if (!str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
+  else if (needs_version && version_below(have, floor_)) rc = refuse(err, OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "The domain %s at %s is version %s, below the floor %s the program needs.", domain, path, version, needs_version);
+  else rc = read_items(d, root, path, domain, err);
+  json_decref(root); /* the JSON is released here: the handle holds its own copy of all it returns */
+  if (!rc) rc = read_catalogs(d, dir, domain, err);
+  if (rc) { omx_domain_close(d); return rc; }
+  *out = d;
+  return 0;
+}
+
+int omx_domain_open(const char *domain, const char *needs_version, omx_domain **out, omx_domain_error *err) {
+  return omx_domain_open_at(OMX_CONTRACTDIR, domain, needs_version, out, err);
+}
+
+omx_domain *omx_domain_open_or_exit(const char *domain, const char *needs_version) {
+  omx_domain *d = NULL;
+  omx_domain_error err;
+  if (omx_domain_open(domain, needs_version, &d, &err) != 0) {
+    fprintf(stderr, "%s: %s\n", err.code, err.message);
+    exit(78); /* EX_CONFIG: the exit of every refused start-up */
+  }
+  return d;
+}
+
+static const item_t *find_item(const omx_domain *d, const char *name) {
+  if (!d || !name) return NULL;
+  for (size_t i = 0; i < d->n_items; i++) {
+    if (strcmp(d->items[i].name, name) == 0) return &d->items[i];
+  }
+  return NULL;
+}
+
+static void fill_word(const word_t *w, omx_domain_word_info *out) {
+  out->word = w->word;
+  out->title = w->title;
+  out->description = w->description;
+  out->code = w->code;
+}
+
+int omx_domain_word(const omx_domain *d, const char *item, const char *word, omx_domain_word_info *out) {
+  const item_t *it = find_item(d, item);
+  if (!it) return OMX_CONTRACT_CODE_ITEM_UNKNOWN;
+  if (!word) return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+  for (size_t i = 0; i < it->n_words; i++) {
+    if (strcmp(it->words[i].word, word) == 0) { if (out) fill_word(&it->words[i], out); return 0; }
+  }
+  return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+}
+
+int omx_domain_word_count(const omx_domain *d, const char *item) {
+  const item_t *it = find_item(d, item);
+  return it ? (int)it->n_words : -1; /* an item with no words has none */
+}
+
+int omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_domain_word_info *out) {
+  const item_t *it = find_item(d, item);
+  if (!it) return OMX_CONTRACT_CODE_ITEM_UNKNOWN;
+  if (index < 0 || (size_t)index >= it->n_words) return OMX_CONTRACT_CODE_INDEX_RANGE;
+  if (out) fill_word(&it->words[index], out);
+  return 0;
+}
+
+int omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out) {
+  const item_t *it = find_item(d, item);
+  if (!it) return OMX_CONTRACT_CODE_ITEM_UNKNOWN;
+  if (!name) return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+  for (size_t i = 0; i < it->n_params; i++) {
+    const param_t *p = &it->params[i];
+    if (strcmp(p->name, name) != 0) continue;
+    if (out) {
+      out->min = p->min;
+      out->max = p->max;
+      out->def = p->def;
+      out->has_default = p->has_default;
+      out->unit = p->unit;
+      out->scale = p->scale;
+    }
+    return 0;
+  }
+  return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+}
+
+const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang) {
+  if (!d || !key) return NULL;
+  const char *dot = strchr(key, '.');
+  if (!dot) return NULL;
+  char item[256];
+  size_t n = (size_t)(dot - key);
+  if (n >= sizeof item) return NULL;
+  memcpy(item, key, n);
+  item[n] = '\0';
+  const item_t *it = find_item(d, item);
+  const word_t *w = NULL;
+  if (it && it->is_words) {
+    for (size_t i = 0; i < it->n_words; i++) {
+      if (strcmp(it->words[i].word, dot + 1) == 0) { w = &it->words[i]; break; }
+    }
+  }
+  if (!w) return NULL;
+  if (lang && strcmp(lang, "en") != 0) {
+    for (size_t c = 0; c < d->n_catalogs; c++) {
+      if (strcmp(d->catalogs[c].lang, lang) != 0) continue;
+      for (size_t m = 0; m < d->catalogs[c].n; m++) {
+        if (strcmp(d->catalogs[c].messages[m].key, key) == 0) return d->catalogs[c].messages[m].text;
+      }
+    }
+  }
+  return w->text;
+}

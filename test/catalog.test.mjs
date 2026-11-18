@@ -14,7 +14,7 @@ import { catalogDirOf, catalogKeys, catalogPathOf, catalogProblems, fill, loadCa
 import { DATA, ROOT, resolvedOf, texts, scratchDir } from './helpers.mjs';
 
 const FILE = 'data/measurement.json';
-const ITEM = 'MEASUREMENT_UNMEASURED_REASONS';
+const ITEM = 'QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS';
 const data = () => texts((d) => {
   const w = d[FILE][ITEM].words.noAudioIn;
   w.text = { en: '{plugin} has no audio input.' };
@@ -98,7 +98,7 @@ test('every code and word this repo declares carries a source sentence (omx-cont
 
 test('needs-content: an instrument silent until content is loaded, grouped nothing-to-measure (plugin-qualify#21, #23)', () => {
   const resolved = resolvedOf(texts());
-  const w = resolved.get('MEASUREMENT_UNMEASURED_REASONS').value.needsContent;
+  const w = resolved.get('QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS').value.needsContent;
   assert.equal(w.word, 'needs-content');
   assert.equal(w.group, 'nothing-to-measure');
   assert.equal(w.text.en, 'An instrument that is silent under notes until a sample, a sound font or an instrument file is loaded, which the prober did not load.');

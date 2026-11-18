@@ -1,6 +1,6 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
-  "MEASUREMENT_DIMENSIONS": {
+  "QUALIFICATION_MEASUREMENT_DIMENSIONS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "The measurable dimensions a measurement document declares it covers: latency and cost since the format's 1.0, stability, RT safety and features since 1.1, for the hosting verdict.",
@@ -37,7 +37,7 @@
       }
     }
   },
-  "MEASUREMENT_UNMEASURED_KINDS": {
+  "QUALIFICATION_MEASUREMENT_UNMEASURED_KINDS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "What an absent figure means for a merge, the one distinction that changes behaviour: a property of the plugin, a failure of this run, or a dimension the run did not cover.",
@@ -65,11 +65,11 @@
       }
     }
   },
-  "MEASUREMENT_UNMEASURED_REASONS": {
+  "QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "Every reason a figure may be absent, each of its kind: an outcome a sweep produced, never a hypothetical. A reader that meets a reason it does not know treats it as probe-failed.",
-    "groups": "MEASUREMENT_UNMEASURED_KINDS",
+    "groups": "QUALIFICATION_MEASUREMENT_UNMEASURED_KINDS",
     "words": {
       "noAudioIn": {
         "word": "no-audio-in",
@@ -217,7 +217,7 @@
       }
     }
   },
-  "MEASUREMENT_LATENCY_METHODS": {
+  "QUALIFICATION_MEASUREMENT_LATENCY_METHODS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "How a latency figure was taken. note-onset is an instrument's: a held note's first sound.",
@@ -253,7 +253,7 @@
       }
     }
   },
-  "MEASUREMENT_COST_METHODS": {
+  "QUALIFICATION_MEASUREMENT_COST_METHODS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "How a cost figure was taken.",
@@ -267,7 +267,7 @@
       }
     }
   },
-  "MEASUREMENT_LATENCY_SCALING": {
+  "QUALIFICATION_MEASUREMENT_LATENCY_SCALING": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "How latency moves with the sample rate, derived from readings at several rates, never assumed from a plugin's name.",
@@ -316,7 +316,7 @@
       }
     }
   },
-  "MEASUREMENT_LATENCY_SCALING_NOTES": {
+  "QUALIFICATION_MEASUREMENT_LATENCY_SCALING_NOTES": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "Why a derived scaling class is not the naive fit over every reading.",
@@ -337,7 +337,7 @@
       }
     }
   },
-  "MEASUREMENT_LATENCY_EXCLUSIONS": {
+  "QUALIFICATION_MEASUREMENT_LATENCY_EXCLUSIONS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "Why one rate's reading was left out of the fit and of every rate resolution.",
@@ -351,7 +351,7 @@
       }
     }
   },
-  "MEASUREMENT_VOICE_BASES": {
+  "QUALIFICATION_MEASUREMENT_VOICE_BASES": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "Where the number of notes an instrument's cost was measured with came from: the voice capacity the plugin declares (CLAP voice-info), or a count the caller gave.",
@@ -373,7 +373,7 @@
       }
     }
   },
-  "MEASUREMENT_VERDICT_RATINGS": {
+  "QUALIFICATION_MEASUREMENT_VERDICT_RATINGS": {
     "kind": "words",
     "since": "2.18.0",
     "doc": "The four ratings a verdict speaks, in order from the best.",

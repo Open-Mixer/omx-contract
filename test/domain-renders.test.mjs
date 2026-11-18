@@ -14,7 +14,7 @@ import { ROOT } from './helpers.mjs';
 const MOVED = {
   scan: ['SCAN_DOCUMENTS', 'SCAN_FIELD_SCOPES'],
   machine: ['MACHINE_CLASS_FIELDS', 'MACHINE_PROFILE_FIELDS', 'MACHINE_CORE_BANDS', 'MACHINE_CLOCK_BANDS', 'MACHINE_ARCHES'],
-  qualification: ['MEASUREMENT_[A-Z_]+', 'MACHINE_CLASSES', 'RESOURCE_MEMORY_PHASES', 'RESOURCE_UNMEASURED_REASONS', 'RESOURCE_BUDGET_SCOPES', 'RESOURCE_HOST_ISOLATIONS', 'RESOURCE_HOST_LATENCY_HANDLING', 'RESOURCE_THREAD_SCHEDULING'],
+  qualification: ['QUALIFICATION_MEASUREMENT_[A-Z_]+', 'QUALIFICATION_MACHINE_CLASSES', 'QUALIFICATION_RESOURCE_MEMORY_PHASES', 'QUALIFICATION_RESOURCE_UNMEASURED_REASONS', 'QUALIFICATION_RESOURCE_BUDGET_SCOPES', 'QUALIFICATION_RESOURCE_HOST_ISOLATIONS', 'QUALIFICATION_RESOURCE_HOST_LATENCY_HANDLING', 'QUALIFICATION_RESOURCE_THREAD_SCHEDULING'],
 };
 
 const SURFACE = ['include', 'share', 'python', 'test/golden'];
@@ -77,4 +77,18 @@ test('a domain\'s codes header passes, and one that carries more than codes is r
     'include/omxdomain/dsp_kernels_codes.h: a render of dsp_kernels that is not codes',
     'include/omxdomain/scan_vocabulary.h: a render of scan that is not codes',
   ]);
+});
+
+test('every item a gate row names starts with its domain\'s prefix: the reader refuses a domain whose items do not', () => {
+  for (const [domain, items] of Object.entries(MOVED)) {
+    const prefix = `${domain.replace(/[-/]/g, '_').toUpperCase()}_`;
+    assert.deepEqual(items.filter((i) => !i.startsWith(prefix)), [], `${domain} rows`);
+  }
+});
+
+test('a render of a qualification item is named by the domain prefix', () => {
+  const read = (f) => (f === 'include/x.h' ? '#define OMX_QUALIFICATION_MEASUREMENT_VOICE_BASES_COUNT 2u' : '');
+  const bad = nonCodeRenders(['include/x.h'], read);
+  assert.equal(bad.length, 1);
+  assert.match(bad[0], /^include\/x\.h: a render of qualification that is not codes \(QUALIFICATION_MEASUREMENT_VOICE_BASES_COUNT\)$/);
 });

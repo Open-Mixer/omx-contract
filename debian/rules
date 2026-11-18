@@ -16,6 +16,10 @@ override_dh_auto_install:
 	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PYTHONDIR=/usr/lib/python3/dist-packages
 	$(MAKE) install-cli DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr DATADIR=/usr/share BINDIR=/usr/bin CLIDIR=/usr/lib/omx-contract MANDIR=/usr/share/man
 
+# libomx-domain0.symbols carries the floor of each export; -c4 fails the build on a symbol it does not list
+override_dh_makeshlibs:
+	dh_makeshlibs -- -c4
+
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) check

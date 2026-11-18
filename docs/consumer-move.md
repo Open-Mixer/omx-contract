@@ -120,10 +120,15 @@ sh "$D/install-contract-dir.sh" --domain contract.d/<domain> \
   "$DESTDIR$(pkg-config --variable=contractdir omx-contract)"
 ```
 
-in `make install`, with the installed files listed in the rpm spec and `debian/*.install`. A reader requires the
-owner's data package and omx-contract >= 3.20.0 (the loader) at build and run time; where that requirement would be
-a cycle, it requires nothing and refuses by name (exit 78, naming the domain and the directories) when the domain
-is absent at the moment it needs it, with a test arm. A CI that installs omx-contract from a commit pins it by SHA
+in `make install`. The domain ships in a `<pkg>-contract` subpackage, uniformly: noarch data in the rpm, the binary
+package `<pkg>-contract` in debian, never in the main package. Its rpm `%files` names the directory with
+`%{omx_contract_domain_dir}/<domain>/` (the contract directory without a schema major; the macro comes with the
+installer's domain mode, omx-contract#117), and `debian/<pkg>-contract.install` lists the same path.
+
+A reader requires the owner's `<pkg>-contract` (rpm `Requires`, deb `Depends`) at its floor, and omx-contract >= 3.20.0
+(the loader), at build and run time. Requiring the data without the program leaves no cycle (plugin-hostd requires
+`plugin-qualify-contract`, not plugin-qualify). The program still refuses by name (exit 78, naming the domain and
+the directories) when the domain is absent at the moment it needs it, with a test arm. A CI that installs omx-contract from a commit pins it by SHA
 until the 3.20.0 tag replaces it.
 
 ## 7. The red-first tests

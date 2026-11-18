@@ -992,76 +992,6 @@
     "schedule",
     "worker.lv2"
   ],
-  "MACHINE_CLASSES": [
-    "desk",
-    "raspberryPi4",
-    "raspberryPi5"
-  ],
-  "MEASUREMENT_COST_METHODS": [
-    "blockTimePercentile"
-  ],
-  "MEASUREMENT_DIMENSIONS": [
-    "cost",
-    "features",
-    "latency",
-    "rtSafety",
-    "stability"
-  ],
-  "MEASUREMENT_LATENCY_EXCLUSIONS": [
-    "impossibleZero"
-  ],
-  "MEASUREMENT_LATENCY_METHODS": [
-    "declaredPort",
-    "impulseOnset",
-    "noteOnset"
-  ],
-  "MEASUREMENT_LATENCY_SCALING": [
-    "fixedFrame",
-    "fixedTime",
-    "nonconforming",
-    "singleRate",
-    "unmeasured",
-    "zero"
-  ],
-  "MEASUREMENT_LATENCY_SCALING_NOTES": [
-    "belowBudget",
-    "informationalRate"
-  ],
-  "MEASUREMENT_UNMEASURED_KINDS": [
-    "notAttempted",
-    "nothingToMeasure",
-    "probeFailed"
-  ],
-  "MEASUREMENT_UNMEASURED_REASONS": [
-    "needsCarrier",
-    "needsContent",
-    "needsImpulseResponse",
-    "noAudioIn",
-    "noAudioOut",
-    "noVoices",
-    "nonFiniteOutput",
-    "notAttempted",
-    "notInstalled",
-    "notesUnplayable",
-    "probeCrashed",
-    "probeError",
-    "probeTimeout",
-    "refusedInstantiation",
-    "silentOutput",
-    "unpinnable",
-    "voicesUnknown",
-    "workerNonconforming"
-  ],
-  "MEASUREMENT_VERDICT_RATINGS": [
-    "conditional",
-    "suitable",
-    "unknown",
-    "unsuitable"
-  ],
-  "MEASUREMENT_VOICE_BASES": [
-    "declared",
-    "probe"
-  ],
   "OMX_PARAM_CONTRACT_UNITS": [
     "bar",
     "beat",
@@ -1260,10 +1190,6 @@
     "measured",
     "probe"
   ],
-  "RESOURCE_BUDGET_SCOPES": [
-    "perConsole",
-    "perInstance"
-  ],
   "RESOURCE_HINTS": [
     "activateTime",
     "footprintAtRest",
@@ -1272,15 +1198,6 @@
     "sharedLoad",
     "streamsFromDisk",
     "threadsSpawned"
-  ],
-  "RESOURCE_HOST_ISOLATIONS": [
-    "inProcess",
-    "perProcess",
-    "sharedProcess"
-  ],
-  "RESOURCE_HOST_LATENCY_HANDLING": [
-    "compensated",
-    "uncompensated"
   ],
   "RESOURCE_KINDS": [
     "blockLength",
@@ -1298,17 +1215,6 @@
     "voices",
     "worker"
   ],
-  "RESOURCE_MEMORY_PHASES": [
-    "afterActivate",
-    "afterInstantiate",
-    "atRest",
-    "notesHeld",
-    "secondInstance"
-  ],
-  "RESOURCE_THREAD_SCHEDULING": [
-    "fifo",
-    "none"
-  ],
   "RESOURCE_UNITS": [
     "bytes",
     "flag",
@@ -1319,10 +1225,6 @@
     "ratio",
     "s",
     "us"
-  ],
-  "RESOURCE_UNMEASURED_REASONS": [
-    "limitExceeded",
-    "unmeasuredOnClass"
   ],
   "RT_HARD_TARGET": [
     "quantum",

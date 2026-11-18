@@ -79,10 +79,24 @@ its key; a word is `OMX_<ITEM>_<NAME>`, each words item with its `_COUNT` and `_
 exported under its name, and `<ITEM>_WORDS`), at the top of `--out`. The stem is the package's name, `omx` for
 omx-contract: `render --target c --package omx-contract --out include/omxcontract` is `omx_vocabulary.h` byte for byte,
 and omx-clap-core's is `omx_clap_core_vocabulary.h`, guard `OMX_CLAP_CORE_VOCABULARY_H`, so the two include together.
-A package with no such item renders no vocabulary file. A domain (docs/contract-dir.md, "Domains") is rendered as a package of its own name:
-`render --target c --package panel` writes `panel_vocabulary.h` (guard `PANEL_VOCABULARY_H`, items `OMX_PANEL_FAMILIES_*`), installed
-as `<includedir>/omxdomain/<domain>_vocabulary.h`, the one header a consumer of the domain includes; the owner commits
-the render and runs `render --check` at its own build, so a change of a domain's words needs no omx-contract release.
+A package with no such item renders no vocabulary file.
+
+A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
+its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
+`OMX_<DOMAIN>_CODES_H`, installed as `<includedir>/omxdomain/<domain>_codes.h`; `<DOMAIN>` is the domain's name in
+upper snake case, a `/` an `_` (`dsp/kernels`: `dsp_kernels_codes.h`, `OMX_DSP_KERNELS_*`). It holds the items marked
+`"x-c-codes": true` (docs/contract-dir.md), the whole item, and no other:
+
+- per word, in declared order, `#define OMX_<DOMAIN>_<ITEM>_<WORD> <code>`: `<ITEM>` the item's name as declared,
+  `<WORD>` the word's title (its key) in upper snake case, `<code>` its `x-code` as an unsigned literal (`3u`);
+- per item, `#define OMX_<DOMAIN>_<ITEM>_COUNT <n>`, its number of words;
+- an item ALSO marked `"x-c-xmacro": true` (ruling 5: C uses it as struct fields or enum values) adds the X-macro
+  `OMX_<DOMAIN>_<ITEM>(X)`, one `X(OMX_<DOMAIN>_<ITEM>_<WORD>, <WORD>)` per word in declared order.
+
+Nothing else: no `_INIT`, no `_TEXT_EN`, no `_ARGS_*`, no word string, no description, no X-macro without
+`x-c-xmacro`, and no ts or python target. An item without `x-c-codes` renders nothing; a domain with no marked item
+renders no header. The owner commits its codes header and runs `render --check` on it at its own build, so a code
+added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of
 its `verbs` items as `<stem>_host_verbs.h` (guard `<STEM>_HOST_VERBS_H`), omx-clap-core's `omx_clap_core_host_verbs.h`.

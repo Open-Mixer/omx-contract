@@ -137,7 +137,7 @@ tool.
 
 | Stays generated | Why |
 |---|---|
-| The codes headers: the enum values and refusal codes C switches on, `<domain>_codes.h` | A `case` label needs a compile-time constant. This is the one generated artifact of a domain, and it holds codes only: no description, no text, no word list. |
+| The codes headers: the items marked `x-c-codes`, `<domain>_codes.h` | A `case` label needs a compile-time constant. This is the one generated artifact of a domain, and it holds codes only: one define per word and the item's count, no description, no text, no word list (below). |
 | ABI structs and their layout checks | A struct is a compile-time layout shared by two binaries; a function cannot declare one. The struct stays the ABI and the schema its JSON form, held equal by a conformance test in the owner (docs/data-layout.md "The renders"). |
 | The LV2 and MOD GUI files (the Turtle manifests, the GUI bundles) | A build artifact: a host reads them from the installed bundle, not from our loader, and they are made once at package build from the data. |
 | Packaging lists (file lists of the rpm and the deb) | A build artifact of the package build, read by the packaging tool before any program of ours runs. |
@@ -146,6 +146,14 @@ tool.
 
 The test for a new generated file is the rule's: does a compiler, a packager or a host other than ours need it before
 a program of ours runs? If not, it is a function.
+
+### The codes header
+
+An item is marked, not guessed: `"x-c-codes": true` on a words item makes the whole item constants (ruling 9). The
+header holds, per marked item, one `#define OMX_<DOMAIN>_<ITEM>_<WORD> <code>` per word and
+`#define OMX_<DOMAIN>_<ITEM>_COUNT <n>`, nothing else; an X-macro only for an item also marked `"x-c-xmacro": true`
+(ruling 5). The spelling is docs/render.md's. A word C needs as a string is read with `omx_domain_word`; its sentence
+with `omx_domain_text`. A domain with no marked item has no header at all.
 
 ## Other generated files
 
@@ -228,3 +236,6 @@ The owner's answers to the questions this spec left open (2026-11-18):
 6. **A refused start-up exits 78** (EX_CONFIG), in every program of the project.
 7. **The resolved JSON render** stays a command-line tool for viewing and debugging. Its output is never committed.
 8. **WebAssembly** is handed its data at start-up; only the codes are built in.
+9. **The codes header** (coordinator, 2026-11-18): an ITEM-level mark, `"x-c-codes": true`, makes the whole item
+   constants. The header is one `#define OMX_<DOMAIN>_<ITEM>_<WORD> <code>` per word and the item's `_COUNT`, nothing
+   else: no `_TEXT_EN`, no `_ARGS`, and no X-macro unless ruling 5 applies, marked `"x-c-xmacro": true`.

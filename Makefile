@@ -183,6 +183,7 @@ test-c:
 	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS) -ldl
 	$(TESTC)/domain_test
 	sh test/c/cli_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain
+	sh test/c/install_domain_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain $(CURDIR)/tools/install-contract-dir.sh
 	$(MAKE) TESTC=$(TESTC) fuzz-replay
 
 # The fuzz target of the loader (test/c/fuzz/): `fuzz-replay` replays every file of test/c/fuzz/corpus/ under the

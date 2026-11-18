@@ -32,7 +32,7 @@ function panelDomain() {
       oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
     };
   }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel' }, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas } };
 }
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
@@ -84,6 +84,8 @@ const refusals = [
   ['a $id that is not the directory\'s', (d) => { d.$id = 'https://openmixer.org/contract/look'; }, CONTRACT_CODES.manifestInvalid],
   ['a version that is not x.y.z', (d) => { d.info.version = '1.0'; }, CONTRACT_CODES.manifestInvalid],
   ['an owner that is no package name', (d) => { d.info['x-owner'] = 'Omx Panel'; }, CONTRACT_CODES.manifestInvalid],
+  ['no x-stability', (d) => { delete d.info['x-stability']; }, CONTRACT_CODES.manifestInvalid],
+  ['an x-stability that is neither experimental nor stable', (d) => { d.info['x-stability'] = 'beta'; }, CONTRACT_CODES.manifestInvalid],
   ['an unknown key of the document', (d) => { d.paths = {}; }, CONTRACT_CODES.fileInvalid],
   ['a schema that is no oneOf', (d) => { delete d.components.schemas.PANEL_PLACEMENTS.oneOf; d.components.schemas.PANEL_PLACEMENTS.enum = ['a']; }, CONTRACT_CODES.fileInvalid],
   ['a $ref', (d) => { d.components.schemas.PANEL_PLACEMENTS.$ref = 'https://openmixer.org/contract/look#/x'; }, CONTRACT_CODES.fileInvalid],
@@ -139,7 +141,7 @@ function groupedDomain() {
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     $id: 'https://openmixer.org/contract/grouped',
-    info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner' },
+    info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner', 'x-stability': 'experimental' },
     components: {
       schemas: {
         GROUPED_KINDS: { description: 'The groups.', 'x-since': '3.0.0', oneOf: code([w('nothing-to-measure', 'nothing'), w('cannot', 'cannot')]) },
@@ -170,6 +172,13 @@ test('a group no word of the groups schema names, and a $ref that is no domain i
   const path = groupedDomain();
   path.components.schemas.GROUPED_REASONS.oneOf[1]['x-from'][0].$ref = '../formats/formats.json#/x';
   assert.equal(refusalOf(dirWith(path, 'grouped')), CONTRACT_CODES.fileInvalid);
+});
+
+test('an x-from $ref names a nested domain, dsp/kernels', () => {
+  const doc = groupedDomain();
+  doc.components.schemas.GROUPED_REASONS.oneOf[1]['x-from'][0].$ref = 'https://openmixer.org/contract/dsp/kernels#/components/schemas/X';
+  const d = loadContractDir({ dir: dirWith(doc, 'grouped') });
+  assert.deepEqual(d.items.get('GROUPED_REASONS').item.words.impulse.from, ['X#latency']);
 });
 
 test('a domain directory may hold catalogs/<lang>.json, and nothing else beside its document', () => {

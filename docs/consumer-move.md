@@ -89,10 +89,11 @@ const char *t = omx_domain_text(d, "<key>", "<lang>");  /* a translated text */
 omx_domain_close(d);
 ```
 
-A program that opens its domain refuses (exit 78) on an install without it, so the read (this step) and the
-install and requirement (step 6) land in the same release. A program links `libomx-domain` (`pkg-config --cflags --libs libomx-domain`). `<floor>` is the `info.version` the
-code needs. TypeScript reads the installed JSON with Ajv 2020 and `FromSchema<typeof domainSchema>`
-(`@openmixer/omx-contract/domain-schema`); a browser bundle is handed the document by the page (`init(doc)`).
+A program that opens its domain refuses (exit 78) on an install without it, so the read (this step) and the install
+and requirement (step 6) land in the same release. A program links `libomx-domain` (`pkg-config --cflags --libs
+libomx-domain`). `<floor>` is the `info.version` the code needs. TypeScript reads the installed JSON with Ajv 2020 and
+`FromSchema<typeof domainSchema>` (`@openmixer/omx-contract/domain-schema`); a browser bundle is handed the document
+by the page (`init(doc)`).
 
 ## 5. CLIs and tests: `OMX_CONTRACT_PATH`
 
@@ -125,11 +126,11 @@ package `<pkg>-contract` in debian, never in the main package. Its rpm `%files` 
 `%{omx_contract_domain_dir}/<domain>/` (the contract directory without a schema major; the macro comes with the
 installer's domain mode, omx-contract#117), and `debian/<pkg>-contract.install` lists the same path.
 
-A reader requires the owner's `<pkg>-contract` (rpm `Requires`, deb `Depends`) at its floor, and omx-contract >= 3.20.0
-(the loader), at build and run time. Requiring the data without the program leaves no cycle (plugin-hostd requires
-`plugin-qualify-contract`, not plugin-qualify). The program still refuses by name (exit 78, naming the domain and
-the directories) when the domain is absent at the moment it needs it, with a test arm. A CI that installs omx-contract from a commit pins it by SHA
-until the 3.20.0 tag replaces it.
+A reader requires the owner's `<pkg>-contract` (rpm `Requires`, deb `Depends`) at its floor, and omx-contract >=
+3.20.0 (the loader), at build and run time. Requiring the data without the program leaves no cycle (plugin-hostd
+requires `plugin-qualify-contract`, not plugin-qualify). The program still refuses by name (exit 78, naming the domain
+and the directories) when the domain is absent at the moment it needs it, with a test arm. A CI that installs
+omx-contract from a commit pins it by SHA until the 3.20.0 tag replaces it.
 
 ## 7. The red-first tests
 

@@ -166,6 +166,17 @@ jobs:
       - id: handback-headers
         name: The headers compile with no node (what a release build runs)
         run: make check
+      - name: Install jansson where the runner has none (the C domain loader's JSON library)
+        run: pkg-config --exists jansson || { sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends libjansson-dev pkg-config; }
+      - id: handback-c-loader
+        name: The C domain loader, under the sanitizers, its ABI list held, and the installed command refusing with 78
+        run: |
+          make test-c
+          make install-c DESTDIR="$RUNNER_TEMP/inst-c" PREFIX=/usr CONTRACTDIR=/usr/share/omx-contract/contract.d
+          export LD_LIBRARY_PATH="$RUNNER_TEMP/inst-c/usr/lib"
+          rc=0
+          "$RUNNER_TEMP/inst-c/usr/bin/omx-domain" no-such-domain || rc=$?
+          test "$rc" -eq 78
       - name: Install doxygen where the runner has none
         run: command -v doxygen >/dev/null || { sudo apt-get update -qq; sudo apt-get install -y --no-install-recommends doxygen; }
       - id: handback-doxygen
@@ -221,7 +232,7 @@ jobs:
       image: ${{ matrix.cell.image }}
     steps:
       - name: Install the build tools
-        run: dnf install -y --setopt=install_weak_deps=False git rpm-build dnf5-plugins python3
+        run: dnf install -y --setopt=install_weak_deps=False git rpm-build dnf5-plugins python3 cpio
       - uses: actions/checkout@v4
       - uses: Open-Mixer/.github/.github/actions/build-rpm@openmixer-v1
       - id: handback-rpm-files
@@ -241,7 +252,7 @@ jobs:
             done
             return 1
           }
-          dnf_retry --setopt=install_weak_deps=False rpms/omx-contract-[0-9]*.noarch.rpm rpms/omx-contract-data-[0-9]*.noarch.rpm
+          dnf_retry --setopt=install_weak_deps=False rpms/omx-contract-[0-9]*."$(uname -m)".rpm rpms/omx-contract-data-[0-9]*.noarch.rpm
           if rpm -q omx-contract-devel; then echo '::error::the development package came along'; exit 1; fi
           omx-contract validate --contract-dir /usr/share/omx-contract/contract.d
           omx-contract render --target json --contract-dir /usr/share/omx-contract/contract.d --out /tmp/json
@@ -254,6 +265,13 @@ jobs:
           set -eu
           dnf install -y --setopt=install_weak_deps=False --setopt=retries=5 rpms/python3-omx-contract-[0-9]*.noarch.rpm
           sh tools/python-import-check.sh
+      - id: handback-rpm-c-loader
+        name: libomx-domain and its development package build a consumer, export the ABI list, refuse with 78
+        run: |
+          set -eu
+          dnf install -y --setopt=install_weak_deps=False --setopt=retries=5 gcc binutils pkgconf-pkg-config \
+            rpms/libomx-domain-[0-9]*."$(uname -m)".rpm rpms/libomx-domain-devel-[0-9]*."$(uname -m)".rpm
+          sh tools/c-loader-check.sh
 
   deb:
     name: DEBs (${{ matrix.suite }}), linted, which file lands in which package
@@ -298,3 +316,9 @@ jobs:
           set -eu
           apt-get install -y --no-install-recommends ./debs/python3-omx-contract_*_all.deb
           sh tools/python-import-check.sh
+      - id: handback-deb-c-loader
+        name: libomx-domain0 and libomx-domain-dev build a consumer, export the ABI list, refuse with 78
+        run: |
+          set -eu
+          apt-get install -y --no-install-recommends gcc libc6-dev binutils pkgconf ./debs/libomx-domain0_*_"$(dpkg --print-architecture)".deb ./debs/libomx-domain-dev_*_"$(dpkg --print-architecture)".deb
+          sh tools/c-loader-check.sh

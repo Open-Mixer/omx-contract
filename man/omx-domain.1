@@ -1,0 +1,44 @@
+.\" SPDX-License-Identifier: GPL-3.0-or-later
+.\" Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+.TH OMX-DOMAIN 1 2026-11-18 omx-contract "User Commands"
+.SH NAME
+omx-domain \- open an OpenMixer contract domain and print a word or a range
+.SH SYNOPSIS
+.B omx-domain
+.I domain
+.RI [ needs
+.RI [ item
+.RI [ name ]]]
+.SH DESCRIPTION
+Opens the contract domain
+.I domain
+with libomx-domain and checks it. With only a domain it prints the domain's name; with an
+.I item
+it prints each word of that item; with a
+.I name
+it prints that word, or that parameter's minimum, maximum, default, unit and scale.
+.I needs
+is the version floor,
+.IR x.y.z ,
+the domain must meet; an empty one is none.
+.SH ENVIRONMENT
+.TP
+.B OMX_CONTRACT_PATH
+A directory holding
+.IR domain / domain .json
+to read instead of the installed contract directory. For tests and development only.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+The item or the name is not in the domain.
+.TP
+.B 64
+No domain was named.
+.TP
+.B 78
+The domain is missing or invalid: the code of CONTRACT_CODES and the reason are printed on standard error.
+.SH SEE ALSO
+.BR omx-contract (1)

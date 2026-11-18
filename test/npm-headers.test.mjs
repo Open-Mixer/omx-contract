@@ -15,7 +15,8 @@ test('npm tarball: include/omxcontract carries every header the -devel packages 
   const dest = mkdtempSync(join(tmpdir(), 'omx-contract-install-'));
   try {
     execFileSync('make', ['install', `DESTDIR=${dest}`, 'PREFIX=/usr'], { cwd: ROOT, stdio: 'pipe' });
-    const devel = readdirSync(join(dest, 'usr/include/omxcontract')).filter((f) => f.endsWith('.h')).sort();
+    // the C loader's two headers come from `make install-c` (libomx-domain-devel), which needs a library build; the rest from `make install`
+    const devel = [...readdirSync(join(dest, 'usr/include/omxcontract')).filter((f) => f.endsWith('.h')), 'omx_domain.h', 'omx_contract_codes.h'].sort();
     assert.ok(devel.includes('omx_json_write.h') && devel.includes('omx_contract_limits.h'), 'positive control: the install holds the hand-written and a rendered header');
     const packed = packedFiles();
     const npm = packed.filter((p) => /^include\/omxcontract\/[^/]+\.h$/.test(p)).map((p) => p.split('/').pop()).sort();

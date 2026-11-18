@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+# the installed list of the library's exports (abi/libomx-domain.abi), one symbol a line
+abifile=@DATADIR@/omx-contract/abi/libomx-domain.abi
+# the contract directory omx_domain_open reads (compiled in)
+contractdir=@CONTRACTDIR@
+
+Name: libomx-domain
+Description: The C loader of an OpenMixer contract domain (omxcontract/omx_domain.h); start-up only, never in an audio thread
+Version: @VERSION@
+Requires.private: jansson
+Cflags: -I${includedir}
+Libs: -L${libdir} -lomx-domain

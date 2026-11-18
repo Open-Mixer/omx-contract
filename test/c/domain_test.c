@@ -2,14 +2,17 @@
 /* Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> */
 /* The C domain loader (docs/runtime-data.md, "The C loader"): every function, every refusal. Run by `make test-c`,
    which builds the library against the fixtures of test/fixtures/domain/ (OMX_CONTRACTDIR is that directory). */
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE /* RTLD_NEXT: the rewinddir hook of test_catalog_gains_a_file */
 #include <omxcontract/omx_contract_codes.h>
 #include <omxcontract/omx_domain.h>
 
+#include <dirent.h>
+#include <dlfcn.h>
 #include <jansson.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -247,6 +250,161 @@ static void test_codes_are_contract_codes(void) {
   json_decref(root);
 }
 
+/* ---- memory safety of the loader on hostile directories: each test builds its own contract directory ---- */
+
+static char scratch[256];
+
+static void put_file(const char *path, const char *text) {
+  FILE *f = fopen(path, "wb");
+  if (!f) { failures++; fprintf(stderr, "%s:%d: cannot write %s\n", __FILE__, __LINE__, path); return; }
+  fputs(text, f);
+  fclose(f);
+}
+
+static void make_scratch(void) {
+  const char *tmp = getenv("TMPDIR");
+  snprintf(scratch, sizeof scratch, "%s/omx-domain-test-XXXXXX", tmp && *tmp ? tmp : "/tmp");
+  if (!mkdtemp(scratch)) { perror("mkdtemp"); exit(2); }
+}
+
+static void drop_scratch(void) {
+  char cmd[300];
+  snprintf(cmd, sizeof cmd, "rm -rf '%s'", scratch);
+  if (system(cmd) != 0) failures++;
+}
+
+/* A domain `name` in the scratch directory whose document is `$id` `id`, version `version`; one word item DOM_W. */
+static void make_domain(const char *name, const char *id, const char *version) {
+  char path[4096], doc[1024];
+  snprintf(path, sizeof path, "%s/%s", scratch, name);
+  for (char *p = path + strlen(scratch) + 1; *p; p++) {
+    if (*p == '/') { *p = '\0'; mkdir(path, 0700); *p = '/'; }
+  }
+  mkdir(path, 0700);
+  const char *stem = strrchr(name, '/') ? strrchr(name, '/') + 1 : name;
+  snprintf(doc, sizeof doc, "{\"$id\":\"%s\",\"info\":{\"version\":\"%s\",\"x-owner\":\"o\"},\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", id, version);
+  snprintf(path, sizeof path, "%s/%s/%s.json", scratch, name, stem);
+  put_file(path, doc);
+}
+
+static int open_scratch(const char *name, const char *needs, omx_domain **d, omx_domain_error *err) {
+  memset(err, 0, sizeof *err);
+  *d = (omx_domain *)0x1;
+  int rc = omx_domain_open_at(scratch, name, needs, d, err);
+  if (rc) CHECK(*d == NULL);
+  return rc;
+}
+
+/* A catalog entry with no string "text": refused, naming the entry (the name used to be read after the JSON that owns it was freed). */
+static void test_catalog_entry_without_text(void) {
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[512];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
+  put_file(path, "{\"messages\":{\"DOM_W.a\":{\"nottext\":1}}}");
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(strstr(err.message, "\"DOM_W.a\"") != NULL);
+  drop_scratch();
+}
+
+/* A name longer than OMX_DOMAIN_NAME_MAX is refused as an invalid manifest, never opened through a truncated $id. */
+static void test_long_name(void) {
+  make_scratch();
+  char name[1024] = "", id[1200] = "https://openmixer.org/contract/", trunc_id[600];
+  for (int i = 0; i < 60; i++) strcat(name, i ? "/abcdefghij" : "abcdefghij");
+  strcat(id, name);
+  snprintf(trunc_id, sizeof trunc_id, "%.511s", id); /* what a 512-byte buffer used to hold of it */
+  make_domain(name, trunc_id, "1.0.0");
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch(name, NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
+  CHECK(strstr(err.message, "OMX_DOMAIN_NAME_MAX") != NULL);
+  /* a name at the limit is a name (and is then judged on its $id as any) */
+  char at_limit[OMX_DOMAIN_NAME_MAX + 1];
+  memset(at_limit, 'a', OMX_DOMAIN_NAME_MAX);
+  at_limit[OMX_DOMAIN_NAME_MAX / 2] = '/'; /* two segments: a file name is itself limited to 255 bytes */
+  at_limit[OMX_DOMAIN_NAME_MAX] = '\0';
+  snprintf(id, sizeof id, "https://openmixer.org/contract/%s", at_limit);
+  make_domain(at_limit, id, "1.0.0");
+  CHECK(open_scratch(at_limit, NULL, &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  drop_scratch();
+}
+
+/* A directory too long for the path buffer is refused as an unusable input (the directory may well exist), by name,
+ * not opened as a truncated path. */
+static void test_long_dir(void) {
+  static char dir[5000];
+  memset(dir, 'd', sizeof dir - 1);
+  dir[0] = '/';
+  dir[sizeof dir - 1] = '\0';
+  omx_domain *d = NULL;
+  omx_domain_error err;
+  memset(&err, 0, sizeof err);
+  CHECK(omx_domain_open_at(dir, "demo", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID && d == NULL);
+  CHECK(strstr(err.message, "too long") != NULL);
+}
+
+/* The version of a document and the floor a program asks are plain x.y.z: no leading zero, no overflow. */
+static void test_version_strictness(void) {
+  make_scratch();
+  omx_domain *d;
+  omx_domain_error err;
+  make_domain("v1", "https://openmixer.org/contract/v1", "01.2.0");
+  CHECK(open_scratch("v1", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  make_domain("v2", "https://openmixer.org/contract/v2", "1.2.0");
+  CHECK(open_scratch("v2", "1.02.0", &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  make_domain("v3", "https://openmixer.org/contract/v3", "99999999999999999999999.0.0");
+  CHECK(open_scratch("v3", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("v2", "99999999999999999999999.0.0", &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  make_domain("v4", "https://openmixer.org/contract/v4", "0.10.100");
+  CHECK(open_scratch("v4", "0.0.0", &d, &err) == 0);
+  if (d) omx_domain_close(d);
+  drop_scratch();
+}
+
+/* A file that appears in catalogs/ between the loader's counting pass and its reading pass: the hook below creates
+   some right after the loader's rewinddir. It must be refused, never written past the array counted for. */
+static const char *gain_dir;
+void rewinddir(DIR *dh) {
+  static void (*real)(DIR *);
+  if (!real) *(void **)&real = dlsym(RTLD_NEXT, "rewinddir");
+  real(dh);
+  if (gain_dir) {
+    char path[600];
+    for (int i = 0; i < 40; i++) {
+      snprintf(path, sizeof path, "%s/gain%d.json", gain_dir, i);
+      put_file(path, "{\"messages\":{}}");
+    }
+    gain_dir = NULL;
+  }
+}
+
+static void test_catalog_gains_a_file(void) {
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  static char dir[512];
+  char path[600];
+  snprintf(dir, sizeof dir, "%s/dom/catalogs", scratch);
+  mkdir(dir, 0700);
+  snprintf(path, sizeof path, "%s/es.json", dir);
+  put_file(path, "{\"messages\":{}}");
+  gain_dir = dir;
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(strstr(err.message, "changed") != NULL);
+  gain_dir = NULL;
+  drop_scratch();
+}
+
+/* DOMAIN_TEST_ONLY=<name> runs just that one of the hostile-directory tests (an ASan abort ends the process). */
+#define RUN(fn) do { const char *only_ = getenv("DOMAIN_TEST_ONLY"); if (!only_ || strcmp(only_, #fn) == 0) fn(); } while (0)
+
 int main(void) {
   test_words();
   test_lookup_refusals();
@@ -258,6 +416,11 @@ int main(void) {
   test_open_installed();
   test_open_or_exit();
   test_codes_are_contract_codes();
+  RUN(test_catalog_entry_without_text);
+  RUN(test_long_name);
+  RUN(test_long_dir);
+  RUN(test_version_strictness);
+  RUN(test_catalog_gains_a_file);
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
   puts("domain_test: all checks passed");
   return 0;

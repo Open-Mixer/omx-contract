@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib build-c install-c check-abi test-c check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib build-c install-c check-abi test-c fuzz fuzz-replay check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -171,16 +171,38 @@ check-abi: $(CBUILD)/$(DOMAIN_SO)
 	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 ~ /^[TWDBRV]$$/ { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
 
 TESTC = build/test-c
+# -fno-sanitize-recover=all: a UBSan finding stops the program (and so fails the suite) instead of printing and going on.
+SANFLAGS = -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
 test-c:
 	rm -rf $(TESTC) && mkdir -p $(TESTC)
-	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' check-abi
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' check-abi
 	sh test/c/abi_selftest.sh
-	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' CLI_RPATH=-Wl,-rpath,$(CURDIR)/$(TESTC) build-c
-	$(CC) $(DOMAIN_CFLAGS) -g -fsanitize=address,undefined -fno-omit-frame-pointer -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' CLI_RPATH=-Wl,-rpath,$(CURDIR)/$(TESTC) build-c
+	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
 	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
-	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS)
+	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS) -ldl
 	$(TESTC)/domain_test
 	sh test/c/cli_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain
+	$(MAKE) TESTC=$(TESTC) fuzz-replay
+
+# The fuzz target of the loader (test/c/fuzz/): `fuzz-replay` replays every file of test/c/fuzz/corpus/ under the
+# sanitizers with any C compiler (it is part of `test-c`, so CI runs it); `fuzz` is the libFuzzer run, needs clang
+# (FUZZ_SECONDS bounds it, 30 by default). A crash input found is committed to the corpus with the fix.
+FUZZ_SECONDS ?= 30
+FUZZ_SRC = test/c/fuzz/fuzz_domain.c
+FUZZ_DEFS = -DDEMO_DOC='"$(CURDIR)/test/fixtures/domain/demo/demo.json"'
+fuzz-replay: $(TESTC)/$(DOMAIN_SO)
+	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DFUZZ_REPLAY $(FUZZ_DEFS) $(FUZZ_SRC) -o $(TESTC)/fuzz_domain_replay -L$(TESTC) \
+	  -Wl,-rpath,$(CURDIR)/$(TESTC) $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS)
+	$(TESTC)/fuzz_domain_replay test/c/fuzz/corpus/*
+
+fuzz:
+	@command -v clang >/dev/null || { echo "make fuzz needs clang (libFuzzer); make fuzz-replay runs the corpus with any compiler" >&2; exit 2; }
+	rm -rf build/fuzz && mkdir -p build/fuzz/work
+	clang -std=c11 -g -O1 -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all -Iinclude $(JANSSON_CFLAGS) \
+	  -DOMX_CONTRACTDIR='"/nonexistent"' $(FUZZ_DEFS) $(FUZZ_SRC) src/c/omx_domain.c -o build/fuzz/fuzz_domain $(JANSSON_LIBS)
+	cp test/c/fuzz/corpus/* build/fuzz/work/
+	build/fuzz/fuzz_domain -dict=test/c/fuzz/domain.dict -max_total_time=$(FUZZ_SECONDS) -artifact_prefix=build/fuzz/ build/fuzz/work
 
 # Every public declaration of the installed headers documented (docs/render.md "Documentation", omx-contract#64):
 # doxygen's undocumented-member warnings held to docs/doxygen-baseline.txt, red on a new one and on a stale line. With

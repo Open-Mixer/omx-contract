@@ -146,3 +146,13 @@ test('the package mode is unchanged: it still writes the manifest and rewrites $
   assert.ok(existsSync(join(to, '3/pkg/MANIFEST.json')));
   assert.ok(readFileSync(join(to, '3/pkg/a.json'), 'utf8').includes('https://openmixer.org/schema/omx-contract/v3/'));
 });
+
+// the RPM macros (packaging/macros.omx-contract.in): a domain's %files names %{omx_contract_domain_dir}/<domain>/, the
+// contract directory with no schema major, where --domain installs it; %{omx_contract_dir} is that directory's major.
+test('%{omx_contract_domain_dir} is the contract directory without the schema major', { skip: spawnSync('rpm', ['--version']).status !== 0 && 'no rpm' }, () => {
+  const macros = join(SCRATCH, 'macros.omx-contract');
+  writeFileSync(macros, readFileSync(join(ROOT, 'packaging/macros.omx-contract.in'), 'utf8').replace('@SCHEMA_MAJOR@', '3'));
+  const ev = (m) => spawnSync('rpm', ['--macros', `/usr/lib/rpm/macros:${macros}`, '--define', '_datadir /usr/share', '--eval', m], { encoding: 'utf8' }).stdout.trim();
+  assert.equal(ev('%{omx_contract_domain_dir}'), '/usr/share/omx-contract/contract.d');
+  assert.equal(ev('%{omx_contract_dir}'), '/usr/share/omx-contract/contract.d/3');
+});

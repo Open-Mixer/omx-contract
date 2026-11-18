@@ -130,4 +130,6 @@ test('a descriptor declares choiceUnits once: a choice control name to a descrip
   bad((d) => { d.choiceUnits.slope = 'furlongs'; }, /\/choiceUnits\/slope/);
   bad((d) => { d.choiceUnits.slope = 'unknown'; }, /\/choiceUnits\/slope/);
   bad((d) => { d.choiceUnits = {}; }, /\/choiceUnits must NOT have fewer than 1 properties/);
+  bad((d) => { d.choiceUnits.nothing = 'Hz'; }, /"nothing" names no control/);
+  bad((d) => { d.choiceUnits[d.controls[0].name] = 'dB'; }, /is not a choice/);
 });

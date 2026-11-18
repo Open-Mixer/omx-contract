@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/contract/dsp/other",
-  "info": { "title": "The demo vocabulary", "version": "1.2.0", "x-owner": "omx-fixture" },
+  "info": { "title": "The demo vocabulary", "version": "1.2.0", "x-owner": "omx-fixture", "x-stability": "experimental" },
   "components": {
     "schemas": {
       "DEMO_COLORS": {

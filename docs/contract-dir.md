@@ -44,6 +44,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     is the classic `from` string `LV2_CORE_TERMS#latency`. Until omx-contract's own data/ is migrated into domains, its
     items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
     a file path is never a reference.
+- A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds

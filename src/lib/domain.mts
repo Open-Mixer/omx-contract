@@ -84,12 +84,13 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from'], at, ew);
       if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a word`);
       if (typeof e.title !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(e.title)) refuse('fileInvalid', at, `${ew}.title is not the word's key`);
-      if (typeof e.description !== 'string') refuse('fileInvalid', at, `${ew}.description is not the word's line`);
+      if (e.description !== undefined && typeof e.description !== 'string') refuse('fileInvalid', at, `${ew}.description is not the word's line`);
       if (e['x-code'] !== i) refuse('fileInvalid', at, `${ew}.x-code is ${JSON.stringify(e['x-code'])}, and a code is the word's place in the order (${i})`);
       if (e['x-text'] !== undefined && typeof e['x-text'] !== 'string') refuse('fileInvalid', at, `${ew}.x-text is not a sentence`);
       if (e['x-group'] !== undefined) {
         const g = typeof s['x-groups'] === 'string' ? schemas[s['x-groups']] : undefined;
-        const known = Array.isArray(g?.oneOf) ? g.oneOf.map((x: JsonObject) => x.const) : [];
+        const gone = g?.oneOf;
+        const known = Array.isArray(gone) ? gone.map((x: JsonObject) => x.const) : [];
         if (!known.includes(e['x-group'])) refuse('fileInvalid', at, `${ew}.x-group ${JSON.stringify(e['x-group'])} is no word of the schema ${w}.x-groups names`);
       }
       const from: string[] = [];
@@ -106,7 +107,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
         });
       }
       if (e.title in words) refuse('fileInvalid', at, `${ew}.title ${e.title} is used twice in ${item}`);
-      words[e.title] = { word: e.const, ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), doc: e.description, ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }) };
+      words[e.title] = { word: e.const, ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }) };
     });
     out[item] = { kind: 'words', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), words };
   }

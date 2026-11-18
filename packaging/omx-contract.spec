@@ -7,11 +7,15 @@ Release: 1%{?dist}
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
 Summary: One shared source of truth for every OpenMixer knob, range and default
 URL: https://github.com/Open-Mixer/omx-contract
-BuildArch: noarch
+# the main package is the command, a script; it is arch-dependent only because the C loader of the same source is built
+# here (libomx-domain below), and a spec has one source: every other package that needs no compiler is noarch
 
 Source0: %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires: gcc
+# the C loader (libomx-domain) reads JSON with the distribution's jansson
+BuildRequires: pkgconfig(jansson)
+BuildRequires: binutils
 BuildRequires: make
 BuildRequires: sed
 BuildRequires: tar
@@ -49,6 +53,7 @@ install their definitions into as one checked set.
 
 %package data
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The OpenMixer declarations a reader reads at run time: contract directory, schema, json
 # the files every reader of the contract directory reads at run time, the same on every architecture
 # 3.13.0: OMX_PLUGIN_FACE_IDS is installed by omx-plugins-contract 0.19.3 on; an older one leaves it declared by no one
@@ -82,6 +87,7 @@ Its documentation is on openmixer.org.
 
 %package langpack-ca
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The Catalan sentences of the OpenMixer declarations' codes and words
 Requires: %{name}-data = %{version}-%{release}
 Supplements: (%{name}-data and langpacks-ca)
@@ -95,6 +101,7 @@ Catalan langpacks.
 
 %package langpack-es
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The Spanish sentences of the OpenMixer declarations' codes and words
 Requires: %{name}-data = %{version}-%{release}
 Supplements: (%{name}-data and langpacks-es)
@@ -108,6 +115,7 @@ Spanish langpacks.
 
 %package langpack-fr
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The French sentences of the OpenMixer declarations' codes and words
 Requires: %{name}-data = %{version}-%{release}
 Supplements: (%{name}-data and langpacks-fr)
@@ -121,6 +129,7 @@ French langpacks.
 
 %package langpack-de
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The German sentences of the OpenMixer declarations' codes and words
 Requires: %{name}-data = %{version}-%{release}
 Supplements: (%{name}-data and langpacks-de)
@@ -134,6 +143,7 @@ German langpacks.
 
 %package langpack-it
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The Italian sentences of the OpenMixer declarations' codes and words
 Requires: %{name}-data = %{version}-%{release}
 Supplements: (%{name}-data and langpacks-it)
@@ -147,6 +157,7 @@ Italian langpacks.
 
 %package langpack-pt
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: The Portuguese sentences of the OpenMixer declarations' codes and words
 Requires: %{name}-data = %{version}-%{release}
 Supplements: (%{name}-data and langpacks-pt)
@@ -160,6 +171,7 @@ Portuguese langpacks.
 
 %package devel
 License: GPL-3.0-or-later
+BuildArch: noarch
 Summary: Headers and pkg-config file to build on the OpenMixer declarations
 # the C headers need no node; the union of the contract directory is read by the command
 Requires: %{name}-data = %{version}-%{release}
@@ -176,20 +188,52 @@ omx-contract-data, which it requires. A consumer requires it at a floor, the
 lowest release whose declarations it builds against.
 Its documentation is on openmixer.org.
 
+%package -n libomx-domain
+License: GPL-3.0-or-later
+Summary: The C loader of an OpenMixer contract domain
+# the library only: its header, pkg-config file and ABI list are libomx-domain-devel's
+
+%description -n libomx-domain
+libomx-domain reads a contract domain (the installed
+contract.d/<domain>/<domain>.json and its catalogs, omx-contract-data and the
+owners' packages install them) at program start-up: a word, a range, a sentence,
+looked up by function instead of compiled in. A missing or invalid domain is
+refused with a code of CONTRACT_CODES. It is a start-up library and is never
+called from an audio thread. It reads JSON with jansson.
+
+%package -n libomx-domain-devel
+License: GPL-3.0-or-later
+Summary: Headers, pkg-config file and ABI list to build on libomx-domain
+Requires: libomx-domain%{?_isa} >= %{version}-%{release}
+Requires: pkgconfig(jansson)
+Requires: /usr/bin/pkg-config
+
+%description -n libomx-domain-devel
+Everything to build a program on libomx-domain: omxcontract/omx_domain.h,
+omxcontract/omx_contract_codes.h (the CONTRACT_CODES values the functions
+return), libomx-domain.pc, the list of the library's exports
+(share/omx-contract/abi/libomx-domain.abi) and the omx-domain command, which
+opens a domain and prints a word or a range. A consumer requires the library at
+a floor, the lowest release whose functions it calls.
+
 %prep
 %autosetup
 
 %build
 %make_build
+%make_build build-c CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 
 %install
 %make_install PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
+%{__make} install-c DESTDIR=%{buildroot} PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir} LIBDIR=%{_libdir} BINDIR=%{_bindir} CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 %{__make} install-rpm-macros DESTDIR=%{buildroot} PREFIX=%{_prefix} RPMMACRODIR=%{_rpmmacrodir}
 %{__make} install-python DESTDIR=%{buildroot} PYTHONDIR=%{python3_sitelib}
 %{__make} install-cli DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} BINDIR=%{_bindir} CLIDIR=%{_prefix}/lib/omx-contract MANDIR=%{_mandir}
 
 %check
 %make_build check
+# the library exports exactly what abi/libomx-domain.abi lists
+%make_build check-abi CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 
 %files
 %license LICENSE
@@ -242,9 +286,25 @@ Its documentation is on openmixer.org.
 %license LICENSE
 %doc README.md
 %{_includedir}/omxcontract/
+%exclude %{_includedir}/omxcontract/omx_domain.h
+%exclude %{_includedir}/omxcontract/omx_contract_codes.h
 %{_datadir}/omx-contract/install-contract-dir.sh
 %{_datadir}/pkgconfig/omx-contract.pc
 %{_rpmmacrodir}/macros.omx-contract
+
+%files -n libomx-domain
+%license LICENSE
+%{_libdir}/libomx-domain.so.0
+
+%files -n libomx-domain-devel
+%license LICENSE
+%{_libdir}/libomx-domain.so
+%{_libdir}/pkgconfig/libomx-domain.pc
+%{_includedir}/omxcontract/omx_domain.h
+%{_includedir}/omxcontract/omx_contract_codes.h
+%{_datadir}/omx-contract/abi/
+%{_bindir}/omx-domain
+%{_mandir}/man1/omx-domain.1*
 
 %changelog
 * Tue Nov 17 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.1-1

@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib build-c install-c check-abi test-c fuzz fuzz-replay check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -80,7 +80,7 @@ install-python:
 
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
-	install -m 0644 include/omxcontract/*.h $(DESTDIR)$(INCLUDEDIR)/omxcontract/
+	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
 	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
@@ -123,6 +123,86 @@ install-cli: all build-lib
 
 test:
 	npm test
+
+# The C domain loader (docs/runtime-data.md "The C loader"): libomx-domain, its header include/omxcontract/omx_domain.h,
+# and the command omx-domain, on the distribution's jansson. A start-up library, never linked into an audio thread.
+# The library's exports are exactly abi/libomx-domain.abi (abi/libomx-domain.map is the linker's view of it); `make
+# check-abi` compares them. `make test-c` builds it against the fixtures of test/fixtures/domain/ (as the installed
+# directory) with the sanitizers, and runs test/c/. Needs a C compiler, jansson-devel and pkg-config.
+LIBDIR ?= $(PREFIX)/lib
+DOMAIN_SO = libomx-domain.so.0
+JANSSON_CFLAGS ?= $(shell pkg-config --cflags jansson)
+JANSSON_LIBS ?= $(shell pkg-config --libs jansson)
+DOMAIN_CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic -Iinclude $(JANSSON_CFLAGS)
+CBUILD ?= build/c
+
+$(CBUILD)/$(DOMAIN_SO): src/c/omx_domain.c include/omxcontract/omx_domain.h abi/libomx-domain.map
+	@mkdir -p $(CBUILD)
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 -fPIC -shared -Wl,-soname,$(DOMAIN_SO) -Wl,--version-script=abi/libomx-domain.map $(LDFLAGS) \
+	  -DOMX_CONTRACTDIR='"$(CONTRACTDIR)"' src/c/omx_domain.c -o $@ $(JANSSON_LIBS)
+
+# CLI_RPATH is the test's way to find the library beside the command; an installed command is found by ldconfig.
+CLI_RPATH ?=
+$(CBUILD)/omx-domain: src/c/omx_domain_cli.c $(CBUILD)/$(DOMAIN_SO)
+	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 src/c/omx_domain_cli.c -o $@ $(LDFLAGS) $(CLI_RPATH) $(CBUILD)/$(DOMAIN_SO)
+
+build-c: $(CBUILD)/omx-domain
+
+# The library, its symlink, its headers, its ABI list, libomx-domain.pc and the omx-domain command: the package of the C
+# loader (an arch-dependent package, its -devel beside it), apart from `install`, which installs what needs no compiler.
+# CONTRACTDIR is compiled into the library: the installed directory omx_domain_open reads. CFLAGS and LDFLAGS are the
+# package build's own.
+DOMAIN_HEADERS = include/omxcontract/omx_domain.h include/omxcontract/omx_contract_codes.h
+CPKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
+install-c: build-c
+	install -d $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(CPKGCONFIGDIR) $(DESTDIR)$(DATADIR)/omx-contract/abi $(DESTDIR)$(MANDIR)/man1
+	install -m 0755 $(CBUILD)/$(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/
+	ln -sf $(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/libomx-domain.so
+	install -m 0755 $(CBUILD)/omx-domain $(DESTDIR)$(BINDIR)/
+	install -m 0644 man/omx-domain.1 $(DESTDIR)$(MANDIR)/man1/
+	install -m 0644 $(DOMAIN_HEADERS) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
+	install -m 0644 abi/libomx-domain.abi $(DESTDIR)$(DATADIR)/omx-contract/abi/
+	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@LIBDIR@|$(LIBDIR)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' \
+	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@VERSION@|$(VERSION)|' libomx-domain.pc.in > $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
+	chmod 0644 $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
+
+# Every exported symbol, a function (T, W) or a global variable (D, B, R, V): a data export is ABI as much as a function.
+check-abi: $(CBUILD)/$(DOMAIN_SO)
+	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 ~ /^[TWDBRV]$$/ { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
+
+TESTC = build/test-c
+# -fno-sanitize-recover=all: a UBSan finding stops the program (and so fails the suite) instead of printing and going on.
+SANFLAGS = -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
+test-c:
+	rm -rf $(TESTC) && mkdir -p $(TESTC)
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' check-abi
+	sh test/c/abi_selftest.sh
+	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' CLI_RPATH=-Wl,-rpath,$(CURDIR)/$(TESTC) build-c
+	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
+	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
+	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS) -ldl
+	$(TESTC)/domain_test
+	sh test/c/cli_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain
+	$(MAKE) TESTC=$(TESTC) fuzz-replay
+
+# The fuzz target of the loader (test/c/fuzz/): `fuzz-replay` replays every file of test/c/fuzz/corpus/ under the
+# sanitizers with any C compiler (it is part of `test-c`, so CI runs it); `fuzz` is the libFuzzer run, needs clang
+# (FUZZ_SECONDS bounds it, 30 by default). A crash input found is committed to the corpus with the fix.
+FUZZ_SECONDS ?= 30
+FUZZ_SRC = test/c/fuzz/fuzz_domain.c
+FUZZ_DEFS = -DDEMO_DOC='"$(CURDIR)/test/fixtures/domain/demo/demo.json"'
+fuzz-replay: $(TESTC)/$(DOMAIN_SO)
+	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DFUZZ_REPLAY $(FUZZ_DEFS) $(FUZZ_SRC) -o $(TESTC)/fuzz_domain_replay -L$(TESTC) \
+	  -Wl,-rpath,$(CURDIR)/$(TESTC) $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS)
+	$(TESTC)/fuzz_domain_replay test/c/fuzz/corpus/*
+
+fuzz:
+	@command -v clang >/dev/null || { echo "make fuzz needs clang (libFuzzer); make fuzz-replay runs the corpus with any compiler" >&2; exit 2; }
+	rm -rf build/fuzz && mkdir -p build/fuzz/work
+	clang -std=c11 -g -O1 -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all -Iinclude $(JANSSON_CFLAGS) \
+	  -DOMX_CONTRACTDIR='"/nonexistent"' $(FUZZ_DEFS) $(FUZZ_SRC) src/c/omx_domain.c -o build/fuzz/fuzz_domain $(JANSSON_LIBS)
+	cp test/c/fuzz/corpus/* build/fuzz/work/
+	build/fuzz/fuzz_domain -dict=test/c/fuzz/domain.dict -max_total_time=$(FUZZ_SECONDS) -artifact_prefix=build/fuzz/ build/fuzz/work
 
 # Every public declaration of the installed headers documented (docs/render.md "Documentation", omx-contract#64):
 # doxygen's undocumented-member warnings held to docs/doxygen-baseline.txt, red on a new one and on a stale line. With

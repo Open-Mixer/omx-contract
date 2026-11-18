@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openmixer.org/schema/omx-contract/main/omx-contract.schema.json",
+  "$id": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.19.0",
+  "x-omx-schema-version": "3.20.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -62,6 +62,11 @@
         "meters": {
           "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/descriptorMeter" },
           "description": "The values the plugin publishes while it runs and a host draws, never writes (docs/descriptors.md): CLAP clap.meters/1, LV2 output control ports. Optional; in the plugin's order."
+        },
+        "choiceUnits": {
+          "type": "object", "minProperties": 1,
+          "description": "The unit of a choice's values, declared once by the plugin (docs/descriptors.md): a choice control's name to one of the descriptor units, never unknown. A reader takes the unit from here and keeps no map of its own. Optional; a choice with no entry carries no unit.",
+          "additionalProperties": { "allOf": [{ "$ref": "#/$defs/descriptorUnit" }, { "not": { "const": "unknown" } }] }
         },
         "integrity": { "$ref": "#/$defs/descriptorIntegrity" },
         "extensions": { "$ref": "#/$defs/extensions" },

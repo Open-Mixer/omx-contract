@@ -2,8 +2,9 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // The schemas' identity is the project's own domain, openmixer.org, never a code host's organisation, which moved once
 // already (FreeMixer to Open-Mixer): every $id and $schema this package writes or ships is
-// https://openmixer.org/schema/omx-contract/<ref>/<file>. A declaration's issue may name either organisation: the
-// records of the old one keep their numbers there, since the numbers did not carry over.
+// https://openmixer.org/schema/omx-contract/v<major>/<file>, the MAJOR version only, never a branch or a full
+// version. A declaration's issue may name either organisation: the records of the old one keep their numbers there,
+// since the numbers did not carry over.
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -42,9 +43,10 @@ test('an issue may name either organisation, one ref of each accepted, another r
   }
 });
 
-test('every shipped schema is identified on openmixer.org', () => {
+test('every shipped schema is identified on openmixer.org, by the major version only', () => {
   for (const p of [...schemas, 'share/omx-contract/omx-vocabulary.schema.json']) {
-    assert.ok(read(p).$id.startsWith(BASE), `${p}: $id ${read(p).$id}`);
+    const file = p.split('/').pop();
+    assert.equal(read(p).$id, `${BASE}v${SCHEMA_MAJOR}/${file}`, `${p}: $id names the major only`);
   }
 });
 
@@ -52,7 +54,7 @@ test('the schema a contract file names is on openmixer.org', () => {
   assert.equal(installedSchemaUrl(SCHEMA_MAJOR), `${BASE}v${SCHEMA_MAJOR}/omx-contract.schema.json`);
 });
 
-test('a rendered vocabulary schema carries the openmixer.org id', () => {
+test('a rendered vocabulary schema carries the openmixer.org id, by the major version only', () => {
   const doc = JSON.parse(renderVocabularySchema(resolveData(loadData(join(ROOT, 'data'))), '9.8.7'));
-  assert.equal(doc.$id, `${BASE}v9.8.7/omx-vocabulary.schema.json`);
+  assert.equal(doc.$id, `${BASE}v9/omx-vocabulary.schema.json`);
 });

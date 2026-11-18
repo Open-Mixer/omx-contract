@@ -150,10 +150,11 @@ a program of ours runs? If not, it is a function.
 ### The codes header
 
 An item is marked, not guessed: `"x-c-codes": true` on a words item makes the whole item constants (ruling 9). The
-header holds, per marked item, one `#define OMX_<DOMAIN>_<ITEM>_<WORD> <code>` per word and
-`#define OMX_<DOMAIN>_<ITEM>_COUNT <n>`, nothing else; an X-macro only for an item also marked `"x-c-xmacro": true`
-(ruling 5). The spelling is docs/render.md's. A word C needs as a string is read with `omx_domain_word`; its sentence
-with `omx_domain_text`. A domain with no marked item has no header at all.
+header holds, per marked item, one `#define OMX_<ITEM>_<WORD> <code>` per word and `#define OMX_<ITEM>_COUNT <n>`,
+nothing else; an X-macro only for an item also marked `"x-c-xmacro": true` (ruling 5). Every item name of a domain
+starts with the domain's, so the define never spells it twice. The spelling, and its example, are docs/render.md's.
+A word C needs as a string is read with `omx_domain_word`; its sentence with `omx_domain_text`. A domain with no marked
+item has no header at all.
 
 ## Other generated files
 
@@ -237,5 +238,6 @@ The owner's answers to the questions this spec left open (2026-11-18):
 7. **The resolved JSON render** stays a command-line tool for viewing and debugging. Its output is never committed.
 8. **WebAssembly** is handed its data at start-up; only the codes are built in.
 9. **The codes header** (coordinator, 2026-11-18): an ITEM-level mark, `"x-c-codes": true`, makes the whole item
-   constants. The header is one `#define OMX_<DOMAIN>_<ITEM>_<WORD> <code>` per word and the item's `_COUNT`, nothing
-   else: no `_TEXT_EN`, no `_ARGS`, and no X-macro unless ruling 5 applies, marked `"x-c-xmacro": true`.
+   constants. The header is one `#define OMX_<ITEM>_<WORD> <code>` per word and the item's `_COUNT`, nothing else: no
+   `_TEXT_EN`, no `_ARGS`, and no X-macro unless ruling 5 applies, marked `"x-c-xmacro": true`. Every item name of a
+   domain starts with the domain's name in upper snake case, and a check refuses one that does not.

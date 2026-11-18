@@ -84,14 +84,18 @@ A package with no such item renders no vocabulary file.
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
 its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
 `OMX_<DOMAIN>_CODES_H`, installed as `<includedir>/omxdomain/<domain>_codes.h`; `<DOMAIN>` is the domain's name in
-upper snake case, a `/` an `_` (`dsp/kernels`: `dsp_kernels_codes.h`, `OMX_DSP_KERNELS_*`). It holds the items marked
-`"x-c-codes": true` (docs/contract-dir.md), the whole item, and no other:
+upper snake case, a `/` an `_` (`dsp/kernels`: `dsp_kernels_codes.h`). It holds the items marked `"x-c-codes": true`
+(docs/contract-dir.md), the whole item, and no other. `<ITEM>` is the item's name in upper snake case, and every item
+name of a domain starts with the domain's (`DSP_KERNELS_...` in `dsp/kernels`), so the domain is never spelled twice:
 
-- per word, in declared order, `#define OMX_<DOMAIN>_<ITEM>_<WORD> <code>`: `<ITEM>` the item's name as declared,
-  `<WORD>` the word's title (its key) in upper snake case, `<code>` its `x-code` as an unsigned literal (`3u`);
-- per item, `#define OMX_<DOMAIN>_<ITEM>_COUNT <n>`, its number of words;
+- per word, in declared order, `#define OMX_<ITEM>_<WORD> <code>`: `<WORD>` the word's title (its key) in upper snake
+  case, `<code>` its `x-code` as an unsigned literal;
+- per item, `#define OMX_<ITEM>_COUNT <n>`, its number of words;
 - an item ALSO marked `"x-c-xmacro": true` (ruling 5: C uses it as struct fields or enum values) adds the X-macro
-  `OMX_<DOMAIN>_<ITEM>(X)`, one `X(OMX_<DOMAIN>_<ITEM>_<WORD>, <WORD>)` per word in declared order.
+  `OMX_<ITEM>(X)`, one `X(OMX_<ITEM>_<WORD>, <WORD>)` per word in declared order.
+
+For example, the domain `panel`, its item `PANEL_FAMILIES` marked `"x-c-codes": true`, and its word `utility` with
+`x-code` 12 give `#define OMX_PANEL_FAMILIES_UTILITY 12u` in `omxdomain/panel_codes.h`.
 
 Nothing else: no `_INIT`, no `_TEXT_EN`, no `_ARGS_*`, no word string, no description, no X-macro without
 `x-c-xmacro`, and no ts or python target. An item without `x-c-codes` renders nothing; a domain with no marked item

@@ -26,8 +26,8 @@ export const domainStem = (name: string): string => domainPrefix(name).slice(0, 
 /** A domain's marked items: `x-c-codes` is in the map, and `xmacro` says `x-c-xmacro` is too. */
 export type DomainCodes = ReadonlyMap<string, { readonly xmacro: boolean }>;
 
-/** A domain of a read, for the prefix check: its name and the names of its items. */
-export interface DomainItems { readonly name: string; readonly items: readonly string[] }
+/** A domain document of a read, for the prefix check: its path and the names of its items. */
+export interface DomainItems { readonly rel: string; readonly items: readonly string[] }
 
 /**
  * The prefix check of a read's domains (docs/contract-dir.md, "Domains"). An item of a domain starts with the domain's
@@ -36,27 +36,38 @@ export interface DomainItems { readonly name: string; readonly items: readonly s
  * the second rule compares against the domains of the read.
  * @throws ContractRefusal contract.item.prefix, naming the item and the domain.
  */
-export function checkItemPrefixes(domains: readonly DomainItems[]): void {
-  for (const { name, items } of domains) {
+export function checkItemPrefixes(docs: readonly DomainItems[]): void {
+  const domains = docs.map(({ rel, items }) => {
+    const name = domainOfPath(rel);
+    if (name === undefined) refuse('manifestMismatch', rel, `${rel} is no domain's document: a domain's document is <domain>/<last segment of the domain>.json`);
+    return { name, rel, items };
+  });
+  for (const { name, rel, items } of domains) {
     const mine = domainPrefix(name);
     for (const item of items) {
-      if (!item.startsWith(mine)) refuse('itemPrefix', `${name}/${domainLeaf(name)}.json`, `${item} of the domain ${name} does not start with ${mine}, the domain's name in upper snake case with its underscore`);
+      if (!item.startsWith(mine)) refuse('itemPrefix', rel, `${item} of the domain ${name} does not start with ${mine}, the domain's name in upper snake case with its underscore`);
       for (const other of domains) {
         const theirs = domainPrefix(other.name);
-        if (other.name !== name && theirs.length > mine.length && item.startsWith(theirs)) refuse('itemPrefix', `${name}/${domainLeaf(name)}.json`, `${item} of the domain ${name} starts with ${theirs}, the prefix of the domain ${other.name}: two headers would define one name`);
+        if (other.name !== name && theirs.length > mine.length && item.startsWith(theirs)) refuse('itemPrefix', rel, `${item} of the domain ${name} starts with ${theirs}, the prefix of the domain ${other.name}: two headers would define one name`);
       }
     }
   }
 }
 
-/** A domain's name, or a group's and a module's: what a directory under a contractdir is called when it is not a schema major. */
-export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
-
-/** The last segment of a domain's name: a module's, and what its document is called (`formats/clap` is `clap.json`). */
+/** The last segment of a domain's name: what its document is called (`dsp/kernels` is `kernels.json`). */
 export const domainLeaf = (name: string): string => name.slice(name.lastIndexOf('/') + 1);
 
-/** The place of a domain's document under a contractdir, `<domain>/<leaf>.json`. */
+/** The place of a domain's document under a contractdir, `<domain>/<last segment>.json`: the one rule the reader reads a domain by. */
 export const domainPath = (name: string): string => `${name}/${domainLeaf(name)}.json`;
+
+/** The domain a document's path names, the inverse of {@link domainPath}; undefined when the path is no domain's place. */
+export function domainOfPath(rel: string): string | undefined {
+  const domain = rel.slice(0, Math.max(rel.lastIndexOf('/'), 0));
+  return domain && domainPath(domain) === rel ? domain : undefined;
+}
+
+/** A domain's name, or a group's and a module's: what a directory under a contractdir is called when it is not a schema major. */
+export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const PACKAGE = /^[a-z][a-z0-9-]*$/;

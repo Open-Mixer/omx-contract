@@ -249,7 +249,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     const bad = u.values.find((v) => !known.includes(v));
     if (bad !== undefined) refuse('fileInvalid', at, `${u.at}: a term is ${JSON.stringify(bad)}, which is no word of ${u.schema} (${known.join(', ')})`);
   }
-  checkItemPrefixes(domainFiles.map((f) => ({ name: f.pkg, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
+  checkItemPrefixes(domainFiles.map((f) => ({ rel: f.rel, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 
   const files: Json[] = [];

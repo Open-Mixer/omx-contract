@@ -12,6 +12,7 @@ import { ROOT } from './helpers.mjs';
 
 /** The domains that left omx-contract, and the items each took with it: a name of one in a committed render is a render of the domain. */
 const MOVED = {
+  scan: ['SCAN_DOCUMENTS', 'SCAN_FIELD_SCOPES'],
 };
 
 const SURFACE = ['include', 'share', 'python', 'test/golden'];

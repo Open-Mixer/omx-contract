@@ -33,26 +33,26 @@ test('every LV2 term and CLAP identifier of the inventory is mapped, with a stat
 test('sabotage: a term taken out of the mapping, and one the format does not define, are named', () => {
   const inv = readInventory(INVENTORY);
   let fs = files();
-  delete doc(fs, 'formats/lv2/worker.json').FORMATS_LV2_WORKER.terms.schedule;
+  delete doc(fs, 'formats/lv2/worker.json').FORMATS_LV2_WORKER_TERMS.terms.schedule;
   assert.deepEqual(coverageProblems(fs, inv), ['formats/lv2/worker.json: http://lv2plug.in/ns/ext/worker#schedule is not mapped']);
   fs = files();
-  delete doc(fs, 'formats/clap/ext/params.json').FORMATS_CLAP_EXT_PARAMS.terms.paramIsStepped;
+  delete doc(fs, 'formats/clap/ext/params.json').FORMATS_CLAP_EXT_PARAMS_TERMS.terms.paramIsStepped;
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/ext/params.json: CLAP_PARAM_IS_STEPPED is not mapped (as paramIsStepped)']);
   fs = files();
-  doc(fs, 'formats/clap/ext/tail.json').FORMATS_CLAP_EXT_TAIL.terms.invented = { id: 'CLAP_INVENTED', kind: 'constant', status: 'used', by: ['x:y'] };
+  doc(fs, 'formats/clap/ext/tail.json').FORMATS_CLAP_EXT_TAIL_TERMS.terms.invented = { id: 'CLAP_INVENTED', kind: 'constant', status: 'used', by: ['x:y'] };
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/ext/tail.json: invented is no identifier of the installed clap/ext/tail.h']);
 });
 
 test('sabotage: a term without its status, a wrong URI and a wrong version are named', () => {
   const inv = readInventory(INVENTORY);
   let fs = files();
-  delete doc(fs, 'formats/lv2/urid.json').FORMATS_LV2_URID.terms.map.status;
+  delete doc(fs, 'formats/lv2/urid.json').FORMATS_LV2_URID_TERMS.terms.map.status;
   assert.deepEqual(coverageProblems(fs, inv), ['formats/lv2/urid.json: map has no status']);
   fs = files();
-  doc(fs, 'formats/lv2/urid.json').FORMATS_LV2_URID.terms.map.uri = 'http://lv2plug.in/ns/ext/urid#mapped';
+  doc(fs, 'formats/lv2/urid.json').FORMATS_LV2_URID_TERMS.terms.map.uri = 'http://lv2plug.in/ns/ext/urid#mapped';
   assert.deepEqual(coverageProblems(fs, inv), ['formats/lv2/urid.json: map maps http://lv2plug.in/ns/ext/urid#mapped, the term is http://lv2plug.in/ns/ext/urid#map']);
   fs = files();
-  doc(fs, 'formats/clap/process.json').FORMATS_CLAP_PROCESS.version = '1.2.9';
+  doc(fs, 'formats/clap/process.json').FORMATS_CLAP_PROCESS_TERMS.version = '1.2.9';
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/process.json: version 1.2.9, the installed CLAP is 1.2.10']);
 });
 

@@ -22,7 +22,7 @@
       "scratchMemory": {
         "word": "scratch-memory",
         "from": [
-          "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY#scratch-memory/1"
+          "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"
         ],
         "doc": "The memory a plugin asks of its host for its process call.",
         "text": {
@@ -32,8 +32,8 @@
       "latency": {
         "word": "latency",
         "from": [
-          "FORMATS_LV2_CORE#latency",
-          "FORMATS_CLAP_EXT_LATENCY#latency"
+          "FORMATS_LV2_CORE_TERMS#latency",
+          "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"
         ],
         "doc": "The frames a plugin delays its output by, per rate and quantum.",
         "text": {
@@ -43,7 +43,7 @@
       "tail": {
         "word": "tail",
         "from": [
-          "FORMATS_CLAP_EXT_TAIL#tail"
+          "FORMATS_CLAP_EXT_TAIL_TERMS#tail"
         ],
         "doc": "How long a plugin keeps sounding once its input goes silent.",
         "text": {
@@ -53,7 +53,7 @@
       "voices": {
         "word": "voices",
         "from": [
-          "FORMATS_CLAP_EXT_VOICE_INFO#voice-info"
+          "FORMATS_CLAP_EXT_VOICE_INFO_TERMS#voice-info"
         ],
         "doc": "The notes an instrument plays at once.",
         "text": {
@@ -70,7 +70,7 @@
       "threads": {
         "word": "threads",
         "from": [
-          "FORMATS_CLAP_EXT_THREAD_POOL#thread-pool"
+          "FORMATS_CLAP_EXT_THREAD_POOL_TERMS#thread-pool"
         ],
         "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.",
         "text": {
@@ -80,8 +80,8 @@
       "worker": {
         "word": "worker",
         "from": [
-          "FORMATS_LV2_WORKER#schedule",
-          "FORMATS_LV2_WORKER#interface"
+          "FORMATS_LV2_WORKER_TERMS#schedule",
+          "FORMATS_LV2_WORKER_TERMS#interface"
         ],
         "doc": "The work a plugin hands to a non-real-time thread of the host.",
         "text": {
@@ -91,11 +91,11 @@
       "blockLength": {
         "word": "block-length",
         "from": [
-          "FORMATS_LV2_BUF_SIZE#boundedBlockLength",
-          "FORMATS_LV2_BUF_SIZE#maxBlockLength",
-          "FORMATS_LV2_BUF_SIZE#minBlockLength",
-          "FORMATS_LV2_BUF_SIZE#nominalBlockLength",
-          "FORMATS_LV2_OPTIONS#options"
+          "FORMATS_LV2_BUF_SIZE_TERMS#boundedBlockLength",
+          "FORMATS_LV2_BUF_SIZE_TERMS#maxBlockLength",
+          "FORMATS_LV2_BUF_SIZE_TERMS#minBlockLength",
+          "FORMATS_LV2_BUF_SIZE_TERMS#nominalBlockLength",
+          "FORMATS_LV2_OPTIONS_TERMS#options"
         ],
         "doc": "The block lengths a plugin accepts.",
         "text": {
@@ -126,8 +126,8 @@
       "state": {
         "word": "state",
         "from": [
-          "FORMATS_LV2_STATE#interface",
-          "FORMATS_CLAP_EXT_STATE#state"
+          "FORMATS_LV2_STATE_TERMS#interface",
+          "FORMATS_CLAP_EXT_STATE_TERMS#state"
         ],
         "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
         "text": {
@@ -150,7 +150,7 @@
       "frames": {
         "word": "frames",
         "from": [
-          "FORMATS_LV2_UNITS#frame"
+          "FORMATS_LV2_UNITS_TERMS#frame"
         ],
         "text": {
           "en": "A count of audio frames."
@@ -159,7 +159,7 @@
       "ms": {
         "word": "ms",
         "from": [
-          "FORMATS_LV2_UNITS#ms"
+          "FORMATS_LV2_UNITS_TERMS#ms"
         ],
         "text": {
           "en": "Milliseconds."
@@ -174,7 +174,7 @@
       "s": {
         "word": "s",
         "from": [
-          "FORMATS_LV2_UNITS#s"
+          "FORMATS_LV2_UNITS_TERMS#s"
         ],
         "text": {
           "en": "Seconds."

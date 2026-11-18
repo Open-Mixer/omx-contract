@@ -32,7 +32,7 @@ function admittedWords() {
   return words;
 }
 
-const terms = () => read('data/formats/lv2/units.json').FORMATS_LV2_UNITS.terms;
+const terms = () => read('data/formats/lv2/units.json').FORMATS_LV2_UNITS_TERMS.terms;
 
 test('every used unit of the sheet carries a word the descriptor vocabulary admits', () => {
   assert.deepEqual(unitWordFaults(terms(), admittedWords()), []);

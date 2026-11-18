@@ -7,8 +7,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ID = 'https://openmixer.org/contract';
-const KINDS = `${ID}/formats/common#/components/schemas/FORMATS_COMMON_KINDS`;
-const STATUSES = `${ID}/formats/common#/components/schemas/FORMATS_COMMON_STATUSES`;
+const KINDS = `${ID}/formats/common#/components/schemas/FORMATS_COMMON_TERM_KINDS`;
+const STATUSES = `${ID}/formats/common#/components/schemas/FORMATS_COMMON_TERM_STATUSES`;
 
 const filesUnder = (dir) => readdirSync(dir).sort().flatMap((n) => (statSync(join(dir, n)).isDirectory() ? filesUnder(join(dir, n)) : [join(dir, n)]));
 const camel = (w) => w.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
@@ -50,8 +50,8 @@ export function formatsModules(dir, versions = '1.0.0') {
   const module = (name, title, schemas) => ({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `${ID}/formats/${name}`, info: { title, version: versions, 'x-owner': 'omx-formats' }, components: { schemas } });
   return {
     'formats/common': module('common', 'The terms every plugin format shares', {
-      FORMATS_COMMON_KINDS: words('', 'What a term of a plugin format is.', '1.0.0', Object.keys(KIND_DOCS).filter((k) => kinds.has(k)), KIND_DOCS),
-      FORMATS_COMMON_STATUSES: words('', 'What a term is to us.', '1.0.0', Object.keys(STATUS_DOCS), STATUS_DOCS),
+      FORMATS_COMMON_TERM_KINDS: words('', 'What a term of a plugin format is.', '1.0.0', Object.keys(KIND_DOCS).filter((k) => kinds.has(k)), KIND_DOCS),
+      FORMATS_COMMON_TERM_STATUSES: words('', 'What a term is to us.', '1.0.0', Object.keys(STATUS_DOCS), STATUS_DOCS),
     }),
     'formats/clap': module('clap', 'The CLAP terms', mods.clap),
     'formats/lv2': module('lv2', 'The LV2 terms', mods.lv2),

@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 static int failures;
+static int skips; /* tests that could not run here, each named by a skip line */
 #define CHECK(cond) do { if (!(cond)) { failures++; fprintf(stderr, "%s:%d: FAILED %s\n", __FILE__, __LINE__, #cond); } } while (0)
 #define CHECK_STR(got, want) do { const char *g_ = (got); if (!g_ || strcmp(g_, (want)) != 0) { failures++; fprintf(stderr, "%s:%d: got \"%s\", want \"%s\"\n", __FILE__, __LINE__, g_ ? g_ : "(null)", (want)); } } while (0)
 
@@ -639,7 +640,7 @@ static void test_catalog_not_json(void) {
 
 /* A catalog the process cannot read is refused with the code of a bad catalog (skipped as root, which reads anything). */
 static void test_catalog_unreadable(void) {
-  if (geteuid() == 0) return;
+  if (geteuid() == 0) { skips++; puts("skip test_catalog_unreadable: run as root, which reads a mode-0 file"); return; }
   make_scratch();
   make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
   char path[600];
@@ -968,6 +969,7 @@ int main(void) {
   RUN(test_null_arguments);
   RUN(test_stability);
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
-  puts("domain_test: all checks passed");
+  if (skips) printf("domain_test: all checks passed, %d test(s) skipped\n", skips);
+  else puts("domain_test: all checks passed");
   return 0;
 }

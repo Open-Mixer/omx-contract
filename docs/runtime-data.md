@@ -176,6 +176,14 @@ same order as the moves of omx-contract#81, one change each, red first. A consum
 domain: it drops the include or the module the render gave and calls the function. This spec proposes no shim, no
 dual header and no period in which both paths exist; one would need the owner's approval, and none is proposed.
 
+**The omx-dsp domains.** omx-dsp publishes a family of four domains:
+- `dsp/kernels`: every kernel's parameters (names, ranges, defaults, units, groups). This is the parameter table of the generic face's descriptor (omx-dsp#97), so one document feeds the face, omx-panel and the plugins.
+- `dsp/curves`: the curve families, their axes and their roles.
+- `dsp/rates`: the standard rates, quanta and real-time targets.
+- `dsp/meters`: the readout rates and the meter shapes.
+
+The moves of omx-contract#81 bring omx-contract's curve kinds and axes, its rates and its readout rate there. The move also runs the other way: the curve origins and the operator EQ band reserve of omx-dsp's `eq.json` move to a console domain, since they are the console's words, not the kernel's. Under this rule omx-dsp's C keeps only the codes it switches on (a buffer-sizing limit among them, ruling 3) and reads nothing in the audio thread: a face resolves its parameters at start-up.
+
 ## Panels and stored data
 
 - **Panels.** The MOD GUI bundles and the LV2 `.ttl` files are made at package build (a host reads them from the

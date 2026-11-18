@@ -71,7 +71,7 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
   for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract.py omx_contract_catalog.py omx_contract_scale.py scale-vectors.json clap-kind-vectors.json; do echo "/usr/share/omx-contract/$f"; done
   echo /usr/share/omx-contract/languages.json
   for f in ../shapes/*.schema.json; do echo "/usr/share/omx-contract/shapes/$(basename "$f")"; done
-  echo /usr/share/omx-contract/omx-contract.schema.json) | LC_ALL=C sort > "$tmp/want-$data"
+  echo /usr/share/omx-contract/omx-contract.schema.json; echo /usr/share/omx-contract/domain.schema.json) | LC_ALL=C sort > "$tmp/want-$data"
 # (the shapes' schemas, docs/shapes.md, beside the schema; the shapes' TypedDicts under omx_contract/shapes/)
 # the renders and the hand-written C (omx_json_write.h) both live in include/omxcontract; the RPM macros of the
 # contract directory are the RPM's alone (a deb has no rpm macros directory)

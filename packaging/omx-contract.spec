@@ -248,6 +248,7 @@ a floor, the lowest release whose functions it calls.
 %dir %{_datadir}/omx-contract
 %{_datadir}/omx-contract/contract.d/
 %{_datadir}/omx-contract/omx-contract.schema.json
+%{_datadir}/omx-contract/domain.schema.json
 %{_datadir}/omx-contract/shapes/
 %{_datadir}/omx-contract/omx-contract.json
 %{_datadir}/omx-contract/omx-vocabulary.schema.json

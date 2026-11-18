@@ -81,7 +81,7 @@ install-python:
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
 	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
-	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
+	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json schema/domain.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
@@ -107,7 +107,7 @@ install-cli: all build-lib
 	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
 	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
-	install -m 0644 schema/omx-contract.schema.json $(DESTDIR)$(CLIDIR)/schema/
+	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
 	install -m 0644 package.json $(DESTDIR)$(CLIDIR)/
 	for t in vendor/*.tgz; do \

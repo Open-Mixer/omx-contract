@@ -3,7 +3,7 @@
 /*
  * The C loader of a contract domain (docs/runtime-data.md, "The C loader"; include/omxcontract/omx_domain.h).
  *
- * open reads `<dir>/<domain>/<domain>.json` and each catalog of `catalogs/` with jansson, checks the shape the lookups read, and
+ * open reads `<dir>/<domain>/<last segment>.json` and each catalog of `catalogs/` with jansson, checks the shape the lookups read, and
  * copies every string and number a lookup returns into the handle's own arrays; the jansson documents are released
  * before open returns, so a lookup touches no jansson object and the handle is read-only afterwards.
  */
@@ -12,12 +12,15 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <jansson.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #ifndef OMX_CONTRACTDIR
 #error "OMX_CONTRACTDIR names the installed contract directory (the Makefile's CONTRACTDIR)"
@@ -156,10 +159,22 @@ static const char *last_segment(const char *name) {
   return slash ? slash + 1 : name;
 }
 
-/* The whole file parsed, or a refusal naming the path. */
-static int load_json(const char *path, const char *domain, json_t **out, omx_domain_error *err) {
-  FILE *f = fopen(path, "rb");
-  if (!f) return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s was not found at %s: %s.", domain, path, strerror(errno));
+/* The whole file parsed, or a refusal naming the path. The domain's document is the file the contract directory names: a
+   file that cannot be opened is the domain missing (contract.dir.absent). A catalog is a regular file the domain's
+   directory holds, never a symlink or a directory: any other is refused as contract.file.invalid. */
+static int load_json(const char *path, const char *domain, int is_catalog, json_t **out, omx_domain_error *err) {
+  FILE *f = NULL;
+  if (is_catalog) {
+    int fd = open(path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd < 0) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s was not opened (a symlink is refused): %s.", path, domain, strerror(errno));
+    struct stat st;
+    if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) { close(fd); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s is not a regular file.", path, domain); }
+    f = fdopen(fd, "rb");
+    if (!f) { close(fd); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s was not read: out of memory.", path, domain); }
+  } else {
+    f = fopen(path, "rb");
+    if (!f) return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s was not found at %s: %s.", domain, path, strerror(errno));
+  }
   char *buf = NULL;
   size_t len = 0, cap = 0;
   for (;;) {
@@ -177,7 +192,7 @@ static int load_json(const char *path, const char *domain, json_t **out, omx_dom
   fclose(f);
   if (bad) { free(buf); return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s at %s was not read: %s.", domain, path, strerror(errno)); }
   json_error_t jerr;
-  json_t *root = json_loadb(buf, len, 0, &jerr);
+  json_t *root = json_loadb(buf, len, JSON_REJECT_DUPLICATES, &jerr);
   free(buf);
   if (!root) return refuse(err, OMX_CONTRACT_CODE_FILE_NOT_JSON, "The domain %s at %s does not parse as JSON: %s (line %d).", domain, path, jerr.text, jerr.line);
   *out = root;
@@ -191,6 +206,10 @@ static const char *str_of(json_t *obj, const char *key) {
   return json_is_string(v) ? json_string_value(v) : NULL;
 }
 
+/* A `$ref` is read nowhere yet: a schema, a word or a parameter that carries one is refused (docs/runtime-data.md, "Validation
+   at open"). One under an extension key the loader never reads (`x-kinds`, `x-statuses`) is not looked at. */
+static int has_ref(json_t *v) { return json_is_object(v) && json_object_get(v, "$ref") != NULL; }
+
 /* A words item: the `oneOf` of const words. */
 static int read_words(item_t *it, json_t *one_of, const char *path, const char *domain, omx_domain_error *err) {
   size_t n = json_array_size(one_of), at;
@@ -201,12 +220,15 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
   json_array_foreach(one_of, at, w) {
     const char *word = str_of(w, "const"), *title = str_of(w, "title"), *desc = str_of(w, "description"), *text = str_of(w, "x-text");
     json_t *code = json_object_get(w, "x-code");
+    if (has_ref(w)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s.oneOf[%zu] has a \"$ref\", which the loader does not read.", domain, path, it->name, at);
     if (!json_is_object(w) || !word) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s.oneOf[%zu] has no string \"const\".", domain, path, it->name, at);
     if (!title) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no string \"title\".", domain, path, word, it->name);
     if (!desc) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no string \"description\".", domain, path, word, it->name);
     if (!json_is_integer(code) || json_integer_value(code) < 0 || json_integer_value(code) > 0x7fffffff)
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no non-negative integer \"x-code\".", domain, path, word, it->name);
     if (json_object_get(w, "x-text") && !text) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-text\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
+    if (json_integer_value(code) != (json_int_t)at)
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has x-code %lld, and must have its place in the list, %zu.", domain, path, word, it->name, (long long)json_integer_value(code), at);
     for (size_t k = 0; k < it->n_words; k++) {
       if (strcmp(it->words[k].word, word) == 0) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s declares the word \"%s\" twice.", domain, path, it->name, word);
     }
@@ -231,9 +253,14 @@ static int read_params(item_t *it, json_t *props, const char *path, const char *
   json_object_foreach(props, name, p) {
     json_t *mn = json_object_get(p, "minimum"), *mx = json_object_get(p, "maximum"), *df = json_object_get(p, "default");
     const char *unit = str_of(p, "x-unit"), *scale = str_of(p, "x-scale");
+    if (has_ref(p)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the parameter \"%s\" of %s has a \"$ref\", which the loader does not read.", domain, path, name, it->name);
     if (!json_is_object(p) || !json_is_number(mn) || !json_is_number(mx))
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the parameter \"%s\" of %s has no numeric \"minimum\" and \"maximum\".", domain, path, name, it->name);
     if (df && !json_is_number(df)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"default\" of the parameter \"%s\" of %s is not a number.", domain, path, name, it->name);
+    if (json_number_value(mn) > json_number_value(mx))
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the parameter \"%s\" of %s has a minimum above its maximum.", domain, path, name, it->name);
+    if (df && (json_number_value(df) < json_number_value(mn) || json_number_value(df) > json_number_value(mx)))
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"default\" of the parameter \"%s\" of %s is outside its minimum and maximum.", domain, path, name, it->name);
     if ((json_object_get(p, "x-unit") && !unit) || (json_object_get(p, "x-scale") && !scale))
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-unit\" or \"x-scale\" of the parameter \"%s\" of %s is not a string.", domain, path, name, it->name);
     param_t *o = &it->params[it->n_params];
@@ -260,6 +287,8 @@ static int read_items(omx_domain *d, json_t *root, const char *path, const char 
   json_object_foreach(schemas, name, s) {
     json_t *one_of = json_object_get(s, "oneOf"), *props = json_object_get(s, "properties");
     if (!json_is_object(s)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s is not an object.", domain, path, name);
+    if (has_ref(s)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s has a \"$ref\", which the loader does not read.", domain, path, name);
+    if (json_is_array(one_of) && json_is_object(props)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s has both \"oneOf\" and \"properties\": it is a words item or a range item, not both.", domain, path, name);
     if (!json_is_array(one_of) && !json_is_object(props)) continue; /* a schema that is neither a words nor a range item is not served */
     item_t *it = &d->items[d->n_items++];
     it->name = dup_str(name);
@@ -270,10 +299,25 @@ static int read_items(omx_domain *d, json_t *root, const char *path, const char 
   return 0;
 }
 
+/* A language tag: letters (2 to 8) then `-`-separated alphanumeric subtags (1 to 8 each): `es`, `pt-BR`, never `..` or `x.y`. */
+static int is_lang_tag(const char *s, size_t n) {
+  size_t i = 0, part = 0, parts = 0;
+  for (; i <= n; i++) {
+    char c = i < n ? s[i] : '-';
+    if (c == '-') {
+      if (part < (parts == 0 ? 2u : 1u) || part > 8) return 0;
+      parts++;
+      part = 0;
+    } else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (parts > 0 && c >= '0' && c <= '9')) part++;
+    else return 0;
+  }
+  return 1;
+}
+
 /* One catalog file: its language is the file's name. */
 static int read_catalog(omx_domain *d, const char *file, const char *lang, const char *domain, omx_domain_error *err) {
   json_t *root = NULL;
-  int rc = load_json(file, domain, &root, err);
+  int rc = load_json(file, domain, 1, &root, err);
   if (rc) return rc;
   json_t *msgs = json_object_get(root, "messages");
   if (!json_is_object(msgs)) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s of the domain %s has no \"messages\" object.", file, domain); }
@@ -324,6 +368,7 @@ static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx
     if (n - 5 >= sizeof lang) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s/%s of the domain %s has no language name.", path, e->d_name, domain); break; }
     memcpy(lang, e->d_name, n - 5);
     lang[n - 5] = '\0';
+    if (!is_lang_tag(lang, n - 5)) { rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The catalog %s/%s of the domain %s is not named by a language tag (es, pt-BR).", path, e->d_name, domain); break; }
     if (!fits(snprintf(file, sizeof file, "%s/%s", path, e->d_name), sizeof file)) { rc = path_too_long(err, domain); break; }
     rc = read_catalog(d, file, lang, domain, err);
   }
@@ -344,7 +389,7 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   char path[4096];
   if (!fits(snprintf(path, sizeof path, "%s/%s/%s.json", dir, domain, last_segment(domain)), sizeof path)) return path_too_long(err, domain);
   json_t *root = NULL;
-  int rc = load_json(path, domain, &root, err);
+  int rc = load_json(path, domain, 0, &root, err);
   if (rc) return rc;
 
   omx_domain *d = calloc(1, sizeof *d);
@@ -359,7 +404,7 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   else if (!json_is_object(root)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s is not a JSON object.", domain, path);
   else if (!id || strcmp(id, want_id) != 0) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: $id is \"%s\", and must be \"%s\".", domain, path, id ? id : "(absent)", want_id);
   else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
-  else if (!str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
+  else if (!str_of(info, "x-owner") || !*str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
   else if (needs_version && version_below(have, floor_)) rc = refuse(err, OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "The domain %s at %s is version %s, below the floor %s the program needs.", domain, path, version, needs_version);
   else rc = read_items(d, root, path, domain, err);
   json_decref(root); /* the JSON is released here: the handle holds its own copy of all it returns */

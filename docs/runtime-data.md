@@ -12,7 +12,7 @@ instead of generators in contracts?") and builds on the domain model of docs/con
 
 - A DATUM is anything a program reads and does not branch on at compile time: a description, a catalog sentence or
   its translation, a range, a unit, a default, a group, an order, a word list a UI shows, the shape a document must
-  have. It lives in the installed domain document, `<contractdir>/<domain>/<domain>.json` and its
+  have. It lives in the installed domain document, `<contractdir>/<domain>/<last segment of domain>.json` and its
   `catalogs/<lang>.json` (docs/contract-dir.md), and a function reads it.
 - A CODE is a value the compiler must see: the enum value a C `switch` branches on, a refusal code a caller compares,
   a struct layout. It is generated into a header, because a `case` label, an array bound or a `static_assert` cannot
@@ -137,7 +137,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   thread needs is copied into a plain struct of the program's before the thread starts.
 - **Validation at open.** `omx_domain_open` checks the document before it returns (see "What it reads"), so a function
   never returns a value from a document that is not of the shape it reads: `$id` is the domain's, `info.version` and
-  `info.x-owner` are there, every word and every range is complete, a word is declared once. A `$ref` to another domain,
+  `info.x-owner` are there, every word and every range is complete, a word is declared once and carries its place in its list as `x-code`, a range has `minimum` <= `default` <= `maximum`, a schema has `oneOf` or `properties` and not both, `info.x-owner` is not empty, no key is written twice, and a catalog is a regular file (never a symlink) named by a language tag (`es`, `pt-BR`); a bad catalog is `contract.file.invalid`. A `$ref` to another domain,
   resolved by `$id` from the same installed directory, is not read yet: a domain document refuses `$ref` today
   (docs/contract-dir.md, omx-contract#84), and the loader follows when the reader does.
 - **One parser, from the distribution.** The loader reads JSON with a library the distributions package (jansson or

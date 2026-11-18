@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib check doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -144,6 +144,16 @@ doxygen-check:
 # (docs/data-layout.md).
 layout:
 	node tools/data-layout.mjs
+
+# Every item and word of data/ and the schemas owned here or moving out, what moves out only shrinking against
+# OWNERSHIP_BASE (docs/contract-dir.md "What omx-contract owns"). The base is fetched first: a fetch that fails or a ref
+# git cannot read is a refusal by name (exit 2), never a pass.
+OWNERSHIP_REMOTE ?= origin
+OWNERSHIP_BRANCH ?= main
+OWNERSHIP_BASE ?= $(OWNERSHIP_REMOTE)/$(OWNERSHIP_BRANCH)
+ownership:
+	@git fetch --no-tags $(OWNERSHIP_REMOTE) $(OWNERSHIP_BRANCH) >/dev/null 2>&1 || { echo "ownership: fetching the base from $(OWNERSHIP_REMOTE) $(OWNERSHIP_BRANCH) failed; the shrink check needs it" >&2; exit 2; }
+	node tools/check-ownership.mjs --base $(OWNERSHIP_BASE)
 
 # inventory/ is the LV2 and CLAP installed here (needs serdi, the LV2 bundles and the CLAP headers).
 inventory-check:

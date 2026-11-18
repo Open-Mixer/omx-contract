@@ -2,6 +2,11 @@
 <!-- Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> -->
 # Moving a consumer onto a domain
 
+Recipe: consumer-move
+Pattern: a repository stops shipping a rendered vocabulary and owns, or reads, a domain document at run time through the loader
+Worked example: https://github.com/Open-Mixer/plugin-hostd/pull/151
+Steps: 1 the domain document; 2 the codes header, only for words C switches on; 3 delete the vocabulary render; 4 read through the loader; 5 CLIs and tests: OMX_CONTRACT_PATH; 6 packaging with the installer's domain mode; 7 the red-first tests
+
 This is the recipe for one move: a repository that has its own vocabulary, or that read words out of omx-contract,
 ends up owning a domain document (or reading another package's) and reading it at run time. The rules it follows
 are in [runtime-data.md](runtime-data.md) (the rule, the C loader, the codes header), in

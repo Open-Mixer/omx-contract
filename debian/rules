@@ -2,11 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 
+include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/buildflags.mk
+
 %:
 	dh $@
 
 override_dh_auto_install:
 	dh_auto_install -- PREFIX=/usr INCLUDEDIR=/usr/include DATADIR=/usr/share
+	# the C loader (libomx-domain0, libomx-domain-dev): arch-dependent, in the multiarch library directory
+	$(MAKE) install-c DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr INCLUDEDIR=/usr/include DATADIR=/usr/share LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) BINDIR=/usr/bin CONTRACTDIR=/usr/share/omx-contract/contract.d CFLAGS='$(CFLAGS) $(CPPFLAGS)' LDFLAGS='$(LDFLAGS)'
 	# the Python readers' package omx_contract (python3-omx-contract)
 	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PYTHONDIR=/usr/lib/python3/dist-packages
 	$(MAKE) install-cli DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr DATADIR=/usr/share BINDIR=/usr/bin CLIDIR=/usr/lib/omx-contract MANDIR=/usr/share/man
@@ -14,4 +19,5 @@ override_dh_auto_install:
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) check
+	$(MAKE) check-abi CONTRACTDIR=/usr/share/omx-contract/contract.d CFLAGS='$(CFLAGS) $(CPPFLAGS)' LDFLAGS='$(LDFLAGS)'
 endif

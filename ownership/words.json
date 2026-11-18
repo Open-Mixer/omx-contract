@@ -430,7 +430,9 @@
     "dirAbsent",
     "fileInvalid",
     "fileNotJson",
+    "indexRange",
     "itemDuplicate",
+    "itemUnknown",
     "kernelDuplicate",
     "manifestAbsent",
     "manifestInvalid",
@@ -464,7 +466,8 @@
     "verbCodeUnknown",
     "verbDuplicate",
     "verbFormat",
-    "verbHostUnknown"
+    "verbHostUnknown",
+    "wordUnknown"
   ],
   "CURVE_AXES": [
     "decayTime",

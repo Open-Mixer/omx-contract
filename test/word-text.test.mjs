@@ -13,7 +13,7 @@ import { renderTs } from '../render/ts.mjs';
 import { resolvedOf, texts } from './helpers.mjs';
 
 const FILE = 'data/measurement.json';
-const ITEM = 'MEASUREMENT_UNMEASURED_REASONS';
+const ITEM = 'QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS';
 // Every real word of ITEM now carries its own source sentence; a fixture that exercises one word's text in
 // isolation first clears the item back to bare words, so the assertions below do not depend on the others' content.
 const bare = (d) => { for (const w of Object.values(d[FILE][ITEM].words)) { delete w.text; delete w.args; } return d; };
@@ -62,12 +62,12 @@ test('the json render and the ts render carry text and args beside the word', ()
 test('the C vocabulary header and the vocabulary schema carry text and args beside the word', () => {
   const r = resolvedOf(texts((d) => { withText(d); }));
   const h = renderC(r).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
-  assert.match(h, /^#define OMX_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN_TEXT_EN "\{plugin\} has no audio input, so there is nothing to drive\."$/m);
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN_TEXT_EN "\{plugin\} has no audio input, so there is nothing to drive\."$/m);
   assert.doesNotMatch(h, /_TEXT_CA/, 'no translation in a header');
-  assert.match(h, /^#define OMX_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN_ARGS_COUNT 1u$/m);
-  assert.match(h, /^#define OMX_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN_ARGS_INIT \{ "plugin" \}$/m);
-  assert.equal((h.match(/^#define OMX_MEASUREMENT_UNMEASURED_REASONS_\w+_TEXT_EN /gm) ?? []).length, 1, 'a word with no text gains nothing');
-  assert.match(h, /^#define OMX_MEASUREMENT_UNMEASURED_REASONS_COUNT \d+u$/m, 'the item keeps its _COUNT');
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN_ARGS_COUNT 1u$/m);
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS_NO_AUDIO_IN_ARGS_INIT \{ "plugin" \}$/m);
+  assert.equal((h.match(/^#define OMX_QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS_\w+_TEXT_EN /gm) ?? []).length, 1, 'a word with no text gains nothing');
+  assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_UNMEASURED_REASONS_COUNT \d+u$/m, 'the item keeps its _COUNT');
   const schema = JSON.parse(renderJson(r, '0.0.0').find((f) => f.path === 'omx-vocabulary.schema.json').text);
   assert.deepEqual(schema.$defs[ITEM]['x-omx-texts'], { 'no-audio-in': { text: { en: '{plugin} has no audio input, so there is nothing to drive.' }, args: ['plugin'] } });
 });

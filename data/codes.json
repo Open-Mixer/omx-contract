@@ -559,6 +559,16 @@
           "item",
           "count"
         ]
+      },
+      "catalogInvalid": {
+        "code": "contract.catalog.invalid",
+        "doc": "a domain's catalog is not a regular file named by a language tag, or is not an object of {text, by} entries",
+        "text": {
+          "en": "The catalog at {path} cannot be read as a catalog of its domain. Fix the file or its name the detail points to."
+        },
+        "args": [
+          "path"
+        ]
       }
     }
   }

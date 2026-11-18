@@ -306,7 +306,7 @@ static void test_catalog_entry_without_text(void) {
   put_file(path, "{\"messages\":{\"DOM_W.a\":{\"nottext\":1}}}");
   omx_domain *d;
   omx_domain_error err;
-  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
   CHECK(strstr(err.message, "\"DOM_W.a\"") != NULL);
   drop_scratch();
 }
@@ -395,7 +395,7 @@ static void test_catalog_gains_a_file(void) {
   gain_dir = dir;
   omx_domain *d;
   omx_domain_error err;
-  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
   CHECK(strstr(err.message, "changed") != NULL);
   gain_dir = NULL;
   drop_scratch();
@@ -455,7 +455,7 @@ static void test_duplicate_keys_refused(void) {
   omx_domain *d;
   omx_domain_error err;
   int rc = open_scratch("dom", NULL, &d, &err);
-  if (rc != bad) { failures++; fprintf(stderr, "%s:%d: FAIL duplicate catalog key: got status %d, want %d\n", __FILE__, __LINE__, rc, bad); }
+  if (rc != OMX_CONTRACT_CODE_CATALOG_INVALID) { failures++; fprintf(stderr, "%s:%d: FAIL duplicate catalog key: got status %d, want %d\n", __FILE__, __LINE__, rc, OMX_CONTRACT_CODE_CATALOG_INVALID); }
   drop_scratch();
 }
 
@@ -499,9 +499,9 @@ static int catalog_opens(const char *name, int kind) {
   return rc;
 }
 
-/* (8) a bad catalog is not "the contract directory is absent"; its name is a language tag; a symlink is not followed. */
+/* (8) a bad catalog is contract.catalog.invalid, not "the contract directory is absent"; its name is a language tag; a symlink is not followed. */
 static void test_bad_catalogs_refused(void) {
-  const int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  const int bad = OMX_CONTRACT_CODE_CATALOG_INVALID;
   CHECK(catalog_opens("es.json", 0) == 0);
   CHECK(catalog_opens("pt-BR.json", 0) == 0);
   CHECK(catalog_opens("es.json", 1) == bad);
@@ -510,6 +510,31 @@ static void test_bad_catalogs_refused(void) {
   CHECK(catalog_opens("-x.json", 0) == bad);
   CHECK(catalog_opens("x.y.json", 0) == bad);
   CHECK(catalog_opens("es.json", 2) == bad);
+}
+
+/* One catalog es.json holding `content`, in a domain with a valid document: the status of opening it. */
+static int catalog_holding(const char *content) {
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
+  put_file(path, content);
+  omx_domain *d;
+  omx_domain_error err;
+  int rc = open_scratch("dom", NULL, &d, &err);
+  if (rc == 0 && d) omx_domain_close(d);
+  drop_scratch();
+  return rc;
+}
+
+/* (8) a catalog that does not parse, or holds no messages object, is a bad catalog: its own code, not the document's. */
+static void test_unreadable_catalogs_refused(void) {
+  CHECK(catalog_holding("{\"messages\":{}}") == 0);
+  CHECK(catalog_holding("{\"messages\":") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK(catalog_holding("[]") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK(catalog_holding("{\"messages\":[]}") == OMX_CONTRACT_CODE_CATALOG_INVALID);
 }
 
 /* (8) an empty x-owner is no owner. */
@@ -537,6 +562,7 @@ int main(void) {
   RUN(test_long_dir);
   RUN(test_version_strictness);
   RUN(test_catalog_gains_a_file);
+  RUN(test_unreadable_catalogs_refused);
   RUN(test_xcode_is_the_place);
   RUN(test_duplicate_keys_refused);
   RUN(test_incoherent_items_refused);

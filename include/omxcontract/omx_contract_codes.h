@@ -73,7 +73,8 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_ITEM_UNKNOWN = 53, ///< `contract.item.unknown`: a domain function was asked for an item the domain does not declare
   OMX_CONTRACT_CODE_WORD_UNKNOWN = 54, ///< `contract.word.unknown`: a domain function was asked for a word, or a range name, the item does not declare
   OMX_CONTRACT_CODE_INDEX_RANGE = 55, ///< `contract.index.range`: a domain function was asked for a word at an index past the item's count
-  OMX_CONTRACT_CODE_LAST = 55 ///< the last value: every value from 1 to this one is a code
+  OMX_CONTRACT_CODE_CATALOG_INVALID = 56, ///< `contract.catalog.invalid`: a domain's catalog is not a regular file named by a language tag, or is not an object of {text, by} entries
+  OMX_CONTRACT_CODE_LAST = 56 ///< the last value: every value from 1 to this one is a code
 };
 
 /** The table as an X-macro: `X(NAME, value, "code string")` once per code, in value order. */
@@ -132,7 +133,8 @@ enum omx_contract_code {
   X(SOURCE_NONE, 52, "contract.source.none") \
   X(ITEM_UNKNOWN, 53, "contract.item.unknown") \
   X(WORD_UNKNOWN, 54, "contract.word.unknown") \
-  X(INDEX_RANGE, 55, "contract.index.range")
+  X(INDEX_RANGE, 55, "contract.index.range") \
+  X(CATALOG_INVALID, 56, "contract.catalog.invalid")
 
 #ifdef __cplusplus
 }

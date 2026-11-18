@@ -413,6 +413,7 @@
     "versionRevision"
   ],
   "CONTRACT_CODES": [
+    "catalogInvalid",
     "descriptorChoice",
     "descriptorControlDuplicate",
     "descriptorEasy",

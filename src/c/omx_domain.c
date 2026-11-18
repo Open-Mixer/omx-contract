@@ -65,7 +65,7 @@ static int refuse(omx_domain_error *err, int status, const char *fmt, ...) {
 }
 
 static int path_too_long(omx_domain_error *err, const char *domain) {
-  return refuse(err, OMX_CONTRACT_CODE_DIR_ABSENT, "The domain %s: a path of it is too long.", domain);
+  return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s: a path of it is too long for the loader.", domain);
 }
 
 static char *dup_str(const char *s) {

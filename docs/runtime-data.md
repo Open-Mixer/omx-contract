@@ -130,6 +130,24 @@ tool.
 The test for a new generated file is the rule's: does a compiler, a packager or a host other than ours need it before
 a program of ours runs? If not, it is a function.
 
+## Other generated files
+
+The same rule reaches past the contract's own renders: no copy of data is committed where it can be built or answered.
+
+| File | From now |
+|---|---|
+| The protocol pages (`doc/protocol.md` of plugin-hostd-protocol) | Built by the site from the protocol JSON (`protocol/plugin-hostd-protocol.json`); no committed page. plugin-hostd answers a `help` verb from its own protocol data, so the running host is the reference too. |
+| The console's reference docs | Built at site build from the console's sources; no committed copies in the site repository. |
+| The console's REST API description | Produced by the console's code from its routes and entities, served at `/api/openapi.json`; no hand-kept or generated OpenAPI file. |
+
+These stay generated, as build inputs or test oracles rather than data a program reads:
+
+| Stays generated | Why |
+|---|---|
+| The dependency lines of the rpm spec and the debian control, from `packaging/deps.txt` | A packaging artifact, read by the packaging tool; one declared list, rendered into both. |
+| Goldens, ABI baselines and recorded fixtures | Test oracles: a recorded answer the test compares against, committed on purpose so a change shows in review. |
+| Machine-drafted translations | Data: a draft a person reviews, stored as the catalog the loader reads, not code. |
+
 ## The migration
 
 Each domain moves to its owner (omx-contract#81, docs/contract-dir.md "What omx-contract owns"). As it moves, it ships

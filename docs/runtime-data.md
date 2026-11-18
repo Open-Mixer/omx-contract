@@ -106,7 +106,8 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   `CONTRACT_CODES`, a constant of the generated header `omxcontract/omx_contract_codes.h` (`OMX_CONTRACT_CODE_ITEM_UNKNOWN`
   and the rest, rendered from `data/codes.json`; a value is the code's place in that table, and a code is appended,
   never moved). A program compares the constant; `omx_domain_code` gives the code's string for a message.
-  `omx_domain_text` alone returns NULL when the key is no word of the domain, and `omx_domain_word_count` returns -1
+  `omx_domain_text` alone returns NULL: when the key is no word of the domain, and when the word has no source sentence
+  (no `x-text`; the catalog's sentence for it is still returned in a language the catalog holds). `omx_domain_word_count` returns -1
   when there is no such item. Opening refuses with the reader's existing codes (`contract.dir.absent`,
   `contract.file.not-json`, `contract.file.invalid`, `contract.manifest.invalid` for an `$id` that is not the domain's,
   `contract.package.too-old` for an `info.version` below the floor). A lookup fails with one of three codes the loader
@@ -115,7 +116,10 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   `contract.index.range` (an index below 0 or at the item's count and above). A refused call leaves its output as it
   was: none of them returns a default value.
 - **What it reads.** A words item is a `components.schemas` entry with a `oneOf` of words, a range item one with
-  `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. Open checks
+  `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. A domain name is a slash-separated path
+  (`dsp/kernels`, docs/contract-dir.md): each segment a name of letters, digits, `-` and `_`, never empty, `.` or `..`, no
+  leading or trailing `/`; the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
+  name is refused with `contract.file.invalid` before any file is read. Open checks
   the structure of what the functions read (the required fields, their types, `info.version` against the floor), so no
   function answers from a document that is not of that shape. The FULL JSON Schema validation of a domain is done at
   package build, by the owner's build (Ajv, `jsonschema`; `omx-contract validate`), never in C: no validator is written

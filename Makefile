@@ -155,10 +155,11 @@ build-c: $(CBUILD)/omx-domain
 DOMAIN_HEADERS = include/omxcontract/omx_domain.h include/omxcontract/omx_contract_codes.h
 CPKGCONFIGDIR ?= $(LIBDIR)/pkgconfig
 install-c: build-c
-	install -d $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(CPKGCONFIGDIR) $(DESTDIR)$(DATADIR)/omx-contract/abi
+	install -d $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(CPKGCONFIGDIR) $(DESTDIR)$(DATADIR)/omx-contract/abi $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 $(CBUILD)/$(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/
 	ln -sf $(DOMAIN_SO) $(DESTDIR)$(LIBDIR)/libomx-domain.so
 	install -m 0755 $(CBUILD)/omx-domain $(DESTDIR)$(BINDIR)/
+	install -m 0644 man/omx-domain.1 $(DESTDIR)$(MANDIR)/man1/
 	install -m 0644 $(DOMAIN_HEADERS) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
 	install -m 0644 abi/libomx-domain.abi $(DESTDIR)$(DATADIR)/omx-contract/abi/
 	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@LIBDIR@|$(LIBDIR)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' \

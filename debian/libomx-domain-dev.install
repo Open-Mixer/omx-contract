@@ -4,3 +4,4 @@ usr/lib/*/libomx-domain.so
 usr/lib/*/pkgconfig/libomx-domain.pc
 usr/share/omx-contract/abi/libomx-domain.abi
 usr/bin/omx-domain
+usr/share/man/man1/omx-domain.1

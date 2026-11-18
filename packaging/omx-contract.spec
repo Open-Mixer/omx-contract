@@ -304,6 +304,7 @@ a floor, the lowest release whose functions it calls.
 %{_includedir}/omxcontract/omx_contract_codes.h
 %{_datadir}/omx-contract/abi/
 %{_bindir}/omx-domain
+%{_mandir}/man1/omx-domain.1*
 
 %changelog
 * Tue Nov 17 2026 Pau Aliagas <linuxnow@gmail.com> - 3.19.1-1

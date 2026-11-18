@@ -56,7 +56,8 @@ echo /LIB/libomx-domain.so.0 > "$tmp/want-$dlib"
   echo /LIB/libomx-domain.so
   echo /LIB/pkgconfig/libomx-domain.pc
   echo /usr/share/omx-contract/abi/libomx-domain.abi
-  echo /usr/bin/omx-domain; } | LC_ALL=C sort > "$tmp/want-$ddev"
+  echo /usr/bin/omx-domain
+  echo /usr/share/man/man1/omx-domain.1; } | LC_ALL=C sort > "$tmp/want-$ddev"
 # the shipped languages, from the one line of languages.json that lists them
 langs=$(sed -n 's/^  "languages": \[\(.*\)\],*$/\1/p' share/omx-contract/languages.json | tr -d '" ' | tr ',' ' ')
 [ -n "$langs" ] || { echo "package-files.sh: share/omx-contract/languages.json lists no language" >&2; exit 2; }
@@ -90,7 +91,7 @@ for pkg in "$data" "$devel" "$cli" "$py" "$dlib" "$ddev" $packs; do
     files "$f" | grep -v '/__pycache__/' | sed 's|^/usr/lib/python3[.0-9]*/[a-z]*-packages/|/SITE/|' > "$tmp/got-$pkg"
   elif [ "$pkg" = "$dlib" ] || [ "$pkg" = "$ddev" ]; then
     # the platform's library directory as /LIB; a symlink's target is no file of the list
-    files "$f" | sed -e 's|^/usr/lib64/|/LIB/|' -e 's|^/usr/lib/[a-z0-9_]*-linux-gnu[a-z0-9]*/|/LIB/|' | LC_ALL=C sort > "$tmp/got-$pkg"
+    files "$f" | sed -e 's|^/usr/share/man/man1/omx-domain\.1.*|/usr/share/man/man1/omx-domain.1|' -e 's|^/usr/lib64/|/LIB/|' -e 's|^/usr/lib/[a-z0-9_]*-linux-gnu[a-z0-9]*/|/LIB/|' | LC_ALL=C sort > "$tmp/got-$pkg"
   else
     files "$f" > "$tmp/got-$pkg"
   fi

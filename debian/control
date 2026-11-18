@@ -174,7 +174,7 @@ Description: C loader of an OpenMixer contract domain: the library
 Package: libomx-domain-dev
 Architecture: any
 Section: libdevel
-Depends: libomx-domain0 (>= ${binary:Version}), libjansson-dev, pkgconf | pkg-config, ${misc:Depends}
+Depends: ${shlibs:Depends}, libomx-domain0 (>= ${binary:Version}), libjansson-dev, pkgconf | pkg-config, ${misc:Depends}
 Description: C loader of an OpenMixer contract domain: headers and ABI list
  Everything to build a program on libomx-domain: omxcontract/omx_domain.h,
  omxcontract/omx_contract_codes.h (the CONTRACT_CODES values the functions

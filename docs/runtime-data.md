@@ -70,10 +70,10 @@ A small family in one header, `omxcontract/omx_domain.h`, written by hand and do
 ```c
 typedef struct omx_domain omx_domain;            /* an opened, validated domain; opaque */
 
-typedef enum { OMX_DOMAIN_OK = 0, OMX_DOMAIN_DIR_ABSENT, OMX_DOMAIN_FILE_NOT_JSON, OMX_DOMAIN_FILE_INVALID,
-               OMX_DOMAIN_MANIFEST_INVALID, OMX_DOMAIN_PACKAGE_TOO_OLD, OMX_DOMAIN_ITEM_UNKNOWN,
-               OMX_DOMAIN_WORD_UNKNOWN, OMX_DOMAIN_INDEX_RANGE } omx_domain_status;   /* each one a CONTRACT_CODES code */
-const char *omx_domain_code(int status);         /* the code string of a status, "contract.dir.absent" ... */
+/* A function returns 0, or the value of a CONTRACT_CODES code, a constant of the generated omx_contract_codes.h:
+   OMX_CONTRACT_CODE_DIR_ABSENT, _FILE_NOT_JSON, _FILE_INVALID, _MANIFEST_INVALID, _PACKAGE_TOO_OLD, _ITEM_UNKNOWN,
+   _WORD_UNKNOWN, _INDEX_RANGE. A value is the code's place in data/codes.json, from 1, and never moves. */
+const char *omx_domain_code(int status);         /* the string of a value, "contract.dir.absent" ...: for a message */
 
 typedef struct { const char *code;               /* a code of CONTRACT_CODES, e.g. "contract.dir.absent" */
                  char message[256]; } omx_domain_error;   /* names the domain, the place and the reason */
@@ -81,7 +81,7 @@ typedef struct { const char *word, *title, *description; int code; } omx_domain_
 typedef struct { double min, max, def; int has_default; const char *unit, *scale; } omx_domain_range_info;
 
 /* Open <domain> from the installed contract directory and validate it; needs_version is the floor ("1.2.0") or NULL.
-   Returns 0 and *out, or a status and *err (never both). Start-up only. */
+   Returns 0 and *out, or a code value and *err (never both). Start-up only. */
 int  omx_domain_open(const char *domain, const char *needs_version, omx_domain **out, omx_domain_error *err);
 /* The same from <dir>/<domain>/. TEST ONLY: a production binary does not call it. */
 int  omx_domain_open_at(const char *dir, const char *domain, const char *needs_version,
@@ -102,19 +102,24 @@ int  omx_domain_range(const omx_domain *d, const char *item, const char *name, o
 const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang);
 ```
 
-- **Return values.** Every function returns 0 on success, and on failure a status that is the value of a code of
-  `CONTRACT_CODES` (`omx_domain_code` gives the code string it prints); `omx_domain_text` alone returns NULL when the
-  key is no word of the domain, and `omx_domain_word_count` returns -1 when there is no such item. Opening refuses with
-  the reader's existing codes (`contract.dir.absent`, `contract.file.not-json`, `contract.file.invalid`,
-  `contract.manifest.invalid` for an `$id` that is not the domain's, `contract.package.too-old` for an `info.version`
-  below the floor). A lookup fails with one of three codes the loader adds to `CONTRACT_CODES`, each with its sentence
-  and its translations: `contract.item.unknown` (no such item in the domain), `contract.word.unknown` (no such word or
-  name in the item; an item that has no words has no word) and `contract.index.range` (an index below 0 or at the
-  item's count and above). A refused call leaves its output as it was: none of them returns a default value.
+- **Return values.** Every function returns 0 on success, and on failure the integer value of a code of
+  `CONTRACT_CODES`, a constant of the generated header `omxcontract/omx_contract_codes.h` (`OMX_CONTRACT_CODE_ITEM_UNKNOWN`
+  and the rest, rendered from `data/codes.json`; a value is the code's place in that table, and a code is appended,
+  never moved). A program compares the constant; `omx_domain_code` gives the code's string for a message.
+  `omx_domain_text` alone returns NULL when the key is no word of the domain, and `omx_domain_word_count` returns -1
+  when there is no such item. Opening refuses with the reader's existing codes (`contract.dir.absent`,
+  `contract.file.not-json`, `contract.file.invalid`, `contract.manifest.invalid` for an `$id` that is not the domain's,
+  `contract.package.too-old` for an `info.version` below the floor). A lookup fails with one of three codes the loader
+  adds to `CONTRACT_CODES`, each with its sentence and its translations: `contract.item.unknown` (no such item in the
+  domain), `contract.word.unknown` (no such word or name in the item; an item that has no words has no word) and
+  `contract.index.range` (an index below 0 or at the item's count and above). A refused call leaves its output as it
+  was: none of them returns a default value.
 - **What it reads.** A words item is a `components.schemas` entry with a `oneOf` of words, a range item one with
   `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. Open checks
-  the shape of what the functions read, so no function answers from a document that is not of that shape; it does not
-  evaluate the whole JSON Schema (no validator is written or vendored in C, ruling 1). A catalog entry is read for its
+  the structure of what the functions read (the required fields, their types, `info.version` against the floor), so no
+  function answers from a document that is not of that shape. The FULL JSON Schema validation of a domain is done at
+  package build, by the owner's build (Ajv, `jsonschema`; `omx-contract validate`), never in C: no validator is written
+  or vendored in C (ruling 1). A catalog entry is read for its
   `text`; a model's entry whose source sentence has changed is not recognised as stale (the TypeScript and Python readers
   do), so the C loader shows it until the catalog is regenerated.
 - **Ownership and lifetime.** At open the handle copies everything it will return into its own immutable storage,

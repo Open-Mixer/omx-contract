@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
   } else if (argc == 4) {
     int n = omx_domain_word_count(d, argv[3]);
     if (n < 0) {
-      fprintf(stderr, "omx-domain: %s: %s is no item of %s\n", omx_domain_code(OMX_DOMAIN_ITEM_UNKNOWN), argv[3], argv[1]);
+      fprintf(stderr, "omx-domain: %s: %s is no item of %s\n", omx_domain_code(OMX_CONTRACT_CODE_ITEM_UNKNOWN), argv[3], argv[1]);
       status = 1;
     }
     for (int i = 0; i < n; i++) {
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
       printf("min=%g max=%g default=%g unit=%s scale=%s\n", r.min, r.max, r.has_default ? r.def : 0.0, r.unit, r.scale);
     } else {
       /* the item is unknown to both lookups, or the name is unknown to the item */
-      fprintf(stderr, "omx-domain: %s: %s %s of %s\n", omx_domain_code(rw == OMX_DOMAIN_ITEM_UNKNOWN ? rw : rr), argv[3], argv[4], argv[1]);
+      fprintf(stderr, "omx-domain: %s: %s %s of %s\n", omx_domain_code(rw == OMX_CONTRACT_CODE_ITEM_UNKNOWN ? rw : rr), argv[3], argv[4], argv[1]);
       status = 1;
     }
   }

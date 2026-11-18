@@ -99,11 +99,11 @@ test('a name added to moving-out is red, against the base', () => {
 
 test('a moving-out item moved back to owned is red', () => {
   reset();
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'SCAN_DOCUMENTS'));
-  editList('ownership/owned.txt', (l) => [...l, 'SCAN_DOCUMENTS']);
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
+  editList('ownership/owned.txt', (l) => [...l, 'PANEL_PLACEMENTS']);
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /SCAN_DOCUMENTS stood on ownership\/moving-out\.txt at the base/);
+  assert.match(r.out, /PANEL_PLACEMENTS stood on ownership\/moving-out\.txt at the base/);
 });
 
 test('a word added to a moving-out item in words.json is red, even with the data matching', () => {
@@ -118,9 +118,9 @@ test('a word added to a moving-out item in words.json is red, even with the data
 
 test('a moved item and its words leave together: removing both is green', () => {
   reset();
-  editJson('data/scan.json', (d) => { delete d.SCAN_DOCUMENTS; });
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'SCAN_DOCUMENTS'));
-  editJson('ownership/words.json', (d) => { delete d.SCAN_DOCUMENTS; });
+  editJson('data/panel.json', (d) => { delete d.PANEL_PLACEMENTS; });
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
+  editJson('ownership/words.json', (d) => { delete d.PANEL_PLACEMENTS; });
   const r = run();
   assert.equal(r.status, 0, r.out);
 });

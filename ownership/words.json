@@ -1365,25 +1365,6 @@
     "quantum",
     "rate"
   ],
-  "SCAN_DOCUMENTS": [
-    "clapScanDocument",
-    "fieldDump"
-  ],
-  "SCAN_FIELD_SCOPES": [
-    "audioIn",
-    "audioOut",
-    "control",
-    "display",
-    "noteIn",
-    "noteOut",
-    "panel",
-    "param",
-    "placementDefault",
-    "plugin",
-    "port",
-    "role",
-    "section"
-  ],
   "STANDARD_QUANTA": [
     "1024",
     "128",

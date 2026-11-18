@@ -6,6 +6,10 @@ A package that owns definitions commits the C headers and the TypeScript module 
 by `render --check`. How they are framed and spelled is declared beside the items, in a file's `render` word, and the
 tool reads the word. The tool itself names no item: an owner's spelling lives in the owner's files and nowhere else.
 
+A proposed spec, [runtime-data.md](runtime-data.md), has most of the renders on this page stop as each domain moves to
+its owner: data is read at run time by functions, and only the codes a compiler needs stay generated. Until it is
+ruled and a domain moves, this page describes how that domain is rendered.
+
 ```json
 { "$schema": "../schema/omx-contract.schema.json",
   "requires": { "omx-contract-schema": ">= 2.15.0" },

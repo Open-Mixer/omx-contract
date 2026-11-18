@@ -213,7 +213,7 @@ export declare const CURVE_KINDS: {
  * The identifiers of the CLAP header clap/color.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/color.json
  */
-export declare const CLAP_COLOR_TERMS: {
+export declare const FORMATS_CLAP_COLOR_TERMS: {
   readonly colorTransparent: {
     readonly id: "CLAP_COLOR_TRANSPARENT";
     readonly kind: "constant";
@@ -226,7 +226,7 @@ export declare const CLAP_COLOR_TERMS: {
  * The identifiers of the CLAP header clap/events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/events.json
  */
-export declare const CLAP_EVENTS_TERMS: {
+export declare const FORMATS_CLAP_EVENTS_TERMS: {
   readonly coreEventSpaceId: {
     readonly id: "CLAP_CORE_EVENT_SPACE_ID";
     readonly kind: "constant";
@@ -421,7 +421,7 @@ export declare const CLAP_EVENTS_TERMS: {
  * The identifiers of the CLAP header clap/ext/ambisonic.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/ambisonic.json
  */
-export declare const CLAP_EXT_AMBISONIC_TERMS: {
+export declare const FORMATS_CLAP_EXT_AMBISONIC_TERMS: {
   readonly ambisonic: {
     readonly id: "CLAP_PORT_AMBISONIC";
     readonly value: "ambisonic";
@@ -491,7 +491,7 @@ export declare const CLAP_EXT_AMBISONIC_TERMS: {
  * The identifiers of the CLAP header clap/ext/audio-ports-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/audio-ports-activation.json
  */
-export declare const CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS: {
+export declare const FORMATS_CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS: {
   readonly "audio-ports-activation/2": {
     readonly id: "CLAP_EXT_AUDIO_PORTS_ACTIVATION";
     readonly value: "clap.audio-ports-activation/2";
@@ -512,7 +512,7 @@ export declare const CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS: {
  * The identifiers of the CLAP header clap/ext/audio-ports-config.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/audio-ports-config.json
  */
-export declare const CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS: {
+export declare const FORMATS_CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS: {
   readonly "audio-ports-config": {
     readonly id: "CLAP_EXT_AUDIO_PORTS_CONFIG";
     readonly value: "clap.audio-ports-config";
@@ -540,7 +540,7 @@ export declare const CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS: {
  * The identifiers of the CLAP header clap/ext/audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/audio-ports.json
  */
-export declare const CLAP_EXT_AUDIO_PORTS_TERMS: {
+export declare const FORMATS_CLAP_EXT_AUDIO_PORTS_TERMS: {
   readonly "audio-ports": {
     readonly id: "CLAP_EXT_AUDIO_PORTS";
     readonly value: "clap.audio-ports";
@@ -632,7 +632,7 @@ export declare const CLAP_EXT_AUDIO_PORTS_TERMS: {
  * The identifiers of the CLAP header clap/ext/configurable-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/configurable-audio-ports.json
  */
-export declare const CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS: {
+export declare const FORMATS_CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS: {
   readonly "configurable-audio-ports.draft1": {
     readonly id: "CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_COMPAT";
     readonly value: "clap.configurable-audio-ports.draft1";
@@ -653,7 +653,7 @@ export declare const CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS: {
  * The identifiers of the CLAP header clap/ext/context-menu.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/context-menu.json
  */
-export declare const CLAP_EXT_CONTEXT_MENU_TERMS: {
+export declare const FORMATS_CLAP_EXT_CONTEXT_MENU_TERMS: {
   readonly "context-menu.draft/0": {
     readonly id: "CLAP_EXT_CONTEXT_MENU_COMPAT";
     readonly value: "clap.context-menu.draft/0";
@@ -722,7 +722,7 @@ export declare const CLAP_EXT_CONTEXT_MENU_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/background-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/background-activation.json
  */
-export declare const CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS: {
   readonly "background-activation/1": {
     readonly id: "CLAP_EXT_BACKGROUND_ACTIVATION";
     readonly value: "clap.background-activation/1";
@@ -736,7 +736,7 @@ export declare const CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/background-progress.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/background-progress.json
  */
-export declare const CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS: {
   readonly "background-progress/1": {
     readonly id: "CLAP_EXT_BACKGROUND_PROGRESS";
     readonly value: "clap.background-progress/1";
@@ -750,7 +750,7 @@ export declare const CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/background-state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/background-state-context.json
  */
-export declare const CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS: {
   readonly "background-state-context/1": {
     readonly id: "CLAP_EXT_BACKGROUND_STATE_CONTEXT";
     readonly value: "clap.background-state-context/1";
@@ -764,7 +764,7 @@ export declare const CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/extensible-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/extensible-audio-ports.json
  */
-export declare const CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS: {
   readonly "extensible-audio-ports/1": {
     readonly id: "CLAP_EXT_EXTENSIBLE_AUDIO_PORTS";
     readonly value: "clap.extensible-audio-ports/1";
@@ -778,7 +778,7 @@ export declare const CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/flush-events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/flush-events.json
  */
-export declare const CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS: {
   readonly "flush-events/1": {
     readonly id: "CLAP_EXT_FLUSH_EVENTS";
     readonly value: "clap.flush-events/1";
@@ -792,7 +792,7 @@ export declare const CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/gain-adjustment-metering.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/gain-adjustment-metering.json
  */
-export declare const CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS: {
   readonly "gain-adjustment-metering/0": {
     readonly id: "CLAP_EXT_GAIN_ADJUSTMENT_METERING";
     readonly value: "clap.gain-adjustment-metering/0";
@@ -806,7 +806,7 @@ export declare const CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/mini-curve-display.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/mini-curve-display.json
  */
-export declare const CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS: {
   readonly "mini-curve-display/3": {
     readonly id: "CLAP_EXT_MINI_CURVE_DISPLAY";
     readonly value: "clap.mini-curve-display/3";
@@ -868,7 +868,7 @@ export declare const CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/octave-number.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/octave-number.json
  */
-export declare const CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS: {
   readonly "octave-number/1": {
     readonly id: "CLAP_EXT_OCTAVE_NUMBER";
     readonly value: "clap.octave-number/1";
@@ -882,7 +882,7 @@ export declare const CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/param-hovered.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/param-hovered.json
  */
-export declare const CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS: {
   readonly "param-hovered/1": {
     readonly id: "CLAP_EXT_PARAM_HOVERED";
     readonly value: "clap.param-hovered/1";
@@ -896,7 +896,7 @@ export declare const CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/params-origin.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/params-origin.json
  */
-export declare const CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS: {
   readonly "params-origin/1": {
     readonly id: "CLAP_EXT_PARAMS_ORIGIN";
     readonly value: "clap.params-origin/1";
@@ -910,7 +910,7 @@ export declare const CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/project-location.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/project-location.json
  */
-export declare const CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS: {
   readonly "project-location/2": {
     readonly id: "CLAP_EXT_PROJECT_LOCATION";
     readonly value: "clap.project-location/2";
@@ -996,7 +996,7 @@ export declare const CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/resource-directory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/resource-directory.json
  */
-export declare const CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS: {
   readonly "resource-directory/1": {
     readonly id: "CLAP_EXT_RESOURCE_DIRECTORY";
     readonly value: "clap.resource-directory/1";
@@ -1010,7 +1010,7 @@ export declare const CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/scratch-memory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/scratch-memory.json
  */
-export declare const CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS: {
   readonly "scratch-memory/1": {
     readonly id: "CLAP_EXT_SCRATCH_MEMORY";
     readonly value: "clap.scratch-memory/1";
@@ -1024,7 +1024,7 @@ export declare const CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/transport-control.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/transport-control.json
  */
-export declare const CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS: {
   readonly "transport-control/2": {
     readonly id: "CLAP_EXT_TRANSPORT_CONTROL";
     readonly value: "clap.transport-control/2";
@@ -1038,7 +1038,7 @@ export declare const CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/triggers.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/triggers.json
  */
-export declare const CLAP_EXT_DRAFT_TRIGGERS_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_TRIGGERS_TERMS: {
   readonly eventTrigger: {
     readonly id: "CLAP_EVENT_TRIGGER";
     readonly kind: "event-type";
@@ -1106,7 +1106,7 @@ export declare const CLAP_EXT_DRAFT_TRIGGERS_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/tuning.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/tuning.json
  */
-export declare const CLAP_EXT_DRAFT_TUNING_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_TUNING_TERMS: {
   readonly "tuning/2": {
     readonly id: "CLAP_EXT_TUNING";
     readonly value: "clap.tuning/2";
@@ -1120,7 +1120,7 @@ export declare const CLAP_EXT_DRAFT_TUNING_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/undo.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/undo.json
  */
-export declare const CLAP_EXT_DRAFT_UNDO_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_UNDO_TERMS: {
   readonly "undo/4": {
     readonly id: "CLAP_EXT_UNDO";
     readonly value: "clap.undo/4";
@@ -1148,7 +1148,7 @@ export declare const CLAP_EXT_DRAFT_UNDO_TERMS: {
  * The identifiers of the CLAP header clap/ext/draft/webview.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/webview.json
  */
-export declare const CLAP_EXT_DRAFT_WEBVIEW_TERMS: {
+export declare const FORMATS_CLAP_EXT_DRAFT_WEBVIEW_TERMS: {
   readonly webview: {
     readonly id: "CLAP_WINDOW_API_WEBVIEW";
     readonly value: "webview";
@@ -1169,7 +1169,7 @@ export declare const CLAP_EXT_DRAFT_WEBVIEW_TERMS: {
  * The identifiers of the CLAP header clap/ext/event-registry.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/event-registry.json
  */
-export declare const CLAP_EXT_EVENT_REGISTRY_TERMS: {
+export declare const FORMATS_CLAP_EXT_EVENT_REGISTRY_TERMS: {
   readonly "event-registry": {
     readonly id: "CLAP_EXT_EVENT_REGISTRY";
     readonly value: "clap.event-registry";
@@ -1183,7 +1183,7 @@ export declare const CLAP_EXT_EVENT_REGISTRY_TERMS: {
  * The identifiers of the CLAP header clap/ext/gui.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/gui.json
  */
-export declare const CLAP_EXT_GUI_TERMS: {
+export declare const FORMATS_CLAP_EXT_GUI_TERMS: {
   readonly cocoa: {
     readonly id: "CLAP_WINDOW_API_COCOA";
     readonly value: "cocoa";
@@ -1232,7 +1232,7 @@ export declare const CLAP_EXT_GUI_TERMS: {
  * The identifiers of the CLAP header clap/ext/latency.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/latency.json
  */
-export declare const CLAP_EXT_LATENCY_TERMS: {
+export declare const FORMATS_CLAP_EXT_LATENCY_TERMS: {
   readonly latency: {
     readonly id: "CLAP_EXT_LATENCY";
     readonly value: "clap.latency";
@@ -1247,7 +1247,7 @@ export declare const CLAP_EXT_LATENCY_TERMS: {
  * The identifiers of the CLAP header clap/ext/log.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/log.json
  */
-export declare const CLAP_EXT_LOG_TERMS: {
+export declare const FORMATS_CLAP_EXT_LOG_TERMS: {
   readonly log: {
     readonly id: "CLAP_EXT_LOG";
     readonly value: "clap.log";
@@ -1303,7 +1303,7 @@ export declare const CLAP_EXT_LOG_TERMS: {
  * The identifiers of the CLAP header clap/ext/note-name.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/note-name.json
  */
-export declare const CLAP_EXT_NOTE_NAME_TERMS: {
+export declare const FORMATS_CLAP_EXT_NOTE_NAME_TERMS: {
   readonly "note-name": {
     readonly id: "CLAP_EXT_NOTE_NAME";
     readonly value: "clap.note-name";
@@ -1317,7 +1317,7 @@ export declare const CLAP_EXT_NOTE_NAME_TERMS: {
  * The identifiers of the CLAP header clap/ext/note-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/note-ports.json
  */
-export declare const CLAP_EXT_NOTE_PORTS_TERMS: {
+export declare const FORMATS_CLAP_EXT_NOTE_PORTS_TERMS: {
   readonly "note-ports": {
     readonly id: "CLAP_EXT_NOTE_PORTS";
     readonly value: "clap.note-ports";
@@ -1372,7 +1372,7 @@ export declare const CLAP_EXT_NOTE_PORTS_TERMS: {
  * The identifiers of the CLAP header clap/ext/param-indication.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/param-indication.json
  */
-export declare const CLAP_EXT_PARAM_INDICATION_TERMS: {
+export declare const FORMATS_CLAP_EXT_PARAM_INDICATION_TERMS: {
   readonly "param-indication.draft/4": {
     readonly id: "CLAP_EXT_PARAM_INDICATION_COMPAT";
     readonly value: "clap.param-indication.draft/4";
@@ -1423,7 +1423,7 @@ export declare const CLAP_EXT_PARAM_INDICATION_TERMS: {
  * The identifiers of the CLAP header clap/ext/params.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/params.json
  */
-export declare const CLAP_EXT_PARAMS_TERMS: {
+export declare const FORMATS_CLAP_EXT_PARAMS_TERMS: {
   readonly paramClearAll: {
     readonly id: "CLAP_PARAM_CLEAR_ALL";
     readonly kind: "flag";
@@ -1587,7 +1587,7 @@ export declare const CLAP_EXT_PARAMS_TERMS: {
  * The identifiers of the CLAP header clap/ext/posix-fd-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/posix-fd-support.json
  */
-export declare const CLAP_EXT_POSIX_FD_SUPPORT_TERMS: {
+export declare const FORMATS_CLAP_EXT_POSIX_FD_SUPPORT_TERMS: {
   readonly "posix-fd-support": {
     readonly id: "CLAP_EXT_POSIX_FD_SUPPORT";
     readonly value: "clap.posix-fd-support";
@@ -1619,7 +1619,7 @@ export declare const CLAP_EXT_POSIX_FD_SUPPORT_TERMS: {
  * The identifiers of the CLAP header clap/ext/preset-load.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/preset-load.json
  */
-export declare const CLAP_EXT_PRESET_LOAD_TERMS: {
+export declare const FORMATS_CLAP_EXT_PRESET_LOAD_TERMS: {
   readonly "preset-load.draft/2": {
     readonly id: "CLAP_EXT_PRESET_LOAD_COMPAT";
     readonly value: "clap.preset-load.draft/2";
@@ -1640,7 +1640,7 @@ export declare const CLAP_EXT_PRESET_LOAD_TERMS: {
  * The identifiers of the CLAP header clap/ext/remote-controls.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/remote-controls.json
  */
-export declare const CLAP_EXT_REMOTE_CONTROLS_TERMS: {
+export declare const FORMATS_CLAP_EXT_REMOTE_CONTROLS_TERMS: {
   readonly "remote-controls.draft/2": {
     readonly id: "CLAP_EXT_REMOTE_CONTROLS_COMPAT";
     readonly value: "clap.remote-controls.draft/2";
@@ -1668,7 +1668,7 @@ export declare const CLAP_EXT_REMOTE_CONTROLS_TERMS: {
  * The identifiers of the CLAP header clap/ext/render.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/render.json
  */
-export declare const CLAP_EXT_RENDER_TERMS: {
+export declare const FORMATS_CLAP_EXT_RENDER_TERMS: {
   readonly render: {
     readonly id: "CLAP_EXT_RENDER";
     readonly value: "clap.render";
@@ -1694,7 +1694,7 @@ export declare const CLAP_EXT_RENDER_TERMS: {
  * The identifiers of the CLAP header clap/ext/state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/state-context.json
  */
-export declare const CLAP_EXT_STATE_CONTEXT_TERMS: {
+export declare const FORMATS_CLAP_EXT_STATE_CONTEXT_TERMS: {
   readonly "state-context/2": {
     readonly id: "CLAP_EXT_STATE_CONTEXT";
     readonly value: "clap.state-context/2";
@@ -1726,7 +1726,7 @@ export declare const CLAP_EXT_STATE_CONTEXT_TERMS: {
  * The identifiers of the CLAP header clap/ext/state.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/state.json
  */
-export declare const CLAP_EXT_STATE_TERMS: {
+export declare const FORMATS_CLAP_EXT_STATE_TERMS: {
   readonly state: {
     readonly id: "CLAP_EXT_STATE";
     readonly value: "clap.state";
@@ -1740,7 +1740,7 @@ export declare const CLAP_EXT_STATE_TERMS: {
  * The identifiers of the CLAP header clap/ext/surround.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/surround.json
  */
-export declare const CLAP_EXT_SURROUND_TERMS: {
+export declare const FORMATS_CLAP_EXT_SURROUND_TERMS: {
   readonly surround: {
     readonly id: "CLAP_PORT_SURROUND";
     readonly value: "surround";
@@ -1889,7 +1889,7 @@ export declare const CLAP_EXT_SURROUND_TERMS: {
  * The identifiers of the CLAP header clap/ext/tail.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/tail.json
  */
-export declare const CLAP_EXT_TAIL_TERMS: {
+export declare const FORMATS_CLAP_EXT_TAIL_TERMS: {
   readonly tail: {
     readonly id: "CLAP_EXT_TAIL";
     readonly value: "clap.tail";
@@ -1903,7 +1903,7 @@ export declare const CLAP_EXT_TAIL_TERMS: {
  * The identifiers of the CLAP header clap/ext/thread-check.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/thread-check.json
  */
-export declare const CLAP_EXT_THREAD_CHECK_TERMS: {
+export declare const FORMATS_CLAP_EXT_THREAD_CHECK_TERMS: {
   readonly "thread-check": {
     readonly id: "CLAP_EXT_THREAD_CHECK";
     readonly value: "clap.thread-check";
@@ -1917,7 +1917,7 @@ export declare const CLAP_EXT_THREAD_CHECK_TERMS: {
  * The identifiers of the CLAP header clap/ext/thread-pool.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/thread-pool.json
  */
-export declare const CLAP_EXT_THREAD_POOL_TERMS: {
+export declare const FORMATS_CLAP_EXT_THREAD_POOL_TERMS: {
   readonly "thread-pool": {
     readonly id: "CLAP_EXT_THREAD_POOL";
     readonly value: "clap.thread-pool";
@@ -1931,7 +1931,7 @@ export declare const CLAP_EXT_THREAD_POOL_TERMS: {
  * The identifiers of the CLAP header clap/ext/timer-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/timer-support.json
  */
-export declare const CLAP_EXT_TIMER_SUPPORT_TERMS: {
+export declare const FORMATS_CLAP_EXT_TIMER_SUPPORT_TERMS: {
   readonly "timer-support": {
     readonly id: "CLAP_EXT_TIMER_SUPPORT";
     readonly value: "clap.timer-support";
@@ -1945,7 +1945,7 @@ export declare const CLAP_EXT_TIMER_SUPPORT_TERMS: {
  * The identifiers of the CLAP header clap/ext/track-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/track-info.json
  */
-export declare const CLAP_EXT_TRACK_INFO_TERMS: {
+export declare const FORMATS_CLAP_EXT_TRACK_INFO_TERMS: {
   readonly "track-info.draft/1": {
     readonly id: "CLAP_EXT_TRACK_INFO_COMPAT";
     readonly value: "clap.track-info.draft/1";
@@ -2002,7 +2002,7 @@ export declare const CLAP_EXT_TRACK_INFO_TERMS: {
  * The identifiers of the CLAP header clap/ext/voice-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/voice-info.json
  */
-export declare const CLAP_EXT_VOICE_INFO_TERMS: {
+export declare const FORMATS_CLAP_EXT_VOICE_INFO_TERMS: {
   readonly "voice-info": {
     readonly id: "CLAP_EXT_VOICE_INFO";
     readonly value: "clap.voice-info";
@@ -2023,7 +2023,7 @@ export declare const CLAP_EXT_VOICE_INFO_TERMS: {
  * The identifiers of the CLAP header clap/factory/draft/plugin-invalidation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/draft/plugin-invalidation.json
  */
-export declare const CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS: {
+export declare const FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS: {
   readonly "plugin-invalidation-factory/1": {
     readonly id: "CLAP_PLUGIN_INVALIDATION_FACTORY_ID";
     readonly value: "clap.plugin-invalidation-factory/1";
@@ -2037,7 +2037,7 @@ export declare const CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS: {
  * The identifiers of the CLAP header clap/factory/draft/plugin-state-converter.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/draft/plugin-state-converter.json
  */
-export declare const CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS: {
+export declare const FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS: {
   readonly "plugin-state-converter-factory/1": {
     readonly id: "CLAP_PLUGIN_STATE_CONVERTER_FACTORY_ID";
     readonly value: "clap.plugin-state-converter-factory/1";
@@ -2051,7 +2051,7 @@ export declare const CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS: {
  * The identifiers of the CLAP header clap/factory/plugin-factory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/plugin-factory.json
  */
-export declare const CLAP_FACTORY_PLUGIN_FACTORY_TERMS: {
+export declare const FORMATS_CLAP_FACTORY_PLUGIN_FACTORY_TERMS: {
   readonly "plugin-factory": {
     readonly id: "CLAP_PLUGIN_FACTORY_ID";
     readonly value: "clap.plugin-factory";
@@ -2065,7 +2065,7 @@ export declare const CLAP_FACTORY_PLUGIN_FACTORY_TERMS: {
  * The identifiers of the CLAP header clap/factory/preset-discovery.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/preset-discovery.json
  */
-export declare const CLAP_FACTORY_PRESET_DISCOVERY_TERMS: {
+export declare const FORMATS_CLAP_FACTORY_PRESET_DISCOVERY_TERMS: {
   readonly "preset-discovery-factory/2": {
     readonly id: "CLAP_PRESET_DISCOVERY_FACTORY_ID";
     readonly value: "clap.preset-discovery-factory/2";
@@ -2122,7 +2122,7 @@ export declare const CLAP_FACTORY_PRESET_DISCOVERY_TERMS: {
  * The identifiers of the CLAP header clap/fixedpoint.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/fixedpoint.json
  */
-export declare const CLAP_FIXEDPOINT_TERMS: {
+export declare const FORMATS_CLAP_FIXEDPOINT_TERMS: {
   readonly beattimeFactor: {
     readonly id: "CLAP_BEATTIME_FACTOR";
     readonly kind: "constant";
@@ -2141,7 +2141,7 @@ export declare const CLAP_FIXEDPOINT_TERMS: {
  * The identifiers of the CLAP header clap/id.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/id.json
  */
-export declare const CLAP_ID_TERMS: {
+export declare const FORMATS_CLAP_ID_TERMS: {
   readonly invalidId: {
     readonly id: "CLAP_INVALID_ID";
     readonly kind: "constant";
@@ -2154,7 +2154,7 @@ export declare const CLAP_ID_TERMS: {
  * The identifiers of the CLAP header clap/plugin-features.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/plugin-features.json
  */
-export declare const CLAP_PLUGIN_FEATURES_TERMS: {
+export declare const FORMATS_CLAP_PLUGIN_FEATURES_TERMS: {
   readonly ambisonic: {
     readonly id: "CLAP_PLUGIN_FEATURE_AMBISONIC";
     readonly value: "ambisonic";
@@ -2438,7 +2438,7 @@ export declare const CLAP_PLUGIN_FEATURES_TERMS: {
  * The identifiers of the CLAP header clap/process.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/process.json
  */
-export declare const CLAP_PROCESS_TERMS: {
+export declare const FORMATS_CLAP_PROCESS_TERMS: {
   readonly processContinue: {
     readonly id: "CLAP_PROCESS_CONTINUE";
     readonly kind: "process-status";
@@ -2475,7 +2475,7 @@ export declare const CLAP_PROCESS_TERMS: {
  * The identifiers of the CLAP header clap/string-sizes.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/string-sizes.json
  */
-export declare const CLAP_STRING_SIZES_TERMS: {
+export declare const FORMATS_CLAP_STRING_SIZES_TERMS: {
   readonly nameSize: {
     readonly id: "CLAP_NAME_SIZE";
     readonly kind: "enum-value";
@@ -2494,7 +2494,7 @@ export declare const CLAP_STRING_SIZES_TERMS: {
  * The identifiers of the CLAP header clap/timestamp.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/timestamp.json
  */
-export declare const CLAP_TIMESTAMP_TERMS: {
+export declare const FORMATS_CLAP_TIMESTAMP_TERMS: {
   readonly timestampUnknown: {
     readonly id: "CLAP_TIMESTAMP_UNKNOWN";
     readonly kind: "constant";
@@ -2507,7 +2507,7 @@ export declare const CLAP_TIMESTAMP_TERMS: {
  * The identifiers of the CLAP header clap/version.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/version.json
  */
-export declare const CLAP_VERSION_TERMS: {
+export declare const FORMATS_CLAP_VERSION_TERMS: {
   readonly version: {
     readonly id: "CLAP_VERSION";
     readonly kind: "constant";
@@ -2538,7 +2538,7 @@ export declare const CLAP_VERSION_TERMS: {
  * The terms of the LV2 Atom specification (atom.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/atom.json
  */
-export declare const LV2_ATOM_TERMS: {
+export declare const FORMATS_LV2_ATOM_TERMS: {
   readonly Atom: {
     readonly uri: "http://lv2plug.in/ns/ext/atom#Atom";
     readonly kind: "class";
@@ -2739,7 +2739,7 @@ export declare const LV2_ATOM_TERMS: {
  * The terms of the LV2 Buf Size specification (buf-size.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/buf-size.json
  */
-export declare const LV2_BUF_SIZE_TERMS: {
+export declare const FORMATS_LV2_BUF_SIZE_TERMS: {
   readonly boundedBlockLength: {
     readonly uri: "http://lv2plug.in/ns/ext/buf-size#boundedBlockLength";
     readonly kind: "feature";
@@ -2800,7 +2800,7 @@ export declare const LV2_BUF_SIZE_TERMS: {
  * The terms of the LV2 specification (core.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/core.json
  */
-export declare const LV2_CORE_TERMS: {
+export declare const FORMATS_LV2_CORE_TERMS: {
   readonly AllpassPlugin: {
     readonly uri: "http://lv2plug.in/ns/lv2core#AllpassPlugin";
     readonly kind: "plugin-class";
@@ -3394,7 +3394,7 @@ export declare const LV2_CORE_TERMS: {
  * The terms of the data access specification (data-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/data-access.json
  */
-export declare const LV2_DATA_ACCESS_TERMS: {
+export declare const FORMATS_LV2_DATA_ACCESS_TERMS: {
   readonly "data-access.lv2": {
     readonly uri: "http://lv2plug.in/ns/ext/data-access";
     readonly kind: "feature";
@@ -3407,7 +3407,7 @@ export declare const LV2_DATA_ACCESS_TERMS: {
  * The terms of the LV2 Dyn Manifest specification (dynmanifest.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/dynmanifest.json
  */
-export declare const LV2_DYNMANIFEST_TERMS: {
+export declare const FORMATS_LV2_DYNMANIFEST_TERMS: {
   readonly DynManifest: {
     readonly uri: "http://lv2plug.in/ns/ext/dynmanifest#DynManifest";
     readonly kind: "class";
@@ -3426,7 +3426,7 @@ export declare const LV2_DYNMANIFEST_TERMS: {
  * The terms of the LV2 Event specification (event.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/event.json
  */
-export declare const LV2_EVENT_TERMS: {
+export declare const FORMATS_LV2_EVENT_TERMS: {
   readonly Event: {
     readonly uri: "http://lv2plug.in/ns/ext/event#Event";
     readonly kind: "class";
@@ -3502,7 +3502,7 @@ export declare const LV2_EVENT_TERMS: {
  * The terms of the instance access specification (instance-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/instance-access.json
  */
-export declare const LV2_INSTANCE_ACCESS_TERMS: {
+export declare const FORMATS_LV2_INSTANCE_ACCESS_TERMS: {
   readonly "instance-access.lv2": {
     readonly uri: "http://lv2plug.in/ns/ext/instance-access";
     readonly kind: "feature";
@@ -3515,7 +3515,7 @@ export declare const LV2_INSTANCE_ACCESS_TERMS: {
  * The terms of the LV2 Log specification (log.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/log.json
  */
-export declare const LV2_LOG_TERMS: {
+export declare const FORMATS_LV2_LOG_TERMS: {
   readonly Entry: {
     readonly uri: "http://lv2plug.in/ns/ext/log#Entry";
     readonly kind: "class";
@@ -3564,7 +3564,7 @@ export declare const LV2_LOG_TERMS: {
  * The terms of the LV2 MIDI specification (midi.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/midi.json
  */
-export declare const LV2_MIDI_TERMS: {
+export declare const FORMATS_LV2_MIDI_TERMS: {
   readonly ActiveSense: {
     readonly uri: "http://lv2plug.in/ns/ext/midi#ActiveSense";
     readonly kind: "class";
@@ -3824,7 +3824,7 @@ export declare const LV2_MIDI_TERMS: {
  * The terms of the LV2 Morph specification (morph.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/morph.json
  */
-export declare const LV2_MORPH_TERMS: {
+export declare const FORMATS_LV2_MORPH_TERMS: {
   readonly AutoMorphPort: {
     readonly uri: "http://lv2plug.in/ns/ext/morph#AutoMorphPort";
     readonly kind: "class";
@@ -3861,7 +3861,7 @@ export declare const LV2_MORPH_TERMS: {
  * The terms of the LV2 Options specification (options.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/options.json
  */
-export declare const LV2_OPTIONS_TERMS: {
+export declare const FORMATS_LV2_OPTIONS_TERMS: {
   readonly Option: {
     readonly uri: "http://lv2plug.in/ns/ext/options#Option";
     readonly kind: "class";
@@ -3904,7 +3904,7 @@ export declare const LV2_OPTIONS_TERMS: {
  * The terms of the LV2 Parameters specification (parameters.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/parameters.json
  */
-export declare const LV2_PARAMETERS_TERMS: {
+export declare const FORMATS_LV2_PARAMETERS_TERMS: {
   readonly CompressorControls: {
     readonly uri: "http://lv2plug.in/ns/ext/parameters#CompressorControls";
     readonly kind: "class";
@@ -4080,7 +4080,7 @@ export declare const LV2_PARAMETERS_TERMS: {
  * The terms of the LV2 Patch specification (patch.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/patch.json
  */
-export declare const LV2_PATCH_TERMS: {
+export declare const FORMATS_LV2_PATCH_TERMS: {
   readonly Ack: {
     readonly uri: "http://lv2plug.in/ns/ext/patch#Ack";
     readonly kind: "class";
@@ -4255,7 +4255,7 @@ export declare const LV2_PATCH_TERMS: {
  * The terms of the LV2 Port Groups specification (port-groups.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/port-groups.json
  */
-export declare const LV2_PORT_GROUPS_TERMS: {
+export declare const FORMATS_LV2_PORT_GROUPS_TERMS: {
   readonly ACN0: {
     readonly uri: "http://lv2plug.in/ns/ext/port-groups#ACN0";
     readonly kind: "channel";
@@ -4650,7 +4650,7 @@ export declare const LV2_PORT_GROUPS_TERMS: {
  * The terms of the LV2 Port Properties specification (port-props.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/port-props.json
  */
-export declare const LV2_PORT_PROPS_TERMS: {
+export declare const FORMATS_LV2_PORT_PROPS_TERMS: {
   readonly causesArtifacts: {
     readonly uri: "http://lv2plug.in/ns/ext/port-props#causesArtifacts";
     readonly kind: "port-property";
@@ -4738,7 +4738,7 @@ export declare const LV2_PORT_PROPS_TERMS: {
  * The terms of the LV2 Presets specification (presets.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/presets.json
  */
-export declare const LV2_PRESETS_TERMS: {
+export declare const FORMATS_LV2_PRESETS_TERMS: {
   readonly Bank: {
     readonly uri: "http://lv2plug.in/ns/ext/presets#Bank";
     readonly kind: "class";
@@ -4781,7 +4781,7 @@ export declare const LV2_PRESETS_TERMS: {
  * The terms of the LV2 Resize Port specification (resize-port.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/resize-port.json
  */
-export declare const LV2_RESIZE_PORT_TERMS: {
+export declare const FORMATS_LV2_RESIZE_PORT_TERMS: {
   readonly asLargeAs: {
     readonly uri: "http://lv2plug.in/ns/ext/resize-port#asLargeAs";
     readonly kind: "property";
@@ -4812,7 +4812,7 @@ export declare const LV2_RESIZE_PORT_TERMS: {
  * The terms of the LV2 State specification (state.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/state.json
  */
-export declare const LV2_STATE_TERMS: {
+export declare const FORMATS_LV2_STATE_TERMS: {
   readonly State: {
     readonly uri: "http://lv2plug.in/ns/ext/state#State";
     readonly kind: "class";
@@ -4879,7 +4879,7 @@ export declare const LV2_STATE_TERMS: {
  * The terms of the LV2 Time specification (time.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/time.json
  */
-export declare const LV2_TIME_TERMS: {
+export declare const FORMATS_LV2_TIME_TERMS: {
   readonly Position: {
     readonly uri: "http://lv2plug.in/ns/ext/time#Position";
     readonly kind: "class";
@@ -4972,7 +4972,7 @@ export declare const LV2_TIME_TERMS: {
  * The terms of the LV2 UI specification (ui.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/ui.json
  */
-export declare const LV2_UI_TERMS: {
+export declare const FORMATS_LV2_UI_TERMS: {
   readonly CocoaUI: {
     readonly uri: "http://lv2plug.in/ns/extensions/ui#CocoaUI";
     readonly kind: "class";
@@ -5200,7 +5200,7 @@ export declare const LV2_UI_TERMS: {
  * The terms of the LV2 Units specification (units.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/units.json
  */
-export declare const LV2_UNITS_TERMS: {
+export declare const FORMATS_LV2_UNITS_TERMS: {
   readonly Conversion: {
     readonly uri: "http://lv2plug.in/ns/extensions/units#Conversion";
     readonly kind: "class";
@@ -5425,7 +5425,7 @@ export declare const LV2_UNITS_TERMS: {
  * The terms of the LV2 URI Map specification (uri-map.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/uri-map.json
  */
-export declare const LV2_URI_MAP_TERMS: {
+export declare const FORMATS_LV2_URI_MAP_TERMS: {
   readonly "uri-map.lv2": {
     readonly uri: "http://lv2plug.in/ns/ext/uri-map";
     readonly kind: "feature";
@@ -5439,7 +5439,7 @@ export declare const LV2_URI_MAP_TERMS: {
  * The terms of the LV2 URID specification (urid.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/urid.json
  */
-export declare const LV2_URID_TERMS: {
+export declare const FORMATS_LV2_URID_TERMS: {
   readonly map: {
     readonly uri: "http://lv2plug.in/ns/ext/urid#map";
     readonly kind: "feature";
@@ -5464,7 +5464,7 @@ export declare const LV2_URID_TERMS: {
  * The terms of the LV2 Worker specification (worker.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/worker.json
  */
-export declare const LV2_WORKER_TERMS: {
+export declare const FORMATS_LV2_WORKER_TERMS: {
   readonly interface: {
     readonly uri: "http://lv2plug.in/ns/ext/worker#interface";
     readonly kind: "extension-data";
@@ -5921,7 +5921,7 @@ export declare const MEASUREMENT_UNMEASURED_REASONS: {
 export declare const MEASUREMENT_LATENCY_METHODS: {
   readonly impulseOnset: {
     readonly word: "impulse-onset";
-    readonly from: readonly ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#latency", "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"];
     readonly doc: "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.";
     readonly text: {
       readonly en: "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.";
@@ -5929,7 +5929,7 @@ export declare const MEASUREMENT_LATENCY_METHODS: {
   };
   readonly declaredPort: {
     readonly word: "declared-port";
-    readonly from: readonly ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#latency", "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"];
     readonly doc: "Read from the plugin's own latency report: what it claims.";
     readonly text: {
       readonly en: "Read from the plugin's own latency report: what it claims.";
@@ -6049,7 +6049,7 @@ export declare const MEASUREMENT_LATENCY_EXCLUSIONS: {
 export declare const MEASUREMENT_VOICE_BASES: {
   readonly declared: {
     readonly word: "declared";
-    readonly from: readonly ["CLAP_EXT_VOICE_INFO_TERMS#voice-info"];
+    readonly from: readonly ["FORMATS_CLAP_EXT_VOICE_INFO_TERMS#voice-info"];
     readonly text: {
       readonly en: "The voice capacity the plugin declares through CLAP's voice-info extension.";
     };
@@ -6461,406 +6461,406 @@ export declare const OMX_PARAM_CONTRACT_UNITS: {
 export declare const PLUGIN_FEATURE_AUDIO_EFFECT: {
   readonly clapAudioEffect: {
     readonly word: "clap.audio-effect";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#audio-effect"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#audio-effect"];
     readonly text: {
       readonly en: "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared.";
     };
   };
   readonly clapChorus: {
     readonly word: "clap.chorus";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#chorus"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#chorus"];
     readonly text: {
       readonly en: "The CLAP plugin feature chorus: an effect that thickens a sound with detuned, delayed copies of it.";
     };
   };
   readonly clapCompressor: {
     readonly word: "clap.compressor";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#compressor"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#compressor"];
     readonly text: {
       readonly en: "The CLAP plugin feature compressor: an effect that narrows a sound's dynamic range.";
     };
   };
   readonly clapDeEsser: {
     readonly word: "clap.de-esser";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#de-esser"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#de-esser"];
     readonly text: {
       readonly en: "The CLAP plugin feature de-esser: an effect that tames sibilance in a voice.";
     };
   };
   readonly clapDelay: {
     readonly word: "clap.delay";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#delay"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#delay"];
     readonly text: {
       readonly en: "The CLAP plugin feature delay: an effect that repeats a sound after a gap.";
     };
   };
   readonly clapDistortion: {
     readonly word: "clap.distortion";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#distortion"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#distortion"];
     readonly text: {
       readonly en: "The CLAP plugin feature distortion: an effect that adds harmonics by overdriving a sound.";
     };
   };
   readonly clapEqualizer: {
     readonly word: "clap.equalizer";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#equalizer"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#equalizer"];
     readonly text: {
       readonly en: "The CLAP plugin feature equalizer: an effect that shapes a sound's frequency balance.";
     };
   };
   readonly clapExpander: {
     readonly word: "clap.expander";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#expander"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#expander"];
     readonly text: {
       readonly en: "The CLAP plugin feature expander: an effect that widens a sound's dynamic range.";
     };
   };
   readonly clapFilter: {
     readonly word: "clap.filter";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#filter"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#filter"];
     readonly text: {
       readonly en: "The CLAP plugin feature filter: an effect that removes or shapes a band of frequencies.";
     };
   };
   readonly clapFlanger: {
     readonly word: "clap.flanger";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#flanger"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#flanger"];
     readonly text: {
       readonly en: "The CLAP plugin feature flanger: an effect that sweeps a short, modulated delay against the dry sound.";
     };
   };
   readonly clapFrequencyShifter: {
     readonly word: "clap.frequency-shifter";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"];
     readonly text: {
       readonly en: "The CLAP plugin feature frequency-shifter: an effect that shifts every frequency of a sound by the same amount.";
     };
   };
   readonly clapGate: {
     readonly word: "clap.gate";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#gate"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#gate"];
     readonly text: {
       readonly en: "The CLAP plugin feature gate: an effect that mutes a sound below a level.";
     };
   };
   readonly clapGlitch: {
     readonly word: "clap.glitch";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#glitch"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#glitch"];
     readonly text: {
       readonly en: "The CLAP plugin feature glitch: an effect that cuts, stutters or corrupts a sound on purpose.";
     };
   };
   readonly clapGranular: {
     readonly word: "clap.granular";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#granular"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#granular"];
     readonly text: {
       readonly en: "The CLAP plugin feature granular: an effect built from short grains of a sound.";
     };
   };
   readonly clapLimiter: {
     readonly word: "clap.limiter";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#limiter"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#limiter"];
     readonly text: {
       readonly en: "The CLAP plugin feature limiter: an effect that holds a sound under a ceiling.";
     };
   };
   readonly clapMastering: {
     readonly word: "clap.mastering";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#mastering"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#mastering"];
     readonly text: {
       readonly en: "The CLAP plugin feature mastering: an effect meant for a mix's final stage.";
     };
   };
   readonly clapMixing: {
     readonly word: "clap.mixing";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#mixing"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#mixing"];
     readonly text: {
       readonly en: "The CLAP plugin feature mixing: an effect meant for use while mixing, such as a channel strip.";
     };
   };
   readonly clapMultiEffects: {
     readonly word: "clap.multi-effects";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#multi-effects"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#multi-effects"];
     readonly text: {
       readonly en: "The CLAP plugin feature multi-effects: several effects combined in one plugin.";
     };
   };
   readonly clapPhaseVocoder: {
     readonly word: "clap.phase-vocoder";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"];
     readonly text: {
       readonly en: "The CLAP plugin feature phase-vocoder: an effect built on a phase vocoder, typically to stretch or shift a sound independently of pitch and time.";
     };
   };
   readonly clapPhaser: {
     readonly word: "clap.phaser";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#phaser"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#phaser"];
     readonly text: {
       readonly en: "The CLAP plugin feature phaser: an effect that sweeps notches through a sound with an all-pass filter chain.";
     };
   };
   readonly clapPitchCorrection: {
     readonly word: "clap.pitch-correction";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"];
     readonly text: {
       readonly en: "The CLAP plugin feature pitch-correction: an effect that pulls a sound's pitch toward a scale.";
     };
   };
   readonly clapPitchShifter: {
     readonly word: "clap.pitch-shifter";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"];
     readonly text: {
       readonly en: "The CLAP plugin feature pitch-shifter: an effect that changes a sound's pitch without changing its duration.";
     };
   };
   readonly clapRestoration: {
     readonly word: "clap.restoration";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#restoration"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#restoration"];
     readonly text: {
       readonly en: "The CLAP plugin feature restoration: an effect that removes noise, clicks or other damage from a recording.";
     };
   };
   readonly clapReverb: {
     readonly word: "clap.reverb";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#reverb"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#reverb"];
     readonly text: {
       readonly en: "The CLAP plugin feature reverb: an effect that adds the reflections of a space to a sound.";
     };
   };
   readonly clapTransientShaper: {
     readonly word: "clap.transient-shaper";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"];
     readonly text: {
       readonly en: "The CLAP plugin feature transient-shaper: an effect that reshapes a sound's attack and sustain.";
     };
   };
   readonly clapTremolo: {
     readonly word: "clap.tremolo";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#tremolo"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#tremolo"];
     readonly text: {
       readonly en: "The CLAP plugin feature tremolo: an effect that modulates a sound's level over time.";
     };
   };
   readonly clapUtility: {
     readonly word: "clap.utility";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#utility"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#utility"];
     readonly text: {
       readonly en: "The CLAP plugin feature utility: a plugin that does audio housekeeping rather than a creative effect.";
     };
   };
   readonly lv2Allpass: {
     readonly word: "lv2.Allpass";
-    readonly from: readonly ["LV2_CORE_TERMS#AllpassPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#AllpassPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class AllpassPlugin: an all-pass filter, which shifts phase without changing level.";
     };
   };
   readonly lv2Amplifier: {
     readonly word: "lv2.Amplifier";
-    readonly from: readonly ["LV2_CORE_TERMS#AmplifierPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#AmplifierPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class AmplifierPlugin: a plugin that changes a sound's level.";
     };
   };
   readonly lv2Bandpass: {
     readonly word: "lv2.Bandpass";
-    readonly from: readonly ["LV2_CORE_TERMS#BandpassPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#BandpassPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class BandpassPlugin: a filter that passes one band of frequencies.";
     };
   };
   readonly lv2Chorus: {
     readonly word: "lv2.Chorus";
-    readonly from: readonly ["LV2_CORE_TERMS#ChorusPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ChorusPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ChorusPlugin: an effect that thickens a sound with detuned, delayed copies of it.";
     };
   };
   readonly lv2Comb: {
     readonly word: "lv2.Comb";
-    readonly from: readonly ["LV2_CORE_TERMS#CombPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#CombPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class CombPlugin: a comb filter, which adds a short delayed copy of a sound to itself.";
     };
   };
   readonly lv2Compressor: {
     readonly word: "lv2.Compressor";
-    readonly from: readonly ["LV2_CORE_TERMS#CompressorPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#CompressorPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class CompressorPlugin: an effect that narrows a sound's dynamic range.";
     };
   };
   readonly lv2Converter: {
     readonly word: "lv2.Converter";
-    readonly from: readonly ["LV2_CORE_TERMS#ConverterPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ConverterPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ConverterPlugin: a plugin that converts a signal from one representation to another.";
     };
   };
   readonly lv2Delay: {
     readonly word: "lv2.Delay";
-    readonly from: readonly ["LV2_CORE_TERMS#DelayPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#DelayPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class DelayPlugin: an effect that repeats a sound after a gap.";
     };
   };
   readonly lv2Distortion: {
     readonly word: "lv2.Distortion";
-    readonly from: readonly ["LV2_CORE_TERMS#DistortionPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#DistortionPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class DistortionPlugin: an effect that adds harmonics by overdriving a sound.";
     };
   };
   readonly lv2Dynamics: {
     readonly word: "lv2.Dynamics";
-    readonly from: readonly ["LV2_CORE_TERMS#DynamicsPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#DynamicsPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class DynamicsPlugin: an effect that changes a sound's dynamic range.";
     };
   };
   readonly lv2EQ: {
     readonly word: "lv2.EQ";
-    readonly from: readonly ["LV2_CORE_TERMS#EQPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#EQPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class EQPlugin: an effect that shapes a sound's frequency balance.";
     };
   };
   readonly lv2Envelope: {
     readonly word: "lv2.Envelope";
-    readonly from: readonly ["LV2_CORE_TERMS#EnvelopePlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#EnvelopePlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class EnvelopePlugin: a plugin that follows or applies an envelope over time.";
     };
   };
   readonly lv2Expander: {
     readonly word: "lv2.Expander";
-    readonly from: readonly ["LV2_CORE_TERMS#ExpanderPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ExpanderPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ExpanderPlugin: an effect that widens a sound's dynamic range.";
     };
   };
   readonly lv2Filter: {
     readonly word: "lv2.Filter";
-    readonly from: readonly ["LV2_CORE_TERMS#FilterPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#FilterPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class FilterPlugin: an effect that removes or shapes a band of frequencies.";
     };
   };
   readonly lv2Flanger: {
     readonly word: "lv2.Flanger";
-    readonly from: readonly ["LV2_CORE_TERMS#FlangerPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#FlangerPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class FlangerPlugin: an effect that sweeps a short, modulated delay against the dry sound.";
     };
   };
   readonly lv2Gate: {
     readonly word: "lv2.Gate";
-    readonly from: readonly ["LV2_CORE_TERMS#GatePlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#GatePlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class GatePlugin: an effect that mutes a sound below a level.";
     };
   };
   readonly lv2Highpass: {
     readonly word: "lv2.Highpass";
-    readonly from: readonly ["LV2_CORE_TERMS#HighpassPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#HighpassPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class HighpassPlugin: a filter that passes frequencies above a cutoff.";
     };
   };
   readonly lv2Limiter: {
     readonly word: "lv2.Limiter";
-    readonly from: readonly ["LV2_CORE_TERMS#LimiterPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#LimiterPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class LimiterPlugin: an effect that holds a sound under a ceiling.";
     };
   };
   readonly lv2Lowpass: {
     readonly word: "lv2.Lowpass";
-    readonly from: readonly ["LV2_CORE_TERMS#LowpassPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#LowpassPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class LowpassPlugin: a filter that passes frequencies below a cutoff.";
     };
   };
   readonly lv2Mixer: {
     readonly word: "lv2.Mixer";
-    readonly from: readonly ["LV2_CORE_TERMS#MixerPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#MixerPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class MixerPlugin: a plugin that combines several signals into one.";
     };
   };
   readonly lv2Modulator: {
     readonly word: "lv2.Modulator";
-    readonly from: readonly ["LV2_CORE_TERMS#ModulatorPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ModulatorPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ModulatorPlugin: a plugin that modulates one signal with another.";
     };
   };
   readonly lv2MultiEQ: {
     readonly word: "lv2.MultiEQ";
-    readonly from: readonly ["LV2_CORE_TERMS#MultiEQPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#MultiEQPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class MultiEQPlugin: a multi-band equaliser.";
     };
   };
   readonly lv2ParaEQ: {
     readonly word: "lv2.ParaEQ";
-    readonly from: readonly ["LV2_CORE_TERMS#ParaEQPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ParaEQPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ParaEQPlugin: a parametric equaliser.";
     };
   };
   readonly lv2Phaser: {
     readonly word: "lv2.Phaser";
-    readonly from: readonly ["LV2_CORE_TERMS#PhaserPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#PhaserPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class PhaserPlugin: an effect that sweeps notches through a sound with an all-pass filter chain.";
     };
   };
   readonly lv2Pitch: {
     readonly word: "lv2.Pitch";
-    readonly from: readonly ["LV2_CORE_TERMS#PitchPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#PitchPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class PitchPlugin: a plugin that changes or tracks a sound's pitch.";
     };
   };
   readonly lv2Reverb: {
     readonly word: "lv2.Reverb";
-    readonly from: readonly ["LV2_CORE_TERMS#ReverbPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ReverbPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ReverbPlugin: an effect that adds the reflections of a space to a sound.";
     };
   };
   readonly lv2Simulator: {
     readonly word: "lv2.Simulator";
-    readonly from: readonly ["LV2_CORE_TERMS#SimulatorPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#SimulatorPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class SimulatorPlugin: a plugin that models a physical device or space.";
     };
   };
   readonly lv2Spatial: {
     readonly word: "lv2.Spatial";
-    readonly from: readonly ["LV2_CORE_TERMS#SpatialPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#SpatialPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class SpatialPlugin: a plugin that places or moves a sound in space.";
     };
   };
   readonly lv2Spectral: {
     readonly word: "lv2.Spectral";
-    readonly from: readonly ["LV2_CORE_TERMS#SpectralPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#SpectralPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class SpectralPlugin: a plugin that processes a sound in the frequency domain.";
     };
   };
   readonly lv2Utility: {
     readonly word: "lv2.Utility";
-    readonly from: readonly ["LV2_CORE_TERMS#UtilityPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#UtilityPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class UtilityPlugin: a plugin that does audio housekeeping rather than a creative effect.";
     };
   };
   readonly lv2Waveshaper: {
     readonly word: "lv2.Waveshaper";
-    readonly from: readonly ["LV2_CORE_TERMS#WaveshaperPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#WaveshaperPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics.";
     };
@@ -6874,42 +6874,42 @@ export declare const PLUGIN_FEATURE_AUDIO_EFFECT: {
 export declare const PLUGIN_FEATURE_INSTRUMENT: {
   readonly clapDrum: {
     readonly word: "clap.drum";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#drum"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#drum"];
     readonly text: {
       readonly en: "The CLAP plugin feature drum: an instrument that plays drum sounds.";
     };
   };
   readonly clapDrumMachine: {
     readonly word: "clap.drum-machine";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#drum-machine"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#drum-machine"];
     readonly text: {
       readonly en: "The CLAP plugin feature drum-machine: an instrument that sequences and plays drum sounds.";
     };
   };
   readonly clapInstrument: {
     readonly word: "clap.instrument";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#instrument"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#instrument"];
     readonly text: {
       readonly en: "The CLAP plugin feature instrument: a plugin played by notes, with no more specific kind declared.";
     };
   };
   readonly clapSampler: {
     readonly word: "clap.sampler";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#sampler"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#sampler"];
     readonly text: {
       readonly en: "The CLAP plugin feature sampler: an instrument that plays recorded samples.";
     };
   };
   readonly clapSynthesizer: {
     readonly word: "clap.synthesizer";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#synthesizer"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#synthesizer"];
     readonly text: {
       readonly en: "The CLAP plugin feature synthesizer: an instrument that generates its own sound rather than playing samples.";
     };
   };
   readonly lv2Instrument: {
     readonly word: "lv2.Instrument";
-    readonly from: readonly ["LV2_CORE_TERMS#InstrumentPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#InstrumentPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class InstrumentPlugin: a plugin played by notes.";
     };
@@ -6923,14 +6923,14 @@ export declare const PLUGIN_FEATURE_INSTRUMENT: {
 export declare const PLUGIN_FEATURE_NOTE_EFFECT: {
   readonly clapNoteEffect: {
     readonly word: "clap.note-effect";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#note-effect"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#note-effect"];
     readonly text: {
       readonly en: "The CLAP plugin feature note-effect: a plugin that reads notes and writes notes, such as an arpeggiator.";
     };
   };
   readonly lv2MIDI: {
     readonly word: "lv2.MIDI";
-    readonly from: readonly ["LV2_CORE_TERMS#MIDIPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#MIDIPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out.";
     };
@@ -6944,21 +6944,21 @@ export declare const PLUGIN_FEATURE_NOTE_EFFECT: {
 export declare const PLUGIN_FEATURE_ANALYZER: {
   readonly clapAnalyzer: {
     readonly word: "clap.analyzer";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#analyzer"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#analyzer"];
     readonly text: {
       readonly en: "The CLAP plugin feature analyzer: a plugin that reads audio and reports a measurement, with no further output.";
     };
   };
   readonly clapNoteDetector: {
     readonly word: "clap.note-detector";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#note-detector"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#note-detector"];
     readonly text: {
       readonly en: "The CLAP plugin feature note-detector: an analyzer that reads pitch from audio.";
     };
   };
   readonly lv2Analyser: {
     readonly word: "lv2.Analyser";
-    readonly from: readonly ["LV2_CORE_TERMS#AnalyserPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#AnalyserPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement.";
     };
@@ -6972,63 +6972,63 @@ export declare const PLUGIN_FEATURE_ANALYZER: {
 export declare const PLUGIN_FEATURE_OTHER: {
   readonly clapAmbisonic: {
     readonly word: "clap.ambisonic";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#ambisonic"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#ambisonic"];
     readonly text: {
       readonly en: "The CLAP plugin feature ambisonic: a plugin declared to work in an ambisonic channel layout.";
     };
   };
   readonly clapMono: {
     readonly word: "clap.mono";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#mono"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#mono"];
     readonly text: {
       readonly en: "The CLAP plugin feature mono: a plugin declared to work in a mono channel layout.";
     };
   };
   readonly clapStereo: {
     readonly word: "clap.stereo";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#stereo"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#stereo"];
     readonly text: {
       readonly en: "The CLAP plugin feature stereo: a plugin declared to work in a stereo channel layout.";
     };
   };
   readonly clapSurround: {
     readonly word: "clap.surround";
-    readonly from: readonly ["CLAP_PLUGIN_FEATURES_TERMS#surround"];
+    readonly from: readonly ["FORMATS_CLAP_PLUGIN_FEATURES_TERMS#surround"];
     readonly text: {
       readonly en: "The CLAP plugin feature surround: a plugin declared to work in a surround channel layout.";
     };
   };
   readonly lv2Constant: {
     readonly word: "lv2.Constant";
-    readonly from: readonly ["LV2_CORE_TERMS#ConstantPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#ConstantPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class ConstantPlugin: a plugin with no input that outputs a constant.";
     };
   };
   readonly lv2Function: {
     readonly word: "lv2.Function";
-    readonly from: readonly ["LV2_CORE_TERMS#FunctionPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#FunctionPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class FunctionPlugin: a plugin with no audio input or output, used only for its side effects or parameters.";
     };
   };
   readonly lv2Generator: {
     readonly word: "lv2.Generator";
-    readonly from: readonly ["LV2_CORE_TERMS#GeneratorPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#GeneratorPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class GeneratorPlugin: a plugin with no audio input that generates a sound.";
     };
   };
   readonly lv2Oscillator: {
     readonly word: "lv2.Oscillator";
-    readonly from: readonly ["LV2_CORE_TERMS#OscillatorPlugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#OscillatorPlugin"];
     readonly text: {
       readonly en: "The LV2 plugin class OscillatorPlugin: a generator that outputs a periodic waveform.";
     };
   };
   readonly lv2Plugin: {
     readonly word: "lv2.Plugin";
-    readonly from: readonly ["LV2_CORE_TERMS#Plugin"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#Plugin"];
     readonly text: {
       readonly en: "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared.";
     };
@@ -7101,7 +7101,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly scratchMemory: {
     readonly word: "scratch-memory";
-    readonly from: readonly ["CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"];
+    readonly from: readonly ["FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"];
     readonly doc: "The memory a plugin asks of its host for its process call.";
     readonly text: {
       readonly en: "The memory a plugin asks of its host for its process call.";
@@ -7109,7 +7109,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly latency: {
     readonly word: "latency";
-    readonly from: readonly ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"];
+    readonly from: readonly ["FORMATS_LV2_CORE_TERMS#latency", "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"];
     readonly doc: "The frames a plugin delays its output by, per rate and quantum.";
     readonly text: {
       readonly en: "The frames a plugin delays its output by, per rate and quantum.";
@@ -7117,7 +7117,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly tail: {
     readonly word: "tail";
-    readonly from: readonly ["CLAP_EXT_TAIL_TERMS#tail"];
+    readonly from: readonly ["FORMATS_CLAP_EXT_TAIL_TERMS#tail"];
     readonly doc: "How long a plugin keeps sounding once its input goes silent.";
     readonly text: {
       readonly en: "How long a plugin keeps sounding once its input goes silent.";
@@ -7125,7 +7125,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly voices: {
     readonly word: "voices";
-    readonly from: readonly ["CLAP_EXT_VOICE_INFO_TERMS#voice-info"];
+    readonly from: readonly ["FORMATS_CLAP_EXT_VOICE_INFO_TERMS#voice-info"];
     readonly doc: "The notes an instrument plays at once.";
     readonly text: {
       readonly en: "The notes an instrument plays at once.";
@@ -7140,7 +7140,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly threads: {
     readonly word: "threads";
-    readonly from: readonly ["CLAP_EXT_THREAD_POOL_TERMS#thread-pool"];
+    readonly from: readonly ["FORMATS_CLAP_EXT_THREAD_POOL_TERMS#thread-pool"];
     readonly doc: "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.";
     readonly text: {
       readonly en: "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.";
@@ -7148,7 +7148,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly worker: {
     readonly word: "worker";
-    readonly from: readonly ["LV2_WORKER_TERMS#schedule", "LV2_WORKER_TERMS#interface"];
+    readonly from: readonly ["FORMATS_LV2_WORKER_TERMS#schedule", "FORMATS_LV2_WORKER_TERMS#interface"];
     readonly doc: "The work a plugin hands to a non-real-time thread of the host.";
     readonly text: {
       readonly en: "The work a plugin hands to a non-real-time thread of the host.";
@@ -7156,7 +7156,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly blockLength: {
     readonly word: "block-length";
-    readonly from: readonly ["LV2_BUF_SIZE_TERMS#boundedBlockLength", "LV2_BUF_SIZE_TERMS#maxBlockLength", "LV2_BUF_SIZE_TERMS#minBlockLength", "LV2_BUF_SIZE_TERMS#nominalBlockLength", "LV2_OPTIONS_TERMS#options"];
+    readonly from: readonly ["FORMATS_LV2_BUF_SIZE_TERMS#boundedBlockLength", "FORMATS_LV2_BUF_SIZE_TERMS#maxBlockLength", "FORMATS_LV2_BUF_SIZE_TERMS#minBlockLength", "FORMATS_LV2_BUF_SIZE_TERMS#nominalBlockLength", "FORMATS_LV2_OPTIONS_TERMS#options"];
     readonly doc: "The block lengths a plugin accepts.";
     readonly text: {
       readonly en: "The block lengths a plugin accepts.";
@@ -7185,7 +7185,7 @@ export declare const RESOURCE_KINDS: {
   };
   readonly state: {
     readonly word: "state";
-    readonly from: readonly ["LV2_STATE_TERMS#interface", "CLAP_EXT_STATE_TERMS#state"];
+    readonly from: readonly ["FORMATS_LV2_STATE_TERMS#interface", "FORMATS_CLAP_EXT_STATE_TERMS#state"];
     readonly doc: "The size of a plugin's saved state, its save and restore time, and its round trip.";
     readonly text: {
       readonly en: "The size of a plugin's saved state, its save and restore time, and its round trip.";
@@ -7206,14 +7206,14 @@ export declare const RESOURCE_UNITS: {
   };
   readonly frames: {
     readonly word: "frames";
-    readonly from: readonly ["LV2_UNITS_TERMS#frame"];
+    readonly from: readonly ["FORMATS_LV2_UNITS_TERMS#frame"];
     readonly text: {
       readonly en: "A count of audio frames.";
     };
   };
   readonly ms: {
     readonly word: "ms";
-    readonly from: readonly ["LV2_UNITS_TERMS#ms"];
+    readonly from: readonly ["FORMATS_LV2_UNITS_TERMS#ms"];
     readonly text: {
       readonly en: "Milliseconds.";
     };
@@ -7226,7 +7226,7 @@ export declare const RESOURCE_UNITS: {
   };
   readonly s: {
     readonly word: "s";
-    readonly from: readonly ["LV2_UNITS_TERMS#s"];
+    readonly from: readonly ["FORMATS_LV2_UNITS_TERMS#s"];
     readonly text: {
       readonly en: "Seconds.";
     };
@@ -7905,7 +7905,7 @@ export declare const VERB_HOSTS_WORDS: readonly ["plugin-hostd", "omx-clap-host"
 
 /**
  * The CLAP identifiers (extension ids, factory ids, plugin features, window APIs) by the header's own identifier.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const CLAP_IDS: {
   readonly CLAP_PORT_AMBISONIC: "ambisonic";
@@ -8024,7 +8024,7 @@ export declare const CLAP_IDS: {
 
 /**
  * The numbers the CLAP headers declare, by the header's own identifier.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const CLAP_NUMBERS: {
   readonly CLAP_REMOTE_CONTROLS_COUNT: 8;
@@ -8032,7 +8032,7 @@ export declare const CLAP_NUMBERS: {
 
 /**
  * The URI of each LV2 specification, by its name in upper snake case.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const LV2_SPECIFICATIONS: {
   readonly ATOM: "http://lv2plug.in/ns/ext/atom";
@@ -8063,7 +8063,7 @@ export declare const LV2_SPECIFICATIONS: {
 
 /**
  * The namespace each LV2 specification's terms are written after: its URI and a #.
- * @see data/formats/
+ * @see contract.d/formats/
  */
 export declare const LV2_NAMESPACES: {
   readonly ATOM: "http://lv2plug.in/ns/ext/atom#";

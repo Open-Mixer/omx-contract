@@ -37,7 +37,7 @@ test('the remote controls page size is the number 8, in C, ts and py', async () 
 });
 
 test('sabotage: the page size changed in the data changes every render, so a stale golden goes red', () => {
-  const r = scratch((d) => { d.CLAP_EXT_REMOTE_CONTROLS_TERMS.terms.remoteControlsCount.value = 9; });
+  const r = scratch((d) => { d.FORMATS_CLAP_EXT_REMOTE_CONTROLS_TERMS.terms.remoteControlsCount.value = 9; });
   assert.match(renderFormatsHeader(r), /OMX_CLAP_REMOTE_CONTROLS_COUNT 9u/);
   assert.notEqual(renderFormatsHeader(r), read('include/omxcontract/omx_formats.h'));
   assert.notEqual(renderFormatsPy(r), read('share/omx-contract/omx_contract.py'));

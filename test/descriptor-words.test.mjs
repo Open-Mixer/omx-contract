@@ -36,7 +36,7 @@ test('a descriptor carries the extension bag per format, a one-line plugin.doc a
   bad((d) => { d.controls[1].travel.unit = 'ratios'; }, /\/travel\/unit/);
 });
 
-/** A format map in a file of its own, beside the union's terms (LV2_UNITS_TERMS and the CLAP files). */
+/** A format map in a file of its own, beside the union's terms (FORMATS_LV2_UNITS_TERMS and the CLAP files). */
 const MAP = 'data/maps/lv2.json';
 const map = () => ({
   $schema: '../../schema/omx-contract.schema.json',
@@ -45,11 +45,11 @@ const map = () => ({
     doc: 'How an LV2 scan becomes a descriptor.',
     format: 'lv2',
     rows: {
-      'units:unit': { term: 'LV2_UNITS_TERMS#unit', word: { word: 'controls[].travel.unit', transform: 'lookup', values: { 'units:db': 'dB', 'units:hz': 'Hz' } } },
-      'units:khz': { term: 'LV2_UNITS_TERMS#khz', word: { word: 'controls[].travel.unit', transform: 'scale-by', factor: 1000 } },
+      'units:unit': { term: 'FORMATS_LV2_UNITS_TERMS#unit', word: { word: 'controls[].travel.unit', transform: 'lookup', values: { 'units:db': 'dB', 'units:hz': 'Hz' } } },
+      'units:khz': { term: 'FORMATS_LV2_UNITS_TERMS#khz', word: { word: 'controls[].travel.unit', transform: 'scale-by', factor: 1000 } },
       'doap:license': { from: 'http://usefulinc.com/ns/doap#license', extension: true },
       'rdfs:comment': { from: 'https://www.w3.org/TR/rdf-schema/#ch_comment', word: { word: 'plugin.doc', transform: 'identity' } },
-      'units:conversion': { term: 'LV2_UNITS_TERMS#conversion', dropped: { ruling: 'docs/descriptors.md#units: a unit converts by our words, never by its own' } },
+      'units:conversion': { term: 'FORMATS_LV2_UNITS_TERMS#conversion', dropped: { ruling: 'docs/descriptors.md#units: a unit converts by our words, never by its own' } },
     },
   },
 });
@@ -111,7 +111,7 @@ test('a formatMap row\'s term is a term of a terms item of the map\'s format (ru
     assert.ok(got.some((p) => /^ACME_LV2_MAP:map-term:/.test(p) && want.test(p)), `${want}: ${JSON.stringify(got)}`);
   };
   rule((rows) => { rows['units:unit'].term = 'ACME_LV2_MAP#unit'; }, /ACME_LV2_MAP is no terms item/);
-  rule((rows) => { rows['units:unit'].term = 'LV2_UNITS_TERMS#furlong'; }, /LV2_UNITS_TERMS has no term furlong/);
+  rule((rows) => { rows['units:unit'].term = 'FORMATS_LV2_UNITS_TERMS#furlong'; }, /FORMATS_LV2_UNITS_TERMS has no term furlong/);
   const clap = [...loadData(null, texts()).items.values()].find((it) => it.item.kind === 'terms' && it.item.format === 'clap');
   const term = Object.keys(clap.item.terms)[0];
   rule((rows) => { rows['units:unit'].term = `${clap.name}#${term}`; }, /is a clap term, and the map is lv2's/);

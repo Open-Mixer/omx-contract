@@ -147,7 +147,7 @@ function groupedDomain() {
           description: 'Reasons.', 'x-since': '3.0.0', 'x-groups': 'GROUPED_KINDS',
           oneOf: code([
             w('no-audio-in', 'noAudioIn', { 'x-group': 'nothing-to-measure' }),
-            w('impulse', 'impulse', { 'x-group': 'cannot', 'x-from': [{ $ref: 'https://openmixer.org/contract/omx-contract#/components/schemas/LV2_CORE_TERMS', 'x-term': 'latency' }] }),
+            w('impulse', 'impulse', { 'x-group': 'cannot', 'x-from': [{ $ref: 'https://openmixer.org/contract/omx-contract#/components/schemas/FORMATS_LV2_CORE_TERMS', 'x-term': 'latency' }] }),
           ]),
         },
       },
@@ -160,7 +160,7 @@ test('a word names its group (x-group), its item the words schema of the groups 
   const it = d.items.get('GROUPED_REASONS').item;
   assert.equal(it.groups, 'GROUPED_KINDS');
   assert.equal(it.words.noAudioIn.group, 'nothing-to-measure');
-  assert.deepEqual(it.words.impulse.from, ['LV2_CORE_TERMS#latency']);
+  assert.deepEqual(it.words.impulse.from, ['FORMATS_LV2_CORE_TERMS#latency']);
 });
 
 test('a group no word of the groups schema names, and a $ref that is no domain id, are refused', () => {

@@ -46,17 +46,17 @@ test('a unit or a basis that is no word of the item named, or one with no item n
 });
 
 test('a from that names no term, or no terms item, is refused', () => {
-  assert.ok(has(texts((d) => { d[R].RESOURCE_KINDS.words.tail.from = ['CLAP_EXT_TAIL_TERMS#tails']; }), 'RESOURCE_KINDS', 'word-from'));
+  assert.ok(has(texts((d) => { d[R].RESOURCE_KINDS.words.tail.from = ['FORMATS_CLAP_EXT_TAIL_TERMS#tails']; }), 'RESOURCE_KINDS', 'word-from'));
   assert.ok(has(texts((d) => { d[R].RESOURCE_KINDS.words.tail.from = ['RT_HARD_TARGET#tail']; }), 'RESOURCE_KINDS', 'word-from'));
 });
 
 test('a term of the wrong format\'s shape, or without the citation its status asks for, is refused', () => {
   const f = 'data/formats/lv2/urid.json';
-  assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; delete t.uri; t.id = 'CLAP_X'; }), 'LV2_URID_TERMS', 'term-format'));
-  assert.ok(has(texts((d) => { delete d[f].LV2_URID_TERMS.terms.map.by; }), 'LV2_URID_TERMS', 'schema'));
-  assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; t.status = 'supported-later'; delete t.by; }), 'LV2_URID_TERMS', 'schema'));
-  assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; t.status = 'out-of-scope'; }), 'LV2_URID_TERMS', 'schema'));
-  assert.ok(has(texts((d) => { delete d[f].LV2_URID_TERMS.terms.map.status; }), 'LV2_URID_TERMS', 'schema'));
+  assert.ok(has(texts((d) => { const t = d[f].FORMATS_LV2_URID_TERMS.terms.map; delete t.uri; t.id = 'CLAP_X'; }), 'FORMATS_LV2_URID_TERMS', 'term-format'));
+  assert.ok(has(texts((d) => { delete d[f].FORMATS_LV2_URID_TERMS.terms.map.by; }), 'FORMATS_LV2_URID_TERMS', 'schema'));
+  assert.ok(has(texts((d) => { const t = d[f].FORMATS_LV2_URID_TERMS.terms.map; t.status = 'supported-later'; delete t.by; }), 'FORMATS_LV2_URID_TERMS', 'schema'));
+  assert.ok(has(texts((d) => { const t = d[f].FORMATS_LV2_URID_TERMS.terms.map; t.status = 'out-of-scope'; }), 'FORMATS_LV2_URID_TERMS', 'schema'));
+  assert.ok(has(texts((d) => { delete d[f].FORMATS_LV2_URID_TERMS.terms.map.status; }), 'FORMATS_LV2_URID_TERMS', 'schema'));
 });
 
 test('an item named as a words item\'s ts export is refused', () => {
@@ -152,7 +152,7 @@ test('the JSON Schema fragment gives one enum per codes and words item, in order
   assert.deepEqual(f.$defs.MEASUREMENT_VOICE_BASES.enum, ['declared', 'probe']);
   assert.deepEqual(f.$defs.MACHINE_CORE_BANDS.enum, ['1-2', '3-4', '5-8', '9-16', '17-32', '33+']);
   assert.deepEqual(f.$defs.HOSTING_COST_CODES.enum, ['hosting.cost.above-ceiling', 'hosting.cost.fields-missing', 'hosting.cost.spiky-tail', 'hosting.cost.unmeasured-at-rate-and-quantum', 'hosting.cost.within-ceiling']);
-  assert.equal(f.$defs.LV2_CORE_TERMS, undefined);
+  assert.equal(f.$defs.FORMATS_LV2_CORE_TERMS, undefined);
 });
 
 test('the ts render exports each words item\'s words in order', () => {

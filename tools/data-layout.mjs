@@ -57,7 +57,7 @@ export function layoutProblems(files) {
       say('the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap-core/hosting/), never omx-contract\'s');
     } else if ((m = /^formats\/(lv2|clap)\/(.+)\.json$/.exec(rel))) {
       const [, format, path] = m;
-      const want = `${format.toUpperCase()}_${pathName(path)}_TERMS`;
+      const want = `FORMATS_${format.toUpperCase()}_${pathName(path)}_TERMS`;
       if (items.length !== 1 || items[0][0] !== want || items[0][1].kind !== 'terms') { say(`holds one terms item, ${want}`); continue; }
       const it = items[0][1];
       if (it.format !== format) say(`${want}: format ${it.format} in a ${format} file`);
@@ -86,7 +86,7 @@ export function coverageProblems(files, { lv2, clap }) {
   for (const [name, spec] of Object.entries(lv2.specs)) {
     const rel = `formats/lv2/${name}.json`;
     const doc = fileOf(files, rel);
-    const it = doc && doc[`LV2_${pathName(name)}_TERMS`];
+    const it = doc && doc[`FORMATS_LV2_${pathName(name)}_TERMS`];
     if (!it) { out.push(`${rel}: the LV2 specification ${spec.uri} is not mapped`); continue; }
     mapped.add(rel);
     if (it.spec !== spec.uri || it.version !== spec.version) out.push(`${rel}: spec ${it.spec} ${it.version}, the installed one is ${spec.uri} ${spec.version}`);
@@ -102,7 +102,7 @@ export function coverageProblems(files, { lv2, clap }) {
   for (const [h, ids] of Object.entries(clap.headers)) {
     const rel = `formats/clap/${h}.json`;
     const doc = fileOf(files, rel);
-    const it = doc && doc[`CLAP_${pathName(h)}_TERMS`];
+    const it = doc && doc[`FORMATS_CLAP_${pathName(h)}_TERMS`];
     if (!it) { out.push(`${rel}: the CLAP header clap/${h}.h is not mapped`); continue; }
     mapped.add(rel);
     if (it.version !== clap.version) out.push(`${rel}: version ${it.version}, the installed CLAP is ${clap.version}`);

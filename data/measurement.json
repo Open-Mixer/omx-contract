@@ -225,8 +225,8 @@
       "impulseOnset": {
         "word": "impulse-onset",
         "from": [
-          "LV2_CORE_TERMS#latency",
-          "CLAP_EXT_LATENCY_TERMS#latency"
+          "FORMATS_LV2_CORE_TERMS#latency",
+          "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"
         ],
         "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.",
         "text": {
@@ -236,8 +236,8 @@
       "declaredPort": {
         "word": "declared-port",
         "from": [
-          "LV2_CORE_TERMS#latency",
-          "CLAP_EXT_LATENCY_TERMS#latency"
+          "FORMATS_LV2_CORE_TERMS#latency",
+          "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"
         ],
         "doc": "Read from the plugin's own latency report: what it claims.",
         "text": {
@@ -359,7 +359,7 @@
       "declared": {
         "word": "declared",
         "from": [
-          "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
+          "FORMATS_CLAP_EXT_VOICE_INFO_TERMS#voice-info"
         ],
         "text": {
           "en": "The voice capacity the plugin declares through CLAP's voice-info extension."

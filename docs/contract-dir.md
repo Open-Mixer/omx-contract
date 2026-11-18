@@ -47,8 +47,8 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     `"x-groups": "<SchemaName>"`, and the schema is read as any words item. Two domains never share a group schema.
   - `from` (the format terms a word is taken from) is `x-from`, one `{ "$ref", "x-term" }` per term: the `$ref` is the
     `$id` of the domain that declares the terms item plus the schema, `https://openmixer.org/contract/<domain>#/components/schemas/<ITEM>`,
-    and `x-term` the term's key, so `{ "$ref": ".../omx-contract#/components/schemas/LV2_CORE_TERMS", "x-term": "latency" }`
-    is the classic `from` string `LV2_CORE_TERMS#latency`. Until omx-contract's own data/ is migrated into domains, its
+    and `x-term` the term's key, so `{ "$ref": ".../omx-contract#/components/schemas/FORMATS_LV2_CORE", "x-term": "latency" }`
+    is the classic `from` string `FORMATS_LV2_CORE#latency`. Until omx-contract's own data/ is migrated into domains, its
     items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
     a file path is never a reference.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
@@ -66,9 +66,9 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   or uri>", "x-term": { ...the term as the classic item writes it, in its order } }` per term. `description`, `x-since`
   and `x-why` are a words item's. Its renders (`omx_formats.h`, the ts and py exports) are those of the classic terms
   item, byte for byte, since they are a read of its terms.
-- The kinds and statuses a term may have are words of the domain `formats/common` (`FORMAT_TERM_KINDS`,
-  `FORMAT_TERM_STATUSES`), which every module of the group refers to and none copies: a terms item names them as
-  `"x-kinds": { "$ref": "https://openmixer.org/contract/formats/common#/components/schemas/FORMAT_TERM_KINDS" }` and
+- The kinds and statuses a term may have are words of the domain `formats/common` (`FORMATS_COMMON_KINDS`,
+  `FORMATS_COMMON_STATUSES`), which every module of the group refers to and none copies: a terms item names them as
+  `"x-kinds": { "$ref": "https://openmixer.org/contract/formats/common#/components/schemas/FORMATS_COMMON_KINDS" }` and
   `"x-statuses"` likewise. The read refuses (`contract.ref.unresolved`) a `$ref` that names no schema of a domain it
   read, and (`contract.file.invalid`) a term whose `kind` or `status` is no `const` of the schema named.
 - A data tree (`--data`, the bundled `data/` by default) whose files `requires` a domain is read WITH that domain, taken

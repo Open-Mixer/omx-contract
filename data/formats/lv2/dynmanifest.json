@@ -1,6 +1,6 @@
 {
   "$schema": "../../../schema/omx-contract.schema.json",
-  "LV2_DYNMANIFEST_TERMS": {
+  "FORMATS_LV2_DYNMANIFEST": {
     "kind": "terms",
     "since": "2.18.0",
     "doc": "The terms of the LV2 Dyn Manifest specification (dynmanifest.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",

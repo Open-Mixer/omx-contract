@@ -213,7 +213,7 @@ export const CURVE_KINDS = {
  * The identifiers of the CLAP header clap/color.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/color.json
  */
-export const CLAP_COLOR_TERMS = {
+export const FORMATS_CLAP_COLOR = {
   "colorTransparent": {
     "id": "CLAP_COLOR_TRANSPARENT",
     "kind": "constant",
@@ -226,7 +226,7 @@ export const CLAP_COLOR_TERMS = {
  * The identifiers of the CLAP header clap/events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/events.json
  */
-export const CLAP_EVENTS_TERMS = {
+export const FORMATS_CLAP_EVENTS = {
   "coreEventSpaceId": {
     "id": "CLAP_CORE_EVENT_SPACE_ID",
     "kind": "constant",
@@ -494,7 +494,7 @@ export const CLAP_EVENTS_TERMS = {
  * The identifiers of the CLAP header clap/ext/ambisonic.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/ambisonic.json
  */
-export const CLAP_EXT_AMBISONIC_TERMS = {
+export const FORMATS_CLAP_EXT_AMBISONIC = {
   "ambisonic": {
     "id": "CLAP_PORT_AMBISONIC",
     "value": "ambisonic",
@@ -564,7 +564,7 @@ export const CLAP_EXT_AMBISONIC_TERMS = {
  * The identifiers of the CLAP header clap/ext/audio-ports-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/audio-ports-activation.json
  */
-export const CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS = {
+export const FORMATS_CLAP_EXT_AUDIO_PORTS_ACTIVATION = {
   "audio-ports-activation/2": {
     "id": "CLAP_EXT_AUDIO_PORTS_ACTIVATION",
     "value": "clap.audio-ports-activation/2",
@@ -585,7 +585,7 @@ export const CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS = {
  * The identifiers of the CLAP header clap/ext/audio-ports-config.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/audio-ports-config.json
  */
-export const CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS = {
+export const FORMATS_CLAP_EXT_AUDIO_PORTS_CONFIG = {
   "audio-ports-config": {
     "id": "CLAP_EXT_AUDIO_PORTS_CONFIG",
     "value": "clap.audio-ports-config",
@@ -613,7 +613,7 @@ export const CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS = {
  * The identifiers of the CLAP header clap/ext/audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/audio-ports.json
  */
-export const CLAP_EXT_AUDIO_PORTS_TERMS = {
+export const FORMATS_CLAP_EXT_AUDIO_PORTS = {
   "audio-ports": {
     "id": "CLAP_EXT_AUDIO_PORTS",
     "value": "clap.audio-ports",
@@ -720,7 +720,7 @@ export const CLAP_EXT_AUDIO_PORTS_TERMS = {
  * The identifiers of the CLAP header clap/ext/configurable-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/configurable-audio-ports.json
  */
-export const CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS = {
+export const FORMATS_CLAP_EXT_CONFIGURABLE_AUDIO_PORTS = {
   "configurable-audio-ports.draft1": {
     "id": "CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_COMPAT",
     "value": "clap.configurable-audio-ports.draft1",
@@ -741,7 +741,7 @@ export const CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS = {
  * The identifiers of the CLAP header clap/ext/context-menu.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/context-menu.json
  */
-export const CLAP_EXT_CONTEXT_MENU_TERMS = {
+export const FORMATS_CLAP_EXT_CONTEXT_MENU = {
   "context-menu.draft/0": {
     "id": "CLAP_EXT_CONTEXT_MENU_COMPAT",
     "value": "clap.context-menu.draft/0",
@@ -810,7 +810,7 @@ export const CLAP_EXT_CONTEXT_MENU_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/background-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/background-activation.json
  */
-export const CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION = {
   "background-activation/1": {
     "id": "CLAP_EXT_BACKGROUND_ACTIVATION",
     "value": "clap.background-activation/1",
@@ -824,7 +824,7 @@ export const CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/background-progress.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/background-progress.json
  */
-export const CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_BACKGROUND_PROGRESS = {
   "background-progress/1": {
     "id": "CLAP_EXT_BACKGROUND_PROGRESS",
     "value": "clap.background-progress/1",
@@ -838,7 +838,7 @@ export const CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/background-state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/background-state-context.json
  */
-export const CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT = {
   "background-state-context/1": {
     "id": "CLAP_EXT_BACKGROUND_STATE_CONTEXT",
     "value": "clap.background-state-context/1",
@@ -852,7 +852,7 @@ export const CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/extensible-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/extensible-audio-ports.json
  */
-export const CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS = {
   "extensible-audio-ports/1": {
     "id": "CLAP_EXT_EXTENSIBLE_AUDIO_PORTS",
     "value": "clap.extensible-audio-ports/1",
@@ -866,7 +866,7 @@ export const CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/flush-events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/flush-events.json
  */
-export const CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_FLUSH_EVENTS = {
   "flush-events/1": {
     "id": "CLAP_EXT_FLUSH_EVENTS",
     "value": "clap.flush-events/1",
@@ -880,7 +880,7 @@ export const CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/gain-adjustment-metering.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/gain-adjustment-metering.json
  */
-export const CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING = {
   "gain-adjustment-metering/0": {
     "id": "CLAP_EXT_GAIN_ADJUSTMENT_METERING",
     "value": "clap.gain-adjustment-metering/0",
@@ -896,7 +896,7 @@ export const CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/mini-curve-display.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/mini-curve-display.json
  */
-export const CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY = {
   "mini-curve-display/3": {
     "id": "CLAP_EXT_MINI_CURVE_DISPLAY",
     "value": "clap.mini-curve-display/3",
@@ -958,7 +958,7 @@ export const CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/octave-number.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/octave-number.json
  */
-export const CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_OCTAVE_NUMBER = {
   "octave-number/1": {
     "id": "CLAP_EXT_OCTAVE_NUMBER",
     "value": "clap.octave-number/1",
@@ -972,7 +972,7 @@ export const CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/param-hovered.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/param-hovered.json
  */
-export const CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_PARAM_HOVERED = {
   "param-hovered/1": {
     "id": "CLAP_EXT_PARAM_HOVERED",
     "value": "clap.param-hovered/1",
@@ -986,7 +986,7 @@ export const CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/params-origin.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/params-origin.json
  */
-export const CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_PARAMS_ORIGIN = {
   "params-origin/1": {
     "id": "CLAP_EXT_PARAMS_ORIGIN",
     "value": "clap.params-origin/1",
@@ -1000,7 +1000,7 @@ export const CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/project-location.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/project-location.json
  */
-export const CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_PROJECT_LOCATION = {
   "project-location/2": {
     "id": "CLAP_EXT_PROJECT_LOCATION",
     "value": "clap.project-location/2",
@@ -1086,7 +1086,7 @@ export const CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/resource-directory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/resource-directory.json
  */
-export const CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_RESOURCE_DIRECTORY = {
   "resource-directory/1": {
     "id": "CLAP_EXT_RESOURCE_DIRECTORY",
     "value": "clap.resource-directory/1",
@@ -1100,7 +1100,7 @@ export const CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/scratch-memory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/scratch-memory.json
  */
-export const CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY = {
   "scratch-memory/1": {
     "id": "CLAP_EXT_SCRATCH_MEMORY",
     "value": "clap.scratch-memory/1",
@@ -1114,7 +1114,7 @@ export const CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/transport-control.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/transport-control.json
  */
-export const CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_TRANSPORT_CONTROL = {
   "transport-control/2": {
     "id": "CLAP_EXT_TRANSPORT_CONTROL",
     "value": "clap.transport-control/2",
@@ -1128,7 +1128,7 @@ export const CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/triggers.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/triggers.json
  */
-export const CLAP_EXT_DRAFT_TRIGGERS_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_TRIGGERS = {
   "eventTrigger": {
     "id": "CLAP_EVENT_TRIGGER",
     "kind": "event-type",
@@ -1196,7 +1196,7 @@ export const CLAP_EXT_DRAFT_TRIGGERS_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/tuning.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/tuning.json
  */
-export const CLAP_EXT_DRAFT_TUNING_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_TUNING = {
   "tuning/2": {
     "id": "CLAP_EXT_TUNING",
     "value": "clap.tuning/2",
@@ -1210,7 +1210,7 @@ export const CLAP_EXT_DRAFT_TUNING_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/undo.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/undo.json
  */
-export const CLAP_EXT_DRAFT_UNDO_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_UNDO = {
   "undo/4": {
     "id": "CLAP_EXT_UNDO",
     "value": "clap.undo/4",
@@ -1238,7 +1238,7 @@ export const CLAP_EXT_DRAFT_UNDO_TERMS = {
  * The identifiers of the CLAP header clap/ext/draft/webview.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/draft/webview.json
  */
-export const CLAP_EXT_DRAFT_WEBVIEW_TERMS = {
+export const FORMATS_CLAP_EXT_DRAFT_WEBVIEW = {
   "webview": {
     "id": "CLAP_WINDOW_API_WEBVIEW",
     "value": "webview",
@@ -1259,7 +1259,7 @@ export const CLAP_EXT_DRAFT_WEBVIEW_TERMS = {
  * The identifiers of the CLAP header clap/ext/event-registry.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/event-registry.json
  */
-export const CLAP_EXT_EVENT_REGISTRY_TERMS = {
+export const FORMATS_CLAP_EXT_EVENT_REGISTRY = {
   "event-registry": {
     "id": "CLAP_EXT_EVENT_REGISTRY",
     "value": "clap.event-registry",
@@ -1273,7 +1273,7 @@ export const CLAP_EXT_EVENT_REGISTRY_TERMS = {
  * The identifiers of the CLAP header clap/ext/gui.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/gui.json
  */
-export const CLAP_EXT_GUI_TERMS = {
+export const FORMATS_CLAP_EXT_GUI = {
   "cocoa": {
     "id": "CLAP_WINDOW_API_COCOA",
     "value": "cocoa",
@@ -1322,7 +1322,7 @@ export const CLAP_EXT_GUI_TERMS = {
  * The identifiers of the CLAP header clap/ext/latency.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/latency.json
  */
-export const CLAP_EXT_LATENCY_TERMS = {
+export const FORMATS_CLAP_EXT_LATENCY = {
   "latency": {
     "id": "CLAP_EXT_LATENCY",
     "value": "clap.latency",
@@ -1341,7 +1341,7 @@ export const CLAP_EXT_LATENCY_TERMS = {
  * The identifiers of the CLAP header clap/ext/log.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/log.json
  */
-export const CLAP_EXT_LOG_TERMS = {
+export const FORMATS_CLAP_EXT_LOG = {
   "log": {
     "id": "CLAP_EXT_LOG",
     "value": "clap.log",
@@ -1405,7 +1405,7 @@ export const CLAP_EXT_LOG_TERMS = {
  * The identifiers of the CLAP header clap/ext/note-name.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/note-name.json
  */
-export const CLAP_EXT_NOTE_NAME_TERMS = {
+export const FORMATS_CLAP_EXT_NOTE_NAME = {
   "note-name": {
     "id": "CLAP_EXT_NOTE_NAME",
     "value": "clap.note-name",
@@ -1422,7 +1422,7 @@ export const CLAP_EXT_NOTE_NAME_TERMS = {
  * The identifiers of the CLAP header clap/ext/note-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/note-ports.json
  */
-export const CLAP_EXT_NOTE_PORTS_TERMS = {
+export const FORMATS_CLAP_EXT_NOTE_PORTS = {
   "note-ports": {
     "id": "CLAP_EXT_NOTE_PORTS",
     "value": "clap.note-ports",
@@ -1500,7 +1500,7 @@ export const CLAP_EXT_NOTE_PORTS_TERMS = {
  * The identifiers of the CLAP header clap/ext/param-indication.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/param-indication.json
  */
-export const CLAP_EXT_PARAM_INDICATION_TERMS = {
+export const FORMATS_CLAP_EXT_PARAM_INDICATION = {
   "param-indication.draft/4": {
     "id": "CLAP_EXT_PARAM_INDICATION_COMPAT",
     "value": "clap.param-indication.draft/4",
@@ -1551,7 +1551,7 @@ export const CLAP_EXT_PARAM_INDICATION_TERMS = {
  * The identifiers of the CLAP header clap/ext/params.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/params.json
  */
-export const CLAP_EXT_PARAMS_TERMS = {
+export const FORMATS_CLAP_EXT_PARAMS = {
   "paramClearAll": {
     "id": "CLAP_PARAM_CLEAR_ALL",
     "kind": "flag",
@@ -1784,7 +1784,7 @@ export const CLAP_EXT_PARAMS_TERMS = {
  * The identifiers of the CLAP header clap/ext/posix-fd-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/posix-fd-support.json
  */
-export const CLAP_EXT_POSIX_FD_SUPPORT_TERMS = {
+export const FORMATS_CLAP_EXT_POSIX_FD_SUPPORT = {
   "posix-fd-support": {
     "id": "CLAP_EXT_POSIX_FD_SUPPORT",
     "value": "clap.posix-fd-support",
@@ -1816,7 +1816,7 @@ export const CLAP_EXT_POSIX_FD_SUPPORT_TERMS = {
  * The identifiers of the CLAP header clap/ext/preset-load.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/preset-load.json
  */
-export const CLAP_EXT_PRESET_LOAD_TERMS = {
+export const FORMATS_CLAP_EXT_PRESET_LOAD = {
   "preset-load.draft/2": {
     "id": "CLAP_EXT_PRESET_LOAD_COMPAT",
     "value": "clap.preset-load.draft/2",
@@ -1844,7 +1844,7 @@ export const CLAP_EXT_PRESET_LOAD_TERMS = {
  * The identifiers of the CLAP header clap/ext/remote-controls.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/remote-controls.json
  */
-export const CLAP_EXT_REMOTE_CONTROLS_TERMS = {
+export const FORMATS_CLAP_EXT_REMOTE_CONTROLS = {
   "remote-controls.draft/2": {
     "id": "CLAP_EXT_REMOTE_CONTROLS_COMPAT",
     "value": "clap.remote-controls.draft/2",
@@ -1883,7 +1883,7 @@ export const CLAP_EXT_REMOTE_CONTROLS_TERMS = {
  * The identifiers of the CLAP header clap/ext/render.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/render.json
  */
-export const CLAP_EXT_RENDER_TERMS = {
+export const FORMATS_CLAP_EXT_RENDER = {
   "render": {
     "id": "CLAP_EXT_RENDER",
     "value": "clap.render",
@@ -1909,7 +1909,7 @@ export const CLAP_EXT_RENDER_TERMS = {
  * The identifiers of the CLAP header clap/ext/state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/state-context.json
  */
-export const CLAP_EXT_STATE_CONTEXT_TERMS = {
+export const FORMATS_CLAP_EXT_STATE_CONTEXT = {
   "state-context/2": {
     "id": "CLAP_EXT_STATE_CONTEXT",
     "value": "clap.state-context/2",
@@ -1941,7 +1941,7 @@ export const CLAP_EXT_STATE_CONTEXT_TERMS = {
  * The identifiers of the CLAP header clap/ext/state.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/state.json
  */
-export const CLAP_EXT_STATE_TERMS = {
+export const FORMATS_CLAP_EXT_STATE = {
   "state": {
     "id": "CLAP_EXT_STATE",
     "value": "clap.state",
@@ -1959,7 +1959,7 @@ export const CLAP_EXT_STATE_TERMS = {
  * The identifiers of the CLAP header clap/ext/surround.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/surround.json
  */
-export const CLAP_EXT_SURROUND_TERMS = {
+export const FORMATS_CLAP_EXT_SURROUND = {
   "surround": {
     "id": "CLAP_PORT_SURROUND",
     "value": "surround",
@@ -2110,7 +2110,7 @@ export const CLAP_EXT_SURROUND_TERMS = {
  * The identifiers of the CLAP header clap/ext/tail.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/tail.json
  */
-export const CLAP_EXT_TAIL_TERMS = {
+export const FORMATS_CLAP_EXT_TAIL = {
   "tail": {
     "id": "CLAP_EXT_TAIL",
     "value": "clap.tail",
@@ -2124,7 +2124,7 @@ export const CLAP_EXT_TAIL_TERMS = {
  * The identifiers of the CLAP header clap/ext/thread-check.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/thread-check.json
  */
-export const CLAP_EXT_THREAD_CHECK_TERMS = {
+export const FORMATS_CLAP_EXT_THREAD_CHECK = {
   "thread-check": {
     "id": "CLAP_EXT_THREAD_CHECK",
     "value": "clap.thread-check",
@@ -2142,7 +2142,7 @@ export const CLAP_EXT_THREAD_CHECK_TERMS = {
  * The identifiers of the CLAP header clap/ext/thread-pool.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/thread-pool.json
  */
-export const CLAP_EXT_THREAD_POOL_TERMS = {
+export const FORMATS_CLAP_EXT_THREAD_POOL = {
   "thread-pool": {
     "id": "CLAP_EXT_THREAD_POOL",
     "value": "clap.thread-pool",
@@ -2156,7 +2156,7 @@ export const CLAP_EXT_THREAD_POOL_TERMS = {
  * The identifiers of the CLAP header clap/ext/timer-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/timer-support.json
  */
-export const CLAP_EXT_TIMER_SUPPORT_TERMS = {
+export const FORMATS_CLAP_EXT_TIMER_SUPPORT = {
   "timer-support": {
     "id": "CLAP_EXT_TIMER_SUPPORT",
     "value": "clap.timer-support",
@@ -2170,7 +2170,7 @@ export const CLAP_EXT_TIMER_SUPPORT_TERMS = {
  * The identifiers of the CLAP header clap/ext/track-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/track-info.json
  */
-export const CLAP_EXT_TRACK_INFO_TERMS = {
+export const FORMATS_CLAP_EXT_TRACK_INFO = {
   "track-info.draft/1": {
     "id": "CLAP_EXT_TRACK_INFO_COMPAT",
     "value": "clap.track-info.draft/1",
@@ -2250,7 +2250,7 @@ export const CLAP_EXT_TRACK_INFO_TERMS = {
  * The identifiers of the CLAP header clap/ext/voice-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/ext/voice-info.json
  */
-export const CLAP_EXT_VOICE_INFO_TERMS = {
+export const FORMATS_CLAP_EXT_VOICE_INFO = {
   "voice-info": {
     "id": "CLAP_EXT_VOICE_INFO",
     "value": "clap.voice-info",
@@ -2278,7 +2278,7 @@ export const CLAP_EXT_VOICE_INFO_TERMS = {
  * The identifiers of the CLAP header clap/factory/draft/plugin-invalidation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/draft/plugin-invalidation.json
  */
-export const CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS = {
+export const FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION = {
   "plugin-invalidation-factory/1": {
     "id": "CLAP_PLUGIN_INVALIDATION_FACTORY_ID",
     "value": "clap.plugin-invalidation-factory/1",
@@ -2292,7 +2292,7 @@ export const CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS = {
  * The identifiers of the CLAP header clap/factory/draft/plugin-state-converter.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/draft/plugin-state-converter.json
  */
-export const CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS = {
+export const FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER = {
   "plugin-state-converter-factory/1": {
     "id": "CLAP_PLUGIN_STATE_CONVERTER_FACTORY_ID",
     "value": "clap.plugin-state-converter-factory/1",
@@ -2306,7 +2306,7 @@ export const CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS = {
  * The identifiers of the CLAP header clap/factory/plugin-factory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/plugin-factory.json
  */
-export const CLAP_FACTORY_PLUGIN_FACTORY_TERMS = {
+export const FORMATS_CLAP_FACTORY_PLUGIN_FACTORY = {
   "plugin-factory": {
     "id": "CLAP_PLUGIN_FACTORY_ID",
     "value": "clap.plugin-factory",
@@ -2324,7 +2324,7 @@ export const CLAP_FACTORY_PLUGIN_FACTORY_TERMS = {
  * The identifiers of the CLAP header clap/factory/preset-discovery.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/factory/preset-discovery.json
  */
-export const CLAP_FACTORY_PRESET_DISCOVERY_TERMS = {
+export const FORMATS_CLAP_FACTORY_PRESET_DISCOVERY = {
   "preset-discovery-factory/2": {
     "id": "CLAP_PRESET_DISCOVERY_FACTORY_ID",
     "value": "clap.preset-discovery-factory/2",
@@ -2386,7 +2386,7 @@ export const CLAP_FACTORY_PRESET_DISCOVERY_TERMS = {
  * The identifiers of the CLAP header clap/fixedpoint.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/fixedpoint.json
  */
-export const CLAP_FIXEDPOINT_TERMS = {
+export const FORMATS_CLAP_FIXEDPOINT = {
   "beattimeFactor": {
     "id": "CLAP_BEATTIME_FACTOR",
     "kind": "constant",
@@ -2410,7 +2410,7 @@ export const CLAP_FIXEDPOINT_TERMS = {
  * The identifiers of the CLAP header clap/id.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/id.json
  */
-export const CLAP_ID_TERMS = {
+export const FORMATS_CLAP_ID = {
   "invalidId": {
     "id": "CLAP_INVALID_ID",
     "kind": "constant",
@@ -2427,7 +2427,7 @@ export const CLAP_ID_TERMS = {
  * The identifiers of the CLAP header clap/plugin-features.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/plugin-features.json
  */
-export const CLAP_PLUGIN_FEATURES_TERMS = {
+export const FORMATS_CLAP_PLUGIN_FEATURES = {
   "ambisonic": {
     "id": "CLAP_PLUGIN_FEATURE_AMBISONIC",
     "value": "ambisonic",
@@ -2796,7 +2796,7 @@ export const CLAP_PLUGIN_FEATURES_TERMS = {
  * The identifiers of the CLAP header clap/process.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/process.json
  */
-export const CLAP_PROCESS_TERMS = {
+export const FORMATS_CLAP_PROCESS = {
   "processContinue": {
     "id": "CLAP_PROCESS_CONTINUE",
     "kind": "process-status",
@@ -2841,7 +2841,7 @@ export const CLAP_PROCESS_TERMS = {
  * The identifiers of the CLAP header clap/string-sizes.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/string-sizes.json
  */
-export const CLAP_STRING_SIZES_TERMS = {
+export const FORMATS_CLAP_STRING_SIZES = {
   "nameSize": {
     "id": "CLAP_NAME_SIZE",
     "kind": "enum-value",
@@ -2864,7 +2864,7 @@ export const CLAP_STRING_SIZES_TERMS = {
  * The identifiers of the CLAP header clap/timestamp.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/timestamp.json
  */
-export const CLAP_TIMESTAMP_TERMS = {
+export const FORMATS_CLAP_TIMESTAMP = {
   "timestampUnknown": {
     "id": "CLAP_TIMESTAMP_UNKNOWN",
     "kind": "constant",
@@ -2877,7 +2877,7 @@ export const CLAP_TIMESTAMP_TERMS = {
  * The identifiers of the CLAP header clap/version.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/clap/version.json
  */
-export const CLAP_VERSION_TERMS = {
+export const FORMATS_CLAP_VERSION = {
   "version": {
     "id": "CLAP_VERSION",
     "kind": "constant",
@@ -2910,7 +2910,7 @@ export const CLAP_VERSION_TERMS = {
  * The terms of the LV2 Atom specification (atom.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/atom.json
  */
-export const LV2_ATOM_TERMS = {
+export const FORMATS_LV2_ATOM = {
   "Atom": {
     "uri": "http://lv2plug.in/ns/ext/atom#Atom",
     "kind": "class",
@@ -3146,7 +3146,7 @@ export const LV2_ATOM_TERMS = {
  * The terms of the LV2 Buf Size specification (buf-size.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/buf-size.json
  */
-export const LV2_BUF_SIZE_TERMS = {
+export const FORMATS_LV2_BUF_SIZE = {
   "boundedBlockLength": {
     "uri": "http://lv2plug.in/ns/ext/buf-size#boundedBlockLength",
     "kind": "feature",
@@ -3233,7 +3233,7 @@ export const LV2_BUF_SIZE_TERMS = {
  * The terms of the LV2 specification (core.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/core.json
  */
-export const LV2_CORE_TERMS = {
+export const FORMATS_LV2_CORE = {
   "AllpassPlugin": {
     "uri": "http://lv2plug.in/ns/lv2core#AllpassPlugin",
     "kind": "plugin-class",
@@ -4050,7 +4050,7 @@ export const LV2_CORE_TERMS = {
  * The terms of the data access specification (data-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/data-access.json
  */
-export const LV2_DATA_ACCESS_TERMS = {
+export const FORMATS_LV2_DATA_ACCESS = {
   "data-access.lv2": {
     "uri": "http://lv2plug.in/ns/ext/data-access",
     "kind": "feature",
@@ -4065,7 +4065,7 @@ export const LV2_DATA_ACCESS_TERMS = {
  * The terms of the LV2 Dyn Manifest specification (dynmanifest.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/dynmanifest.json
  */
-export const LV2_DYNMANIFEST_TERMS = {
+export const FORMATS_LV2_DYNMANIFEST = {
   "DynManifest": {
     "uri": "http://lv2plug.in/ns/ext/dynmanifest#DynManifest",
     "kind": "class",
@@ -4084,7 +4084,7 @@ export const LV2_DYNMANIFEST_TERMS = {
  * The terms of the LV2 Event specification (event.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/event.json
  */
-export const LV2_EVENT_TERMS = {
+export const FORMATS_LV2_EVENT = {
   "Event": {
     "uri": "http://lv2plug.in/ns/ext/event#Event",
     "kind": "class",
@@ -4164,7 +4164,7 @@ export const LV2_EVENT_TERMS = {
  * The terms of the instance access specification (instance-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/instance-access.json
  */
-export const LV2_INSTANCE_ACCESS_TERMS = {
+export const FORMATS_LV2_INSTANCE_ACCESS = {
   "instance-access.lv2": {
     "uri": "http://lv2plug.in/ns/ext/instance-access",
     "kind": "feature",
@@ -4179,7 +4179,7 @@ export const LV2_INSTANCE_ACCESS_TERMS = {
  * The terms of the LV2 Log specification (log.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/log.json
  */
-export const LV2_LOG_TERMS = {
+export const FORMATS_LV2_LOG = {
   "Entry": {
     "uri": "http://lv2plug.in/ns/ext/log#Entry",
     "kind": "class",
@@ -4242,7 +4242,7 @@ export const LV2_LOG_TERMS = {
  * The terms of the LV2 MIDI specification (midi.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/midi.json
  */
-export const LV2_MIDI_TERMS = {
+export const FORMATS_LV2_MIDI = {
   "ActiveSense": {
     "uri": "http://lv2plug.in/ns/ext/midi#ActiveSense",
     "kind": "class",
@@ -4509,7 +4509,7 @@ export const LV2_MIDI_TERMS = {
  * The terms of the LV2 Morph specification (morph.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/morph.json
  */
-export const LV2_MORPH_TERMS = {
+export const FORMATS_LV2_MORPH = {
   "AutoMorphPort": {
     "uri": "http://lv2plug.in/ns/ext/morph#AutoMorphPort",
     "kind": "class",
@@ -4546,7 +4546,7 @@ export const LV2_MORPH_TERMS = {
  * The terms of the LV2 Options specification (options.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/options.json
  */
-export const LV2_OPTIONS_TERMS = {
+export const FORMATS_LV2_OPTIONS = {
   "Option": {
     "uri": "http://lv2plug.in/ns/ext/options#Option",
     "kind": "class",
@@ -4596,7 +4596,7 @@ export const LV2_OPTIONS_TERMS = {
  * The terms of the LV2 Parameters specification (parameters.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/parameters.json
  */
-export const LV2_PARAMETERS_TERMS = {
+export const FORMATS_LV2_PARAMETERS = {
   "CompressorControls": {
     "uri": "http://lv2plug.in/ns/ext/parameters#CompressorControls",
     "kind": "class",
@@ -4802,7 +4802,7 @@ export const LV2_PARAMETERS_TERMS = {
  * The terms of the LV2 Patch specification (patch.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/patch.json
  */
-export const LV2_PATCH_TERMS = {
+export const FORMATS_LV2_PATCH = {
   "Ack": {
     "uri": "http://lv2plug.in/ns/ext/patch#Ack",
     "kind": "class",
@@ -5000,7 +5000,7 @@ export const LV2_PATCH_TERMS = {
  * The terms of the LV2 Port Groups specification (port-groups.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/port-groups.json
  */
-export const LV2_PORT_GROUPS_TERMS = {
+export const FORMATS_LV2_PORT_GROUPS = {
   "ACN0": {
     "uri": "http://lv2plug.in/ns/ext/port-groups#ACN0",
     "kind": "channel",
@@ -5415,7 +5415,7 @@ export const LV2_PORT_GROUPS_TERMS = {
  * The terms of the LV2 Port Properties specification (port-props.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/port-props.json
  */
-export const LV2_PORT_PROPS_TERMS = {
+export const FORMATS_LV2_PORT_PROPS = {
   "causesArtifacts": {
     "uri": "http://lv2plug.in/ns/ext/port-props#causesArtifacts",
     "kind": "port-property",
@@ -5515,7 +5515,7 @@ export const LV2_PORT_PROPS_TERMS = {
  * The terms of the LV2 Presets specification (presets.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/presets.json
  */
-export const LV2_PRESETS_TERMS = {
+export const FORMATS_LV2_PRESETS = {
   "Bank": {
     "uri": "http://lv2plug.in/ns/ext/presets#Bank",
     "kind": "class",
@@ -5565,7 +5565,7 @@ export const LV2_PRESETS_TERMS = {
  * The terms of the LV2 Resize Port specification (resize-port.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/resize-port.json
  */
-export const LV2_RESIZE_PORT_TERMS = {
+export const FORMATS_LV2_RESIZE_PORT = {
   "asLargeAs": {
     "uri": "http://lv2plug.in/ns/ext/resize-port#asLargeAs",
     "kind": "property",
@@ -5600,7 +5600,7 @@ export const LV2_RESIZE_PORT_TERMS = {
  * The terms of the LV2 State specification (state.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/state.json
  */
-export const LV2_STATE_TERMS = {
+export const FORMATS_LV2_STATE = {
   "State": {
     "uri": "http://lv2plug.in/ns/ext/state#State",
     "kind": "class",
@@ -5682,7 +5682,7 @@ export const LV2_STATE_TERMS = {
  * The terms of the LV2 Time specification (time.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/time.json
  */
-export const LV2_TIME_TERMS = {
+export const FORMATS_LV2_TIME = {
   "Position": {
     "uri": "http://lv2plug.in/ns/ext/time#Position",
     "kind": "class",
@@ -5794,7 +5794,7 @@ export const LV2_TIME_TERMS = {
  * The terms of the LV2 UI specification (ui.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/ui.json
  */
-export const LV2_UI_TERMS = {
+export const FORMATS_LV2_UI = {
   "CocoaUI": {
     "uri": "http://lv2plug.in/ns/extensions/ui#CocoaUI",
     "kind": "class",
@@ -6026,7 +6026,7 @@ export const LV2_UI_TERMS = {
  * The terms of the LV2 Units specification (units.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/units.json
  */
-export const LV2_UNITS_TERMS = {
+export const FORMATS_LV2_UNITS = {
   "Conversion": {
     "uri": "http://lv2plug.in/ns/extensions/units#Conversion",
     "kind": "class",
@@ -6320,7 +6320,7 @@ export const LV2_UNITS_TERMS = {
  * The terms of the LV2 URI Map specification (uri-map.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/uri-map.json
  */
-export const LV2_URI_MAP_TERMS = {
+export const FORMATS_LV2_URI_MAP = {
   "uri-map.lv2": {
     "uri": "http://lv2plug.in/ns/ext/uri-map",
     "kind": "feature",
@@ -6334,7 +6334,7 @@ export const LV2_URI_MAP_TERMS = {
  * The terms of the LV2 URID specification (urid.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/urid.json
  */
-export const LV2_URID_TERMS = {
+export const FORMATS_LV2_URID = {
   "map": {
     "uri": "http://lv2plug.in/ns/ext/urid#map",
     "kind": "feature",
@@ -6370,7 +6370,7 @@ export const LV2_URID_TERMS = {
  * The terms of the LV2 Worker specification (worker.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).
  * @see data/formats/lv2/worker.json
  */
-export const LV2_WORKER_TERMS = {
+export const FORMATS_LV2_WORKER = {
   "interface": {
     "uri": "http://lv2plug.in/ns/ext/worker#interface",
     "kind": "extension-data",
@@ -6837,8 +6837,8 @@ export const MEASUREMENT_LATENCY_METHODS = {
   "impulseOnset": {
     "word": "impulse-onset",
     "from": [
-      "LV2_CORE_TERMS#latency",
-      "CLAP_EXT_LATENCY_TERMS#latency"
+      "FORMATS_LV2_CORE#latency",
+      "FORMATS_CLAP_EXT_LATENCY#latency"
     ],
     "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.",
     "text": {
@@ -6848,8 +6848,8 @@ export const MEASUREMENT_LATENCY_METHODS = {
   "declaredPort": {
     "word": "declared-port",
     "from": [
-      "LV2_CORE_TERMS#latency",
-      "CLAP_EXT_LATENCY_TERMS#latency"
+      "FORMATS_LV2_CORE#latency",
+      "FORMATS_CLAP_EXT_LATENCY#latency"
     ],
     "doc": "Read from the plugin's own latency report: what it claims.",
     "text": {
@@ -6971,7 +6971,7 @@ export const MEASUREMENT_VOICE_BASES = {
   "declared": {
     "word": "declared",
     "from": [
-      "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
+      "FORMATS_CLAP_EXT_VOICE_INFO#voice-info"
     ],
     "text": {
       "en": "The voice capacity the plugin declares through CLAP's voice-info extension."
@@ -7385,7 +7385,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapAudioEffect": {
     "word": "clap.audio-effect",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#audio-effect"
+      "FORMATS_CLAP_PLUGIN_FEATURES#audio-effect"
     ],
     "text": {
       "en": "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared."
@@ -7394,7 +7394,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapChorus": {
     "word": "clap.chorus",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#chorus"
+      "FORMATS_CLAP_PLUGIN_FEATURES#chorus"
     ],
     "text": {
       "en": "The CLAP plugin feature chorus: an effect that thickens a sound with detuned, delayed copies of it."
@@ -7403,7 +7403,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapCompressor": {
     "word": "clap.compressor",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#compressor"
+      "FORMATS_CLAP_PLUGIN_FEATURES#compressor"
     ],
     "text": {
       "en": "The CLAP plugin feature compressor: an effect that narrows a sound's dynamic range."
@@ -7412,7 +7412,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapDeEsser": {
     "word": "clap.de-esser",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#de-esser"
+      "FORMATS_CLAP_PLUGIN_FEATURES#de-esser"
     ],
     "text": {
       "en": "The CLAP plugin feature de-esser: an effect that tames sibilance in a voice."
@@ -7421,7 +7421,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapDelay": {
     "word": "clap.delay",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#delay"
+      "FORMATS_CLAP_PLUGIN_FEATURES#delay"
     ],
     "text": {
       "en": "The CLAP plugin feature delay: an effect that repeats a sound after a gap."
@@ -7430,7 +7430,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapDistortion": {
     "word": "clap.distortion",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#distortion"
+      "FORMATS_CLAP_PLUGIN_FEATURES#distortion"
     ],
     "text": {
       "en": "The CLAP plugin feature distortion: an effect that adds harmonics by overdriving a sound."
@@ -7439,7 +7439,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapEqualizer": {
     "word": "clap.equalizer",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#equalizer"
+      "FORMATS_CLAP_PLUGIN_FEATURES#equalizer"
     ],
     "text": {
       "en": "The CLAP plugin feature equalizer: an effect that shapes a sound's frequency balance."
@@ -7448,7 +7448,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapExpander": {
     "word": "clap.expander",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#expander"
+      "FORMATS_CLAP_PLUGIN_FEATURES#expander"
     ],
     "text": {
       "en": "The CLAP plugin feature expander: an effect that widens a sound's dynamic range."
@@ -7457,7 +7457,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapFilter": {
     "word": "clap.filter",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#filter"
+      "FORMATS_CLAP_PLUGIN_FEATURES#filter"
     ],
     "text": {
       "en": "The CLAP plugin feature filter: an effect that removes or shapes a band of frequencies."
@@ -7466,7 +7466,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapFlanger": {
     "word": "clap.flanger",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#flanger"
+      "FORMATS_CLAP_PLUGIN_FEATURES#flanger"
     ],
     "text": {
       "en": "The CLAP plugin feature flanger: an effect that sweeps a short, modulated delay against the dry sound."
@@ -7475,7 +7475,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapFrequencyShifter": {
     "word": "clap.frequency-shifter",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"
+      "FORMATS_CLAP_PLUGIN_FEATURES#frequency-shifter"
     ],
     "text": {
       "en": "The CLAP plugin feature frequency-shifter: an effect that shifts every frequency of a sound by the same amount."
@@ -7484,7 +7484,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapGate": {
     "word": "clap.gate",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#gate"
+      "FORMATS_CLAP_PLUGIN_FEATURES#gate"
     ],
     "text": {
       "en": "The CLAP plugin feature gate: an effect that mutes a sound below a level."
@@ -7493,7 +7493,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapGlitch": {
     "word": "clap.glitch",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#glitch"
+      "FORMATS_CLAP_PLUGIN_FEATURES#glitch"
     ],
     "text": {
       "en": "The CLAP plugin feature glitch: an effect that cuts, stutters or corrupts a sound on purpose."
@@ -7502,7 +7502,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapGranular": {
     "word": "clap.granular",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#granular"
+      "FORMATS_CLAP_PLUGIN_FEATURES#granular"
     ],
     "text": {
       "en": "The CLAP plugin feature granular: an effect built from short grains of a sound."
@@ -7511,7 +7511,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapLimiter": {
     "word": "clap.limiter",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#limiter"
+      "FORMATS_CLAP_PLUGIN_FEATURES#limiter"
     ],
     "text": {
       "en": "The CLAP plugin feature limiter: an effect that holds a sound under a ceiling."
@@ -7520,7 +7520,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapMastering": {
     "word": "clap.mastering",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#mastering"
+      "FORMATS_CLAP_PLUGIN_FEATURES#mastering"
     ],
     "text": {
       "en": "The CLAP plugin feature mastering: an effect meant for a mix's final stage."
@@ -7529,7 +7529,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapMixing": {
     "word": "clap.mixing",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#mixing"
+      "FORMATS_CLAP_PLUGIN_FEATURES#mixing"
     ],
     "text": {
       "en": "The CLAP plugin feature mixing: an effect meant for use while mixing, such as a channel strip."
@@ -7538,7 +7538,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapMultiEffects": {
     "word": "clap.multi-effects",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#multi-effects"
+      "FORMATS_CLAP_PLUGIN_FEATURES#multi-effects"
     ],
     "text": {
       "en": "The CLAP plugin feature multi-effects: several effects combined in one plugin."
@@ -7547,7 +7547,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapPhaseVocoder": {
     "word": "clap.phase-vocoder",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"
+      "FORMATS_CLAP_PLUGIN_FEATURES#phase-vocoder"
     ],
     "text": {
       "en": "The CLAP plugin feature phase-vocoder: an effect built on a phase vocoder, typically to stretch or shift a sound independently of pitch and time."
@@ -7556,7 +7556,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapPhaser": {
     "word": "clap.phaser",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#phaser"
+      "FORMATS_CLAP_PLUGIN_FEATURES#phaser"
     ],
     "text": {
       "en": "The CLAP plugin feature phaser: an effect that sweeps notches through a sound with an all-pass filter chain."
@@ -7565,7 +7565,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapPitchCorrection": {
     "word": "clap.pitch-correction",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"
+      "FORMATS_CLAP_PLUGIN_FEATURES#pitch-correction"
     ],
     "text": {
       "en": "The CLAP plugin feature pitch-correction: an effect that pulls a sound's pitch toward a scale."
@@ -7574,7 +7574,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapPitchShifter": {
     "word": "clap.pitch-shifter",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"
+      "FORMATS_CLAP_PLUGIN_FEATURES#pitch-shifter"
     ],
     "text": {
       "en": "The CLAP plugin feature pitch-shifter: an effect that changes a sound's pitch without changing its duration."
@@ -7583,7 +7583,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapRestoration": {
     "word": "clap.restoration",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#restoration"
+      "FORMATS_CLAP_PLUGIN_FEATURES#restoration"
     ],
     "text": {
       "en": "The CLAP plugin feature restoration: an effect that removes noise, clicks or other damage from a recording."
@@ -7592,7 +7592,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapReverb": {
     "word": "clap.reverb",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#reverb"
+      "FORMATS_CLAP_PLUGIN_FEATURES#reverb"
     ],
     "text": {
       "en": "The CLAP plugin feature reverb: an effect that adds the reflections of a space to a sound."
@@ -7601,7 +7601,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapTransientShaper": {
     "word": "clap.transient-shaper",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"
+      "FORMATS_CLAP_PLUGIN_FEATURES#transient-shaper"
     ],
     "text": {
       "en": "The CLAP plugin feature transient-shaper: an effect that reshapes a sound's attack and sustain."
@@ -7610,7 +7610,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapTremolo": {
     "word": "clap.tremolo",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#tremolo"
+      "FORMATS_CLAP_PLUGIN_FEATURES#tremolo"
     ],
     "text": {
       "en": "The CLAP plugin feature tremolo: an effect that modulates a sound's level over time."
@@ -7619,7 +7619,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "clapUtility": {
     "word": "clap.utility",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#utility"
+      "FORMATS_CLAP_PLUGIN_FEATURES#utility"
     ],
     "text": {
       "en": "The CLAP plugin feature utility: a plugin that does audio housekeeping rather than a creative effect."
@@ -7628,7 +7628,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Allpass": {
     "word": "lv2.Allpass",
     "from": [
-      "LV2_CORE_TERMS#AllpassPlugin"
+      "FORMATS_LV2_CORE#AllpassPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class AllpassPlugin: an all-pass filter, which shifts phase without changing level."
@@ -7637,7 +7637,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Amplifier": {
     "word": "lv2.Amplifier",
     "from": [
-      "LV2_CORE_TERMS#AmplifierPlugin"
+      "FORMATS_LV2_CORE#AmplifierPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class AmplifierPlugin: a plugin that changes a sound's level."
@@ -7646,7 +7646,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Bandpass": {
     "word": "lv2.Bandpass",
     "from": [
-      "LV2_CORE_TERMS#BandpassPlugin"
+      "FORMATS_LV2_CORE#BandpassPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class BandpassPlugin: a filter that passes one band of frequencies."
@@ -7655,7 +7655,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Chorus": {
     "word": "lv2.Chorus",
     "from": [
-      "LV2_CORE_TERMS#ChorusPlugin"
+      "FORMATS_LV2_CORE#ChorusPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ChorusPlugin: an effect that thickens a sound with detuned, delayed copies of it."
@@ -7664,7 +7664,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Comb": {
     "word": "lv2.Comb",
     "from": [
-      "LV2_CORE_TERMS#CombPlugin"
+      "FORMATS_LV2_CORE#CombPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class CombPlugin: a comb filter, which adds a short delayed copy of a sound to itself."
@@ -7673,7 +7673,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Compressor": {
     "word": "lv2.Compressor",
     "from": [
-      "LV2_CORE_TERMS#CompressorPlugin"
+      "FORMATS_LV2_CORE#CompressorPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class CompressorPlugin: an effect that narrows a sound's dynamic range."
@@ -7682,7 +7682,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Converter": {
     "word": "lv2.Converter",
     "from": [
-      "LV2_CORE_TERMS#ConverterPlugin"
+      "FORMATS_LV2_CORE#ConverterPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ConverterPlugin: a plugin that converts a signal from one representation to another."
@@ -7691,7 +7691,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Delay": {
     "word": "lv2.Delay",
     "from": [
-      "LV2_CORE_TERMS#DelayPlugin"
+      "FORMATS_LV2_CORE#DelayPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class DelayPlugin: an effect that repeats a sound after a gap."
@@ -7700,7 +7700,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Distortion": {
     "word": "lv2.Distortion",
     "from": [
-      "LV2_CORE_TERMS#DistortionPlugin"
+      "FORMATS_LV2_CORE#DistortionPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class DistortionPlugin: an effect that adds harmonics by overdriving a sound."
@@ -7709,7 +7709,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Dynamics": {
     "word": "lv2.Dynamics",
     "from": [
-      "LV2_CORE_TERMS#DynamicsPlugin"
+      "FORMATS_LV2_CORE#DynamicsPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class DynamicsPlugin: an effect that changes a sound's dynamic range."
@@ -7718,7 +7718,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2EQ": {
     "word": "lv2.EQ",
     "from": [
-      "LV2_CORE_TERMS#EQPlugin"
+      "FORMATS_LV2_CORE#EQPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class EQPlugin: an effect that shapes a sound's frequency balance."
@@ -7727,7 +7727,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Envelope": {
     "word": "lv2.Envelope",
     "from": [
-      "LV2_CORE_TERMS#EnvelopePlugin"
+      "FORMATS_LV2_CORE#EnvelopePlugin"
     ],
     "text": {
       "en": "The LV2 plugin class EnvelopePlugin: a plugin that follows or applies an envelope over time."
@@ -7736,7 +7736,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Expander": {
     "word": "lv2.Expander",
     "from": [
-      "LV2_CORE_TERMS#ExpanderPlugin"
+      "FORMATS_LV2_CORE#ExpanderPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ExpanderPlugin: an effect that widens a sound's dynamic range."
@@ -7745,7 +7745,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Filter": {
     "word": "lv2.Filter",
     "from": [
-      "LV2_CORE_TERMS#FilterPlugin"
+      "FORMATS_LV2_CORE#FilterPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class FilterPlugin: an effect that removes or shapes a band of frequencies."
@@ -7754,7 +7754,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Flanger": {
     "word": "lv2.Flanger",
     "from": [
-      "LV2_CORE_TERMS#FlangerPlugin"
+      "FORMATS_LV2_CORE#FlangerPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class FlangerPlugin: an effect that sweeps a short, modulated delay against the dry sound."
@@ -7763,7 +7763,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Gate": {
     "word": "lv2.Gate",
     "from": [
-      "LV2_CORE_TERMS#GatePlugin"
+      "FORMATS_LV2_CORE#GatePlugin"
     ],
     "text": {
       "en": "The LV2 plugin class GatePlugin: an effect that mutes a sound below a level."
@@ -7772,7 +7772,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Highpass": {
     "word": "lv2.Highpass",
     "from": [
-      "LV2_CORE_TERMS#HighpassPlugin"
+      "FORMATS_LV2_CORE#HighpassPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class HighpassPlugin: a filter that passes frequencies above a cutoff."
@@ -7781,7 +7781,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Limiter": {
     "word": "lv2.Limiter",
     "from": [
-      "LV2_CORE_TERMS#LimiterPlugin"
+      "FORMATS_LV2_CORE#LimiterPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class LimiterPlugin: an effect that holds a sound under a ceiling."
@@ -7790,7 +7790,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Lowpass": {
     "word": "lv2.Lowpass",
     "from": [
-      "LV2_CORE_TERMS#LowpassPlugin"
+      "FORMATS_LV2_CORE#LowpassPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class LowpassPlugin: a filter that passes frequencies below a cutoff."
@@ -7799,7 +7799,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Mixer": {
     "word": "lv2.Mixer",
     "from": [
-      "LV2_CORE_TERMS#MixerPlugin"
+      "FORMATS_LV2_CORE#MixerPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class MixerPlugin: a plugin that combines several signals into one."
@@ -7808,7 +7808,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Modulator": {
     "word": "lv2.Modulator",
     "from": [
-      "LV2_CORE_TERMS#ModulatorPlugin"
+      "FORMATS_LV2_CORE#ModulatorPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ModulatorPlugin: a plugin that modulates one signal with another."
@@ -7817,7 +7817,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2MultiEQ": {
     "word": "lv2.MultiEQ",
     "from": [
-      "LV2_CORE_TERMS#MultiEQPlugin"
+      "FORMATS_LV2_CORE#MultiEQPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class MultiEQPlugin: a multi-band equaliser."
@@ -7826,7 +7826,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2ParaEQ": {
     "word": "lv2.ParaEQ",
     "from": [
-      "LV2_CORE_TERMS#ParaEQPlugin"
+      "FORMATS_LV2_CORE#ParaEQPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ParaEQPlugin: a parametric equaliser."
@@ -7835,7 +7835,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Phaser": {
     "word": "lv2.Phaser",
     "from": [
-      "LV2_CORE_TERMS#PhaserPlugin"
+      "FORMATS_LV2_CORE#PhaserPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class PhaserPlugin: an effect that sweeps notches through a sound with an all-pass filter chain."
@@ -7844,7 +7844,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Pitch": {
     "word": "lv2.Pitch",
     "from": [
-      "LV2_CORE_TERMS#PitchPlugin"
+      "FORMATS_LV2_CORE#PitchPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class PitchPlugin: a plugin that changes or tracks a sound's pitch."
@@ -7853,7 +7853,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Reverb": {
     "word": "lv2.Reverb",
     "from": [
-      "LV2_CORE_TERMS#ReverbPlugin"
+      "FORMATS_LV2_CORE#ReverbPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ReverbPlugin: an effect that adds the reflections of a space to a sound."
@@ -7862,7 +7862,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Simulator": {
     "word": "lv2.Simulator",
     "from": [
-      "LV2_CORE_TERMS#SimulatorPlugin"
+      "FORMATS_LV2_CORE#SimulatorPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class SimulatorPlugin: a plugin that models a physical device or space."
@@ -7871,7 +7871,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Spatial": {
     "word": "lv2.Spatial",
     "from": [
-      "LV2_CORE_TERMS#SpatialPlugin"
+      "FORMATS_LV2_CORE#SpatialPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class SpatialPlugin: a plugin that places or moves a sound in space."
@@ -7880,7 +7880,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Spectral": {
     "word": "lv2.Spectral",
     "from": [
-      "LV2_CORE_TERMS#SpectralPlugin"
+      "FORMATS_LV2_CORE#SpectralPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class SpectralPlugin: a plugin that processes a sound in the frequency domain."
@@ -7889,7 +7889,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Utility": {
     "word": "lv2.Utility",
     "from": [
-      "LV2_CORE_TERMS#UtilityPlugin"
+      "FORMATS_LV2_CORE#UtilityPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class UtilityPlugin: a plugin that does audio housekeeping rather than a creative effect."
@@ -7898,7 +7898,7 @@ export const PLUGIN_FEATURE_AUDIO_EFFECT = {
   "lv2Waveshaper": {
     "word": "lv2.Waveshaper",
     "from": [
-      "LV2_CORE_TERMS#WaveshaperPlugin"
+      "FORMATS_LV2_CORE#WaveshaperPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics."
@@ -7914,7 +7914,7 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
   "clapDrum": {
     "word": "clap.drum",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#drum"
+      "FORMATS_CLAP_PLUGIN_FEATURES#drum"
     ],
     "text": {
       "en": "The CLAP plugin feature drum: an instrument that plays drum sounds."
@@ -7923,7 +7923,7 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
   "clapDrumMachine": {
     "word": "clap.drum-machine",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#drum-machine"
+      "FORMATS_CLAP_PLUGIN_FEATURES#drum-machine"
     ],
     "text": {
       "en": "The CLAP plugin feature drum-machine: an instrument that sequences and plays drum sounds."
@@ -7932,7 +7932,7 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
   "clapInstrument": {
     "word": "clap.instrument",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#instrument"
+      "FORMATS_CLAP_PLUGIN_FEATURES#instrument"
     ],
     "text": {
       "en": "The CLAP plugin feature instrument: a plugin played by notes, with no more specific kind declared."
@@ -7941,7 +7941,7 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
   "clapSampler": {
     "word": "clap.sampler",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#sampler"
+      "FORMATS_CLAP_PLUGIN_FEATURES#sampler"
     ],
     "text": {
       "en": "The CLAP plugin feature sampler: an instrument that plays recorded samples."
@@ -7950,7 +7950,7 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
   "clapSynthesizer": {
     "word": "clap.synthesizer",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#synthesizer"
+      "FORMATS_CLAP_PLUGIN_FEATURES#synthesizer"
     ],
     "text": {
       "en": "The CLAP plugin feature synthesizer: an instrument that generates its own sound rather than playing samples."
@@ -7959,7 +7959,7 @@ export const PLUGIN_FEATURE_INSTRUMENT = {
   "lv2Instrument": {
     "word": "lv2.Instrument",
     "from": [
-      "LV2_CORE_TERMS#InstrumentPlugin"
+      "FORMATS_LV2_CORE#InstrumentPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class InstrumentPlugin: a plugin played by notes."
@@ -7975,7 +7975,7 @@ export const PLUGIN_FEATURE_NOTE_EFFECT = {
   "clapNoteEffect": {
     "word": "clap.note-effect",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#note-effect"
+      "FORMATS_CLAP_PLUGIN_FEATURES#note-effect"
     ],
     "text": {
       "en": "The CLAP plugin feature note-effect: a plugin that reads notes and writes notes, such as an arpeggiator."
@@ -7984,7 +7984,7 @@ export const PLUGIN_FEATURE_NOTE_EFFECT = {
   "lv2MIDI": {
     "word": "lv2.MIDI",
     "from": [
-      "LV2_CORE_TERMS#MIDIPlugin"
+      "FORMATS_LV2_CORE#MIDIPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out."
@@ -8000,7 +8000,7 @@ export const PLUGIN_FEATURE_ANALYZER = {
   "clapAnalyzer": {
     "word": "clap.analyzer",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#analyzer"
+      "FORMATS_CLAP_PLUGIN_FEATURES#analyzer"
     ],
     "text": {
       "en": "The CLAP plugin feature analyzer: a plugin that reads audio and reports a measurement, with no further output."
@@ -8009,7 +8009,7 @@ export const PLUGIN_FEATURE_ANALYZER = {
   "clapNoteDetector": {
     "word": "clap.note-detector",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#note-detector"
+      "FORMATS_CLAP_PLUGIN_FEATURES#note-detector"
     ],
     "text": {
       "en": "The CLAP plugin feature note-detector: an analyzer that reads pitch from audio."
@@ -8018,7 +8018,7 @@ export const PLUGIN_FEATURE_ANALYZER = {
   "lv2Analyser": {
     "word": "lv2.Analyser",
     "from": [
-      "LV2_CORE_TERMS#AnalyserPlugin"
+      "FORMATS_LV2_CORE#AnalyserPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement."
@@ -8034,7 +8034,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "clapAmbisonic": {
     "word": "clap.ambisonic",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#ambisonic"
+      "FORMATS_CLAP_PLUGIN_FEATURES#ambisonic"
     ],
     "text": {
       "en": "The CLAP plugin feature ambisonic: a plugin declared to work in an ambisonic channel layout."
@@ -8043,7 +8043,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "clapMono": {
     "word": "clap.mono",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#mono"
+      "FORMATS_CLAP_PLUGIN_FEATURES#mono"
     ],
     "text": {
       "en": "The CLAP plugin feature mono: a plugin declared to work in a mono channel layout."
@@ -8052,7 +8052,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "clapStereo": {
     "word": "clap.stereo",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#stereo"
+      "FORMATS_CLAP_PLUGIN_FEATURES#stereo"
     ],
     "text": {
       "en": "The CLAP plugin feature stereo: a plugin declared to work in a stereo channel layout."
@@ -8061,7 +8061,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "clapSurround": {
     "word": "clap.surround",
     "from": [
-      "CLAP_PLUGIN_FEATURES_TERMS#surround"
+      "FORMATS_CLAP_PLUGIN_FEATURES#surround"
     ],
     "text": {
       "en": "The CLAP plugin feature surround: a plugin declared to work in a surround channel layout."
@@ -8070,7 +8070,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "lv2Constant": {
     "word": "lv2.Constant",
     "from": [
-      "LV2_CORE_TERMS#ConstantPlugin"
+      "FORMATS_LV2_CORE#ConstantPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class ConstantPlugin: a plugin with no input that outputs a constant."
@@ -8079,7 +8079,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "lv2Function": {
     "word": "lv2.Function",
     "from": [
-      "LV2_CORE_TERMS#FunctionPlugin"
+      "FORMATS_LV2_CORE#FunctionPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class FunctionPlugin: a plugin with no audio input or output, used only for its side effects or parameters."
@@ -8088,7 +8088,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "lv2Generator": {
     "word": "lv2.Generator",
     "from": [
-      "LV2_CORE_TERMS#GeneratorPlugin"
+      "FORMATS_LV2_CORE#GeneratorPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class GeneratorPlugin: a plugin with no audio input that generates a sound."
@@ -8097,7 +8097,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "lv2Oscillator": {
     "word": "lv2.Oscillator",
     "from": [
-      "LV2_CORE_TERMS#OscillatorPlugin"
+      "FORMATS_LV2_CORE#OscillatorPlugin"
     ],
     "text": {
       "en": "The LV2 plugin class OscillatorPlugin: a generator that outputs a periodic waveform."
@@ -8106,7 +8106,7 @@ export const PLUGIN_FEATURE_OTHER = {
   "lv2Plugin": {
     "word": "lv2.Plugin",
     "from": [
-      "LV2_CORE_TERMS#Plugin"
+      "FORMATS_LV2_CORE#Plugin"
     ],
     "text": {
       "en": "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared."
@@ -8214,7 +8214,7 @@ export const RESOURCE_KINDS = {
   "scratchMemory": {
     "word": "scratch-memory",
     "from": [
-      "CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"
+      "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY#scratch-memory/1"
     ],
     "doc": "The memory a plugin asks of its host for its process call.",
     "text": {
@@ -8224,8 +8224,8 @@ export const RESOURCE_KINDS = {
   "latency": {
     "word": "latency",
     "from": [
-      "LV2_CORE_TERMS#latency",
-      "CLAP_EXT_LATENCY_TERMS#latency"
+      "FORMATS_LV2_CORE#latency",
+      "FORMATS_CLAP_EXT_LATENCY#latency"
     ],
     "doc": "The frames a plugin delays its output by, per rate and quantum.",
     "text": {
@@ -8235,7 +8235,7 @@ export const RESOURCE_KINDS = {
   "tail": {
     "word": "tail",
     "from": [
-      "CLAP_EXT_TAIL_TERMS#tail"
+      "FORMATS_CLAP_EXT_TAIL#tail"
     ],
     "doc": "How long a plugin keeps sounding once its input goes silent.",
     "text": {
@@ -8245,7 +8245,7 @@ export const RESOURCE_KINDS = {
   "voices": {
     "word": "voices",
     "from": [
-      "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
+      "FORMATS_CLAP_EXT_VOICE_INFO#voice-info"
     ],
     "doc": "The notes an instrument plays at once.",
     "text": {
@@ -8262,7 +8262,7 @@ export const RESOURCE_KINDS = {
   "threads": {
     "word": "threads",
     "from": [
-      "CLAP_EXT_THREAD_POOL_TERMS#thread-pool"
+      "FORMATS_CLAP_EXT_THREAD_POOL#thread-pool"
     ],
     "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.",
     "text": {
@@ -8272,8 +8272,8 @@ export const RESOURCE_KINDS = {
   "worker": {
     "word": "worker",
     "from": [
-      "LV2_WORKER_TERMS#schedule",
-      "LV2_WORKER_TERMS#interface"
+      "FORMATS_LV2_WORKER#schedule",
+      "FORMATS_LV2_WORKER#interface"
     ],
     "doc": "The work a plugin hands to a non-real-time thread of the host.",
     "text": {
@@ -8283,11 +8283,11 @@ export const RESOURCE_KINDS = {
   "blockLength": {
     "word": "block-length",
     "from": [
-      "LV2_BUF_SIZE_TERMS#boundedBlockLength",
-      "LV2_BUF_SIZE_TERMS#maxBlockLength",
-      "LV2_BUF_SIZE_TERMS#minBlockLength",
-      "LV2_BUF_SIZE_TERMS#nominalBlockLength",
-      "LV2_OPTIONS_TERMS#options"
+      "FORMATS_LV2_BUF_SIZE#boundedBlockLength",
+      "FORMATS_LV2_BUF_SIZE#maxBlockLength",
+      "FORMATS_LV2_BUF_SIZE#minBlockLength",
+      "FORMATS_LV2_BUF_SIZE#nominalBlockLength",
+      "FORMATS_LV2_OPTIONS#options"
     ],
     "doc": "The block lengths a plugin accepts.",
     "text": {
@@ -8318,8 +8318,8 @@ export const RESOURCE_KINDS = {
   "state": {
     "word": "state",
     "from": [
-      "LV2_STATE_TERMS#interface",
-      "CLAP_EXT_STATE_TERMS#state"
+      "FORMATS_LV2_STATE#interface",
+      "FORMATS_CLAP_EXT_STATE#state"
     ],
     "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
     "text": {
@@ -8342,7 +8342,7 @@ export const RESOURCE_UNITS = {
   "frames": {
     "word": "frames",
     "from": [
-      "LV2_UNITS_TERMS#frame"
+      "FORMATS_LV2_UNITS#frame"
     ],
     "text": {
       "en": "A count of audio frames."
@@ -8351,7 +8351,7 @@ export const RESOURCE_UNITS = {
   "ms": {
     "word": "ms",
     "from": [
-      "LV2_UNITS_TERMS#ms"
+      "FORMATS_LV2_UNITS#ms"
     ],
     "text": {
       "en": "Milliseconds."
@@ -8366,7 +8366,7 @@ export const RESOURCE_UNITS = {
   "s": {
     "word": "s",
     "from": [
-      "LV2_UNITS_TERMS#s"
+      "FORMATS_LV2_UNITS#s"
     ],
     "text": {
       "en": "Seconds."

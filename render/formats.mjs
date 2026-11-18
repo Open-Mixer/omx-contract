@@ -10,8 +10,7 @@
  * - an LV2 specification is a namespace: `OMX_LV2_NS_<SPEC>` is its URI with the `#` every term of it is written
  *   after, `OMX_LV2_SPEC_<SPEC>` the URI alone, `LV2_NAMESPACES[<SPEC>]` and `LV2_SPECIFICATIONS[<SPEC>]`.
  *
- * `<ID>` is the term's CLAP identifier (`CLAP_EXT_REMOTE_CONTROLS`), `<SPEC>` its item's name between `LV2_` and
- * `_TERMS` (`LV2_PORT_PROPS_TERMS` is `PORT_PROPS`).
+ * `<ID>` is the term's CLAP identifier (`CLAP_EXT_REMOTE_CONTROLS`), `<SPEC>` its item's name after `FORMATS_LV2_` (`FORMATS_LV2_PORT_PROPS` is `PORT_PROPS`).
  */
 import { cStringLiteral } from './c/c-literals.mjs';
 
@@ -32,7 +31,7 @@ export function clapValues(resolved) {
 
 /** The namespaces of the LV2 specifications: `[[SPEC, uri]]`, in file order. */
 export function lv2Specs(resolved) {
-  return termsOf(resolved, 'lv2').map((r) => [r.name.replace(/^LV2_/, '').replace(/_TERMS$/, ''), r.spec]);
+  return termsOf(resolved, 'lv2').map((r) => [r.name.replace(/^FORMATS_LV2_/, ''), r.spec]);
 }
 
 /** The module's values as plain objects, the same for every language. */

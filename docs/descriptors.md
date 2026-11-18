@@ -190,7 +190,7 @@ writes a face from one. Its `rows` are keyed by the source field, as the format 
 | `extension` | `true` | Carried verbatim into the descriptor's `extensions.<format>.<field>`. |
 | `dropped` | `{ ruling }` | Left out, by the ruling it names (a spec path and section, or the term's `out-of-scope` ruling). |
 
-Each row names what it covers, one of two: `term`, a term of a format file (`LV2_UNITS_TERMS#unit`, docs/data-layout.md),
+Each row names what it covers, one of two: `term`, a term of a format file (`FORMATS_LV2_UNITS#unit`, docs/data-layout.md),
 of the map's format; or `from`, a link to the header or the specification line of a field no terms file lists (the
 CLAP struct fields, `rdfs:comment`, `doap:name`). `validate` refuses (rule `map-term`) a `term` that is no term of a
 terms item, or a term of another format. The coverage test of the package that installs the map holds every field

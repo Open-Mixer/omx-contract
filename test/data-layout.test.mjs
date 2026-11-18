@@ -38,27 +38,27 @@ test('sabotage: a codes item outside codes.json is named', () => {
 
 test('sabotage: unsorted terms are named', () => {
   const fs = files();
-  const t = doc(fs, 'formats/lv2/worker.json').LV2_WORKER_TERMS;
+  const t = doc(fs, 'formats/lv2/worker.json').FORMATS_LV2_WORKER;
   t.terms = Object.fromEntries(Object.entries(t.terms).reverse());
-  assert.deepEqual(layoutProblems(fs), ['formats/lv2/worker.json: LV2_WORKER_TERMS: its terms are not sorted by name']);
+  assert.deepEqual(layoutProblems(fs), ['formats/lv2/worker.json: FORMATS_LV2_WORKER: its terms are not sorted by name']);
 });
 
 test('sabotage: an LV2 URI in a CLAP file, or in another specification\'s file, is named', () => {
   let fs = files();
-  doc(fs, 'formats/clap/ext/latency.json').CLAP_EXT_LATENCY_TERMS.terms.latency.uri = 'http://lv2plug.in/ns/lv2core#latency';
+  doc(fs, 'formats/clap/ext/latency.json').FORMATS_CLAP_EXT_LATENCY.terms.latency.uri = 'http://lv2plug.in/ns/lv2core#latency';
   assert.ok(layoutProblems(fs).includes('formats/clap/ext/latency.json: an LV2 URI outside data/formats/lv2/'));
   assert.ok(layoutProblems(fs).includes('formats/clap/ext/latency.json: latency: a CLAP term carries its identifier, never a URI'));
   fs = files();
-  doc(fs, 'formats/lv2/worker.json').LV2_WORKER_TERMS.terms.schedule.uri = 'http://lv2plug.in/ns/ext/state#makePath';
+  doc(fs, 'formats/lv2/worker.json').FORMATS_LV2_WORKER.terms.schedule.uri = 'http://lv2plug.in/ns/ext/state#makePath';
   assert.deepEqual(layoutProblems(fs), ['formats/lv2/worker.json: schedule: http://lv2plug.in/ns/ext/state#makePath lies outside http://lv2plug.in/ns/ext/worker']);
 });
 
 test('sabotage: an item its path does not name, and a word file\'s item without its prefix, are named', () => {
   let fs = files();
   const d = doc(fs, 'formats/clap/ext/tail.json');
-  d.CLAP_TAIL_TERMS = d.CLAP_EXT_TAIL_TERMS;
-  delete d.CLAP_EXT_TAIL_TERMS;
-  assert.deepEqual(layoutProblems(fs), ['formats/clap/ext/tail.json: holds one terms item, CLAP_EXT_TAIL_TERMS']);
+  d.FORMATS_CLAP_TAIL = d.FORMATS_CLAP_EXT_TAIL;
+  delete d.FORMATS_CLAP_EXT_TAIL;
+  assert.deepEqual(layoutProblems(fs), ['formats/clap/ext/tail.json: holds one terms item, FORMATS_CLAP_EXT_TAIL']);
   fs = files();
   const m = doc(fs, 'measurement.json');
   m.VOICE_BASES = m.MEASUREMENT_VOICE_BASES;

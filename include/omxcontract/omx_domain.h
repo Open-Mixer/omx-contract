@@ -83,7 +83,7 @@ typedef struct {
 /**
  * Open a domain from the installed contract directory, the one this library was built for, and check it.
  *
- * Reads `<contractdir>/<domain>/<domain>.json` and the catalogs beside it, checks that the document has the shape the
+ * Reads `<contractdir>/<domain>/<last segment>.json` (`<contractdir>/panel/panel.json`, `<contractdir>/dsp/kernels/kernels.json`) and the catalogs of `<contractdir>/<domain>/catalogs/`, checks that the document has the shape the
  * lookups read, that its `$id` and `info` name this domain, and that `info.version` is at least @p needs_version.
  * Reads no environment variable: a stray one in a service's environment cannot change which vocabulary it runs on.
  * A missing or invalid domain is refused, never replaced by a default; a program turns the refusal into its exit

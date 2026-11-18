@@ -4,6 +4,7 @@
     "contract.descriptor.face-differs": "omx-plugins tools/face-descriptor-check.mjs: a built CLAP or LV2 face, scanned, against the plugin's authored descriptor",
     "contract.item.unknown": "omx-contract src/c/omx_domain.c: a lookup of an item the domain does not declare (tested by test/c/domain_test.c)",
     "contract.word.unknown": "omx-contract src/c/omx_domain.c: a lookup of a word or a range name the item does not declare (tested by test/c/domain_test.c)",
-    "contract.index.range": "omx-contract src/c/omx_domain.c: a lookup of an index at or past the item's word count (tested by test/c/domain_test.c)"
+    "contract.index.range": "omx-contract src/c/omx_domain.c: a lookup of an index at or past the item's word count (tested by test/c/domain_test.c)",
+    "contract.catalog.invalid": "omx-contract src/c/omx_domain.c: a catalog of a domain it cannot read (tested by test/c/domain_test.c)"
   }
 }

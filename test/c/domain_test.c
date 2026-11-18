@@ -329,7 +329,7 @@ static void test_catalog_entry_without_text(void) {
   put_file(path, "{\"messages\":{\"DOM_W.a\":{\"nottext\":1}}}");
   omx_domain *d;
   omx_domain_error err;
-  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
   CHECK(strstr(err.message, "\"DOM_W.a\"") != NULL);
   drop_scratch();
 }
@@ -400,7 +400,7 @@ void rewinddir(DIR *dh) {
   if (gain_dir) {
     char path[600];
     for (int i = 0; i < 40; i++) {
-      snprintf(path, sizeof path, "%s/gain%d.json", gain_dir, i);
+      snprintf(path, sizeof path, "%s/g%c%c.json", gain_dir, 'a' + i / 26, 'a' + i % 26); /* a language tag, or the name check refuses first */
       put_file(path, "{\"messages\":{}}");
     }
     gain_dir = NULL;
@@ -419,10 +419,152 @@ static void test_catalog_gains_a_file(void) {
   gain_dir = dir;
   omx_domain *d;
   omx_domain_error err;
-  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
   CHECK(strstr(err.message, "changed") != NULL);
   gain_dir = NULL;
   drop_scratch();
+}
+
+
+/* ---- spec gaps of the loader (docs/contract-dir.md, docs/runtime-data.md): what a document must be to open ---- */
+
+/* A domain `dom` in the scratch directory: `info` as the document's info object, `schemas` the body of components.schemas. */
+static void make_doc(const char *info, const char *schemas) {
+  char path[600], doc[4096];
+  snprintf(path, sizeof path, "%s/dom", scratch);
+  mkdir(path, 0700);
+  snprintf(doc, sizeof doc, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":%s,\"components\":{\"schemas\":%s}}", info, schemas);
+  snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
+  put_file(path, doc);
+}
+
+#define INFO_OK "{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-stability\":\"experimental\"}"
+#define WORD(c, code) "{\"const\":\"" c "\",\"title\":\"T\",\"description\":\"d\",\"x-code\":" code "}"
+
+/* A document and the status it must be refused with (0 when it must open), the message naming `has`. */
+static void doc_is(const char *info, const char *schemas, int want, const char *has) {
+  make_scratch();
+  make_doc(info, schemas);
+  omx_domain *d;
+  omx_domain_error err;
+  int rc = open_scratch("dom", NULL, &d, &err);
+  if (rc != want) { failures++; fprintf(stderr, "%s:%d: FAIL got status %d (%s), want %d for %s\n", __FILE__, __LINE__, rc, rc ? err.message : "opened", want, schemas); }
+  else if (rc && has && !strstr(err.message, has)) { failures++; fprintf(stderr, "%s:%d: FAIL message \"%s\" lacks \"%s\"\n", __FILE__, __LINE__, err.message, has); }
+  if (rc == 0 && d) omx_domain_close(d);
+  drop_scratch();
+}
+
+/* (5) x-code is the word's place in its list (docs/contract-dir.md): another is refused, naming the word. */
+static void test_xcode_is_the_place(void) {
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "," WORD("b", "1") "]}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "," WORD("b", "5") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "1") "," WORD("b", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "\"a\"");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "," WORD("b", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-code");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "," WORD("a", "1") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "twice");
+}
+
+/* (6) a key written twice is refused as the parse error it is: two items, a word's key twice, info twice, two catalog entries. */
+static void test_duplicate_keys_refused(void) {
+  const int bad = OMX_CONTRACT_CODE_FILE_NOT_JSON;
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]},\"DOM_W\":{\"oneOf\":[" WORD("b", "0") "]}}", bad, "duplicate");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"const\":\"b\",\"title\":\"T\",\"description\":\"d\",\"x-code\":0}]}}", bad, "duplicate");
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-owner\":\"p\"}", "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", bad, "duplicate");
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
+  put_file(path, "{\"messages\":{\"DOM_W.a\":{\"text\":\"x\"},\"DOM_W.a\":{\"text\":\"y\"}}}");
+  omx_domain *d;
+  omx_domain_error err;
+  int rc = open_scratch("dom", NULL, &d, &err);
+  if (rc != OMX_CONTRACT_CODE_CATALOG_INVALID) { failures++; fprintf(stderr, "%s:%d: FAIL duplicate catalog key: got status %d, want %d\n", __FILE__, __LINE__, rc, OMX_CONTRACT_CODE_CATALOG_INVALID); }
+  drop_scratch();
+}
+
+/* (7) what the loader reads must be coherent: no $ref, min <= max, default within, oneOf or properties and not both. */
+static void test_incoherent_items_refused(void) {
+  const int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "],\"$ref\":\"#/x\"}}", bad, "$ref");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"description\":\"d\",\"x-code\":0,\"$ref\":\"#/x\"}]}}", bad, "$ref");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1,\"$ref\":\"#/x\"}}}}", bad, "$ref");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"$ref\":\"#/x\"}}}}", bad, "$ref");
+  doc_is(INFO_OK, "{\"OTHER\":{\"$ref\":\"#/x\"},\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", bad, "$ref");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1}}}}", 0, NULL);
+  /* a $ref under an extension key the loader never reads opens: the formats package's clap and lv2 carry them in x-kinds and x-statuses */
+  doc_is(INFO_OK, "{\"DOM_W\":{\"x-kinds\":{\"$ref\":\"https://openmixer.org/contract/formats/common#/x\"},\"oneOf\":[" WORD("a", "0") "]}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":1,\"maximum\":0}}}}", bad, "\"g\"");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":1,\"maximum\":1,\"default\":1}}}}", 0, NULL);
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1,\"default\":2}}}}", bad, "default");
+  doc_is(INFO_OK, "{\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1,\"default\":-1}}}}", bad, "default");
+  doc_is(INFO_OK, "{\"DOM_B\":{\"oneOf\":[" WORD("a", "0") "],\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1}}}}", bad, "DOM_B");
+}
+
+/* One catalog `name` (a file, a directory or a symlink as `kind` says: 0, 1, 2) in a domain with a valid document. */
+static int catalog_opens(const char *name, int kind) {
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600], target[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/%s", scratch, name);
+  snprintf(target, sizeof target, "%s/real.txt", scratch);
+  put_file(target, "{\"messages\":{}}");
+  if (kind == 0) put_file(path, "{\"messages\":{}}");
+  else if (kind == 1) mkdir(path, 0700);
+  else if (symlink(target, path) != 0) failures++;
+  omx_domain *d;
+  omx_domain_error err;
+  int rc = open_scratch("dom", NULL, &d, &err);
+  if (rc == 0 && d) omx_domain_close(d);
+  if (rc == OMX_CONTRACT_CODE_DIR_ABSENT) { failures++; fprintf(stderr, "%s:%d: FAIL catalog %s refused as contract.dir.absent: %s\n", __FILE__, __LINE__, name, err.message); }
+  drop_scratch();
+  return rc;
+}
+
+/* (8) a bad catalog is contract.catalog.invalid, not "the contract directory is absent"; its name is a language tag; a symlink is not followed. */
+static void test_bad_catalogs_refused(void) {
+  const int bad = OMX_CONTRACT_CODE_CATALOG_INVALID;
+  CHECK(catalog_opens("es.json", 0) == 0);
+  CHECK(catalog_opens("pt-BR.json", 0) == 0);
+  CHECK(catalog_opens("es.json", 1) == bad);
+  CHECK(catalog_opens("..json", 0) == bad);
+  CHECK(catalog_opens("a b.json", 0) == bad);
+  CHECK(catalog_opens("-x.json", 0) == bad);
+  CHECK(catalog_opens("x.y.json", 0) == bad);
+  CHECK(catalog_opens("es.json", 2) == bad);
+}
+
+/* One catalog es.json holding `content`, in a domain with a valid document: the status of opening it. */
+static int catalog_holding(const char *content) {
+  make_scratch();
+  make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
+  char path[600];
+  snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
+  mkdir(path, 0700);
+  snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
+  put_file(path, content);
+  omx_domain *d;
+  omx_domain_error err;
+  int rc = open_scratch("dom", NULL, &d, &err);
+  if (rc == 0 && d) omx_domain_close(d);
+  drop_scratch();
+  return rc;
+}
+
+/* (8) a catalog that does not parse, or holds no messages object, is a bad catalog: its own code, not the document's. */
+static void test_unreadable_catalogs_refused(void) {
+  CHECK(catalog_holding("{\"messages\":{}}") == 0);
+  CHECK(catalog_holding("{\"messages\":") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK(catalog_holding("[]") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK(catalog_holding("{\"messages\":[]}") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+}
+
+/* (8) an empty x-owner is no owner. */
+static void test_empty_owner_refused(void) {
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":\"\",\"x-stability\":\"experimental\"}", "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-owner");
+  doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", 0, NULL);
 }
 
 /* DOMAIN_TEST_ONLY=<name> runs just that one of the hostile-directory tests (an ASan abort ends the process). */
@@ -462,6 +604,12 @@ int main(void) {
   RUN(test_long_dir);
   RUN(test_version_strictness);
   RUN(test_catalog_gains_a_file);
+  RUN(test_unreadable_catalogs_refused);
+  RUN(test_xcode_is_the_place);
+  RUN(test_duplicate_keys_refused);
+  RUN(test_incoherent_items_refused);
+  RUN(test_bad_catalogs_refused);
+  RUN(test_empty_owner_refused);
   RUN(test_stability);
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
   puts("domain_test: all checks passed");

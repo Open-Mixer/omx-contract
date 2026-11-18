@@ -26,7 +26,7 @@ import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { atLeast, contractVersion, floorOf, loadContractDir } from '../lib/contract-dir.mjs';
 import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
-import { formatDoc } from '../lib/fmt.mjs';
+import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
@@ -154,16 +154,17 @@ function cmdValidate(argv) {
 
 function cmdFmt(argv) {
   const check = argv.includes('--check');
-  if (fromContractDir(argv) && !check) throw new Usage('fmt writes a tree, never an installed contract directory: add --check');
+  // a tree of domain documents is written; a package's files are listed by hash, so an installed directory is only checked
+  if (fromContractDir(argv) && !check && (argv.includes('--installed') || filesUnder(resolve(opt(argv, '--contract-dir'))).some((f) => f.endsWith('MANIFEST.json')))) throw new Usage('fmt writes a tree, never an installed contract directory: add --check');
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   const data = load(argv);
   const files = [...data.files, ...toolFiles(argv)];
   let bad = 0;
   for (const f of files) {
-    const want = formatDoc(f.doc);
+    const want = formatFile(f);
     if (want === f.text) continue;
     const name = f.pkg ? `${f.pkg}: ${f.rel}` : f.rel;
-    if (check) { console.error(`omx-contract fmt --check: ${name} is not in the one formatting`); bad++; } else writeFileSync(join(dir, '..', f.rel), want);
+    if (check) { console.error(`omx-contract fmt --check: ${name} is not in the one formatting`); bad++; } else writeFileSync(f.path ?? join(dir, '..', f.rel), want);
   }
   if (bad) return 1;
   console.log(`omx-contract fmt${check ? ' --check' : ''}: ${files.length} files formatted`);

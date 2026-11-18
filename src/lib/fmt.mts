@@ -6,6 +6,10 @@
  * a travels table's field order is its C block order. A kernel file's sections come in their order (controls,
  * readouts, tables, aggregates, constants), its controls and readouts in the author's order, each one's keys in
  * schema order.
+ *
+ * A domain document (docs/contract-dir.md, "Domains") has the same one rule: two-space indent, one key per line, keys in
+ * the order of the domain document schema, a trailing newline; the names of its schemas, the words of a `oneOf` (their
+ * order is their `x-code`) and the entries of an `x-from` keep the order the author gave them.
  */
 
 import { FILE_KEYS } from './data.mjs';
@@ -127,4 +131,44 @@ export function formatDoc(doc) {
     for (const [k, v] of Object.entries(doc)) if (!FILE_KEYS.includes(k)) out[k] = item(v);
   }
   return `${JSON.stringify(out, null, 2)}\n`;
+}
+
+const DOMAIN_ORDER = {
+  file: ['$schema', '$id', 'info', 'components'],
+  info: ['title', 'version', 'x-owner', 'x-stability'],
+  schema: ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'],
+  word: ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from'],
+  from: ['$ref', 'x-term'],
+};
+
+/** Whether a parsed document is a domain document (an `$id` and `components`) rather than a classic data file. */
+export const isDomainDoc = (doc) => isObj(doc) && typeof doc.$id === 'string' && isObj(doc.components);
+
+function domainSchema(s) {
+  if (!isObj(s)) return s;
+  const o = ordered(s, DOMAIN_ORDER.schema);
+  if (Array.isArray(o.oneOf)) o.oneOf = o.oneOf.map((w) => {
+    if (!isObj(w)) return w;
+    const x = ordered(w, DOMAIN_ORDER.word);
+    if (Array.isArray(x['x-from'])) x['x-from'] = x['x-from'].map((r) => (isObj(r) ? ordered(r, DOMAIN_ORDER.from) : r));
+    return x;
+  });
+  return o;
+}
+
+/** The canonical text of a parsed domain document. */
+export function formatDomain(doc) {
+  const out = ordered(doc, DOMAIN_ORDER.file);
+  if (isObj(out.info)) out.info = ordered(out.info, DOMAIN_ORDER.info);
+  if (isObj(out.components)) {
+    out.components = { ...out.components };
+    if (isObj(out.components.schemas)) out.components.schemas = Object.fromEntries(Object.entries(out.components.schemas).map(([k, s]) => [k, domainSchema(s)]));
+  }
+  return `${JSON.stringify(out, null, 2)}\n`;
+}
+
+/** The canonical text of a loaded file: a domain document by the domain rule, any other by the classic one. */
+export function formatFile(file) {
+  const raw = JSON.parse(file.text);
+  return isDomainDoc(raw) ? formatDomain(raw) : formatDoc(file.doc);
 }

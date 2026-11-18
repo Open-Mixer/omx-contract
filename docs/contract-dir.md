@@ -25,6 +25,11 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   "components": { "schemas": { "PANEL_FAMILIES": { "...": "JSON Schema 2020-12 shape of the item" } } } }
 ```
 
+- The schema of a domain document is `schema/domain.schema.json` (`https://openmixer.org/schema/omx-contract/v3/domain.schema.json`),
+  exported as `@openmixer/omx-contract/domain.schema.json` and as the typed constant `domainSchema` of
+  `@openmixer/omx-contract/domain-schema` (for `FromSchema`), installed beside `omx-contract.schema.json`. It says the
+  shape; the rules a schema cannot say (the prefix rule, the `x-code` order, the groups, a title used twice) stay in the
+  reader, and its description lists them.
 - A words item is pure JSON Schema 2020-12: a `components.schemas` entry named by the item (`PANEL_FAMILIES`), its
   `description` the item's `doc`, its `x-since` and optional `x-why` as written today, and a `oneOf` of one
   `{ "const": "<word as written>", "title": "<key, the name of the word's macro>", "description": "<one line>",

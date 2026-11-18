@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+# The linker's view of abi/libomx-domain.abi: the one list of what libomx-domain exports. Nothing else leaves the library.
+OMX_DOMAIN_0 {
+  global:
+    omx_domain_close;
+    omx_domain_code;
+    omx_domain_open;
+    omx_domain_open_at;
+    omx_domain_open_or_exit;
+    omx_domain_range;
+    omx_domain_text;
+    omx_domain_word;
+    omx_domain_word_at;
+    omx_domain_word_count;
+  local:
+    *;
+};

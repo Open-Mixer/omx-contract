@@ -45,11 +45,11 @@ const table = (map = read('data/plugin-features.json')) => {
   return rows;
 };
 const terms = () => {
-  const clap = Object.values(read('data/formats/clap/plugin-features.json').FORMATS_CLAP_PLUGIN_FEATURES.terms);
+  const clap = Object.values(read('data/formats/clap/plugin-features.json').FORMATS_CLAP_PLUGIN_FEATURES_TERMS.terms);
   void clap;
   const out = [];
-  for (const [n, t] of Object.entries(read('data/formats/clap/plugin-features.json').FORMATS_CLAP_PLUGIN_FEATURES.terms)) if (t.kind === 'plugin-feature') out.push([`FORMATS_CLAP_PLUGIN_FEATURES#${n}`, t]);
-  for (const [n, t] of Object.entries(read('data/formats/lv2/core.json').FORMATS_LV2_CORE.terms)) if (t.kind === 'plugin-class') out.push([`FORMATS_LV2_CORE#${n}`, t]);
+  for (const [n, t] of Object.entries(read('data/formats/clap/plugin-features.json').FORMATS_CLAP_PLUGIN_FEATURES_TERMS.terms)) if (t.kind === 'plugin-feature') out.push([`FORMATS_CLAP_PLUGIN_FEATURES_TERMS#${n}`, t]);
+  for (const [n, t] of Object.entries(read('data/formats/lv2/core.json').FORMATS_LV2_CORE_TERMS.terms)) if (t.kind === 'plugin-class') out.push([`FORMATS_LV2_CORE_TERMS#${n}`, t]);
   return out;
 };
 const unmapped = (rows, all) => all.filter(([ref]) => (rows.get(ref) ?? []).length !== 1).map(([ref]) => ref);
@@ -69,17 +69,17 @@ test('every CLAP plugin feature and LV2 plugin class the scan can emit maps onto
 test('sabotage: a feature dropped from the table, or named twice, is seen', () => {
   const map = read('data/plugin-features.json');
   delete map.PLUGIN_FEATURE_AUDIO_EFFECT.words.clapReverb;
-  assert.deepEqual(unmapped(table(map), terms()), ['FORMATS_CLAP_PLUGIN_FEATURES#reverb']);
+  assert.deepEqual(unmapped(table(map), terms()), ['FORMATS_CLAP_PLUGIN_FEATURES_TERMS#reverb']);
   const twice = read('data/plugin-features.json');
-  twice.PLUGIN_FEATURE_OTHER.words.clapReverb = { word: 'clap.reverb', from: ['FORMATS_CLAP_PLUGIN_FEATURES#reverb'] };
-  assert.deepEqual(unmapped(table(twice), terms()), ['FORMATS_CLAP_PLUGIN_FEATURES#reverb']);
+  twice.PLUGIN_FEATURE_OTHER.words.clapReverb = { word: 'clap.reverb', from: ['FORMATS_CLAP_PLUGIN_FEATURES_TERMS#reverb'] };
+  assert.deepEqual(unmapped(table(twice), terms()), ['FORMATS_CLAP_PLUGIN_FEATURES_TERMS#reverb']);
 });
 
 test('an instrument class is only one that takes notes: generators and oscillators are other', () => {
   const rows = table();
-  assert.deepEqual(rows.get('FORMATS_LV2_CORE#InstrumentPlugin'), ['instrument']);
-  for (const c of ['Generator', 'Oscillator', 'Constant', 'Function']) assert.deepEqual(rows.get(`FORMATS_LV2_CORE#${c}Plugin`), ['other'], c);
-  assert.deepEqual(rows.get('FORMATS_CLAP_PLUGIN_FEATURES#compressor'), ['audio-effect']);
+  assert.deepEqual(rows.get('FORMATS_LV2_CORE_TERMS#InstrumentPlugin'), ['instrument']);
+  for (const c of ['Generator', 'Oscillator', 'Constant', 'Function']) assert.deepEqual(rows.get(`FORMATS_LV2_CORE_TERMS#${c}Plugin`), ['other'], c);
+  assert.deepEqual(rows.get('FORMATS_CLAP_PLUGIN_FEATURES_TERMS#compressor'), ['audio-effect']);
 });
 
 test('the panel families and widgets, and the names of the scan documents, are declared here (#157)', () => {

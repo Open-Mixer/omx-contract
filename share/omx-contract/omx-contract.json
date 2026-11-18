@@ -210,7 +210,7 @@
         }
       }
     },
-    "FORMATS_CLAP_COLOR": {
+    "FORMATS_CLAP_COLOR_TERMS": {
       "rel": "data/formats/clap/color.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/color.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -227,7 +227,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EVENTS": {
+    "FORMATS_CLAP_EVENTS_TERMS": {
       "rel": "data/formats/clap/events.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -499,7 +499,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_AMBISONIC": {
+    "FORMATS_CLAP_EXT_AMBISONIC_TERMS": {
       "rel": "data/formats/clap/ext/ambisonic.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/ambisonic.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -573,7 +573,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_AUDIO_PORTS_ACTIVATION": {
+    "FORMATS_CLAP_EXT_AUDIO_PORTS_ACTIVATION_TERMS": {
       "rel": "data/formats/clap/ext/audio-ports-activation.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/audio-ports-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -598,7 +598,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_AUDIO_PORTS_CONFIG": {
+    "FORMATS_CLAP_EXT_AUDIO_PORTS_CONFIG_TERMS": {
       "rel": "data/formats/clap/ext/audio-ports-config.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/audio-ports-config.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -630,7 +630,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_AUDIO_PORTS": {
+    "FORMATS_CLAP_EXT_AUDIO_PORTS_TERMS": {
       "rel": "data/formats/clap/ext/audio-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -741,7 +741,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_CONFIGURABLE_AUDIO_PORTS": {
+    "FORMATS_CLAP_EXT_CONFIGURABLE_AUDIO_PORTS_TERMS": {
       "rel": "data/formats/clap/ext/configurable-audio-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/configurable-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -766,7 +766,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_CONTEXT_MENU": {
+    "FORMATS_CLAP_EXT_CONTEXT_MENU_TERMS": {
       "rel": "data/formats/clap/ext/context-menu.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/context-menu.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -839,7 +839,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION": {
+    "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_ACTIVATION_TERMS": {
       "rel": "data/formats/clap/ext/draft/background-activation.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/background-activation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -857,7 +857,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_PROGRESS": {
+    "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_PROGRESS_TERMS": {
       "rel": "data/formats/clap/ext/draft/background-progress.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/background-progress.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -875,7 +875,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT": {
+    "FORMATS_CLAP_EXT_DRAFT_BACKGROUND_STATE_CONTEXT_TERMS": {
       "rel": "data/formats/clap/ext/draft/background-state-context.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/background-state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -893,7 +893,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS": {
+    "FORMATS_CLAP_EXT_DRAFT_EXTENSIBLE_AUDIO_PORTS_TERMS": {
       "rel": "data/formats/clap/ext/draft/extensible-audio-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/extensible-audio-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -911,7 +911,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_FLUSH_EVENTS": {
+    "FORMATS_CLAP_EXT_DRAFT_FLUSH_EVENTS_TERMS": {
       "rel": "data/formats/clap/ext/draft/flush-events.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/flush-events.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -929,7 +929,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING": {
+    "FORMATS_CLAP_EXT_DRAFT_GAIN_ADJUSTMENT_METERING_TERMS": {
       "rel": "data/formats/clap/ext/draft/gain-adjustment-metering.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/gain-adjustment-metering.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -949,7 +949,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY": {
+    "FORMATS_CLAP_EXT_DRAFT_MINI_CURVE_DISPLAY_TERMS": {
       "rel": "data/formats/clap/ext/draft/mini-curve-display.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/mini-curve-display.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1015,7 +1015,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_OCTAVE_NUMBER": {
+    "FORMATS_CLAP_EXT_DRAFT_OCTAVE_NUMBER_TERMS": {
       "rel": "data/formats/clap/ext/draft/octave-number.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/octave-number.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1033,7 +1033,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_PARAM_HOVERED": {
+    "FORMATS_CLAP_EXT_DRAFT_PARAM_HOVERED_TERMS": {
       "rel": "data/formats/clap/ext/draft/param-hovered.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/param-hovered.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1051,7 +1051,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_PARAMS_ORIGIN": {
+    "FORMATS_CLAP_EXT_DRAFT_PARAMS_ORIGIN_TERMS": {
       "rel": "data/formats/clap/ext/draft/params-origin.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/params-origin.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1069,7 +1069,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_PROJECT_LOCATION": {
+    "FORMATS_CLAP_EXT_DRAFT_PROJECT_LOCATION_TERMS": {
       "rel": "data/formats/clap/ext/draft/project-location.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/project-location.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1159,7 +1159,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_RESOURCE_DIRECTORY": {
+    "FORMATS_CLAP_EXT_DRAFT_RESOURCE_DIRECTORY_TERMS": {
       "rel": "data/formats/clap/ext/draft/resource-directory.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/resource-directory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1177,7 +1177,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY": {
+    "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS": {
       "rel": "data/formats/clap/ext/draft/scratch-memory.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/scratch-memory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1195,7 +1195,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_TRANSPORT_CONTROL": {
+    "FORMATS_CLAP_EXT_DRAFT_TRANSPORT_CONTROL_TERMS": {
       "rel": "data/formats/clap/ext/draft/transport-control.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/transport-control.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1213,7 +1213,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_TRIGGERS": {
+    "FORMATS_CLAP_EXT_DRAFT_TRIGGERS_TERMS": {
       "rel": "data/formats/clap/ext/draft/triggers.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/triggers.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1285,7 +1285,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_TUNING": {
+    "FORMATS_CLAP_EXT_DRAFT_TUNING_TERMS": {
       "rel": "data/formats/clap/ext/draft/tuning.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/tuning.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1303,7 +1303,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_UNDO": {
+    "FORMATS_CLAP_EXT_DRAFT_UNDO_TERMS": {
       "rel": "data/formats/clap/ext/draft/undo.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/undo.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1335,7 +1335,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_DRAFT_WEBVIEW": {
+    "FORMATS_CLAP_EXT_DRAFT_WEBVIEW_TERMS": {
       "rel": "data/formats/clap/ext/draft/webview.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/draft/webview.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1360,7 +1360,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_EVENT_REGISTRY": {
+    "FORMATS_CLAP_EXT_EVENT_REGISTRY_TERMS": {
       "rel": "data/formats/clap/ext/event-registry.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/event-registry.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1378,7 +1378,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_GUI": {
+    "FORMATS_CLAP_EXT_GUI_TERMS": {
       "rel": "data/formats/clap/ext/gui.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/gui.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1431,7 +1431,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_LATENCY": {
+    "FORMATS_CLAP_EXT_LATENCY_TERMS": {
       "rel": "data/formats/clap/ext/latency.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/latency.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1454,7 +1454,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_LOG": {
+    "FORMATS_CLAP_EXT_LOG_TERMS": {
       "rel": "data/formats/clap/ext/log.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/log.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1522,7 +1522,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_NOTE_NAME": {
+    "FORMATS_CLAP_EXT_NOTE_NAME_TERMS": {
       "rel": "data/formats/clap/ext/note-name.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/note-name.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1543,7 +1543,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_NOTE_PORTS": {
+    "FORMATS_CLAP_EXT_NOTE_PORTS_TERMS": {
       "rel": "data/formats/clap/ext/note-ports.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/note-ports.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1625,7 +1625,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_PARAM_INDICATION": {
+    "FORMATS_CLAP_EXT_PARAM_INDICATION_TERMS": {
       "rel": "data/formats/clap/ext/param-indication.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/param-indication.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1680,7 +1680,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_PARAMS": {
+    "FORMATS_CLAP_EXT_PARAMS_TERMS": {
       "rel": "data/formats/clap/ext/params.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/params.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1917,7 +1917,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_POSIX_FD_SUPPORT": {
+    "FORMATS_CLAP_EXT_POSIX_FD_SUPPORT_TERMS": {
       "rel": "data/formats/clap/ext/posix-fd-support.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/posix-fd-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1953,7 +1953,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_PRESET_LOAD": {
+    "FORMATS_CLAP_EXT_PRESET_LOAD_TERMS": {
       "rel": "data/formats/clap/ext/preset-load.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/preset-load.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -1985,7 +1985,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_REMOTE_CONTROLS": {
+    "FORMATS_CLAP_EXT_REMOTE_CONTROLS_TERMS": {
       "rel": "data/formats/clap/ext/remote-controls.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/remote-controls.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2028,7 +2028,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_RENDER": {
+    "FORMATS_CLAP_EXT_RENDER_TERMS": {
       "rel": "data/formats/clap/ext/render.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/render.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2058,7 +2058,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_STATE_CONTEXT": {
+    "FORMATS_CLAP_EXT_STATE_CONTEXT_TERMS": {
       "rel": "data/formats/clap/ext/state-context.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/state-context.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2094,7 +2094,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_STATE": {
+    "FORMATS_CLAP_EXT_STATE_TERMS": {
       "rel": "data/formats/clap/ext/state.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/state.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2116,7 +2116,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_SURROUND": {
+    "FORMATS_CLAP_EXT_SURROUND_TERMS": {
       "rel": "data/formats/clap/ext/surround.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/surround.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2271,7 +2271,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_TAIL": {
+    "FORMATS_CLAP_EXT_TAIL_TERMS": {
       "rel": "data/formats/clap/ext/tail.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/tail.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2289,7 +2289,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_THREAD_CHECK": {
+    "FORMATS_CLAP_EXT_THREAD_CHECK_TERMS": {
       "rel": "data/formats/clap/ext/thread-check.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/thread-check.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2311,7 +2311,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_THREAD_POOL": {
+    "FORMATS_CLAP_EXT_THREAD_POOL_TERMS": {
       "rel": "data/formats/clap/ext/thread-pool.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/thread-pool.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2329,7 +2329,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_TIMER_SUPPORT": {
+    "FORMATS_CLAP_EXT_TIMER_SUPPORT_TERMS": {
       "rel": "data/formats/clap/ext/timer-support.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/timer-support.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2347,7 +2347,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_TRACK_INFO": {
+    "FORMATS_CLAP_EXT_TRACK_INFO_TERMS": {
       "rel": "data/formats/clap/ext/track-info.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/track-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2431,7 +2431,7 @@
         }
       }
     },
-    "FORMATS_CLAP_EXT_VOICE_INFO": {
+    "FORMATS_CLAP_EXT_VOICE_INFO_TERMS": {
       "rel": "data/formats/clap/ext/voice-info.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/ext/voice-info.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2463,7 +2463,7 @@
         }
       }
     },
-    "FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION": {
+    "FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_INVALIDATION_TERMS": {
       "rel": "data/formats/clap/factory/draft/plugin-invalidation.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/draft/plugin-invalidation.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2481,7 +2481,7 @@
         }
       }
     },
-    "FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER": {
+    "FORMATS_CLAP_FACTORY_DRAFT_PLUGIN_STATE_CONVERTER_TERMS": {
       "rel": "data/formats/clap/factory/draft/plugin-state-converter.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/draft/plugin-state-converter.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2499,7 +2499,7 @@
         }
       }
     },
-    "FORMATS_CLAP_FACTORY_PLUGIN_FACTORY": {
+    "FORMATS_CLAP_FACTORY_PLUGIN_FACTORY_TERMS": {
       "rel": "data/formats/clap/factory/plugin-factory.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/plugin-factory.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2521,7 +2521,7 @@
         }
       }
     },
-    "FORMATS_CLAP_FACTORY_PRESET_DISCOVERY": {
+    "FORMATS_CLAP_FACTORY_PRESET_DISCOVERY_TERMS": {
       "rel": "data/formats/clap/factory/preset-discovery.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/factory/preset-discovery.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2587,7 +2587,7 @@
         }
       }
     },
-    "FORMATS_CLAP_FIXEDPOINT": {
+    "FORMATS_CLAP_FIXEDPOINT_TERMS": {
       "rel": "data/formats/clap/fixedpoint.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/fixedpoint.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2615,7 +2615,7 @@
         }
       }
     },
-    "FORMATS_CLAP_ID": {
+    "FORMATS_CLAP_ID_TERMS": {
       "rel": "data/formats/clap/id.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/id.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -2636,7 +2636,7 @@
         }
       }
     },
-    "FORMATS_CLAP_PLUGIN_FEATURES": {
+    "FORMATS_CLAP_PLUGIN_FEATURES_TERMS": {
       "rel": "data/formats/clap/plugin-features.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/plugin-features.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3009,7 +3009,7 @@
         }
       }
     },
-    "FORMATS_CLAP_PROCESS": {
+    "FORMATS_CLAP_PROCESS_TERMS": {
       "rel": "data/formats/clap/process.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/process.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3058,7 +3058,7 @@
         }
       }
     },
-    "FORMATS_CLAP_STRING_SIZES": {
+    "FORMATS_CLAP_STRING_SIZES_TERMS": {
       "rel": "data/formats/clap/string-sizes.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/string-sizes.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3085,7 +3085,7 @@
         }
       }
     },
-    "FORMATS_CLAP_TIMESTAMP": {
+    "FORMATS_CLAP_TIMESTAMP_TERMS": {
       "rel": "data/formats/clap/timestamp.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/timestamp.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3102,7 +3102,7 @@
         }
       }
     },
-    "FORMATS_CLAP_VERSION": {
+    "FORMATS_CLAP_VERSION_TERMS": {
       "rel": "data/formats/clap/version.json",
       "kind": "terms",
       "doc": "The identifiers of the CLAP header clap/version.h (clap 1.2.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3139,7 +3139,7 @@
         }
       }
     },
-    "FORMATS_LV2_ATOM": {
+    "FORMATS_LV2_ATOM_TERMS": {
       "rel": "data/formats/lv2/atom.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Atom specification (atom.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3379,7 +3379,7 @@
         }
       }
     },
-    "FORMATS_LV2_BUF_SIZE": {
+    "FORMATS_LV2_BUF_SIZE_TERMS": {
       "rel": "data/formats/lv2/buf-size.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Buf Size specification (buf-size.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -3470,7 +3470,7 @@
         }
       }
     },
-    "FORMATS_LV2_CORE": {
+    "FORMATS_LV2_CORE_TERMS": {
       "rel": "data/formats/lv2/core.json",
       "kind": "terms",
       "doc": "The terms of the LV2 specification (core.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4291,7 +4291,7 @@
         }
       }
     },
-    "FORMATS_LV2_DATA_ACCESS": {
+    "FORMATS_LV2_DATA_ACCESS_TERMS": {
       "rel": "data/formats/lv2/data-access.json",
       "kind": "terms",
       "doc": "The terms of the data access specification (data-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4310,7 +4310,7 @@
         }
       }
     },
-    "FORMATS_LV2_DYNMANIFEST": {
+    "FORMATS_LV2_DYNMANIFEST_TERMS": {
       "rel": "data/formats/lv2/dynmanifest.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Dyn Manifest specification (dynmanifest.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4333,7 +4333,7 @@
         }
       }
     },
-    "FORMATS_LV2_EVENT": {
+    "FORMATS_LV2_EVENT_TERMS": {
       "rel": "data/formats/lv2/event.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Event specification (event.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4418,7 +4418,7 @@
         }
       }
     },
-    "FORMATS_LV2_INSTANCE_ACCESS": {
+    "FORMATS_LV2_INSTANCE_ACCESS_TERMS": {
       "rel": "data/formats/lv2/instance-access.json",
       "kind": "terms",
       "doc": "The terms of the instance access specification (instance-access.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4437,7 +4437,7 @@
         }
       }
     },
-    "FORMATS_LV2_LOG": {
+    "FORMATS_LV2_LOG_TERMS": {
       "rel": "data/formats/lv2/log.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Log specification (log.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4504,7 +4504,7 @@
         }
       }
     },
-    "FORMATS_LV2_MIDI": {
+    "FORMATS_LV2_MIDI_TERMS": {
       "rel": "data/formats/lv2/midi.json",
       "kind": "terms",
       "doc": "The terms of the LV2 MIDI specification (midi.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4775,7 +4775,7 @@
         }
       }
     },
-    "FORMATS_LV2_MORPH": {
+    "FORMATS_LV2_MORPH_TERMS": {
       "rel": "data/formats/lv2/morph.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Morph specification (morph.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4816,7 +4816,7 @@
         }
       }
     },
-    "FORMATS_LV2_OPTIONS": {
+    "FORMATS_LV2_OPTIONS_TERMS": {
       "rel": "data/formats/lv2/options.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Options specification (options.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -4870,7 +4870,7 @@
         }
       }
     },
-    "FORMATS_LV2_PARAMETERS": {
+    "FORMATS_LV2_PARAMETERS_TERMS": {
       "rel": "data/formats/lv2/parameters.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Parameters specification (parameters.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5080,7 +5080,7 @@
         }
       }
     },
-    "FORMATS_LV2_PATCH": {
+    "FORMATS_LV2_PATCH_TERMS": {
       "rel": "data/formats/lv2/patch.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Patch specification (patch.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5282,7 +5282,7 @@
         }
       }
     },
-    "FORMATS_LV2_PORT_GROUPS": {
+    "FORMATS_LV2_PORT_GROUPS_TERMS": {
       "rel": "data/formats/lv2/port-groups.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Port Groups specification (port-groups.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5701,7 +5701,7 @@
         }
       }
     },
-    "FORMATS_LV2_PORT_PROPS": {
+    "FORMATS_LV2_PORT_PROPS_TERMS": {
       "rel": "data/formats/lv2/port-props.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Port Properties specification (port-props.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5805,7 +5805,7 @@
         }
       }
     },
-    "FORMATS_LV2_PRESETS": {
+    "FORMATS_LV2_PRESETS_TERMS": {
       "rel": "data/formats/lv2/presets.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Presets specification (presets.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5859,7 +5859,7 @@
         }
       }
     },
-    "FORMATS_LV2_RESIZE_PORT": {
+    "FORMATS_LV2_RESIZE_PORT_TERMS": {
       "rel": "data/formats/lv2/resize-port.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Resize Port specification (resize-port.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5898,7 +5898,7 @@
         }
       }
     },
-    "FORMATS_LV2_STATE": {
+    "FORMATS_LV2_STATE_TERMS": {
       "rel": "data/formats/lv2/state.json",
       "kind": "terms",
       "doc": "The terms of the LV2 State specification (state.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -5984,7 +5984,7 @@
         }
       }
     },
-    "FORMATS_LV2_TIME": {
+    "FORMATS_LV2_TIME_TERMS": {
       "rel": "data/formats/lv2/time.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Time specification (time.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -6100,7 +6100,7 @@
         }
       }
     },
-    "FORMATS_LV2_UI": {
+    "FORMATS_LV2_UI_TERMS": {
       "rel": "data/formats/lv2/ui.json",
       "kind": "terms",
       "doc": "The terms of the LV2 UI specification (ui.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -6336,7 +6336,7 @@
         }
       }
     },
-    "FORMATS_LV2_UNITS": {
+    "FORMATS_LV2_UNITS_TERMS": {
       "rel": "data/formats/lv2/units.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Units specification (units.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -6634,7 +6634,7 @@
         }
       }
     },
-    "FORMATS_LV2_URI_MAP": {
+    "FORMATS_LV2_URI_MAP_TERMS": {
       "rel": "data/formats/lv2/uri-map.json",
       "kind": "terms",
       "doc": "The terms of the LV2 URI Map specification (uri-map.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -6653,7 +6653,7 @@
         }
       }
     },
-    "FORMATS_LV2_URID": {
+    "FORMATS_LV2_URID_TERMS": {
       "rel": "data/formats/lv2/urid.json",
       "kind": "terms",
       "doc": "The terms of the LV2 URID specification (urid.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -6693,7 +6693,7 @@
         }
       }
     },
-    "FORMATS_LV2_WORKER": {
+    "FORMATS_LV2_WORKER_TERMS": {
       "rel": "data/formats/lv2/worker.json",
       "kind": "terms",
       "doc": "The terms of the LV2 Worker specification (worker.lv2, from lv2 1.18.10), each mapped under its own name with its status for us (docs/data-layout.md).",
@@ -7179,8 +7179,8 @@
         "impulseOnset": {
           "word": "impulse-onset",
           "from": [
-            "FORMATS_LV2_CORE#latency",
-            "FORMATS_CLAP_EXT_LATENCY#latency"
+            "FORMATS_LV2_CORE_TERMS#latency",
+            "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"
           ],
           "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.",
           "text": {
@@ -7190,8 +7190,8 @@
         "declaredPort": {
           "word": "declared-port",
           "from": [
-            "FORMATS_LV2_CORE#latency",
-            "FORMATS_CLAP_EXT_LATENCY#latency"
+            "FORMATS_LV2_CORE_TERMS#latency",
+            "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"
           ],
           "doc": "Read from the plugin's own latency report: what it claims.",
           "text": {
@@ -7318,7 +7318,7 @@
         "declared": {
           "word": "declared",
           "from": [
-            "FORMATS_CLAP_EXT_VOICE_INFO#voice-info"
+            "FORMATS_CLAP_EXT_VOICE_INFO_TERMS#voice-info"
           ],
           "text": {
             "en": "The voice capacity the plugin declares through CLAP's voice-info extension."
@@ -7767,7 +7767,7 @@
         "clapAudioEffect": {
           "word": "clap.audio-effect",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#audio-effect"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#audio-effect"
           ],
           "text": {
             "en": "The CLAP plugin feature audio-effect: any audio effect with no more specific feature declared."
@@ -7776,7 +7776,7 @@
         "clapChorus": {
           "word": "clap.chorus",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#chorus"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#chorus"
           ],
           "text": {
             "en": "The CLAP plugin feature chorus: an effect that thickens a sound with detuned, delayed copies of it."
@@ -7785,7 +7785,7 @@
         "clapCompressor": {
           "word": "clap.compressor",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#compressor"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#compressor"
           ],
           "text": {
             "en": "The CLAP plugin feature compressor: an effect that narrows a sound's dynamic range."
@@ -7794,7 +7794,7 @@
         "clapDeEsser": {
           "word": "clap.de-esser",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#de-esser"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#de-esser"
           ],
           "text": {
             "en": "The CLAP plugin feature de-esser: an effect that tames sibilance in a voice."
@@ -7803,7 +7803,7 @@
         "clapDelay": {
           "word": "clap.delay",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#delay"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#delay"
           ],
           "text": {
             "en": "The CLAP plugin feature delay: an effect that repeats a sound after a gap."
@@ -7812,7 +7812,7 @@
         "clapDistortion": {
           "word": "clap.distortion",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#distortion"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#distortion"
           ],
           "text": {
             "en": "The CLAP plugin feature distortion: an effect that adds harmonics by overdriving a sound."
@@ -7821,7 +7821,7 @@
         "clapEqualizer": {
           "word": "clap.equalizer",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#equalizer"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#equalizer"
           ],
           "text": {
             "en": "The CLAP plugin feature equalizer: an effect that shapes a sound's frequency balance."
@@ -7830,7 +7830,7 @@
         "clapExpander": {
           "word": "clap.expander",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#expander"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#expander"
           ],
           "text": {
             "en": "The CLAP plugin feature expander: an effect that widens a sound's dynamic range."
@@ -7839,7 +7839,7 @@
         "clapFilter": {
           "word": "clap.filter",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#filter"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#filter"
           ],
           "text": {
             "en": "The CLAP plugin feature filter: an effect that removes or shapes a band of frequencies."
@@ -7848,7 +7848,7 @@
         "clapFlanger": {
           "word": "clap.flanger",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#flanger"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#flanger"
           ],
           "text": {
             "en": "The CLAP plugin feature flanger: an effect that sweeps a short, modulated delay against the dry sound."
@@ -7857,7 +7857,7 @@
         "clapFrequencyShifter": {
           "word": "clap.frequency-shifter",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#frequency-shifter"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#frequency-shifter"
           ],
           "text": {
             "en": "The CLAP plugin feature frequency-shifter: an effect that shifts every frequency of a sound by the same amount."
@@ -7866,7 +7866,7 @@
         "clapGate": {
           "word": "clap.gate",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#gate"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#gate"
           ],
           "text": {
             "en": "The CLAP plugin feature gate: an effect that mutes a sound below a level."
@@ -7875,7 +7875,7 @@
         "clapGlitch": {
           "word": "clap.glitch",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#glitch"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#glitch"
           ],
           "text": {
             "en": "The CLAP plugin feature glitch: an effect that cuts, stutters or corrupts a sound on purpose."
@@ -7884,7 +7884,7 @@
         "clapGranular": {
           "word": "clap.granular",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#granular"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#granular"
           ],
           "text": {
             "en": "The CLAP plugin feature granular: an effect built from short grains of a sound."
@@ -7893,7 +7893,7 @@
         "clapLimiter": {
           "word": "clap.limiter",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#limiter"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#limiter"
           ],
           "text": {
             "en": "The CLAP plugin feature limiter: an effect that holds a sound under a ceiling."
@@ -7902,7 +7902,7 @@
         "clapMastering": {
           "word": "clap.mastering",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#mastering"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#mastering"
           ],
           "text": {
             "en": "The CLAP plugin feature mastering: an effect meant for a mix's final stage."
@@ -7911,7 +7911,7 @@
         "clapMixing": {
           "word": "clap.mixing",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#mixing"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#mixing"
           ],
           "text": {
             "en": "The CLAP plugin feature mixing: an effect meant for use while mixing, such as a channel strip."
@@ -7920,7 +7920,7 @@
         "clapMultiEffects": {
           "word": "clap.multi-effects",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#multi-effects"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#multi-effects"
           ],
           "text": {
             "en": "The CLAP plugin feature multi-effects: several effects combined in one plugin."
@@ -7929,7 +7929,7 @@
         "clapPhaseVocoder": {
           "word": "clap.phase-vocoder",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#phase-vocoder"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#phase-vocoder"
           ],
           "text": {
             "en": "The CLAP plugin feature phase-vocoder: an effect built on a phase vocoder, typically to stretch or shift a sound independently of pitch and time."
@@ -7938,7 +7938,7 @@
         "clapPhaser": {
           "word": "clap.phaser",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#phaser"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#phaser"
           ],
           "text": {
             "en": "The CLAP plugin feature phaser: an effect that sweeps notches through a sound with an all-pass filter chain."
@@ -7947,7 +7947,7 @@
         "clapPitchCorrection": {
           "word": "clap.pitch-correction",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#pitch-correction"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#pitch-correction"
           ],
           "text": {
             "en": "The CLAP plugin feature pitch-correction: an effect that pulls a sound's pitch toward a scale."
@@ -7956,7 +7956,7 @@
         "clapPitchShifter": {
           "word": "clap.pitch-shifter",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#pitch-shifter"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#pitch-shifter"
           ],
           "text": {
             "en": "The CLAP plugin feature pitch-shifter: an effect that changes a sound's pitch without changing its duration."
@@ -7965,7 +7965,7 @@
         "clapRestoration": {
           "word": "clap.restoration",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#restoration"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#restoration"
           ],
           "text": {
             "en": "The CLAP plugin feature restoration: an effect that removes noise, clicks or other damage from a recording."
@@ -7974,7 +7974,7 @@
         "clapReverb": {
           "word": "clap.reverb",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#reverb"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#reverb"
           ],
           "text": {
             "en": "The CLAP plugin feature reverb: an effect that adds the reflections of a space to a sound."
@@ -7983,7 +7983,7 @@
         "clapTransientShaper": {
           "word": "clap.transient-shaper",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#transient-shaper"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#transient-shaper"
           ],
           "text": {
             "en": "The CLAP plugin feature transient-shaper: an effect that reshapes a sound's attack and sustain."
@@ -7992,7 +7992,7 @@
         "clapTremolo": {
           "word": "clap.tremolo",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#tremolo"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#tremolo"
           ],
           "text": {
             "en": "The CLAP plugin feature tremolo: an effect that modulates a sound's level over time."
@@ -8001,7 +8001,7 @@
         "clapUtility": {
           "word": "clap.utility",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#utility"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#utility"
           ],
           "text": {
             "en": "The CLAP plugin feature utility: a plugin that does audio housekeeping rather than a creative effect."
@@ -8010,7 +8010,7 @@
         "lv2Allpass": {
           "word": "lv2.Allpass",
           "from": [
-            "FORMATS_LV2_CORE#AllpassPlugin"
+            "FORMATS_LV2_CORE_TERMS#AllpassPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class AllpassPlugin: an all-pass filter, which shifts phase without changing level."
@@ -8019,7 +8019,7 @@
         "lv2Amplifier": {
           "word": "lv2.Amplifier",
           "from": [
-            "FORMATS_LV2_CORE#AmplifierPlugin"
+            "FORMATS_LV2_CORE_TERMS#AmplifierPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class AmplifierPlugin: a plugin that changes a sound's level."
@@ -8028,7 +8028,7 @@
         "lv2Bandpass": {
           "word": "lv2.Bandpass",
           "from": [
-            "FORMATS_LV2_CORE#BandpassPlugin"
+            "FORMATS_LV2_CORE_TERMS#BandpassPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class BandpassPlugin: a filter that passes one band of frequencies."
@@ -8037,7 +8037,7 @@
         "lv2Chorus": {
           "word": "lv2.Chorus",
           "from": [
-            "FORMATS_LV2_CORE#ChorusPlugin"
+            "FORMATS_LV2_CORE_TERMS#ChorusPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ChorusPlugin: an effect that thickens a sound with detuned, delayed copies of it."
@@ -8046,7 +8046,7 @@
         "lv2Comb": {
           "word": "lv2.Comb",
           "from": [
-            "FORMATS_LV2_CORE#CombPlugin"
+            "FORMATS_LV2_CORE_TERMS#CombPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class CombPlugin: a comb filter, which adds a short delayed copy of a sound to itself."
@@ -8055,7 +8055,7 @@
         "lv2Compressor": {
           "word": "lv2.Compressor",
           "from": [
-            "FORMATS_LV2_CORE#CompressorPlugin"
+            "FORMATS_LV2_CORE_TERMS#CompressorPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class CompressorPlugin: an effect that narrows a sound's dynamic range."
@@ -8064,7 +8064,7 @@
         "lv2Converter": {
           "word": "lv2.Converter",
           "from": [
-            "FORMATS_LV2_CORE#ConverterPlugin"
+            "FORMATS_LV2_CORE_TERMS#ConverterPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ConverterPlugin: a plugin that converts a signal from one representation to another."
@@ -8073,7 +8073,7 @@
         "lv2Delay": {
           "word": "lv2.Delay",
           "from": [
-            "FORMATS_LV2_CORE#DelayPlugin"
+            "FORMATS_LV2_CORE_TERMS#DelayPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class DelayPlugin: an effect that repeats a sound after a gap."
@@ -8082,7 +8082,7 @@
         "lv2Distortion": {
           "word": "lv2.Distortion",
           "from": [
-            "FORMATS_LV2_CORE#DistortionPlugin"
+            "FORMATS_LV2_CORE_TERMS#DistortionPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class DistortionPlugin: an effect that adds harmonics by overdriving a sound."
@@ -8091,7 +8091,7 @@
         "lv2Dynamics": {
           "word": "lv2.Dynamics",
           "from": [
-            "FORMATS_LV2_CORE#DynamicsPlugin"
+            "FORMATS_LV2_CORE_TERMS#DynamicsPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class DynamicsPlugin: an effect that changes a sound's dynamic range."
@@ -8100,7 +8100,7 @@
         "lv2EQ": {
           "word": "lv2.EQ",
           "from": [
-            "FORMATS_LV2_CORE#EQPlugin"
+            "FORMATS_LV2_CORE_TERMS#EQPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class EQPlugin: an effect that shapes a sound's frequency balance."
@@ -8109,7 +8109,7 @@
         "lv2Envelope": {
           "word": "lv2.Envelope",
           "from": [
-            "FORMATS_LV2_CORE#EnvelopePlugin"
+            "FORMATS_LV2_CORE_TERMS#EnvelopePlugin"
           ],
           "text": {
             "en": "The LV2 plugin class EnvelopePlugin: a plugin that follows or applies an envelope over time."
@@ -8118,7 +8118,7 @@
         "lv2Expander": {
           "word": "lv2.Expander",
           "from": [
-            "FORMATS_LV2_CORE#ExpanderPlugin"
+            "FORMATS_LV2_CORE_TERMS#ExpanderPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ExpanderPlugin: an effect that widens a sound's dynamic range."
@@ -8127,7 +8127,7 @@
         "lv2Filter": {
           "word": "lv2.Filter",
           "from": [
-            "FORMATS_LV2_CORE#FilterPlugin"
+            "FORMATS_LV2_CORE_TERMS#FilterPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class FilterPlugin: an effect that removes or shapes a band of frequencies."
@@ -8136,7 +8136,7 @@
         "lv2Flanger": {
           "word": "lv2.Flanger",
           "from": [
-            "FORMATS_LV2_CORE#FlangerPlugin"
+            "FORMATS_LV2_CORE_TERMS#FlangerPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class FlangerPlugin: an effect that sweeps a short, modulated delay against the dry sound."
@@ -8145,7 +8145,7 @@
         "lv2Gate": {
           "word": "lv2.Gate",
           "from": [
-            "FORMATS_LV2_CORE#GatePlugin"
+            "FORMATS_LV2_CORE_TERMS#GatePlugin"
           ],
           "text": {
             "en": "The LV2 plugin class GatePlugin: an effect that mutes a sound below a level."
@@ -8154,7 +8154,7 @@
         "lv2Highpass": {
           "word": "lv2.Highpass",
           "from": [
-            "FORMATS_LV2_CORE#HighpassPlugin"
+            "FORMATS_LV2_CORE_TERMS#HighpassPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class HighpassPlugin: a filter that passes frequencies above a cutoff."
@@ -8163,7 +8163,7 @@
         "lv2Limiter": {
           "word": "lv2.Limiter",
           "from": [
-            "FORMATS_LV2_CORE#LimiterPlugin"
+            "FORMATS_LV2_CORE_TERMS#LimiterPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class LimiterPlugin: an effect that holds a sound under a ceiling."
@@ -8172,7 +8172,7 @@
         "lv2Lowpass": {
           "word": "lv2.Lowpass",
           "from": [
-            "FORMATS_LV2_CORE#LowpassPlugin"
+            "FORMATS_LV2_CORE_TERMS#LowpassPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class LowpassPlugin: a filter that passes frequencies below a cutoff."
@@ -8181,7 +8181,7 @@
         "lv2Mixer": {
           "word": "lv2.Mixer",
           "from": [
-            "FORMATS_LV2_CORE#MixerPlugin"
+            "FORMATS_LV2_CORE_TERMS#MixerPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class MixerPlugin: a plugin that combines several signals into one."
@@ -8190,7 +8190,7 @@
         "lv2Modulator": {
           "word": "lv2.Modulator",
           "from": [
-            "FORMATS_LV2_CORE#ModulatorPlugin"
+            "FORMATS_LV2_CORE_TERMS#ModulatorPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ModulatorPlugin: a plugin that modulates one signal with another."
@@ -8199,7 +8199,7 @@
         "lv2MultiEQ": {
           "word": "lv2.MultiEQ",
           "from": [
-            "FORMATS_LV2_CORE#MultiEQPlugin"
+            "FORMATS_LV2_CORE_TERMS#MultiEQPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class MultiEQPlugin: a multi-band equaliser."
@@ -8208,7 +8208,7 @@
         "lv2ParaEQ": {
           "word": "lv2.ParaEQ",
           "from": [
-            "FORMATS_LV2_CORE#ParaEQPlugin"
+            "FORMATS_LV2_CORE_TERMS#ParaEQPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ParaEQPlugin: a parametric equaliser."
@@ -8217,7 +8217,7 @@
         "lv2Phaser": {
           "word": "lv2.Phaser",
           "from": [
-            "FORMATS_LV2_CORE#PhaserPlugin"
+            "FORMATS_LV2_CORE_TERMS#PhaserPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class PhaserPlugin: an effect that sweeps notches through a sound with an all-pass filter chain."
@@ -8226,7 +8226,7 @@
         "lv2Pitch": {
           "word": "lv2.Pitch",
           "from": [
-            "FORMATS_LV2_CORE#PitchPlugin"
+            "FORMATS_LV2_CORE_TERMS#PitchPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class PitchPlugin: a plugin that changes or tracks a sound's pitch."
@@ -8235,7 +8235,7 @@
         "lv2Reverb": {
           "word": "lv2.Reverb",
           "from": [
-            "FORMATS_LV2_CORE#ReverbPlugin"
+            "FORMATS_LV2_CORE_TERMS#ReverbPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ReverbPlugin: an effect that adds the reflections of a space to a sound."
@@ -8244,7 +8244,7 @@
         "lv2Simulator": {
           "word": "lv2.Simulator",
           "from": [
-            "FORMATS_LV2_CORE#SimulatorPlugin"
+            "FORMATS_LV2_CORE_TERMS#SimulatorPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class SimulatorPlugin: a plugin that models a physical device or space."
@@ -8253,7 +8253,7 @@
         "lv2Spatial": {
           "word": "lv2.Spatial",
           "from": [
-            "FORMATS_LV2_CORE#SpatialPlugin"
+            "FORMATS_LV2_CORE_TERMS#SpatialPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class SpatialPlugin: a plugin that places or moves a sound in space."
@@ -8262,7 +8262,7 @@
         "lv2Spectral": {
           "word": "lv2.Spectral",
           "from": [
-            "FORMATS_LV2_CORE#SpectralPlugin"
+            "FORMATS_LV2_CORE_TERMS#SpectralPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class SpectralPlugin: a plugin that processes a sound in the frequency domain."
@@ -8271,7 +8271,7 @@
         "lv2Utility": {
           "word": "lv2.Utility",
           "from": [
-            "FORMATS_LV2_CORE#UtilityPlugin"
+            "FORMATS_LV2_CORE_TERMS#UtilityPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class UtilityPlugin: a plugin that does audio housekeeping rather than a creative effect."
@@ -8280,7 +8280,7 @@
         "lv2Waveshaper": {
           "word": "lv2.Waveshaper",
           "from": [
-            "FORMATS_LV2_CORE#WaveshaperPlugin"
+            "FORMATS_LV2_CORE_TERMS#WaveshaperPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class WaveshaperPlugin: a plugin that reshapes a waveform to add harmonics."
@@ -8297,7 +8297,7 @@
         "clapDrum": {
           "word": "clap.drum",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#drum"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#drum"
           ],
           "text": {
             "en": "The CLAP plugin feature drum: an instrument that plays drum sounds."
@@ -8306,7 +8306,7 @@
         "clapDrumMachine": {
           "word": "clap.drum-machine",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#drum-machine"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#drum-machine"
           ],
           "text": {
             "en": "The CLAP plugin feature drum-machine: an instrument that sequences and plays drum sounds."
@@ -8315,7 +8315,7 @@
         "clapInstrument": {
           "word": "clap.instrument",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#instrument"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#instrument"
           ],
           "text": {
             "en": "The CLAP plugin feature instrument: a plugin played by notes, with no more specific kind declared."
@@ -8324,7 +8324,7 @@
         "clapSampler": {
           "word": "clap.sampler",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#sampler"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#sampler"
           ],
           "text": {
             "en": "The CLAP plugin feature sampler: an instrument that plays recorded samples."
@@ -8333,7 +8333,7 @@
         "clapSynthesizer": {
           "word": "clap.synthesizer",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#synthesizer"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#synthesizer"
           ],
           "text": {
             "en": "The CLAP plugin feature synthesizer: an instrument that generates its own sound rather than playing samples."
@@ -8342,7 +8342,7 @@
         "lv2Instrument": {
           "word": "lv2.Instrument",
           "from": [
-            "FORMATS_LV2_CORE#InstrumentPlugin"
+            "FORMATS_LV2_CORE_TERMS#InstrumentPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class InstrumentPlugin: a plugin played by notes."
@@ -8359,7 +8359,7 @@
         "clapNoteEffect": {
           "word": "clap.note-effect",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#note-effect"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#note-effect"
           ],
           "text": {
             "en": "The CLAP plugin feature note-effect: a plugin that reads notes and writes notes, such as an arpeggiator."
@@ -8368,7 +8368,7 @@
         "lv2MIDI": {
           "word": "lv2.MIDI",
           "from": [
-            "FORMATS_LV2_CORE#MIDIPlugin"
+            "FORMATS_LV2_CORE_TERMS#MIDIPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class MIDIPlugin: a plugin that processes MIDI, note in to note out."
@@ -8385,7 +8385,7 @@
         "clapAnalyzer": {
           "word": "clap.analyzer",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#analyzer"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#analyzer"
           ],
           "text": {
             "en": "The CLAP plugin feature analyzer: a plugin that reads audio and reports a measurement, with no further output."
@@ -8394,7 +8394,7 @@
         "clapNoteDetector": {
           "word": "clap.note-detector",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#note-detector"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#note-detector"
           ],
           "text": {
             "en": "The CLAP plugin feature note-detector: an analyzer that reads pitch from audio."
@@ -8403,7 +8403,7 @@
         "lv2Analyser": {
           "word": "lv2.Analyser",
           "from": [
-            "FORMATS_LV2_CORE#AnalyserPlugin"
+            "FORMATS_LV2_CORE_TERMS#AnalyserPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class AnalyserPlugin: a plugin that reads audio and reports a measurement."
@@ -8420,7 +8420,7 @@
         "clapAmbisonic": {
           "word": "clap.ambisonic",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#ambisonic"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#ambisonic"
           ],
           "text": {
             "en": "The CLAP plugin feature ambisonic: a plugin declared to work in an ambisonic channel layout."
@@ -8429,7 +8429,7 @@
         "clapMono": {
           "word": "clap.mono",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#mono"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#mono"
           ],
           "text": {
             "en": "The CLAP plugin feature mono: a plugin declared to work in a mono channel layout."
@@ -8438,7 +8438,7 @@
         "clapStereo": {
           "word": "clap.stereo",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#stereo"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#stereo"
           ],
           "text": {
             "en": "The CLAP plugin feature stereo: a plugin declared to work in a stereo channel layout."
@@ -8447,7 +8447,7 @@
         "clapSurround": {
           "word": "clap.surround",
           "from": [
-            "FORMATS_CLAP_PLUGIN_FEATURES#surround"
+            "FORMATS_CLAP_PLUGIN_FEATURES_TERMS#surround"
           ],
           "text": {
             "en": "The CLAP plugin feature surround: a plugin declared to work in a surround channel layout."
@@ -8456,7 +8456,7 @@
         "lv2Constant": {
           "word": "lv2.Constant",
           "from": [
-            "FORMATS_LV2_CORE#ConstantPlugin"
+            "FORMATS_LV2_CORE_TERMS#ConstantPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class ConstantPlugin: a plugin with no input that outputs a constant."
@@ -8465,7 +8465,7 @@
         "lv2Function": {
           "word": "lv2.Function",
           "from": [
-            "FORMATS_LV2_CORE#FunctionPlugin"
+            "FORMATS_LV2_CORE_TERMS#FunctionPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class FunctionPlugin: a plugin with no audio input or output, used only for its side effects or parameters."
@@ -8474,7 +8474,7 @@
         "lv2Generator": {
           "word": "lv2.Generator",
           "from": [
-            "FORMATS_LV2_CORE#GeneratorPlugin"
+            "FORMATS_LV2_CORE_TERMS#GeneratorPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class GeneratorPlugin: a plugin with no audio input that generates a sound."
@@ -8483,7 +8483,7 @@
         "lv2Oscillator": {
           "word": "lv2.Oscillator",
           "from": [
-            "FORMATS_LV2_CORE#OscillatorPlugin"
+            "FORMATS_LV2_CORE_TERMS#OscillatorPlugin"
           ],
           "text": {
             "en": "The LV2 plugin class OscillatorPlugin: a generator that outputs a periodic waveform."
@@ -8492,7 +8492,7 @@
         "lv2Plugin": {
           "word": "lv2.Plugin",
           "from": [
-            "FORMATS_LV2_CORE#Plugin"
+            "FORMATS_LV2_CORE_TERMS#Plugin"
           ],
           "text": {
             "en": "The LV2 plugin class Plugin: the base LV2 plugin class, with no more specific class declared."
@@ -8612,7 +8612,7 @@
         "scratchMemory": {
           "word": "scratch-memory",
           "from": [
-            "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY#scratch-memory/1"
+            "FORMATS_CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"
           ],
           "doc": "The memory a plugin asks of its host for its process call.",
           "text": {
@@ -8622,8 +8622,8 @@
         "latency": {
           "word": "latency",
           "from": [
-            "FORMATS_LV2_CORE#latency",
-            "FORMATS_CLAP_EXT_LATENCY#latency"
+            "FORMATS_LV2_CORE_TERMS#latency",
+            "FORMATS_CLAP_EXT_LATENCY_TERMS#latency"
           ],
           "doc": "The frames a plugin delays its output by, per rate and quantum.",
           "text": {
@@ -8633,7 +8633,7 @@
         "tail": {
           "word": "tail",
           "from": [
-            "FORMATS_CLAP_EXT_TAIL#tail"
+            "FORMATS_CLAP_EXT_TAIL_TERMS#tail"
           ],
           "doc": "How long a plugin keeps sounding once its input goes silent.",
           "text": {
@@ -8643,7 +8643,7 @@
         "voices": {
           "word": "voices",
           "from": [
-            "FORMATS_CLAP_EXT_VOICE_INFO#voice-info"
+            "FORMATS_CLAP_EXT_VOICE_INFO_TERMS#voice-info"
           ],
           "doc": "The notes an instrument plays at once.",
           "text": {
@@ -8660,7 +8660,7 @@
         "threads": {
           "word": "threads",
           "from": [
-            "FORMATS_CLAP_EXT_THREAD_POOL#thread-pool"
+            "FORMATS_CLAP_EXT_THREAD_POOL_TERMS#thread-pool"
           ],
           "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.",
           "text": {
@@ -8670,8 +8670,8 @@
         "worker": {
           "word": "worker",
           "from": [
-            "FORMATS_LV2_WORKER#schedule",
-            "FORMATS_LV2_WORKER#interface"
+            "FORMATS_LV2_WORKER_TERMS#schedule",
+            "FORMATS_LV2_WORKER_TERMS#interface"
           ],
           "doc": "The work a plugin hands to a non-real-time thread of the host.",
           "text": {
@@ -8681,11 +8681,11 @@
         "blockLength": {
           "word": "block-length",
           "from": [
-            "FORMATS_LV2_BUF_SIZE#boundedBlockLength",
-            "FORMATS_LV2_BUF_SIZE#maxBlockLength",
-            "FORMATS_LV2_BUF_SIZE#minBlockLength",
-            "FORMATS_LV2_BUF_SIZE#nominalBlockLength",
-            "FORMATS_LV2_OPTIONS#options"
+            "FORMATS_LV2_BUF_SIZE_TERMS#boundedBlockLength",
+            "FORMATS_LV2_BUF_SIZE_TERMS#maxBlockLength",
+            "FORMATS_LV2_BUF_SIZE_TERMS#minBlockLength",
+            "FORMATS_LV2_BUF_SIZE_TERMS#nominalBlockLength",
+            "FORMATS_LV2_OPTIONS_TERMS#options"
           ],
           "doc": "The block lengths a plugin accepts.",
           "text": {
@@ -8716,8 +8716,8 @@
         "state": {
           "word": "state",
           "from": [
-            "FORMATS_LV2_STATE#interface",
-            "FORMATS_CLAP_EXT_STATE#state"
+            "FORMATS_LV2_STATE_TERMS#interface",
+            "FORMATS_CLAP_EXT_STATE_TERMS#state"
           ],
           "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
           "text": {
@@ -8741,7 +8741,7 @@
         "frames": {
           "word": "frames",
           "from": [
-            "FORMATS_LV2_UNITS#frame"
+            "FORMATS_LV2_UNITS_TERMS#frame"
           ],
           "text": {
             "en": "A count of audio frames."
@@ -8750,7 +8750,7 @@
         "ms": {
           "word": "ms",
           "from": [
-            "FORMATS_LV2_UNITS#ms"
+            "FORMATS_LV2_UNITS_TERMS#ms"
           ],
           "text": {
             "en": "Milliseconds."
@@ -8765,7 +8765,7 @@
         "s": {
           "word": "s",
           "from": [
-            "FORMATS_LV2_UNITS#s"
+            "FORMATS_LV2_UNITS_TERMS#s"
           ],
           "text": {
             "en": "Seconds."

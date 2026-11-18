@@ -16,13 +16,25 @@ const MOVED = {
 
 const SURFACE = ['include', 'share', 'python', 'test/golden'];
 
+/** What a codes header never holds (docs/render.md): a word string, a text, an initializer, an argument list. */
+const NOT_CODES = /_INIT\b|_TEXT_[A-Z]{2}\b|_ARGS_|^#define [A-Za-z0-9_]+(\([A-Z]\))? .*"/m;
+
 /** `<file>: a render of <domain> that is not codes` for each committed render that holds a render of a domain. */
 export function nonCodeRenders(files, read) {
   const bad = [];
   for (const f of files) {
-    const dir = /(^|\/)omxdomain\/([^/]+?)(_[a-z]+)?\.[a-z.]+$/.exec(f);
-    if (dir) bad.push(`${f}: a render of ${dir[2]} that is not codes`);
     const text = read(f);
+    const dir = /(^|\/)omxdomain\/([^/]+)$/.exec(f);
+    const codes = dir ? /^(.+)_codes\.h$/.exec(dir[2]) : null;
+    if (codes) {
+      const hit = NOT_CODES.exec(text);
+      if (hit) bad.push(`${f}: a render of ${codes[1]} that is not codes (${hit[0].slice(0, 40)})`);
+      continue; // the codes header of a domain holds that domain's names, by design
+    }
+    if (dir) {
+      bad.push(`${f}: a render of ${/^[a-z0-9]+/.exec(dir[2])[0]} that is not codes`);
+      continue;
+    }
     for (const [domain, items] of Object.entries(MOVED)) {
       const hit = new RegExp(`(?<![A-Za-z0-9])(${items.join('|')})(?![A-Za-z0-9])`).exec(text);
       if (hit) bad.push(`${f}: a render of ${domain} that is not codes (${hit[1]})`);
@@ -51,4 +63,15 @@ test('the gate names the file and the domain of a render of one', () => {
     for (const k of Object.keys(MOVED)) delete MOVED[k];
     Object.assign(MOVED, saved);
   }
+});
+
+test('a domain\'s codes header passes, and one that carries more than codes is refused by name', () => {
+  const codes = '#define OMX_SCAN_DOCUMENTS_PDF 0u\n#define OMX_SCAN_DOCUMENTS_COUNT 2u\n#define OMX_SCAN_DOCUMENTS(X) \\\n    X(OMX_SCAN_DOCUMENTS_PDF, PDF)\n';
+  const files = { 'include/omxdomain/scan_codes.h': codes, 'include/omxdomain/dsp_codes.h': `${codes}#define OMX_SCAN_DOCUMENTS_INIT { "pdf" }\n`, 'include/omxdomain/dsp_kernels_codes.h': `${codes}#define OMX_SCAN_DOCUMENTS_PDF_TEXT_EN "Pdf."\n`, 'include/omxdomain/scan_vocabulary.h': codes };
+  const bad = nonCodeRenders(Object.keys(files), (f) => files[f]);
+  assert.deepEqual(bad.map((b) => b.split(' (')[0]), [
+    'include/omxdomain/dsp_codes.h: a render of dsp that is not codes',
+    'include/omxdomain/dsp_kernels_codes.h: a render of dsp_kernels that is not codes',
+    'include/omxdomain/scan_vocabulary.h: a render of scan that is not codes',
+  ]);
 });

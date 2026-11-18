@@ -22,6 +22,7 @@
     "contract.file.invalid": { "text": "El fitxer {path} incompleix l'esquema o la forma d'un fitxer de kernel. Corregiu el camp que el detall assenyala.", "by": "human" },
     "contract.file.not-json": { "text": "El fitxer {path} no és JSON vàlid. Corregiu-ne la sintaxi.", "by": "human" },
     "contract.item.duplicate": { "text": "El {item} està declarat per dos fitxers. Elimineu el duplicat perquè només un paquet el declari.", "by": "human" },
+    "contract.item.prefix": { "text": "El {item} incompleix la nomenclatura del domini {domain}. Comenceu el nom d'un element amb el nom del domini en majúscules amb guions baixos i un guió baix, i no amb el nom d'un domini més llarg.", "by": "human" },
     "contract.kernel.duplicate": { "text": "El kernel {kernel} està declarat per dos paquets. Mantingueu la declaració en un sol paquet.", "by": "human" },
     "contract.manifest.absent": { "text": "El directori del paquet {path} no té cap MANIFEST.json. Afegiu-ne un que llisti els seus fitxers.", "by": "human" },
     "contract.manifest.invalid": { "text": "El manifest de {path} no coincideix amb el paquet que descriu. Corregiu el camp que el detall assenyala.", "by": "human" },

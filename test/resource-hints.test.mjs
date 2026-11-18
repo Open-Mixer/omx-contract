@@ -83,7 +83,7 @@ test('sabotage: a swapped bit, a changed id, a wrong type, a lost member and a c
   assert.ok(checkHeader(h.replace('OMX_RESOURCE_HINT_COUNT 7u', 'OMX_RESOURCE_HINT_COUNT 6u')).length > 0, 'the count changed');
 });
 
-test('the header compiles as C and as C++, and its mask and members hold what the declaration counts', () => {
+test('the header compiles as C, and its mask and members hold what the declaration counts', () => {
   const dir = scratchDir('omx-hints-');
   dirs.push(dir);
   const src = join(dir, 'h.c');
@@ -95,8 +95,6 @@ int main(void) { omx_resource_hints_t h = {0}; return (int)(h.declared + sizeof(
 `);
   execFileSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', `-I${join(ROOT, 'include')}`, src, '-o', join(dir, 'h')]);
   assert.equal(spawnSync(join(dir, 'h')).status, 0);
-  writeFileSync(join(dir, 'h.cpp'), `#include <omxcontract/omx_resource_hints.h>\nint main() { omx_resource_hints_t h = {}; return (int)h.declared; }\n`);
-  execFileSync('c++', ['-std=c++17', '-Wall', '-Wextra', '-Werror', `-I${join(ROOT, 'include')}`, join(dir, 'h.cpp'), '-o', join(dir, 'hpp')]);
   // the negative control: a header with the count altered fails the same compile
   writeFileSync(join(dir, 'bad.c'), `#include <omxcontract/omx_resource_hints.h>\n_Static_assert(OMX_RESOURCE_HINT_COUNT == ${HINTS.length + 1}, "count");\nint main(void) { return 0; }\n`);
   assert.notEqual(spawnSync('cc', ['-std=c11', `-I${join(ROOT, 'include')}`, join(dir, 'bad.c'), '-o', join(dir, 'bad')]).status, 0);

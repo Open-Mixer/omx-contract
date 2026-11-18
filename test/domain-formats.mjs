@@ -47,7 +47,7 @@ export function formatsModules(dir, versions = '1.0.0') {
       };
     }
   }
-  const module = (name, title, schemas) => ({ $id: `${ID}/formats/${name}`, info: { title, version: versions, 'x-owner': 'omx-formats' }, components: { schemas } });
+  const module = (name, title, schemas) => ({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `${ID}/formats/${name}`, info: { title, version: versions, 'x-owner': 'omx-formats' }, components: { schemas } });
   return {
     'formats/common': module('common', 'The terms every plugin format shares', {
       FORMAT_TERM_KINDS: words('', 'What a term of a plugin format is.', '1.0.0', Object.keys(KIND_DOCS).filter((k) => kinds.has(k)), KIND_DOCS),

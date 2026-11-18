@@ -15,7 +15,7 @@ import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data
 import { SCHEMA_VERSION, fileProblems, useProblems } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
-import { DOMAIN_NAME, domainId, domainLeaf, domainPath, readDomain, wordsOf, type DomainUse } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, domainId, domainLeaf, domainPath, readDomain, wordsOf, type DomainCodes, type DomainUse } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /** The schema major this reader reads, and the only directory under a contractdir it looks in. */
@@ -89,6 +89,8 @@ export interface ContractPackage {
   readonly name: string;
   readonly dir: string;
   readonly manifest: JsonObject;
+  /** A domain's items marked `x-c-codes` (docs/render.md); absent for a package of the other layout. */
+  readonly codes?: DomainCodes;
 }
 
 export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config' }: ContractRootsOptions = {}): string[] {
@@ -209,6 +211,11 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     const at = domainPath(name);
     const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
     if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
+    for (const f of filesUnder(ddir).filter((x) => x.startsWith('catalogs/'))) {
+      let c;
+      try { c = JSON.parse(readFileSync(join(ddir, f), 'utf8')); } catch (e) { refuse('fileNotJson', `${name}/${f}`, (e as Error).message); }
+      if (c?.kind !== 'catalog' || c.lang !== f.slice(9, -5) || typeof c.owner !== 'string' || typeof c.messages !== 'object' || c.messages === null) refuse('fileInvalid', `${name}/${f}`, 'a domain catalog is { kind: "catalog", lang: <its file name>, owner, messages }');
+    }
     const text = readFileSync(path, 'utf8');
     let raw;
     try { raw = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
@@ -217,7 +224,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true };
     const problems = fileProblems(file);
     if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-    packages.set(name, { name, dir: ddir, manifest: d.manifest });
+    packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
     domainFiles.push(file);
     domainDocs.set(domainId(name), raw);
     for (const u of d.uses) uses.push([at, u]);
@@ -242,6 +249,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     const bad = u.values.find((v) => !known.includes(v));
     if (bad !== undefined) refuse('fileInvalid', at, `${u.at}: a term is ${JSON.stringify(bad)}, which is no word of ${u.schema} (${known.join(', ')})`);
   }
+  checkItemPrefixes(domainFiles.map((f) => ({ name: f.pkg, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 
   const files: Json[] = [];

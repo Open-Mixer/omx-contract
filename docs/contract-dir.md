@@ -271,7 +271,13 @@ up as step 1 says) read it in this order; any
 refusal stops the whole read and nothing is returned, so there is never a partial set:
 
 1. Find the directory: `--contract-dir`, else `$OMX_CONTRACT_PATH`, else pkg-config. A directory of `validate`,
-   `fmt --check`, `render` and `links` alike; `fmt` never writes one.
+   `fmt --check`, `render` and `links` alike; `fmt` never writes an installed one (`--installed`, or a directory
+   holding a package's `MANIFEST.json`): a package's files are listed by hash. A tree of domain documents is written
+   by `fmt --contract-dir <tree>`: a domain document is formatted by the same one rule as a data file (two-space indent,
+   one key per line, keys in the order of `domain.schema.json`, a trailing newline), and the names of its schemas, the
+   words of a `oneOf` (their order is their `x-code`) and the entries of an `x-from` keep the order the author gave them (the classic sort of a `terms` item's terms has no counterpart: a domain document
+   has no `terms` item).
+   A catalog is not rewritten by `fmt`.
 2. Read every `<package>/MANIFEST.json`, then every file it lists, checking each hash. A file on disk that the
    manifest does not list is refused too.
 3. Check each file's `$schema` major and its `requires.omx-contract-schema` floor against the reader's schema,

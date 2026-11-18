@@ -72,7 +72,7 @@ export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const PACKAGE = /^[a-z][a-z0-9-]*$/;
 const ITEM = /^[A-Z][A-Z0-9_]*$/;
-const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
+const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
 
 const only = (o: JsonObject, keys: string[], at: string, what: string): void => {
   for (const k of Object.keys(o)) if (!keys.includes(k)) refuse('fileInvalid', at, `${what}: unknown key ${k} (a ${what} holds ${keys.join(', ')})`);

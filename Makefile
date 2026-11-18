@@ -166,13 +166,15 @@ install-c: build-c
 	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@VERSION@|$(VERSION)|' libomx-domain.pc.in > $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 	chmod 0644 $(DESTDIR)$(CPKGCONFIGDIR)/libomx-domain.pc
 
+# Every exported symbol, a function (T, W) or a global variable (D, B, R, V): a data export is ABI as much as a function.
 check-abi: $(CBUILD)/$(DOMAIN_SO)
-	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 == "T" { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
+	nm -D --defined-only $(CBUILD)/$(DOMAIN_SO) | awk '$$2 ~ /^[TWDBRV]$$/ { sub(/@@.*/, "", $$3); print $$3 }' | LC_ALL=C sort | diff -u abi/libomx-domain.abi -
 
 TESTC = build/test-c
 test-c:
 	rm -rf $(TESTC) && mkdir -p $(TESTC)
 	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' check-abi
+	sh test/c/abi_selftest.sh
 	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='-g -fsanitize=address,undefined -fno-omit-frame-pointer' CLI_RPATH=-Wl,-rpath,$(CURDIR)/$(TESTC) build-c
 	$(CC) $(DOMAIN_CFLAGS) -g -fsanitize=address,undefined -fno-omit-frame-pointer -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
 	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \

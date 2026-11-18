@@ -4,6 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
 
 ## Unreleased
 
+- libomx-domain0 carries a version floor: debian/libomx-domain0.symbols gives each export the release that introduced it, so a package linking the library depends on `libomx-domain0 (>= floor)`; the build fails on an export the file does not list. `make check-abi` counts exported global variables as well as functions.
 - The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,
   `info{title,version,x-owner}` and `components.schemas`, a words item a `oneOf` of `const` words (docs/contract-dir.md,
   "Domains"). The domain's owner is metadata, its version its own; `render --package <domain>` renders `<domain>_vocabulary.h`

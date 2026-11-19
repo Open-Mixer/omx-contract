@@ -99,7 +99,36 @@ For example, the domain `panel`, its item `PANEL_FAMILIES` marked `"x-c-codes": 
 
 Nothing else: no `_INIT`, no `_TEXT_EN`, no `_ARGS_*`, no word string, no description, no X-macro without
 `x-c-xmacro`, and no ts or python target. An item without `x-c-codes` renders nothing; a domain with no marked item
-renders no header. The owner commits its codes header and runs `render --check` on it at its own build, so a code
+renders no header.
+
+A domain may instead render as its data form does (3.21.0, omx-contract#139): there is no second renderer. The owner
+renders its package as it does today, with the domain beside its data: `render --target c|ts --package <pkg> --data
+data --with-domain contract.d/<domain>` rebuilds the data files the domain came from, adds the files still in `data/`,
+and runs the data reader and the renders unchanged on that set. The files come out byte for byte those of the data form
+(omx-clap-core's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-core-hosting.{js,d.ts}`,
+`omx_clap_core_vocabulary.h` and `omx-clap-core-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
+The rebuild, and nothing else:
+
+- every item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
+  `x-file` make that file, in the document's order;
+- the root's `x-render` is the `render` block of the file the root's `x-file` names (`hosting.json`); the other
+  rebuilt files carry none, so which items render themselves and which go to the vocabulary is what it is today;
+- every item carries `x-source` (its data `source`, when it had one), `x-since` and `description` as today;
+- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since", "source", "doc", "codes" }`: each of
+  its `oneOf` words is one code in the written order, `const` the code, `x-name` its key (the macro stem,
+  `clapExtensionsNotCovered`), `x-text` its English text (`{ "en": <x-text> }`; a second language is a later minor),
+  `description` its doc;
+- an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", "since", "source", "doc", "value": <x-value>,
+  "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
+
+A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file. A
+domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
+The data form stays what it is.
+
+Byte identity is held by two checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
+domain and `cmp`s the five outputs of the combined read against the pure data render (a changed `x-text`, `x-value`
+or `x-file` is red). The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
+build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of

@@ -95,6 +95,9 @@ void omx_domain_close(omx_domain *d);
 int  omx_domain_word(const omx_domain *d, const char *item, const char *word, omx_domain_word_info *out);
 int  omx_domain_word_count(const omx_domain *d, const char *item);               /* in declared order; -1: no such item */
 int  omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_domain_word_info *out);
+/* (3.21.0) A word's group: the `x-group` of its oneOf entry, a string the handle owns; NULL when it has none, or when
+   the item or word does not exist. */
+const char *omx_domain_word_group(const omx_domain *d, const char *item, const char *word);
 
 /* A range, unit and default of a parameter of a range item: min, max, default, unit, scale. */
 int  omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out);

@@ -53,6 +53,9 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   disagrees is `contract.manifest.invalid`, and an item name that breaks the prefix rule is `contract.item.prefix`. No two domains can declare one name: it would have to start with both domains' names, which the prefix rule refuses.
 - A word may carry what the classic layout calls a `group` and a `from` (owner ruling 2026-11-17, omx-contract#81):
   - `group` is `x-group` on its `oneOf` entry: the `const` of a word of the words schema its item's `x-groups` names.
+    The loader answers it with `omx_domain_word_group()` (3.21.0, behaviour-core decision 4): the group word as
+    written, NULL for a word with none. `omx_domain_word_info` is unchanged, so the addition is one exported symbol
+    and libomx-domain's SONAME stays `libomx-domain.so.0`.
   - `groups` of the classic item is its own words schema in the SAME domain document: the item names it as
     `"x-groups": "<SchemaName>"`, and the schema is read as any words item. Two domains never share a group schema.
   - `from` (the format terms a word is taken from) is `x-from`, one `{ "$ref", "x-term" }` per term: the `$ref` is the
@@ -62,6 +65,12 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
     a file path is never a reference.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
+- A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
+  the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
+  data path it came from), `x-kind` (`codes` or `sheet`) and `x-source` (its `source`); on each word of a codes item
+  `x-name` (the code's key, the macro stem); and on a sheet `x-value` and `x-docs` (verbatim). `x-text` keeps its
+  meaning above. They are read by `render --with-domain` (docs/render.md).
+  A domain with none of them reads and renders as before.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds

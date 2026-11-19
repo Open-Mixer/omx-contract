@@ -23,7 +23,7 @@ BuildRequires: gzip
 # the library modules are TypeScript (src/lib/*.mts), built into lib/*.mjs by `make build-lib`; node's own types and
 # ajv's come from the tarballs in vendor/, unpacked for the build only (no network)
 BuildRequires: nodejs
-BuildRequires: (typescript >= 4.8.4 with typescript < 7)
+BuildRequires: typescript >= 4.8.4
 # the Python readers' package (python3-omx-contract) installs under python3_sitelib
 BuildRequires: python3-devel
 

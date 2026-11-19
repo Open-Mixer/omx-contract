@@ -38,6 +38,8 @@ function toDomain(dir) {
 
 function scratch() {
   const dir = mkdtempSync(join(tmpdir(), 'domain-as-data-'));
+  // the pure render reads the fixture under the name the owner's tree gives it, data/, as the comments name it
+  cpSync(FIX, join(dir, 'pure', 'data'), { recursive: true });
   const data = join(dir, 'data');
   mkdirSync(data);
   cpSync(join(FIX, 'verbs.json'), join(data, 'verbs.json'));
@@ -54,7 +56,7 @@ function compare(domain) {
     writeFileSync(join(s.dom, 'hosting.json'), JSON.stringify(domain, null, 2));
     const diffs = [];
     for (const [target, files] of Object.entries(OUTPUTS)) {
-      const pure = render(target, ['--data', FIX], join(s.dir, `pure-${target}`));
+      const pure = render(target, ['--data', join(s.dir, 'pure', 'data')], join(s.dir, `pure-${target}`));
       assert.equal(pure.status, 0, pure.stderr);
       const both = render(target, ['--data', s.data, '--with-domain', s.dom], join(s.dir, `both-${target}`));
       if (both.status !== 0) return [`${target}: ${both.stderr.trim()}`];

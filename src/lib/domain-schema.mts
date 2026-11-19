@@ -57,6 +57,15 @@ export const domainSchema = {
         }
       }
     },
+    "x-render": {
+      "description": "The render block of the data file the root's x-file names, as render --with-domain rebuilds it (docs/render.md).",
+      "type": "object"
+    },
+    "x-file": {
+      "description": "The data path of the file that carried x-render.",
+      "type": "string",
+      "pattern": "\\.json$"
+    },
     "components": {
       "type": "object",
       "required": [
@@ -78,6 +87,9 @@ export const domainSchema = {
               },
               {
                 "$ref": "#/$defs/range"
+              },
+              {
+                "$ref": "#/$defs/sheet"
               }
             ]
           }
@@ -159,6 +171,19 @@ export const domainSchema = {
           "description": "The item's codes header also carries an X-macro; only with x-c-codes true.",
           "type": "boolean"
         },
+        "x-kind": {
+          "description": "The data item it rebuilds (docs/render.md): a codes item.",
+          "const": "codes"
+        },
+        "x-file": {
+          "description": "The data path the item came from.",
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "description": "The data item's source, verbatim.",
+          "type": "object"
+        },
         "oneOf": {
           "type": "array",
           "minItems": 1,
@@ -185,6 +210,42 @@ export const domainSchema = {
           "x-c-codes": {
             "const": true
           }
+        }
+      }
+    },
+    "sheet": {
+      "description": "A data sheet render --with-domain rebuilds (docs/render.md): no words, read nowhere else.",
+      "type": "object",
+      "required": [
+        "description",
+        "x-kind",
+        "x-file",
+        "x-value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": {
+          "const": "sheet"
+        },
+        "x-file": {
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "type": "object"
+        },
+        "x-value": {
+          "description": "The data sheet's value, verbatim.",
+          "type": "object"
+        },
+        "x-docs": {
+          "description": "The data sheet's docs, verbatim.",
+          "type": "object"
         }
       }
     },
@@ -222,6 +283,11 @@ export const domainSchema = {
         "x-group": {
           "description": "A word of the item x-groups names.",
           "type": "string"
+        },
+        "x-name": {
+          "description": "The code's key in the data item it rebuilds, the macro stem (docs/render.md).",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9]*$"
         },
         "x-from": {
           "type": "array",

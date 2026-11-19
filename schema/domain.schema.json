@@ -24,6 +24,8 @@
         "x-stability": { "description": "The domain's stability level: every document carries it, and there is no default.", "enum": ["experimental", "stable"] }
       }
     },
+    "x-render": { "description": "The render block of the data file the root's x-file names, as render --with-domain rebuilds it (docs/render.md).", "type": "object" },
+    "x-file": { "description": "The data path of the file that carried x-render.", "type": "string", "pattern": "\\.json$" },
     "components": {
       "type": "object",
       "required": ["schemas"],
@@ -34,7 +36,7 @@
           "type": "object",
           "minProperties": 1,
           "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
-          "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/words" }, { "$ref": "#/$defs/range" }] }
+          "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/words" }, { "$ref": "#/$defs/range" }, { "$ref": "#/$defs/sheet" }] }
         }
       }
     }
@@ -79,10 +81,29 @@
         "x-groups": { "description": "The name of the words item of this document whose words are the groups of this item's words.", "type": "string" },
         "x-c-codes": { "description": "The item becomes constants, its codes header.", "type": "boolean" },
         "x-c-xmacro": { "description": "The item's codes header also carries an X-macro; only with x-c-codes true.", "type": "boolean" },
+        "x-kind": { "description": "The data item it rebuilds (docs/render.md): a codes item.", "const": "codes" },
+        "x-file": { "description": "The data path the item came from.", "type": "string", "pattern": "\\.json$" },
+        "x-source": { "description": "The data item's source, verbatim.", "type": "object" },
         "oneOf": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/word" } }
       },
       "if": { "required": ["x-c-xmacro"], "properties": { "x-c-xmacro": { "const": true } } },
       "then": { "required": ["x-c-codes"], "properties": { "x-c-codes": { "const": true } } }
+    },
+    "sheet": {
+      "description": "A data sheet render --with-domain rebuilds (docs/render.md): no words, read nowhere else.",
+      "type": "object",
+      "required": ["description", "x-kind", "x-file", "x-value"],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": { "const": "sheet" },
+        "x-file": { "type": "string", "pattern": "\\.json$" },
+        "x-source": { "type": "object" },
+        "x-value": { "description": "The data sheet's value, verbatim.", "type": "object" },
+        "x-docs": { "description": "The data sheet's docs, verbatim.", "type": "object" }
+      }
     },
     "word": {
       "type": "object",
@@ -95,6 +116,7 @@
         "x-code": { "description": "The word's code, its place in the order.", "type": "integer", "minimum": 0 },
         "x-text": { "description": "The English source sentence the catalogs translate.", "type": "string" },
         "x-group": { "description": "A word of the item x-groups names.", "type": "string" },
+        "x-name": { "description": "The code's key in the data item it rebuilds, the macro stem (docs/render.md).", "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
         "x-from": {
           "type": "array",
           "minItems": 1,

@@ -16,7 +16,7 @@ page is the map across repositories.
 3. **One source.** A vocabulary is declared once. Every duplicate is removed in favour of the owner's.
 4. **No hand copies.** A consumer reads the owner's installed domain, or a header or module generated from it, never a
    spelled copy.
-5. **omx-contract holds the contract format and genuinely cross-cutting words**, nothing
+5. **omx-contract holds the contract format and genuinely cross-cutting words** (the standard units, `PARAM_UNITS`), nothing
    product-specific.
 
 The layers, inner to outer (owner ruling, 2026-11-19: plugin-qualify uses the CLAP host and requires plugin-hostd, so
@@ -62,7 +62,7 @@ governs code and build dependencies on another repository's sources, and hand co
 | 16 | plugin-db-qualification holds `machine` fixtures and reads `MACHINE_*` | plugin-hostd, `machine` domain | the fixtures stay test data; the store reads the installed domain | none |
 | 17 | omx-contract names outer repositories' words (`VERB_HOSTS`, `PLUGIN_FEATURE_*`, `PANEL_*`, `RESOURCE_HINTS`) | each to its producer (rows 1, 19) | omx-contract drops them (rule 5) | after the pass |
 | 18 | plugin-hostd holds `machine` and `probe`, read by layers 4 to 6 | plugin-hostd (the prober writes them) | none | none |
-| 19 | the 24 items of `moving-out.txt` with no new owner | `PLUGIN_FEATURE_*` to omx-clap-core (the plugin's declared features); `RESOURCE_*` to plugin-hostd (it places plugins within the budgets); rates and `CURVE_*` to omx-dsp (the kernels' axes and rates); `VERB_HOSTS` to plugin-hostd-protocol; `READOUT_RATE_HZ` to omx-panel; `OMX_PARAM_CONTRACT_UNITS` leaves (row 30) | omx-contract drops each as its owner publishes it | after the pass |
+| 19 | the 24 items of `moving-out.txt` with no new owner | `PLUGIN_FEATURE_*` to omx-clap-core (the plugin's declared features); `RESOURCE_*` to plugin-hostd (it places plugins within the budgets); rates and `CURVE_*` to omx-dsp (the kernels' axes and rates); `VERB_HOSTS` to plugin-hostd-protocol; `READOUT_RATE_HZ` to omx-panel; `OMX_PARAM_CONTRACT_UNITS` stays (row 30) | omx-contract drops each as its owner publishes it | after the pass |
 | 20 | `QUALIFICATION_MACHINE_CLASSES` and `_HOST_CLASSES` | plugin-hostd, `qualification` domain (row 10) | as row 5 | 7 |
 | 21 | omx-panel gesture kinds and `PANEL_STANDARD_WIDGETS` share eight words in two forms | omx-panel, a `gestures` domain (`x-group`, 3.21.0) | the widget item references the gesture words; `schema/gestures.json` rendered from the domain | after 1b, omx-panel |
 | 22 | the console's `words.json` built from hand TS; the console spells other owners' words | the console for its three items; the rest to rows 6, 7, 10 | the console generates its three from a domain of its own | after the pass |
@@ -73,7 +73,7 @@ governs code and build dependencies on another repository's sources, and hand co
 | 27 | `qualify.*` (plugin-qualify's own command refusals, not plugin words) and `panel.*` code sheets beside their domains | each domain, texts in `x-text` | the sheets are rendered from the domains (3.21.0) | after the pass |
 | 28 | omx-contract's own classic data (`CONTRACT_CODES`, `CURVE_*`, `PARAM_SCALES`, rates, `RESOURCE_*`, `VERB_HOSTS`, `PLUGIN_FEATURE_*`) | `CONTRACT_CODES` and `PARAM_SCALES` stay as omx-contract domains (format and cross-cutting); the rest move per row 19 | migrated to domains | after the pass |
 | 29 | omx-dsp kernels and primitives as `data/` items | omx-dsp, a `dsp` domain | the data items become the domain | after the pass |
-| 30 | units: `PARAM_UNITS` / `OMX_PARAM_CONTRACT_UNITS` in omx-contract, read by the kernels, the panel and plugin descriptors | no single owner (owner ruling, 2026-11-19): the DSP units (the kernels' parameter units) to omx-dsp's `dsp` domain; the panel and display units to omx-panel's `panel` domain; a plugin owns its own units, in its descriptor | `PARAM_UNITS` is not widened in 3.21.0; the units move to their owners and omx-contract drops it once every consumer reads the owner's unit item | after the pass |
+| 30 | units: `PARAM_UNITS` / `OMX_PARAM_CONTRACT_UNITS` in omx-contract, read by the kernels, the panel and plugin descriptors | split by role (owner ruling, 2026-11-19): the STANDARD units stay omx-contract's `PARAM_UNITS`, genuinely cross-cutting (rule 5), and omx-dsp references that shared list; a plugin's CUSTOM units are its own declaration, in its descriptor; unit DISPLAY formatting is omx-panel's value text | nothing leaves omx-contract; a hand copy of the standard units reads `PARAM_UNITS` | none (stays) |
 
 ## What rides this pass
 

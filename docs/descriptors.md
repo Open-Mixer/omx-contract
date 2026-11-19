@@ -116,6 +116,11 @@ installed in the contract directory.
 
 ### Units
 
+The unit list is a words item (3.21.0, behaviour-core decision 3): `PARAM_UNITS` in `data/param-contract.json`,
+one word per unit, each its symbol as written (`dB`, `ms`, `""`, `dB/oct`), in the order the schema lists them. The
+schema's `$defs.unit` enum is rendered from it (`render --check` holds the committed schema to it), so a unit is added
+in one place. `descriptorUnit` keeps its plugin-only units beside it.
+
 A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st % x`, `""` and, since
 3.1.0, `dB/oct`, a slope such as a key filter's tilt, for which LV2 has no unit, and since 3.7.0 `LUFS`, a loudness, and `dB/s`, a gain change per second), one of the six below, or `unknown`.
 

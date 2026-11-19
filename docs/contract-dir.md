@@ -53,6 +53,9 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   disagrees is `contract.manifest.invalid`, and an item name that breaks the prefix rule is `contract.item.prefix`. No two domains can declare one name: it would have to start with both domains' names, which the prefix rule refuses.
 - A word may carry what the classic layout calls a `group` and a `from` (owner ruling 2026-11-17, omx-contract#81):
   - `group` is `x-group` on its `oneOf` entry: the `const` of a word of the words schema its item's `x-groups` names.
+    The loader answers it as `omx_domain_word_info.group` (3.21.0, behaviour-core decision 4): the group word as
+    written, NULL for a word with none. The field is appended last, so the struct grows: a caller built against
+    an older header passes a smaller struct, and libomx-domain's SONAME moves to `libomx-domain.so.1` with it.
   - `groups` of the classic item is its own words schema in the SAME domain document: the item names it as
     `"x-groups": "<SchemaName>"`, and the schema is read as any words item. Two domains never share a group schema.
   - `from` (the format terms a word is taken from) is `x-from`, one `{ "$ref", "x-term" }` per term: the `$ref` is the

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.20.0
+Version: 3.20.1
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -308,6 +308,24 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.1-1
+- omx-contract domain check <new> <committed>: an owner's generated domain
+  document against its committed one, refused by name (exit 1): words or items
+  added or removed while info.version is unchanged, an existing word whose
+  x-code moved at any version, an info.version that goes down or is not x.y.z
+  (#128, omx-contract#124).
+- validate refuses an installed domain item whose x-since is not a version or
+  is above its document's info.version (rule domain-x-since, one line per
+  item); the readers do not, so the C loader and the TS reader still open the
+  same documents. docs/contract-dir.md: x-since is the info.version of the
+  domain document that first carried the item (#127, #128).
+- The C loader and the TS reader (openDomainAt) give one verdict per case of
+  one conformance suite, run in CI with the C runner required; the C loader
+  refuses a catalog whose "lang" is not its file's name, and a domain with no
+  x.y.z info.version or no info.x-owner as MANIFEST_INVALID (#121, #126).
+- Packaging: the TypeScript build dependency is a floor only (>= 4.8.4), with
+  no ceiling (#122).
+
 * Wed Nov 18 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.0-1
 - Schema 3.20.0: the domain document, <domain>/<last segment>.json, one JSON Schema
   document with info{title,version,x-owner,x-stability}; words may carry

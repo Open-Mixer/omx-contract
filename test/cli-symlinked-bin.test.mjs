@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { after, test } from 'node:test';
@@ -55,4 +55,20 @@ test('no entry point compares argv[1] with its own path by hand', () => {
   const hand = files.filter((f) => code(f).some((l) => /process\.argv\[1\].*import\.meta\.url/.test(l)))
     .map((f) => relative(ROOT, f));
   assert.deepEqual(hand, [], `compare by hand instead of lib/entry.mjs: ${hand.join(', ')}`);
+});
+
+// Other packages' command-line entry points take the same check from here, never a copy: the package exports it.
+test('the package exports isMain at ./entry, and a consumer run through a symlinked bin runs', async () => {
+  const url = import.meta.resolve('@openmixer/omx-contract/entry');
+  const { isMain } = await import(url);
+  assert.equal(typeof isMain, 'function');
+  const pkg = join(scratch, 'consumer');
+  mkdirSync(pkg, { recursive: true });
+  const script = join(pkg, 'cli.mjs');
+  writeFileSync(script, `import { isMain } from ${JSON.stringify(url)};\nif (isMain(import.meta.url)) { console.log('ran'); process.exitCode = 3; }\n`);
+  const consumerLink = join(bin, 'consumer');
+  symlinkSync(script, consumerLink);
+  const r = spawnSync(process.execPath, [consumerLink], { encoding: 'utf8' });
+  assert.equal(r.status, 3);
+  assert.equal(r.stdout.trim(), 'ran');
 });

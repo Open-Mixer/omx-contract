@@ -9,7 +9,7 @@
 //      refusal code, where the case has one (a rule only the build checks: an unknown key, a prefix, a stray file),
 //      else the case's `verdict` code;
 //   3. the C loader and openDomainAt agree on every case, code and member: skipped, with its reason stated, only when
-//      the C runner is not built.
+//      the C runner is not built; with OMX_CONFORMANCE_C=required (CI, after make test-c) an absent runner fails.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -56,7 +56,10 @@ for (const c of CASES) {
   });
 }
 
-test('domain conformance: the C loader and openDomainAt give one verdict per case', { skip: existsSync(C_RUNNER) ? false : `${C_RUNNER} is not built (make test-c builds it)` }, () => {
+const C_REQUIRED = process.env['OMX_CONFORMANCE_C'] === 'required';
+
+test('domain conformance: the C loader and openDomainAt give one verdict per case', { skip: existsSync(C_RUNNER) || C_REQUIRED ? false : `${C_RUNNER} is not built (make test-c builds it)` }, () => {
+  assert.ok(existsSync(C_RUNNER), `${C_RUNNER} is not built, and OMX_CONFORMANCE_C=required: run make test-c first`);
   const run = spawnSync(C_RUNNER, ['--verdicts', SUITE], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   const c = new Map(run.stdout.trim().split('\n').map((l) => { const [name, code, ...text] = l.split(' '); return [name, { code, text: text.join(' ') }]; }));

@@ -66,6 +66,18 @@ static void test_words(void) {
   omx_domain_close(d);
 }
 
+/* a word's group (3.21.0): the x-group of its oneOf entry; NULL for a word with none, an unknown word or item */
+static void test_word_group(void) {
+  omx_domain *d = open_ok("demo", "1.2.0");
+  CHECK_STR(omx_domain_word_group(d, "DEMO_COLORS", "red"), "warm");
+  CHECK_STR(omx_domain_word_group(d, "DEMO_COLORS", "blue"), "cool");
+  CHECK(omx_domain_word_group(d, "DEMO_COLORS", "fbs-fixed") == NULL);
+  CHECK(omx_domain_word_group(d, "DEMO_COLORS", "green") == NULL);
+  CHECK(omx_domain_word_group(d, "NO_SUCH", "red") == NULL);
+  CHECK(omx_domain_word_group(NULL, "DEMO_COLORS", "red") == NULL);
+  omx_domain_close(d);
+}
+
 static void test_lookup_refusals(void) {
   omx_domain *d = open_ok("demo", NULL);
   omx_domain_word_info w;
@@ -943,6 +955,7 @@ static void test_stability(void) {
 
 int main(void) {
   test_words();
+  test_word_group();
   test_lookup_refusals();
   test_ranges();
   test_text();

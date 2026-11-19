@@ -18,7 +18,8 @@
             "title": "red",
             "description": "The warm one.",
             "x-code": 0,
-            "x-text": "Red"
+            "x-text": "Red",
+            "x-group": "warm"
           },
           {
             "const": "fbs-fixed",
@@ -31,9 +32,11 @@
             "const": "blue",
             "title": "blue",
             "description": "The cold one.",
-            "x-code": 2
+            "x-code": 2,
+            "x-group": "cool"
           }
-        ]
+        ],
+        "x-groups": "DEMO_SHADES"
       },
       "DEMO_PARAMS": {
         "description": "The demo's parameters.",
@@ -59,6 +62,22 @@
             "maximum": 1
           }
         }
+      },
+      "DEMO_SHADES": {
+        "description": "The shades the demo's colours are grouped by.",
+        "x-since": "1.2.0",
+        "oneOf": [
+          {
+            "const": "warm",
+            "title": "warm",
+            "x-code": 0
+          },
+          {
+            "const": "cool",
+            "title": "cool",
+            "x-code": 1
+          }
+        ]
       }
     }
   }

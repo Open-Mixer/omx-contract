@@ -15,8 +15,10 @@ import { entriesOf, isDescriptor, isKernelFile, isUse, kernelName } from './data
 import { SCHEMA_VERSION, fileProblems, useProblems } from './validate.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
+import { readCatalogs } from './domain-reader.mjs';
+import { parseStrict } from './json-strict.mjs';
 import { DOMAIN_NAME, checkItemPrefixes, domainLeaf, domainPath, readDomain } from './domain.mjs';
-import type { DomainCodes } from './domain.mjs';
+import type { DomainCodes, DomainItems } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /** The schema major this reader reads, and the only directory under a contractdir it looks in. */
@@ -203,6 +205,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   }
   // a domain (docs/contract-dir.md): <root>/<domain>/<domain>.json, read as the classic file of its items
   const domainFiles: Json[] = [];
+  const domainItems: DomainItems[] = [];
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
@@ -210,16 +213,17 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const path = join(ddir, `${domainLeaf(name)}.json`);
       const at = domainPath(name);
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
-      const present = filesUnder(ddir).filter((f) => !/^catalogs\/[a-z]{2,3}(-[A-Za-z0-9]{2,8})*\.json$/.test(f));
-      if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${name}.json`).join(', ')} is beside it`);
-      for (const f of filesUnder(ddir).filter((x) => x.startsWith('catalogs/'))) {
-        let c;
-        try { c = JSON.parse(readFileSync(join(ddir, f), 'utf8')); } catch (e) { refuse('fileNotJson', `${name}/${f}`, (e as Error).message); }
-        if (c?.kind !== 'catalog' || c.lang !== f.slice(9, -5) || typeof c.owner !== 'string' || typeof c.messages !== 'object' || c.messages === null) refuse('fileInvalid', `${name}/${f}`, 'a domain catalog is { kind: "catalog", lang: <its file name>, owner, messages }');
+      const present = filesUnder(ddir).filter((f) => !(f.startsWith('catalogs/') && f.endsWith('.json')));
+      if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
+      // the catalogs are read as the runtime readers read them (lib/domain-reader.mjs), and each is also a classic catalog
+      for (const c of readCatalogs(ddir, name)) {
+        const f = `${name}/catalogs/${c.lang}.json`;
+        const cat = JSON.parse(readFileSync(join(ddir, 'catalogs', `${c.lang}.json`), 'utf8'));
+        if (cat.kind !== 'catalog' || typeof cat.owner !== 'string') refuse('catalogInvalid', f, 'a domain catalog is { kind: "catalog", lang: <its file name>, owner, messages }');
       }
       const text = readFileSync(path, 'utf8');
       let raw;
-      try { raw = JSON.parse(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
+      try { raw = parseStrict(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
       if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) refuse('fileInvalid', at, 'a domain document is an object');
       const d = readDomain(name, raw, installedSchemaUrl(major), major);
       const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true };
@@ -227,9 +231,10 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
       packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
       domainFiles.push(file);
+      domainItems.push({ rel: at, items: d.names });
     }
   }
-  checkItemPrefixes(domainFiles.map((f) => ({ rel: f.rel, items: Object.keys(f.doc).filter((k) => !['$schema', 'requires'].includes(k)) })));
+  checkItemPrefixes(domainItems);
   if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
 
   const files: Json[] = [];

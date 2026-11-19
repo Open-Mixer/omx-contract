@@ -49,6 +49,10 @@
       "types": "./lib/contract-dir.d.mts",
       "import": "./lib/contract-dir.mjs"
     },
+    "./domain-reader": {
+      "types": "./lib/domain-reader.d.mts",
+      "import": "./lib/domain-reader.mjs"
+    },
     "./descriptor": {
       "types": "./lib/descriptor.d.mts",
       "import": "./lib/descriptor.mjs"

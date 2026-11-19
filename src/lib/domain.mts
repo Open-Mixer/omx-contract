@@ -78,14 +78,35 @@ const only = (o: JsonObject, keys: string[], at: string, what: string): void => 
   for (const k of Object.keys(o)) if (!keys.includes(k)) refuse('fileInvalid', at, `${what}: unknown key ${k} (a ${what} holds ${keys.join(', ')})`);
 };
 
+/** A range item (docs/contract-dir.md, "Domains"): `properties` of named parameters, each a `minimum` and `maximum` and optionally a `default`, `x-unit` and `x-scale`. It renders nothing; the loaders read it at run time. */
+function readRange(item: string, s: JsonObject, at: string): void {
+  const w = `components.schemas.${item}`;
+  only(s, ['description', 'x-since', 'x-why', 'type', 'properties'], at, w);
+  if (typeof s.description !== 'string') refuse('fileInvalid', at, `${w}.description is the item's doc`);
+  if (s.type !== undefined && s.type !== 'object') refuse('fileInvalid', at, `${w}.type is not "object"`);
+  const props = s.properties;
+  if (typeof props !== 'object' || props === null || Array.isArray(props)) refuse('fileInvalid', at, `${w}.properties is not an object`);
+  for (const [name, p] of Object.entries(props as JsonObject)) {
+    const pw = `${w}.properties.${name}`;
+    if (typeof p !== 'object' || p === null || Array.isArray(p)) refuse('fileInvalid', at, `${pw}: not an object`);
+    only(p as JsonObject, ['minimum', 'maximum', 'default', 'x-unit', 'x-scale'], at, pw);
+    const { minimum: mn, maximum: mx, default: df } = p as JsonObject;
+    if (typeof mn !== 'number' || typeof mx !== 'number') refuse('fileInvalid', at, `${pw} has no numeric minimum and maximum`);
+    if (df !== undefined && typeof df !== 'number') refuse('fileInvalid', at, `${pw}.default is not a number`);
+    if ((mn as number) > (mx as number)) refuse('fileInvalid', at, `${pw} has a minimum above its maximum`);
+    if (df !== undefined && ((df as number) < (mn as number) || (df as number) > (mx as number))) refuse('fileInvalid', at, `${pw}.default is outside its minimum and maximum`);
+    for (const k of ['x-unit', 'x-scale']) if ((p as JsonObject)[k] !== undefined && typeof (p as JsonObject)[k] !== 'string') refuse('fileInvalid', at, `${pw}.${k} is not a string`);
+  }
+}
+
 /**
  * The domain document `doc`, installed as `<name>/<name>.json`, as `{ doc, manifest }`: `doc` the classic file of its
  * items, `manifest` the domain's `{ package, owner, version, schemaMajor, title }` as a package of the read, `codes` the
- * items it marks `x-c-codes` (its codes header, docs/render.md) and whether each also marks `x-c-xmacro`.
+ * items it marks `x-c-codes`, `names` every item of the document, a range item's among them (its codes header, docs/render.md) and whether each also marks `x-c-xmacro`.
  * @throws ContractRefusal contract.manifest.invalid for a `$id`, `info` or place that disagrees, contract.file.invalid
  * for a shape the reader does not read.
  */
-export function readDomain(name: string, doc: JsonObject, schemaUrl: string, schemaMajor: number): { doc: JsonObject; manifest: JsonObject; codes: DomainCodes } {
+export function readDomain(name: string, doc: JsonObject, schemaUrl: string, schemaMajor: number): { doc: JsonObject; manifest: JsonObject; codes: DomainCodes; names: string[] } {
   const at = domainPath(name);
   if (doc.$id !== domainId(name)) refuse('manifestInvalid', at, `$id ${JSON.stringify(doc.$id)} is not ${domainId(name)}, the id of the domain whose directory this is`);
   only(doc, ['$schema', '$id', 'info', 'components'], at, 'domain document');
@@ -103,12 +124,14 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
   const schemas = comp.schemas as Record<string, JsonObject> | undefined;
   if (typeof schemas !== 'object' || schemas === null || Array.isArray(schemas) || !Object.keys(schemas).length) refuse('fileInvalid', at, 'components.schemas is not a map of at least one schema');
   const codes = new Map<string, { xmacro: boolean }>();
+  const names: string[] = [];
   const out: JsonObject = { $schema: schemaUrl, requires: { 'omx-contract-schema': '>= 3.0.0' } };
   for (const [item, s] of Object.entries(schemas)) {
     const w = `components.schemas.${item}`;
     if (!ITEM.test(item)) refuse('fileInvalid', at, `${w}: the name of a schema is the item's, upper snake case`);
     if (typeof s !== 'object' || s === null || Array.isArray(s)) refuse('fileInvalid', at, `${w}: not an object`);
     if ('$ref' in s) refuse('fileInvalid', at, `${w}: a $ref is not read yet; a domain's words are its own`);
+    if ('properties' in s && !('oneOf' in s)) { readRange(item, s, at); names.push(item); continue; } // a range item: read at run time, rendered nowhere
     only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'], at, w);
     for (const k of ['x-c-codes', 'x-c-xmacro'])
       if (s[k] !== undefined && typeof s[k] !== 'boolean') refuse('fileInvalid', at, `${w}.${k} is not true or false`);
@@ -147,9 +170,11 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
         });
       }
       if (e.title in words) refuse('fileInvalid', at, `${ew}.title ${e.title} is used twice in ${item}`);
+      if (Object.values(words).some((x: JsonObject) => x.word === e.const)) refuse('fileInvalid', at, `${ew}.const ${JSON.stringify(e.const)} is used twice in ${item}`);
       words[e.title] = { word: e.const, ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }) };
     });
+    names.push(item);
     out[item] = { kind: 'words', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), words };
   }
-  return { doc: out, codes, manifest: { package: name, owner: info['x-owner'], version: info.version, schemaMajor, title: info.title } };
+  return { doc: out, codes, names, manifest: { package: name, owner: info['x-owner'], version: info.version, schemaMajor, title: info.title } };
 }

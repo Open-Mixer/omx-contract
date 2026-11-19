@@ -6,7 +6,7 @@ export const domainSchema = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items and range items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": [
     "$schema",
@@ -65,20 +65,74 @@ export const domainSchema = {
       "additionalProperties": false,
       "properties": {
         "schemas": {
-          "description": "The items of the domain, each named in upper snake case.",
+          "description": "The items of the domain, each named in upper snake case: a words item or a range item.",
           "type": "object",
           "minProperties": 1,
           "propertyNames": {
             "pattern": "^[A-Z][A-Z0-9_]*$"
           },
           "additionalProperties": {
-            "$ref": "#/$defs/words"
+            "oneOf": [
+              {
+                "$ref": "#/$defs/words"
+              },
+              {
+                "$ref": "#/$defs/range"
+              }
+            ]
           }
         }
       }
     }
   },
   "$defs": {
+    "range": {
+      "description": "A range item: its description the item's doc, and one parameter per name under properties, each a minimum and a maximum and optionally a default, a unit and a scale. The loaders read it at run time; nothing is rendered from it. What a schema cannot say stays in the reader: a minimum not above the maximum, a default inside them.",
+      "type": "object",
+      "required": [
+        "description",
+        "properties"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "type": {
+          "const": "object"
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "minimum",
+              "maximum"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "minimum": {
+                "type": "number"
+              },
+              "maximum": {
+                "type": "number"
+              },
+              "default": {
+                "type": "number"
+              },
+              "x-unit": {
+                "type": "string"
+              },
+              "x-scale": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
     "words": {
       "description": "A words item: its description the item's doc, a oneOf of one word each in their declared order.",
       "type": "object",

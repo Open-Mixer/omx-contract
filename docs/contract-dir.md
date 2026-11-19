@@ -62,6 +62,10 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
     a file path is never a reference.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
+- A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
+  the document root (the data file's `render` block), `"x-kind": "codes"` on an item that is a data codes item, and
+  `x-name` on each of its words (the code's key in the data item, the macro stem). `x-text` keeps its meaning above.
+  A domain with none of them reads and renders as before.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds

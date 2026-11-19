@@ -99,7 +99,24 @@ For example, the domain `panel`, its item `PANEL_FAMILIES` marked `"x-c-codes": 
 
 Nothing else: no `_INIT`, no `_TEXT_EN`, no `_ARGS_*`, no word string, no description, no X-macro without
 `x-c-xmacro`, and no ts or python target. An item without `x-c-codes` renders nothing; a domain with no marked item
-renders no header. The owner commits its codes header and runs `render --check` on it at its own build, so a code
+renders no header.
+
+A domain may instead render as its data form does (3.21.0, omx-contract#139): there is no second renderer. When the
+domain's root carries `x-render`, `render --target c|ts --package <domain>` maps the domain onto the in-memory document
+the data render reads and renders that, so its files are byte for byte those of the data package it came from
+(omx-clap-core's `hosting`: `omx_clap_core_vocabulary.h`, `clap_host_limits.h`, `omx-clap-core-hosting.{js,d.ts}`,
+`omx-clap-core-vocabulary.*`). The map, and nothing else:
+
+- the domain's `x-render` is the data file's `render` block, word for word (`c`: header, guard, project, banner, brief;
+  `ts` likewise);
+- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since": <x-since>, "doc": <description>,
+  "codes": { ... } }`, in the document's item order;
+- each of its `oneOf` words is one code, in the written order: `const` the code, `x-name` its key in `codes` (the macro
+  stem, `clapExtensionsNotCovered`), `x-text` its English text, `description` its doc.
+
+A domain without `x-render` renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
+`x-render` with an item that has no `x-kind`, or an `x-kind` item with a word that has no `x-name`, is refused by
+`validate` naming the item and the word. The data form stays what it is. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of

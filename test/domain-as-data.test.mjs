@@ -100,3 +100,20 @@ test('a file both in data/ and rebuilt from the domain is refused by name', () =
     rmSync(s.dir, { recursive: true, force: true });
   }
 });
+
+test('an x-file that leaves the data directory is refused by name', () => {
+  for (const bad of ['../x.json', '/abs.json', 'a/../../b.json', './hosting.json', 'hosting//clap.json', 'hosting\\clap.json']) {
+    const dom = toDomain(FIX);
+    const [name, item] = Object.entries(dom.components.schemas).find(([, s]) => s['x-file'] !== dom['x-file']);
+    item['x-file'] = bad;
+    const s = scratch();
+    try {
+      writeFileSync(join(s.dom, 'hosting.json'), JSON.stringify(dom, null, 2));
+      const r = render('c', ['--data', s.data, '--with-domain', s.dom], join(s.dir, 'out'));
+      assert.notEqual(r.status, 0, bad);
+      assert.ok(r.stderr.includes(`${name}.x-file ${JSON.stringify(bad)} leaves the data directory`), `${bad}: ${r.stderr}`);
+    } finally {
+      rmSync(s.dir, { recursive: true, force: true });
+    }
+  }
+});

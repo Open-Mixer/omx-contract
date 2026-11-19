@@ -206,6 +206,9 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
   const files: Record<string, JsonObject> = {};
   const fileOf = (rel: unknown, w: string): JsonObject => {
     if (typeof rel !== 'string' || !rel.endsWith('.json')) refuse('fileInvalid', at, `${w}.x-file is not the data path the item came from`);
+    // a path inside the data directory only: relative, forward slashes, no empty, . or .. segment
+    if (rel.startsWith('/') || rel.includes('\\') || rel.split('/').some((g) => g === '' || g === '.' || g === '..'))
+      refuse('fileInvalid', at, `${w}.x-file ${JSON.stringify(rel)} leaves the data directory: a relative path with no empty, . or .. segment and no backslash`);
     return (files[rel as string] ??= {});
   };
   if (doc['x-render'] !== undefined) fileOf(doc['x-file'], 'the root').render = doc['x-render'];

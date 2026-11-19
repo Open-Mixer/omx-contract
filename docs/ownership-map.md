@@ -73,13 +73,14 @@ governs code and build dependencies on another repository's sources, and hand co
 | 27 | `qualify.*` (plugin-qualify's own command refusals, not plugin words) and `panel.*` code sheets beside their domains | each domain, texts in `x-text` | the sheets are rendered from the domains (3.21.0) | after the pass |
 | 28 | omx-contract's own classic data (`CONTRACT_CODES`, `CURVE_*`, `PARAM_SCALES`, rates, `RESOURCE_*`, `VERB_HOSTS`, `PLUGIN_FEATURE_*`) | `CONTRACT_CODES` and `PARAM_SCALES` stay as omx-contract domains (format and cross-cutting); the rest move per row 19 | migrated to domains | after the pass |
 | 29 | omx-dsp kernels and primitives as `data/` items | omx-dsp, a `dsp` domain | the data items become the domain | after the pass |
-| 30 | units: `PARAM_UNITS` / `OMX_PARAM_CONTRACT_UNITS` in omx-contract, read by the kernels, the panel and plugin descriptors | split by role (owner ruling, 2026-11-19): the STANDARD units stay omx-contract's `PARAM_UNITS`, genuinely cross-cutting (rule 5), and omx-dsp references that shared list; a plugin's CUSTOM units are its own declaration, in its descriptor; unit DISPLAY formatting is omx-panel's value text | nothing leaves omx-contract; a hand copy of the standard units reads `PARAM_UNITS` | none (stays) |
+| 30 | units: `PARAM_UNITS` / `OMX_PARAM_CONTRACT_UNITS` in omx-contract, read by the kernels, the panel and plugin descriptors | split by role (owner ruling, 2026-11-19): the STANDARD units stay omx-contract's `PARAM_UNITS`, genuinely cross-cutting (rule 5), and omx-dsp references that shared list; a plugin's CUSTOM units are its own declaration, in its descriptor; unit DISPLAY formatting is omx-panel's value text | nothing leaves omx-contract; `PARAM_UNITS` ships in omx-contract 3.21.0 as the shared standard units; a hand copy of them reads it | 1b |
 
 ## What rides this pass
 
 Only what a line already carries:
 
-- 1b: the domain render that rows 4, 21, 23 and 27 need.
+- 1b: the domain render that rows 4, 21, 23 and 27 need, and `PARAM_UNITS`, the shared standard units (row 30). The
+  panel words (rows 1 and 17) move after the pass.
 - 6: the `hosting` domain (omx-clap-core#136).
 - 7: the `qualification` domain moves from plugin-qualify to plugin-hostd (0.20.8); plugin-qualify (3, after 7) and
   plugin-db-qualification read it installed.

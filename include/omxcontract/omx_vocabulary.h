@@ -572,6 +572,63 @@
     X(4u, "lv2.Constant", LV2_CONSTANT) X(5u, "lv2.Function", LV2_FUNCTION) X(6u, "lv2.Generator", LV2_GENERATOR) X(7u, "lv2.Oscillator", LV2_OSCILLATOR) \
     X(8u, "lv2.Plugin", LV2_PLUGIN)
 
+/* PARAM_UNITS (data/primitives.json) */
+#define OMX_PARAM_UNITS_DB "dB" ///< Decibels, a gain or a level relative to unity.
+/** The source sentence (English) of OMX_PARAM_UNITS_DB. */
+#define OMX_PARAM_UNITS_DB_TEXT_EN "Decibels, a gain or a level relative to unity."
+#define OMX_PARAM_UNITS_DBFS "dBFS" ///< Decibels relative to digital full scale.
+/** The source sentence (English) of OMX_PARAM_UNITS_DBFS. */
+#define OMX_PARAM_UNITS_DBFS_TEXT_EN "Decibels relative to digital full scale."
+#define OMX_PARAM_UNITS_MS "ms" ///< Milliseconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_MS. */
+#define OMX_PARAM_UNITS_MS_TEXT_EN "Milliseconds."
+#define OMX_PARAM_UNITS_S "s" ///< Seconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_S. */
+#define OMX_PARAM_UNITS_S_TEXT_EN "Seconds."
+#define OMX_PARAM_UNITS_MIN "min" ///< Minutes.
+/** The source sentence (English) of OMX_PARAM_UNITS_MIN. */
+#define OMX_PARAM_UNITS_MIN_TEXT_EN "Minutes."
+#define OMX_PARAM_UNITS_HZ "Hz" ///< Hertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_HZ. */
+#define OMX_PARAM_UNITS_HZ_TEXT_EN "Hertz, a frequency."
+#define OMX_PARAM_UNITS_OCT "oct" ///< Octaves, a bandwidth or an interval.
+/** The source sentence (English) of OMX_PARAM_UNITS_OCT. */
+#define OMX_PARAM_UNITS_OCT_TEXT_EN "Octaves, a bandwidth or an interval."
+#define OMX_PARAM_UNITS_CENTS "cents" ///< Cents, a hundredth of a semitone.
+/** The source sentence (English) of OMX_PARAM_UNITS_CENTS. */
+#define OMX_PARAM_UNITS_CENTS_TEXT_EN "Cents, a hundredth of a semitone."
+#define OMX_PARAM_UNITS_ST "st" ///< Semitones.
+/** The source sentence (English) of OMX_PARAM_UNITS_ST. */
+#define OMX_PARAM_UNITS_ST_TEXT_EN "Semitones."
+#define OMX_PARAM_UNITS_PERCENT "percent" ///< Percent.
+/** The source sentence (English) of OMX_PARAM_UNITS_PERCENT. */
+#define OMX_PARAM_UNITS_PERCENT_TEXT_EN "Percent."
+#define OMX_PARAM_UNITS_X "x" ///< A multiplier.
+/** The source sentence (English) of OMX_PARAM_UNITS_X. */
+#define OMX_PARAM_UNITS_X_TEXT_EN "A multiplier."
+#define OMX_PARAM_UNITS_NONE "none" ///< No unit: a ratio or a fraction.
+/** The source sentence (English) of OMX_PARAM_UNITS_NONE. */
+#define OMX_PARAM_UNITS_NONE_TEXT_EN "No unit: a ratio or a fraction."
+#define OMX_PARAM_UNITS_DB_PER_OCT "dB-oct" ///< A slope in dB per octave (a tilt).
+/** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_OCT. */
+#define OMX_PARAM_UNITS_DB_PER_OCT_TEXT_EN "A slope in dB per octave (a tilt)."
+#define OMX_PARAM_UNITS_LUFS "LUFS" ///< A loudness (ITU-R BS.1770).
+/** The source sentence (English) of OMX_PARAM_UNITS_LUFS. */
+#define OMX_PARAM_UNITS_LUFS_TEXT_EN "A loudness (ITU-R BS.1770)."
+#define OMX_PARAM_UNITS_DB_PER_S "dB-s" ///< A gain change per second.
+/** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_S. */
+#define OMX_PARAM_UNITS_DB_PER_S_TEXT_EN "A gain change per second."
+/** The number of words of PARAM_UNITS. */
+#define OMX_PARAM_UNITS_COUNT 15u
+/** The words of PARAM_UNITS in their declared order, as a C initializer list. */
+#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit). */
+#define OMX_PARAM_UNITS(X) \
+    X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
+    X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
+    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "x", X) X(11u, "none", NONE) \
+    X(12u, "dB-oct", DB_PER_OCT) X(13u, "LUFS", LUFS) X(14u, "dB-s", DB_PER_S)
+
 /* RESOURCE_KINDS (data/resource-profile.json) */
 #define OMX_RESOURCE_KINDS_CPU "cpu" ///< The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115).
 /** The source sentence (English) of OMX_RESOURCE_KINDS_CPU. */

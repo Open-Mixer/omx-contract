@@ -25,7 +25,7 @@ function domain(name, schemas) {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     $id: `https://openmixer.org/contract/${name}`,
     info: { title: `The ${name} vocabulary`, version: '1.0.0', 'x-owner': 'some-owner', 'x-stability': 'experimental' },
-    components: { schemas: Object.fromEntries(Object.entries(schemas).map(([item, s]) => [item, { description: `The ${item}.`, ...(s.mark ?? {}), oneOf: words(s.words) }])) },
+    components: { schemas: Object.fromEntries(Object.entries(schemas).map(([item, s]) => [item, { description: `The ${item}.`, 'x-since': '1.0.0', ...(s.mark ?? {}), oneOf: words(s.words) }])) },
   };
 }
 

@@ -31,6 +31,7 @@ const DOC = {
       },
       SHADE_KINDS: {
         description: 'A second schema, declared after the first, kept after it.',
+        'x-since': '1.0.0',
         oneOf: [{ const: 'pale', title: 'pale', 'x-code': 0 }],
       },
     },

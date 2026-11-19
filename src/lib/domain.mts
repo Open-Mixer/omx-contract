@@ -70,6 +70,14 @@ export function domainOfPath(rel: string): string | undefined {
 export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+/** True when the MAJOR.MINOR.PATCH version `a` is below `b`. */
+export function versionBelow(a: string, b: string): boolean {
+  const x = VERSION.exec(a)!.slice(1).map(Number);
+  const y = VERSION.exec(b)!.slice(1).map(Number);
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i]! < y[i]!;
+  return false;
+}
+
 const PACKAGE = /^[a-z][a-z0-9-]*$/;
 const ITEM = /^[A-Z][A-Z0-9_]*$/;
 const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
@@ -131,6 +139,9 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     if (!ITEM.test(item)) refuse('fileInvalid', at, `${w}: the name of a schema is the item's, upper snake case`);
     if (typeof s !== 'object' || s === null || Array.isArray(s)) refuse('fileInvalid', at, `${w}: not an object`);
     if ('$ref' in s) refuse('fileInvalid', at, `${w}: a $ref is not read yet; a domain's words are its own`);
+    const since = s['x-since'];
+    if (typeof since !== 'string' || !VERSION.test(since)) refuse('fileInvalid', at, `${w}.x-since ${JSON.stringify(since)} is not MAJOR.MINOR.PATCH: every item carries the info.version of its document that first carried it`);
+    if (versionBelow(info.version as string, since)) refuse('fileInvalid', at, `${w}.x-since ${since} is above the document's info.version ${info.version}`);
     if ('properties' in s && !('oneOf' in s)) { readRange(item, s, at); names.push(item); continue; } // a range item: read at run time, rendered nowhere
     only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'], at, w);
     for (const k of ['x-c-codes', 'x-c-xmacro'])

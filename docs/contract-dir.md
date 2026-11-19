@@ -38,7 +38,8 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   that first carried it: an item a domain is created with says the domain's first version, and one added later says
   the version that adds it; never above the document's own `info.version`, and never a version of the owner package
   or of omx-contract unless it is that domain's own `info.version` (a domain whose `info.version` follows its
-  package's version, as omx-clap-core's does, writes that version) (#123). `x-code` is the word's code, today its place in the order
+  package's version, as omx-clap-core's does, writes that version) (#123). `omx-contract validate` refuses by name an item with no `x-since`, one that is not `MAJOR.MINOR.PATCH`, and one above its document's `info.version`; which version added which item stays the owner's to test.
+  `omx-contract domain check <new.json> <committed.json>` compares a freshly generated document with the committed one and refuses by domain, item and word (one line each, exit 1): a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version (new words are appended), and an `info.version` below the committed one; exit 0 prints one PASS line (omx-contract#124). `x-code` is the word's code, today its place in the order
   (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
   the sentence they translate. An item C switches on carries `"x-c-codes": true`: the whole item becomes constants,
   its codes header (docs/render.md); one C also uses as struct fields or enum values carries `"x-c-xmacro": true` as

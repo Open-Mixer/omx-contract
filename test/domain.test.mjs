@@ -27,7 +27,7 @@ function panelDomain() {
     if (name === '$schema') continue;
     schemas[name] = {
       description: it.doc,
-      'x-since': it.since,
+      'x-since': '1.0.0', // the domain's first version, as the owner writes it
       ...(it.why === undefined ? {} : { 'x-why': it.why }),
       oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
     };
@@ -144,9 +144,9 @@ function groupedDomain() {
     info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner', 'x-stability': 'experimental' },
     components: {
       schemas: {
-        GROUPED_KINDS: { description: 'The groups.', 'x-since': '3.0.0', oneOf: code([w('nothing-to-measure', 'nothing'), w('cannot', 'cannot')]) },
+        GROUPED_KINDS: { description: 'The groups.', 'x-since': '1.0.0', oneOf: code([w('nothing-to-measure', 'nothing'), w('cannot', 'cannot')]) },
         GROUPED_REASONS: {
-          description: 'Reasons.', 'x-since': '3.0.0', 'x-groups': 'GROUPED_KINDS',
+          description: 'Reasons.', 'x-since': '1.0.0', 'x-groups': 'GROUPED_KINDS',
           oneOf: code([
             w('no-audio-in', 'noAudioIn', { 'x-group': 'nothing-to-measure' }),
             w('impulse', 'impulse', { 'x-group': 'cannot', 'x-from': [{ $ref: 'https://openmixer.org/contract/omx-contract#/components/schemas/LV2_CORE_TERMS', 'x-term': 'latency' }] }),

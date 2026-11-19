@@ -11,6 +11,7 @@
     "schemas": {
       "COLORS": {
         "description": "The colours.",
+        "x-since": "1.2.0",
         "oneOf": [
           {
             "const": "red",

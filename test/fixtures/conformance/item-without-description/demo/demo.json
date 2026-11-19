@@ -10,6 +10,7 @@
   "components": {
     "schemas": {
       "DEMO_COLORS": {
+        "x-since": "1.2.0",
         "oneOf": [
           {
             "const": "red",

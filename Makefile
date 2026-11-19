@@ -183,6 +183,9 @@ test-c:
 	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
 	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS) -ldl
 	$(TESTC)/domain_test
+	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DCONFORMANCE='"$(CURDIR)/test/fixtures/conformance"' test/c/conformance_test.c -o $(TESTC)/conformance_test -L$(TESTC) \
+	  -Wl,-rpath,$(CURDIR)/$(TESTC) $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS)
+	$(TESTC)/conformance_test
 	sh test/c/cli_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain
 	sh test/c/install_domain_test.sh $(TESTC)/omx-domain $(CURDIR)/test/fixtures/domain $(CURDIR)/tools/install-contract-dir.sh
 	$(MAKE) TESTC=$(TESTC) fuzz-replay

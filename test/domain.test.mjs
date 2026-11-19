@@ -107,7 +107,7 @@ test('a domain\'s catalogs/<lang>.json sit beside its document; a malformed one 
   writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'omx-panel', messages: {} }));
   assert.ok(loadContractDir({ dir: root }).items.has('PANEL_FAMILIES'));
   writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'de', owner: 'omx-panel', messages: {} }));
-  assert.equal(refusalOf(root), CONTRACT_CODES.fileInvalid);
+  assert.equal(refusalOf(root), CONTRACT_CODES.catalogInvalid);
 });
 
 test('refused: a second file beside the document, and no document', () => {

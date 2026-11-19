@@ -314,7 +314,7 @@ carry it and it is not installed in the directory.
 |---|---|
 | `contract.dir.absent` | No directory found, or the one named does not exist. |
 | `contract.manifest.absent` | A package directory without `MANIFEST.json`. |
-| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place. |
+| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner` or `info.x-stability` is wrong. |
 | `contract.manifest.mismatch` | A listed file missing, a file present but unlisted, or a hash that differs. |
 | `contract.schema.major` | A file's `$schema` major is not the reader's, or `$schema` is not the installed form. |
 | `contract.schema.too-old` | A file's `requires.omx-contract-schema` floor is above the reader's schema. |
@@ -346,7 +346,7 @@ carry it and it is not installed in the directory.
 | `contract.item.unknown` | A domain function of the C loader ([runtime-data.md](runtime-data.md)) was asked for an item the domain does not declare. |
 | `contract.word.unknown` | The same, for a word or a range name the item does not declare. |
 | `contract.index.range` | The same, for an index at or past the item's word count. |
-| `contract.catalog.invalid` | A domain's catalog the C loader cannot read: not a regular file named by a language tag, not JSON, no `messages` object, an entry without a text, or a key twice. |
+| `contract.catalog.invalid` | A domain's catalog a runtime reader (the C loader, `openDomainAt`) or the build cannot read: not a regular file named by a language tag, not JSON, no `messages` object, a `lang` that is not its file name, an entry without a text, or a key twice. |
 
 A plugin descriptor's own rules carry the `contract.descriptor.*` codes listed in [descriptors.md](descriptors.md).
 

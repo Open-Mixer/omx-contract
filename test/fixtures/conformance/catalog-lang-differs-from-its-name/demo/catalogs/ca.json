@@ -1,0 +1,11 @@
+{
+  "kind": "catalog",
+  "lang": "es",
+  "owner": "omx-fixture",
+  "messages": {
+    "DEMO_COLORS.red": {
+      "text": "Vermell",
+      "by": "human"
+    }
+  }
+}

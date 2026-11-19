@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo",
+  "info": {
+    "title": "The conformance vocabulary",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental"
+  }
+}

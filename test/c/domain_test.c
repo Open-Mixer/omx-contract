@@ -339,7 +339,7 @@ static void test_catalog_entry_without_text(void) {
   snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
   mkdir(path, 0700);
   snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
-  put_file(path, "{\"messages\":{\"DOM_W.a\":{\"nottext\":1}}}");
+  put_file(path, "{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"nottext\":1}}}");
   omx_domain *d;
   omx_domain_error err;
   CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
@@ -391,11 +391,11 @@ static void test_version_strictness(void) {
   omx_domain *d;
   omx_domain_error err;
   make_domain("v1", "https://openmixer.org/contract/v1", "01.2.0");
-  CHECK(open_scratch("v1", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("v1", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
   make_domain("v2", "https://openmixer.org/contract/v2", "1.2.0");
   CHECK(open_scratch("v2", "1.02.0", &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
   make_domain("v3", "https://openmixer.org/contract/v3", "99999999999999999999999.0.0");
-  CHECK(open_scratch("v3", NULL, &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
+  CHECK(open_scratch("v3", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
   CHECK(open_scratch("v2", "99999999999999999999999.0.0", &d, &err) == OMX_CONTRACT_CODE_FILE_INVALID);
   make_domain("v4", "https://openmixer.org/contract/v4", "0.10.100");
   CHECK(open_scratch("v4", "0.0.0", &d, &err) == 0);
@@ -414,7 +414,9 @@ void rewinddir(DIR *dh) {
     char path[600];
     for (int i = 0; i < 40; i++) {
       snprintf(path, sizeof path, "%s/g%c%c.json", gain_dir, 'a' + i / 26, 'a' + i % 26); /* a language tag, or the name check refuses first */
-      put_file(path, "{\"messages\":{}}");
+      char body[64];
+      snprintf(body, sizeof body, "{\"lang\":\"g%c%c\",\"messages\":{}}", 'a' + i / 26, 'a' + i % 26);
+      put_file(path, body);
     }
     gain_dir = NULL;
   }
@@ -428,7 +430,7 @@ static void test_catalog_gains_a_file(void) {
   snprintf(dir, sizeof dir, "%s/dom/catalogs", scratch);
   mkdir(dir, 0700);
   snprintf(path, sizeof path, "%s/es.json", dir);
-  put_file(path, "{\"messages\":{}}");
+  put_file(path, "{\"lang\":\"es\",\"messages\":{}}");
   gain_dir = dir;
   omx_domain *d;
   omx_domain_error err;
@@ -488,7 +490,7 @@ static void test_duplicate_keys_refused(void) {
   snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
   mkdir(path, 0700);
   snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
-  put_file(path, "{\"messages\":{\"DOM_W.a\":{\"text\":\"x\"},\"DOM_W.a\":{\"text\":\"y\"}}}");
+  put_file(path, "{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"text\":\"x\"},\"DOM_W.a\":{\"text\":\"y\"}}}");
   omx_domain *d;
   omx_domain_error err;
   int rc = open_scratch("dom", NULL, &d, &err);
@@ -523,8 +525,11 @@ static int catalog_opens(const char *name, int kind) {
   mkdir(path, 0700);
   snprintf(path, sizeof path, "%s/dom/catalogs/%s", scratch, name);
   snprintf(target, sizeof target, "%s/real.txt", scratch);
-  put_file(target, "{\"messages\":{}}");
-  if (kind == 0) put_file(path, "{\"messages\":{}}");
+  char body[128], lang[64];
+  snprintf(lang, sizeof lang, "%.*s", (int)strlen(name) - 5 > 0 ? (int)strlen(name) - 5 : 0, name);
+  snprintf(body, sizeof body, "{\"lang\":\"%s\",\"messages\":{}}", lang); /* a catalog's lang is its file name */
+  put_file(target, body);
+  if (kind == 0) put_file(path, body);
   else if (kind == 1) mkdir(path, 0700);
   else if (symlink(target, path) != 0) failures++;
   omx_domain *d;
@@ -568,15 +573,15 @@ static int catalog_holding(const char *content) {
 
 /* (8) a catalog that does not parse, or holds no messages object, is a bad catalog: its own code, not the document's. */
 static void test_unreadable_catalogs_refused(void) {
-  CHECK(catalog_holding("{\"messages\":{}}") == 0);
-  CHECK(catalog_holding("{\"messages\":") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK(catalog_holding("{\"lang\":\"es\",\"messages\":{}}") == 0);
+  CHECK(catalog_holding("{\"lang\":\"es\",\"messages\":") == OMX_CONTRACT_CODE_CATALOG_INVALID);
   CHECK(catalog_holding("[]") == OMX_CONTRACT_CODE_CATALOG_INVALID);
-  CHECK(catalog_holding("{\"messages\":[]}") == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  CHECK(catalog_holding("{\"lang\":\"es\",\"messages\":[]}") == OMX_CONTRACT_CODE_CATALOG_INVALID);
 }
 
 /* (8) an empty x-owner is no owner. */
 static void test_empty_owner_refused(void) {
-  doc_is("{\"version\":\"1.0.0\",\"x-owner\":\"\",\"x-stability\":\"experimental\"}", "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", OMX_CONTRACT_CODE_FILE_INVALID, "x-owner");
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":\"\",\"x-stability\":\"experimental\"}", "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", OMX_CONTRACT_CODE_MANIFEST_INVALID, "x-owner");
   doc_is(INFO_OK, "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", 0, NULL);
 }
 
@@ -614,14 +619,16 @@ static void catalog_refused(const char *content, const char *has) {
 static void test_catalog_shapes_refused(void) {
   catalog_refused("[]", "messages");                                  /* root not an object */
   catalog_refused("{}", "messages");                                  /* no messages */
-  catalog_refused("{\"messages\":[]}", "messages");                   /* messages not an object */
-  catalog_refused("{\"messages\":{\"DOM_W.a\":\"Hola\"}}", "DOM_W.a"); /* an entry that is not an object */
-  catalog_refused("{\"messages\":{\"DOM_W.a\":null}}", "DOM_W.a");
-  catalog_refused("{\"messages\":{\"DOM_W.a\":[]}}", "DOM_W.a");
-  catalog_refused("{\"messages\":{\"DOM_W.a\":{}}}", "DOM_W.a");      /* an entry without text */
-  catalog_refused("{\"messages\":{\"DOM_W.a\":{\"text\":1}}}", "DOM_W.a"); /* text not a string */
-  catalog_refused("{\"messages\":{\"DOM_W.a\":{\"text\":null}}}", "DOM_W.a");
-  catalog_refused("{\"messages\":{\"DOM_W.a\":{\"text\":\"ok\"},\"DOM_W.b\":{\"text\":[\"x\"]}}}", "DOM_W.b"); /* the second entry is the bad one */
+  catalog_refused("{\"lang\":\"ca\",\"messages\":{}}", "lang");                  /* a lang that is not the file name */
+  catalog_refused("{\"messages\":{}}", "lang");                                  /* no lang */
+  catalog_refused("{\"lang\":\"es\",\"messages\":[]}", "messages");                   /* messages not an object */
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":\"Hola\"}}", "DOM_W.a"); /* an entry that is not an object */
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":null}}", "DOM_W.a");
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":[]}}", "DOM_W.a");
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{}}}", "DOM_W.a");      /* an entry without text */
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"text\":1}}}", "DOM_W.a"); /* text not a string */
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"text\":null}}}", "DOM_W.a");
+  catalog_refused("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"text\":\"ok\"},\"DOM_W.b\":{\"text\":[\"x\"]}}}", "DOM_W.b"); /* the second entry is the bad one */
 }
 
 /* A catalog that is not JSON is a bad catalog too, naming the file: never the document's contract.file.not-json. */
@@ -629,7 +636,7 @@ static void test_catalog_not_json(void) {
   omx_domain *d;
   omx_domain_error err;
   /* a scalar root is no JSON either: the parser is not asked to accept one */
-  const char *bad[] = { "", "{", "{\"messages\":{}} x", "not json", "\"messages\"", "7", "null" };
+  const char *bad[] = { "", "{", "{\"lang\":\"es\",\"messages\":{}} x", "not json", "\"messages\"", "7", "null" };
   for (size_t i = 0; i < sizeof bad / sizeof bad[0]; i++) {
     int rc = catalog_is(bad[i], &d, &err);
     if (rc != OMX_CONTRACT_CODE_CATALOG_INVALID) { failures++; fprintf(stderr, "%s:%d: FAIL catalog \"%s\": got status %d, want contract.catalog.invalid\n", __FILE__, __LINE__, bad[i], rc); }
@@ -647,7 +654,7 @@ static void test_catalog_unreadable(void) {
   snprintf(path, sizeof path, "%s/dom/catalogs", scratch);
   mkdir(path, 0700);
   snprintf(path, sizeof path, "%s/dom/catalogs/es.json", scratch);
-  put_file(path, "{\"messages\":{}}");
+  put_file(path, "{\"lang\":\"es\",\"messages\":{}}");
   CHECK(chmod(path, 0) == 0);
   omx_domain *d;
   omx_domain_error err;
@@ -662,17 +669,17 @@ static void test_catalog_unreadable(void) {
 static void test_catalog_accepted(void) {
   omx_domain *d;
   omx_domain_error err;
-  CHECK(catalog_is("{\"messages\":{}}", &d, &err) == 0);
+  CHECK(catalog_is("{\"lang\":\"es\",\"messages\":{}}", &d, &err) == 0);
   if (d) { CHECK(omx_domain_text(d, "DOM_W.a", "es") == NULL); omx_domain_close(d); } /* a has no x-text: no sentence in any language */
   drop_scratch();
-  CHECK(catalog_is("{\"messages\":{\"DOM_W.a\":{\"text\":\"Hola\",\"by\":7}}}", &d, &err) == 0);
+  CHECK(catalog_is("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"text\":\"Hola\",\"by\":7}}}", &d, &err) == 0);
   if (d) { CHECK_STR(omx_domain_text(d, "DOM_W.a", "es"), "Hola"); omx_domain_close(d); }
   drop_scratch();
-  CHECK(catalog_is("{\"messages\":{\"DOM_W.a\":{\"text\":\"Hola\",\"by\":\"me\"}},\"other\":1}", &d, &err) == 0);
+  CHECK(catalog_is("{\"lang\":\"es\",\"messages\":{\"DOM_W.a\":{\"text\":\"Hola\",\"by\":\"me\"}},\"other\":1}", &d, &err) == 0);
   if (d) { CHECK_STR(omx_domain_text(d, "DOM_W.a", "es"), "Hola"); omx_domain_close(d); }
   drop_scratch();
   /* a key that is no word of the domain is kept and never found */
-  CHECK(catalog_is("{\"messages\":{\"DOM_W.zz\":{\"text\":\"x\"}}}", &d, &err) == 0);
+  CHECK(catalog_is("{\"lang\":\"es\",\"messages\":{\"DOM_W.zz\":{\"text\":\"x\"}}}", &d, &err) == 0);
   if (d) { CHECK(omx_domain_text(d, "DOM_W.zz", "es") == NULL); omx_domain_close(d); }
   drop_scratch();
   make_scratch();
@@ -692,6 +699,7 @@ static void test_catalog_accepted(void) {
 /* The document's top shape: root, $id, info, version, owner. */
 static void test_document_shape_refused(void) {
   const int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  const int MAN = OMX_CONTRACT_CODE_MANIFEST_INVALID;
   omx_domain *d;
   omx_domain_error err;
   const char *roots[] = { "[]", "[{\"$id\":\"https://openmixer.org/contract/dom\"}]" };
@@ -717,26 +725,26 @@ static void test_document_shape_refused(void) {
     if (rc != OMX_CONTRACT_CODE_FILE_NOT_JSON) { failures++; fprintf(stderr, "%s:%d: FAIL root %s: got status %d, want not-json\n", __FILE__, __LINE__, scalars[i], rc); }
     drop_scratch();
   }
-  doc_is("{\"x-owner\":\"o\"}", ONE_W, bad, "info.version");                    /* no version */
-  doc_is("{\"version\":1,\"x-owner\":\"o\"}", ONE_W, bad, "info.version");      /* version not a string */
-  doc_is("{\"version\":null,\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
-  doc_is("{\"version\":\"1.0\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
-  doc_is("{\"version\":\"1.0.0.0\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
-  doc_is("{\"version\":\"1.0.0-rc1\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
-  doc_is("{\"version\":\"\",\"x-owner\":\"o\"}", ONE_W, bad, "info.version");
-  doc_is("{\"version\":\"1.0.0\"}", ONE_W, bad, "x-owner");                     /* no owner */
-  doc_is("{\"version\":\"1.0.0\",\"x-owner\":7}", ONE_W, bad, "x-owner");       /* owner not a string */
-  doc_is("{\"version\":\"1.0.0\",\"x-owner\":null}", ONE_W, bad, "x-owner");
-  doc_is("[]", ONE_W, bad, "info.version");                                     /* info not an object */
-  doc_is("\"1.0.0\"", ONE_W, bad, "info.version");
-  doc_is("null", ONE_W, bad, "info.version");
+  doc_is("{\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");                    /* no version */
+  doc_is("{\"version\":1,\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");      /* version not a string */
+  doc_is("{\"version\":null,\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");
+  doc_is("{\"version\":\"1.0\",\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");
+  doc_is("{\"version\":\"1.0.0.0\",\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");
+  doc_is("{\"version\":\"1.0.0-rc1\",\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");
+  doc_is("{\"version\":\"\",\"x-owner\":\"o\"}", ONE_W, MAN, "info.version");
+  doc_is("{\"version\":\"1.0.0\"}", ONE_W, MAN, "x-owner");                     /* no owner */
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":7}", ONE_W, MAN, "x-owner");       /* owner not a string */
+  doc_is("{\"version\":\"1.0.0\",\"x-owner\":null}", ONE_W, MAN, "x-owner");
+  doc_is("[]", ONE_W, MAN, "info.version");                                     /* info not an object */
+  doc_is("\"1.0.0\"", ONE_W, MAN, "info.version");
+  doc_is("null", ONE_W, MAN, "info.version");
   /* an absent info, and an absent or non-string $id */
   make_scratch();
   make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
   char path[600];
   snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
   put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"components\":{\"schemas\":{}}}");
-  CHECK(open_scratch("dom", NULL, &d, &err) == bad);
+  CHECK(open_scratch("dom", NULL, &d, &err) == MAN);
   CHECK(strstr(err.message, "info.version") != NULL);
   put_file(path, "{\"info\":" INFO_OK ",\"components\":{\"schemas\":{}}}");
   CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);

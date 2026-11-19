@@ -315,13 +315,19 @@ static int is_lang_tag(const char *s, size_t n) {
   return 1;
 }
 
-/* One catalog file: its language is the file's name. */
+/* One catalog file: its language is the file's name, and its "lang" must say the same. */
 static int read_catalog(omx_domain *d, const char *file, const char *lang, const char *domain, omx_domain_error *err) {
   json_t *root = NULL;
   int rc = load_json(file, domain, 1, &root, err);
   if (rc) return rc;
   json_t *msgs = json_object_get(root, "messages");
   if (!json_is_object(msgs)) { json_decref(root); return refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s of the domain %s has no \"messages\" object.", file, domain); }
+  const char *named = str_of(root, "lang");
+  if (!named || strcmp(named, lang) != 0) {
+    int bad = refuse(err, OMX_CONTRACT_CODE_CATALOG_INVALID, "The catalog %s of the domain %s has \"lang\" %s%s%s, and its file name says \"%s\".", file, domain, named ? "\"" : "", named ? named : "(absent)", named ? "\"" : "", lang);
+    json_decref(root);
+    return bad;
+  }
   catalog_t *c = &d->catalogs[d->n_catalogs++];
   c->lang = dup_str(lang);
   c->messages = calloc(json_object_size(msgs) ? json_object_size(msgs) : 1, sizeof *c->messages);
@@ -405,8 +411,8 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   if (!id_fits) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s: the $id it must carry does not fit.", domain);
   else if (!json_is_object(root)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s is not a JSON object.", domain, path);
   else if (!id || strcmp(id, want_id) != 0) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: $id is \"%s\", and must be \"%s\".", domain, path, id ? id : "(absent)", want_id);
-  else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
-  else if (!str_of(info, "x-owner") || !*str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
+  else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
+  else if (!str_of(info, "x-owner") || !*str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
   else if (!stability || (strcmp(stability, "experimental") != 0 && strcmp(stability, "stable") != 0)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-stability is %s%s%s, and must be \"experimental\" or \"stable\".", domain, path, stability ? "\"" : "", stability ? stability : "(absent)", stability ? "\"" : "");
   else if (needs_version && version_below(have, floor_)) rc = refuse(err, OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "The domain %s at %s is version %s, below the floor %s the program needs.", domain, path, version, needs_version);
   else rc = read_items(d, root, path, domain, err);

@@ -1,10 +1,17 @@
 # Changelog
 
-The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This file holds what the next release will carry.
+The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unreleased` holds what the next release will carry; a release moves its lines under its own heading.
 
 ## Unreleased
 
+## 3.20.1
+
 - ADDED: `omx-contract domain check <new.json> <committed.json>` refuses by domain, item and word a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version, and an `info.version` going down; and `omx-contract validate` refuses a domain item with no `x-since`, one that is not MAJOR.MINOR.PATCH, or one above the document's `info.version`, so owners delete their copies of both checks (omx-contract#124, for 3.20.1).
+- CHANGED: the C loader and the TS reader (`openDomainAt`) give one verdict per case of one conformance suite, run in CI with the C runner required; the C loader refuses a catalog whose `lang` is not its file's name, and reports a domain with no x.y.z `info.version` or no `info.x-owner` as MANIFEST_INVALID (#121, #126).
+- CHANGED: the TypeScript build dependency is a floor only (`>= 4.8.4`), with no ceiling (#122).
+
+## 3.20.0
+
 - FIXED: the C loader (`omx_domain_open`) accepts a word with no `description`, as docs/contract-dir.md, the TS reader and the schema do; `omx_domain_word_info.description` is NULL for it, and `omx-domain` prints an empty description. A present non-string `description` is still refused as FILE_INVALID.
 - REMOVED: `MEASUREMENT_*` (data/measurement.json), `RESOURCE_MEMORY_PHASES`, `RESOURCE_UNMEASURED_REASONS`, `RESOURCE_BUDGET_SCOPES`, `RESOURCE_HOST_ISOLATIONS`, `RESOURCE_HOST_LATENCY_HANDLING`, `RESOURCE_THREAD_SCHEDULING` and `MACHINE_CLASSES`, with their translations. They are plugin-qualify's `qualification` domain (`contract.d/qualification/` there, `qualification_vocabulary.h`, the same `OMX_*` macros byte for byte). `RESOURCE_KINDS`, `RESOURCE_UNITS` and `RESOURCE_BASES` stay with `RESOURCE_HINTS` until they move to omx-clap-core (omx-contract#81, move 2 and 6).
 - REMOVED: `MACHINE_CLASS_FIELDS`, `MACHINE_PROFILE_FIELDS`, `MACHINE_CORE_BANDS`, `MACHINE_CLOCK_BANDS` and `MACHINE_ARCHES` (data/machine-class.json) with their translations. They are plugin-hostd's `machine` domain (`contract.d/machine/` there, `machine_vocabulary.h`, the same `OMX_MACHINE_*` macros byte for byte); the json schema fragment no longer carries them, a reader reads the domain document (omx-contract#81, move 3).
@@ -13,6 +20,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   took them from `omxcontract/omx_vocabulary.h` includes omx-clap-core's header instead (omx-contract#81, move 1).
 - A domain's words may carry `x-group` (with the item's `x-groups`, a words schema of the same document), `x-from` (`$ref` by a domain `$id` + `x-term`), and a domain directory holds `catalogs/<lang>.json`, read by `validate` with the owner taken from `info.x-owner` (docs/contract-dir.md, omx-contract#81).
 - libomx-domain0 carries a version floor: debian/libomx-domain0.symbols gives each export the release that introduced it, so a package linking the library depends on `libomx-domain0 (>= floor)`; the build fails on an export the file does not list. `make check-abi` counts exported global variables as well as functions.
+- A descriptor may declare `choiceUnits` (omx-contract#51, omx-panel#68): per choice control, the unit of its values,
+  one of the descriptor units and never `unknown`. The producer declares it once; omx-panel's MOD GUI generator and the
+  console read it here and drop their local maps. A new optional field: additive, a minor.
+
+## 3.19.1 and earlier
+
 - The contract directory reads a DOMAIN: `<contractdir>/<domain>/<domain>.json`, one JSON Schema 2020-12 document with `$id`,
   `info{title,version,x-owner}` and `components.schemas`, a words item a `oneOf` of `const` words (docs/contract-dir.md,
   "Domains"). The domain's owner is metadata, its version its own; `render --package <domain>` renders `<domain>_vocabulary.h`
@@ -41,9 +54,6 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. This f
   `share/omx-contract/clap-kind-vectors.json`: the merged scale word (the contract entry's, else the stepped flag), an
   enumeration a choice, a stepped 0..1 with step 1 a toggle (default on at 0.5 and above), everything else a travel.
   plugin-hostd's describe and the console's catalog are held to the vectors, keeping no rule of their own.
-- A descriptor may declare `choiceUnits` (omx-contract#51, omx-panel#68): per choice control, the unit of its values,
-  one of the descriptor units and never `unknown`. The producer declares it once; omx-panel's MOD GUI generator and the
-  console read it here and drop their local maps. A new optional field: additive, a minor.
 - The `utility` panel family (`PANEL_FAMILIES`, appended after `pitch`): the panel family of a trim, a width control, a
   balancer or a clipper, the plugins omx-plugins declares as family `none` for want of a word. Additive; the words and their
   order are the contract, and omx-panel's role table gives the family its roles. The six catalogs carry its sentence.

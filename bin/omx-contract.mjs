@@ -5,6 +5,7 @@
  * omx-contract — the declarations as data, validated and rendered.
  *
  *   omx-contract validate [<input>]                            schema + semantic checks
+ *   omx-contract domain check <new.json> <committed.json>      a generated domain document against the committed one
  *   omx-contract fmt [--check] [<input>]                       the one formatting
  *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
@@ -25,6 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { atLeast, contractVersion, floorOf, loadContractDir } from '../lib/contract-dir.mjs';
 import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
+import { domainCheck } from '../lib/domain-check.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
@@ -149,6 +151,21 @@ function cmdValidate(argv) {
   if (problems.length) return 1;
   const where = data.packages ? ` from ${data.packages.size} packages of ${data.roots.join(':')}` : '';
   console.log(`omx-contract validate: ${data.items.size} items in ${data.files.length} files${where}, valid${tools.length ? ` (and ${tools.map((f) => f.rel).join(', ')})` : ''}${catalogs.length ? `, ${catalogs.length} catalog${catalogs.length === 1 ? '' : 's'}` : ''}`);
+  return 0;
+}
+
+/** `domain check <new.json> <committed.json>`: the domain check of omx-contract#124, one line per problem. */
+function cmdDomain(argv) {
+  if (argv[1] !== 'check') throw new Usage(argv[1] ? `unknown domain command ${argv[1]}` : 'domain needs a command: check');
+  const [next, committed, ...rest] = argv.slice(2);
+  if (!next || !committed || rest.length) throw new Usage('domain check takes two documents: <new.json> <committed.json>');
+  const read = (f) => {
+    try { return JSON.parse(readFileSync(f, 'utf8')); } catch (e) { throw new Usage(`${f}: ${e.message}`); }
+  };
+  const problems = domainCheck(read(next), read(committed));
+  for (const p of problems) console.error(p);
+  if (problems.length) return 1;
+  console.log(`omx-contract domain check: PASS ${next} against ${committed}`);
   return 0;
 }
 
@@ -679,6 +696,7 @@ async function cmdTranslate(argv) {
 }
 
 const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
+       omx-contract domain check <new.json> <committed.json>
        omx-contract fmt [--check] [<input>]
        omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
@@ -687,7 +705,7 @@ const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
   <input>: --data <dir> | --contract-dir <dir> | --installed, a contract directory with [--needs <package>@'>= x.y.z']... [--json]`;
 
 export function main(argv) {
-  const cmds = { validate: cmdValidate, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate };
+  const cmds = { validate: cmdValidate, domain: cmdDomain, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate };
   const fail = (e) => {
     if (e instanceof Usage) { console.error(`omx-contract: ${e.message}\n${USAGE}`); return 2; }
     if (e instanceof ContractRefusal) {

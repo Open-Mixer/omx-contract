@@ -144,9 +144,9 @@ function groupedDomain() {
     info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner', 'x-stability': 'experimental' },
     components: {
       schemas: {
-        GROUPED_KINDS: { description: 'The groups.', 'x-since': '3.0.0', oneOf: code([w('nothing-to-measure', 'nothing'), w('cannot', 'cannot')]) },
+        GROUPED_KINDS: { description: 'The groups.', 'x-since': '1.0.0', oneOf: code([w('nothing-to-measure', 'nothing'), w('cannot', 'cannot')]) },
         GROUPED_REASONS: {
-          description: 'Reasons.', 'x-since': '3.0.0', 'x-groups': 'GROUPED_KINDS',
+          description: 'Reasons.', 'x-since': '1.0.0', 'x-groups': 'GROUPED_KINDS',
           oneOf: code([
             w('no-audio-in', 'noAudioIn', { 'x-group': 'nothing-to-measure' }),
             w('impulse', 'impulse', { 'x-group': 'cannot', 'x-from': [{ $ref: 'https://openmixer.org/contract/omx-contract#/components/schemas/LV2_CORE_TERMS', 'x-term': 'latency' }] }),

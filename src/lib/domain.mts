@@ -70,6 +70,14 @@ export function domainOfPath(rel: string): string | undefined {
 export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+/** True when the MAJOR.MINOR.PATCH version `a` is below `b`. */
+export function versionBelow(a: string, b: string): boolean {
+  const x = VERSION.exec(a)!.slice(1).map(Number);
+  const y = VERSION.exec(b)!.slice(1).map(Number);
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i]! < y[i]!;
+  return false;
+}
+
 const PACKAGE = /^[a-z][a-z0-9-]*$/;
 const ITEM = /^[A-Z][A-Z0-9_]*$/;
 const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;

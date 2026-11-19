@@ -14,6 +14,7 @@ import { placeholdersOf } from './placeholders.mjs';
 type Ajv2020Class = typeof import('ajv/dist/2020.js').default;
 import { FILE_KEYS, KERNEL_KEYS, KERNEL_SECTIONS, controlGlobal, entriesOf, isDescriptor, isKernelFile, isUse, resolveData } from './data.mjs';
 import { MEANING_SYNONYMS, descriptorProblems } from './descriptor.mjs';
+import { versionBelow } from './domain.mjs';
 import { HINT_UNITS, MAX_HINTS } from './hints.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
@@ -416,11 +417,30 @@ function schemaProblems(doc, rel, say) {
   }
 }
 
+const SINCE = /^(\d+)\.(\d+)\.(\d+)$/;
+
+/**
+ * The x-since half of the domain check (omx-contract#124): every item of a domain document carries an x-since that is
+ * MAJOR.MINOR.PATCH and not above the document's info.version. Only `validate` says it; no reader refuses on it.
+ */
+function domainSinceProblems(f, manifest): { item: string; message: string }[] {
+  if (!f.installed || !manifest || manifest.files !== undefined || typeof manifest.version !== 'string') return [];
+  const out: { item: string; message: string }[] = [];
+  const schemas = JSON.parse(f.text)?.components?.schemas ?? {};
+  for (const [item, s] of Object.entries(schemas as Record<string, Json>)) {
+    const since = s?.['x-since'];
+    if (typeof since !== 'string' || !SINCE.test(since)) out.push({ item, message: `x-since ${JSON.stringify(since)} is not MAJOR.MINOR.PATCH: every item carries the info.version of its document that first carried it` });
+    else if (versionBelow(manifest.version, since)) out.push({ item, message: `x-since ${since} is above the document's info.version ${manifest.version}` });
+  }
+  return out;
+}
+
 /** Every problem of the loaded data: `[{ file, item, rule, message }]`; empty is valid. */
 export function validateData(data) {
   const problems: Json[] = [];
   const say = (file, item, rule, message) => problems.push({ file, item, rule, message });
   for (const f of data.files) problems.push(...fileProblems(f));
+  for (const f of data.files) for (const p of domainSinceProblems(f, data.packages?.get(f.pkg)?.manifest)) say(f.rel, p.item, 'domain-x-since', p.message);
   for (const p of useProblems(data)) say(p.rel, p.item, 'use', p.message);
   if (problems.length) return problems;
 

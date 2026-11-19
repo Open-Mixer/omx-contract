@@ -51,7 +51,8 @@ test('no entry point compares argv[1] with its own path by hand', () => {
     }
   };
   for (const d of ['bin', 'lib', 'tools', 'render']) walk(join(ROOT, d));
-  const hand = files.filter((f) => /process\.argv\[1\][^\n]*import\.meta\.url/.test(readFileSync(f, 'utf8')))
+  const code = (f) => readFileSync(f, 'utf8').split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l));
+  const hand = files.filter((f) => code(f).some((l) => /process\.argv\[1\].*import\.meta\.url/.test(l)))
     .map((f) => relative(ROOT, f));
   assert.deepEqual(hand, [], `compare by hand instead of lib/entry.mjs: ${hand.join(', ')}`);
 });

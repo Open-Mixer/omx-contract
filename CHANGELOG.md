@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: the `omx-contract` command run through a symlink (npx, `npm run`, `node_modules/.bin/omx-contract`) runs the command; it exited 0 and did nothing, so a gate calling it that way passed on a refusal. The CLI and the tools decide "run, not imported" on real paths.
+- ADDED: `@openmixer/omx-contract/entry` exports `isMain(import.meta.url)`, that check, for other packages' command-line entry points.
+- ADDED: `omx-contract.pc` names the installed command's directory, `pkg-config --variable=clidir omx-contract`; a package with no npm dependency on omx-contract imports `<clidir>/lib/entry.mjs` from there. The `.pc` ships in `omx-contract-devel` (`libomx-contract-dev`), `entry.mjs` in `omx-contract`: such a package build-depends on `omx-contract` itself.
+
 ## 3.20.1
 
 - ADDED: `omx-contract domain check <new.json> <committed.json>` refuses by domain, item and word a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version, and an `info.version` going down; and `omx-contract validate` refuses a domain item with no `x-since`, one that is not MAJOR.MINOR.PATCH, or one above the document's `info.version`, so owners delete their copies of both checks (omx-contract#124, for 3.20.1).

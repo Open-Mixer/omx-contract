@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { entriesOf, loadData } from '../lib/data.mjs';
+import { isMain } from '../lib/entry.mjs';
 
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SCHEMAS = ['schema/omx-contract.schema.json', 'shapes/travel.schema.json'];
@@ -135,4 +136,4 @@ function main(argv) {
   return problems.length ? 1 : 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exit(main(process.argv.slice(2)));
+if (isMain(import.meta.url)) process.exit(main(process.argv.slice(2)));

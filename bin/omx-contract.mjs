@@ -41,6 +41,7 @@ import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderOwnerTs, renderTs } from '../render/ts.mjs';
 import { renderShapes, shapePaths } from '../render/shapes.mjs';
+import { isMain } from '../lib/entry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -727,7 +728,7 @@ export function main(argv) {
   }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   const r = main(process.argv.slice(2));
   if (r instanceof Promise) r.then((code) => { process.exitCode = code; });
   else process.exitCode = r;

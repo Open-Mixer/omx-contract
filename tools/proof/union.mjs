@@ -27,6 +27,7 @@ import { resolveData } from '../../lib/data.mjs';
 import { renderC } from '../../render/c.mjs';
 import { renderJson } from '../../render/json.mjs';
 import { renderTs } from '../../render/ts.mjs';
+import { isMain } from '../../lib/entry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const INSTALL = join(ROOT, 'tools/install-contract-dir.sh');
@@ -244,7 +245,7 @@ function main(argv) {
   return r.ok ? 0 : 1;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   try { process.exitCode = main(process.argv.slice(2)); } catch (e) {
     console.error(`union: ${e.message}`);
     process.exitCode = e instanceof Usage ? 2 : 1;

@@ -82,6 +82,7 @@ LV2_URI_MAP_TERMS
 LV2_URID_TERMS
 LV2_WORKER_TERMS
 PARAM_SCALES
+PARAM_UNITS
 CONTRACT_CODES
 schema/omx-contract.schema.json#/else/propertyNames/anyOf/0/enum
 schema/omx-contract.schema.json#/$defs/unit/enum

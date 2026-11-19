@@ -1,41 +1,91 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-// The unit list is declared once (behaviour-core decision 3): PARAM_UNITS, a words item of data/primitives.json, and
-// the schema's $defs.unit enum is its words in their declared order, written by tools/unit-enum.mjs and held by --check.
+/**
+ * The unit codes of org.openmixer.param-contract/1 (#145): OMX_PARAM_CONTRACT_UNITS of data/param-contract.json, the
+ * one declaration. omx-plugins includes the rendered omx_param_units.h, omx-panel and plugin-hostd read the item as
+ * data. A code is never changed or reused: the table below is the one omx-plugins shipped as contract/param-units.json
+ * (0.15.0), written out here so the declaration is held to something.
+ */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import test from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { test } from 'node:test';
+import { loadData, resolveData } from '../lib/data.mjs';
+import { renderC } from '../render/c.mjs';
+import { ROOT, scratchDir, texts, resolvedOf } from './helpers.mjs';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const read = (root, f) => JSON.parse(readFileSync(join(root, f), 'utf8'));
-const check = (root) => spawnSync(process.execPath, [join(ROOT, 'tools/unit-enum.mjs'), '--check', '--root', root], { encoding: 'utf8' });
+const SHIPPED = {
+  none: 0, s: 1, ms: 2, min: 3, bar: 4, beat: 5, frame: 6, m: 7, cm: 8, mm: 9, km: 10, inch: 11, mile: 12, db: 13, pc: 14, coef: 15, hz: 16, khz: 17,
+  mhz: 18, bpm: 19, oct: 20, cent: 21, semitone12TET: 22, degree: 23, midiNote: 24, dbfs: 0x100, dbu: 0x101, ratio: 0x102, lufs: 0x103,
+};
+const declared = () => resolveData(loadData(join(ROOT, 'data'))).get('OMX_PARAM_CONTRACT_UNITS');
+const header = () => readFileSync(join(ROOT, 'include/omxcontract/omx_param_units.h'), 'utf8');
+const constOf = (t) => t.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
-test('PARAM_UNITS is a words item and the schema unit enum is its words, in order', () => {
-  const item = read(ROOT, 'data/primitives.json').PARAM_UNITS;
-  assert.equal(item?.kind, 'words', 'data/primitives.json has no PARAM_UNITS words item');
-  const words = Object.values(item.words).map((w) => w.word);
-  assert.deepEqual(read(ROOT, 'schema/omx-contract.schema.json').$defs.unit.enum, words);
-  const r = check(ROOT);
-  assert.equal(r.status, 0, r.stderr);
+test('the declared unit codes are the ones omx-plugins shipped, append-only', () => {
+  const v = declared().value;
+  for (const [t, code] of Object.entries(SHIPPED)) assert.equal(v[t], code, `${t} keeps its code`);
+  for (const t of Object.keys(v)) if (!(t in SHIPPED)) assert.ok(v[t] > 0x103, `${t} is appended after the vendor block`);
 });
 
-test('sabotage: a unit added to PARAM_UNITS and not rendered into the schema is named', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'param-units-'));
-  try {
-    for (const d of ['data', 'schema']) cpSync(join(ROOT, d), join(dir, d), { recursive: true });
-    const p = join(dir, 'data/primitives.json');
-    const doc = JSON.parse(readFileSync(p, 'utf8'));
-    doc.PARAM_UNITS.words.bar = { word: 'bar', doc: 'A planted unit.', text: { en: 'bar' } };
-    writeFileSync(p, JSON.stringify(doc, null, 2));
-    const r = check(dir);
-    assert.equal(r.status, 1);
-    assert.match(r.stderr, /\$defs\.unit/);
-    assert.match(r.stderr, /"bar"/);
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
+test('the header defines one OMX_CLAP_UNIT_ code per declared unit, and no other', () => {
+  const v = declared().value;
+  const defs = new Map([...header().matchAll(/^#define OMX_CLAP_UNIT_(\w+) (\d+)u(?: \/\/\/<.*)?$/gm)].map((m) => [m[1], Number(m[2])]));
+  assert.deepEqual([...defs.keys()].sort(), Object.keys(v).map(constOf).sort());
+  for (const [t, code] of Object.entries(v)) assert.equal(defs.get(constOf(t)), code, t);
+});
+
+test('the doors spell a sheet named OMX_ once: OMX_PARAM_CONTRACT_UNITS_DB, never OMX_OMX_', () => {
+  const limits = renderC(resolvedOf(texts())).find((f) => f.path === 'omxcontract/omx_contract_limits.h').text;
+  assert.match(limits, /^#define OMX_PARAM_CONTRACT_UNITS_DB 13$/m);
+  assert.doesNotMatch(limits, /OMX_OMX_/);
+});
+
+const cc = (process.env.CC ?? 'cc').split(' ');
+test('a C reader sees the codes from the installed header', { skip: spawnSync(cc[0], [...cc.slice(1), '--version']).status !== 0 && 'no cc' }, () => {
+  const dir = scratchDir('omx-param-units-');
+  writeFileSync(join(dir, 't.c'), `#include <omxcontract/omx_param_units.h>
+_Static_assert(OMX_CLAP_UNIT_NONE == 0 && OMX_CLAP_UNIT_DB == 13 && OMX_CLAP_UNIT_MIDI_NOTE == 24, "LV2 units one to one");
+_Static_assert(OMX_CLAP_UNIT_DBFS == 0x100 && OMX_CLAP_UNIT_LUFS == 0x103, "the vendor block");
+int main(void) { return OMX_CLAP_UNIT_SEMITONE12_TET == 22 ? 0 : 1; }
+`);
+  const r = spawnSync(cc[0], [...cc.slice(1), '-std=c11', '-Wall', '-Wextra', '-Werror', '-I', join(ROOT, 'include'), join(dir, 't.c'), '-o', join(dir, 't')], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(spawnSync(join(dir, 't')).status, 0);
+});
+
+test('sabotage: a unit whose code changed in the data is not the shipped code, and the committed header goes stale', () => {
+  const t = texts((d) => { d['data/param-contract.json'].OMX_PARAM_CONTRACT_UNITS.value.db = 99; });
+  const v = resolvedOf(t).get('OMX_PARAM_CONTRACT_UNITS').value;
+  assert.notEqual(v.db, SHIPPED.db);
+  const text = renderC(resolvedOf(t)).find((f) => f.path === 'omxcontract/omx_param_units.h').text;
+  assert.notEqual(text, header());
+});
+
+test('the header spells the same units once more as OMX_PARAM_UNITS(X), every declared unit in order, no other', () => {
+  const v = declared().value;
+  const table = /^#define OMX_PARAM_UNITS\(X\) \\\n((?:.*\\\n)*.*)$/m.exec(header());
+  assert.ok(table, 'the X-macro table is rendered');
+  const rows = [...table[1].matchAll(/X\((\d+)u, "([^"]+)"\)/g)].map((m) => [m[2], Number(m[1])]);
+  assert.deepEqual(rows, Object.entries(v), 'one X(code, "token") per declared unit, in the declared order');
+  assert.equal(table[1].match(/X\(/g).length, rows.length, 'no row of another shape');
+});
+
+test('the table expands in C to the word of each code: a consumer names a unit without typing the table', () => {
+  const dir = scratchDir('param-units-table');
+  const src = join(dir, 'table.c');
+  writeFileSync(src, `#include <omxcontract/omx_param_units.h>
+#include <string.h>
+#define ROW(code, word) { code, word },
+static const struct { unsigned code; const char *word; } units[] = { OMX_PARAM_UNITS(ROW) };
+int main(void) {
+  unsigned i;
+  for (i = 0; i < sizeof units / sizeof units[0]; i++) if (units[i].code == OMX_CLAP_UNIT_SEMITONE12_TET) return strcmp(units[i].word, "semitone12TET");
+  return 1;
+}
+`);
+  const cc = spawnSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', `-I${join(ROOT, 'include')}`, src, '-o', join(dir, 'table')], { encoding: 'utf8' });
+  assert.equal(cc.status, 0, cc.stderr);
+  assert.equal(spawnSync(join(dir, 'table')).status, 0, 'OMX_CLAP_UNIT_SEMITONE12_TET names semitone12TET through the table');
 });

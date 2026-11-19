@@ -26,6 +26,16 @@ jobs:
           sparse-checkout: .github/workflows
       - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
 
+  # the dependency floors: the spec, debian/control and the workflow install lines state floors only, no ceiling
+  # (Open-Mixer/.github's deps-render, at the same openmixer-v1 ref every shared action of this repository uses)
+  deps-render:
+    name: the packaging states floors only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Open-Mixer/.github/.github/actions/deps-render@openmixer-v1
+
   # the cells the import and package jobs run: check-matrix's answer (fc44 and fc45; the quick set while a release wave
   # is open, the whole matrix declared here otherwise)
   checks:

@@ -1,0 +1,81 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_TOPOLOGY_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "The hosting codes of the topology dimension: hosting.topology.*, the verdict and refusal codes a qualifier, a host or the console write and read by code, never by prose (docs/data-layout.md).",
+    "codes": {
+      "topologyAmbisonicConfig": {
+        "code": "hosting.topology.ambisonic-config",
+        "doc": "an ambisonic port refuses the carrier's ordering or normalisation",
+        "text": {
+          "en": "This plugin’s ambisonic port refuses the carrier’s channel ordering or normalisation. Use a carrier whose ordering and normalisation this port accepts."
+        }
+      },
+      "topologyChannelMapUnknown": {
+        "code": "hosting.topology.channel-map-unknown",
+        "doc": "a surround port names a channel id the host does not know, or refuses the carrier's channel mask",
+        "text": {
+          "en": "This plugin’s surround port names a channel this host does not know, or refuses the carrier’s channel mask. Use a carrier whose channels this host recognises."
+        }
+      },
+      "topologyInstrument": {
+        "code": "hosting.topology.instrument",
+        "text": {
+          "en": "This plugin is hosted as an instrument: it has no audio input of its own."
+        }
+      },
+      "topologyMatched": {
+        "code": "hosting.topology.matched",
+        "text": {
+          "en": "This plugin’s ports match the topology it is hosted on."
+        }
+      },
+      "topologyNoAudioInput": {
+        "code": "hosting.topology.no-audio-input",
+        "doc": "the plugin has no audio input",
+        "text": {
+          "en": "This plugin has no audio input."
+        }
+      },
+      "topologyNoAudioOutput": {
+        "code": "hosting.topology.no-audio-output",
+        "doc": "the host has nothing of the plugin to carry: a CLAP plugin with an audio input or an auxiliary port and no main output, an LV2 plugin with no port at all (any other plugin with no audio output is hosted as a pass-through tool)",
+        "text": {
+          "en": "This plugin has nothing for the host to carry on its output: it declares an audio input or auxiliary port but no main output. Use a plugin with a main audio output, or run it as a pass-through tool."
+        }
+      },
+      "topologyPortTooWide": {
+        "code": "hosting.topology.port-too-wide",
+        "doc": "a port of more channels than the limit, or an ambisonic port whose channels are not (order+1)²",
+        "text": {
+          "en": "This plugin’s port has more channels than the limit, or its ambisonic channel count is not valid for its order. Use a plugin whose ports stay within the channel limit."
+        }
+      },
+      "topologyPortWithoutChannels": {
+        "code": "hosting.topology.port-without-channels",
+        "doc": "a port of zero channels",
+        "text": {
+          "en": "This plugin declares a port with zero channels. Fix the plugin’s port declaration before hosting it."
+        }
+      },
+      "topologyTooManyPorts": {
+        "code": "hosting.topology.too-many-ports",
+        "doc": "more than the limit of auxiliary ports on one side, or more than one main port on a side",
+        "text": {
+          "en": "This plugin declares more auxiliary ports than the limit on one side, or more than one main port on a side. Use a plugin within the port limits."
+        }
+      },
+      "topologyWiderThanStrip": {
+        "code": "hosting.topology.wider-than-strip",
+        "doc": "a main port is wider than the lane the caller runs the plugin on",
+        "text": {
+          "en": "This plugin’s main port is wider than the strip it runs on. Run it on a strip wide enough for its main port."
+        }
+      }
+    }
+  }
+}

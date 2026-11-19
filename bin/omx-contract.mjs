@@ -21,12 +21,13 @@
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
-import { atLeast, contractVersion, floorOf, loadContractDir } from '../lib/contract-dir.mjs';
+import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
 import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { domainCheck } from '../lib/domain-check.mjs';
+import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
@@ -82,7 +83,20 @@ function load(argv) {
   }
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   if (!existsSync(dir)) throw new Usage(`no data directory ${dir}`);
-  return loadData(dir);
+  const withDomain = opt(argv, '--with-domain');
+  if (withDomain === undefined) return loadData(dir);
+  // the data files a domain was made from, beside the files still in data/ (docs/render.md): one read, unchanged renders
+  const ddir = resolve(withDomain);
+  const name = basename(ddir);
+  const raw = JSON.parse(readFileSync(join(ddir, `${domainLeaf(name)}.json`), 'utf8'));
+  readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+  const texts = Object.fromEntries(loadData(dir).files.map((f) => [f.rel, f.text]));
+  for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {
+    const rel = `${basename(dir)}/${file}`; // the place the file had in the data directory, as loadData names it
+    if (rel in texts) throw new Usage(`${rel} is in ${dir} and rebuilt from the domain ${name}: one source per file`);
+    texts[rel] = text;
+  }
+  return loadData(dir, texts);
 }
 
 /** The tool's own tables at the top of a data directory (data/codes.json), as loaded files. */

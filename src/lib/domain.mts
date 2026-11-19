@@ -117,7 +117,7 @@ function readRange(item: string, s: JsonObject, at: string): void {
 export function readDomain(name: string, doc: JsonObject, schemaUrl: string, schemaMajor: number): { doc: JsonObject; manifest: JsonObject; codes: DomainCodes; names: string[] } {
   const at = domainPath(name);
   if (doc.$id !== domainId(name)) refuse('manifestInvalid', at, `$id ${JSON.stringify(doc.$id)} is not ${domainId(name)}, the id of the domain whose directory this is`);
-  only(doc, ['$schema', '$id', 'info', 'components'], at, 'domain document');
+  only(doc, ['$schema', '$id', 'info', 'components', 'x-render', 'x-file'], at, 'domain document');
   if (doc.$schema !== DOMAIN_SCHEMA) refuse('fileInvalid', at, `$schema ${JSON.stringify(doc.$schema)} is not ${DOMAIN_SCHEMA}: a domain document is JSON Schema 2020-12`);
   const info = doc.info as JsonObject | undefined;
   if (typeof info !== 'object' || info === null || Array.isArray(info)) refuse('manifestInvalid', at, 'info is not an object');
@@ -140,7 +140,14 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     if (typeof s !== 'object' || s === null || Array.isArray(s)) refuse('fileInvalid', at, `${w}: not an object`);
     if ('$ref' in s) refuse('fileInvalid', at, `${w}: a $ref is not read yet; a domain's words are its own`);
     if ('properties' in s && !('oneOf' in s)) { readRange(item, s, at); names.push(item); continue; } // a range item: read at run time, rendered nowhere
-    only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'], at, w);
+    if (s['x-kind'] === 'sheet') { // a data sheet, rebuilt by render --with-domain (docs/render.md): no words, read nowhere else
+      only(s, ['description', 'x-since', 'x-why', 'x-kind', 'x-file', 'x-source', 'x-value', 'x-docs'], at, w);
+      if (typeof s['x-value'] !== 'object' || s['x-value'] === null || Array.isArray(s['x-value'])) refuse('fileInvalid', at, `${w}.x-value is not the sheet's value`);
+      names.push(item);
+      continue;
+    }
+    only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'x-kind', 'x-file', 'x-source', 'oneOf'], at, w);
+    if (s['x-kind'] !== undefined && s['x-kind'] !== 'codes') refuse('fileInvalid', at, `${w}.x-kind ${JSON.stringify(s['x-kind'])} is not codes or sheet`);
     for (const k of ['x-c-codes', 'x-c-xmacro'])
       if (s[k] !== undefined && typeof s[k] !== 'boolean') refuse('fileInvalid', at, `${w}.${k} is not true or false`);
     if (s['x-c-xmacro'] === true && s['x-c-codes'] !== true) refuse('fileInvalid', at, `${w}.x-c-xmacro without x-c-codes: the X-macro is part of the item's codes header`);
@@ -152,7 +159,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     s.oneOf.forEach((e: JsonObject, i: number) => {
       const ew = `${w}.oneOf[${i}]`;
       if (typeof e !== 'object' || e === null || Array.isArray(e)) refuse('fileInvalid', at, `${ew}: not an object`);
-      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from'], at, ew);
+      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from', 'x-name'], at, ew);
       if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a word`);
       if (typeof e.title !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(e.title)) refuse('fileInvalid', at, `${ew}.title is not the word's key`);
       if (e.description !== undefined && typeof e.description !== 'string') refuse('fileInvalid', at, `${ew}.description is not the word's line`);
@@ -185,4 +192,37 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     out[item] = { kind: 'words', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), words };
   }
   return { doc: out, codes, names, manifest: { package: name, owner: info['x-owner'], version: info.version, schemaMajor, title: info.title } };
+}
+
+/**
+ * The data files a domain was made from (docs/render.md, `render --with-domain`), `{ <x-file>: <text> }`: the items of
+ * one `x-file` in the document's order, `x-kind` codes as `{ kind, since, source, doc, codes }` (each word's `x-name`
+ * its key, `const` its code, `description` its doc, `x-text` its English text) and `x-kind` sheet as `{ kind, since,
+ * source, doc, value, docs }`; the root's `x-render` goes to the file the root's `x-file` names. Read the document with
+ * readDomain() first; an item with no `x-file` is refused by name.
+ */
+export function domainDataFiles(name: string, doc: JsonObject): Record<string, string> {
+  const at = domainPath(name);
+  const files: Record<string, JsonObject> = {};
+  const fileOf = (rel: unknown, w: string): JsonObject => {
+    if (typeof rel !== 'string' || !rel.endsWith('.json')) refuse('fileInvalid', at, `${w}.x-file is not the data path the item came from`);
+    // a path inside the data directory only: relative, forward slashes, no empty, . or .. segment
+    if (rel.startsWith('/') || rel.includes('\\') || rel.split('/').some((g) => g === '' || g === '.' || g === '..'))
+      refuse('fileInvalid', at, `${w}.x-file ${JSON.stringify(rel)} leaves the data directory: a relative path with no empty, . or .. segment and no backslash`);
+    return (files[rel as string] ??= {});
+  };
+  if (doc['x-render'] !== undefined) fileOf(doc['x-file'], 'the root').render = doc['x-render'];
+  for (const [item, s] of Object.entries((doc.components as JsonObject).schemas as Record<string, JsonObject>)) {
+    const w = `components.schemas.${item}`;
+    const f = fileOf(s['x-file'], w);
+    const head = { kind: s['x-kind'] ?? 'codes', since: s['x-since'], ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description };
+    if (s['x-kind'] === 'sheet') { f[item] = { ...head, value: s['x-value'], ...(s['x-docs'] === undefined ? {} : { docs: s['x-docs'] }) }; continue; }
+    const codes: JsonObject = {};
+    for (const e of s.oneOf as JsonObject[]) {
+      if (typeof e['x-name'] !== 'string') refuse('fileInvalid', at, `${w}: the word ${JSON.stringify(e.const)} has no x-name, its key in the data item`);
+      codes[e['x-name'] as string] = { code: e.const, ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }) };
+    }
+    f[item] = { ...head, codes };
+  }
+  return Object.fromEntries(Object.entries(files).map(([rel, d]) => [rel, `${JSON.stringify(d, null, 2)}\n`]));
 }

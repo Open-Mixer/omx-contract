@@ -7509,6 +7509,135 @@ export const PARAM_SCALES = [
 ];
 
 /**
+ * The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit).
+ *
+ * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
+ * @see data/primitives.json
+ */
+export const PARAM_UNITS = {
+  "db": {
+    "word": "dB",
+    "symbol": "dB",
+    "doc": "Decibels, a gain or a level relative to unity.",
+    "text": {
+      "en": "Decibels, a gain or a level relative to unity."
+    }
+  },
+  "dbfs": {
+    "word": "dBFS",
+    "symbol": "dBFS",
+    "doc": "Decibels relative to digital full scale.",
+    "text": {
+      "en": "Decibels relative to digital full scale."
+    }
+  },
+  "ms": {
+    "word": "ms",
+    "symbol": "ms",
+    "doc": "Milliseconds.",
+    "text": {
+      "en": "Milliseconds."
+    }
+  },
+  "s": {
+    "word": "s",
+    "symbol": "s",
+    "doc": "Seconds.",
+    "text": {
+      "en": "Seconds."
+    }
+  },
+  "min": {
+    "word": "min",
+    "symbol": "min",
+    "doc": "Minutes.",
+    "text": {
+      "en": "Minutes."
+    }
+  },
+  "hz": {
+    "word": "Hz",
+    "symbol": "Hz",
+    "doc": "Hertz, a frequency.",
+    "text": {
+      "en": "Hertz, a frequency."
+    }
+  },
+  "oct": {
+    "word": "oct",
+    "symbol": "oct",
+    "doc": "Octaves, a bandwidth or an interval.",
+    "text": {
+      "en": "Octaves, a bandwidth or an interval."
+    }
+  },
+  "cents": {
+    "word": "cents",
+    "symbol": "cents",
+    "doc": "Cents, a hundredth of a semitone.",
+    "text": {
+      "en": "Cents, a hundredth of a semitone."
+    }
+  },
+  "st": {
+    "word": "st",
+    "symbol": "st",
+    "doc": "Semitones.",
+    "text": {
+      "en": "Semitones."
+    }
+  },
+  "percent": {
+    "word": "percent",
+    "symbol": "%",
+    "doc": "Percent.",
+    "text": {
+      "en": "Percent."
+    }
+  },
+  "x": {
+    "word": "x",
+    "symbol": "x",
+    "doc": "A multiplier.",
+    "text": {
+      "en": "A multiplier."
+    }
+  },
+  "none": {
+    "word": "none",
+    "symbol": "",
+    "doc": "No unit: a ratio or a fraction.",
+    "text": {
+      "en": "No unit: a ratio or a fraction."
+    }
+  },
+  "dbPerOct": {
+    "word": "dB-oct",
+    "symbol": "dB/oct",
+    "doc": "A slope in dB per octave (a tilt).",
+    "text": {
+      "en": "A slope in dB per octave (a tilt)."
+    }
+  },
+  "lufs": {
+    "word": "LUFS",
+    "symbol": "LUFS",
+    "doc": "A loudness (ITU-R BS.1770).",
+    "text": {
+      "en": "A loudness (ITU-R BS.1770)."
+    }
+  },
+  "dbPerS": {
+    "word": "dB-s",
+    "symbol": "dB/s",
+    "doc": "A gain change per second.",
+    "text": {
+      "en": "A gain change per second."
+    }
+  }
+};
+
+/**
  * How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md).
  * @see data/primitives.json
  */
@@ -8142,6 +8271,28 @@ export const PLUGIN_FEATURE_OTHER_WORDS = [
   "lv2.Generator",
   "lv2.Oscillator",
   "lv2.Plugin"
+];
+
+/**
+ * The words of PARAM_UNITS, in their declared order.
+ * @see data/primitives.json
+ */
+export const PARAM_UNITS_WORDS = [
+  "dB",
+  "dBFS",
+  "ms",
+  "s",
+  "min",
+  "Hz",
+  "oct",
+  "cents",
+  "st",
+  "percent",
+  "x",
+  "none",
+  "dB-oct",
+  "LUFS",
+  "dB-s"
 ];
 
 /**

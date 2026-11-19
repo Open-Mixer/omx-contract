@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_PRESET_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "The hosting codes of the preset dimension: hosting.preset.*, the verdict and refusal codes a qualifier, a host or the console write and read by code, never by prose (docs/data-layout.md).",
+    "codes": {
+      "presetNotFound": {
+        "code": "hosting.preset.not-found",
+        "text": {
+          "en": "This preset could not be found. Check its name and location and try again."
+        }
+      }
+    }
+  }
+}

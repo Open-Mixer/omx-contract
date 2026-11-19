@@ -4,6 +4,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- ADDED: a domain renders as its data form did (omx-contract#139): `render --target c|ts --package <pkg> --data data --with-domain <dir>` rebuilds the data files the domain came from (each item's `x-file`; `x-kind` codes or sheet, `x-source`, `x-name`, `x-value`, `x-docs`; the root's `x-render` and `x-file`) beside the files still in `data/`, and renders them unchanged, byte for byte. A path in both is refused. The domain schema and the reader accept these words; a domain without them renders as before.
+- ADDED: libomx-domain answers a word's group, `omx_domain_word_group(d, item, word)`: the `x-group` of its `oneOf` entry, NULL for a word with none or an unknown item or word. `omx_domain_word_info` is unchanged and the SONAME stays `libomx-domain.so.0`; the ABI gains this one symbol (behaviour-core decision 4).
 ## 3.20.2
 
 - FIXED: the `omx-contract` command run through a symlink (npx, `npm run`, `node_modules/.bin/omx-contract`) runs the command; it exited 0 and did nothing, so a gate calling it that way passed on a refusal. The CLI and the tools decide "run, not imported" on real paths.

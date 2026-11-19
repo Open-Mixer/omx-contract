@@ -802,6 +802,7 @@
               "x": { "$ref": "#/$defs/word", "description": "The horizontal axis: a word of the item `axes` names." },
               "y": { "$ref": "#/$defs/word", "description": "The vertical axis: a word of the item `axes` names." },
               "unit": { "$ref": "#/$defs/unit", "description": "An axis word's unit, one of the items' units." },
+              "symbol": { "type": "string", "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell (PARAM_UNITS, since 3.21.0)." },
               "scale": { "type": "string", "pattern": "^[a-z]+$", "description": "An axis word's scale, how a host draws it: an id of PARAM_SCALES." },
               "figureUnit": { "$ref": "#/$defs/word" },
               "basis": { "$ref": "#/$defs/word" },

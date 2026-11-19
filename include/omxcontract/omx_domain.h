@@ -181,6 +181,18 @@ int omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_dom
 int omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out);
 
 /**
+ * A word's group: the `x-group` of its `oneOf` entry, the const of a word of the schema its item's `x-groups` names
+ * (since 3.21.0).
+ *
+ * @param d    the handle
+ * @param item the item's name
+ * @param word the word as written
+ * @return the group word, owned by the handle; NULL when the word has no group, or the item or word is unknown
+ *         (omx_domain_word() tells which)
+ */
+const char *omx_domain_word_group(const omx_domain *d, const char *item, const char *word);
+
+/**
  * The sentence a person sees for a word, in a language, else the English source sentence.
  *
  * @param d    the handle

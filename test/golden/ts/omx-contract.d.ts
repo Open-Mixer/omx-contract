@@ -6434,6 +6434,135 @@ export declare const PLUGIN_FEATURE_OTHER: {
 export declare const PARAM_SCALES: readonly ["linear", "log", "stepped"];
 
 /**
+ * The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit).
+ *
+ * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
+ * @see data/primitives.json
+ */
+export declare const PARAM_UNITS: {
+  readonly db: {
+    readonly word: "dB";
+    readonly symbol: "dB";
+    readonly doc: "Decibels, a gain or a level relative to unity.";
+    readonly text: {
+      readonly en: "Decibels, a gain or a level relative to unity.";
+    };
+  };
+  readonly dbfs: {
+    readonly word: "dBFS";
+    readonly symbol: "dBFS";
+    readonly doc: "Decibels relative to digital full scale.";
+    readonly text: {
+      readonly en: "Decibels relative to digital full scale.";
+    };
+  };
+  readonly ms: {
+    readonly word: "ms";
+    readonly symbol: "ms";
+    readonly doc: "Milliseconds.";
+    readonly text: {
+      readonly en: "Milliseconds.";
+    };
+  };
+  readonly s: {
+    readonly word: "s";
+    readonly symbol: "s";
+    readonly doc: "Seconds.";
+    readonly text: {
+      readonly en: "Seconds.";
+    };
+  };
+  readonly min: {
+    readonly word: "min";
+    readonly symbol: "min";
+    readonly doc: "Minutes.";
+    readonly text: {
+      readonly en: "Minutes.";
+    };
+  };
+  readonly hz: {
+    readonly word: "Hz";
+    readonly symbol: "Hz";
+    readonly doc: "Hertz, a frequency.";
+    readonly text: {
+      readonly en: "Hertz, a frequency.";
+    };
+  };
+  readonly oct: {
+    readonly word: "oct";
+    readonly symbol: "oct";
+    readonly doc: "Octaves, a bandwidth or an interval.";
+    readonly text: {
+      readonly en: "Octaves, a bandwidth or an interval.";
+    };
+  };
+  readonly cents: {
+    readonly word: "cents";
+    readonly symbol: "cents";
+    readonly doc: "Cents, a hundredth of a semitone.";
+    readonly text: {
+      readonly en: "Cents, a hundredth of a semitone.";
+    };
+  };
+  readonly st: {
+    readonly word: "st";
+    readonly symbol: "st";
+    readonly doc: "Semitones.";
+    readonly text: {
+      readonly en: "Semitones.";
+    };
+  };
+  readonly percent: {
+    readonly word: "percent";
+    readonly symbol: "%";
+    readonly doc: "Percent.";
+    readonly text: {
+      readonly en: "Percent.";
+    };
+  };
+  readonly x: {
+    readonly word: "x";
+    readonly symbol: "x";
+    readonly doc: "A multiplier.";
+    readonly text: {
+      readonly en: "A multiplier.";
+    };
+  };
+  readonly none: {
+    readonly word: "none";
+    readonly symbol: "";
+    readonly doc: "No unit: a ratio or a fraction.";
+    readonly text: {
+      readonly en: "No unit: a ratio or a fraction.";
+    };
+  };
+  readonly dbPerOct: {
+    readonly word: "dB-oct";
+    readonly symbol: "dB/oct";
+    readonly doc: "A slope in dB per octave (a tilt).";
+    readonly text: {
+      readonly en: "A slope in dB per octave (a tilt).";
+    };
+  };
+  readonly lufs: {
+    readonly word: "LUFS";
+    readonly symbol: "LUFS";
+    readonly doc: "A loudness (ITU-R BS.1770).";
+    readonly text: {
+      readonly en: "A loudness (ITU-R BS.1770).";
+    };
+  };
+  readonly dbPerS: {
+    readonly word: "dB-s";
+    readonly symbol: "dB/s";
+    readonly doc: "A gain change per second.";
+    readonly text: {
+      readonly en: "A gain change per second.";
+    };
+  };
+};
+
+/**
  * How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md).
  * @see data/primitives.json
  */
@@ -6859,6 +6988,12 @@ export declare const PLUGIN_FEATURE_ANALYZER_WORDS: readonly ["clap.analyzer", "
  * @see data/plugin-features.json
  */
 export declare const PLUGIN_FEATURE_OTHER_WORDS: readonly ["clap.ambisonic", "clap.mono", "clap.stereo", "clap.surround", "lv2.Constant", "lv2.Function", "lv2.Generator", "lv2.Oscillator", "lv2.Plugin"];
+
+/**
+ * The words of PARAM_UNITS, in their declared order.
+ * @see data/primitives.json
+ */
+export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s"];
 
 /**
  * The words of RESOURCE_KINDS, in their declared order.

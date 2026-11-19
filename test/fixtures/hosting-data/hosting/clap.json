@@ -1,0 +1,62 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_CLAP_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "The hosting codes of the clap dimension: hosting.clap.*, the verdict and refusal codes a qualifier, a host or the console write and read by code, never by prose (docs/data-layout.md).",
+    "codes": {
+      "clapExtensionsNotCovered": {
+        "code": "hosting.clap.extensions-not-covered",
+        "text": {
+          "en": "Not every extension this plugin declares is covered by what was checked. Check the plugin against the extensions this host covers, or accept the gap."
+        }
+      },
+      "clapFormatNotHosted": {
+        "code": "hosting.clap.format-not-hosted",
+        "text": {
+          "en": "This host does not host the CLAP format. Use a host that does."
+        }
+      },
+      "clapHeadlessFailed": {
+        "code": "hosting.clap.headless-failed",
+        "text": {
+          "en": "The plugin failed while being checked headless, with no window. Fix what failed and check it again."
+        }
+      },
+      "clapLatencyMismatch": {
+        "code": "hosting.clap.latency-mismatch",
+        "text": {
+          "en": "The plugin’s reported latency does not match what was measured. Trust the measured figure, not the plugin’s own report."
+        }
+      },
+      "clapNoteInput": {
+        "code": "hosting.clap.note-input",
+        "doc": "the plugin declares a note input the configuration refuses",
+        "text": {
+          "en": "This configuration refuses the note input the plugin declares. Run the plugin in a configuration that accepts its note input, or without notes."
+        }
+      },
+      "clapProcessError": {
+        "code": "hosting.clap.process-error",
+        "text": {
+          "en": "The plugin’s processing call returned an error. Treat the plugin as faulty for this block."
+        }
+      },
+      "clapThreadViolation": {
+        "code": "hosting.clap.thread-violation",
+        "text": {
+          "en": "The plugin called back from the wrong thread. Treat the plugin as not thread-safe."
+        }
+      },
+      "clapUnqualified": {
+        "code": "hosting.clap.unqualified",
+        "text": {
+          "en": "This plugin has not been qualified for hosting. Qualify it before relying on it."
+        }
+      }
+    }
+  }
+}

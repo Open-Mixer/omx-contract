@@ -101,34 +101,34 @@ Nothing else: no `_INIT`, no `_TEXT_EN`, no `_ARGS_*`, no word string, no descri
 `x-c-xmacro`, and no ts or python target. An item without `x-c-codes` renders nothing; a domain with no marked item
 renders no header.
 
-A domain may instead render as its data form does (3.21.0, omx-contract#139): there is no second renderer. When the
-domain's root carries `x-render`, `render --target c|ts --package <domain>` maps the domain onto the in-memory document
-the data render reads and renders that, so its files are byte for byte those of the data package it came from
-(omx-clap-core's `hosting`: `omx_clap_core_vocabulary.h`, `clap_host_limits.h`, `omx-clap-core-hosting.{js,d.ts}`,
-`omx-clap-core-vocabulary.*`). The map, and nothing else:
+A domain may instead render as its data form does (3.21.0, omx-contract#139): there is no second renderer. The owner
+renders its package as it does today, with the domain beside its data: `render --target c|ts --package <pkg> --data
+data --with-domain contract.d/<domain>` rebuilds the data files the domain came from, adds the files still in `data/`,
+and runs the data reader and the renders unchanged on that set. The files come out byte for byte those of the data form
+(omx-clap-core's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-core-hosting.{js,d.ts}`,
+`omx_clap_core_vocabulary.h` and `omx-clap-core-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
+The rebuild, and nothing else:
 
-- the domain's `x-render` is the data file's `render` block, word for word (`c`: header, guard, project, banner, brief;
-  `ts` likewise);
-- every item carries `x-source`, the data item's `source`, and `x-since` and `description` as today; items keep the
-  document's order;
-- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since": <x-since>, "source": <x-source>,
-  "doc": <description>, "codes": { ... } }`; each of its `oneOf` words is one code, in the written order: `const` the
-  code, `x-name` its key in `codes` (the macro stem, `clapExtensionsNotCovered`), `x-text` its English text (the map
-  builds `{ "en": <x-text> }`; a second language is a later minor), `description` its doc;
+- every item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
+  `x-file` make that file, in the document's order;
+- the root's `x-render` is the `render` block of the file the root's `x-file` names (`hosting.json`); the other
+  rebuilt files carry none, so which items render themselves and which go to the vocabulary is what it is today;
+- every item carries `x-source` (its data `source`, when it had one), `x-since` and `description` as today;
+- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since", "source", "doc", "codes" }`: each of
+  its `oneOf` words is one code in the written order, `const` the code, `x-name` its key (the macro stem,
+  `clapExtensionsNotCovered`), `x-text` its English text (`{ "en": <x-text> }`; a second language is a later minor),
+  `description` its doc;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", "since", "source", "doc", "value": <x-value>,
-  "docs": <x-docs> }`, `x-value` and `x-docs` the data item's `value` and `docs` verbatim. A sheet has no `oneOf`, so the
-  loader's word lookups do not see it. One render block may mix sheets and codes (`clap_host_limits.h` renders
-  `HOSTED_STAGE_LIMITS` with two codes items), so the whole data file moves, never half of it.
+  "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
 
-A domain without `x-render` renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
-`x-render` with an item that has no `x-kind`, or a codes item with a word that has no `x-name`, is refused by
-`validate` naming the item and the word. The data form stays what it is.
+A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file. A
+domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
+The data form stays what it is.
 
 Byte identity is held by two checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
-domain and `cmp`s the domain render of `clap_host_limits.h`, `omx_clap_core_vocabulary.h` and both ts modules
-against the data render of the same files (a changed `x-value` or `x-text` is red). The owner then commits the
-rendered files and runs `render --check --package <domain>` on them at its own build and in its CI (omx-clap-core:
-`make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
+domain and `cmp`s the five outputs of the combined read against the pure data render (a changed `x-text`, `x-value`
+or `x-file` is red). The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
+build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of

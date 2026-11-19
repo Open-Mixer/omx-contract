@@ -66,9 +66,10 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     a file path is never a reference.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
-  the document root (the data file's `render` block); on each item `x-kind` (`codes` or `sheet`, the data item's kind)
-  and `x-source` (its `source`); on each word of a codes item `x-name` (the code's key, the macro stem); and on a
-  sheet `x-value` and `x-docs` (its `value` and `docs`, verbatim). `x-text` keeps its meaning above.
+  the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
+  data path it came from), `x-kind` (`codes` or `sheet`) and `x-source` (its `source`); on each word of a codes item
+  `x-name` (the code's key, the macro stem); and on a sheet `x-value` and `x-docs` (verbatim). `x-text` keeps its
+  meaning above. They are read by `render --with-domain` (docs/render.md).
   A domain with none of them reads and renders as before.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a

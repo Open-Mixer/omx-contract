@@ -9,6 +9,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
+import { loadContractDir } from '../lib/contract-dir.mjs';
 import { ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-check-'));
@@ -144,7 +145,7 @@ test('validate: an x-since that is not MAJOR.MINOR.PATCH is refused by name', ()
     d.components.schemas.PAD_KINDS['x-since'] = bad;
     const r = cli('validate', '--contract-dir', dirWith(d));
     assert.equal(r.status, 1, String(bad));
-    assert.match(r.stderr, /PAD_KINDS.*x-since/, String(bad));
+    assert.match(r.stderr, /PAD_KINDS.*since/, String(bad));
   }
 });
 
@@ -154,4 +155,23 @@ test('validate: an x-since above the info.version is refused by name', () => {
   const r = cli('validate', '--contract-dir', dirWith(d));
   assert.equal(r.status, 1);
   assert.match(r.stderr, /PAD_MODES.*1\.3\.0.*1\.2\.0/);
+});
+
+test('validate: every bad item is one line, naming file, item and rule', () => {
+  const d = doc('1.2.0');
+  delete d.components.schemas.PAD_KINDS['x-since'];
+  d.components.schemas.PAD_MODES['x-since'] = '1.3.0';
+  const r = cli('validate', '--contract-dir', dirWith(d));
+  assert.equal(r.status, 1);
+  const lines = r.stderr.trim().split('\n');
+  assert.equal(lines.length, 2);
+  assert.match(lines[0], /pad\/pad\.json: PAD_KINDS: domain-x-since/);
+  assert.match(lines[1], /pad\/pad\.json: PAD_MODES: domain-x-since/);
+});
+
+test('the reader opens a document whose x-since is above its info.version: only validate refuses it', () => {
+  const d = doc('1.2.0');
+  d.components.schemas.PAD_MODES['x-since'] = '9.0.0';
+  delete d.components.schemas.PAD_KINDS['x-since'];
+  assert.ok(loadContractDir({ dir: dirWith(d) }).packages.has('pad'));
 });

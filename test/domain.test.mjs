@@ -27,7 +27,7 @@ function panelDomain() {
     if (name === '$schema') continue;
     schemas[name] = {
       description: it.doc,
-      'x-since': '1.0.0', // the domain's first version, as the owner writes it
+      'x-since': it.since,
       ...(it.why === undefined ? {} : { 'x-why': it.why }),
       oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
     };

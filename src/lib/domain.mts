@@ -139,9 +139,6 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     if (!ITEM.test(item)) refuse('fileInvalid', at, `${w}: the name of a schema is the item's, upper snake case`);
     if (typeof s !== 'object' || s === null || Array.isArray(s)) refuse('fileInvalid', at, `${w}: not an object`);
     if ('$ref' in s) refuse('fileInvalid', at, `${w}: a $ref is not read yet; a domain's words are its own`);
-    const since = s['x-since'];
-    if (typeof since !== 'string' || !VERSION.test(since)) refuse('fileInvalid', at, `${w}.x-since ${JSON.stringify(since)} is not MAJOR.MINOR.PATCH: every item carries the info.version of its document that first carried it`);
-    if (versionBelow(info.version as string, since)) refuse('fileInvalid', at, `${w}.x-since ${since} is above the document's info.version ${info.version}`);
     if ('properties' in s && !('oneOf' in s)) { readRange(item, s, at); names.push(item); continue; } // a range item: read at run time, rendered nowhere
     only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'], at, w);
     for (const k of ['x-c-codes', 'x-c-xmacro'])

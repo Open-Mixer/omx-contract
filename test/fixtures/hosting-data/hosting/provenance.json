@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_PROVENANCE_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "The hosting codes of the provenance dimension: hosting.provenance.*, the verdict and refusal codes a qualifier, a host or the console write and read by code, never by prose (docs/data-layout.md).",
+    "codes": {
+      "hostProvenanceDiffers": {
+        "code": "hosting.provenance.host-differs",
+        "text": {
+          "en": "The host that measured this plugin differs from the one running it now. Measure it again on this host, or accept the difference."
+        }
+      },
+      "sweepControlDidNotFire": {
+        "code": "hosting.provenance.sweep-control-did-not-fire",
+        "text": {
+          "en": "The sweep’s control plugin did not fire during the measurement. Check the control plugin and measure again."
+        }
+      }
+    }
+  }
+}

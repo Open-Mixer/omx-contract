@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_REALISED_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "What the console did with a plugin's verdict: hosting.realised.* and the outcomes with no dimension (hosting.disabled, hosting.unjudged, hosting.no-realisation, hosting.linked), read by code, never by prose.",
+    "codes": {
+      "disabled": {
+        "code": "hosting.disabled",
+        "text": {
+          "en": "This plugin is disabled. Enable it before using it."
+        }
+      },
+      "linked": {
+        "code": "hosting.linked",
+        "text": {
+          "en": "This plugin is realised linked into the host’s own process."
+        }
+      },
+      "noRealisation": {
+        "code": "hosting.no-realisation",
+        "text": {
+          "en": "This plugin has no realisation: nothing runs it. Give it a way to run before using it."
+        }
+      },
+      "realisedInProcess": {
+        "code": "hosting.realised.in-process",
+        "text": {
+          "en": "This plugin is realised in its own process, isolated from the host’s."
+        }
+      },
+      "unjudged": {
+        "code": "hosting.unjudged",
+        "text": {
+          "en": "This plugin has not been judged yet. Judge it before trusting any verdict about it."
+        }
+      }
+    }
+  }
+}

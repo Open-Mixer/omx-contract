@@ -1,0 +1,81 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_STABILITY_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "The hosting codes of the stability dimension: hosting.stability.*, the verdict and refusal codes a qualifier, a host or the console write and read by code, never by prose (docs/data-layout.md).",
+    "codes": {
+      "stabilityBelowFloor": {
+        "code": "hosting.stability.cycles-below-floor",
+        "text": {
+          "en": "The plugin was soaked for fewer cycles than the floor needs. Soak it for enough cycles before trusting the result."
+        }
+      },
+      "stabilityCrashUnattributed": {
+        "code": "hosting.stability.crash-unattributed",
+        "text": {
+          "en": "Something crashed during the run, but not a plugin that could be identified. Narrow down which plugin crashed before trusting any of them."
+        }
+      },
+      "stabilityCrashedAttributed": {
+        "code": "hosting.stability.crashed-attributed-plugin",
+        "text": {
+          "en": "This plugin crashed during the run. Don’t host it until it’s fixed."
+        }
+      },
+      "stabilityCalleeSavedClobbered": {
+        "code": "hosting.stability.callee-saved-clobbered",
+        "doc": "the plugin returned from a call with a callee-saved register changed (0.26.2): the host's guard put it back, but not the other members' state in the same process, so the plugin runs only in a worker of its own",
+        "text": {
+          "en": "This plugin returned from a call having changed a register it should have preserved. The host put the register back, but other plugins sharing its process were not protected, so it now runs only in a worker of its own."
+        }
+      },
+      "stabilityCrashedLive": {
+        "code": "hosting.stability.crashed-live-on-this-rig",
+        "doc": "the plugin crashed live on this rig",
+        "text": {
+          "en": "This plugin crashed live on this rig. Don’t host it on this rig until it’s fixed."
+        }
+      },
+      "stabilityLinksGuiToolkit": {
+        "code": "hosting.stability.links-gui-toolkit",
+        "text": {
+          "en": "This plugin links a GUI toolkit, which this host does not run headless. Run it where a GUI toolkit is safe, or use a plugin without one."
+        }
+      },
+      "stabilitySoakFailedAtRate": {
+        "code": "hosting.stability.soak-failed-at-rate",
+        "text": {
+          "en": "The plugin failed its soak test at this sample rate. Don’t trust it at this rate until it’s fixed."
+        }
+      },
+      "stabilitySoaked": {
+        "code": "hosting.stability.soaked",
+        "text": {
+          "en": "The plugin completed its soak test. It held up over the run."
+        }
+      },
+      "stabilitySpawnsThreads": {
+        "code": "hosting.stability.spawns-threads",
+        "text": {
+          "en": "This plugin spawns its own threads. Watch it for behaviour a host does not control."
+        }
+      },
+      "stabilityUnmeasured": {
+        "code": "hosting.stability.unmeasured",
+        "text": {
+          "en": "This plugin’s stability has not been measured. Measure it before relying on it."
+        }
+      },
+      "stabilityUnsoaked": {
+        "code": "hosting.stability.unsoaked",
+        "text": {
+          "en": "This plugin has not been soaked. Soak it before trusting it over a long run."
+        }
+      }
+    }
+  }
+}

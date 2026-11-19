@@ -74,8 +74,8 @@ test('sabotage: a file no rule places is named', () => {
 test('sabotage: a panel word put back into data/ is named, as an item and as the file panel.json', () => {
   const panel = { PANEL_FAMILIES: { kind: 'words', since: '3.7.0', doc: 'd', words: { none: { word: 'none', doc: 'd' } } } };
   const stray = files();
-  stray.find((f) => f.rel === 'measurement.json').doc.PANEL_PLACEMENTS = panel.PANEL_FAMILIES;
-  assert.ok(layoutProblems(stray).some((m) => /^measurement\.json: PANEL_PLACEMENTS: a word of the panel domain, which omx-panel owns/.test(m)));
+  stray.find((f) => f.rel === 'curves.json').doc.PANEL_PLACEMENTS = panel.PANEL_FAMILIES;
+  assert.ok(layoutProblems(stray).some((m) => /^curves\.json: PANEL_PLACEMENTS: a word of the panel domain, which omx-panel owns/.test(m)));
   const back = files();
   back.push({ rel: 'panel.json', doc: panel });
   const got = layoutProblems(back);

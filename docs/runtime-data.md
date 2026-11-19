@@ -110,7 +110,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   `omx_domain_text` alone returns NULL: when the key is no word of the domain, and when the word has no source sentence
   (no `x-text`; the catalog's sentence for it is still returned in a language the catalog holds). `omx_domain_word_count` returns -1
   when there is no such item. Opening refuses with the reader's existing codes (`contract.dir.absent`,
-  `contract.file.not-json`, `contract.file.invalid`, `contract.manifest.invalid` for an `$id` that is not the domain's,
+  `contract.file.not-json`, `contract.file.invalid`, `contract.manifest.invalid` for an `$id` that is not the domain's and for an `info` without a `x.y.z` version, a non-empty `x-owner` or an `x-stability` of `experimental` or `stable`,
   `contract.package.too-old` for an `info.version` below the floor), and `contract.catalog.invalid` for a catalog of the domain it cannot read. A lookup fails with one of three codes the loader
   adds to `CONTRACT_CODES`, each with its sentence and its translations: `contract.item.unknown` (no such item in the
   domain), `contract.word.unknown` (no such word or name in the item; an item that has no words has no word) and
@@ -138,7 +138,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   thread needs is copied into a plain struct of the program's before the thread starts.
 - **Validation at open.** `omx_domain_open` checks the document before it returns (see "What it reads"), so a function
   never returns a value from a document that is not of the shape it reads: `$id` is the domain's, `info.version` and
-  `info.x-owner` are there, every word and every range is complete, a word is declared once and carries its place in its list as `x-code`, a range has `minimum` <= `default` <= `maximum`, a schema has `oneOf` or `properties` and not both, `info.x-owner` is not empty, no key is written twice, and a catalog is a regular file (never a symlink) named by a language tag (`es`, `pt-BR`); a bad catalog (not such a file, not JSON, no `messages` object, an entry without a text, a key twice, a catalog directory that changes while it is read) is `contract.catalog.invalid`, its own code, never the document's. A `$ref` to another domain,
+  `info.x-owner` are there, every word and every range is complete, a word is declared once and carries its place in its list as `x-code`, a range has `minimum` <= `default` <= `maximum`, a schema has `oneOf` or `properties` and not both, `info.x-owner` is not empty, no key is written twice, and a catalog is a regular file (never a symlink) named by a language tag (`es`, `pt-BR`); a catalog's `lang` is its file name; a bad catalog (not such a file, a `lang` that is not its file name, not JSON, no `messages` object, an entry without a text, a key twice, a catalog directory that changes while it is read) is `contract.catalog.invalid`, its own code, never the document's. A `$ref` to another domain,
   resolved by `$id` from the same installed directory, is not read yet: a domain document refuses `$ref` today
   (docs/contract-dir.md, omx-contract#84), and the loader follows when the reader does.
 - **One parser, from the distribution.** The loader reads JSON with a library the distributions package (jansson or
@@ -150,7 +150,19 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 No generator for either. The domain document is JSON Schema 2020-12 data, and each language reads it with a standard
 tool.
 
-- **TypeScript.** The types come from the schema as a TypeScript type, `FromSchema<typeof schema>`
+- **TypeScript, the reader beside the C loader.** `openDomainAt(dirs, domain, needs)` of `@openmixer/omx-contract/domain-reader`
+  (src/lib/domain-reader.mts) is the TypeScript counterpart of `omx_domain_open_at`: it reads the first of `dirs` that holds
+  `<domain>/<last segment>.json`, checks the same structure with the same rules, the same codes and the same members in
+  its messages (`$id`, `info`, `x-stability`, words and their `x-code`, ranges, a key written twice, catalogs), and returns a
+  handle with `word(item, word)`, `words(item)`, `range(item, name)` and `text(lang, key)` for the lookups. It is the one
+  TypeScript reader of a domain at run time. **One conformance suite** holds the two to each other:
+  `test/fixtures/conformance/cases.json` lists domain documents, each a contract directory with its expected verdict (`ok`,
+  or the contract code and the member the message names). `make test-c` runs it through the C loader
+  (`test/c/conformance_test.c`), `test/domain-conformance.test.mjs` through `openDomainAt`, and asserts that the two give the
+  same verdict for every case. A case may also carry a `build` verdict: a rule only the build checks (an unknown key, an item
+  without a description, a prefix, a stray file) leaves both runtime readers `ok` and is refused by `loadContractDir`,
+  the full schema check.
+- **TypeScript, the types.** The types come from the schema as a TypeScript type, `FromSchema<typeof schema>`
   (json-schema-to-ts), not from a rendered `.d.ts`. The schema is imported as a typed constant from the owner's package
   at the version floor the consumer declares; the consumer keeps no copy of it, and no file is written. At run time the
   installed JSON is loaded and validated with a standard JSON Schema validator (Ajv, for example), and its

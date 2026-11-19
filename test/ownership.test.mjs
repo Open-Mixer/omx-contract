@@ -45,43 +45,37 @@ test('the committed tree is clean', () => {
 
 test('a new item in neither list is red, named with its repository-relative file', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_FAKE_WORDS = d.PANEL_FAMILIES; });
+  editJson('data/curves.json', (d) => { d.CURVE_FAKE_WORDS = d.CURVE_KINDS; });
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_FAKE_WORDS \(data\/panel\.json\) is in neither/);
+  assert.match(r.out, /CURVE_FAKE_WORDS \(data\/curves\.json\) is in neither/);
   assert.ok(!r.out.includes(dir), 'a message names a path relative to the repository');
 });
 
 test('a new word inside an existing item is red, named with the item and the word', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_FAMILIES.words.utility_x = { ...Object.values(d.PANEL_FAMILIES.words)[0] }; });
+  editJson('data/curves.json', (d) => { d.CURVE_KINDS.words.utility_x = { ...Object.values(d.CURVE_KINDS.words)[0] }; });
   let r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_FAMILIES.*utility_x/);
+  assert.match(r.out, /CURVE_KINDS.*utility_x/);
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_DISPLAY_KINDS.words.time_response_x = { ...Object.values(d.PANEL_DISPLAY_KINDS.words)[0] }; });
+  editJson('data/curves.json', (d) => { d.CURVE_AXES.words.time_response_x = { ...Object.values(d.CURVE_AXES.words)[0] }; });
   r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_DISPLAY_KINDS.*time_response_x/);
+  assert.match(r.out, /CURVE_AXES.*time_response_x/);
 });
 
 test('a new word in a schema enum is red, named by file and pointer', () => {
   reset();
-  editJson('schema/omx-contract.schema.json', (d) => { d.$defs.override.properties.family.enum.push('fake_family'); });
-  let r = run();
-  assert.equal(r.status, 1);
-  assert.match(r.out, /schema\/omx-contract\.schema\.json#.*family.*fake_family/);
-  reset();
   editJson('shapes/travel.schema.json', (d) => { const find = (o) => { for (const v of Object.values(o)) { if (v && typeof v === 'object') { if (Array.isArray(v.enum)) { v.enum.push('fake_unit'); return true; } if (find(v)) return true; } } return false; }; assert.ok(find(d)); });
-  r = run();
+  let r = run();
   assert.equal(r.status, 1);
   assert.match(r.out, /shapes\/travel\.schema\.json#.*fake_unit/);
 });
 
-test('the override family enum is on the moving-out list, the side-file fields and render are on none', () => {
+test('the side-file fields and render are on no list, the verb hosts are on the moving-out list', () => {
   const moving = read('ownership/moving-out.txt');
   const owned = read('ownership/owned.txt');
-  assert.match(moving, /^schema\/omx-contract\.schema\.json#.*override.*family.*enum$/m);
   assert.match(moving, /^VERB_HOSTS$/m);
   for (const n of ['ulp', 'doc', 'laws', 'render']) {
     assert.ok(!new RegExp(`^${n}$`, 'm').test(owned + moving), `${n} is no item`);
@@ -90,7 +84,7 @@ test('the override family enum is on the moving-out list, the side-file fields a
 
 test('a name added to moving-out is red, against the base', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.NEW_THING = d.PANEL_FAMILIES; });
+  editJson('data/curves.json', (d) => { d.NEW_THING = d.CURVE_KINDS; });
   editList('ownership/moving-out.txt', (l) => [...l, 'NEW_THING']);
   const r = run();
   assert.equal(r.status, 1);
@@ -99,28 +93,28 @@ test('a name added to moving-out is red, against the base', () => {
 
 test('a moving-out item moved back to owned is red', () => {
   reset();
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
-  editList('ownership/owned.txt', (l) => [...l, 'PANEL_PLACEMENTS']);
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'CURVE_AXES'));
+  editList('ownership/owned.txt', (l) => [...l, 'CURVE_AXES']);
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_PLACEMENTS stood on ownership\/moving-out\.txt at the base/);
+  assert.match(r.out, /CURVE_AXES stood on ownership\/moving-out\.txt at the base/);
 });
 
 test('a word added to a moving-out item in words.json is red, even with the data matching', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_FAMILIES.words.utility_x = { ...Object.values(d.PANEL_FAMILIES.words)[0] }; });
+  editJson('data/curves.json', (d) => { d.CURVE_KINDS.words.utility_x = { ...Object.values(d.CURVE_KINDS.words)[0] }; });
   const u = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', '--update'], { encoding: 'utf8' });
   assert.equal(u.status, 0, u.stderr);
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_FAMILIES.*utility_x.*added.*moving out/);
+  assert.match(r.out, /CURVE_KINDS.*utility_x.*added.*moving out/);
 });
 
 test('a moved item and its words leave together: removing both is green', () => {
   reset();
-  editJson('data/panel.json', (d) => { delete d.PANEL_PLACEMENTS; });
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
-  editJson('ownership/words.json', (d) => { delete d.PANEL_PLACEMENTS; });
+  editJson('data/curves.json', (d) => { delete d.CURVE_AXES; });
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'CURVE_AXES'));
+  editJson('ownership/words.json', (d) => { delete d.CURVE_AXES; });
   const r = run();
   assert.equal(r.status, 0, r.out);
 });

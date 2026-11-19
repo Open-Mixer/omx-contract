@@ -1044,57 +1044,6 @@
     "88200",
     "96000"
   ],
-  "PANEL_DISPLAY_KINDS": [
-    "eqResponse",
-    "gainReductionBar",
-    "meter",
-    "timeResponse",
-    "transferCurve"
-  ],
-  "PANEL_DISPLAY_SOURCES": [
-    "curve",
-    "family",
-    "gainAdjustment",
-    "meters"
-  ],
-  "PANEL_FAMILIES": [
-    "deesser",
-    "delay",
-    "drive",
-    "dynamics",
-    "eq",
-    "filter",
-    "gate",
-    "limiter",
-    "modulation",
-    "none",
-    "pitch",
-    "reverb",
-    "utility"
-  ],
-  "PANEL_PLACEMENTS": [
-    "bus",
-    "insert",
-    "master",
-    "return"
-  ],
-  "PANEL_STANDARD_WIDGETS": [
-    "curve",
-    "display",
-    "fader",
-    "knob",
-    "meter",
-    "selector",
-    "switch",
-    "xy"
-  ],
-  "PANEL_WIDGETS": [
-    "auto",
-    "fader",
-    "knob",
-    "selector",
-    "switch"
-  ],
   "PARAM_SCALES": [
     "linear",
     "log",
@@ -1362,21 +1311,6 @@
     "unknown",
     "wetDryRatio",
     "width"
-  ],
-  "schema/omx-contract.schema.json#/$defs/override/properties/family/enum": [
-    "deesser",
-    "delay",
-    "drive",
-    "dynamics",
-    "eq",
-    "filter",
-    "gate",
-    "limiter",
-    "modulation",
-    "none",
-    "pitch",
-    "reverb",
-    "utility"
   ],
   "schema/omx-contract.schema.json#/$defs/override/properties/plugin/properties/format/enum": [
     "clap",

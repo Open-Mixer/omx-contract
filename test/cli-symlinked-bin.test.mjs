@@ -72,3 +72,19 @@ test('the package exports isMain at ./entry, and a consumer run through a symlin
   assert.equal(r.status, 3);
   assert.equal(r.stdout.trim(), 'ran');
 });
+
+// A package with no npm dependency on omx-contract (its tools are run by make) finds the installed CLI's files, and so
+// isMain, through pkg-config: `pkg-config --variable=clidir omx-contract` names the directory `make install-cli`
+// fills, and <clidir>/lib/entry.mjs is the module above.
+test('pkg-config --variable=clidir names the installed CLI directory, which holds lib/entry.mjs', () => {
+  const dest = join(scratch, 'install');
+  const prefix = '/opt/omx-contract-test';
+  const make = spawnSync('make', ['-s', 'install', 'install-cli', `DESTDIR=${dest}`, `PREFIX=${prefix}`], { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(make.status, 0, make.stderr);
+  const pc = spawnSync('pkg-config', ['--variable=clidir', 'omx-contract'],
+    { encoding: 'utf8', env: { ...process.env, PKG_CONFIG_PATH: '', PKG_CONFIG_LIBDIR: join(dest, prefix, 'share/pkgconfig') } });
+  assert.equal(pc.status, 0, pc.stderr);
+  const clidir = pc.stdout.trim();
+  assert.equal(clidir, `${prefix}/lib/omx-contract`);
+  assert.equal(readFileSync(join(dest, clidir, 'lib/entry.mjs'), 'utf8'), readFileSync(join(ROOT, 'lib/entry.mjs'), 'utf8'));
+});

@@ -24,6 +24,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
+import { isMain } from '../lib/entry.mjs';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const RECIPE = 'recipes/kernel.recipe.json';
@@ -273,4 +274,4 @@ function main(argv) {
   process.exit(v.ok ? 0 : 1);
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main(process.argv.slice(2));
+if (isMain(import.meta.url)) main(process.argv.slice(2));

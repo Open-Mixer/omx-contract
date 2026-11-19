@@ -32,13 +32,14 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { register } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { entriesOf, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { formatDoc } from '../lib/fmt.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
 import { ROOT, answersProblems, completeness, fill, itemSince, layerOfPath, loadRecipe, readAnswers } from './kernel-recipe.mjs';
+import { isMain } from '../lib/entry.mjs';
 
 class Refusal extends Error {}
 const refuse = (m) => { throw new Refusal(m); };
@@ -448,7 +449,7 @@ async function main(argv) {
   return 2;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).then((c) => process.exit(c), (e) => {
     console.error(e instanceof Refusal ? `omx-new-kernel: ${e.message}` : e.stack);
     process.exit(e instanceof Refusal ? 1 : 2);

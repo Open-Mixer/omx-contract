@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/omx-contract",
-  "version": "3.20.0",
+  "version": "3.20.2",
   "description": "The OpenMixer declarations as data: a JSON Schema, the data, and one CLI that renders them into C, TypeScript and JSON",
   "type": "module",
   "license": "GPL-3.0-or-later",
@@ -44,6 +44,10 @@
     "./catalog": {
       "types": "./lib/catalog.d.mts",
       "import": "./lib/catalog.mjs"
+    },
+    "./entry": {
+      "types": "./lib/entry.d.mts",
+      "import": "./lib/entry.mjs"
     },
     "./contract-dir": {
       "types": "./lib/contract-dir.d.mts",

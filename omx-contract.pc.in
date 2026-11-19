@@ -7,6 +7,10 @@ datadir=@DATADIR@/omx-contract
 contractdir=@CONTRACTDIR@
 # the schema major the contract directory is read under: <contractdir>/<schema_major>/<package>/
 schema_major=@SCHEMA_MAJOR@
+# the omx-contract command's own files (`make install-cli`): <clidir>/lib/entry.mjs exports isMain for the command-line
+# entry points of packages that have no npm dependency on omx-contract. Those files ship in the omx-contract package, not
+# in the -devel (-dev) package that holds this file: a consumer importing entry.mjs build-depends on omx-contract itself
+clidir=@CLIDIR@
 
 Name: omx-contract
 Description: The Open-Mixer declarations as data, rendered as C headers (omxcontract/)

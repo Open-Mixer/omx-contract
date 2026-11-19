@@ -45,6 +45,10 @@
       "types": "./lib/catalog.d.mts",
       "import": "./lib/catalog.mjs"
     },
+    "./entry": {
+      "types": "./lib/entry.d.mts",
+      "import": "./lib/entry.mjs"
+    },
     "./contract-dir": {
       "types": "./lib/contract-dir.d.mts",
       "import": "./lib/contract-dir.mjs"

@@ -67,6 +67,9 @@ export function domainOfPath(rel: string): string | undefined {
 }
 
 /** A domain's name: what a directory under a contractdir is called when it is not a schema major. */
+/** The one JSON Schema dialect a domain document is written in. */
+export const DOMAIN_SCHEMA = 'https://json-schema.org/draft/2020-12/schema';
+
 export const DOMAIN_NAME = /^[a-z][a-z0-9-]*$/;
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.20.1
+Version: 3.20.2
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -308,6 +308,18 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.2-1
+- The omx-contract command run through a symlink (npx, npm run,
+  node_modules/.bin/omx-contract) runs the command: it exited 0 and did nothing,
+  so a gate calling it that way passed on a refusal. The CLI and the tools
+  decide "run, not imported" on real paths (#135).
+- @openmixer/omx-contract/entry exports isMain(import.meta.url), that check,
+  for other packages' command-line entry points (#135).
+- omx-contract.pc names the installed command's directory, pkg-config
+  --variable=clidir omx-contract; a package with no npm dependency imports
+  <clidir>/lib/entry.mjs, which ships in omx-contract, so it build-depends on
+  omx-contract itself (#135).
+
 * Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.1-1
 - omx-contract domain check <new> <committed>: an owner's generated domain
   document against its committed one, refused by name (exit 1): words or items

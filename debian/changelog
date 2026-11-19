@@ -1,3 +1,18 @@
+omx-contract (3.20.2) unstable; urgency=medium
+
+  * The omx-contract command run through a symlink (npx, npm run,
+    node_modules/.bin/omx-contract) runs the command: it exited 0 and did
+    nothing, so a gate calling it that way passed on a refusal. The CLI and
+    the tools decide "run, not imported" on real paths (#135).
+  * @openmixer/omx-contract/entry exports isMain(import.meta.url), that
+    check, for other packages' command-line entry points (#135).
+  * omx-contract.pc names the installed command's directory,
+    pkg-config --variable=clidir omx-contract; a package with no npm
+    dependency imports <clidir>/lib/entry.mjs, which ships in omx-contract,
+    so it build-depends on omx-contract itself (#135).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 19 Nov 2026 19:20:27 +0000
+
 omx-contract (3.20.1) unstable; urgency=medium
 
   * omx-contract domain check <new> <committed>: an owner's generated domain

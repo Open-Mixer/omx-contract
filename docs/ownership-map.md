@@ -7,7 +7,7 @@ pass ships every domain where it is (`x-since` fixes only); nothing below is imp
 the word moves down, or the reader does. There is no blanket redesign (owner ruling, 2026-11-19).
 
 Who owns each vocabulary of the Open-Mixer repositories, in what form, which consumers switch to it, and which release
-would carry the switch. It settles the 30 conflicts an inventory of every domain document, every
+carries the switch. It settles the 30 conflicts an inventory of every domain document, every
 `data/` item and every hand copy found on 2026-11-19, and sorts every vocabulary of that inventory in a pass
 after this release pass. `ownership/owned.txt` and `ownership/moving-out.txt` keep omx-contract's own list. This
 page is the map across repositories.
@@ -52,7 +52,7 @@ governs code and build dependencies on another repository's sources, and hand co
 
 ## The map
 
-| # | Conflict | Proposed owner, form | Removed / switched | Proposed line |
+| # | Conflict | Owner, form | Removed / switched | Line |
 |---|---|---|---|---|
 | 1 | `PANEL_*` declared in omx-contract `data/panel.json` and omx-panel's `panel` domain | omx-panel, `panel` domain | omx-contract drops `data/panel.json` and its `words.json` and `moving-out.txt` entries; the console imports omx-panel's generated module | S6, S11; drop SZ |
 | 2 | `PLUGIN_HOSTD_CLAP_MAP` and `_LV2_MAP` in plugin-qualify and plugin-hostd, drifted | plugin-hostd (it maps the formats it hosts), a `formats-map` domain | plugin-qualify's `data/formats/*` copy removed; plugin-qualify reads the installed domain | sorting pass |
@@ -91,10 +91,10 @@ Nothing of this map. Every domain ships where it is, with `x-since` fixes only. 
 the `qualification` move, omx-clap-core#136 (hosting), the units and the panel words. omx-contract 3.21.0 is not cut
 in this pass.
 
-## The proposed sorting pass
+## The sorting pass
 
-After this release pass, every vocabulary of the inventory would go to its owner, by the five rules. This is a
-PROPOSAL: no line runs before the owner approves it item by item.
+After this release pass, every vocabulary of the inventory goes to its owner, by the five rules (approved by the
+owner, 2026-11-19).
 
 **Its lines.** A contract package is leaf data (rule 2 as read above), so owners publish before readers switch, and
 the old holders drop last:
@@ -112,11 +112,11 @@ A setter (plugin-qualify) or a storer (plugin-db-qualification, plugin-db) owns 
 the installed domain like any consumer.
 
 **The vocabularies.** These are the inventory's rows, about 160 domain and data items. Per item: where it is today,
-the proposed owner and the rule, and what changes: files, packages (which gains or loses), consumers, the lines of
+the owner and the rule, and what changes: files, packages (which gains or loses), consumers, the lines of
 the pass and the releases that carry them, and the risk (what breaks if it goes wrong, and how it is caught). The
 release numbers are the next minor of each repository after this pass.
 
-| # | Vocabulary | Today | Level, rule | Proposed owner, form | Consumers | Files that change | Packages (gains, loses) | Lines | Releases | Risk (what breaks, how it is caught) |
+| # | Vocabulary | Today | Level, rule | Owner, form | Consumers | Files that change | Packages (gains, loses) | Lines | Releases | Risk (what breaks, how it is caught) |
 |---|---|---|---|---|---|---|---|---|---|---|
 | V1 | `PANEL_FAMILIES`, `_STANDARD_WIDGETS`, `_WIDGETS`, `_DISPLAY_KINDS`, `_DISPLAY_SOURCES`, `_PLACEMENTS` | omx-panel `panel` domain AND omx-contract `data/panel.json` | display, rule 3 | omx-panel, `panel` domain | omx-panel tools; omx-clap-core `omx_clap_ext.h`; the console | omx-contract's `data/panel.json` copy dropped; ext.h includes the rendered header; the console imports the generated module | omx-panel-contract: none (already holds `panel`); omx-contract-contract loses `data/panel.json` | S6, S7, S11; drop SZ | omx-panel 0.16.0 (its tools), omx-clap-core 0.34.0 (ext.h), the console's next release; the drop in omx-contract 3.21.0's successor | a consumer still reading omx-contract's copy breaks at the drop: the drop waits until a grep of the consumers finds none, and the console's build fails red without it |
 | V2 | `PANEL_STORE_CODES`, `_DESCRIBE_CODES`, `_GROUP_OUTCOMES`, `_GROUP_REASONS`, `_GROUP_RULES` | omx-panel `panel` domain | display, rule 1 | omx-panel, `panel` domain | omx-panel `store.c`, `describe.mjs`, `group-infer.mjs` | its tools read its own domain | omx-panel-contract: none | S6 | omx-panel 0.16.0 | a tool reading a misspelled word refuses at run time: omx-panel's tests read the domain, not literals |

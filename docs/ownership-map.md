@@ -1,11 +1,14 @@
 # Ownership map of the vocabularies
 
-**Status: PROPOSAL** (owner, 2026-11-19). Vocabulary moves are frozen until the owner approves this map item by item.
-This release pass ships every domain where it is (`x-since` fixes only). Nothing below is implemented.
+**Status: APPROVED** (owner, 2026-11-19), as the plan of the sorting pass that follows this release pass. This release
+pass ships every domain where it is (`x-since` fixes only); nothing below is implemented yet.
+
+**A conflict found later.** An inner repository found to need an outer one's word is an error, fixed case by case:
+the word moves down, or the reader does. There is no blanket redesign (owner ruling, 2026-11-19).
 
 Who owns each vocabulary of the Open-Mixer repositories, in what form, which consumers switch to it, and which release
-would carry the switch. It proposes how to settle the 30 conflicts an inventory of every domain document, every
-`data/` item and every hand copy found on 2026-11-19, and how to sort every vocabulary of that inventory in a pass
+would carry the switch. It settles the 30 conflicts an inventory of every domain document, every
+`data/` item and every hand copy found on 2026-11-19, and sorts every vocabulary of that inventory in a pass
 after this release pass. `ownership/owned.txt` and `ownership/moving-out.txt` keep omx-contract's own list. This
 page is the map across repositories.
 
@@ -148,7 +151,7 @@ release numbers are the next minor of each repository after this pass.
 | V31 | `OMX_PLUGINS_ROLE_MEANINGS`, `OMX_PLUGIN_FACE_IDS` | omx-plugins `contract/` | plugin (the plugins' own declarations), rule 1 | omx-plugins, `plugins` domain | omx-panel (role meanings); omx-plugins faces | the data items become the domain | omx-plugins-contract: `contract/` becomes a `plugins` domain | SA, S6, S10 | omx-plugins next minor, omx-panel 0.16.0 | omx-panel reads role meanings: its role test reads the domain |
 | V32 | `OPENMIXER_CLOCK_REFERENCE_WHY`, `_DRIVER_RING_DISABLED_WHY`, `_RT_HOST_UNRESOLVED_WHY` | the console `words.json` (from hand TS) | the console's own, rule 1 | the console, a domain of its own | the console's server and web UI | `words.json` generated from the domain, not from hand TS (row 22) | the console's package: `words.json` generated from its domain | S11 | the console's next release | the server's messages: the console's words test |
 
-**Rows that are a reading, for the owner to rule on:**
+**Rows the owner ruled on (2026-11-19), as proposed:**
 
 - **V24 and V27:** plugin-db owns the plugin level (the lowest layer that defines a plugin).
 - **V12:** the pin verdicts and pools are host level, so plugin-hostd's.

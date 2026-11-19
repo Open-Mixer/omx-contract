@@ -1,3 +1,17 @@
+omx-contract (3.21.0) unstable; urgency=medium
+
+  * A domain renders as its data form did: render --target c|ts --package
+    <pkg> --data data --with-domain <dir> rebuilds the data files the domain
+    came from (each item's x-file; x-kind codes or sheet) beside the files
+    still in data/ and renders them unchanged, byte for byte (#139, #141).
+  * libomx-domain answers a word's group, omx_domain_word_group(); the
+    library keeps .so.0 and omx_domain_word_info is unchanged (#141).
+  * PARAM_UNITS, the closed list of units as a words item; the schema's
+    unit enum is rendered from it (#141).
+  * CI checks the commit identity on pull requests too (#138).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 19 Nov 2026 20:55:43 +0000
+
 omx-contract (3.20.2) unstable; urgency=medium
 
   * The omx-contract command run through a symlink (npx, npm run,

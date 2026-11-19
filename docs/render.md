@@ -109,14 +109,26 @@ the data render reads and renders that, so its files are byte for byte those of 
 
 - the domain's `x-render` is the data file's `render` block, word for word (`c`: header, guard, project, banner, brief;
   `ts` likewise);
-- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since": <x-since>, "doc": <description>,
-  "codes": { ... } }`, in the document's item order;
-- each of its `oneOf` words is one code, in the written order: `const` the code, `x-name` its key in `codes` (the macro
-  stem, `clapExtensionsNotCovered`), `x-text` its English text, `description` its doc.
+- every item carries `x-source`, the data item's `source`, and `x-since` and `description` as today; items keep the
+  document's order;
+- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since": <x-since>, "source": <x-source>,
+  "doc": <description>, "codes": { ... } }`; each of its `oneOf` words is one code, in the written order: `const` the
+  code, `x-name` its key in `codes` (the macro stem, `clapExtensionsNotCovered`), `x-text` its English text (the map
+  builds `{ "en": <x-text> }`; a second language is a later minor), `description` its doc;
+- an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", "since", "source", "doc", "value": <x-value>,
+  "docs": <x-docs> }`, `x-value` and `x-docs` the data item's `value` and `docs` verbatim. A sheet has no `oneOf`, so the
+  loader's word lookups do not see it. One render block may mix sheets and codes (`clap_host_limits.h` renders
+  `HOSTED_STAGE_LIMITS` with two codes items), so the whole data file moves, never half of it.
 
 A domain without `x-render` renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
-`x-render` with an item that has no `x-kind`, or an `x-kind` item with a word that has no `x-name`, is refused by
-`validate` naming the item and the word. The data form stays what it is. The owner commits its codes header and runs `render --check` on it at its own build, so a code
+`x-render` with an item that has no `x-kind`, or a codes item with a word that has no `x-name`, is refused by
+`validate` naming the item and the word. The data form stays what it is.
+
+Byte identity is held by two checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
+domain and `cmp`s the domain render of `clap_host_limits.h`, `omx_clap_core_vocabulary.h` and both ts modules
+against the data render of the same files (a changed `x-value` or `x-text` is red). The owner then commits the
+rendered files and runs `render --check --package <domain>` on them at its own build and in its CI (omx-clap-core:
+`make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of

@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- The panel words LEAVE omx-contract: `data/panel.json` (`PANEL_FAMILIES`, `PANEL_WIDGETS`, `PANEL_STANDARD_WIDGETS`,
+  `PANEL_DISPLAY_KINDS`, `PANEL_DISPLAY_SOURCES`, `PANEL_PLACEMENTS`), their catalog entries and their renders in
+  `omx_vocabulary.h` are removed, with no shim: omx-panel owns them as the `panel` domain (`contract.d/panel/panel.json`,
+  `<omxdomain/panel_vocabulary.h>`), words and codes unchanged, and a change of one is its release alone. A consumer
+  includes `<omxdomain/panel_vocabulary.h>` and floors omx-panel, not omx-contract. `tools/data-layout.mjs` refuses a
+  `PANEL_*` item or a `panel.json` in data/ by name (`DOMAINS_OWNED_ELSEWHERE`), so they cannot creep back.
+
 ## 3.20.2
 
 - FIXED: the `omx-contract` command run through a symlink (npx, `npm run`, `node_modules/.bin/omx-contract`) runs the command; it exited 0 and did nothing, so a gate calling it that way passed on a refusal. The CLI and the tools decide "run, not imported" on real paths.

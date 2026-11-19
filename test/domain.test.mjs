@@ -11,32 +11,20 @@ import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
 import { loadContractDir } from '../lib/contract-dir.mjs';
-import { loadData, resolveData } from '../lib/data.mjs';
+import { resolveData } from '../lib/data.mjs';
 import { domainCodesC } from '../render/codes.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { packageVocabularyC, wordsExports } from '../render/vocabulary.mjs';
+import { ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 
-/** The domain document of data/panel.json, as the owner writes it: each words item a oneOf of const words. */
-function panelDomain() {
-  const old = JSON.parse(readFileSync(join(DATA, 'panel.json'), 'utf8'));
-  const schemas = {};
-  for (const [name, it] of Object.entries(old)) {
-    if (name === '$schema') continue;
-    schemas[name] = {
-      description: it.doc,
-      'x-since': it.since,
-      ...(it.why === undefined ? {} : { 'x-why': it.why }),
-      oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
-    };
-  }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas } };
-}
+/** A domain document with words, the fixture of every test here (no panel word: those are omx-panel's). */
+const sampleDomain = () => JSON.parse(readFileSync(join(ROOT, 'test/fixtures/domain/sample.json'), 'utf8'));
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
-function dirWith(doc, name = 'panel') {
+function dirWith(doc, name = 'sample') {
   const root = join(SCRATCH, `d-${n++}`);
   const p = join(root, name, `${name}.json`);
   mkdirSync(dirname(p), { recursive: true });
@@ -50,32 +38,43 @@ function refusalOf(root) {
 }
 
 test('a domain is read: a package of its own name, its owner metadata, its own version', () => {
-  const d = loadContractDir({ dir: dirWith(panelDomain()) });
-  const p = d.packages.get('panel');
+  const d = loadContractDir({ dir: dirWith(sampleDomain()) });
+  const p = d.packages.get('sample');
   assert.equal(p.manifest.version, '1.0.0');
-  assert.equal(p.manifest.owner, 'omx-panel');
-  assert.ok(d.items.has('PANEL_FAMILIES') && d.items.get('PANEL_FAMILIES').pkg === 'panel');
+  assert.equal(p.manifest.owner, 'omx-sample');
+  assert.ok(d.items.has('SAMPLE_KINDS') && d.items.get('SAMPLE_KINDS').pkg === 'sample');
 });
 
 test('a domain renders its marked words as codes only: one define per word and the count, no string, no text', () => {
-  const doc = panelDomain();
-  doc.components.schemas.PANEL_FAMILIES['x-c-codes'] = true;
+  const doc = sampleDomain();
+  doc.components.schemas.SAMPLE_PLACES['x-c-codes'] = true;
   const resolved = resolveData(loadContractDir({ dir: dirWith(doc) }));
-  const old = resolveData(loadData(DATA)).get('PANEL_FAMILIES').value;
-  const [h] = domainCodesC(resolved, 'panel', loadContractDir({ dir: dirWith(doc) }).packages.get('panel').codes);
-  assert.equal(h.path, 'panel_codes.h');
-  const defines = h.text.split('\n').filter((l) => l.startsWith('#define OMX_PANEL_FAMILIES_'));
-  assert.deepEqual(defines.slice(0, -1), Object.keys(old).map((k, i) => `#define OMX_PANEL_FAMILIES_${k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase()} ${i}u`));
-  assert.equal(defines.at(-1), `#define OMX_PANEL_FAMILIES_COUNT ${Object.keys(old).length}u`);
-  assert.doesNotMatch(h.text, /_INIT|_TEXT_EN|PANEL_WIDGETS/);
+  const old = Object.fromEntries(doc.components.schemas.SAMPLE_PLACES.oneOf.map((w) => [w.title, w.const]));
+  const [h] = domainCodesC(resolved, 'sample', loadContractDir({ dir: dirWith(doc) }).packages.get('sample').codes);
+  assert.equal(h.path, 'sample_codes.h');
+  const defines = h.text.split('\n').filter((l) => l.startsWith('#define OMX_SAMPLE_PLACES_'));
+  assert.deepEqual(defines.slice(0, -1), Object.keys(old).map((k, i) => `#define OMX_SAMPLE_PLACES_${k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase()} ${i}u`));
+  assert.equal(defines.at(-1), `#define OMX_SAMPLE_PLACES_COUNT ${Object.keys(old).length}u`);
+  assert.doesNotMatch(h.text, /_INIT|_TEXT_EN|SAMPLE_KINDS/);
   assert.deepEqual(h.text.split('\n').filter((l) => l.startsWith('#define') && l.includes('"')), []);
 });
 
+test('its words render as the C header, the X-macros and the ts words the committed golden holds', () => {
+  const resolved = resolveData(loadContractDir({ dir: dirWith(sampleDomain()) }));
+  const [h] = packageVocabularyC(resolved, 'sample');
+  assert.equal(h.path, 'sample_vocabulary.h');
+  assert.equal(h.text, readFileSync(join(ROOT, 'test/golden/domain/sample_vocabulary.h'), 'utf8'));
+  assert.match(h.text, /^#define OMX_SAMPLE_PLACES_THREE "three"/m);
+  assert.match(h.text, /X\(2u, "gamma_ray", GAMMA_RAY\)/);
+  const ts = wordsExports(resolved, (w) => JSON.stringify(w));
+  assert.match(ts.js, /SAMPLE_PLACES_WORDS = \[\s*"one",\s*"two",\s*"three",\s*"four"\s*\]/);
+});
+
 test('a word is any string, not only an identifier', () => {
-  const doc = panelDomain();
-  doc.components.schemas.PANEL_PLACEMENTS.oneOf.push({ const: 'fbs-fixed', title: 'fbsFixed', description: 'a dashed word', 'x-code': 4 });
+  const doc = sampleDomain();
+  doc.components.schemas.SAMPLE_PLACES.oneOf.push({ const: 'fbs-fixed', title: 'fbsFixed', description: 'a dashed word', 'x-code': 4 });
   const d = loadContractDir({ dir: dirWith(doc) });
-  assert.equal(d.items.get('PANEL_PLACEMENTS').item.words.fbsFixed.word, 'fbs-fixed');
+  assert.equal(d.items.get('SAMPLE_PLACES').item.words.fbsFixed.word, 'fbs-fixed');
 });
 
 const refusals = [
@@ -87,51 +86,51 @@ const refusals = [
   ['no x-stability', (d) => { delete d.info['x-stability']; }, CONTRACT_CODES.manifestInvalid],
   ['an x-stability that is neither experimental nor stable', (d) => { d.info['x-stability'] = 'beta'; }, CONTRACT_CODES.manifestInvalid],
   ['an unknown key of the document', (d) => { d.paths = {}; }, CONTRACT_CODES.fileInvalid],
-  ['a schema that is no oneOf', (d) => { delete d.components.schemas.PANEL_PLACEMENTS.oneOf; d.components.schemas.PANEL_PLACEMENTS.enum = ['a']; }, CONTRACT_CODES.fileInvalid],
-  ['a $ref', (d) => { d.components.schemas.PANEL_PLACEMENTS.$ref = 'https://openmixer.org/contract/look#/x'; }, CONTRACT_CODES.fileInvalid],
-  ['a code that is not the place', (d) => { d.components.schemas.PANEL_PLACEMENTS.oneOf[1]['x-code'] = 7; }, CONTRACT_CODES.fileInvalid],
-  ['two words of one key', (d) => { d.components.schemas.PANEL_PLACEMENTS.oneOf[1].title = 'insert'; }, CONTRACT_CODES.fileInvalid],
-  ['a word that is not a string', (d) => { d.components.schemas.PANEL_PLACEMENTS.oneOf[0].const = 3; }, CONTRACT_CODES.fileInvalid],
+  ['a schema that is no oneOf', (d) => { delete d.components.schemas.SAMPLE_PLACES.oneOf; d.components.schemas.SAMPLE_PLACES.enum = ['a']; }, CONTRACT_CODES.fileInvalid],
+  ['a $ref', (d) => { d.components.schemas.SAMPLE_PLACES.$ref = 'https://openmixer.org/contract/look#/x'; }, CONTRACT_CODES.fileInvalid],
+  ['a code that is not the place', (d) => { d.components.schemas.SAMPLE_PLACES.oneOf[1]['x-code'] = 7; }, CONTRACT_CODES.fileInvalid],
+  ['two words of one key', (d) => { d.components.schemas.SAMPLE_PLACES.oneOf[1].title = 'one'; }, CONTRACT_CODES.fileInvalid],
+  ['a word that is not a string', (d) => { d.components.schemas.SAMPLE_PLACES.oneOf[0].const = 3; }, CONTRACT_CODES.fileInvalid],
 ];
 for (const [what, edit, code] of refusals) {
   test(`refused: ${what}`, () => {
-    const doc = panelDomain();
+    const doc = sampleDomain();
     edit(doc);
     assert.equal(refusalOf(dirWith(doc)), code);
   });
 }
 
 test('a domain\'s catalogs/<lang>.json sit beside its document; a malformed one is refused', () => {
-  const root = dirWith(panelDomain());
-  mkdirSync(join(root, 'panel', 'catalogs'));
-  writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'omx-panel', messages: {} }));
-  assert.ok(loadContractDir({ dir: root }).items.has('PANEL_FAMILIES'));
-  writeFileSync(join(root, 'panel', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'de', owner: 'omx-panel', messages: {} }));
+  const root = dirWith(sampleDomain());
+  mkdirSync(join(root, 'sample', 'catalogs'));
+  writeFileSync(join(root, 'sample', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'ca', owner: 'omx-sample', messages: {} }));
+  assert.ok(loadContractDir({ dir: root }).items.has('SAMPLE_PLACES'));
+  writeFileSync(join(root, 'sample', 'catalogs', 'ca.json'), JSON.stringify({ kind: 'catalog', lang: 'de', owner: 'omx-sample', messages: {} }));
   assert.equal(refusalOf(root), CONTRACT_CODES.catalogInvalid);
 });
 
 test('refused: a second file beside the document, and no document', () => {
-  const root = dirWith(panelDomain());
-  writeFileSync(join(root, 'panel', 'extra.json'), '{}\n');
+  const root = dirWith(sampleDomain());
+  writeFileSync(join(root, 'sample', 'extra.json'), '{}\n');
   assert.equal(refusalOf(root), CONTRACT_CODES.manifestMismatch);
   const empty = join(SCRATCH, `d-${n++}`);
-  mkdirSync(join(empty, 'panel'), { recursive: true });
+  mkdirSync(join(empty, 'sample'), { recursive: true });
   assert.equal(refusalOf(empty), CONTRACT_CODES.manifestAbsent);
 });
 
 test('refused: a name two domains declare, by the prefix: no name starts with two domains\' own names', () => {
-  const root = dirWith(panelDomain());
-  const other = panelDomain();
-  other.$id = 'https://openmixer.org/contract/panel2';
-  mkdirSync(join(root, 'panel2'));
-  writeFileSync(join(root, 'panel2', 'panel2.json'), JSON.stringify(other));
+  const root = dirWith(sampleDomain());
+  const other = sampleDomain();
+  other.$id = 'https://openmixer.org/contract/sample2';
+  mkdirSync(join(root, 'sample2'));
+  writeFileSync(join(root, 'sample2', 'sample2.json'), JSON.stringify(other));
   assert.equal(refusalOf(root), CONTRACT_CODES.itemPrefix);
 });
 
 test('a consumer needs a domain at its floor, compared to the domain\'s own version', () => {
-  const root = dirWith(panelDomain());
-  assert.doesNotThrow(() => loadContractDir({ dir: root, needs: { panel: '>= 1.0.0' } }));
-  try { loadContractDir({ dir: root, needs: { panel: '>= 1.1.0' } }); assert.fail('read'); } catch (e) { assert.equal(e.code, CONTRACT_CODES.packageTooOld); }
+  const root = dirWith(sampleDomain());
+  assert.doesNotThrow(() => loadContractDir({ dir: root, needs: { sample: '>= 1.0.0' } }));
+  try { loadContractDir({ dir: root, needs: { sample: '>= 1.1.0' } }); assert.fail('read'); } catch (e) { assert.equal(e.code, CONTRACT_CODES.packageTooOld); }
 });
 
 /** A domain of a groups schema, a words schema that names it, and a word taken from format terms. */

@@ -44,7 +44,7 @@ governs code and build dependencies on another repository's sources, and hand co
 
 | # | Conflict | Owner, form | Removed / switched | Line |
 |---|---|---|---|---|
-| 1 | `PANEL_*` declared in omx-contract `data/panel.json` and omx-panel's `panel` domain | omx-panel, `panel` domain | omx-contract drops `data/panel.json` and its `words.json` and `moving-out.txt` entries; the console imports omx-panel's generated module | 1b (3.21.0, panel words leave), console |
+| 1 | `PANEL_*` declared in omx-contract `data/panel.json` and omx-panel's `panel` domain | omx-panel, `panel` domain | omx-contract drops `data/panel.json` and its `words.json` and `moving-out.txt` entries; the console imports omx-panel's generated module | after the pass (consumers still read them; owner ruling 2026-11-19) |
 | 2 | `PLUGIN_HOSTD_CLAP_MAP` and `_LV2_MAP` in plugin-qualify and plugin-hostd, drifted | plugin-hostd (it maps the formats it hosts), a `formats-map` domain | plugin-qualify's `data/formats/*` copy removed; plugin-qualify reads the installed domain | after the pass |
 | 3 | plugin-hostd clients in plugin-hostd-protocol and plugin-hostd | plugin-hostd-protocol (the wire's clients) | plugin-hostd's `clients/` removed | after the pass |
 | 4 | `PANEL_DESCRIBE_CODES` as a domain and as `schema/codes.json` in omx-panel | omx-panel, `panel` domain, its texts in `x-text` | the codes sheet is rendered from the domain (3.21.0 render); `tools/describe.mjs` reads the domain | after 1b, omx-panel |
@@ -60,7 +60,7 @@ governs code and build dependencies on another repository's sources, and hand co
 | 14 | plugin-qualify reads `PLUGIN_HOSTD_HISTORY_KEYS` | plugin-hostd, a `history` domain | plugin-qualify reads the installed domain | after the pass |
 | 15 | plugin-hostd-protocol reads plugin-hostd's probe and grouping words | plugin-hostd, as rows 8 and 9 | generated from the installed domains (data, rule 2 as read above) | as rows 8 and 9 |
 | 16 | plugin-db-qualification holds `machine` fixtures and reads `MACHINE_*` | plugin-hostd, `machine` domain | the fixtures stay test data; the store reads the installed domain | none |
-| 17 | omx-contract names outer repositories' words (`VERB_HOSTS`, `PLUGIN_FEATURE_*`, `PANEL_*`, `RESOURCE_HINTS`) | each to its producer (rows 1, 19) | omx-contract drops them (rule 5) | 1b for `PANEL_*`; the rest after |
+| 17 | omx-contract names outer repositories' words (`VERB_HOSTS`, `PLUGIN_FEATURE_*`, `PANEL_*`, `RESOURCE_HINTS`) | each to its producer (rows 1, 19) | omx-contract drops them (rule 5) | after the pass |
 | 18 | plugin-hostd holds `machine` and `probe`, read by layers 4 to 6 | plugin-hostd (the prober writes them) | none | none |
 | 19 | the 24 items of `moving-out.txt` with no new owner | `PLUGIN_FEATURE_*` to omx-clap-core (the plugin's declared features); `RESOURCE_*` to plugin-hostd (it places plugins within the budgets); rates and `CURVE_*` to omx-dsp (the kernels' axes and rates); `VERB_HOSTS` to plugin-hostd-protocol; `READOUT_RATE_HZ` to omx-panel; `OMX_PARAM_CONTRACT_UNITS` leaves (row 30) | omx-contract drops each as its owner publishes it | after the pass |
 | 20 | `QUALIFICATION_MACHINE_CLASSES` and `_HOST_CLASSES` | plugin-hostd, `qualification` domain (row 10) | as row 5 | 7 |
@@ -73,13 +73,13 @@ governs code and build dependencies on another repository's sources, and hand co
 | 27 | `qualify.*` (plugin-qualify's own command refusals, not plugin words) and `panel.*` code sheets beside their domains | each domain, texts in `x-text` | the sheets are rendered from the domains (3.21.0) | after the pass |
 | 28 | omx-contract's own classic data (`CONTRACT_CODES`, `CURVE_*`, `PARAM_SCALES`, rates, `RESOURCE_*`, `VERB_HOSTS`, `PLUGIN_FEATURE_*`) | `CONTRACT_CODES` and `PARAM_SCALES` stay as omx-contract domains (format and cross-cutting); the rest move per row 19 | migrated to domains | after the pass |
 | 29 | omx-dsp kernels and primitives as `data/` items | omx-dsp, a `dsp` domain | the data items become the domain | after the pass |
-| 30 | units: `PARAM_UNITS` / `OMX_PARAM_CONTRACT_UNITS` in omx-contract, read by the kernels, the panel and plugin descriptors | no single owner (owner ruling, 2026-11-19): the DSP units (the kernels' parameter units) to omx-dsp's `dsp` domain; the panel and display units to omx-panel's `panel` domain; a plugin owns its own units, in its descriptor | `PARAM_UNITS` leaves omx-contract before 3.21.0; each consumer reads the units of the owner it renders for | 1b removes it; every consumer of `PARAM_UNITS` switches in its own line of this pass, to the owner's unit item, so no consumer reads a removed word |
+| 30 | units: `PARAM_UNITS` / `OMX_PARAM_CONTRACT_UNITS` in omx-contract, read by the kernels, the panel and plugin descriptors | no single owner (owner ruling, 2026-11-19): the DSP units (the kernels' parameter units) to omx-dsp's `dsp` domain; the panel and display units to omx-panel's `panel` domain; a plugin owns its own units, in its descriptor | `PARAM_UNITS` is not widened in 3.21.0; the units move to their owners and omx-contract drops it once every consumer reads the owner's unit item | after the pass |
 
 ## What rides this pass
 
 Only what a line already carries:
 
-- 1b: `PANEL_*` and `PARAM_UNITS` leave omx-contract; the domain render that rows 4, 21, 23 and 27 need.
+- 1b: the domain render that rows 4, 21, 23 and 27 need.
 - 6: the `hosting` domain (omx-clap-core#136).
 - 7: the `qualification` domain moves from plugin-qualify to plugin-hostd (0.20.8); plugin-qualify (3, after 7) and
   plugin-db-qualification read it installed.

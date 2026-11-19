@@ -9,7 +9,7 @@ include /usr/share/dpkg/buildflags.mk
 	dh $@
 
 override_dh_auto_install:
-	dh_auto_install -- PREFIX=/usr INCLUDEDIR=/usr/include DATADIR=/usr/share
+	dh_auto_install -- PREFIX=/usr INCLUDEDIR=/usr/include DATADIR=/usr/share CLIDIR=/usr/lib/omx-contract
 	# the C loader (libomx-domain0, libomx-domain-dev): arch-dependent, in the multiarch library directory
 	$(MAKE) install-c DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr INCLUDEDIR=/usr/include DATADIR=/usr/share LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) BINDIR=/usr/bin CONTRACTDIR=/usr/share/omx-contract/contract.d CFLAGS='$(CFLAGS) $(CPPFLAGS)' LDFLAGS='$(LDFLAGS)'
 	# the Python readers' package omx_contract (python3-omx-contract)

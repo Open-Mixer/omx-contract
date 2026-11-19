@@ -224,7 +224,7 @@ a floor, the lowest release whose functions it calls.
 %make_build build-c CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 
 %install
-%make_install PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
+%make_install PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir} CLIDIR=%{_prefix}/lib/omx-contract
 %{__make} install-c DESTDIR=%{buildroot} PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir} LIBDIR=%{_libdir} BINDIR=%{_bindir} CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 %{__make} install-rpm-macros DESTDIR=%{buildroot} PREFIX=%{_prefix} RPMMACRODIR=%{_rpmmacrodir}
 %{__make} install-python DESTDIR=%{buildroot} PYTHONDIR=%{python3_sitelib}

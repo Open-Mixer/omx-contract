@@ -6,6 +6,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 - FIXED: the `omx-contract` command run through a symlink (npx, `npm run`, `node_modules/.bin/omx-contract`) runs the command; it exited 0 and did nothing, so a gate calling it that way passed on a refusal. The CLI and the tools decide "run, not imported" on real paths.
 - ADDED: `@openmixer/omx-contract/entry` exports `isMain(import.meta.url)`, that check, for other packages' command-line entry points.
+- ADDED: `omx-contract.pc` names the installed command's directory, `pkg-config --variable=clidir omx-contract`; a package with no npm dependency on omx-contract imports `<clidir>/lib/entry.mjs` from there.
 
 ## 3.20.1
 

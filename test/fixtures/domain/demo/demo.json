@@ -12,6 +12,7 @@
       "DEMO_COLORS": {
         "description": "The colours of the demo.",
         "x-since": "1.0.0",
+        "x-groups": "DEMO_SHADES",
         "oneOf": [
           {
             "const": "red",
@@ -35,8 +36,7 @@
             "x-code": 2,
             "x-group": "cool"
           }
-        ],
-        "x-groups": "DEMO_SHADES"
+        ]
       },
       "DEMO_PARAMS": {
         "description": "The demo's parameters.",

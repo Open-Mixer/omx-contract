@@ -13,6 +13,7 @@ OMX_DOMAIN_0 {
     omx_domain_word;
     omx_domain_word_at;
     omx_domain_word_count;
+    omx_domain_word_group;
   local:
     *;
 };

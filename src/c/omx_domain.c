@@ -28,7 +28,7 @@
 
 #define DOMAIN_ID_PREFIX "https://openmixer.org/contract/"
 
-typedef struct { char *word, *title, *description, *text; int code; } word_t;
+typedef struct { char *word, *title, *description, *text, *group; int code; } word_t;
 typedef struct { char *name, *unit, *scale; double min, max, def; int has_default; } param_t;
 typedef struct { char *name; int is_words; word_t *words; size_t n_words; param_t *params; size_t n_params; } item_t;
 typedef struct { char *key, *text; } message_t;
@@ -85,6 +85,7 @@ static void free_item(item_t *it) {
     free(it->words[i].title);
     free(it->words[i].description);
     free(it->words[i].text);
+    free(it->words[i].group);
   }
   free(it->words);
   for (size_t i = 0; i < it->n_params; i++) {
@@ -219,7 +220,7 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
   it->words = calloc(n ? n : 1, sizeof *it->words);
   if (!it->words) return OOM(path, domain);
   json_array_foreach(one_of, at, w) {
-    const char *word = str_of(w, "const"), *title = str_of(w, "title"), *desc = str_of(w, "description"), *text = str_of(w, "x-text");
+    const char *word = str_of(w, "const"), *title = str_of(w, "title"), *desc = str_of(w, "description"), *text = str_of(w, "x-text"), *group = str_of(w, "x-group");
     json_t *code = json_object_get(w, "x-code");
     if (has_ref(w)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s.oneOf[%zu] has a \"$ref\", which the loader does not read.", domain, path, it->name, at);
     if (!json_is_object(w) || !word) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: %s.oneOf[%zu] has no string \"const\".", domain, path, it->name, at);
@@ -228,6 +229,7 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
     if (!json_is_integer(code) || json_integer_value(code) < 0 || json_integer_value(code) > 0x7fffffff)
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no non-negative integer \"x-code\".", domain, path, word, it->name);
     if (json_object_get(w, "x-text") && !text) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-text\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
+    if (json_object_get(w, "x-group") && !group) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-group\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
     if (json_integer_value(code) != (json_int_t)at)
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has x-code %lld, and must have its place in the list, %zu.", domain, path, word, it->name, (long long)json_integer_value(code), at);
     for (size_t k = 0; k < it->n_words; k++) {
@@ -238,9 +240,10 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
     o->title = dup_str(title);
     o->description = desc ? dup_str(desc) : NULL;
     o->text = text ? dup_str(text) : NULL;
+    o->group = group ? dup_str(group) : NULL;
     o->code = (int)json_integer_value(code);
     it->n_words++;
-    if (!o->word || !o->title || (desc && !o->description) || (text && !o->text)) return OOM(path, domain);
+    if (!o->word || !o->title || (desc && !o->description) || (text && !o->text) || (group && !o->group)) return OOM(path, domain);
   }
   return 0;
 }
@@ -460,6 +463,15 @@ int omx_domain_word(const omx_domain *d, const char *item, const char *word, omx
     if (strcmp(it->words[i].word, word) == 0) { if (out) fill_word(&it->words[i], out); return 0; }
   }
   return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+}
+
+const char *omx_domain_word_group(const omx_domain *d, const char *item, const char *word) {
+  const item_t *it = find_item(d, item);
+  if (!it || !word) return NULL;
+  for (size_t i = 0; i < it->n_words; i++) {
+    if (strcmp(it->words[i].word, word) == 0) return it->words[i].group;
+  }
+  return NULL;
 }
 
 int omx_domain_word_count(const omx_domain *d, const char *item) {

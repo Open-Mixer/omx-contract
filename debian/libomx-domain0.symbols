@@ -10,3 +10,4 @@ libomx-domain.so.0 libomx-domain0 #MINVER#
  omx_domain_word@OMX_DOMAIN_0 3.20.0~
  omx_domain_word_at@OMX_DOMAIN_0 3.20.0~
  omx_domain_word_count@OMX_DOMAIN_0 3.20.0~
+ omx_domain_word_group@OMX_DOMAIN_0 3.21.0~

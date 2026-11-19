@@ -8,7 +8,6 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 - ADDED: a domain renders as its data form did (omx-contract#139): `render --target c|ts --package <pkg> --data data --with-domain <dir>` rebuilds the data files the domain came from (each item's `x-file`; `x-kind` codes or sheet, `x-source`, `x-name`, `x-value`, `x-docs`; the root's `x-render` and `x-file`) beside the files still in `data/`, and renders them unchanged, byte for byte. A path in both is refused. The domain schema and the reader accept these words; a domain without them renders as before.
 - ADDED: libomx-domain answers a word's group, `omx_domain_word_group(d, item, word)`: the `x-group` of its `oneOf` entry, NULL for a word with none or an unknown item or word. `omx_domain_word_info` is unchanged and the SONAME stays `libomx-domain.so.0`; the ABI gains this one symbol (behaviour-core decision 4).
-- ADDED: `PARAM_UNITS` (data/primitives.json), the closed list of units as a words item: each word's `symbol` is the unit as written (`%`, `""`, `dB/oct`), the word a name the wire can carry; the schema's `$defs.unit` enum is rendered from it, in its order. omx-contract owns it by the owner's ruling of 2026-11-19, listed in `ownership/owned.txt`; the six catalogs carry its sentences.
 - CHANGED: CI checks the commit identity on pull requests too (#138).
 
 ## 3.20.2

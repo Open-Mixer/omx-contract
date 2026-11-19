@@ -314,8 +314,6 @@ a floor, the lowest release whose functions it calls.
   beside the files still in data/ and renders them unchanged (#139, #141).
 - libomx-domain answers a word's group, omx_domain_word_group(); the library
   keeps .so.0 (#141).
-- PARAM_UNITS, the closed list of units as a words item; the schema's unit
-  enum is rendered from it (#141).
 - CI checks the commit identity on pull requests too (#138).
 
 * Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.2-1

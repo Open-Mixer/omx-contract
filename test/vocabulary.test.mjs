@@ -118,39 +118,8 @@ test('a word whose C name meets a words item\'s X-macro is refused', () => {
   assert.ok(problems(texts(clash)).some((p) => p.rule === 'c-name-unique' && /OMX_RESOURCE_BASES_PROBE /.test(p.message)));
 });
 
-// The display kinds a panel description serves were omx-plugins' words restated by hand in omx-clap-core; they are
-// declared once, here, beside the families and widgets (vocabulary-owner rule).
-test('the panel display kinds are declared here, in the order a panel description serves them', () => {
-  const r = resolved.get('PANEL_DISPLAY_KINDS');
-  assert.ok(r && r.kind === 'words', 'PANEL_DISPLAY_KINDS is a words item');
-  assert.deepEqual(Object.values(r.value).map((w) => w.word), ['gain_reduction_bar', 'transfer_curve', 'eq_response', 'meter', 'time_response']);
-});
-
-// omx-panel released the time_response display (a delay's tap train, a reverb's decay envelope) at code 4: the list
-// carries it there, after meter, or a consumer's table drifts from the extension's.
-test('the panel display kinds carry time_response at code 4', () => {
-  const words = Object.values(resolved.get('PANEL_DISPLAY_KINDS').value).map((w) => w.word);
-  assert.equal(words.indexOf('time_response'), 4, 'time_response is the fifth display kind, code 4');
-});
-
-// The panel description's display sources and placements were restated by hand in omx-clap-core and omx-plugins; they are
-// declared once, here, with the codes omx-clap-core serves (the place in the declared order).
-test('the panel display sources and placements are declared here, with the codes a panel description serves', () => {
-  const want = {
-    PANEL_DISPLAY_SOURCES: ['family', 'meters', 'gain_adjustment', 'curve'],
-    PANEL_PLACEMENTS: ['insert', 'return', 'bus', 'master'],
-  };
-  const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
-  for (const [name, words] of Object.entries(want)) {
-    const r = resolved.get(name);
-    assert.ok(r && r.kind === 'words', `${name} is a words item`);
-    assert.deepEqual(Object.values(r.value).map((w) => w.word), words);
-    const m = h.match(new RegExp(`^#define OMX_${name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
-    assert.ok(m, `${name} renders an X-macro`);
-    const codes = [...m[1].matchAll(/X\((\d+)u, "([^"]*)"/g)].map(([, c, w]) => [Number(c), w]);
-    assert.deepEqual(codes, words.map((w, i) => [i, w]), `${name}: the codes are the place in the order`);
-  }
-});
+// The panel words (families, widgets, display kinds, sources, placements) are omx-panel's `panel` domain, not ours:
+// tools/data-layout.mjs refuses them here (test/data-layout.test.mjs), and test/domain.test.mjs renders its document.
 
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {
   const f = JSON.parse(renderJson(withCodes, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text);

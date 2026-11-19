@@ -70,3 +70,15 @@ test('sabotage: a file no rule places is named', () => {
   fs.push({ rel: 'misc.json', doc: { $schema: '../schema/omx-contract.schema.json' } });
   assert.deepEqual(layoutProblems(fs), ['misc.json: no rule of docs/data-layout.md places this file']);
 });
+
+test('sabotage: a panel word put back into data/ is named, as an item and as the file panel.json', () => {
+  const panel = { PANEL_FAMILIES: { kind: 'words', since: '3.7.0', doc: 'd', words: { none: { word: 'none', doc: 'd' } } } };
+  const stray = files();
+  stray.find((f) => f.rel === 'measurement.json').doc.PANEL_PLACEMENTS = panel.PANEL_FAMILIES;
+  assert.ok(layoutProblems(stray).some((m) => /^measurement\.json: PANEL_PLACEMENTS: a word of the panel domain, which omx-panel owns/.test(m)));
+  const back = files();
+  back.push({ rel: 'panel.json', doc: panel });
+  const got = layoutProblems(back);
+  assert.ok(got.some((m) => /^panel\.json: PANEL_FAMILIES: a word of the panel domain/.test(m)));
+  assert.ok(got.some((m) => m === 'panel.json: a file of a domain another package owns'));
+});

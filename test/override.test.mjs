@@ -57,8 +57,6 @@ test('the schema: the override words, one major, a closed list of keys', () => {
     assert.ok(overrideSchemaProblems(d).length > 0, `arm ${i}`);
   }
   assert.deepEqual(read('schema/omx-contract.schema.json').$defs.override.properties.family.enum, ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility'].map((w) => w), 'the families are PANEL_FAMILIES');
-  const panel = Object.values(read('data/panel.json').PANEL_FAMILIES.words).map((w) => w.word);
-  assert.deepEqual(read('schema/omx-contract.schema.json').$defs.override.properties.family.enum, panel);
   assert.deepEqual(read('schema/omx-contract.schema.json').$defs.overrideTravel.properties.scale.enum, PARAM_SCALE_IDS);
 });
 

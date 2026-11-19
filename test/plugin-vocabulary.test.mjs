@@ -82,12 +82,8 @@ test('an instrument class is only one that takes notes: generators and oscillato
   assert.deepEqual(rows.get('CLAP_PLUGIN_FEATURES_TERMS#compressor'), ['audio-effect']);
 });
 
-test('the panel families and widgets are declared here, the scan words are a domain of omx-clap-core (#157, #81)', () => {
-  const panel = read('data/panel.json');
-  const ws = (it) => Object.values(it.words).map((w) => w.word);
-  assert.deepEqual(ws(panel.PANEL_FAMILIES), ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility']);
-  assert.deepEqual(ws(panel.PANEL_WIDGETS), ['auto', 'knob', 'fader', 'switch', 'selector']);
-  assert.deepEqual(ws(panel.PANEL_STANDARD_WIDGETS), ['knob', 'fader', 'switch', 'selector', 'meter', 'curve', 'xy', 'display']);
+test('the panel words are omx-panel\'s domain, the scan words are a domain of omx-clap-core (#157, #81)', () => {
+  assert.equal(existsSync(join(ROOT, 'data', 'panel.json')), false);
   // the scan words are omx-clap-core's domain (contract.d/scan/), never a file of this tree (omx-contract#81)
   assert.equal(existsSync(join(ROOT, 'data', 'scan.json')), false);
 });

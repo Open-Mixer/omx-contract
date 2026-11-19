@@ -11,29 +11,16 @@ import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
 import { loadContractDir } from '../lib/contract-dir.mjs';
-import { loadData, resolveData } from '../lib/data.mjs';
+import { resolveData } from '../lib/data.mjs';
 import { domainCodesC } from '../render/codes.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 
-/** The domain document of data/panel.json, as the owner writes it: each words item a oneOf of const words. */
-function panelDomain() {
-  const old = JSON.parse(readFileSync(join(DATA, 'panel.json'), 'utf8'));
-  const schemas = {};
-  for (const [name, it] of Object.entries(old)) {
-    if (name === '$schema') continue;
-    schemas[name] = {
-      description: it.doc,
-      'x-since': it.since,
-      ...(it.why === undefined ? {} : { 'x-why': it.why }),
-      oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
-    };
-  }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas } };
-}
+/** A copy of omx-panel's panel domain document (contract.d/panel/panel.json), the fixture of a domain with words. */
+const panelDomain = () => JSON.parse(readFileSync(join(ROOT, 'test/fixtures/domain/panel.json'), 'utf8'));
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
 function dirWith(doc, name = 'panel') {
@@ -61,7 +48,7 @@ test('a domain renders its marked words as codes only: one define per word and t
   const doc = panelDomain();
   doc.components.schemas.PANEL_FAMILIES['x-c-codes'] = true;
   const resolved = resolveData(loadContractDir({ dir: dirWith(doc) }));
-  const old = resolveData(loadData(DATA)).get('PANEL_FAMILIES').value;
+  const old = Object.fromEntries(doc.components.schemas.PANEL_FAMILIES.oneOf.map((w) => [w.title, w.const]));
   const [h] = domainCodesC(resolved, 'panel', loadContractDir({ dir: dirWith(doc) }).packages.get('panel').codes);
   assert.equal(h.path, 'panel_codes.h');
   const defines = h.text.split('\n').filter((l) => l.startsWith('#define OMX_PANEL_FAMILIES_'));

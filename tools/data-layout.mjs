@@ -29,8 +29,15 @@ export const pathName = (p) => p.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 export const TOP = {
   'codes.json': null, 'primitives.json': null, 'rates.json': null,
   'resource-profile.json': 'RESOURCE_', 'curves.json': 'CURVE_', 'verbs.json': 'VERB_',
-  'param-contract.json': 'OMX_PARAM_CONTRACT_', 'plugin-features.json': 'PLUGIN_FEATURE_', 'panel.json': 'PANEL_',
+  'param-contract.json': 'OMX_PARAM_CONTRACT_', 'plugin-features.json': 'PLUGIN_FEATURE_',
 };
+
+/**
+ * The words other packages own as a DOMAIN (docs/contract-dir.md, "Domains"), by the prefix of their items: omx-contract
+ * carries none of them, so a change of one is its owner's release and needs none of ours. The panel words (families,
+ * widgets, display kinds, sources, placements) are omx-panel's `panel` domain.
+ */
+export const DOMAINS_OWNED_ELSEWHERE = [{ prefix: 'PANEL_', domain: 'panel', owner: 'omx-panel' }];
 
 /** A CLAP identifier's name in its file: a string constant's text less `clap.`, any other in lowerCamel less `CLAP_`. */
 export function clapName(id, group, value) {
@@ -48,6 +55,8 @@ export function layoutProblems(files) {
   for (const { rel, doc } of files) {
     const items = itemsOf(doc);
     const say = (m) => out.push(`${rel}: ${m}`);
+    for (const [n] of items) for (const d of DOMAINS_OWNED_ELSEWHERE) if (n.startsWith(d.prefix)) say(`${n}: a word of the ${d.domain} domain, which ${d.owner} owns and ships (contract.d/${d.domain}/), never omx-contract's`);
+    if (DOMAINS_OWNED_ELSEWHERE.some((d) => rel === `${d.domain}.json`)) { say('a file of a domain another package owns'); continue; }
     const codesItems = items.filter(([, it]) => it.kind === 'codes');
     const text = JSON.stringify(doc);
     if (!rel.startsWith('formats/lv2/') && /lv2plug\.in\/ns\//.test(text)) say('an LV2 URI outside data/formats/lv2/');

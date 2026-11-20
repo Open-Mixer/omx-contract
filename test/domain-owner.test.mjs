@@ -133,3 +133,21 @@ test('an installed domain\'s run-time items are absent from its owner\'s package
     assert.doesNotMatch(text, /OWNED_HOST_RUN_WORDS/, `${target}: the run-time item does not`);
   }
 });
+
+// A domain item's provenance in a render is its domain's document, contract.d/<domain>/<leaf>.json, never the
+// data/<x-file> a rebuild writes it to (that path exists nowhere); a data item keeps its data/<file>. Rebuilt with
+// --with-domain (the verbs header's banner) and read beside data/ (omx-contract's param domain, the ts @see).
+test('a domain item\'s banner names its domain\'s document, contract.d/<domain>/<leaf>.json', () => {
+  const t = tree();
+  const root = contractDir();
+  const out = join(SCRATCH, `out-${n++}`);
+  const r = cli('render', '--target', 'c', '--out', out, '--contract-dir', root, '--package', 'omx-owned', '--with-domain', join(t, 'contract.d/owned-host'), '--with-domain', join(t, 'contract.d/owned'));
+  assert.equal(r.status, 0, r.stderr);
+  const verbs = readFileSync(join(out, 'omx_owned_host_verbs.h'), 'utf8');
+  assert.match(verbs, /OWNED_VERBS\.ownedPing \(contract\.d\/owned\/owned\.json\)/);
+  assert.doesNotMatch(verbs, /\(data\/verbs\.json\)/);
+  const ts = readFileSync(join(ROOT, 'test/golden/ts/omx-contract.js'), 'utf8');
+  assert.match(ts, /@see contract\.d\/param\/param\.json/);
+  assert.doesNotMatch(ts, /@see param\/param\.json/);
+  assert.match(ts, /@see data\/rates\.json/, 'a data item keeps its data/<file>');
+});

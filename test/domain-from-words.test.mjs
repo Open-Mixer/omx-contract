@@ -62,7 +62,7 @@ test('the title, not the word as written, names the target word: x-term "deep-bl
   const r = render(contractDir({ xa: xa(), xb: doc }));
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /contract\.ref\.unresolved/);
-  assert.match(r.stderr, /"navy".*XA_COLORS#deep-blue.*xa/);
+  assert.match(r.stderr, /"deep-blue".*XA_COLORS#deep-blue.*xa/);
 });
 
 test('the data file xb rebuilds carries the from as <ITEM>#<title> and the declared requires (golden)', () => {
@@ -98,7 +98,7 @@ test('sabotage: the target word removed from xa is refused by name, by render an
   const r = render(root);
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /contract\.ref\.unresolved/);
-  assert.match(r.stderr, /XB_PAINTS\.oneOf\[0\]\.x-from\[0\] of the word "crimson".*XA_COLORS#red.*xa/);
+  assert.match(r.stderr, /XB_PAINTS\.oneOf\[0\]\.x-from\[0\] of the word "red".*XA_COLORS#red.*xa/);
   const v = cli('validate', '--contract-dir', root);
   assert.notEqual(v.status, 0);
   assert.match(v.stderr, /XA_COLORS#red/);
@@ -128,7 +128,7 @@ test('refused by name: the target domain not declared in info.x-requires', () =>
   const r = render(contractDir({ xa: xa(), xb: doc }));
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /contract\.ref\.undeclared/);
-  assert.match(r.stderr, /"crimson".*xa.*x-requires/);
+  assert.match(r.stderr, /"red".*xa.*x-requires/);
 });
 
 test('refused by name: the target domain below the floor, and absent', () => {
@@ -146,7 +146,7 @@ test('refused by name: the target domain below the floor, and absent', () => {
 
 test('a word of the same domain\'s words item may be named too (the domain is its own, no x-requires needed)', () => {
   const doc = xa();
-  doc.components.schemas.XA_TINTS = { description: 'Tints of the colours.', 'x-since': '1.0.0', oneOf: [{ const: 'pink', title: 'pink', 'x-code': 0, 'x-from': [{ $ref: 'https://openmixer.org/contract/xa#/components/schemas/XA_COLORS', 'x-term': 'red' }] }] };
+  doc.components.schemas.XA_TINTS = { description: 'Tints of the colours.', 'x-since': '1.0.0', oneOf: [{ const: 'red', title: 'pink', 'x-code': 0, 'x-from': [{ $ref: 'https://openmixer.org/contract/xa#/components/schemas/XA_COLORS', 'x-term': 'red' }] }] };
   const root = contractDir({ xa: doc });
   const v = cli('validate', '--contract-dir', root);
   assert.equal(v.status, 0, v.stderr);
@@ -167,7 +167,7 @@ test('the narrowed path is no hole: a from into omx-contract or the owner packag
   for (const [to, item] of [['omx-contract', 'LV2_CORE_TERMS'], ['pkg-b', 'PKG_B_WORDS']]) {
     const v = cli('validate', '--contract-dir', contractDir({ xa: xa(), xb: fromAt(to, item, 'nope') }));
     assert.notEqual(v.status, 0, to);
-    assert.match(v.stderr, new RegExp(`^xb/xb\\.json: XB_PAINTS: word-from: crimson: ${item}#nope: `, 'm'), to);
+    assert.match(v.stderr, new RegExp(`^xb/xb\\.json: XB_PAINTS: word-from: red: ${item}#nope: `, 'm'), to);
   }
 });
 
@@ -177,7 +177,7 @@ test('the narrowed path is no hole: a from into omx-contract or the owner packag
     for (const r of [cli('validate', '--contract-dir', root), render(root)]) {
       assert.notEqual(r.status, 0, to);
       assert.match(r.stderr, /contract\.ref\.undeclared/, to);
-      assert.match(r.stderr, new RegExp(`"crimson".*XA_COLORS#red from ${to}.*declared by xa`), to);
+      assert.match(r.stderr, new RegExp(`"red".*XA_COLORS#red from ${to}.*declared by xa`), to);
     }
   }
 });

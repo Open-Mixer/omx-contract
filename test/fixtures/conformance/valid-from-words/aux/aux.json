@@ -14,10 +14,11 @@
         "x-since": "1.0.0",
         "oneOf": [
           {
-            "const": "dark",
-            "title": "dark",
-            "description": "The dark one.",
-            "x-code": 0
+            "const": "red",
+            "title": "red",
+            "description": "The warm one.",
+            "x-code": 0,
+            "x-text": "Red"
           },
           {
             "const": "pale-grey",

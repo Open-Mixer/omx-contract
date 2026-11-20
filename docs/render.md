@@ -109,8 +109,10 @@ and runs the data reader and the renders unchanged on that set. The files come o
 `omx_clap_core_vocabulary.h` and `omx-clap-core-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
 The rebuild, and nothing else:
 
-- every item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
-  `x-file` make that file, in the document's order;
+- an item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
+  `x-file` make that file, in the document's order. An item with no `x-file` is read at run time only: it is not
+  rebuilt and not refused (plugin-db's `PLUGIN_DB_ADDRESS_FORMATS` beside its rebuilt words items), so its words never
+  reach a data render;
 - the root's `x-render` is the `render` block of the file the root's `x-file` names (`hosting.json`); the other
   rebuilt files carry none, so which items render themselves and which go to the vocabulary is what it is today;
 - every item carries `x-source` (its data `source`, when it had one), `x-since`, `description` and `x-why` (its data
@@ -129,7 +131,16 @@ The rebuild, and nothing else:
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
   "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
 
-A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file. A
+A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file.
+
+The same rebuild serves a render of an installed contract directory: `render --target c|ts --package <pkg> --installed
+--with-domain <contractdir>/<domain>` (or `--contract-dir <dir>`) rebuilds the domain's data files into the installed
+package its `info.x-owner` names, each at the place that package's own file would have (`<package>/<x-file>`, or the
+manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
+also read as a domain. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
+`plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is no
+installed package (`contract.package.absent`), and a file the package both installs and rebuilds
+(`contract.manifest.mismatch`). A
 domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
 The data form stays what it is.
 

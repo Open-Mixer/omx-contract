@@ -30,7 +30,7 @@
 
 typedef struct { char *word, *title, *description, *text, *group; int code; } word_t;
 typedef struct { char *name, *unit, *scale; double min, max, def; int has_default; } param_t;
-typedef struct { char *name; int is_words; word_t *words; size_t n_words; param_t *params; size_t n_params; } item_t;
+typedef struct { char *name; int is_words; word_t *words; size_t n_words; param_t *params; size_t n_params; int is_scalar, scalar_is_bool; double scalar_value; char *scalar_unit; } item_t;
 typedef struct { char *key, *text; } message_t;
 typedef struct { char *lang; message_t *messages; size_t n; } catalog_t;
 
@@ -93,6 +93,7 @@ static void free_item(item_t *it) {
     free(it->params[i].unit);
     free(it->params[i].scale);
   }
+  free(it->scalar_unit);
   free(it->params);
 }
 
@@ -212,6 +213,51 @@ static const char *str_of(json_t *obj, const char *key) {
    at open"). One under an extension key the loader never reads (`x-kinds`, `x-statuses`) is not looked at. */
 static int has_ref(json_t *v) { return json_is_object(v) && json_object_get(v, "$ref") != NULL; }
 
+/* The `{name}` placeholders of a sentence, as the build reads them (src/lib/placeholders.mts, /\{([^{}]*)\}/g): each
+   call answers the next one, its name at *name and length *len, and returns the place after it; NULL when none is left. */
+static const char *next_placeholder(const char *s, const char **name, size_t *len) {
+  for (const char *p = strchr(s, '{'); p; p = strchr(p, '{')) {
+    const char *q = p + 1;
+    while (*q && *q != '{' && *q != '}') q++;
+    if (*q == '}') { *name = p + 1; *len = (size_t)(q - p - 1); return q + 1; }
+    if (!*q) return NULL;
+    p = q; /* another '{' before any '}': the placeholder starts there */
+  }
+  return NULL;
+}
+
+/* A word's `x-args` (3.21.0): exactly the placeholders of its `x-text`, each once; none when the text names none; never
+   without a text. 0 when they agree. */
+static int args_agree(json_t *args, const char *text) {
+  const char *name;
+  size_t len;
+  if (!args) {
+    return !text || !next_placeholder(text, &name, &len);
+  }
+  if (!text || !json_is_array(args)) return 0;
+  size_t n = json_array_size(args);
+  for (size_t i = 0; i < n; i++) {
+    const char *a = json_string_value(json_array_get(args, i));
+    if (!a || strchr(a, '{') || strchr(a, '}')) return 0;
+    for (size_t j = 0; j < i; j++)
+      if (strcmp(a, json_string_value(json_array_get(args, j))) == 0) return 0; /* an arg twice */
+    size_t al = strlen(a);
+    int named = 0;
+    for (const char *s = next_placeholder(text, &name, &len); s && !named; s = next_placeholder(s, &name, &len))
+      named = len == al && memcmp(name, a, al) == 0;
+    if (!named) return 0; /* an arg the text does not name */
+  }
+  for (const char *s = next_placeholder(text, &name, &len); s; s = next_placeholder(s, &name, &len)) {
+    int listed = 0;
+    for (size_t i = 0; i < n && !listed; i++) {
+      const char *a = json_string_value(json_array_get(args, i));
+      listed = strlen(a) == len && memcmp(a, name, len) == 0;
+    }
+    if (!listed) return 0; /* a placeholder not in x-args */
+  }
+  return 1;
+}
+
 /* A words item: the `oneOf` of const words. */
 static int read_words(item_t *it, json_t *one_of, const char *path, const char *domain, omx_domain_error *err) {
   size_t n = json_array_size(one_of), at;
@@ -230,6 +276,8 @@ static int read_words(item_t *it, json_t *one_of, const char *path, const char *
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has no non-negative integer \"x-code\".", domain, path, word, it->name);
     if (json_object_get(w, "x-text") && !text) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-text\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
     if (json_object_get(w, "x-group") && !group) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-group\" of the word \"%s\" of %s is not a string.", domain, path, word, it->name);
+    if (!args_agree(json_object_get(w, "x-args"), text))
+      return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the \"x-args\" of the word \"%s\" of %s are not exactly the placeholders of its \"x-text\", each once.", domain, path, word, it->name);
     if (json_integer_value(code) != (json_int_t)at)
       return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the word \"%s\" of %s has x-code %lld, and must have its place in the list, %zu.", domain, path, word, it->name, (long long)json_integer_value(code), at);
     for (size_t k = 0; k < it->n_words; k++) {
@@ -281,6 +329,20 @@ static int read_params(item_t *it, json_t *props, const char *path, const char *
   return 0;
 }
 
+/* A scalar item (3.21.0): `x-kind` "scalar", its `x-value` a number or true or false, its `x-unit` a string. */
+static int read_scalar(item_t *it, json_t *s, const char *path, const char *domain, omx_domain_error *err) {
+  json_t *v = json_object_get(s, "x-value");
+  const char *unit = str_of(s, "x-unit");
+  if (!json_is_number(v) && !json_is_boolean(v))
+    return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the scalar %s has no number, true or false \"x-value\".", domain, path, it->name);
+  if (!unit) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the scalar %s has no string \"x-unit\".", domain, path, it->name);
+  it->is_scalar = 1;
+  it->scalar_is_bool = json_is_boolean(v);
+  it->scalar_value = json_is_boolean(v) ? (json_is_true(v) ? 1 : 0) : json_number_value(v);
+  it->scalar_unit = dup_str(unit);
+  return it->scalar_unit ? 0 : OOM(path, domain);
+}
+
 static int read_items(omx_domain *d, json_t *root, const char *path, const char *domain, omx_domain_error *err) {
   json_t *schemas = json_object_get(json_object_get(root, "components"), "schemas");
   if (!json_is_object(schemas)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s has no \"components\".\"schemas\" object.", domain, path);
@@ -293,11 +355,13 @@ static int read_items(omx_domain *d, json_t *root, const char *path, const char 
     if (!json_is_object(s)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s is not an object.", domain, path, name);
     if (has_ref(s)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s has a \"$ref\", which the loader does not read.", domain, path, name);
     if (json_is_array(one_of) && json_is_object(props)) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s: the schema %s has both \"oneOf\" and \"properties\": it is a words item or a range item, not both.", domain, path, name);
-    if (!json_is_array(one_of) && !json_is_object(props)) continue; /* a schema that is neither a words nor a range item is not served */
+    const char *kind = str_of(s, "x-kind");
+    int scalar = !json_is_array(one_of) && !json_is_object(props) && kind && strcmp(kind, "scalar") == 0;
+    if (!json_is_array(one_of) && !json_is_object(props) && !scalar) continue; /* a schema that is no words, range or scalar item (a sheet) is not served */
     item_t *it = &d->items[d->n_items++];
     it->name = dup_str(name);
     if (!it->name) return OOM(path, domain);
-    int rc = json_is_array(one_of) ? read_words(it, one_of, path, domain, err) : read_params(it, props, path, domain, err);
+    int rc = scalar ? read_scalar(it, s, path, domain, err) : json_is_array(one_of) ? read_words(it, one_of, path, domain, err) : read_params(it, props, path, domain, err);
     if (rc) return rc;
   }
   return 0;
@@ -505,6 +569,18 @@ int omx_domain_range(const omx_domain *d, const char *item, const char *name, om
     return 0;
   }
   return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+}
+
+int omx_domain_scalar(const omx_domain *d, const char *item, omx_domain_scalar_info *out) {
+  const item_t *it = find_item(d, item);
+  if (!it) return OMX_CONTRACT_CODE_ITEM_UNKNOWN;
+  if (!it->is_scalar) return OMX_CONTRACT_CODE_WORD_UNKNOWN;
+  if (out) {
+    out->value = it->scalar_value;
+    out->is_bool = it->scalar_is_bool;
+    out->unit = it->scalar_unit;
+  }
+  return 0;
 }
 
 const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang) {

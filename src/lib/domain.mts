@@ -237,7 +237,8 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
  * `x-args` its args), `x-kind` words with `groups` and `words` (each word's `title` its key, `const` its word, `x-group`
  * its group, `x-from` its terms, `description`, `x-text` and `x-args` as for a code), `x-kind` scalar with `unit` and
  * `value`, and `x-kind` sheet with `value` and `docs`; the root's `x-render` goes to the file the root's `x-file`
- * names. Read the document with readDomain() first; an item with no `x-file` is refused by name.
+ * names. Read the document with readDomain() first. An item with no `x-file` is read at run time only: it is not
+ * rebuilt, and not refused (a domain may hold both).
  */
 export function domainDataFiles(name: string, doc: JsonObject): Record<string, string> {
   const at = domainPath(name);
@@ -252,6 +253,7 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
   if (doc['x-render'] !== undefined) fileOf(doc['x-file'], 'the root').render = doc['x-render'];
   for (const [item, s] of Object.entries((doc.components as JsonObject).schemas as Record<string, JsonObject>)) {
     const w = `components.schemas.${item}`;
+    if (s['x-file'] === undefined) continue; // read at run time only: no data file holds it
     const f = fileOf(s['x-file'], w);
     const head = { kind: s['x-kind'] ?? 'codes', since: s['x-since'], ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
     if (s['x-kind'] === 'sheet') { f[item] = { ...head, value: s['x-value'], ...(s['x-docs'] === undefined ? {} : { docs: s['x-docs'] }) }; continue; }

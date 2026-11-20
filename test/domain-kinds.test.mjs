@@ -190,7 +190,7 @@ test('an item with no x-file is not rebuilt and not refused; given an x-file, it
   assert.deepEqual(Object.keys(files).sort(), readdirSync(join(FIX, 'golden')).sort());
   for (const f of Object.values(files)) assert.ok(!f.includes('KINDS_ADDRESS_FORMATS'));
   const moved = domain();
-  moved.components.schemas.KINDS_ADDRESS_FORMATS['x-file'] = 'words.json';
+  Object.assign(moved.components.schemas.KINDS_ADDRESS_FORMATS, { 'x-file': 'words.json', 'x-kind': 'words' });
   assert.notEqual(domainDataFiles('kinds', moved)['words.json'], golden('words.json'));
   const d = withDomain(moved);
   const r = cli('render', '--target', 'c', '--package', 'kinds-owner', '--data', join(d, 'data'), '--with-domain', join(d, 'kinds'), '--out', join(d, 'out'));
@@ -225,35 +225,35 @@ test('render --installed --with-domain gives the files the installed golden data
   const pure = installed({ ...terms(), ...golds });
   const both = installed(terms(), domain());
   for (const target of ['c', 'ts']) {
-    const a = installedRender(pure, target, join(pure, `out-${target}`));
+    const a = installedRender(pure, target, `${pure}-out/${target}`);
     assert.equal(a.status, 0, a.stderr);
-    const b = installedRender(both, target, join(both, `out-${target}`), '--with-domain', join(both, 'kinds'));
+    const b = installedRender(both, target, `${both}-out/${target}`, '--with-domain', join(both, 'kinds'));
     assert.equal(b.status, 0, b.stderr);
-    const files = walk(join(pure, `out-${target}`)).map((p) => relative(join(pure, `out-${target}`), p)).sort();
+    const files = walk(`${pure}-out/${target}`).map((p) => relative(`${pure}-out/${target}`, p)).sort();
     assert.ok(files.length > 0, `${target}: the installed golden data renders nothing`);
-    assert.deepEqual(walk(join(both, `out-${target}`)).map((p) => relative(join(both, `out-${target}`), p)).sort(), files);
-    for (const f of files) assert.equal(readFileSync(join(both, `out-${target}`, f), 'utf8'), readFileSync(join(pure, `out-${target}`, f), 'utf8'), `${target}: ${f}`);
+    assert.deepEqual(walk(`${both}-out/${target}`).map((p) => relative(`${both}-out/${target}`, p)).sort(), files);
+    for (const f of files) assert.equal(readFileSync(join(`${both}-out/${target}`, f), 'utf8'), readFileSync(join(`${pure}-out/${target}`, f), 'utf8'), `${target}: ${f}`);
   }
 });
 
 test('render --installed --with-domain, sabotage: a changed x-text differs; a file both installed and rebuilt, and an owner not installed, are refused by name', () => {
   const golds = Object.fromEntries(readdirSync(join(FIX, 'golden')).map((f) => [f, JSON.parse(golden(f))]));
   const pure = installed({ ...terms(), ...golds });
-  assert.equal(installedRender(pure, 'c', join(pure, 'out')).status, 0);
+  assert.equal(installedRender(pure, 'c', `${pure}-out`).status, 0);
   const changed = domain();
   changed.components.schemas.KINDS_CODES.oneOf[1]['x-text'] += ' Changed.';
   const c = installed(terms(), changed);
-  assert.equal(installedRender(c, 'c', join(c, 'out'), '--with-domain', join(c, 'kinds')).status, 0);
-  assert.ok(existsSync(join(c, 'out', 'kinds_owner_vocabulary.h')), 'the render with the domain wrote no vocabulary header');
-  assert.notEqual(readFileSync(join(c, 'out', 'kinds_owner_vocabulary.h'), 'utf8'), readFileSync(join(pure, 'out', 'kinds_owner_vocabulary.h'), 'utf8'));
+  assert.equal(installedRender(c, 'c', `${c}-out`, '--with-domain', join(c, 'kinds')).status, 0);
+  assert.ok(existsSync(join(`${c}-out`, 'kinds_owner_vocabulary.h')), 'the render with the domain wrote no vocabulary header');
+  assert.notEqual(readFileSync(join(`${c}-out`, 'kinds_owner_vocabulary.h'), 'utf8'), readFileSync(join(`${pure}-out`, 'kinds_owner_vocabulary.h'), 'utf8'));
   const twice = installed({ ...terms(), 'words.json': golds['words.json'] }, domain());
-  const t = installedRender(twice, 'c', join(twice, 'out'), '--with-domain', join(twice, 'kinds'));
+  const t = installedRender(twice, 'c', `${twice}-out`, '--with-domain', join(twice, 'kinds'));
   assert.notEqual(t.status, 0);
   assert.match(t.stderr, /kinds-owner\/words\.json/);
   const other = domain();
   other.info['x-owner'] = 'not-installed';
   const o = installed(terms(), other);
-  const r = installedRender(o, 'c', join(o, 'out'), '--with-domain', join(o, 'kinds'));
+  const r = installedRender(o, 'c', `${o}-out`, '--with-domain', join(o, 'kinds'));
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /not-installed/);
 });

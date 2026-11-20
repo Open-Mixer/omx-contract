@@ -83,10 +83,17 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     no `x-name`; the reader refuses one): `x-groups`, `x-group`, `x-from`, `description`, `x-text` and `x-args` as
     above. A data words item's `units`, `bases`, `axes` and `extension` and a word's `x`, `y`, `unit`, `symbol`, `scale`,
     `figureUnit` and `basis` have no domain words yet: an item that needs them stays in `data/`.
-  - `"x-kind": "scalar"` is an item of its own, with no `oneOf`: `description`, `x-since`, optional `x-why` and
-    `x-source`, `x-file`, `x-unit` (a string, `""` for none) and `x-value` (a number, or true or false); the reader
-    refuses another `x-value` and a missing `x-unit` by item. A scalar whose data value is a reference or a derivation
-    has no domain form yet. Like a sheet, a scalar is rebuilt by `render --with-domain` and read nowhere else.
+  - `"x-kind": "scalar"` is an item of its own, with no `oneOf`: `description`, `x-since`, optional `x-why`,
+    `x-source` and `x-file`, `x-unit` (a string, `""` for none) and `x-value` (a number, or true or false); every
+    reader refuses another `x-value` and a missing `x-unit` by item. A scalar whose data value is a reference or a
+    derivation has no domain form yet. The runtime readers serve it (`omx_domain_scalar()` in C, `Domain.scalar()` in
+    TypeScript, [runtime-data.md](runtime-data.md)); with an `x-file`, `render --with-domain` also rebuilds it.
+  - An item with no `x-file` is read at run time only: `render --with-domain` does not rebuild it and does not refuse
+    it, so one domain may hold items rebuilt into data files and items that only the loaders read.
+  - What the runtime readers (the C loader and `openDomainAt`, held to each other by test/fixtures/conformance) serve:
+    words items (any `x-kind` of a words item), range items and scalar items. A sheet is not served: it is rebuilt at
+    build time and read nowhere else. Both readers refuse a word whose `x-args` disagree with its `x-text`, as the
+    build does.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds

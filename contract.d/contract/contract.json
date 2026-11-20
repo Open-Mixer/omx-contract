@@ -1,0 +1,655 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/contract",
+  "info": {
+    "title": "The refusal codes of the contract directory",
+    "version": "1.0.0",
+    "x-owner": "omx-contract",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "CONTRACT_CODES": {
+        "description": "The refusals of the contract-directory reader and of the links check (docs/contract-dir.md), by the code a refusal is printed with. A code is never reworded.",
+        "x-since": "1.0.0",
+        "x-file": "codes.json",
+        "x-kind": "codes",
+        "oneOf": [
+          {
+            "const": "contract.dir.absent",
+            "title": "dirAbsent",
+            "description": "no contract directory was found, or the one named does not exist",
+            "x-code": 0,
+            "x-text": "No contract directory was found at {path}. Point --contract-dir, OMX_CONTRACT_PATH or pkg-config at it.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "dirAbsent"
+          },
+          {
+            "const": "contract.manifest.absent",
+            "title": "manifestAbsent",
+            "description": "a package directory holds no MANIFEST.json",
+            "x-code": 1,
+            "x-text": "The package directory {path} has no MANIFEST.json. Add one that lists its files.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "manifestAbsent"
+          },
+          {
+            "const": "contract.manifest.invalid",
+            "title": "manifestInvalid",
+            "description": "a manifest is not JSON, lacks a field, or names another package or schema major than its place",
+            "x-code": 2,
+            "x-text": "The manifest at {path} does not match the package it describes. Fix the field the detail names.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "manifestInvalid"
+          },
+          {
+            "const": "contract.manifest.mismatch",
+            "title": "manifestMismatch",
+            "description": "a listed file is missing, a file is present but not listed, or its hash differs",
+            "x-code": 3,
+            "x-text": "The manifest at {path} and the files installed beside it disagree. Regenerate the manifest from what is actually installed.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "manifestMismatch"
+          },
+          {
+            "const": "contract.schema.major",
+            "title": "schemaMajor",
+            "description": "a file's $schema is not the installed form of the reader's schema major",
+            "x-code": 4,
+            "x-text": "The file at {path} names a schema major this reader does not read. Install it under the major this reader expects.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "schemaMajor"
+          },
+          {
+            "const": "contract.schema.too-old",
+            "title": "schemaTooOld",
+            "description": "a file's requires.omx-contract-schema floor is above the reader's schema",
+            "x-code": 5,
+            "x-text": "The file at {path} needs a newer omx-contract schema than this reader has. Upgrade omx-contract, or lower the file's floor.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "schemaTooOld"
+          },
+          {
+            "const": "contract.schema.floor-absent",
+            "title": "schemaFloorAbsent",
+            "description": "an installed file of a package other than omx-contract states no schema floor",
+            "x-code": 6,
+            "x-text": "The file at {path} states no omx-contract schema floor. Add a requires.omx-contract-schema entry.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "schemaFloorAbsent"
+          },
+          {
+            "const": "contract.file.not-json",
+            "title": "fileNotJson",
+            "description": "a file does not parse",
+            "x-code": 7,
+            "x-text": "The file at {path} does not parse as JSON. Fix its syntax.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "fileNotJson"
+          },
+          {
+            "const": "contract.file.invalid",
+            "title": "fileInvalid",
+            "description": "a file breaks the schema or the kernel-file shape, an unknown key or word included",
+            "x-code": 8,
+            "x-text": "The file at {path} breaks the schema or the kernel-file shape. Fix the field the detail names.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "fileInvalid"
+          },
+          {
+            "const": "contract.item.duplicate",
+            "title": "itemDuplicate",
+            "description": "two files declare one name",
+            "x-code": 9,
+            "x-text": "{item} is declared by two files. Remove the duplicate so only one package declares it.",
+            "x-args": [
+              "item"
+            ],
+            "x-name": "itemDuplicate"
+          },
+          {
+            "const": "contract.kernel.duplicate",
+            "title": "kernelDuplicate",
+            "description": "two packages each declare a file of one kernel",
+            "x-code": 10,
+            "x-text": "Kernel {kernel} is declared by two packages. Keep the declaration in one package only.",
+            "x-args": [
+              "kernel"
+            ],
+            "x-name": "kernelDuplicate"
+          },
+          {
+            "const": "contract.ref.unresolved",
+            "title": "refUnresolved",
+            "description": "a reference names no item",
+            "x-code": 11,
+            "x-text": "{ref} refers to a name no installed file declares. Install the file that declares it, or fix the reference.",
+            "x-args": [
+              "ref"
+            ],
+            "x-name": "refUnresolved"
+          },
+          {
+            "const": "contract.ref.undeclared",
+            "title": "refUndeclared",
+            "description": "a reference names an item of a package the file does not require",
+            "x-code": 12,
+            "x-text": "{ref} refers to an item of a package its file does not require. Add that package to requires.",
+            "x-args": [
+              "ref"
+            ],
+            "x-name": "refUndeclared"
+          },
+          {
+            "const": "contract.verb.duplicate",
+            "title": "verbDuplicate",
+            "description": "two verbs items, of one package or two, declare one verb: a verb has one owner",
+            "x-code": 13,
+            "x-text": "Verb {verb} is declared by more than one package or item. A verb has one owner: remove the extra declaration.",
+            "x-args": [
+              "verb"
+            ],
+            "x-name": "verbDuplicate"
+          },
+          {
+            "const": "contract.verb.format",
+            "title": "verbFormat",
+            "description": "a verb's format does not start with the verb it declares",
+            "x-code": 14,
+            "x-text": "Verb {verb}'s format does not start with the verb itself. Rename the format to start with {verb}.",
+            "x-args": [
+              "verb"
+            ],
+            "x-name": "verbFormat"
+          },
+          {
+            "const": "contract.verb.host-unknown",
+            "title": "verbHostUnknown",
+            "description": "a verb's implementedBy names a host that is no word of VERB_HOSTS",
+            "x-code": 15,
+            "x-text": "Verb {verb} names a host that is not a word of VERB_HOSTS. Add the host there, or fix the verb’s implementedBy.",
+            "x-args": [
+              "verb"
+            ],
+            "x-name": "verbHostUnknown"
+          },
+          {
+            "const": "contract.verb.code-unknown",
+            "title": "verbCodeUnknown",
+            "description": "a verb's code names an item that is no codes item, or a name that item does not carry",
+            "x-code": 16,
+            "x-text": "Verb {verb} names a code no codes item carries. Fix the code name, or add it where the codes item declares its codes.",
+            "x-args": [
+              "verb"
+            ],
+            "x-name": "verbCodeUnknown"
+          },
+          {
+            "const": "contract.role.duplicate",
+            "title": "roleDuplicate",
+            "description": "two roleMeanings items, of one package or two, declare one role: a role has one owner",
+            "x-code": 17,
+            "x-text": "Role {role} is declared by more than one package or item. A role has one owner: remove the extra declaration.",
+            "x-args": [
+              "role"
+            ],
+            "x-name": "roleDuplicate"
+          },
+          {
+            "const": "contract.package.absent",
+            "title": "packageAbsent",
+            "description": "a package the consumer or a file requires is not installed",
+            "x-code": 18,
+            "x-text": "{package} is required and is not installed. Install it beside the files that require it.",
+            "x-args": [
+              "package"
+            ],
+            "x-name": "packageAbsent"
+          },
+          {
+            "const": "contract.package.too-old",
+            "title": "packageTooOld",
+            "description": "a required package is installed below its floor",
+            "x-code": 19,
+            "x-text": "{package} is installed below the version required of it. Upgrade it to the required version.",
+            "x-args": [
+              "package"
+            ],
+            "x-name": "packageTooOld"
+          },
+          {
+            "const": "contract.requires.unresolved",
+            "title": "requiresUnresolved",
+            "description": "translate --owner reads a tree whose files require a package that neither OMX_CONTRACT_PATH nor the installed directory holds (or holds below the floor)",
+            "x-code": 20,
+            "x-text": "{requirement} is required by this tree and was found nowhere: looked in {places}. Run the --installed form with OMX_CONTRACT_PATH naming a directory that holds it.",
+            "x-args": [
+              "requirement",
+              "places"
+            ],
+            "x-name": "requiresUnresolved"
+          },
+          {
+            "const": "contract.owner.codes-unlocated",
+            "title": "ownerCodesUnlocated",
+            "description": "translate --owner reads a tree whose catalogs hold keys and whose declared code locations hold no code or word",
+            "x-code": 21,
+            "x-text": "No code or word of this tree was found in {places}, though its catalogs hold keys. Declare the codes under data/ or in schema/codes.json.",
+            "x-args": [
+              "places"
+            ],
+            "x-name": "ownerCodesUnlocated"
+          },
+          {
+            "const": "contract.origin.misplaced",
+            "title": "originMisplaced",
+            "description": "a scanned plugin descriptor is installed in the contract directory: a scan is never read as a declaration",
+            "x-code": 22,
+            "x-text": "A scanned plugin descriptor is installed in the contract directory at {path}. Remove it: a scan is never a declaration.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "originMisplaced"
+          },
+          {
+            "const": "contract.descriptor.origin-source",
+            "title": "descriptorOriginSource",
+            "description": "an authored descriptor with no impl link, or a built or scanned one with a control that has no from link",
+            "x-code": 23,
+            "x-text": "{descriptor} has a control with no source link. An authored descriptor needs an impl link; a built or scanned one needs a from link on every control.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorOriginSource"
+          },
+          {
+            "const": "contract.descriptor.unknown-authored",
+            "title": "descriptorUnknownAuthored",
+            "description": "an authored descriptor with a unit, a scale or a meaning of unknown",
+            "x-code": 24,
+            "x-text": "{descriptor} is authored and leaves a control's unit, scale or meaning as unknown. State it, or mark the descriptor built or scanned instead.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorUnknownAuthored"
+          },
+          {
+            "const": "contract.descriptor.control-duplicate",
+            "title": "descriptorControlDuplicate",
+            "description": "two controls of a descriptor with one id, one name or one symbol",
+            "x-code": 25,
+            "x-text": "{descriptor} declares two controls with the same id, name or symbol. Give each control its own.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorControlDuplicate"
+          },
+          {
+            "const": "contract.descriptor.easy",
+            "title": "descriptorEasy",
+            "description": "an easy list that names no control, names one twice or a hidden or read-only one, or stands in a scanned descriptor",
+            "x-code": 26,
+            "x-text": "{descriptor}'s easy list names no control, names one twice, names a hidden or read-only control, or appears in a scanned descriptor. Fix the easy list.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorEasy"
+          },
+          {
+            "const": "contract.descriptor.integrity",
+            "title": "descriptorIntegrity",
+            "description": "an integrity block whose version is not the plugin's own, or on a plugin that states no version",
+            "x-code": 27,
+            "x-text": "{descriptor}'s integrity names another version than the plugin states. Regenerate the descriptor from the build it describes.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorIntegrity"
+          },
+          {
+            "const": "contract.descriptor.meter",
+            "title": "descriptorMeter",
+            "description": "a meter of a descriptor with the id or a symbol of another meter, a symbol a control answers to, a range whose min is not below its max, a scale that is no id of PARAM_SCALES, a unit the kind does not measure in (level: dBFS, dBTP, LUFS, LU; gain-reduction: dB), a measurement in a unit it is not measured in, or a clip word on a gain reduction or a true clip on a loudness",
+            "x-code": 28,
+            "x-text": "{descriptor} has a meter whose id, symbol, range, scale or unit is wrong for its kind. Fix the meter the detail names.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorMeter"
+          },
+          {
+            "const": "contract.descriptor.port-duplicate",
+            "title": "descriptorPortDuplicate",
+            "description": "two ports of a descriptor of one kind and direction with one id",
+            "x-code": 29,
+            "x-text": "{descriptor} declares two ports of the same kind and direction with one id. Give each port its own id.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorPortDuplicate"
+          },
+          {
+            "const": "contract.descriptor.range",
+            "title": "descriptorRange",
+            "description": "a travel whose min is above its max, whose step is negative, or whose default lies outside it",
+            "x-code": 30,
+            "x-text": "{descriptor} has a travel whose min, max, step or default is out of order. Fix the travel the detail names.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorRange"
+          },
+          {
+            "const": "contract.descriptor.choice",
+            "title": "descriptorChoice",
+            "description": "a choice whose default is not one of its ids, or whose labels or values are not one per id",
+            "x-code": 31,
+            "x-text": "{descriptor} has a choice whose default is not one of its ids, or whose labels or values do not match its ids one for one. Fix the choice the detail names.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorChoice"
+          },
+          {
+            "const": "contract.descriptor.scale-undeclared",
+            "title": "descriptorScale",
+            "description": "a scale that is neither an id of PARAM_SCALES nor unknown",
+            "x-code": 32,
+            "x-text": "{descriptor} names a scale that is neither an id of PARAM_SCALES nor unknown. Fix the scale name, or add it to PARAM_SCALES.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorScale"
+          },
+          {
+            "const": "contract.descriptor.port-words",
+            "title": "descriptorPortWords",
+            "description": "a layout word on a port that is not audio, dialects off a note port or missing on one, or a layout its channels contradict",
+            "x-code": 33,
+            "x-text": "{descriptor} has a port whose layout, dialect or channel words contradict each other. Fix the port the detail names.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorPortWords"
+          },
+          {
+            "const": "contract.descriptor.instrument",
+            "title": "descriptorInstrument",
+            "description": "an instrument block without the instrument feature or the reverse, or an instrument with no note or MIDI input or no audio output",
+            "x-code": 34,
+            "x-text": "{descriptor} declares an instrument block without the instrument feature (or the reverse), or an instrument with no note or MIDI input or no audio output. Fix the instrument declaration.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorInstrument"
+          },
+          {
+            "const": "contract.descriptor.when-unresolved",
+            "title": "descriptorWhen",
+            "description": "a when that names no choice of the descriptor, or an id that choice does not have",
+            "x-code": 35,
+            "x-text": "{descriptor} has a when that names no choice of the descriptor, or an id that choice does not have. Fix the when the detail names.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorWhen"
+          },
+          {
+            "const": "contract.descriptor.face-differs",
+            "title": "descriptorFaceDiffers",
+            "description": "a plugin's built face, scanned as a host scans it, states other than its authored descriptor; raised by the owner's face check, since the reader compares no faces",
+            "x-code": 36,
+            "x-text": "{descriptor}’s built face states other than what it is authored as. Update the authored descriptor, or fix the build.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorFaceDiffers"
+          },
+          {
+            "const": "contract.override.plugin-mismatch",
+            "title": "overridePluginMismatch",
+            "description": "an override file whose plugin id or format is not the plugin it is applied to: the file is refused whole",
+            "x-code": 37,
+            "x-text": "The override at {path} names a plugin id or format other than the plugin it is applied to. The whole file is refused: fix which plugin it targets.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overridePluginMismatch"
+          },
+          {
+            "const": "contract.override.control-absent",
+            "title": "overrideControlAbsent",
+            "description": "an override entry that names a control the descriptor does not have: the entry is dropped",
+            "x-code": 38,
+            "x-text": "The override at {path} names a control the descriptor does not have. That entry is dropped: remove it, or fix the control name.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideControlAbsent"
+          },
+          {
+            "const": "contract.override.widens",
+            "title": "overrideWidens",
+            "description": "an override entry whose travel end lies outside the plugin's ends, or whose default lies outside the travel: the entry is dropped",
+            "x-code": 39,
+            "x-text": "The override at {path} has a travel end outside the plugin's ends, or a default outside the travel. That entry is dropped: bring it inside the plugin's own range.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideWidens"
+          },
+          {
+            "const": "contract.override.kind-mismatch",
+            "title": "overrideKindMismatch",
+            "description": "an override entry with a word that does not fit the control's kind (a travel or a map on a choice) or its family (a band without family eq and an EQ meaning): the entry is dropped",
+            "x-code": 40,
+            "x-text": "The override at {path} has a word that does not fit the control’s kind or family. That entry is dropped: fix the word, or the control it is applied to.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideKindMismatch"
+          },
+          {
+            "const": "contract.override.scale-floor",
+            "title": "overrideScaleFloor",
+            "description": "an override entry with a log scale over a floor that is not positive: the entry is dropped",
+            "x-code": 41,
+            "x-text": "The override at {path} sets a log scale over a floor that is not positive. That entry is dropped: use a positive floor.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideScaleFloor"
+          },
+          {
+            "const": "contract.override.map-invalid",
+            "title": "overrideMapInvalid",
+            "description": "an override map that is not strictly monotonic, does not cover the plugin's ends or lies outside them: the entry is dropped",
+            "x-code": 42,
+            "x-text": "The override at {path} has a map that is not strictly monotonic, or does not cover the plugin’s ends. That entry is dropped: fix the map.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideMapInvalid"
+          },
+          {
+            "const": "contract.override.basis-evidence",
+            "title": "overrideBasisEvidence",
+            "description": "an override entry with basis measured and no evidence, or evidence with another basis: the entry is dropped",
+            "x-code": 43,
+            "x-text": "The override at {path} states basis measured with no evidence, or evidence with another basis. That entry is dropped: add the matching evidence, or change the basis.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideBasisEvidence"
+          },
+          {
+            "const": "contract.override.fingerprint-differs",
+            "title": "overrideFingerprintDiffers",
+            "description": "an override file written against another control list than the descriptor's: a warning, the entries that still hold are applied",
+            "x-code": 44,
+            "x-text": "The override at {path} was written against another control list than the descriptor's. The entries that still fit are applied; review the rest.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "overrideFingerprintDiffers"
+          },
+          {
+            "const": "contract.source.absent",
+            "title": "sourceAbsent",
+            "description": "a link's path does not exist",
+            "x-code": 45,
+            "x-text": "The path a link names, {path}, does not exist. Fix the link's path.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "sourceAbsent"
+          },
+          {
+            "const": "contract.source.symbol-absent",
+            "title": "sourceSymbolAbsent",
+            "description": "the path holds no definition of the link's symbol",
+            "x-code": 46,
+            "x-text": "{path} holds no definition of the symbol a link names. Fix the symbol name, or point the link elsewhere.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "sourceSymbolAbsent"
+          },
+          {
+            "const": "contract.source.ambiguous",
+            "title": "sourceAmbiguous",
+            "description": "the path defines the link's symbol more than once",
+            "x-code": 47,
+            "x-text": "{path} defines the symbol a link names more than once. Make the definition unique, or narrow the link.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "sourceAmbiguous"
+          },
+          {
+            "const": "contract.source.differs",
+            "title": "sourceDiffers",
+            "description": "the value at a from link is not the declared value",
+            "x-code": 48,
+            "x-text": "The value at {path}'s from link is not the value declared beside it. Update the declared value to match, or fix the link.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "sourceDiffers"
+          },
+          {
+            "const": "contract.source.unevaluable",
+            "title": "sourceUnevaluable",
+            "description": "a from link whose value the tool cannot read",
+            "x-code": 49,
+            "x-text": "The value at {path}'s from link cannot be read by this tool. Simplify the source, or state the value by hand and drop the link.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "sourceUnevaluable"
+          },
+          {
+            "const": "contract.source.unread",
+            "title": "sourceUnread",
+            "description": "an impl link whose definition does not name the item",
+            "x-code": 50,
+            "x-text": "The definition at {path}'s impl link does not name the item it is linked from. Point the link at the definition that actually names it.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "sourceUnread"
+          },
+          {
+            "const": "contract.source.none",
+            "title": "sourceNone",
+            "description": "an item with no impl link, where every item must carry one",
+            "x-code": 51,
+            "x-text": "{item} carries no impl link, and every item of its kind must carry one. Add the link to where it is defined.",
+            "x-args": [
+              "item"
+            ],
+            "x-name": "sourceNone"
+          },
+          {
+            "const": "contract.item.unknown",
+            "title": "itemUnknown",
+            "description": "a domain function was asked for an item the domain does not declare",
+            "x-code": 52,
+            "x-text": "{item} is not an item of the domain {domain}. Ask for an item the domain declares.",
+            "x-args": [
+              "item",
+              "domain"
+            ],
+            "x-name": "itemUnknown"
+          },
+          {
+            "const": "contract.word.unknown",
+            "title": "wordUnknown",
+            "description": "a domain function was asked for a word, or a range name, the item does not declare",
+            "x-code": 53,
+            "x-text": "{word} is not a word or a name of the item {item}. Ask for one the item declares.",
+            "x-args": [
+              "word",
+              "item"
+            ],
+            "x-name": "wordUnknown"
+          },
+          {
+            "const": "contract.index.range",
+            "title": "indexRange",
+            "description": "a domain function was asked for a word at an index past the item's count",
+            "x-code": 54,
+            "x-text": "Index {index} is past the end of the item {item}, which has {count} words. Ask for an index below the count.",
+            "x-args": [
+              "index",
+              "item",
+              "count"
+            ],
+            "x-name": "indexRange"
+          },
+          {
+            "const": "contract.item.prefix",
+            "title": "itemPrefix",
+            "description": "an item of a domain does not start with its domain's name, or starts with the name of a longer domain",
+            "x-code": 55,
+            "x-text": "{item} breaks the naming of the domain {domain}. Start an item name with the domain's name in upper snake case and an underscore, and with no longer domain's name.",
+            "x-args": [
+              "item",
+              "domain"
+            ],
+            "x-name": "itemPrefix"
+          },
+          {
+            "const": "contract.catalog.invalid",
+            "title": "catalogInvalid",
+            "description": "a domain's catalog is not a regular file named by a language tag, or is not an object of {text, by} entries",
+            "x-code": 56,
+            "x-text": "The catalog at {path} cannot be read as a catalog of its domain. Fix the file or its name the detail points to.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "catalogInvalid"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -65,3 +65,14 @@ test('sabotage: a data/ that still holds READOUT_RATE_HZ is named', () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// V27a: the LV2 terms are plugin-db's `lv2` domain. data/formats/lv2 leaves, and the term-to-resource mapping goes with
+// the terms: RESOURCE_* (which stays here this pass) names no LV2 term in a word's `from` (coordinator, 2026-11-20).
+test('V27a: no LV2 terms item in the read, no data/formats/lv2, and no RESOURCE_ word takes an LV2 term', () => {
+  const data = loadData(DATA);
+  assert.deepEqual([...data.items.keys()].filter((n) => /^LV2_.*_TERMS$/.test(n)), []);
+  assert.ok(!existsSync(join(DATA, 'formats/lv2')));
+  const from = [...data.items.values()].filter((i) => i.name.startsWith('RESOURCE_')).flatMap((i) => Object.values(i.item.words ?? {}).flatMap((w) => w.from ?? []));
+  assert.ok(from.length > 0, 'positive control: the CLAP terms the resource words still take');
+  assert.deepEqual(from.filter((f) => f.startsWith('LV2_')), []);
+});

@@ -548,6 +548,10 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
 4. **`ratio`, `dBTP`, `LU`.** Plugin-only units LV2 has no term for. `ratio` is written by 16 omx-plugins
    descriptors; `dBTP` and `LU` are loudness-meter units. Each descriptor's custom unit (16 declarations of one
    `ratio`, against rule 3), or one owner's (omx-dsp, which computes them, or omx-panel, which displays them)?
+   If `ratio` becomes a descriptor's custom unit, two things follow:
+   - the code table's 258 `ratio` token names no base unit: either it is refused as `contract.unit.unresolved` at
+     open, or its `x-unit` is absent, as in question 5;
+   - a custom unit has no wire code, so the extension reports 0 (`none`) where a plugin reports 258 today.
 5. **Tokens with no unit.** `bar`, `beat`, `m`, `cm`, `mm`, `km`, `inch`, `mile`, `khz`, `mhz` (LV2 units with a code
    and no symbol) and the vendor `dbu`. Does the code table keep them as tokens with no unit (`x-unit` absent), or
    does an owner declare each as a unit?

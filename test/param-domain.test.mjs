@@ -13,7 +13,7 @@
 //      OMX_PARAM_SCALES_LOG and no dBu, and its unit-enum check refuses the committed schema.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -73,8 +73,7 @@ test('(b) the domain holds the golden words, each unit\'s dimension a word of PA
   for (const g of GOLDEN) assert.ok(dims.includes(g.dimension), g.key);
   assert.deepEqual(s.PARAM_SCALES.oneOf.map((w) => w.const), ['linear', 'log', 'stepped']);
   assert.equal(s.PARAM_SCALES['x-default'], 'linear');
-  const prim = JSON.parse(readFileSync(join(ROOT, 'data/primitives.json'), 'utf8'));
-  assert.deepEqual(Object.keys(prim).filter((k) => k.startsWith('PARAM_')), []);
+  assert.ok(!existsSync(join(ROOT, 'data/primitives.json')), 'data/primitives.json is gone: its last item, READOUT_RATE_HZ, went to omx-dsp (V22)');
 });
 
 /** The tool, copied, with `log` gone from PARAM_SCALES and `dbu` from PARAM_UNITS in its domain. */

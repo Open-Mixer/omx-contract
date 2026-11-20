@@ -56,7 +56,6 @@ test('move the sample rates: the list, the rate block and RT target readers foll
 test('declare the quanta: the console set is the contract\'s, and the readers follow a moved one', () => {
   const quanta = JSON.parse(readFileSync(`${DATA}/rates.json`, 'utf8')).STANDARD_QUANTA.values;
   assert.deepEqual(quanta, [32, 64, 128, 256, 512, 1024], 'the quanta decided on omx-contract#94');
-  assert.ok(quanta.includes(JSON.parse(readFileSync(`${DATA}/rates.json`, 'utf8')).RT_HARD_TARGET.value.quantum), 'the hard target is one of them');
   const dir = scratchData();
   editData(dir, 'rates.json', (d) => { d.STANDARD_QUANTA.values.push(2048); });
   const h = renderC(resolveData(loadData(dir)))[0].text;
@@ -102,8 +101,8 @@ test('move a set, a band count, a rate set and a kernel constant: every target f
   const n = moved('kernels/contour.json', (d, at) => { at('CONTOUR_BAND_COUNTS').value.wide.default = 5; });
   assert.match(n.c, /^#define OMX_CONTOUR_BAND_COUNTS_WIDE_DEFAULT 5$/m);
   assert.equal(n.json.CONTOUR_BAND_COUNTS.value.wide.default, 5);
-  const r = moved('rates.json', (d) => { d.ORACLE_FLOOR_RATES.values.push(384000); });
-  assert.match(r.c, /^#define OMX_ORACLE_FLOOR_RATES_COUNT 5u$/m);
+  const r = moved('rates.json', (d) => { d.STANDARD_SAMPLE_RATES.values.push(384000); });
+  assert.match(r.c, /^#define OMX_STANDARD_SAMPLE_RATES_COUNT 7u$/m);
   const k = moved('kernels/wave.json', (d, at) => { at('WAVE_BASE_MS').value = 8; });
   assert.match(k.c, /^#define OMX_WAVE_BASE_MS 8$/m);
   assert.match(k.c, /^#define OMX_WAVE_MAX_MS 11$/m, 'the derived maximum follows');

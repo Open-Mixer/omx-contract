@@ -82,28 +82,8 @@
 /** semitones of twelve-tone equal temperament */
 #define OMX_PARAM_CONTRACT_UNITS_SEMITONE12_TET 22
 /// @}
-/** How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md). (Hz; since 2.4.0) */
-#define OMX_READOUT_RATE_HZ 50
-/**
- * @name RT_HARD_TARGET
- * THE declaration: 192 kHz at quantum 128.
- */
-/// @{
-/** The `quantum` of RT_HARD_TARGET. */
-#define OMX_RT_HARD_TARGET_QUANTUM 128
-/** The `rate` of RT_HARD_TARGET. */
-#define OMX_RT_HARD_TARGET_RATE 192000
-/// @}
 
 /* Every list rendered to C, sorted by list: OMX_<LIST>_COUNT and OMX_<LIST>_INIT { a, b, … }. */
-/** The number of values of ORACLE_FLOOR_RATES, the length of OMX_ORACLE_FLOOR_RATES_INIT. */
-#define OMX_ORACLE_FLOOR_RATES_COUNT 4u
-/** The four rates every kernel oracle runs at, whatever STANDARD_SAMPLE_RATES says: a declared list missing one of them stops a suite instead of testing less (omx-dsp, omx-plugins and omx-clap-host run their oracles at these). The values in declaration order, an initialiser. (Hz; since 1.3.0) */
-#define OMX_ORACLE_FLOOR_RATES_INIT { 44100, 48000, 96000, 192000 }
-/** The number of values of ORACLE_FULL_RATES, the length of OMX_ORACLE_FULL_RATES_INIT. */
-#define OMX_ORACLE_FULL_RATES_COUNT 9u
-/** The full grid of rates a professional interface can clock at, nine of them from 32 to 192 kHz: where ORACLE_FLOOR_RATES is the four rates every kernel oracle must run at, this is the whole grid an oracle runs at when it runs at all of them. STANDARD_SAMPLE_RATES is a subset of it; an oracle that runs here also covers 32, 64 and 128 kHz, where a kernel still has to meet its closed form even though the console never asks for them. The values in declaration order, an initialiser. (Hz; since 1.3.0) */
-#define OMX_ORACLE_FULL_RATES_INIT { 32000, 44100, 48000, 64000, 88200, 96000, 128000, 176400, 192000 }
 /** The number of values of STANDARD_QUANTA, the length of OMX_STANDARD_QUANTA_INIT. */
 #define OMX_STANDARD_QUANTA_COUNT 6u
 /** The quanta (buffer sizes, in frames, a count with no unit of its own) the console offers: the set a measurement grid or a probe takes its quanta from, beside the rates STANDARD_SAMPLE_RATES lists. A consumer that measures at fewer quanta takes a subset of this list and states it; it never keeps a list of its own. What the operator is OFFERED is still the engine's own choice, this is the ceiling a request is refused by. The values in declaration order, an initialiser. (unitless; since 3.5.0) */

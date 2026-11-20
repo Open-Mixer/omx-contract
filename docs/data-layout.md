@@ -11,14 +11,13 @@ vocabulary is mapped beside them, so a word is there before a consumer asks for 
 
 ```
 data/
-  primitives.json  rates.json  the readout rate, the sample rates (the parameter scales and units are the `param`
-                               domain, contract.d/param/param.json)
+  rates.json                   the standard sample rates and quanta (the parameter scales and units are the `param`
+                               domain, contract.d/param/param.json; the readout rate, the RT target and the oracle
+                               rates are omx-dsp's, sorting pass V22 and V25)
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
-  curves.json                  CURVE_*: the kinds of picture a panel draws, and the axes each is drawn on
   param-contract.json          OMX_PARAM_CONTRACT_*: the unit codes of org.openmixer.param-contract/1, rendered to
                                omx_param_units.h, read as data by omx-panel and plugin-hostd
-  plugin-features.json         PLUGIN_FEATURE_*: every CLAP plugin feature and LV2 plugin class onto a descriptor feature word, or other
   panel.json                   PANEL_*: the panel families and widgets
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
   formats/lv2/<spec>.json      LV2_<SPEC>_TERMS: the terms of the LV2 specification bundle <spec>.lv2
@@ -36,9 +35,7 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 | A word that is | Goes in | Its item |
 |---|---|---|
 | a resource a host plans for, its unit, its basis, a budget's scope | `resource-profile.json` | `RESOURCE_<LIST>`, kind `words` |
-| a curve kind a panel draws, or an axis one is drawn on | `curves.json` | `CURVE_KINDS`, `CURVE_AXES`, kind `words` |
 | a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
-| a CLAP feature or LV2 class and the feature word it becomes | `plugin-features.json` | `PLUGIN_FEATURE_<WORD>`, kind `words`, one item per target |
 | a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | `formats/lv2/<spec>.json`, `<spec>` the bundle it is defined in | `LV2_<SPEC>_TERMS`, kind `terms` |
@@ -125,7 +122,7 @@ not the one its path gives.
 - Every word and code `data/` declares carries its own source sentence (omx-contract#2); a word another package
   declares, in its own tree, may still have none until that package's lane adds it.
 - A `words` item's words keep their declared order, which is part of the contract (a rating's severity, a band's
-  ascent). A word may name its `group`, a word of the item its `groups` names, its `x` and `y`, words of the item its `axes` names (an axis word then states its `unit` and `scale`, docs/curves.md), and the format terms it is
+  ascent). A word may name its `group`, a word of the item its `groups` names, its `x` and `y`, words of the item its `axes` names (an axis word then states its `unit` and `scale`), and the format terms it is
   name-compatible with (`from: ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"]`); each resolves.
 - A `terms` item's terms are sorted by name (`omx-contract fmt` sorts them). The name is the format's own: an LV2
   term's local name (the specification's own URI after its bundle, `state.lv2`, apart from the term `state`), a CLAP string constant's text less

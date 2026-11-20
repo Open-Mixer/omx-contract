@@ -472,31 +472,6 @@
     "verbHostUnknown",
     "wordUnknown"
   ],
-  "CURVE_AXES": [
-    "decayTime",
-    "delayTime",
-    "frequency",
-    "inputAmplitude",
-    "inputLevel",
-    "inputPitch",
-    "level",
-    "magnitude",
-    "modulation",
-    "outputAmplitude",
-    "outputLevel",
-    "outputPitch",
-    "phase"
-  ],
-  "CURVE_KINDS": [
-    "combResponse",
-    "decayEnvelope",
-    "delayTaps",
-    "dynamicsCurve",
-    "eqCurve",
-    "intervalMap",
-    "modulationShape",
-    "transferCurve"
-  ],
   "LV2_ATOM_TERMS": [
     "Atom",
     "AtomPort",
@@ -1028,23 +1003,6 @@
     "s",
     "semitone12TET"
   ],
-  "ORACLE_FLOOR_RATES": [
-    "192000",
-    "44100",
-    "48000",
-    "96000"
-  ],
-  "ORACLE_FULL_RATES": [
-    "128000",
-    "176400",
-    "192000",
-    "32000",
-    "44100",
-    "48000",
-    "64000",
-    "88200",
-    "96000"
-  ],
   "PANEL_DISPLAY_KINDS": [
     "eqResponse",
     "gainReductionBar",
@@ -1165,95 +1123,6 @@
     "descriptor",
     "param"
   ],
-  "PLUGIN_FEATURE_ANALYZER": [
-    "clapAnalyzer",
-    "clapNoteDetector",
-    "lv2Analyser"
-  ],
-  "PLUGIN_FEATURE_AUDIO_EFFECT": [
-    "clapAudioEffect",
-    "clapChorus",
-    "clapCompressor",
-    "clapDeEsser",
-    "clapDelay",
-    "clapDistortion",
-    "clapEqualizer",
-    "clapExpander",
-    "clapFilter",
-    "clapFlanger",
-    "clapFrequencyShifter",
-    "clapGate",
-    "clapGlitch",
-    "clapGranular",
-    "clapLimiter",
-    "clapMastering",
-    "clapMixing",
-    "clapMultiEffects",
-    "clapPhaseVocoder",
-    "clapPhaser",
-    "clapPitchCorrection",
-    "clapPitchShifter",
-    "clapRestoration",
-    "clapReverb",
-    "clapTransientShaper",
-    "clapTremolo",
-    "clapUtility",
-    "lv2Allpass",
-    "lv2Amplifier",
-    "lv2Bandpass",
-    "lv2Chorus",
-    "lv2Comb",
-    "lv2Compressor",
-    "lv2Converter",
-    "lv2Delay",
-    "lv2Distortion",
-    "lv2Dynamics",
-    "lv2EQ",
-    "lv2Envelope",
-    "lv2Expander",
-    "lv2Filter",
-    "lv2Flanger",
-    "lv2Gate",
-    "lv2Highpass",
-    "lv2Limiter",
-    "lv2Lowpass",
-    "lv2Mixer",
-    "lv2Modulator",
-    "lv2MultiEQ",
-    "lv2ParaEQ",
-    "lv2Phaser",
-    "lv2Pitch",
-    "lv2Reverb",
-    "lv2Simulator",
-    "lv2Spatial",
-    "lv2Spectral",
-    "lv2Utility",
-    "lv2Waveshaper"
-  ],
-  "PLUGIN_FEATURE_INSTRUMENT": [
-    "clapDrum",
-    "clapDrumMachine",
-    "clapInstrument",
-    "clapSampler",
-    "clapSynthesizer",
-    "lv2Instrument"
-  ],
-  "PLUGIN_FEATURE_NOTE_EFFECT": [
-    "clapNoteEffect",
-    "lv2MIDI"
-  ],
-  "PLUGIN_FEATURE_OTHER": [
-    "clapAmbisonic",
-    "clapMono",
-    "clapStereo",
-    "clapSurround",
-    "lv2Constant",
-    "lv2Function",
-    "lv2Generator",
-    "lv2Oscillator",
-    "lv2Plugin"
-  ],
-  "READOUT_RATE_HZ": [],
   "RESOURCE_BASES": [
     "declared",
     "measured",
@@ -1294,10 +1163,6 @@
     "ratio",
     "s",
     "us"
-  ],
-  "RT_HARD_TARGET": [
-    "quantum",
-    "rate"
   ],
   "STANDARD_QUANTA": [
     "1024",

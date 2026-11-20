@@ -13,10 +13,10 @@ test('the shipped data is valid, alone and with the invented kernels and the hos
   assert.deepEqual(validateData(loadData(UNION)), []);
 });
 
-test('data/ holds the quanta, the rates, the scales, the readout rate, the param-contract units, the plugin face ids and the vocabulary; every kernel and primitive is its owner\'s', () => {
+test('data/ holds the quanta, the rates, the scales (the param domain), the param-contract units, the plugin face ids and the vocabulary; every kernel and primitive is its owner\'s', () => {
   const own = [...loadData(DATA).items.keys()].filter((n) => !VOCABULARY.has(n));
   const owners = new Set([...loadData(UNION).items.keys()].filter((n) => !own.includes(n) && !VOCABULARY.has(n)));
-  assert.deepEqual(own.sort(), ['OMX_PARAM_CONTRACT_UNITS', 'ORACLE_FLOOR_RATES', 'ORACLE_FULL_RATES', 'PARAM_SCALES', 'READOUT_RATE_HZ', 'RT_HARD_TARGET', 'STANDARD_QUANTA', 'STANDARD_SAMPLE_RATES']);
+  assert.deepEqual(own.sort(), ['OMX_PARAM_CONTRACT_UNITS', 'PARAM_SCALES', 'STANDARD_QUANTA', 'STANDARD_SAMPLE_RATES']);
   assert.equal(loadData(UNION).items.size, DATA_ITEMS + owners.size, 'the files beside data/ shadow none of its items');
   for (const n of ['SWELL_LIMITS', 'HOSTED_STAGE_LIMITS', 'HOSTING_CODES', 'ECHO_TIME_RANGE', 'CONTOUR_MAX_BANDS', 'TOOL_Q']) assert.ok(owners.has(n), `${n} is beside data/`);
   assert.ok(![...owners].some((n) => loadData(DATA).items.has(n)));
@@ -35,7 +35,7 @@ test('a derivation outside the closed list is refused', () => {
 });
 
 test('an unknown key, a missing doc and a lower-case name are refused', () => {
-  assert.ok(rules(texts((d) => { d['data/rates.json'].RT_HARD_TARGET.colour = 'red'; })).includes('RT_HARD_TARGET:schema'));
+  assert.ok(rules(texts((d) => { d['data/rates.json'].STANDARD_QUANTA.colour = 'red'; })).includes('STANDARD_QUANTA:schema'));
   assert.ok(rules(texts((d) => { delete d[relOf('TOOL_READ_ORDER')].TOOL_READ_ORDER.doc; })).includes('TOOL_READ_ORDER:schema'));
   assert.ok(rules(texts((d) => { d['data/rates.json'].lowerName = d[relOf('TOOL_READ_ORDER')].TOOL_READ_ORDER; })).length > 0);
 });

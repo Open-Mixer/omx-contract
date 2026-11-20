@@ -187,7 +187,7 @@ function semanticRules(resolved, say) {
           else if (target?.kind !== 'words') say(r.rel, r.name, rule, `${itemKey} names ${r[itemKey]}, which is no words item`);
           else if (!Object.values((target.value) as Record<string, Json>).some((x) => x.word === w[field])) say(r.rel, r.name, rule, `${k}: ${w[field]} is no word of ${r[itemKey]}`);
         }
-        // A curve's axes (docs/curves.md): an item naming `axes` draws every word on an x and a y of that item.
+        // A curve's axes (omx-dsp's curve kinds, sorting pass V26): an item naming `axes` draws every word on an x and a y of that item.
         const axes = r.axes === undefined ? undefined : resolved.get(r.axes);
         for (const f of ['x', 'y']) {
           if (w[f] === undefined) { if (r.axes !== undefined) say(r.rel, r.name, 'word-axis', `${k} names no ${f}, and every word of an item that names axes is drawn on two`); continue; }

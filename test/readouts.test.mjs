@@ -92,14 +92,14 @@ test('semver: a readout appended is MINOR; removed is MINOR in the development p
   assert.equal(cls([readout({ doc: 'Reworded.' })]).level, 'patch');
 });
 
-test('a readout bounded by reference: its range read off the travel, its rate off READOUT_RATE_HZ', () => {
+// READOUT_RATE_HZ is omx-dsp's (its readout domain, sorting pass V22): the fixture states its rate as a number.
+test('a readout bounded by reference: its range read off the travel, its rate a number', () => {
   const declared = loadData(UNION).files.find((f) => f.rel === swell).doc.readouts;
-  assert.deepEqual(declared.map((x) => [x.min, x.rateHz]), [[{ ref: 'SWELL_LIMITS.rangeDb.min' }, { ref: 'READOUT_RATE_HZ' }]], 'stated once, by reference');
+  assert.deepEqual(declared.map((x) => [x.min, x.rateHz]), [[{ ref: 'SWELL_LIMITS.rangeDb.min' }, 50]], 'the range stated once, by reference');
   const r = resolvedOf(texts());
-  assert.deepEqual([r.kernels.swell.readouts[0].min, r.kernels.swell.readouts[0].rateHz], [r.get('SWELL_LIMITS').value.rangeDb.min, r.get('READOUT_RATE_HZ').value]);
+  assert.deepEqual([r.kernels.swell.readouts[0].min, r.kernels.swell.readouts[0].rateHz], [r.get('SWELL_LIMITS').value.rangeDb.min, 50]);
   const moved = resolvedOf(texts((d, at) => { at(swell, 'SWELL_LIMITS.rangeDb').min = -72; }));
   assert.equal(moved.kernels.swell.readouts[0].min, -72, 'the readout follows the travel that bounds it');
-  assert.equal(r.get('READOUT_RATE_HZ').value, 50);
 });
 
 // The per-band readouts of the remaining-FX wave (docs/readouts.md, #107): the dynamic EQ's band gain and the multiband's

@@ -25,6 +25,9 @@ const GONE = Object.values(ROWS).flat();
 const RENDERS = ['include/omxcontract/omx_contract_limits.h', 'include/omxcontract/omx_vocabulary.h', 'share/omx-contract/omx-contract.json', 'share/omx-contract/omx-vocabulary.schema.json', 'test/golden/ts/omx-contract.d.ts', 'test/golden/ts/omx-contract.js'];
 const LANGS = ['ca', 'de', 'es', 'fr', 'it', 'pt'];
 
+/** The name `n` as a whole name (CLAP_PLUGIN_FEATURE_ANALYZER, a CLAP term, is no PLUGIN_FEATURE_ANALYZER; OMX_READOUT_RATE_HZ is READOUT_RATE_HZ). */
+const named = (n) => new RegExp(`(^|[^A-Z_]|OMX_)${n}([^A-Z_]|_[A-Z]|$)`, 'm');
+
 /** The leaving items still in the read of `data`. */
 const inRead = (data) => GONE.filter((n) => loadData(data).items.has(n));
 
@@ -38,7 +41,7 @@ test('the leaving items are in no file of data/, read through the loader', () =>
 test('no committed render, catalog or ownership list names a leaving item', () => {
   for (const f of RENDERS) {
     const text = readFileSync(join(ROOT, f), 'utf8');
-    for (const n of GONE) assert.ok(!text.includes(n), `${f} names ${n}`);
+    for (const n of GONE) assert.ok(!named(n).test(text), `${f} names ${n}`);
   }
   for (const l of LANGS) {
     const keys = Object.keys(JSON.parse(readFileSync(join(ROOT, 'catalogs', `${l}.json`), 'utf8')).messages ?? {});
@@ -46,7 +49,7 @@ test('no committed render, catalog or ownership list names a leaving item', () =
   }
   for (const f of ['ownership/owned.txt', 'ownership/moving-out.txt', 'ownership/words.json']) {
     const text = readFileSync(join(ROOT, f), 'utf8');
-    for (const n of GONE) assert.ok(!new RegExp(`(^|[^A-Z_])${n}([^A-Z_]|$)`, 'm').test(text), `${f} names ${n}`);
+    for (const n of GONE) assert.ok(!named(n).test(text), `${f} names ${n}`);
   }
 });
 

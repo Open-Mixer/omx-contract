@@ -12,8 +12,6 @@
       "CONTRACT_CODES": {
         "description": "The refusals of the contract-directory reader and of the links check (docs/contract-dir.md), by the code a refusal is printed with. A code is never reworded.",
         "x-since": "1.0.0",
-        "x-file": "codes.json",
-        "x-kind": "codes",
         "oneOf": [
           {
             "const": "contract.dir.absent",
@@ -648,7 +646,9 @@
             ],
             "x-name": "catalogInvalid"
           }
-        ]
+        ],
+        "x-file": "codes.json",
+        "x-kind": "codes"
       }
     }
   }

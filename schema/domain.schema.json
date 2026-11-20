@@ -21,7 +21,13 @@
         "title": { "type": "string", "minLength": 1 },
         "version": { "description": "The domain's own version.", "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
         "x-owner": { "description": "The package that owns the domain today: metadata, never a path.", "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
-        "x-stability": { "description": "The domain's stability level: every document carries it, and there is no default.", "enum": ["experimental", "stable"] }
+        "x-stability": { "description": "The domain's stability level: every document carries it, and there is no default.", "enum": ["experimental", "stable"] },
+        "x-requires": {
+          "description": "The packages (or domains) the domain's words take terms from, each with its floor: the requires every data file rebuilt from the domain carries, after the schema floor (docs/contract-dir.md, \"Domains\").",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$" },
+          "additionalProperties": { "type": "string", "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" }
+        }
       }
     },
     "x-render": { "description": "The render block of the data file the root's x-file names, as render --with-domain rebuilds it (docs/render.md).", "type": "object" },

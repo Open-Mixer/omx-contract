@@ -125,15 +125,19 @@ The rebuild, and nothing else:
 - an item with `"x-kind": "words"` is the data item `{ "kind": "words", ..., "groups", "words" }`: `groups` is its
   `x-groups`, and each of its `oneOf` words is one word in the written order, keyed by its `title`, as
   `{ "word": <const>, "group": <x-group>, "from": [<ITEM>#<x-term>...], "doc", "text", "args" }`, each key only when
-  the word has it (plugin-db's `PLUGIN_DB_*` words items, which its own renders then read unchanged). A rebuilt file
-  carries no `requires`, so the `x-from` of a rebuilt word may reach only terms every file of the owner reads without
-  one: omx-contract's (the schema package), the document's own domain and its `info.x-owner`. A `from` into any other
-  package is refused by item, word, `x-from` and package (`contract.file.invalid`) until the rebuild writes `requires`;
-  an item with no `x-file` is never rebuilt, and its `from` is not checked here;
+  the word has it (plugin-db's `PLUGIN_DB_*` words items, which its own renders then read unchanged). The `x-from`
+  of a rebuilt word reaches omx-contract's terms (the schema package), the document's own domain, its `info.x-owner`
+  or a package the document declares in `info.x-requires` (docs/contract-dir.md, "Domains"); a `from` into any other
+  package is refused by item, word, `x-from` and package (`contract.file.invalid`). An item with no `x-file` is never
+  rebuilt, and its `from` is not checked here;
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
   "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
+
+A domain that declares `info.x-requires` gives every file it rebuilds a `requires`, its first key: the schema floor
+`"omx-contract-schema": ">= 3.0.0"`, then the declared packages in name order with their floors. A domain that declares
+none rebuilds its files with no `requires`, as before.
 
 A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file.
 
@@ -143,8 +147,11 @@ package its `info.x-owner` names, each at the place that package's own file woul
 manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
 also read as a domain. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
 `plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is no
-installed package (`contract.package.absent`), and a file the package both installs and rebuilds
-(`contract.manifest.mismatch`). A
+installed package (`contract.package.absent`), a file the package both installs and rebuilds
+(`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed or is below its floor
+(`contract.package.absent`, `contract.package.too-old`), and a rebuilt word's term that the package or domain its
+`x-from` names does not declare (`contract.ref.unresolved`, `contract.ref.undeclared`, naming the word, the item and
+both packages). A
 domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
 The data form stays what it is.
 

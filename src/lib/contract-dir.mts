@@ -17,7 +17,7 @@ import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
 import { readCatalogs } from './domain-reader.mjs';
 import { parseStrict } from './json-strict.mjs';
-import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainLeaf, domainPath, readDomain } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain } from './domain.mjs';
 import type { DomainCodes, DomainItems } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
@@ -212,6 +212,8 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   // a domain (docs/contract-dir.md): <root>/<domain>/<domain>.json, read as the classic file of its items
   const domainFiles: Json[] = [];
   const domainItems: DomainItems[] = [];
+  // the packages each domain read declares in info.x-requires, held to their floors once every package is known
+  const declared: { at: string; requires: Record<string, string> }[] = [];
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
@@ -236,6 +238,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
       packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
+      declared.push({ at, requires: domainRequires(raw) });
       domainFiles.push(file);
       domainItems.push({ rel: at, items: d.names });
     }
@@ -279,7 +282,10 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       files.push(file);
     }
   }
-  if (withDomain !== undefined) files.push(...rebuiltFiles(withDomain, packages, files, major));
+  if (withDomain !== undefined) {
+    files.push(...rebuiltFiles(withDomain, packages, files, major));
+    declared.push({ at: `${domainPath(withDomain.name)} (--with-domain)`, requires: domainRequires(withDomain.doc) });
+  }
   files.push(...domainFiles);
   files.sort((a, b) => (a.rel === b.rel ? (a.pkg < b.pkg ? -1 : 1) : a.rel < b.rel ? -1 : 1));
 
@@ -316,6 +322,25 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     for (const [pkg, v] of Object.entries(req)) {
       if (pkg === 'omx-contract-schema') continue;
       checkPackage(packages, pkg, v, f.rel);
+    }
+  }
+  // A domain's declared packages (info.x-requires): installed, at or above the floor; the schema floor is this reader's.
+  for (const { at, requires } of declared) {
+    for (const [pkg, v] of Object.entries(requires)) {
+      if (pkg !== 'omx-contract-schema') checkPackage(packages, pkg, v, at);
+      else if (!atLeast(SCHEMA_VERSION, floorOf(v))) refuse('schemaTooOld', at, `info.x-requires omx-contract-schema ${v}; this reader's schema is ${SCHEMA_VERSION}`);
+    }
+  }
+  // A rebuilt word's term (x-from) is the item of the package or domain its $ref names: the domain's own words are
+  // its owner's once rebuilt.
+  if (withDomain !== undefined) {
+    const owner = (withDomain.doc.info as Json)['x-owner'];
+    for (const f of domainFroms(withDomain.doc)) {
+      const where = `${domainPath(withDomain.name)}: ${f.where} of the word ${JSON.stringify(f.word)}`;
+      const target = items.get(f.item);
+      const want = f.to === withDomain.name ? owner : f.to;
+      if (!target) refuse('refUnresolved', where, `takes ${f.item}#${f.term} from ${f.to}, and no installed file declares ${f.item}`);
+      if (target.pkg !== want) refuse('refUndeclared', where, `takes ${f.item}#${f.term} from ${f.to}, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
     }
   }
   // A use (a control taking another control's item, its own kernel's or another's) takes an item of its own kind.

@@ -321,15 +321,26 @@ test('x-requires, sabotage: drop the declared package and the rebuilt word is re
   assert.match(r.stderr, want);
 });
 
-/** A contract directory with two packages: kinds-owner (`owner`, each `{ rel: doc }`) and, unless `termsVersion` is null, kinds-terms at that version holding the terms; the domain `doc` when given. */
-function twoPackages(owner, termsVersion, doc) {
-  const root = installed(owner, doc);
+/** A file a package installs besides the terms, so that a package is never empty: one code of its own. */
+const extra = (item) => ({ 'extra.json': { [item]: { kind: 'codes', since: '1.0.0', doc: 'A code the package installs itself.', codes: { extraOne: { code: `${item.toLowerCase().replace(/_/g, '.')}.one` } } } } });
+
+/**
+ * A contract directory with two packages: kinds-owner (`owner`, each `{ rel: doc }`, and a file of its own) and,
+ * unless `termsVersion` is null, kinds-terms at that version holding `termFiles` (the terms) and a file of its own;
+ * the domain `doc` when given.
+ */
+function twoPackages(owner, termsVersion, doc, termFiles = terms()) {
+  const root = installed({ ...extra('KINDS_OWNER_EXTRA'), ...owner }, doc);
   if (termsVersion === null) return root;
   const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-terms');
   mkdirSync(pkg, { recursive: true });
-  const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, ...terms()['terms.json'] }, null, 2)}\n`;
-  writeFileSync(join(pkg, 'terms.json'), text);
-  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: termsVersion, schemaMajor: SCHEMA_MAJOR, files: { 'terms.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
+  const hashes = {};
+  for (const [rel, d] of Object.entries({ ...extra('KINDS_TERMS_EXTRA'), ...termFiles })) {
+    const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, ...d }, null, 2)}\n`;
+    writeFileSync(join(pkg, rel), text);
+    hashes[rel] = sha256(Buffer.from(text));
+  }
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: termsVersion, schemaMajor: SCHEMA_MAJOR, files: hashes }, null, 2)}\n`);
   return root;
 }
 
@@ -365,9 +376,7 @@ test('x-requires, two packages: a declared package below the floor, or absent, i
   assert.match(a.stderr, /contract\.package\.absent/);
   assert.match(a.stderr, /kinds-terms/);
   // the terms installed by kinds-owner, not by kinds-terms, which the words name
-  const elsewhere = twoPackages(terms(), '1.0.0', declared());
-  rmSync(join(elsewhere, String(SCHEMA_MAJOR), 'kinds-terms', 'terms.json'));
-  writeFileSync(join(elsewhere, String(SCHEMA_MAJOR), 'kinds-terms', 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: {} }, null, 2)}\n`);
+  const elsewhere = twoPackages(terms(), '1.0.0', declared(), {});
   const e = installedRender(elsewhere, 'c', `${elsewhere}-out`, '--with-domain', join(elsewhere, 'kinds'));
   assert.notEqual(e.status, 0);
   assert.match(e.stderr, /contract\.ref\.undeclared/);
@@ -375,9 +384,10 @@ test('x-requires, two packages: a declared package below the floor, or absent, i
 });
 
 test('x-requires: an installed domain (not rebuilt) is held to its floors too', () => {
-  const ok = twoPackages(terms(), '1.0.0', declared());
-  assert.equal(cli('validate', '--contract-dir', ok).status, 0);
-  const below = twoPackages(terms(), '1.0.0', declared('>= 2.0.0'));
+  const ok = twoPackages({}, '1.0.0', declared());
+  const o = cli('validate', '--contract-dir', ok);
+  assert.equal(o.status, 0, o.stderr);
+  const below = twoPackages({}, '1.0.0', declared('>= 2.0.0'));
   const v = cli('validate', '--contract-dir', below);
   assert.notEqual(v.status, 0);
   assert.match(v.stderr, /contract\.package\.too-old.*kinds-terms|kinds-terms.*contract\.package\.too-old/s);
@@ -393,7 +403,7 @@ for (const [what, [value, name]] of Object.entries(BAD_REQUIRES)) {
   test(`x-requires refused by name: ${what}`, () => {
     const doc = declared();
     doc.info['x-requires'] = value;
-    const v = cli('validate', '--contract-dir', twoPackages(terms(), '1.0.0', doc));
+    const v = cli('validate', '--contract-dir', twoPackages({}, '1.0.0', doc));
     assert.notEqual(v.status, 0);
     assert.match(v.stderr, /contract\.manifest\.invalid/);
     assert.match(v.stderr, name);
@@ -408,7 +418,7 @@ for (const [what, [value, name]] of Object.entries(BAD_REQUIRES)) {
 test('x-requires refused by name: an unknown key of info (x-require)', () => {
   const doc = declared(undefined);
   doc.info['x-require'] = { 'kinds-terms': '>= 1.0.0' };
-  const v = cli('validate', '--contract-dir', twoPackages(terms(), '1.0.0', doc));
+  const v = cli('validate', '--contract-dir', twoPackages({}, '1.0.0', doc));
   assert.notEqual(v.status, 0);
   assert.match(v.stderr, /x-require/);
 });

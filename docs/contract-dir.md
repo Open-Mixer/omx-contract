@@ -119,6 +119,18 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   that owns it now. Neither is read from the path.
 - `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
   refused (`contract.manifest.invalid`).
+- `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`), each with
+  its floor in the form of a data file's `requires` (`{ "plugin-db": ">= 1.2.0" }`). It is the `requires` every data
+  file rebuilt from the domain carries (docs/render.md, `render --with-domain`), after the schema floor. A value that is
+  not a map, a key that is no package or domain name (`[a-z][a-z0-9-]*`, segments joined by `/`) and a floor that is
+  not `>= x.y.z` are refused by name (`contract.manifest.invalid`, naming `x-requires`) by the build reader, the
+  TypeScript runtime reader and the C loader alike. The floors are held by the read of a contract directory
+  (`contract.package.absent`, `contract.package.too-old`, naming the package), for an installed domain and for one
+  rebuilt with `--with-domain`; a runtime reader opens one domain and does not hold them.
+- Packaging: a domain whose `info.x-requires` names a package ships in a package that depends on that package's
+  contract package at the floor (a Debian `Depends:` and an RPM `Requires:`). The domain's owner holds it in its own
+  packaging test (its packaging arm), as it holds its other dependencies; omx-contract does not read the owners'
+  packaging.
 - `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
   the version it declares, so a domain evolves on its own line and a change in one domain touches no other domain's
   consumers, and needs no omx-contract release.
@@ -351,7 +363,7 @@ carry it and it is not installed in the directory.
 |---|---|
 | `contract.dir.absent` | No directory found, or the one named does not exist. |
 | `contract.manifest.absent` | A package directory without `MANIFEST.json`. |
-| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner` or `info.x-stability` is wrong. |
+| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner`, `info.x-stability` or `info.x-requires` is wrong. |
 | `contract.manifest.mismatch` | A listed file missing, a file present but unlisted, or a hash that differs. |
 | `contract.schema.major` | A file's `$schema` major is not the reader's, or `$schema` is not the installed form. |
 | `contract.schema.too-old` | A file's `requires.omx-contract-schema` floor is above the reader's schema. |

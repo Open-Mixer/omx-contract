@@ -32,6 +32,9 @@ const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !
 const str = (o: unknown, k: string): string | undefined => (isObj(o) && typeof o[k] === 'string' ? (o[k] as string) : undefined);
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+// info.x-requires: a package or domain name, and its floor (docs/contract-dir.md, "Domains")
+const REQUIRED = /^[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*$/;
+const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const NAME = /^[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*$/;
 const LANG = /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/;
 const ID_PREFIX = 'https://openmixer.org/contract/';
@@ -222,6 +225,14 @@ export function openDomainAt(dirs: string | readonly string[], domain: string, n
   if (version === undefined || !VERSION.test(version)) refuse('manifestInvalid', rel, `${lead} has no info.version of the form x.y.z.`);
   if (!str(info, 'x-owner')) refuse('manifestInvalid', rel, `${lead} has no info.x-owner.`);
   if (stability !== 'experimental' && stability !== 'stable') refuse('manifestInvalid', rel, `${lead}: info.x-stability is ${stability === undefined ? '(absent)' : `"${stability}"`}, and must be "experimental" or "stable".`);
+  const req = isObj(info) ? info['x-requires'] : undefined;
+  if (req !== undefined) {
+    if (!isObj(req)) refuse('manifestInvalid', rel, `${lead}: info.x-requires is not a map of package to floor ">= x.y.z".`);
+    for (const [k, v] of Object.entries(req as Obj)) {
+      if (!REQUIRED.test(k)) refuse('manifestInvalid', rel, `${lead}: info.x-requires names "${k}", which is no package or domain name.`);
+      if (typeof v !== 'string' || !FLOOR.test(v)) refuse('manifestInvalid', rel, `${lead}: info.x-requires of "${k}" is not a floor ">= x.y.z".`);
+    }
+  }
   if (needs !== null && below(triple(version!), triple(needs))) refuse('packageTooOld', rel, `${lead} is version ${version}, below the floor ${needs} the program needs.`);
   const comp = d.components;
   const schemas = isObj(comp) ? comp.schemas : undefined;

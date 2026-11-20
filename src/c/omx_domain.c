@@ -450,6 +450,33 @@ static int read_catalogs(omx_domain *d, const char *dir, const char *domain, omx
   return rc;
 }
 
+/* A package or domain name info.x-requires may name: [a-z][a-z0-9-]* segments joined by '/'. */
+static int required_name(const char *k) {
+  for (;;) {
+    if (*k < 'a' || *k > 'z') return 0;
+    for (k++; (*k >= 'a' && *k <= 'z') || (*k >= '0' && *k <= '9') || *k == '-'; k++) {}
+    if (*k == '\0') return 1;
+    if (*k != '/') return 0;
+    k++;
+  }
+}
+
+/* info.x-requires (docs/contract-dir.md, "Domains"), when present: a map of package or domain name to a floor
+ * ">= x.y.z", as the TypeScript reader reads it. The floors are the build's to hold: a loader opens one domain. */
+static int check_requires(json_t *req, const char *domain, const char *path, omx_domain_error *err) {
+  if (!req) return 0;
+  if (!json_is_object(req)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires is not a map of package to floor \">= x.y.z\".", domain, path);
+  const char *k;
+  json_t *v;
+  unsigned long floor_[3];
+  json_object_foreach(req, k, v) {
+    if (!required_name(k)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires names \"%s\", which is no package or domain name.", domain, path, k);
+    const char *f = json_string_value(v);
+    if (!f || strncmp(f, ">= ", 3) != 0 || !parse_version(f + 3, floor_)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires of \"%s\" is not a floor \">= x.y.z\".", domain, path, k);
+  }
+  return 0;
+}
+
 int omx_domain_open_at(const char *dir, const char *domain, const char *needs_version, omx_domain **out, omx_domain_error *err) {
   if (out) *out = NULL;
   if (!out) return refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "omx_domain_open was given no place to put the handle.");
@@ -481,6 +508,7 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
   else if (!str_of(info, "x-owner") || !*str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
   else if (!stability || (strcmp(stability, "experimental") != 0 && strcmp(stability, "stable") != 0)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-stability is %s%s%s, and must be \"experimental\" or \"stable\".", domain, path, stability ? "\"" : "", stability ? stability : "(absent)", stability ? "\"" : "");
+  else if ((rc = check_requires(json_object_get(info, "x-requires"), domain, path, err)) != 0) { /* refused, err filled */ }
   else if (needs_version && version_below(have, floor_)) rc = refuse(err, OMX_CONTRACT_CODE_PACKAGE_TOO_OLD, "The domain %s at %s is version %s, below the floor %s the program needs.", domain, path, version, needs_version);
   else rc = read_items(d, root, path, domain, err);
   json_decref(root); /* the JSON is released here: the handle holds its own copy of all it returns */

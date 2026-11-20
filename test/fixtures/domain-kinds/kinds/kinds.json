@@ -115,7 +115,7 @@
             "x-group": "refused",
             "x-from": [
               {
-                "$ref": "https://openmixer.org/contract/omx-contract#/components/schemas/KINDS_TERMS",
+                "$ref": "https://openmixer.org/contract/kinds-owner#/components/schemas/KINDS_TERMS",
                 "x-term": "latency"
               }
             ]
@@ -128,11 +128,11 @@
             "x-group": "refused",
             "x-from": [
               {
-                "$ref": "https://openmixer.org/contract/omx-contract#/components/schemas/KINDS_TERMS",
+                "$ref": "https://openmixer.org/contract/kinds-owner#/components/schemas/KINDS_TERMS",
                 "x-term": "audio-in"
               },
               {
-                "$ref": "https://openmixer.org/contract/omx-contract#/components/schemas/KINDS_TERMS",
+                "$ref": "https://openmixer.org/contract/kinds-owner#/components/schemas/KINDS_TERMS",
                 "x-term": "audio-out"
               }
             ]

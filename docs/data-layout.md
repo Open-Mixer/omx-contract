@@ -20,7 +20,7 @@ data/
                                omx_param_units.h, read as data by omx-panel and plugin-hostd
   panel.json                   PANEL_*: the panel families and widgets
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
-  formats/lv2/<spec>.json      LV2_<SPEC>_TERMS: the terms of the LV2 specification bundle <spec>.lv2
+  (the LV2 terms, LV2_<SPEC>_TERMS, are plugin-db's `lv2` domain: sorting pass V27a)
   formats/clap/<header>.json   CLAP_<HEADER>_TERMS: the identifiers of the CLAP header clap/<header>.h
                                (formats/clap/events.json, ext/params.json, ext/draft/scratch-memory.json, ...)
 inventory/lv2.json  clap.json  the formats as installed, written by tools/format-inventory.mjs, never by hand
@@ -38,7 +38,7 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 | a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
 | a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
-| an LV2 term `<spec URI>#<name>` | `formats/lv2/<spec>.json`, `<spec>` the bundle it is defined in | `LV2_<SPEC>_TERMS`, kind `terms` |
+| an LV2 term `<spec URI>#<name>` | plugin-db's `lv2` domain (V27a), with its mapping to the standard words | `LV2_<SPEC>_TERMS`, kind `terms` |
 | a CLAP identifier declared in `clap/<header>.h` | `formats/clap/<header>.json` | `CLAP_<HEADER>_TERMS`, the path in upper snake case |
 
 `<SPEC>` and `<HEADER>` are the file's path below its domain directory in upper snake case

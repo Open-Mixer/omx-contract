@@ -80,11 +80,16 @@ export function layoutProblems(files) {
 
 const fileOf = (files, rel) => files.find((f) => f.rel === rel)?.doc;
 
-/** The coverage problems of `files` against the inventories (`{ lv2, clap }`): `[message]`. */
+/**
+ * The coverage problems of `files` against the inventories (`{ lv2, clap }`): `[message]`. The LV2 terms are plugin-db's
+ * `lv2` domain (sorting pass V27a): data/ holds none, so the LV2 inventory is held to the files only when `lv2` is
+ * given and data/ maps LV2 (a fixture, or a tree before the move).
+ */
 export function coverageProblems(files, { lv2, clap }) {
   const out = [];
   const mapped = new Set();
-  for (const [name, spec] of Object.entries(lv2.specs)) {
+  const lv2Here = lv2 !== undefined && files.some((f) => f.rel.startsWith('formats/lv2/'));
+  for (const [name, spec] of Object.entries(lv2Here ? lv2.specs : {})) {
     const rel = `formats/lv2/${name}.json`;
     const doc = fileOf(files, rel);
     const it = doc && doc[`LV2_${pathName(name)}_TERMS`];
@@ -142,7 +147,7 @@ function main(argv) {
   const files = readFiles(data);
   const problems = [...layoutProblems(files), ...coverageProblems(files, readInventory(inventory))];
   for (const p of problems) process.stderr.write(`data-layout: ${p}\n`);
-  if (!problems.length) process.stdout.write(`data-layout: ${files.length} files, each in its place; every installed LV2 and CLAP term mapped\n`);
+  if (!problems.length) process.stdout.write(`data-layout: ${files.length} files, each in its place; every installed CLAP term mapped (the LV2 terms are plugin-db's)\n`);
   return problems.length ? 1 : 0;
 }
 

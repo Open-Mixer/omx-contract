@@ -13,9 +13,11 @@ import { validate } from '../lib/schema-validate.mjs';
 import { renderFormatsHeader, renderFormatsPy } from '../render/formats.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT, editData, scratchData, scratchDir } from './helpers.mjs';
+import { DATA, ROOT, UNION, editData, scratchData, scratchDir } from './helpers.mjs';
 
 const own = () => resolveData(loadData(DATA));
+// the LV2 terms are plugin-db's lv2 domain (V27a): the union's fixture copy of them renders the LV2 namespaces
+const withLv2 = () => resolveData(loadData(UNION));
 const read = (rel) => readFileSync(join(ROOT, rel), 'utf8');
 const scratch = (edit) => { const d = scratchData(); edit && editData(d, 'formats/clap/ext/remote-controls.json', edit); return resolveData(loadData(d)); };
 
@@ -32,8 +34,12 @@ test('the remote controls page size is the number 8, in C, ts and py', async () 
   const mod = await import(pathToFileURL(join(dir, 'omx-contract.js')).href);
   assert.equal(mod.CLAP_NUMBERS.CLAP_REMOTE_CONTROLS_COUNT, 8);
   assert.equal(mod.CLAP_IDS.CLAP_EXT_REMOTE_CONTROLS, 'clap.remote-controls/2');
-  assert.equal(mod.LV2_NAMESPACES.CORE, 'http://lv2plug.in/ns/lv2core#');
-  assert.equal(mod.LV2_SPECIFICATIONS.PORT_PROPS, 'http://lv2plug.in/ns/ext/port-props');
+  assert.equal(mod.LV2_NAMESPACES, undefined, 'no LV2 terms here, no LV2 namespaces (plugin-db\'s, V27a)');
+  const lv2 = scratchDir('omx-formats-lv2-');
+  for (const f of renderTs(withLv2())) writeFileSync(join(lv2, f.path), f.text);
+  const m2 = await import(pathToFileURL(join(lv2, 'omx-contract.js')).href);
+  assert.equal(m2.LV2_NAMESPACES.CORE, 'http://lv2plug.in/ns/lv2core#');
+  assert.equal(m2.LV2_SPECIFICATIONS.PORT_PROPS, 'http://lv2plug.in/ns/ext/port-props');
 });
 
 test('sabotage: the page size changed in the data changes every render, so a stale golden goes red', () => {
@@ -44,7 +50,7 @@ test('sabotage: the page size changed in the data changes every render, so a sta
 });
 
 test('every namespace is its specification and a #, and every term of it is written after it', () => {
-  const lv2 = [...own().values()].filter((r) => r.kind === 'terms' && r.format === 'lv2');
+  const lv2 = [...withLv2().values()].filter((r) => r.kind === 'terms' && r.format === 'lv2');
   assert.ok(lv2.length > 20, 'the scan found the LV2 specifications');
   for (const r of lv2) for (const [n, t] of Object.entries(r.value)) assert.ok(t.uri === r.spec || t.uri.startsWith(`${r.spec}#`), `${r.name} ${n}`);
 });
@@ -69,7 +75,7 @@ static int n;
 int main(void) {
   OMX_CLAP_IDS(COUNT)
   return (strcmp(OMX_CLAP_EXT_REMOTE_CONTROLS, "clap.remote-controls/2") == 0 && OMX_CLAP_REMOTE_CONTROLS_COUNT == 8u
-          && strcmp(OMX_LV2_NS_CORE, "http://lv2plug.in/ns/lv2core#") == 0 && n > 100) ? 0 : 1;
+          && n > 100) ? 0 : 1;
 }
 `);
   const build = spawnSync(cc[0], [...cc.slice(1), '-std=c11', '-Wall', '-Wextra', '-Werror', '-I', join(ROOT, 'include'), join(dir, 't.c'), '-o', join(dir, 't')], { encoding: 'utf8' });
@@ -78,7 +84,7 @@ int main(void) {
 });
 
 test('the py render runs and holds the values', { skip: spawnSync('python3', ['--version']).status !== 0 && 'no python3' }, () => {
-  const r = spawnSync('python3', ['-I', '-c', `import runpy; m = runpy.run_path(${JSON.stringify(join(ROOT, 'share/omx-contract/omx_contract.py'))}); import sys; sys.exit(0 if m["CLAP_NUMBERS"]["CLAP_REMOTE_CONTROLS_COUNT"] == 8 and m["LV2_NAMESPACES"]["CORE"].endswith("lv2core#") else 1)`]);
+  const r = spawnSync('python3', ['-I', '-c', `import runpy; m = runpy.run_path(${JSON.stringify(join(ROOT, 'share/omx-contract/omx_contract.py'))}); import sys; sys.exit(0 if m["CLAP_NUMBERS"]["CLAP_REMOTE_CONTROLS_COUNT"] == 8 else 1)`]);
   assert.equal(r.status, 0, String(r.stderr));
 });
 

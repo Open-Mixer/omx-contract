@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The whole LV2 and CLAP vocabulary is mapped (docs/data-layout.md): every term of the inventory has its entry and its
- * status, and no entry names a term the inventory lacks. The inventory is the installed sources', checked where they
- * are installed.
+ * The whole CLAP vocabulary is mapped (docs/data-layout.md): every term of the inventory has its entry and its status,
+ * and no entry names a term the inventory lacks. The inventory is the installed sources', checked where they are
+ * installed. The LV2 terms are plugin-db's `lv2` domain (sorting pass V27a): data/ maps none, and the LV2 inventory is
+ * held to a tree only where it maps LV2 (the sabotage arm plants one file).
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -19,22 +20,24 @@ const files = () => structuredClone(readFiles(DATA));
 const doc = (fs, rel) => fs.find((f) => f.rel === rel).doc;
 const statuses = (fs) => fs.filter((f) => f.rel.startsWith('formats/')).flatMap((f) => Object.values(Object.values(f.doc)[1].terms).map((t) => t.status));
 
-test('every LV2 term and CLAP identifier of the inventory is mapped, with a status, and nothing more', () => {
+test('every CLAP identifier of the inventory is mapped, with a status, and nothing more', () => {
   const inv = readInventory(INVENTORY);
   assert.deepEqual(coverageProblems(files(), inv), []);
-  const lv2 = Object.values(inv.lv2.specs).reduce((n, s) => n + s.terms.length, 0);
   const clap = Object.values(inv.clap.headers).reduce((n, h) => n + h.length, 0);
-  assert.ok(lv2 >= 452 && clap >= 297, `${lv2} LV2 terms, ${clap} CLAP identifiers`);
+  assert.ok(clap >= 297, `${clap} CLAP identifiers`);
   const st = statuses(files());
-  assert.equal(st.length, lv2 + clap);
+  assert.equal(st.length, clap);
   for (const s of st) assert.ok(['used', 'supported-later', 'out-of-scope'].includes(s), s);
 });
 
 test('sabotage: a term taken out of the mapping, and one the format does not define, are named', () => {
   const inv = readInventory(INVENTORY);
+  // a tree that maps LV2 is held to the LV2 inventory: one spec planted with a term short
   let fs = files();
-  delete doc(fs, 'formats/lv2/worker.json').LV2_WORKER_TERMS.terms.schedule;
-  assert.deepEqual(coverageProblems(fs, inv), ['formats/lv2/worker.json: http://lv2plug.in/ns/ext/worker#schedule is not mapped']);
+  const worker = inv.lv2.specs.worker;
+  const terms = Object.fromEntries(worker.terms.filter((t) => t.name !== 'schedule').map((t) => [t.name, { uri: t.uri, kind: 'feature', status: 'used' }]));
+  fs.push({ rel: 'formats/lv2/worker.json', doc: { LV2_WORKER_TERMS: { kind: 'terms', format: 'lv2', spec: worker.uri, version: worker.version, terms } } });
+  assert.ok(coverageProblems(fs, inv).includes('formats/lv2/worker.json: http://lv2plug.in/ns/ext/worker#schedule is not mapped'));
   fs = files();
   delete doc(fs, 'formats/clap/ext/params.json').CLAP_EXT_PARAMS_TERMS.terms.paramIsStepped;
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/ext/params.json: CLAP_PARAM_IS_STEPPED is not mapped (as paramIsStepped)']);
@@ -46,11 +49,8 @@ test('sabotage: a term taken out of the mapping, and one the format does not def
 test('sabotage: a term without its status, a wrong URI and a wrong version are named', () => {
   const inv = readInventory(INVENTORY);
   let fs = files();
-  delete doc(fs, 'formats/lv2/urid.json').LV2_URID_TERMS.terms.map.status;
-  assert.deepEqual(coverageProblems(fs, inv), ['formats/lv2/urid.json: map has no status']);
-  fs = files();
-  doc(fs, 'formats/lv2/urid.json').LV2_URID_TERMS.terms.map.uri = 'http://lv2plug.in/ns/ext/urid#mapped';
-  assert.deepEqual(coverageProblems(fs, inv), ['formats/lv2/urid.json: map maps http://lv2plug.in/ns/ext/urid#mapped, the term is http://lv2plug.in/ns/ext/urid#map']);
+  delete doc(fs, 'formats/clap/ext/params.json').CLAP_EXT_PARAMS_TERMS.terms.paramIsStepped.status;
+  assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/ext/params.json: paramIsStepped has no status']);
   fs = files();
   doc(fs, 'formats/clap/process.json').CLAP_PROCESS_TERMS.version = '1.2.9';
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/process.json: version 1.2.9, the installed CLAP is 1.2.10']);
@@ -58,12 +58,8 @@ test('sabotage: a term without its status, a wrong URI and a wrong version are n
 
 test('sabotage: a newer format installed, one term more, is named until it is mapped', () => {
   const inv = readInventory(INVENTORY);
-  inv.lv2.specs.worker.terms.push({ uri: 'http://lv2plug.in/ns/ext/worker#wake', name: 'wake', types: ['lv2:Feature'] });
   inv.clap.headers['ext/tail'].push({ name: 'CLAP_TAIL_FOREVER', group: 'enum', value: null });
-  assert.deepEqual(coverageProblems(files(), inv), [
-    'formats/lv2/worker.json: http://lv2plug.in/ns/ext/worker#wake is not mapped',
-    'formats/clap/ext/tail.json: CLAP_TAIL_FOREVER is not mapped (as tailForever)',
-  ]);
+  assert.deepEqual(coverageProblems(files(), inv), ['formats/clap/ext/tail.json: CLAP_TAIL_FOREVER is not mapped (as tailForever)']);
 });
 
 test('the inventory reads N-Triples and CLAP declarations as the tool writes them', () => {

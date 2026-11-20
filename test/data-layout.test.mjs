@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { layoutProblems, readFiles } from '../tools/data-layout.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, LV2_TERMS, ROOT } from './helpers.mjs';
 
 const files = () => structuredClone(readFiles(DATA));
 const doc = (fs, rel) => fs.find((f) => f.rel === rel).doc;
@@ -36,8 +36,11 @@ test('sabotage: a codes item in data/ is named', () => {
   assert.deepEqual(layoutProblems(fs), ['resource-profile.json: RESOURCE_STRAY_CODES: a codes item in data/ (the refusal codes are the contract domain\'s)']);
 });
 
+/** data/'s files with the LV2 fixture (test/fixtures/lv2-terms) at formats/lv2/, as a tree that maps LV2 holds them. */
+const withLv2 = () => [...files(), ...readFiles(LV2_TERMS).map(({ rel, doc }) => ({ rel: `formats/lv2/${rel}`, doc }))];
+
 test('sabotage: unsorted terms are named', () => {
-  const fs = files();
+  const fs = withLv2();
   const t = doc(fs, 'formats/lv2/worker.json').LV2_WORKER_TERMS;
   t.terms = Object.fromEntries(Object.entries(t.terms).reverse());
   assert.deepEqual(layoutProblems(fs), ['formats/lv2/worker.json: LV2_WORKER_TERMS: its terms are not sorted by name']);
@@ -48,7 +51,7 @@ test('sabotage: an LV2 URI in a CLAP file, or in another specification\'s file, 
   doc(fs, 'formats/clap/ext/latency.json').CLAP_EXT_LATENCY_TERMS.terms.latency.uri = 'http://lv2plug.in/ns/lv2core#latency';
   assert.ok(layoutProblems(fs).includes('formats/clap/ext/latency.json: an LV2 URI outside data/formats/lv2/'));
   assert.ok(layoutProblems(fs).includes('formats/clap/ext/latency.json: latency: a CLAP term carries its identifier, never a URI'));
-  fs = files();
+  fs = withLv2();
   doc(fs, 'formats/lv2/worker.json').LV2_WORKER_TERMS.terms.schedule.uri = 'http://lv2plug.in/ns/ext/state#makePath';
   assert.deepEqual(layoutProblems(fs), ['formats/lv2/worker.json: schedule: http://lv2plug.in/ns/ext/state#makePath lies outside http://lv2plug.in/ns/ext/worker']);
 });

@@ -32,7 +32,6 @@
       "latency": {
         "word": "latency",
         "from": [
-          "LV2_CORE_TERMS#latency",
           "CLAP_EXT_LATENCY_TERMS#latency"
         ],
         "doc": "The frames a plugin delays its output by, per rate and quantum.",
@@ -79,10 +78,6 @@
       },
       "worker": {
         "word": "worker",
-        "from": [
-          "LV2_WORKER_TERMS#schedule",
-          "LV2_WORKER_TERMS#interface"
-        ],
         "doc": "The work a plugin hands to a non-real-time thread of the host.",
         "text": {
           "en": "The work a plugin hands to a non-real-time thread of the host."
@@ -90,13 +85,6 @@
       },
       "blockLength": {
         "word": "block-length",
-        "from": [
-          "LV2_BUF_SIZE_TERMS#boundedBlockLength",
-          "LV2_BUF_SIZE_TERMS#maxBlockLength",
-          "LV2_BUF_SIZE_TERMS#minBlockLength",
-          "LV2_BUF_SIZE_TERMS#nominalBlockLength",
-          "LV2_OPTIONS_TERMS#options"
-        ],
         "doc": "The block lengths a plugin accepts.",
         "text": {
           "en": "The block lengths a plugin accepts."
@@ -126,7 +114,6 @@
       "state": {
         "word": "state",
         "from": [
-          "LV2_STATE_TERMS#interface",
           "CLAP_EXT_STATE_TERMS#state"
         ],
         "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
@@ -149,18 +136,12 @@
       },
       "frames": {
         "word": "frames",
-        "from": [
-          "LV2_UNITS_TERMS#frame"
-        ],
         "text": {
           "en": "A count of audio frames."
         }
       },
       "ms": {
         "word": "ms",
-        "from": [
-          "LV2_UNITS_TERMS#ms"
-        ],
         "text": {
           "en": "Milliseconds."
         }
@@ -173,9 +154,6 @@
       },
       "s": {
         "word": "s",
-        "from": [
-          "LV2_UNITS_TERMS#s"
-        ],
         "text": {
           "en": "Seconds."
         }

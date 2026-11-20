@@ -13,7 +13,7 @@
 //      installed at all into a package of that name, at the domain's info.version.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
@@ -109,4 +109,27 @@ test('(c) render --with-domain builds an owner that is not installed, from its d
   assert.equal(r.status, 0, r.stderr);
   const v = cli('validate', '--contract-dir', root, '--with-domain', join(t, 'contract.d/owned-host'), '--with-domain', join(t, 'contract.d/owned'), '--needs', "omx-owned@>= 1.0.0");
   assert.equal(v.status, 0, v.stderr);
+});
+
+// A domain item with no x-file is read at run time only: an installed domain's items never render into its owner's
+// package (render --package <owner>), as the scan domain's SCAN_* stay out of omx-clap's renders. Only omx-contract's
+// own param domain, which its data read takes beside data/ (lib/data.mjs TREE_DOMAINS), renders into its package.
+test('an installed domain\'s run-time items are absent from its owner\'s package render', () => {
+  const root = contractDir();
+  const data = join(SCRATCH, `owned-data-${n++}`);
+  mkdirSync(data);
+  writeFileSync(join(data, 'owned.json'), `${JSON.stringify({ $schema: '../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': '>= 3.0.0' }, OWNED_MODES: { kind: 'words', since: '1.0.0', doc: 'The modes.', words: { one: { word: 'one', doc: 'One.' } } } }, null, 2)}\n`);
+  execFileSync('sh', [SH, 'omx-owned', '1.0.0', String(SCHEMA_MAJOR), data, root, 'data'], { stdio: 'ignore' });
+  const run = structuredClone(HOST);
+  run.components.schemas = { OWNED_HOST_RUN_WORDS: { description: 'Words read at run time.', 'x-since': '1.0.0', 'x-kind': 'words', oneOf: [{ const: 'live', title: 'live', description: 'Live.', 'x-code': 0 }] } };
+  mkdirSync(join(root, 'owned-host'));
+  writeFileSync(join(root, 'owned-host/owned-host.json'), `${JSON.stringify(run, null, 2)}\n`);
+  for (const target of ['c', 'ts']) {
+    const out = join(SCRATCH, `out-${n++}`);
+    const r = cli('render', '--target', target, '--out', out, '--contract-dir', root, '--package', 'omx-owned');
+    assert.equal(r.status, 0, r.stderr);
+    const text = readdirSync(out).map((f) => readFileSync(join(out, f), 'utf8')).join('\n');
+    assert.match(text, /OWNED_MODES/, `${target}: the package's own item renders`);
+    assert.doesNotMatch(text, /OWNED_HOST_RUN_WORDS/, `${target}: the run-time item does not`);
+  }
 });

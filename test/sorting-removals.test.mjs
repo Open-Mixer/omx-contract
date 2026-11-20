@@ -73,8 +73,18 @@ test('V27a: no LV2 terms item in the read, no data/formats/lv2, and no RESOURCE_
   assert.deepEqual([...data.items.keys()].filter((n) => /^LV2_.*_TERMS$/.test(n)), []);
   assert.ok(!existsSync(join(DATA, 'formats/lv2')));
   const from = [...data.items.values()].filter((i) => i.name.startsWith('RESOURCE_')).flatMap((i) => Object.values(i.item.words ?? {}).flatMap((w) => w.from ?? []));
-  assert.ok(from.length > 0, 'positive control: the CLAP terms the resource words still take');
   assert.deepEqual(from.filter((f) => f.startsWith('LV2_')), []);
+});
+
+// V27b: the CLAP terms are omx-clap's `clap` domain. data/formats/clap leaves, and the CLAP entries of the resource
+// words' `from` go with it (coordinator, 2026-11-20), so a RESOURCE_ word takes no format term at all.
+test('V27b: no CLAP terms item in the read, no data/formats/clap, and no RESOURCE_ word takes a format term', () => {
+  const data = loadData(DATA);
+  assert.deepEqual([...data.items.keys()].filter((n) => /^CLAP_.*_TERMS$/.test(n)), []);
+  assert.ok(!existsSync(join(DATA, 'formats')));
+  const resource = [...data.items.values()].filter((i) => i.name.startsWith('RESOURCE_'));
+  assert.ok(resource.length > 0, 'positive control: the RESOURCE_ items stay this pass');
+  assert.deepEqual(resource.flatMap((i) => Object.values(i.item.words ?? {}).flatMap((w) => w.from ?? [])), []);
 });
 
 // The CLAP core's packages are omx-clap (coordinator, 2026-11-20): omx-clap-contract, omx-clap-devel and

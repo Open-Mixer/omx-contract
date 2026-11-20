@@ -113,7 +113,9 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   - `"x-kind": "words"` rebuilds a data `words` item, each word keyed by its `title` (a word of a words item carries
     no `x-name`; the reader refuses one): `x-groups`, `x-group`, `x-from`, `description`, `x-text` and `x-args` as
     above, and (3.21.0, a unit list) the item's `x-dimensions` (a words item of the document) with each word's
-    `x-symbol` (its symbol as written) and `x-dimension` (a word of that item). A data words item's `units`, `bases`,
+    `x-symbol` (its symbol as written) and `x-dimension` (a word of that item), and any word's `x-uri` (3.21.0): the
+    absolute URI a format spells the word as, of any scheme (`urn:openmixer:unit#dBoct` as much as an http LV2 URI),
+    which a TTL writer reads; a value that is no absolute URI is refused, naming the word. A data words item's `units`, `bases`,
     `axes` and `extension` and a word's `x`, `y`, `unit`, `scale`, `figureUnit` and `basis` have no domain words yet:
     an item that needs them stays in `data/`.
   - `"x-kind": "set"` (3.21.0) rebuilds a data `set` of named ids: its words are the ids in their order, and

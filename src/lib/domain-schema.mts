@@ -450,6 +450,11 @@ export const domainSchema = {
           "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell; the data form's symbol.",
           "type": "string"
         },
+        "x-uri": {
+          "description": "The absolute URI a format spells the word as, of any scheme (`http://lv2plug.in/ns/extensions/units#db`, `urn:openmixer:unit#dBoct`); the data form's uri.",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$"
+        },
         "x-dimension": {
           "description": "A word of the item x-dimensions names: what the unit measures; the data form's dimension.",
           "type": "string"

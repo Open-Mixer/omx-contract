@@ -173,6 +173,7 @@
         "x-args": { "description": "The ordered names of the x-text's {name} placeholders, stored: each placeholder once and no other name; the data form's args.", "type": "array", "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" }, "uniqueItems": true },
         "x-group": { "description": "A word of the item x-groups names.", "type": "string" },
         "x-symbol": { "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell; the data form's symbol.", "type": "string" },
+        "x-uri": { "description": "The absolute URI a format spells the word as, of any scheme (`http://lv2plug.in/ns/extensions/units#db`, `urn:openmixer:unit#dBoct`); the data form's uri.", "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$" },
         "x-dimension": { "description": "A word of the item x-dimensions names: what the unit measures; the data form's dimension.", "type": "string" },
         "x-format": { "description": "A verb's format, the line as mod-host's protocol_add_command takes it; the data form's format. Only on a verb.", "type": "string" },
         "x-reply": { "description": "A verb's reply as the protocol writes it; the data form's reply. Only on a verb.", "type": "string" },

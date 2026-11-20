@@ -137,7 +137,7 @@ The rebuild, and nothing else:
   contract directory resolves it. A from renders nothing in a header: the referencing word renders from its own
   `const`, `title` and `x-text`, as a word with a terms reference does (only the LV2 hints Turtle reads a `from`, and
   only a terms one);
-- a word's `x-symbol` and `x-dimension` are its `symbol` and `dimension`, written after `word`, and an item's
+- a word's `x-symbol`, `x-uri` and `x-dimension` are its `symbol`, `uri` and `dimension`, written after `word`, and an item's
   `x-dimensions` its `dimensions`, after `groups` (3.21.0, `PARAM_UNITS`);
 - an item with `"x-kind": "set"` is the data item `{ "kind": "set", ..., "ids": [<const>...], "default": <x-default> }`
   (3.21.0, `PARAM_SCALES`);

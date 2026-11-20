@@ -815,6 +815,7 @@
               "unit": { "$ref": "#/$defs/unit", "description": "An axis word's unit, one of the items' units." },
               "symbol": { "type": "string", "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell (PARAM_UNITS, since 3.21.0)." },
               "dimension": { "$ref": "#/$defs/word", "description": "A unit word's dimension, what it measures: a word of the item `dimensions` names (since 3.21.0)." },
+              "uri": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$", "description": "The absolute URI a format spells the word as, of any scheme (`urn:openmixer:unit#dBoct`; since 3.21.0)." },
               "scale": { "type": "string", "pattern": "^[a-z]+$", "description": "An axis word's scale, how a host draws it: an id of PARAM_SCALES." },
               "figureUnit": { "$ref": "#/$defs/word" },
               "basis": { "$ref": "#/$defs/word" },

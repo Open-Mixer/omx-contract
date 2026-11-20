@@ -88,6 +88,8 @@ const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 /** The schema floor of a file rebuilt from a domain, and of the classic file readDomain() returns. */
 const REBUILT_SCHEMA_FLOOR = '>= 3.0.0';
 const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
+/** An absolute URI (RFC 3986): a scheme, a colon and the rest, no white space; any scheme, urn: as much as http:. */
+const ABSOLUTE_URI = /^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$/;
 
 const only = (o: JsonObject, keys: string[], at: string, what: string): void => {
   for (const k of Object.keys(o)) if (!keys.includes(k)) refuse('fileInvalid', at, `${what}: unknown key ${k} (a ${what} holds ${keys.join(', ')})`);
@@ -249,7 +251,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     s.oneOf.forEach((e: JsonObject, i: number) => {
       const ew = `${w}.oneOf[${i}]`;
       if (typeof e !== 'object' || e === null || Array.isArray(e)) refuse('fileInvalid', at, `${ew}: not an object`);
-      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-args', 'x-group', 'x-from', 'x-name', 'x-symbol', 'x-dimension', ...VERB_KEYS.map(([k]) => k!), ...REPLY_KEYS.map(([k]) => k!)], at, ew);
+      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-args', 'x-group', 'x-from', 'x-name', 'x-symbol', 'x-uri', 'x-dimension', ...VERB_KEYS.map(([k]) => k!), ...REPLY_KEYS.map(([k]) => k!)], at, ew);
       const kind = s['x-kind'] ?? 'codes';
       for (const [k] of VERB_KEYS) if (e[k!] !== undefined && kind !== 'verbs') refuse('fileInvalid', at, `${ew}.${k}: only a verb (a word of an item of x-kind verbs) carries ${k}`);
       if (kind === 'verbs') {
@@ -276,6 +278,9 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
         if (!known.includes(e['x-group'])) refuse('fileInvalid', at, `${ew}.x-group ${JSON.stringify(e['x-group'])} is no word of the schema ${w}.x-groups names`);
       }
       if (e['x-symbol'] !== undefined && typeof e['x-symbol'] !== 'string') refuse('fileInvalid', at, `${ew}.x-symbol is not a string: a unit word's symbol as written`);
+      // the URI a format spells the word as, of any scheme (urn:openmixer:unit#dBoct as much as an http LV2 URI)
+      if (e['x-uri'] !== undefined && (typeof e['x-uri'] !== 'string' || !ABSOLUTE_URI.test(e['x-uri'])))
+        refuse('fileInvalid', at, `${ew} (${JSON.stringify(e.title)}).x-uri ${JSON.stringify(e['x-uri'])} is no absolute URI: <scheme>:<rest>, of any scheme`);
       if (e['x-dimension'] !== undefined) {
         if (typeof s['x-dimensions'] !== 'string') refuse('fileInvalid', at, `${ew}.x-dimension ${JSON.stringify(e['x-dimension'])}, and ${w} names no x-dimensions, the words item of its dimensions`);
         const known = ((schemas[s['x-dimensions'] as string]!.oneOf ?? []) as JsonObject[]).map((x) => x.const);
@@ -296,7 +301,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       }
       if (e.title in words) refuse('fileInvalid', at, `${ew}.title ${e.title} is used twice in ${item}`);
       if (Object.values(words).some((x: JsonObject) => x.word === e.const)) refuse('fileInvalid', at, `${ew}.const ${JSON.stringify(e.const)} is used twice in ${item}`);
-      words[e.title] = { word: e.const, ...(e['x-symbol'] === undefined ? {} : { symbol: e['x-symbol'] }), ...(e['x-dimension'] === undefined ? {} : { dimension: e['x-dimension'] }), ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) };
+      words[e.title] = { word: e.const, ...(e['x-symbol'] === undefined ? {} : { symbol: e['x-symbol'] }), ...(e['x-uri'] === undefined ? {} : { uri: e['x-uri'] }), ...(e['x-dimension'] === undefined ? {} : { dimension: e['x-dimension'] }), ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) };
     });
     names.push(item);
     const consts = (s.oneOf as JsonObject[]).map((e) => e.const);
@@ -402,7 +407,7 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
       const words: JsonObject = {};
       for (const e of s.oneOf as JsonObject[]) {
         const from = ((e['x-from'] ?? []) as JsonObject[]).map((r) => `${REF.exec(r.$ref as string)![1]}#${r['x-term']}`);
-        words[e.title as string] = { word: e.const, ...(e['x-symbol'] === undefined ? {} : { symbol: e['x-symbol'] }), ...(e['x-dimension'] === undefined ? {} : { dimension: e['x-dimension'] }), ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...said(e) };
+        words[e.title as string] = { word: e.const, ...(e['x-symbol'] === undefined ? {} : { symbol: e['x-symbol'] }), ...(e['x-uri'] === undefined ? {} : { uri: e['x-uri'] }), ...(e['x-dimension'] === undefined ? {} : { dimension: e['x-dimension'] }), ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...said(e) };
       }
       f[item] = { ...head, ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), ...(s['x-dimensions'] === undefined ? {} : { dimensions: s['x-dimensions'] }), words };
       continue;

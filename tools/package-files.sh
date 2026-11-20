@@ -70,7 +70,7 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
   echo "/usr/share/omx-contract/contract.d/$major/omx-contract/MANIFEST.json"
   echo /usr/share/omx-contract/contract.d/contract/contract.json
   echo /usr/share/omx-contract/contract.d/param/param.json
-  for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract.py omx_contract_catalog.py omx_contract_scale.py scale-vectors.json clap-kind-vectors.json; do echo "/usr/share/omx-contract/$f"; done
+  for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract_catalog.py omx_contract_scale.py scale-vectors.json clap-kind-vectors.json; do echo "/usr/share/omx-contract/$f"; done
   echo /usr/share/omx-contract/languages.json
   for f in ../shapes/*.schema.json; do echo "/usr/share/omx-contract/shapes/$(basename "$f")"; done
   echo /usr/share/omx-contract/omx-contract.schema.json; echo /usr/share/omx-contract/domain.schema.json) | LC_ALL=C sort > "$tmp/want-$data"

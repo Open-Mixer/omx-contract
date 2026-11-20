@@ -79,8 +79,7 @@ Requires: python3
 The Python package omx_contract: omx_contract.catalog reads an owner's catalogs
 (the sentence of a code in a language, falling back to its English source),
 omx_contract.scale is the position law of a control (scale_position,
-scale_value), omx_contract.clap the CLAP identifiers and numbers the headers
-declare. A program writes `import omx_contract.catalog` instead of loading a
+scale_value). A program writes `import omx_contract.catalog` instead of loading a
 file by its path. Each submodule is the file omx-contract-data ships under
 share/omx-contract, byte for byte; those files stay there for one release.
 Its documentation is on openmixer.org.
@@ -252,7 +251,6 @@ a floor, the lowest release whose functions it calls.
 %{_datadir}/omx-contract/shapes/
 %{_datadir}/omx-contract/omx-contract.json
 %{_datadir}/omx-contract/omx-vocabulary.schema.json
-%{_datadir}/omx-contract/omx_contract.py
 %{_datadir}/omx-contract/omx_contract_catalog.py
 %{_datadir}/omx-contract/omx_contract_scale.py
 %{_datadir}/omx-contract/scale-vectors.json

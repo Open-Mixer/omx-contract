@@ -30,7 +30,7 @@ function installedWithDomain() {
 
 const byPath = (files) => Object.fromEntries(files.map((f) => [f.path, f.text]));
 
-for (const target of ['c', 'json', 'ts', 'py', 'lv2']) {
+for (const target of ['c', 'json', 'ts', 'lv2']) {
   test(`the render of the installed tree is the render of data/: ${target}`, () => {
     const dir = installedWithDomain();
     assert.deepEqual(byPath(renderTarget(target, ['--contract-dir', dir])), byPath(renderTarget(target, [])));

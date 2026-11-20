@@ -40,6 +40,8 @@ export const TOOL_KERNELS = join(ROOT, 'test/fixtures/tool-kernels');
 export const HOSTING = join(TOOL_KERNELS, 'hosting.json');
 /** The LV2 terms as data/formats/lv2 held them before plugin-db's `lv2` domain took them (V27a): a fixture. */
 export const LV2_TERMS = join(ROOT, 'test/fixtures/lv2-terms');
+/** The CLAP terms as data/formats/clap held them before omx-clap's `clap` domain took them (V27b): a fixture. */
+export const CLAP_TERMS = join(ROOT, 'test/fixtures/clap-terms');
 
 const scratch = [];
 process.on('exit', () => { for (const d of scratch) rmSync(d, { recursive: true, force: true }); });
@@ -63,6 +65,8 @@ export function scratchUnion() {
   // the LV2 terms are plugin-db's `lv2` domain now (sorting pass V27a); the tests of the terms, formatMap and formats
   // machinery take this copy of them, as data/formats/lv2 held them, as their fixture
   cpSync(LV2_TERMS, join(dir, 'data/formats/lv2'), { recursive: true });
+  // and the CLAP terms, omx-clap's `clap` domain now (V27b), as data/formats/clap held them
+  cpSync(CLAP_TERMS, join(dir, 'data/formats/clap'), { recursive: true });
   cpSync(join(ROOT, 'schema'), join(dir, 'schema'), { recursive: true });
   // the standard parameter words are omx-contract's `param` domain, read beside data/ (lib/data.mjs TREE_DOMAINS)
   cpSync(join(ROOT, 'contract.d/param'), join(dir, 'contract.d/param'), { recursive: true });

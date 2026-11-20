@@ -92,7 +92,8 @@ test('the install writes omx-contract\'s data/ with its manifest: every file, it
   assert.deepEqual(Object.keys(m.files).sort(), want);
   assert.ok(!want.includes('codes.json'), 'no codes file is in data/ any more');
   assert.equal(want.length, dataFiles(DATA).length);
-  assert.ok(want.includes('rates.json') && want.some((r) => r.startsWith('formats/')), 'the shared facts and the vocabulary tree');
+  assert.ok(want.includes('rates.json') && want.includes('verbs.json'), 'the shared facts and the vocabulary files');
+  assert.ok(!want.some((r) => r.startsWith('formats/')), 'no format terms: their owners\' domains hold them (V27a/V27b)');
   assert.ok(!want.some((r) => r.startsWith('hosting/')), 'the hosting codes are omx-clap-core\'s (docs/hosting.md)');
   for (const rel of want) {
     const bytes = readFileSync(join(dir, rel));

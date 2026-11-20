@@ -21,9 +21,6 @@
       },
       "scratchMemory": {
         "word": "scratch-memory",
-        "from": [
-          "CLAP_EXT_DRAFT_SCRATCH_MEMORY_TERMS#scratch-memory/1"
-        ],
         "doc": "The memory a plugin asks of its host for its process call.",
         "text": {
           "en": "The memory a plugin asks of its host for its process call."
@@ -31,9 +28,6 @@
       },
       "latency": {
         "word": "latency",
-        "from": [
-          "CLAP_EXT_LATENCY_TERMS#latency"
-        ],
         "doc": "The frames a plugin delays its output by, per rate and quantum.",
         "text": {
           "en": "The frames a plugin delays its output by, per rate and quantum."
@@ -41,9 +35,6 @@
       },
       "tail": {
         "word": "tail",
-        "from": [
-          "CLAP_EXT_TAIL_TERMS#tail"
-        ],
         "doc": "How long a plugin keeps sounding once its input goes silent.",
         "text": {
           "en": "How long a plugin keeps sounding once its input goes silent."
@@ -51,9 +42,6 @@
       },
       "voices": {
         "word": "voices",
-        "from": [
-          "CLAP_EXT_VOICE_INFO_TERMS#voice-info"
-        ],
         "doc": "The notes an instrument plays at once.",
         "text": {
           "en": "The notes an instrument plays at once."
@@ -68,9 +56,6 @@
       },
       "threads": {
         "word": "threads",
-        "from": [
-          "CLAP_EXT_THREAD_POOL_TERMS#thread-pool"
-        ],
         "doc": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for.",
         "text": {
           "en": "The threads a plugin starts and their scheduling class, or the host thread pool it asks for."
@@ -113,9 +98,6 @@
       },
       "state": {
         "word": "state",
-        "from": [
-          "CLAP_EXT_STATE_TERMS#state"
-        ],
         "doc": "The size of a plugin's saved state, its save and restore time, and its round trip.",
         "text": {
           "en": "The size of a plugin's saved state, its save and restore time, and its round trip."

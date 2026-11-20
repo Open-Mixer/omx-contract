@@ -26,7 +26,7 @@ SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
-.PHONY: all build-lib build-c install-c check-abi test-c fuzz fuzz-replay check ownership doxygen-check inventory-check layout public-sources install install-cli install-python install-rpm-macros test
+.PHONY: all build-lib build-c install-c check-abi test-c fuzz fuzz-replay check ownership doxygen-check layout public-sources install install-cli install-python install-rpm-macros test
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
@@ -54,7 +54,7 @@ lib/codes.mjs: $(wildcard src/lib/*.mts) tsconfig.lib.json
 
 # The headers compile on their own, warnings as errors: the committed renders and the verbs fixture's (test/golden/verbs/).
 check: all
-	printf '#include <omxcontract/omx_contract_limits.h>\n#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_resource_hints.h>\n#include <omxcontract/omx_param_units.h>\n#include <omxcontract/omx_formats.h>\n#include <omxcontract/omx_json_write.h>\nint main(void) { return OMX_STANDARD_SAMPLE_RATES_COUNT > 0u && OMX_DECLARED_RATE_COUNT > 0 && OMX_PARAM_SCALES_LINEAR < OMX_PARAM_SCALES_COUNT && OMX_RESOURCE_HINT_COUNT > 0u && OMX_CLAP_REMOTE_CONTROLS_COUNT == 8u && OMX_CLAP_UNIT_DBFS == 256u && omx_json_string(0, 0, "a") == 3 ? 0 : 1; }\n' > check-headers.c
+	printf '#include <omxcontract/omx_contract_limits.h>\n#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_resource_hints.h>\n#include <omxcontract/omx_param_units.h>\n#include <omxcontract/omx_json_write.h>\nint main(void) { return OMX_STANDARD_SAMPLE_RATES_COUNT > 0u && OMX_DECLARED_RATE_COUNT > 0 && OMX_PARAM_SCALES_LINEAR < OMX_PARAM_SCALES_COUNT && OMX_RESOURCE_HINT_COUNT > 0u && OMX_CLAP_UNIT_DBFS == 256u && omx_json_string(0, 0, "a") == 3 ? 0 : 1; }\n' > check-headers.c
 	$(CC) -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Iinclude -Isrc check-headers.c -o check-headers
 	./check-headers
 	printf '#include "omx_host_verbs.h"\n#include "c/verbs_fixture_host_verbs.h"\n#include "c/verbs_fixture_vocabulary.h"\nint main(void) { return omx_host_verb_level(OMX_VERB_CHAIN, OMX_HOST_VERB_HOST_PLUGIN_HOSTD) == OMX_HOST_VERB_REQUIRED && verbs_fixture_host_verb_find(OMX_VERB_PARAM_INFO) != NULL ? 0 : 1; }\n' > check-headers.c
@@ -73,7 +73,6 @@ install-python:
 	install -m 0644 python/omx_contract/__init__.py $(DESTDIR)$(PYTHONDIR)/omx_contract/__init__.py
 	install -m 0644 share/omx-contract/omx_contract_catalog.py $(DESTDIR)$(PYTHONDIR)/omx_contract/catalog.py
 	install -m 0644 share/omx-contract/omx_contract_scale.py $(DESTDIR)$(PYTHONDIR)/omx_contract/scale.py
-	install -m 0644 share/omx-contract/omx_contract.py $(DESTDIR)$(PYTHONDIR)/omx_contract/clap.py
 	install -d $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes
 	install -m 0644 python/omx_contract/shapes/__init__.py $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes/__init__.py
 	for f in share/omx-contract/omx_contract_*_shape.py; do n=$$(basename "$$f" _shape.py | sed 's/^omx_contract_//'); install -m 0644 "$$f" $(DESTDIR)$(PYTHONDIR)/omx_contract/shapes/$$n.py || exit 1; done
@@ -81,7 +80,7 @@ install-python:
 install: all
 	install -d $(DESTDIR)$(INCLUDEDIR)/omxcontract $(DESTDIR)$(DATADIR)/omx-contract $(DESTDIR)$(PKGCONFIGDIR)
 	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
-	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract.py share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json schema/domain.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
+	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json schema/domain.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
@@ -229,8 +228,7 @@ doxygen-check:
 	  echo "doxygen-check: $(DOXYGEN_BASE) carries no docs/doxygen-baseline.txt; the shrink check starts at the next change"; sh tools/doxygen-gate.sh; \
 	else echo "doxygen-check: $(DOXYGEN_BASE) is no commit git can read here; fetch it, the shrink check needs it" >&2; exit 2; fi
 
-# Every word of data/ in the file its rule places it, and every LV2 and CLAP term of inventory/ mapped with a status
-# (docs/data-layout.md).
+# Every word of data/ in the file its rule places it (docs/data-layout.md).
 layout:
 	node tools/data-layout.mjs
 
@@ -243,10 +241,6 @@ OWNERSHIP_BASE ?= $(OWNERSHIP_REMOTE)/$(OWNERSHIP_BRANCH)
 ownership:
 	@git fetch --no-tags $(OWNERSHIP_REMOTE) $(OWNERSHIP_BRANCH) >/dev/null 2>&1 || { echo "ownership: fetching the base from $(OWNERSHIP_REMOTE) $(OWNERSHIP_BRANCH) failed; the shrink check needs it" >&2; exit 2; }
 	node tools/check-ownership.mjs --base $(OWNERSHIP_BASE)
-
-# inventory/ is the LV2 and CLAP installed here (needs serdi, the LV2 bundles and the CLAP headers).
-inventory-check:
-	node tools/format-inventory.mjs --check
 
 # No tracked file points into a private repository, branch, issue or path, with no exemption.
 public-sources: private-refs

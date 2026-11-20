@@ -20,10 +20,8 @@ data/
                                omx_param_units.h, read as data by omx-panel and plugin-hostd
   panel.json                   PANEL_*: the panel families and widgets
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
-  (the LV2 terms, LV2_<SPEC>_TERMS, are plugin-db's `lv2` domain: sorting pass V27a)
-  formats/clap/<header>.json   CLAP_<HEADER>_TERMS: the identifiers of the CLAP header clap/<header>.h
-                               (formats/clap/events.json, ext/params.json, ext/draft/scratch-memory.json, ...)
-inventory/clap.json  the CLAP headers as installed, written by tools/format-inventory.mjs, never by hand
+  (the format terms are their owners' domains: the LV2 terms plugin-db's `lv2` domain, sorting pass V27a, plugin-db#66;
+   the CLAP terms omx-clap's `clap` domain, V27b, clap#163, with their inventories and coverage checks)
 ```
 
 The verbs are not here either: each package declares its own, in an item of kind `verbs` (docs/contract-dir.md "A
@@ -39,7 +37,7 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 | a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | plugin-db's `lv2` domain (V27a), with its mapping to the standard words | `LV2_<SPEC>_TERMS`, kind `terms` |
-| a CLAP identifier declared in `clap/<header>.h` | `formats/clap/<header>.json` | `CLAP_<HEADER>_TERMS`, the path in upper snake case |
+| a CLAP identifier declared in `clap/<header>.h` | omx-clap's `clap` domain (V27b), with its mapping to the standard words | `CLAP_<HEADER>_TERMS`, kind `terms` |
 
 `<SPEC>` and `<HEADER>` are the file's path below its domain directory in upper snake case
 (`ext/draft/scratch-memory` is `EXT_DRAFT_SCRATCH_MEMORY`). A file holds the items of its
@@ -82,8 +80,8 @@ not the one its path gives.
   surface renders through `@openmixer/omx-contract/catalog`: `loadCatalog(owner, lang)`, then `sentenceOf(catalog, key,
   text.en)` (the catalog's sentence, else the source sentence) and `fill(sentence, args)`; `catalogProblems` and
   `catalogKeys` are the checks, for an owner that validates its catalogs in its own build. A Python surface (Zynthian)
-  reads the same shape with `share/omx-contract/omx_contract_catalog.py`, hand-written and installed beside the
-  generated `omx_contract.py`: `load_catalog(owner, lang)`, `sentence_of(catalog, key, source)` and `fill(sentence,
+  reads the same shape with `share/omx-contract/omx_contract_catalog.py`, hand-written and installed in
+  `share/omx-contract/`: `load_catalog(owner, lang)`, `sentence_of(catalog, key, source)` and `fill(sentence,
   args)`, no schema validation of its own (a surface only ever reads an installed catalog; `validate --catalogs`
   checks one at build time).
 - **Language packs** (omx-contract#21). An entry of a catalog is
@@ -145,11 +143,9 @@ deprecates.
 
 ## The inventory
 
-`node tools/format-inventory.mjs` reads the installed CLAP headers and writes `inventory/clap.json` with the version
-it was read from; `--check` compares instead. `test/format-coverage.test.mjs` holds the mapping equal to the
-inventory: every term of the inventory is mapped with a status, and no mapped term is missing from it. When a newer
-CLAP is installed, refresh the inventory and map what it adds; the test names each term. The LV2 inventory and its
-coverage are plugin-db's (`tools/lv2_inventory.py`, `tests/lv2_coverage_test.py`; sorting pass V27a).
+The inventories of the installed formats and the checks that every term of them is mapped are the terms' owners':
+plugin-db's for LV2 (`tools/lv2_inventory.py`, `tests/lv2_coverage_test.py`; V27a) and omx-clap's for CLAP
+(`tools/clap_inventory.py`, `tests/clap_inventory_test.py`; V27b).
 
 ## The renders
 

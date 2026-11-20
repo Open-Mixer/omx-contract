@@ -37,7 +37,6 @@ import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mj
 import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC } from '../render/c.mjs';
 import { domainCodesC } from '../render/codes.mjs';
-import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderOwnerTs, renderTs } from '../render/ts.mjs';
@@ -258,7 +257,7 @@ export function renderTarget(target, argv) {
     resolved.delete(TOOL_TABLE);
     if (target === 'c') return renderC(resolved, { pkg });
     if (target === 'ts') return renderOwnerTs(resolved, pkg, files);
-    throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');
+    throw new Usage('the json and lv2 renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');
   }
   // The reader's own table is no declaration: the installed `contract` domain holds it (docs/contract-dir.md, "The refusal codes"),
   // and no whole-read render carries it, as the render of data/ never reads it (its one render is omx_contract_codes.h).
@@ -268,11 +267,9 @@ export function renderTarget(target, argv) {
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));
   if (target === 'lv2') return renderLv2(resolved);
-  if (target === 'py') {
-    const py = renderFormatsPy(resolved);
-    return py === undefined ? [] : [{ path: 'omx_contract.py', text: py }];
-  }
-  throw new Usage(`unknown target ${target} (c, ts, json, lv2, py)`);
+  // the declarations have no Python render since the format terms left (V27b): py renders the shapes only
+  if (target === 'py') throw new Usage('render --target py renders the shapes only: add --shapes');
+  throw new Usage(`unknown target ${target} (c, ts, json, lv2, py --shapes)`);
 }
 
 /** The target and --out of a render, checked. */
@@ -315,8 +312,8 @@ function finishRender(target, out, files, argv, shapes) {
     if (target === 'c') { named.add('omxcontract/omx_json_write.h'); named.add('omxcontract/omx_domain.h'); }
     // the json, lv2 and py renders are committed side by side (share/omx-contract/): each knows the others' files
     if (['json', 'lv2', 'py'].includes(target) || (shapes && target === 'py')) {
-      for (const t of ['json', 'lv2', 'py']) for (const f of renderTarget(t, argv)) named.add(f.path);
-      // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered), shipped beside omx_contract.py
+      for (const t of ['json', 'lv2']) for (const f of renderTarget(t, argv)) named.add(f.path);
+      // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered)
       named.add('omx_contract_catalog.py');
       named.add('omx_contract_scale.py');
       // and the language list (hand-written: the languages every owner ships a catalog of, omx-contract#21)

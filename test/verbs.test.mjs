@@ -48,7 +48,7 @@ function installed() {
   return root;
 }
 
-/** A copy of the fixture tree with `edit(files)` applied to its parsed files ({ 'verbs.json': doc, ... }). */
+/** A copy of the fixture tree with `edit(files)` applied to its parsed files ({ 'host-verbs.json': doc, ... }). */
 function fixtureWith(edit) {
   const dir = join(SCRATCH, `fx-${n++}`);
   cpSync(FIXTURE, dir, { recursive: true });
@@ -84,7 +84,7 @@ function brokenDir(edit, extra = () => {}) {
 test('the fixture installs into a contract directory and reads back: four verbs, their refusals resolved to the code and the resp', () => {
   const root = installed();
   const m = JSON.parse(readFileSync(join(root, String(SCHEMA_MAJOR), PKG, 'MANIFEST.json'), 'utf8'));
-  assert.deepEqual(Object.keys(m.files).sort(), ['errors.json', 'verbs.json']);
+  assert.deepEqual(Object.keys(m.files).sort(), ['errors.json', 'host-verbs.json']);
   for (const [f, h] of Object.entries(m.files)) assert.equal(sha256(readFileSync(join(root, String(SCHEMA_MAJOR), PKG, f))), h);
   const data = loadContractDir({ dir: root });
   assert.equal(data.items.get('HOST_VERBS').pkg, PKG);
@@ -162,7 +162,7 @@ test('a verb declared by two packages is refused: contract.verb.duplicate (one o
   const root = brokenDir(() => {}, (r) => {
     const other = fixtureWith((f) => {
       delete f['errors.json'];
-      const v = f['verbs.json'];
+      const v = f['host-verbs.json'];
       v.OTHER_VERBS = { ...v.HOST_VERBS, verbs: { trackInfo: { ...v.HOST_VERBS.verbs.trackInfo, codes: undefined } } };
       delete v.OTHER_VERBS.verbs.trackInfo.codes;
       delete v.HOST_VERBS;
@@ -175,23 +175,23 @@ test('a verb declared by two packages is refused: contract.verb.duplicate (one o
 });
 
 test('a format whose first word is not the verb is refused: contract.verb.format', () => {
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.remotePages.format = 'remote_page %i'; })), CONTRACT_CODES.verbFormat);
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.remotePages.format = 'remote_page %i'; })), CONTRACT_CODES.verbFormat);
 });
 
 test('an unknown host word is refused: contract.verb.host-unknown', () => {
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'optional'; })), CONTRACT_CODES.verbHostUnknown);
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'optional'; })), CONTRACT_CODES.verbHostUnknown);
 });
 
 test('an unknown code is refused by code: contract.verb.code-unknown for a name or an item that is no code, contract.ref.* for an item no file declares or requires', () => {
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PLUGIN_HOSTD_REPLY_CODES.chainGone'; })), CONTRACT_CODES.verbCodeUnknown);
-  const words = brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'VERB_HOSTS.pluginHostd'; });
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PLUGIN_HOSTD_REPLY_CODES.chainGone'; })), CONTRACT_CODES.verbCodeUnknown);
+  const words = brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'VERB_HOSTS.pluginHostd'; });
   assert.equal(refusalOf(words), CONTRACT_CODES.verbCodeUnknown);
   assert.throws(() => loadContractDir({ dir: words }), /code VERB_HOSTS\.pluginHostd: VERB_HOSTS is a words item, no codes item/);
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH_CODES.chainDuplicate'; })), CONTRACT_CODES.refUnresolved);
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH_CODES.chainDuplicate'; })), CONTRACT_CODES.refUnresolved);
   // the codes of another package, named without requiring it
   const root = brokenDir((f) => { delete f['errors.json'].PLUGIN_HOSTD_REPLY_CODES; }, (r) => {
-    const other = fixtureWith((f) => { delete f['verbs.json']; delete f['errors.json'].MOD_HOST_REPLY_CODES; });
-    rmSync(join(other, 'verbs.json'), { force: true });
+    const other = fixtureWith((f) => { delete f['host-verbs.json']; delete f['errors.json'].MOD_HOST_REPLY_CODES; });
+    rmSync(join(other, 'host-verbs.json'), { force: true });
     install('plugin-hostd', other, r);
   });
   assert.equal(refusalOf(root), CONTRACT_CODES.refUndeclared);
@@ -213,16 +213,16 @@ test('validate refuses the same in a data directory, each under its rule', () =>
     return validateData(loadData(null, t)).map((p) => p.rule);
   };
   assert.deepEqual(read(() => {}), []);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.format = 'chains %i'; }), ['verb-format']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'required'; }), ['verb-host']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'MOD_HOST_REPLY_CODES.gone'; }), ['verb-code']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.again = d['verbs.json'].HOST_VERBS.verbs.chain; }), ['verb-duplicate']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH.code'; }), ['reference']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.format = 'chains %i'; }), ['verb-format']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'required'; }), ['verb-host']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'MOD_HOST_REPLY_CODES.gone'; }), ['verb-code']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.again = d['host-verbs.json'].HOST_VERBS.verbs.chain; }), ['verb-duplicate']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH.code'; }), ['reference']);
 });
 
 test('the schema holds a verb closed: its fields, its levels, a reply code with its resp and no resp on any other code', () => {
   const probs = (items) => [...new Set(fileProblems({ rel: 'data/x.json', text: '', doc: { $schema: '../schema/omx-contract.schema.json', ...items } }).map((p) => p.item))];
-  const verb = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(join(FIXTURE, 'verbs.json'), 'utf8')).HOST_VERBS));
+  const verb = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(join(FIXTURE, 'host-verbs.json'), 'utf8')).HOST_VERBS));
   const ok = verb();
   assert.deepEqual(probs({ V: ok }), []);
   for (const edit of [
@@ -274,7 +274,7 @@ test('semver: the verbs kind and a verb added are MINOR; a verb removed is MAJOR
   const withFixture = (edit = () => {}) => {
     const t = texts();
     const docs = Object.fromEntries(readdirSync(FIXTURE).map((f) => [f, JSON.parse(readFileSync(join(FIXTURE, f), 'utf8'))]));
-    edit(docs['verbs.json'].HOST_VERBS.verbs, docs);
+    edit(docs['host-verbs.json'].HOST_VERBS.verbs, docs);
     for (const [f, d] of Object.entries(docs)) t[`data/fixture-${f}`] = JSON.stringify({ ...d, $schema: '../schema/omx-contract.schema.json' });
     return resolvedOf(t);
   };

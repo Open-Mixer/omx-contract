@@ -122,8 +122,11 @@ The token-to-id map of the code table, where they differ:
 | `oct` `cent` `semitone12TET` | 20 21 22 | `oct` `cents` `st` |
 | `degree` `midiNote` | 23 24 | `deg` `midiNote` |
 | `dbfs` `dbu` `ratio` `lufs` | 0x100 0x101 0x102 0x103 | `dBFS` `dBu` `ratio` `LUFS` |
+| `dboct` `dbs` `dbtp` `lu` | 260 261 262 263 | `dB-oct` `dB-s` `dBTP` `LU` |
 
-`dB/oct`, `dB/s`, `dBTP` and `LU` have no token and no code (Q15).
+The last row is new (owner ruling Q15, 2026-11-20): `dB/oct`, `dB/s`, `dBTP` and `LU` take the next omx-clap-core
+codes, 260 up, append-only, because our plugins use them. Its tokens are my proposal, spelled as the vendor tokens
+are (lower case). The 3.20.2 sheet has 29 tokens; the table at its new holder has 33.
 
 ## Panels
 
@@ -147,9 +150,11 @@ as `none`. It maps itself onto the standard units and the panel's general scales
 custom id may be declared by two plugins (owner answer, Q9).
 
 A custom unit that reuses the id or the symbol of a unit of the list is refused. No refusal code exists for it today
-(the descriptor's `unit` is a closed list, so a custom unit has no place yet). To be added, as a proposal:
-`contract.descriptor.unit-duplicate`, naming the descriptor, the custom unit and the standard unit it repeats. It
-joins `CONTRACT_CODES` beside `contract.descriptor.control-duplicate`.
+(the descriptor's `unit` is a closed list, so a custom unit has no place yet). Adopted
+(coordinator, 2026-11-20): `contract.descriptor.unit-duplicate`, naming the descriptor, the custom unit and the standard
+unit it repeats. It
+joins `CONTRACT_CODES` beside `contract.descriptor.control-duplicate`. It is work in the descriptor validator and a
+sorting-pass item in omx-contract.
 
 ## The proof for each level
 
@@ -180,7 +185,7 @@ this design keeps, over the code table (the tests follow the table to its holder
 sabotage arm it has there:
 
 - the codes are the ones omx-plugins shipped (0.15.0), append-only: `none` 0 to `midiNote` 24, `dbfs` 0x100, `dbu`
-  0x101, `ratio` 0x102, `lufs` 0x103; a token added after is above 0x103;
+  0x101, `ratio` 0x102, `lufs` 0x103; a token added after is above 0x103 (the four of Q15 are 260 to 263);
 - the rendered `omx_param_units.h` has one `OMX_CLAP_UNIT_` define per token and none other, and the same tokens as
   the `OMX_PARAM_UNITS(X)` table, in order;
 - the limits header spells `OMX_PARAM_CONTRACT_UNITS_DB` once, never `OMX_OMX_`;
@@ -209,6 +214,8 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
     (`none`), as today. Do they take the next codes (260 up, append-only), or stay without?
+    - **Ruled (coordinator, 2026-11-20):** they take 260 `dB-oct`, 261 `dB-s`, 262 `dBTP`, 263 `LU`, the next
+      omx-clap-core codes, because our plugins use them.
 16. **Keep the split of `$defs.unit` and `$defs.descriptorUnit`?** The list's `scope` (`param` or `descriptor`) defines
     it for now. The split is a 3.20.2 fact: a descriptor takes both lists anyway, so one list of units would do. Keep
     the split, or drop it and render one enum?

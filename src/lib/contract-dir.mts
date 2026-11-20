@@ -19,6 +19,7 @@ import { readCatalogs } from './domain-reader.mjs';
 import { parseStrict } from './json-strict.mjs';
 import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain } from './domain.mjs';
 import type { DomainCodes, DomainItems } from './domain.mjs';
+import { fromDifference, fromDifferences } from './word-from.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /** The schema major this reader reads, and the only directory under a contractdir it looks in. */
@@ -366,6 +367,12 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const keys = kind === 'terms' ? target.item.terms : kind === 'words' ? target.item.words : undefined;
       if (keys === undefined) refuse('refUnresolved', where, `takes ${ref} from ${f.to}, and ${f.item} is a ${kind} item, no words or terms item`);
       if (!Object.hasOwn(keys, f.term)) refuse('refUnresolved', where, `takes ${ref} from ${f.to}, and ${f.item} of ${f.to} has no ${kind === 'terms' ? 'term' : 'word titled'} ${f.term}`);
+      // a word taken from a word is that word (word-from-differs, lib/word-from.mjs); a term is not compared
+      if (kind === 'words') {
+        const tw = keys[f.term];
+        const [d] = fromDifferences({ word: f.word, code: f.code, doc: f.doc, text: f.text }, { word: tw.word, code: Object.keys(keys).indexOf(f.term), doc: tw.doc, text: tw.text?.en });
+        if (d) refuse('fileInvalid', where, `word-from-differs: takes ${ref} from ${f.to}, and ${fromDifference(d)}`);
+      }
     }
   }
   // A use (a control taking another control's item, its own kernel's or another's) takes an item of its own kind.

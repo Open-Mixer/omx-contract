@@ -249,7 +249,11 @@ export function domainRequires(doc: JsonObject): Record<string, string> {
 }
 
 /** A word's term taken from a domain: where it is written, the word, the domain or package `to` and the `item` and `term` there. */
-export interface DomainFrom { readonly where: string; readonly word: string; readonly to: string; readonly item: string; readonly term: string }
+export interface DomainFrom {
+  readonly where: string; readonly word: string; readonly to: string; readonly item: string; readonly term: string;
+  /** The word's place in its item (its x-code), its description and its x-text, for word-from-differs. */
+  readonly code: number; readonly doc?: unknown; readonly text?: unknown;
+}
 
 function fromsOf(item: string, s: JsonObject): DomainFrom[] {
   return ((s.oneOf ?? []) as JsonObject[]).flatMap((e, i) => ((e['x-from'] ?? []) as JsonObject[]).map((r, j) => ({
@@ -258,6 +262,9 @@ function fromsOf(item: string, s: JsonObject): DomainFrom[] {
     to: (r.$ref as string).slice(domainId('').length).split('#')[0]!,
     item: REF.exec(r.$ref as string)![1]!,
     term: r['x-term'] as string,
+    code: i,
+    doc: e.description,
+    text: e['x-text'],
   })));
 }
 

@@ -15,6 +15,8 @@ Units have no single owner (owner ruling, final):
 - The units a value is DISPLAYED in belong to omx-panel, in its `panel` domain (value text).
 - A plugin's CUSTOM units are its own declaration, in its descriptor.
 - The format spellings (CLAP, LV2) belong to the format owner, plugin-db (V27).
+- The units a format has and no kernel computes in (the LV2 lengths, `frames`, `bpm`, `deg`, `midiNote`) are
+  plugin-db's too, declared beside its spellings (owner rulings Q3 and Q5, 2026-11-20).
 - ONE merged reader in libomx-domain gives a consumer every owner's units as one list.
 - omx-contract keeps only the format (the item kinds below, the schema, its refusal codes) and the reader.
 - An inner repository that needs an outer word is an error, fixed case by case: the word moves down, or the reader.
@@ -63,7 +65,8 @@ The item:
 
 - Its name is `<DOMAIN>_UNITS` by the prefix rule: `DSP_UNITS`, `PANEL_UNITS`. One units item per domain.
 - `x-kind` (required): `units`.
-- `x-units-role` (required): `computes-in` (omx-dsp) or `display` (omx-panel). A descriptor's units are `custom`.
+- `x-units-role` (required): `computes-in` (omx-dsp), `display` (omx-panel) or `format` (plugin-db: a unit a format
+  has and no kernel computes in). A descriptor's units are `custom`.
 - `description`, `x-since`, `x-why`: as on every item.
 
 Each word (`oneOf` entry):
@@ -113,11 +116,36 @@ Two more item kinds join units to the wire and to the formats. Neither holds a u
 ```
 
 `x-unit-code` is the wire code, sparse and append-only. `x-unit` names the unit's id, and may be absent for a token
-no owner declares as a unit (OPEN QUESTION 5). Its owner is OPEN QUESTION 1.
+no owner declares as a unit (`bar`, `beat`, `dbu` until OPEN QUESTIONS 13 and 14 are ruled). Its owner is
+omx-clap-core (ruled, OPEN QUESTION 1).
 
 **The format spellings**, `"x-kind": "unit-spellings"`, the format owner's: the LV2 unit terms carry `x-format`
 (`lv2`) on the item and `x-unit` (the unit's id) on each unit term, where `LV2_UNITS_TERMS` writes `word` today.
-Its name and the rest of its form are V27's. CLAP has no unit terms, so there is no CLAP spellings item.
+Its name and the rest of its form are V27's. The units the terms name that no kernel computes in are declared by the
+same owner (the next subsection). CLAP has no unit terms, so there is no CLAP spellings item.
+
+**Derived units.** A unit that is another unit times a fixed factor declares it with `x-conversion`: the base keeps
+no conversion of its own, the derived unit names the base in `to`. The owner of the derived unit is ruled apart from
+the base's owner (the reader merges them). Ruled (owner, 2026-11-20):
+
+| Unit | Base | Scale (`factor`) | Dimension | Owner and role | Derivation |
+|---|---|---|---|---|---|
+| `kHz` | `Hz` | 1000 | frequency | plugin-db, format (Q5) | kHz to Hz: `value * 1000` |
+| `MHz` | `Hz` | 1000000 | frequency | plugin-db, format (Q5) | MHz to Hz: `value * 1000000` |
+| `m` | none | base of `length` | length | plugin-db, format (Q5) | the base: declares no conversion |
+| `cm` | `m` | 0.01 | length | plugin-db, format (Q5) | cm to m: `value * 0.01` |
+| `mm` | `m` | 0.001 | length | plugin-db, format (Q5) | mm to m: `value * 0.001` |
+| `km` | `m` | 1000 | length | plugin-db, format (Q5) | km to m: `value * 1000` |
+| `inch` | `m` | 0.0254 | length | plugin-db, format (Q5) | inch to m: `value * 0.0254` |
+| `mile` | `m` | 1609.344 | length | plugin-db, format (Q5) | mile to m: `value * 1609.344` |
+| `kHz` | `Hz` | 1000 | frequency | omx-panel, display (Q6) | the value computed in Hz, shown in kHz |
+| `s` | `ms` | 0.001 | time | omx-panel, display (Q6) | the value computed in ms, shown in s |
+| `percent` | `x` | 0.01 | none | omx-panel, display (Q6) | the 0 to 1 value, shown in % |
+
+The `omx-panel` rows are the owner's ruling as written. Found on applying it: `kHz`, `s` and `percent` are also
+rows of this table's other owners (`kHz` of plugin-db, `s` and `percent` of omx-dsp), and an id or a symbol is unique
+across the merged view (`contract.unit.duplicate`). The panel rows also run the other way (a conversion's `to` is the
+base, and `s` is `ms`'s base). Not guessed here: see the note under OPEN QUESTION 6.
 
 A descriptor declares its custom units in the same form, as an optional `units` array of the descriptor
 (a new field, a minor of the descriptor schema):
@@ -138,63 +166,68 @@ omx-panel declares no unit today: it prints the unit string a description gives 
 Columns: the param-contract token and code; the symbol a descriptor writes (`-` for none); the unit's id (`const`,
 settled for the 12 units of omx-dsp; an open unit's id is set when its owner is ruled); which schema list holds it
 (`u` the items' `unit`, `d` the plugin-only `descriptorUnit`); computes-in (a kernel of omx-dsp 0.33.1 states it);
-display (omx-panel declares it); the LV2 term (the format spelling, plugin-db's under V27); and the unit's owner.
+display (omx-panel declares it, Q6); the LV2 term (the format spelling, plugin-db's under V27); and the unit's owner.
+Owners and ids marked Q-number were ruled by the owner on 2026-11-20; the id of a ruled unit is its symbol.
 
 | Token | Code | Symbol | Id | List | Computes-in | Display | LV2 term | Owner |
 |---|---|---|---|---|---|---|---|---|
 | `none` | 0 | `""` | `none` | u | yes | - | - | omx-dsp |
-| `s` | 1 | `s` | `s` | u | yes | - | `s` | omx-dsp |
+| `s` | 1 | `s` | `s` | u | yes | yes (Q6) | `s` | omx-dsp; see Q6 |
 | `ms` | 2 | `ms` | `ms` | u | yes | - | `ms` | omx-dsp |
-| `min` | 3 | `min` | - | u | no | - | `min` | OPEN QUESTION 2 |
-| `bar` | 4 | - | - | - | no | - | `bar` | OPEN QUESTION 5 |
-| `beat` | 5 | - | - | - | no | - | `beat` | OPEN QUESTION 5 |
-| `frame` | 6 | `frames` | - | d | no | - | `frame` | OPEN QUESTION 3 |
-| `m` | 7 | - | - | - | no | - | `m` | OPEN QUESTION 5 |
-| `cm` | 8 | - | - | - | no | - | `cm` | OPEN QUESTION 5 |
-| `mm` | 9 | - | - | - | no | - | `mm` | OPEN QUESTION 5 |
-| `km` | 10 | - | - | - | no | - | `km` | OPEN QUESTION 5 |
-| `inch` | 11 | - | - | - | no | - | `inch` | OPEN QUESTION 5 |
-| `mile` | 12 | - | - | - | no | - | `mile` | OPEN QUESTION 5 |
+| `min` | 3 | `min` | `min` | u | no | - | `min` | omx-dsp (Q2; no kernel states it yet) |
+| `bar` | 4 | - | - | - | no | - | `bar` | OPEN QUESTION 13 |
+| `beat` | 5 | - | - | - | no | - | `beat` | OPEN QUESTION 13 |
+| `frame` | 6 | `frames` | `frames` | d | no | - | `frame` | plugin-db (Q3) |
+| `m` | 7 | `m` | `m` | - | no | - | `m` | plugin-db (Q5), base of length |
+| `cm` | 8 | `cm` | `cm` | - | no | - | `cm` | plugin-db (Q5), derived of `m` |
+| `mm` | 9 | `mm` | `mm` | - | no | - | `mm` | plugin-db (Q5), derived of `m` |
+| `km` | 10 | `km` | `km` | - | no | - | `km` | plugin-db (Q5), derived of `m` |
+| `inch` | 11 | `inch` | `inch` | - | no | - | `inch` | plugin-db (Q5), derived of `m` |
+| `mile` | 12 | `mile` | `mile` | - | no | - | `mile` | plugin-db (Q5), derived of `m` |
 | `db` | 13 | `dB` | `dB` | u | yes | - | `db` | omx-dsp |
-| `pc` | 14 | `%` | `percent` | u | yes | - | `pc` | omx-dsp |
+| `pc` | 14 | `%` | `percent` | u | yes | yes (Q6) | `pc` | omx-dsp; see Q6 |
 | `coef` | 15 | `x` | `x` | u | yes | - | `coef` | omx-dsp |
 | `hz` | 16 | `Hz` | `Hz` | u | yes | - | `hz` | omx-dsp |
-| `khz` | 17 | - | - | - | no | - | `khz` | OPEN QUESTION 5 |
-| `mhz` | 18 | - | - | - | no | - | `mhz` | OPEN QUESTION 5 |
-| `bpm` | 19 | `bpm` | - | d | no | - | `bpm` | OPEN QUESTION 3 |
+| `khz` | 17 | `kHz` | `kHz` | - | no | yes (Q6) | `khz` | plugin-db (Q5), derived of `Hz`; see Q6 |
+| `mhz` | 18 | `MHz` | `MHz` | - | no | - | `mhz` | plugin-db (Q5), derived of `Hz` |
+| `bpm` | 19 | `bpm` | `bpm` | d | no | - | `bpm` | plugin-db (Q3) |
 | `oct` | 20 | `oct` | `oct` | u | yes | - | `oct` | omx-dsp |
 | `cent` | 21 | `cents` | `cents` | u | yes | - | `cent` | omx-dsp |
 | `semitone12TET` | 22 | `st` | `st` | u | yes | - | `semitone12TET` | omx-dsp |
-| `degree` | 23 | `deg` | - | d | no | - | `degree` | OPEN QUESTION 3 |
-| `midiNote` | 24 | `midiNote` | - | d | no | - | `midiNote` | OPEN QUESTION 3 |
+| `degree` | 23 | `deg` | `deg` | d | no | - | `degree` | plugin-db (Q3) |
+| `midiNote` | 24 | `midiNote` | `midiNote` | d | no | - | `midiNote` | plugin-db (Q3) |
 | `dbfs` | 256 | `dBFS` | `dBFS` | u | yes | - | - | omx-dsp |
-| `dbu` | 257 | - | - | - | no | - | - | OPEN QUESTION 5 |
-| `ratio` | 258 | `ratio` | - | d | no | - | - | OPEN QUESTION 4 |
-| `lufs` | 259 | `LUFS` | - | u, d | no | - | - | OPEN QUESTION 2 |
+| `dbu` | 257 | - | - | - | no | - | - | OPEN QUESTION 14 |
+| `ratio` | 258 | `ratio` | `ratio` | d | no | - | - | omx-dsp (Q4), keeps code 258 |
+| `lufs` | 259 | `LUFS` | `LUFS` | u, d | no | - | - | omx-dsp (Q2; no kernel states it yet) |
 | - | - | `dB/oct` | `dB-oct` | u | yes | - | - | omx-dsp |
-| - | - | `dB/s` | - | u | no | - | - | OPEN QUESTION 2 |
-| - | - | `dBTP` | - | d | no | - | - | OPEN QUESTION 4 |
-| - | - | `LU` | - | d | no | - | - | OPEN QUESTION 4 |
+| - | - | `dB/s` | `dB-s` | u | no | - | - | omx-dsp (Q2; no kernel states it yet) |
+| - | - | `dBTP` | `dBTP` | d | no | - | - | omx-dsp (Q4) |
+| - | - | `LU` | `LU` | d | no | - | - | omx-dsp (Q4) |
 | - | - | `unknown` | - | d | - | - | - | omx-contract: the descriptor format's "states none" word, not a unit |
 
-The wire codes themselves (the code table) are OPEN QUESTION 1. `$defs.meaning` holds no unit; its owner is OPEN
-QUESTION 7.
+The wire codes themselves (the code table) belong to omx-clap-core (ruled, OPEN QUESTION 1). `$defs.meaning` holds
+no unit; its words belong to plugin-db (ruled, OPEN QUESTION 7).
 
-Per owner, what is settled today:
+Per owner, what is settled today (owner rulings of 2026-11-20 included):
 
-- omx-dsp, `DSP_UNITS` (computes-in): 12 units, by id: `none` (`""`), `s`, `ms`, `dB`, `percent` (`%`), `x`,
-  `Hz`, `oct`, `cents`, `st`, `dBFS`, `dB-oct` (`dB/oct`).
-- omx-panel, `PANEL_UNITS` (display): 0 units settled.
+- omx-dsp, `DSP_UNITS`: 18 units, by id. The 12 computed in today: `none` (`""`), `s`, `ms`, `dB`, `percent` (`%`),
+  `x`, `Hz`, `oct`, `cents`, `st`, `dBFS`, `dB-oct` (`dB/oct`). Ruled to it, no kernel states them yet: `min`, `LUFS`,
+  `dB-s` (`dB/s`), the follow-up work of section 4. Ruled to it, with code 258 kept for `ratio`: `ratio`, `dBTP`, `LU`.
+- omx-panel, `PANEL_UNITS` (display): 3 units, `kHz`, `s`, `percent`, each derived (see the derived units and the
+  note under OPEN QUESTION 6).
+- plugin-db, the format units (role `format`): 12 units. `frames`, `bpm`, `deg`, `midiNote`; the lengths `m` (the
+  base), `cm`, `mm`, `km`, `inch`, `mile`; `kHz` and `MHz`, derived of `Hz`.
 - plugin-db, the LV2 spellings (V27): 24 terms, each naming a unit by id when one is declared.
 - plugin-db, the CLAP spellings: 0. CLAP has no unit terms.
+- plugin-db, the `meaning` words: 47.
+- omx-clap-core, the code table of `org.openmixer.param-contract/1`: 29 codes.
 - Each descriptor (custom): 0 units settled.
 - omx-contract (format): 1 word, `unknown`, and the item `CONTRACT_UNIT_DIMENSIONS`.
-- OPEN, units with a symbol: 10. `min`, `LUFS`, `dB/s`; `frames`, `bpm`, `deg`, `midiNote`; `ratio`, `dBTP`, `LU`.
-- OPEN, tokens with no symbol: 11. `bar`, `beat`, `m`, `cm`, `mm`, `km`, `inch`, `mile`, `khz`, `mhz`, `dbu`.
-- OPEN, the code table of `org.openmixer.param-contract/1`: 29 codes.
+- OPEN, tokens with no unit: 3. `bar`, `beat` (OPEN QUESTION 13) and `dbu` (OPEN QUESTION 14).
 
-The 22 symbols are the 15 of `unit` and the 7 of `descriptorUnit` not already in `unit`. The 29 tokens are the 11 of
-omx-dsp's units with a token, 7 of the open units with a token, and the 11 tokens with no symbol.
+The 22 symbols are the 15 of `unit` and the 7 of `descriptorUnit` not already in `unit`. The 29 tokens are the 14 of
+omx-dsp's units with a token (the 11 computed in, `min`, `ratio`, `lufs`), the 12 of plugin-db's, and the 3 still open.
 
 ## 3. The merged reader
 
@@ -260,7 +293,7 @@ typedef struct {
   const char *symbol;        /* as written ("dB", "%", ""); never NULL */
   const char *dimension;     /* a word of CONTRACT_UNIT_DIMENSIONS */
   const char *owner;         /* the domain that declares it ("dsp"); "descriptor" for a custom unit */
-  const char *role;          /* "computes-in", "display" or "custom" */
+  const char *role;          /* "computes-in", "display", "format" or "custom" */
   const char *conversion_to; /* the base unit's id; NULL when it declares no conversion */
   double factor, offset;     /* value in conversion_to = value * factor + offset; 1 and 0 when none */
   const char *lv2_term;      /* the LV2 term that spells it; NULL when none */
@@ -310,7 +343,7 @@ In `src/lib/units-reader.mts`, exported as `@openmixer/omx-contract/units-reader
 ```ts
 export interface Unit {
   readonly id: string; readonly symbol: string; readonly dimension: string;
-  readonly owner: string; readonly role: 'computes-in' | 'display' | 'custom';
+  readonly owner: string; readonly role: 'computes-in' | 'display' | 'format' | 'custom';
   readonly conversion?: { readonly to: string; readonly factor: number; readonly offset: number };
   readonly lv2Term?: string; readonly token?: string; readonly code?: number;
 }
@@ -356,7 +389,7 @@ consumer and the 3.20.2 comparison holds. A consumer that reads a descriptor ask
 `custom`, owner `descriptor`, with no token and no code. A custom unit with the id or symbol of a unit of the base
 is refused as `contract.unit.duplicate`, naming the descriptor and the base unit's domain. Two descriptors may each
 declare a unit of the same id: each view holds one. Whether that is allowed for a unit many plugins use is OPEN
-QUESTION 4.
+QUESTION 9.
 
 A descriptor's `travel.unit` and `meters[].unit` are checked against that descriptor's view, plus `unknown`.
 
@@ -395,15 +428,24 @@ name to a new one.
 
 ### SA, every owner: the units as data
 
-- omx-dsp: its `dsp` domain gains `DSP_UNITS`, the 12 settled units and any of OPEN QUESTION 2 the owner gives it.
-- omx-panel: its `panel` domain gains `PANEL_UNITS` once OPEN QUESTION 6 is ruled.
-- plugin-db: its `formats` domain (V27) carries the LV2 unit terms as a `unit-spellings` item. It replaces
-  `LV2_UNITS_TERMS`' unit terms.
-- The owner of OPEN QUESTION 1: the `unit-codes` item. It replaces `OMX_PARAM_CONTRACT_UNITS`.
+- omx-dsp: its `dsp` domain gains `DSP_UNITS`, 18 units: the 12 settled, `min`, `LUFS`, `dB-s`, `ratio`, `dBTP`, `LU`.
+- omx-panel: its `panel` domain gains `PANEL_UNITS`, `kHz`, `s`, `percent` (OPEN QUESTION 6, with its note).
+- plugin-db: its `formats` domain (V27) carries the LV2 unit terms as a `unit-spellings` item and the 12 format
+  units (role `format`), and the `meaning` words. It replaces `LV2_UNITS_TERMS`' unit terms and `$defs.meaning`.
+- omx-clap-core: the `unit-codes` item. It replaces `OMX_PARAM_CONTRACT_UNITS`.
 
 ### S2, omx-dsp
 
 - Its kernel-file check reads a kernel's `unit` through the merged view; its packaging floors name omx-contract.
+- Follow-up work (owner ruling Q2): the kernels that must state `min`, `LUFS` and `dB/s`, each now a unit of omx-dsp.
+  The kernels in omx-dsp 0.33.1 that state `dB` where the unit is another:
+  - loudlevel `targetLufs` and `gateLufs` (`data/kernels/loudlevel.json`): `dB` to `LUFS`;
+  - loudlevel `speedDbPerS` and balancer `speedDbPerS` (`data/kernels/loudlevel.json`, `data/kernels/balancer.json`):
+    `dB` to `dB/s`;
+  - `min`: no kernel parameter is in minutes today, so none is listed; the kernel that first computes in minutes
+    states it, or `min` has no kernel to state it and its owner is asked again.
+  - `ratio`, `dBTP`, `LU` (Q4): no kernel states them in 0.33.1 either (the curve primitive reads `ratio` only as an
+    input word); the loudness meter and the dynamics kernels are the places, to be listed when their lane opens.
 - Replaces: the schema's `unit` enum.
 
 ### S6, omx-panel
@@ -429,7 +471,8 @@ name to a new one.
 - `tools/param-contract.mjs`: `openUnitsAt`, no regex over a header. `tools/test/param-units-check.mjs` and
   `tools/ci-stale-units.sh` follow.
 - `docs/declaration-as-descriptor.md`, `docs/catalogue.md`, `packaging/omx-plugins.spec`.
-- Each descriptor declares its custom units, if OPEN QUESTIONS 3 and 4 say so.
+- No descriptor declares `frames`, `bpm`, `deg`, `midiNote`, `ratio`, `dBTP` or `LU` as custom: they are shared
+  units (Q3, Q4). A descriptor declares only its own, such as `dBu` until OPEN QUESTION 14 is ruled.
 - Replaces: `OMX_CLAP_UNIT_*` and `OMX_PARAM_CONTRACT_UNITS`.
 
 ### S11, the console
@@ -453,10 +496,10 @@ name to a new one.
 becomes `{ "type": "string", "x-units-of": <selector> }` (`x-words-of` for `meaning`), which omx-contract's
 validator resolves through the merged reader:
 
-- `unit`: the symbols of the units of role `computes-in` (3.20.2's 15 only if OPEN QUESTION 2 gives
-  `min`, `LUFS` and `dB/s` to omx-dsp);
+- `unit`: the symbols of the units of role `computes-in` (3.20.2's 15, now that omx-dsp holds `min`, `LUFS` and
+  `dB/s`, OPEN QUESTION 2 ruled);
 - `descriptorUnit`: every symbol of the descriptor's view (base and custom), and `unknown`;
-- `meaning`: the words of its owner's item, once OPEN QUESTION 7 names the owner.
+- `meaning`: the words of plugin-db's item (OPEN QUESTION 7, ruled).
 
 So no list is copied by hand, and omx-contract's build reads no other repository. See OPEN QUESTION 8.
 
@@ -479,7 +522,7 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
 - `units-codes-3202`: `omx-domain units --codes`, on a fixture contract directory holding the owners' items, prints
   byte for byte the code and token lines made from 3.20.2's `OMX_PARAM_CONTRACT_UNITS` value
   (`git show v3.20.2:data/param-contract.json`). The `OMX_UNIT_CODES(X)` body of `--render-c` equals 3.20.2's
-  `OMX_PARAM_UNITS(X)` body. It cannot go green until OPEN QUESTIONS 1 and 5 are ruled.
+  `OMX_PARAM_UNITS(X)` body. It cannot go green until OPEN QUESTIONS 13 and 14 are ruled.
   Sabotage: `db`'s code set to 14 in the fixture is red, naming `db`; `lufs` dropped is red, naming it.
 - `units-enums-3202`: the `computes-in` symbols, and every symbol with `unknown`, equal 3.20.2's `$defs.unit` and
   `$defs.descriptorUnit` as sets, with no duplicate. Sabotage: a unit `kHz` added to a fixture domain is red, naming it.
@@ -539,12 +582,16 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
 1. **The code table.** Who owns the token-to-code table of `org.openmixer.param-contract/1` (0 to 24 the LV2 units,
    0x100 up the vendor block)? The ruling assigns units, not their wire codes. Candidates: omx-clap-core, which
    declares the extension id in `omx_clap_ext.h`; or plugin-db, as a format spelling (V27).
+   - **Ruled (owner, 2026-11-20):** the code table belongs to omx-clap-core.
 2. **`min`, `LUFS`, `dB/s`.** They are in the items' `unit` list, but no omx-dsp 0.33.1 kernel states them:
    loudlevel's `targetLufs` and `gateLufs` state `dB`, and loudlevel's and balancer's `speedDbPerS` state `dB`.
    Do they go to omx-dsp (once the kernels state them), or to omx-panel as display units?
+   - **Ruled (owner, 2026-11-20):** `min`, `LUFS` and `dB/s` (id `dB-s`) belong to omx-dsp. The kernels are fixed
+     to state them; the follow-up list is in section 4, S2.
 3. **`frames`, `bpm`, `midiNote`, `deg`.** Plugin-only units taken from LV2 (`units:frame`, `units:bpm`,
    `units:midiNote`, `units:degree`). Does plugin-db declare them beside the LV2 terms, or does each descriptor that
    uses one declare it as a custom unit?
+   - **Ruled (owner, 2026-11-20):** `frames`, `bpm`, `midiNote` and `deg` belong to plugin-db.
 4. **`ratio`, `dBTP`, `LU`.** Plugin-only units LV2 has no term for. `ratio` is written by 16 omx-plugins
    descriptors; `dBTP` and `LU` are loudness-meter units. Each descriptor's custom unit (16 declarations of one
    `ratio`, against rule 3), or one owner's (omx-dsp, which computes them, or omx-panel, which displays them)?
@@ -552,13 +599,26 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
    - the code table's 258 `ratio` token names no base unit: either it is refused as `contract.unit.unresolved` at
      open, or its `x-unit` is absent, as in question 5;
    - a custom unit has no wire code, so the extension reports 0 (`none`) where a plugin reports 258 today.
+   - **Ruled (owner, 2026-11-20):** `ratio`, `dBTP` and `LU` belong to omx-dsp. `ratio` keeps its code 258, so its
+     token has a unit and the two consequences above do not arise.
 5. **Tokens with no unit.** `bar`, `beat`, `m`, `cm`, `mm`, `km`, `inch`, `mile`, `khz`, `mhz` (LV2 units with a code
    and no symbol) and the vendor `dbu`. Does the code table keep them as tokens with no unit (`x-unit` absent), or
    does an owner declare each as a unit?
+   - **Ruled (owner, 2026-11-20):** `m`, `cm`, `mm`, `km`, `inch`, `mile`, `kHz` and `MHz` are real units, some
+     derived: `kHz` and `MHz` from `Hz`, the lengths from the base `m` with a scale (the derived units table, section
+     1). The LV2 lengths belong to plugin-db, `kHz` and `MHz` are derived of `Hz`. `bar` and `beat`: OPEN QUESTION 13.
+     `dbu`: OPEN QUESTION 14.
 6. **omx-panel's display units.** omx-panel declares no unit today; it prints the string it is given. Which units
    are display-only (for example `kHz` for a value computed in `Hz`)? Until ruled, `PANEL_UNITS` is not published.
+   - **Ruled (owner, 2026-11-20):** omx-panel declares only the scaled display units it applies: `kHz` from `Hz`,
+     `s` from `ms`, `%` from 0 to 1.
+   - **Found on applying it, not guessed:** `kHz` is also plugin-db's (Q5), and `s` and `%` are omx-dsp's, and an id
+     and a symbol are unique across the merged view. For the owner: does the panel declare these as units of its own
+     under other ids and symbols, or does it only name the base and the scale it applies to a unit declared elsewhere
+     (no unit item of its own)? Until that is answered `PANEL_UNITS` is not published.
 7. **`meaning`.** The 47 words of `$defs.meaning` are not units. Who owns them: omx-panel (they are seeded from the
    panel roles), omx-plugins (role meanings, V31), or plugin-db (the LV2 `param:` and `lv2:designation` spellings)?
+   - **Ruled (owner, 2026-11-20):** the `meaning` words belong to plugin-db.
 8. **The schema enums.** With `x-units-of`, a generic JSON Schema validator accepts any string as a unit; only
    omx-contract's validator checks it. Is that accepted? The other way is a literal enum rendered at omx-contract's
    build from the installed owners' packages: that makes omx-contract's build read omx-dsp-contract and
@@ -578,3 +638,60 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
       across releases until SZ.
     - Flag day: there is one source at every moment, but omx-clap-core, omx-plugins, omx-panel and the console
       release together with omx-contract's drop, and a reader one release late fails to build.
+13. **Q13 (proposal): `bar` and `beat`.** Where they are used, at origin/main of every repository under the audio tree:
+    - They are the LV2 unit terms `units:bar` and `units:beat`, with codes 4 and 5 in 3.20.2: `data/param-contract.json`
+      lines 31 and 32, `include/omxcontract/omx_param_units.h` lines 37 and 38 (`OMX_CLAP_UNIT_BAR`,
+      `OMX_CLAP_UNIT_BEAT`, "bars of the transport"), `data/formats/lv2/units.json` lines 27 to 38 (status
+      `supported-later`); copied in plugin-hostd and plugin-qualify (`data/formats/lv2.json` line 2027 and 2031) and in
+      omx-formats (`contract.d/formats/lv2/lv2.json` lines 4970 to 4982). The console lists both among its CLAP
+      parameter units.
+    - No kernel of omx-dsp, no descriptor or declaration of omx-plugins, and nothing of omx-panel states `bar` or
+      `beat` as a unit: no hit. The widget word `bar` in omx-panel is a bar group of faders, not a unit.
+    - Real LV2 ports use them: the console's scanned LV2 catalog has 172 ports in `bars` and 160 in `beats`, across
+      10 of 194 plugins. The `bars` ports are delay and
+      chorus times ("Delay 15 bar fraction", symbol `treff`, 0 to 2, not integer; "Time fraction", symbol `frac`,
+      0.015625 to 8) and the `beats` ports are denominators ("Delay 15 bar denominator", symbol `trefd`, 1 to 64,
+      integer; `fbbd`). A fraction of a bar and a note-length denominator, so a count of a musical length, not a
+      duration. plugin-hostd's fixture `tests/fixtures/fields/lv2-compressor.json` line 28 has a compressor's release
+      in `units:beat` (port 7), and omx-contract's example `examples/descriptors/scanned-lv2-compressor.json` lines
+      36 to 41 carries it as unit `unknown`, "Release (beats)".
+    - The transport is not a unit use: omx-clap-core carries a position, not a unit
+      (`src/clap_stage.h` lines 1891 to 1894: `song_pos_beats`, `bar_start`, `bar_number`; `lv2/core/lv2_core.h` lines
+      565 to 574: `time:bar`, `time:barBeat`; `lv2/core/lv2_instance.c` line 2152: `beat_unit`, `beats_per_bar`); the
+      console's transport fields `bar`, `beat`, `positionBeats` and `loopStartBeats` are positions too.
+    - **Proposal.** Two units, `bar` and `beat`, owned by plugin-db, role `format`, dimension `musical-time` (one of the
+      proposed words of OPEN QUESTION 10), symbols `bars` and `beats`, the LV2 terms' own. They declare no conversion
+      to each other: a bar is a meter's number of beats, and the meter is the transport's, so no fixed factor is true.
+      Their codes 4 and 5 and their tokens stay, with `x-unit` naming them. A transport position (a bar number, a beat
+      in a bar, `song_pos_beats`) is not a unit and is not declared: it is a position, carried by the transport
+      extension of omx-clap-core, outside this document. The delay's fraction and denominator are counts of a note
+      length: a plugin that wants them as plain counts declares them `none` in its descriptor, and a scanned port
+      keeps `bars` and `beats` as the format says.
+14. **Q14 (proposal): `dbu`.** Where it is used, at origin/main of every repository under the audio tree:
+    - A vendor token, code 257: `data/param-contract.json` lines 53 and 84 ("decibels relative to 0.775 V RMS, an
+      analogue level (vendor block)"), `include/omxcontract/omx_param_units.h` line 69; word of `ownership/words.json`
+      line 1008. It has no symbol in the descriptor schema, so no descriptor may state it today.
+    - omx-dsp states no kernel in it, but accepts it as an input word of the curve primitive:
+      `data/primitives/curve.json` line 95, `include/omxdsp/omx_curve.h` line 154 (`OMX_CURVE_UNIT_WORDS`),
+      `ts/src/definitions.ts` line 138
+      (`CURVE_UNITS`), `shapes/curve-io.schema.json` line 167; used as a threshold unit in `ts/test/agreement.test.mjs`
+      line 315.
+    - omx-panel accepts it as a level unit and as a unit of the `threshold` and `ceiling` roles: `tools/role-table.mjs`
+      line 14 (`LVL`), `tools/panel-description.mjs` line 42 (`LEVEL_UNITS`), `docs/panel-layout.md` lines 30 and 36,
+      `docs/skin-package.md` lines 59 to 61, with a test (`test/panel-layout.test.mjs` lines 73 and 74).
+    - omx-plugins defines it in its own LV2 text as a custom unit of the declaration, `urn:openmixer:unit#dBu`, with
+      the rendering `%f dBu` (`tools/gen.mjs` line 528, `tools/format-tables.mjs` line 105), and no plugin control or
+      face states it today (`docs/declaration-as-descriptor.md` lines 92 and 109).
+    - The console lists it among its control units, with their token map, and among its CLAP parameter units. Its
+      head-amp store used it for a sensitivity, and no longer does. libreac still states the
+      stagebox sensitivity curve in hundredths of a dBu (`include/reac/reac_ctrlblk.h` lines 275 to 278,
+      `REAC_HEADAMP_SENS_REF_CDB`), a number in the library, not a declared unit.
+    - **Proposal.** One unit, `dBu`, owned by omx-dsp (it accepts it as an input unit and the panel's level roles take
+      it: the same family as `dBFS`, `LUFS` and `dBTP`), role `computes-in` once a kernel or the curve primitive
+      states it, dimension `level`, symbol `dBu`, token `dbu` and code 257 kept. It is a logarithmic unit, so it
+      declares no conversion (the existing rule). Its reference is written in its description, `0.7746 V RMS`
+      (20 times the log of the voltage over that reference). Not a derivation from dBV: the offset between them
+      (about 2.2 dB) is a fixed number, but the design has no `dBV` unit and no use of one, so it is not added.
+      omx-plugins' own `urn:openmixer:unit#dBu` unit then goes to the shared one. The other form, a `x-reference`
+      field (value and unit) on a level unit, is the owner's choice if a second analogue reference unit (`dBV`) is
+      ever needed.

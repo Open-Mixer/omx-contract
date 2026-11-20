@@ -11,7 +11,8 @@ vocabulary is mapped beside them, so a word is there before a consumer asks for 
 
 ```
 data/
-  primitives.json  rates.json  the parameter scales, the readout rate, the sample rates
+  primitives.json  rates.json  the readout rate, the sample rates (the parameter scales and units are the `param`
+                               domain, contract.d/param/param.json)
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
   curves.json                  CURVE_*: the kinds of picture a panel draws, and the axes each is drawn on

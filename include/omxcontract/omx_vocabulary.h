@@ -572,63 +572,6 @@
     X(4u, "lv2.Constant", LV2_CONSTANT) X(5u, "lv2.Function", LV2_FUNCTION) X(6u, "lv2.Generator", LV2_GENERATOR) X(7u, "lv2.Oscillator", LV2_OSCILLATOR) \
     X(8u, "lv2.Plugin", LV2_PLUGIN)
 
-/* PARAM_UNITS (data/primitives.json) */
-#define OMX_PARAM_UNITS_DB "dB" ///< Decibels, a gain or a level relative to unity.
-/** The source sentence (English) of OMX_PARAM_UNITS_DB. */
-#define OMX_PARAM_UNITS_DB_TEXT_EN "Decibels, a gain or a level relative to unity."
-#define OMX_PARAM_UNITS_DBFS "dBFS" ///< Decibels relative to digital full scale.
-/** The source sentence (English) of OMX_PARAM_UNITS_DBFS. */
-#define OMX_PARAM_UNITS_DBFS_TEXT_EN "Decibels relative to digital full scale."
-#define OMX_PARAM_UNITS_MS "ms" ///< Milliseconds.
-/** The source sentence (English) of OMX_PARAM_UNITS_MS. */
-#define OMX_PARAM_UNITS_MS_TEXT_EN "Milliseconds."
-#define OMX_PARAM_UNITS_S "s" ///< Seconds.
-/** The source sentence (English) of OMX_PARAM_UNITS_S. */
-#define OMX_PARAM_UNITS_S_TEXT_EN "Seconds."
-#define OMX_PARAM_UNITS_MIN "min" ///< Minutes.
-/** The source sentence (English) of OMX_PARAM_UNITS_MIN. */
-#define OMX_PARAM_UNITS_MIN_TEXT_EN "Minutes."
-#define OMX_PARAM_UNITS_HZ "Hz" ///< Hertz, a frequency.
-/** The source sentence (English) of OMX_PARAM_UNITS_HZ. */
-#define OMX_PARAM_UNITS_HZ_TEXT_EN "Hertz, a frequency."
-#define OMX_PARAM_UNITS_OCT "oct" ///< Octaves, a bandwidth or an interval.
-/** The source sentence (English) of OMX_PARAM_UNITS_OCT. */
-#define OMX_PARAM_UNITS_OCT_TEXT_EN "Octaves, a bandwidth or an interval."
-#define OMX_PARAM_UNITS_CENTS "cents" ///< Cents, a hundredth of a semitone.
-/** The source sentence (English) of OMX_PARAM_UNITS_CENTS. */
-#define OMX_PARAM_UNITS_CENTS_TEXT_EN "Cents, a hundredth of a semitone."
-#define OMX_PARAM_UNITS_ST "st" ///< Semitones.
-/** The source sentence (English) of OMX_PARAM_UNITS_ST. */
-#define OMX_PARAM_UNITS_ST_TEXT_EN "Semitones."
-#define OMX_PARAM_UNITS_PERCENT "percent" ///< Percent.
-/** The source sentence (English) of OMX_PARAM_UNITS_PERCENT. */
-#define OMX_PARAM_UNITS_PERCENT_TEXT_EN "Percent."
-#define OMX_PARAM_UNITS_X "x" ///< A multiplier.
-/** The source sentence (English) of OMX_PARAM_UNITS_X. */
-#define OMX_PARAM_UNITS_X_TEXT_EN "A multiplier."
-#define OMX_PARAM_UNITS_NONE "none" ///< No unit: a ratio or a fraction.
-/** The source sentence (English) of OMX_PARAM_UNITS_NONE. */
-#define OMX_PARAM_UNITS_NONE_TEXT_EN "No unit: a ratio or a fraction."
-#define OMX_PARAM_UNITS_DB_PER_OCT "dB-oct" ///< A slope in dB per octave (a tilt).
-/** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_OCT. */
-#define OMX_PARAM_UNITS_DB_PER_OCT_TEXT_EN "A slope in dB per octave (a tilt)."
-#define OMX_PARAM_UNITS_LUFS "LUFS" ///< A loudness (ITU-R BS.1770).
-/** The source sentence (English) of OMX_PARAM_UNITS_LUFS. */
-#define OMX_PARAM_UNITS_LUFS_TEXT_EN "A loudness (ITU-R BS.1770)."
-#define OMX_PARAM_UNITS_DB_PER_S "dB-s" ///< A gain change per second.
-/** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_S. */
-#define OMX_PARAM_UNITS_DB_PER_S_TEXT_EN "A gain change per second."
-/** The number of words of PARAM_UNITS. */
-#define OMX_PARAM_UNITS_COUNT 15u
-/** The words of PARAM_UNITS in their declared order, as a C initializer list. */
-#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s" }
-/** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit). */
-#define OMX_PARAM_UNITS_WORDS(X) \
-    X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
-    X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
-    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "x", X) X(11u, "none", NONE) \
-    X(12u, "dB-oct", DB_PER_OCT) X(13u, "LUFS", LUFS) X(14u, "dB-s", DB_PER_S)
-
 /* RESOURCE_KINDS (data/resource-profile.json) */
 #define OMX_RESOURCE_KINDS_CPU "cpu" ///< The cost per sample at a rate and quantum, its percentile and its tail (plugin-qualify#115).
 /** The source sentence (English) of OMX_RESOURCE_KINDS_CPU. */
@@ -787,5 +730,219 @@
 /** Expands `X(code, "word", NAME)` once per word of VERB_HOSTS, in order, the code being its place in the order. The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing. */
 #define OMX_VERB_HOSTS(X) \
     X(0u, "plugin-hostd", PLUGIN_HOSTD) X(1u, "omx-clap-host", OMX_CLAP_HOST) X(2u, "mod-host", MOD_HOST)
+
+/* PARAM_UNITS (param/param.json) */
+#define OMX_PARAM_UNITS_DB "dB" ///< Decibels, a gain or a level relative to unity.
+/** The source sentence (English) of OMX_PARAM_UNITS_DB. */
+#define OMX_PARAM_UNITS_DB_TEXT_EN "Decibels, a gain or a level relative to unity."
+#define OMX_PARAM_UNITS_DBFS "dBFS" ///< Decibels relative to digital full scale.
+/** The source sentence (English) of OMX_PARAM_UNITS_DBFS. */
+#define OMX_PARAM_UNITS_DBFS_TEXT_EN "Decibels relative to digital full scale."
+#define OMX_PARAM_UNITS_MS "ms" ///< Milliseconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_MS. */
+#define OMX_PARAM_UNITS_MS_TEXT_EN "Milliseconds."
+#define OMX_PARAM_UNITS_S "s" ///< Seconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_S. */
+#define OMX_PARAM_UNITS_S_TEXT_EN "Seconds."
+#define OMX_PARAM_UNITS_MIN "min" ///< Minutes.
+/** The source sentence (English) of OMX_PARAM_UNITS_MIN. */
+#define OMX_PARAM_UNITS_MIN_TEXT_EN "Minutes."
+#define OMX_PARAM_UNITS_HZ "Hz" ///< Hertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_HZ. */
+#define OMX_PARAM_UNITS_HZ_TEXT_EN "Hertz, a frequency."
+#define OMX_PARAM_UNITS_OCT "oct" ///< Octaves, a bandwidth or an interval.
+/** The source sentence (English) of OMX_PARAM_UNITS_OCT. */
+#define OMX_PARAM_UNITS_OCT_TEXT_EN "Octaves, a bandwidth or an interval."
+#define OMX_PARAM_UNITS_CENTS "cents" ///< Cents, a hundredth of a semitone.
+/** The source sentence (English) of OMX_PARAM_UNITS_CENTS. */
+#define OMX_PARAM_UNITS_CENTS_TEXT_EN "Cents, a hundredth of a semitone."
+#define OMX_PARAM_UNITS_ST "st" ///< Semitones.
+/** The source sentence (English) of OMX_PARAM_UNITS_ST. */
+#define OMX_PARAM_UNITS_ST_TEXT_EN "Semitones."
+#define OMX_PARAM_UNITS_PERCENT "percent" ///< Percent.
+/** The source sentence (English) of OMX_PARAM_UNITS_PERCENT. */
+#define OMX_PARAM_UNITS_PERCENT_TEXT_EN "Percent."
+#define OMX_PARAM_UNITS_X "x" ///< A multiplier.
+/** The source sentence (English) of OMX_PARAM_UNITS_X. */
+#define OMX_PARAM_UNITS_X_TEXT_EN "A multiplier."
+#define OMX_PARAM_UNITS_NONE "none" ///< No unit: a ratio or a fraction.
+/** The source sentence (English) of OMX_PARAM_UNITS_NONE. */
+#define OMX_PARAM_UNITS_NONE_TEXT_EN "No unit: a ratio or a fraction."
+#define OMX_PARAM_UNITS_DB_PER_OCT "dB-oct" ///< A slope in dB per octave (a tilt).
+/** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_OCT. */
+#define OMX_PARAM_UNITS_DB_PER_OCT_TEXT_EN "A slope in dB per octave (a tilt)."
+#define OMX_PARAM_UNITS_LUFS "LUFS" ///< A loudness (ITU-R BS.1770).
+/** The source sentence (English) of OMX_PARAM_UNITS_LUFS. */
+#define OMX_PARAM_UNITS_LUFS_TEXT_EN "A loudness (ITU-R BS.1770)."
+#define OMX_PARAM_UNITS_DB_PER_S "dB-s" ///< A gain change per second.
+/** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_S. */
+#define OMX_PARAM_UNITS_DB_PER_S_TEXT_EN "A gain change per second."
+#define OMX_PARAM_UNITS_DBTP "dBTP" ///< Decibels true peak, a level measured between the samples (ITU-R BS.1770).
+/** The source sentence (English) of OMX_PARAM_UNITS_DBTP. */
+#define OMX_PARAM_UNITS_DBTP_TEXT_EN "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+#define OMX_PARAM_UNITS_DBU "dBu" ///< Decibels relative to 0.7746 volts RMS, an analogue level.
+/** The source sentence (English) of OMX_PARAM_UNITS_DBU. */
+#define OMX_PARAM_UNITS_DBU_TEXT_EN "Decibels relative to 0.7746 volts RMS, an analogue level."
+#define OMX_PARAM_UNITS_LU "LU" ///< Loudness units, a loudness difference or range (EBU R 128).
+/** The source sentence (English) of OMX_PARAM_UNITS_LU. */
+#define OMX_PARAM_UNITS_LU_TEXT_EN "Loudness units, a loudness difference or range (EBU R 128)."
+#define OMX_PARAM_UNITS_KHZ "kHz" ///< Kilohertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_KHZ. */
+#define OMX_PARAM_UNITS_KHZ_TEXT_EN "Kilohertz, a frequency."
+#define OMX_PARAM_UNITS_MHZ "MHz" ///< Megahertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_MHZ. */
+#define OMX_PARAM_UNITS_MHZ_TEXT_EN "Megahertz, a frequency."
+#define OMX_PARAM_UNITS_FRAMES "frames" ///< Audio frames, one sample on each channel.
+/** The source sentence (English) of OMX_PARAM_UNITS_FRAMES. */
+#define OMX_PARAM_UNITS_FRAMES_TEXT_EN "Audio frames, one sample on each channel."
+#define OMX_PARAM_UNITS_BPM "bpm" ///< Beats per minute, a tempo.
+/** The source sentence (English) of OMX_PARAM_UNITS_BPM. */
+#define OMX_PARAM_UNITS_BPM_TEXT_EN "Beats per minute, a tempo."
+#define OMX_PARAM_UNITS_BAR "bar" ///< Bars, a musical length.
+/** The source sentence (English) of OMX_PARAM_UNITS_BAR. */
+#define OMX_PARAM_UNITS_BAR_TEXT_EN "Bars, a musical length."
+#define OMX_PARAM_UNITS_BEAT "beat" ///< Beats, a musical length.
+/** The source sentence (English) of OMX_PARAM_UNITS_BEAT. */
+#define OMX_PARAM_UNITS_BEAT_TEXT_EN "Beats, a musical length."
+#define OMX_PARAM_UNITS_M "m" ///< Metres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_M. */
+#define OMX_PARAM_UNITS_M_TEXT_EN "Metres, a length."
+#define OMX_PARAM_UNITS_CM "cm" ///< Centimetres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CM. */
+#define OMX_PARAM_UNITS_CM_TEXT_EN "Centimetres, a length."
+#define OMX_PARAM_UNITS_MM "mm" ///< Millimetres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_MM. */
+#define OMX_PARAM_UNITS_MM_TEXT_EN "Millimetres, a length."
+#define OMX_PARAM_UNITS_KM "km" ///< Kilometres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_KM. */
+#define OMX_PARAM_UNITS_KM_TEXT_EN "Kilometres, a length."
+#define OMX_PARAM_UNITS_INCH "inch" ///< Inches, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_INCH. */
+#define OMX_PARAM_UNITS_INCH_TEXT_EN "Inches, a length."
+#define OMX_PARAM_UNITS_MILE "mile" ///< Miles, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_MILE. */
+#define OMX_PARAM_UNITS_MILE_TEXT_EN "Miles, a length."
+#define OMX_PARAM_UNITS_DEGREE "deg" ///< Degrees, an angle.
+/** The source sentence (English) of OMX_PARAM_UNITS_DEGREE. */
+#define OMX_PARAM_UNITS_DEGREE_TEXT_EN "Degrees, an angle."
+#define OMX_PARAM_UNITS_MIDI_NOTE "midiNote" ///< A MIDI note number.
+/** The source sentence (English) of OMX_PARAM_UNITS_MIDI_NOTE. */
+#define OMX_PARAM_UNITS_MIDI_NOTE_TEXT_EN "A MIDI note number."
+#define OMX_PARAM_UNITS_RATIO "ratio" ///< A ratio n:1, a compressor's or an expander's.
+/** The source sentence (English) of OMX_PARAM_UNITS_RATIO. */
+#define OMX_PARAM_UNITS_RATIO_TEXT_EN "A ratio n:1, a compressor's or an expander's."
+#define OMX_PARAM_UNITS_COEF "coef" ///< A coefficient, a plain multiplier with no unit of its own.
+/** The source sentence (English) of OMX_PARAM_UNITS_COEF. */
+#define OMX_PARAM_UNITS_COEF_TEXT_EN "A coefficient, a plain multiplier with no unit of its own."
+#define OMX_PARAM_UNITS_US "us" ///< Microseconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_US. */
+#define OMX_PARAM_UNITS_US_TEXT_EN "Microseconds."
+#define OMX_PARAM_UNITS_BYTES "bytes" ///< Bytes.
+/** The source sentence (English) of OMX_PARAM_UNITS_BYTES. */
+#define OMX_PARAM_UNITS_BYTES_TEXT_EN "Bytes."
+#define OMX_PARAM_UNITS_NS_PER_SAMPLE "nsPerSample" ///< Nanoseconds per sample, a processing cost.
+/** The source sentence (English) of OMX_PARAM_UNITS_NS_PER_SAMPLE. */
+#define OMX_PARAM_UNITS_NS_PER_SAMPLE_TEXT_EN "Nanoseconds per sample, a processing cost."
+#define OMX_PARAM_UNITS_PLAIN_COUNT "plainCount" ///< A plain count, with no unit.
+/** The source sentence (English) of OMX_PARAM_UNITS_PLAIN_COUNT. */
+#define OMX_PARAM_UNITS_PLAIN_COUNT_TEXT_EN "A plain count, with no unit."
+#define OMX_PARAM_UNITS_FLAG "flag" ///< A yes or a no: one when on, zero when off.
+/** The source sentence (English) of OMX_PARAM_UNITS_FLAG. */
+#define OMX_PARAM_UNITS_FLAG_TEXT_EN "A yes or a no: one when on, zero when off."
+/** The number of words of PARAM_UNITS. */
+#define OMX_PARAM_UNITS_COUNT 39u
+/** The words of PARAM_UNITS in their declared order, as a C initializer list. */
+#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level. */
+#define OMX_PARAM_UNITS_WORDS(X) \
+    X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
+    X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
+    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "x", X) X(11u, "none", NONE) \
+    X(12u, "dB-oct", DB_PER_OCT) X(13u, "LUFS", LUFS) X(14u, "dB-s", DB_PER_S) X(15u, "dBTP", DBTP) \
+    X(16u, "dBu", DBU) X(17u, "LU", LU) X(18u, "kHz", KHZ) X(19u, "MHz", MHZ) \
+    X(20u, "frames", FRAMES) X(21u, "bpm", BPM) X(22u, "bar", BAR) X(23u, "beat", BEAT) \
+    X(24u, "m", M) X(25u, "cm", CM) X(26u, "mm", MM) X(27u, "km", KM) \
+    X(28u, "inch", INCH) X(29u, "mile", MILE) X(30u, "deg", DEGREE) X(31u, "midiNote", MIDI_NOTE) \
+    X(32u, "ratio", RATIO) X(33u, "coef", COEF) X(34u, "us", US) X(35u, "bytes", BYTES) \
+    X(36u, "nsPerSample", NS_PER_SAMPLE) X(37u, "plainCount", PLAIN_COUNT) X(38u, "flag", FLAG)
+
+/* PARAM_UNIT_DIMENSIONS (param/param.json) */
+#define OMX_PARAM_UNIT_DIMENSIONS_NONE "none" ///< No dimension: a plain number, a multiplier or a yes or a no.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_NONE. */
+#define OMX_PARAM_UNIT_DIMENSIONS_NONE_TEXT_EN "No dimension: a plain number, a multiplier or a yes or a no."
+#define OMX_PARAM_UNIT_DIMENSIONS_TIME "time" ///< A time.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_TIME. */
+#define OMX_PARAM_UNIT_DIMENSIONS_TIME_TEXT_EN "A time."
+#define OMX_PARAM_UNIT_DIMENSIONS_FREQUENCY "frequency" ///< A frequency.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_FREQUENCY. */
+#define OMX_PARAM_UNIT_DIMENSIONS_FREQUENCY_TEXT_EN "A frequency."
+#define OMX_PARAM_UNIT_DIMENSIONS_GAIN "gain" ///< A gain: a level relative to another.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_GAIN. */
+#define OMX_PARAM_UNIT_DIMENSIONS_GAIN_TEXT_EN "A gain: a level relative to another."
+#define OMX_PARAM_UNIT_DIMENSIONS_LEVEL "level" ///< A level against a fixed reference.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_LEVEL. */
+#define OMX_PARAM_UNIT_DIMENSIONS_LEVEL_TEXT_EN "A level against a fixed reference."
+#define OMX_PARAM_UNIT_DIMENSIONS_LOUDNESS "loudness" ///< A loudness or a loudness difference.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_LOUDNESS. */
+#define OMX_PARAM_UNIT_DIMENSIONS_LOUDNESS_TEXT_EN "A loudness or a loudness difference."
+#define OMX_PARAM_UNIT_DIMENSIONS_PITCH "pitch" ///< A pitch or a pitch interval.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_PITCH. */
+#define OMX_PARAM_UNIT_DIMENSIONS_PITCH_TEXT_EN "A pitch or a pitch interval."
+#define OMX_PARAM_UNIT_DIMENSIONS_ANGLE "angle" ///< An angle.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_ANGLE. */
+#define OMX_PARAM_UNIT_DIMENSIONS_ANGLE_TEXT_EN "An angle."
+#define OMX_PARAM_UNIT_DIMENSIONS_LENGTH "length" ///< A length in space.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_LENGTH. */
+#define OMX_PARAM_UNIT_DIMENSIONS_LENGTH_TEXT_EN "A length in space."
+#define OMX_PARAM_UNIT_DIMENSIONS_TEMPO "tempo" ///< A tempo.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_TEMPO. */
+#define OMX_PARAM_UNIT_DIMENSIONS_TEMPO_TEXT_EN "A tempo."
+#define OMX_PARAM_UNIT_DIMENSIONS_MUSICAL_TIME "musical-time" ///< A length in musical time; it depends on the meter.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_MUSICAL_TIME. */
+#define OMX_PARAM_UNIT_DIMENSIONS_MUSICAL_TIME_TEXT_EN "A length in musical time; it depends on the meter."
+#define OMX_PARAM_UNIT_DIMENSIONS_COUNTED "count" ///< A number of things (frames, a plain count).
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_COUNTED. */
+#define OMX_PARAM_UNIT_DIMENSIONS_COUNTED_TEXT_EN "A number of things."
+#define OMX_PARAM_UNIT_DIMENSIONS_SLOPE "slope" ///< A change of level per octave.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_SLOPE. */
+#define OMX_PARAM_UNIT_DIMENSIONS_SLOPE_TEXT_EN "A change of level per octave."
+#define OMX_PARAM_UNIT_DIMENSIONS_RATE "rate" ///< A change of gain per unit of time.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_RATE. */
+#define OMX_PARAM_UNIT_DIMENSIONS_RATE_TEXT_EN "A change of gain per unit of time."
+#define OMX_PARAM_UNIT_DIMENSIONS_RATIO "ratio" ///< A ratio n:1.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_RATIO. */
+#define OMX_PARAM_UNIT_DIMENSIONS_RATIO_TEXT_EN "A ratio n:1."
+#define OMX_PARAM_UNIT_DIMENSIONS_INFORMATION "information" ///< An amount of data.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_INFORMATION. */
+#define OMX_PARAM_UNIT_DIMENSIONS_INFORMATION_TEXT_EN "An amount of data."
+#define OMX_PARAM_UNIT_DIMENSIONS_TIME_PER_SAMPLE "time-per-sample" ///< A processing cost per sample, never a duration.
+/** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_TIME_PER_SAMPLE. */
+#define OMX_PARAM_UNIT_DIMENSIONS_TIME_PER_SAMPLE_TEXT_EN "A processing cost per sample, never a duration."
+/** The number of words of PARAM_UNIT_DIMENSIONS. */
+#define OMX_PARAM_UNIT_DIMENSIONS_COUNT 17u
+/** The words of PARAM_UNIT_DIMENSIONS in their declared order, as a C initializer list. */
+#define OMX_PARAM_UNIT_DIMENSIONS_INIT { "none", "time", "frequency", "gain", "level", "loudness", "pitch", "angle", "length", "tempo", "musical-time", "count", "slope", "rate", "ratio", "information", "time-per-sample" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_UNIT_DIMENSIONS, in order, the code being its place in the order. What a unit of PARAM_UNITS measures (docs/units.md, The dimensions): two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in. The word `count` has the key `counted`: OMX_PARAM_UNIT_DIMENSIONS_COUNT is the number of words. */
+#define OMX_PARAM_UNIT_DIMENSIONS(X) \
+    X(0u, "none", NONE) X(1u, "time", TIME) X(2u, "frequency", FREQUENCY) X(3u, "gain", GAIN) \
+    X(4u, "level", LEVEL) X(5u, "loudness", LOUDNESS) X(6u, "pitch", PITCH) X(7u, "angle", ANGLE) \
+    X(8u, "length", LENGTH) X(9u, "tempo", TEMPO) X(10u, "musical-time", MUSICAL_TIME) X(11u, "count", COUNTED) \
+    X(12u, "slope", SLOPE) X(13u, "rate", RATE) X(14u, "ratio", RATIO) X(15u, "information", INFORMATION) \
+    X(16u, "time-per-sample", TIME_PER_SAMPLE)
+
+/* PARAM_UNIT_SCOPES (param/param.json) */
+#define OMX_PARAM_UNIT_SCOPES_PARAM "param" ///< A unit of the items: the schema's $defs.unit, and a descriptor takes it too.
+/** The source sentence (English) of OMX_PARAM_UNIT_SCOPES_PARAM. */
+#define OMX_PARAM_UNIT_SCOPES_PARAM_TEXT_EN "A unit of the items, which a descriptor states too."
+#define OMX_PARAM_UNIT_SCOPES_DESCRIPTOR "descriptor" ///< A unit only a descriptor's control states: the schema's $defs.descriptorUnit.
+/** The source sentence (English) of OMX_PARAM_UNIT_SCOPES_DESCRIPTOR. */
+#define OMX_PARAM_UNIT_SCOPES_DESCRIPTOR_TEXT_EN "A unit only a descriptor's control states."
+/** The number of words of PARAM_UNIT_SCOPES. */
+#define OMX_PARAM_UNIT_SCOPES_COUNT 2u
+/** The words of PARAM_UNIT_SCOPES in their declared order, as a C initializer list. */
+#define OMX_PARAM_UNIT_SCOPES_INIT { "param", "descriptor" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_UNIT_SCOPES, in order, the code being its place in the order. Where a unit of PARAM_UNITS may be stated (docs/units.md, Q16 ruled: the split is kept): `param`, a unit of the items, the schema's $defs.unit; `descriptor`, a unit only a descriptor's control states, the schema's $defs.descriptorUnit. */
+#define OMX_PARAM_UNIT_SCOPES(X) \
+    X(0u, "param", PARAM) X(1u, "descriptor", DESCRIPTOR)
 
 #endif /* OMX_VOCABULARY_H */

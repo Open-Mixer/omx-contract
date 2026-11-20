@@ -6428,141 +6428,6 @@ export declare const PLUGIN_FEATURE_OTHER: {
 };
 
 /**
- * How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.
- * @see data/primitives.json
- */
-export declare const PARAM_SCALES: readonly ["linear", "log", "stepped"];
-
-/**
- * The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit).
- *
- * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
- * @see data/primitives.json
- */
-export declare const PARAM_UNITS: {
-  readonly db: {
-    readonly word: "dB";
-    readonly symbol: "dB";
-    readonly doc: "Decibels, a gain or a level relative to unity.";
-    readonly text: {
-      readonly en: "Decibels, a gain or a level relative to unity.";
-    };
-  };
-  readonly dbfs: {
-    readonly word: "dBFS";
-    readonly symbol: "dBFS";
-    readonly doc: "Decibels relative to digital full scale.";
-    readonly text: {
-      readonly en: "Decibels relative to digital full scale.";
-    };
-  };
-  readonly ms: {
-    readonly word: "ms";
-    readonly symbol: "ms";
-    readonly doc: "Milliseconds.";
-    readonly text: {
-      readonly en: "Milliseconds.";
-    };
-  };
-  readonly s: {
-    readonly word: "s";
-    readonly symbol: "s";
-    readonly doc: "Seconds.";
-    readonly text: {
-      readonly en: "Seconds.";
-    };
-  };
-  readonly min: {
-    readonly word: "min";
-    readonly symbol: "min";
-    readonly doc: "Minutes.";
-    readonly text: {
-      readonly en: "Minutes.";
-    };
-  };
-  readonly hz: {
-    readonly word: "Hz";
-    readonly symbol: "Hz";
-    readonly doc: "Hertz, a frequency.";
-    readonly text: {
-      readonly en: "Hertz, a frequency.";
-    };
-  };
-  readonly oct: {
-    readonly word: "oct";
-    readonly symbol: "oct";
-    readonly doc: "Octaves, a bandwidth or an interval.";
-    readonly text: {
-      readonly en: "Octaves, a bandwidth or an interval.";
-    };
-  };
-  readonly cents: {
-    readonly word: "cents";
-    readonly symbol: "cents";
-    readonly doc: "Cents, a hundredth of a semitone.";
-    readonly text: {
-      readonly en: "Cents, a hundredth of a semitone.";
-    };
-  };
-  readonly st: {
-    readonly word: "st";
-    readonly symbol: "st";
-    readonly doc: "Semitones.";
-    readonly text: {
-      readonly en: "Semitones.";
-    };
-  };
-  readonly percent: {
-    readonly word: "percent";
-    readonly symbol: "%";
-    readonly doc: "Percent.";
-    readonly text: {
-      readonly en: "Percent.";
-    };
-  };
-  readonly x: {
-    readonly word: "x";
-    readonly symbol: "x";
-    readonly doc: "A multiplier.";
-    readonly text: {
-      readonly en: "A multiplier.";
-    };
-  };
-  readonly none: {
-    readonly word: "none";
-    readonly symbol: "";
-    readonly doc: "No unit: a ratio or a fraction.";
-    readonly text: {
-      readonly en: "No unit: a ratio or a fraction.";
-    };
-  };
-  readonly dbPerOct: {
-    readonly word: "dB-oct";
-    readonly symbol: "dB/oct";
-    readonly doc: "A slope in dB per octave (a tilt).";
-    readonly text: {
-      readonly en: "A slope in dB per octave (a tilt).";
-    };
-  };
-  readonly lufs: {
-    readonly word: "LUFS";
-    readonly symbol: "LUFS";
-    readonly doc: "A loudness (ITU-R BS.1770).";
-    readonly text: {
-      readonly en: "A loudness (ITU-R BS.1770).";
-    };
-  };
-  readonly dbPerS: {
-    readonly word: "dB-s";
-    readonly symbol: "dB/s";
-    readonly doc: "A gain change per second.";
-    readonly text: {
-      readonly en: "A gain change per second.";
-    };
-  };
-};
-
-/**
  * How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md).
  * @see data/primitives.json
  */
@@ -6912,6 +6777,558 @@ export declare const VERB_HOSTS: {
 };
 
 /**
+ * How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.
+ * @see param/param.json
+ */
+export declare const PARAM_SCALES: readonly ["linear", "log", "stepped"];
+
+/**
+ * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
+ *
+ * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
+ * @see param/param.json
+ */
+export declare const PARAM_UNITS: {
+  readonly db: {
+    readonly word: "dB";
+    readonly symbol: "dB";
+    readonly dimension: "gain";
+    readonly group: "param";
+    readonly doc: "Decibels, a gain or a level relative to unity.";
+    readonly text: {
+      readonly en: "Decibels, a gain or a level relative to unity.";
+    };
+  };
+  readonly dbfs: {
+    readonly word: "dBFS";
+    readonly symbol: "dBFS";
+    readonly dimension: "level";
+    readonly group: "param";
+    readonly doc: "Decibels relative to digital full scale.";
+    readonly text: {
+      readonly en: "Decibels relative to digital full scale.";
+    };
+  };
+  readonly ms: {
+    readonly word: "ms";
+    readonly symbol: "ms";
+    readonly dimension: "time";
+    readonly group: "param";
+    readonly doc: "Milliseconds.";
+    readonly text: {
+      readonly en: "Milliseconds.";
+    };
+  };
+  readonly s: {
+    readonly word: "s";
+    readonly symbol: "s";
+    readonly dimension: "time";
+    readonly group: "param";
+    readonly doc: "Seconds.";
+    readonly text: {
+      readonly en: "Seconds.";
+    };
+  };
+  readonly min: {
+    readonly word: "min";
+    readonly symbol: "min";
+    readonly dimension: "time";
+    readonly group: "param";
+    readonly doc: "Minutes.";
+    readonly text: {
+      readonly en: "Minutes.";
+    };
+  };
+  readonly hz: {
+    readonly word: "Hz";
+    readonly symbol: "Hz";
+    readonly dimension: "frequency";
+    readonly group: "param";
+    readonly doc: "Hertz, a frequency.";
+    readonly text: {
+      readonly en: "Hertz, a frequency.";
+    };
+  };
+  readonly oct: {
+    readonly word: "oct";
+    readonly symbol: "oct";
+    readonly dimension: "pitch";
+    readonly group: "param";
+    readonly doc: "Octaves, a bandwidth or an interval.";
+    readonly text: {
+      readonly en: "Octaves, a bandwidth or an interval.";
+    };
+  };
+  readonly cents: {
+    readonly word: "cents";
+    readonly symbol: "cents";
+    readonly dimension: "pitch";
+    readonly group: "param";
+    readonly doc: "Cents, a hundredth of a semitone.";
+    readonly text: {
+      readonly en: "Cents, a hundredth of a semitone.";
+    };
+  };
+  readonly st: {
+    readonly word: "st";
+    readonly symbol: "st";
+    readonly dimension: "pitch";
+    readonly group: "param";
+    readonly doc: "Semitones.";
+    readonly text: {
+      readonly en: "Semitones.";
+    };
+  };
+  readonly percent: {
+    readonly word: "percent";
+    readonly symbol: "%";
+    readonly dimension: "none";
+    readonly group: "param";
+    readonly doc: "Percent.";
+    readonly text: {
+      readonly en: "Percent.";
+    };
+  };
+  readonly x: {
+    readonly word: "x";
+    readonly symbol: "x";
+    readonly dimension: "none";
+    readonly group: "param";
+    readonly doc: "A multiplier.";
+    readonly text: {
+      readonly en: "A multiplier.";
+    };
+  };
+  readonly none: {
+    readonly word: "none";
+    readonly symbol: "";
+    readonly dimension: "none";
+    readonly group: "param";
+    readonly doc: "No unit: a ratio or a fraction.";
+    readonly text: {
+      readonly en: "No unit: a ratio or a fraction.";
+    };
+  };
+  readonly dbPerOct: {
+    readonly word: "dB-oct";
+    readonly symbol: "dB/oct";
+    readonly dimension: "slope";
+    readonly group: "param";
+    readonly doc: "A slope in dB per octave (a tilt).";
+    readonly text: {
+      readonly en: "A slope in dB per octave (a tilt).";
+    };
+  };
+  readonly lufs: {
+    readonly word: "LUFS";
+    readonly symbol: "LUFS";
+    readonly dimension: "loudness";
+    readonly group: "param";
+    readonly doc: "A loudness (ITU-R BS.1770).";
+    readonly text: {
+      readonly en: "A loudness (ITU-R BS.1770).";
+    };
+  };
+  readonly dbPerS: {
+    readonly word: "dB-s";
+    readonly symbol: "dB/s";
+    readonly dimension: "rate";
+    readonly group: "param";
+    readonly doc: "A gain change per second.";
+    readonly text: {
+      readonly en: "A gain change per second.";
+    };
+  };
+  readonly dbtp: {
+    readonly word: "dBTP";
+    readonly symbol: "dBTP";
+    readonly dimension: "level";
+    readonly group: "descriptor";
+    readonly doc: "Decibels true peak, a level measured between the samples (ITU-R BS.1770).";
+    readonly text: {
+      readonly en: "Decibels true peak, a level measured between the samples (ITU-R BS.1770).";
+    };
+  };
+  readonly dbu: {
+    readonly word: "dBu";
+    readonly symbol: "dBu";
+    readonly dimension: "level";
+    readonly group: "descriptor";
+    readonly doc: "Decibels relative to 0.7746 volts RMS, an analogue level.";
+    readonly text: {
+      readonly en: "Decibels relative to 0.7746 volts RMS, an analogue level.";
+    };
+  };
+  readonly lu: {
+    readonly word: "LU";
+    readonly symbol: "LU";
+    readonly dimension: "loudness";
+    readonly group: "descriptor";
+    readonly doc: "Loudness units, a loudness difference or range (EBU R 128).";
+    readonly text: {
+      readonly en: "Loudness units, a loudness difference or range (EBU R 128).";
+    };
+  };
+  readonly khz: {
+    readonly word: "kHz";
+    readonly symbol: "kHz";
+    readonly dimension: "frequency";
+    readonly group: "descriptor";
+    readonly doc: "Kilohertz, a frequency.";
+    readonly text: {
+      readonly en: "Kilohertz, a frequency.";
+    };
+  };
+  readonly mhz: {
+    readonly word: "MHz";
+    readonly symbol: "MHz";
+    readonly dimension: "frequency";
+    readonly group: "descriptor";
+    readonly doc: "Megahertz, a frequency.";
+    readonly text: {
+      readonly en: "Megahertz, a frequency.";
+    };
+  };
+  readonly frames: {
+    readonly word: "frames";
+    readonly symbol: "frames";
+    readonly dimension: "count";
+    readonly group: "descriptor";
+    readonly doc: "Audio frames, one sample on each channel.";
+    readonly text: {
+      readonly en: "Audio frames, one sample on each channel.";
+    };
+  };
+  readonly bpm: {
+    readonly word: "bpm";
+    readonly symbol: "bpm";
+    readonly dimension: "tempo";
+    readonly group: "descriptor";
+    readonly doc: "Beats per minute, a tempo.";
+    readonly text: {
+      readonly en: "Beats per minute, a tempo.";
+    };
+  };
+  readonly bar: {
+    readonly word: "bar";
+    readonly symbol: "bar";
+    readonly dimension: "musical-time";
+    readonly group: "descriptor";
+    readonly doc: "Bars, a musical length.";
+    readonly text: {
+      readonly en: "Bars, a musical length.";
+    };
+  };
+  readonly beat: {
+    readonly word: "beat";
+    readonly symbol: "beat";
+    readonly dimension: "musical-time";
+    readonly group: "descriptor";
+    readonly doc: "Beats, a musical length.";
+    readonly text: {
+      readonly en: "Beats, a musical length.";
+    };
+  };
+  readonly m: {
+    readonly word: "m";
+    readonly symbol: "m";
+    readonly dimension: "length";
+    readonly group: "descriptor";
+    readonly doc: "Metres, a length.";
+    readonly text: {
+      readonly en: "Metres, a length.";
+    };
+  };
+  readonly cm: {
+    readonly word: "cm";
+    readonly symbol: "cm";
+    readonly dimension: "length";
+    readonly group: "descriptor";
+    readonly doc: "Centimetres, a length.";
+    readonly text: {
+      readonly en: "Centimetres, a length.";
+    };
+  };
+  readonly mm: {
+    readonly word: "mm";
+    readonly symbol: "mm";
+    readonly dimension: "length";
+    readonly group: "descriptor";
+    readonly doc: "Millimetres, a length.";
+    readonly text: {
+      readonly en: "Millimetres, a length.";
+    };
+  };
+  readonly km: {
+    readonly word: "km";
+    readonly symbol: "km";
+    readonly dimension: "length";
+    readonly group: "descriptor";
+    readonly doc: "Kilometres, a length.";
+    readonly text: {
+      readonly en: "Kilometres, a length.";
+    };
+  };
+  readonly inch: {
+    readonly word: "inch";
+    readonly symbol: "inch";
+    readonly dimension: "length";
+    readonly group: "descriptor";
+    readonly doc: "Inches, a length.";
+    readonly text: {
+      readonly en: "Inches, a length.";
+    };
+  };
+  readonly mile: {
+    readonly word: "mile";
+    readonly symbol: "mile";
+    readonly dimension: "length";
+    readonly group: "descriptor";
+    readonly doc: "Miles, a length.";
+    readonly text: {
+      readonly en: "Miles, a length.";
+    };
+  };
+  readonly degree: {
+    readonly word: "deg";
+    readonly symbol: "deg";
+    readonly dimension: "angle";
+    readonly group: "descriptor";
+    readonly doc: "Degrees, an angle.";
+    readonly text: {
+      readonly en: "Degrees, an angle.";
+    };
+  };
+  readonly midiNote: {
+    readonly word: "midiNote";
+    readonly symbol: "midiNote";
+    readonly dimension: "pitch";
+    readonly group: "descriptor";
+    readonly doc: "A MIDI note number.";
+    readonly text: {
+      readonly en: "A MIDI note number.";
+    };
+  };
+  readonly ratio: {
+    readonly word: "ratio";
+    readonly symbol: "ratio";
+    readonly dimension: "ratio";
+    readonly group: "descriptor";
+    readonly doc: "A ratio n:1, a compressor's or an expander's.";
+    readonly text: {
+      readonly en: "A ratio n:1, a compressor's or an expander's.";
+    };
+  };
+  readonly coef: {
+    readonly word: "coef";
+    readonly symbol: "coef";
+    readonly dimension: "none";
+    readonly group: "descriptor";
+    readonly doc: "A coefficient, a plain multiplier with no unit of its own.";
+    readonly text: {
+      readonly en: "A coefficient, a plain multiplier with no unit of its own.";
+    };
+  };
+  readonly us: {
+    readonly word: "us";
+    readonly symbol: "us";
+    readonly dimension: "time";
+    readonly group: "descriptor";
+    readonly doc: "Microseconds.";
+    readonly text: {
+      readonly en: "Microseconds.";
+    };
+  };
+  readonly bytes: {
+    readonly word: "bytes";
+    readonly symbol: "bytes";
+    readonly dimension: "information";
+    readonly group: "descriptor";
+    readonly doc: "Bytes.";
+    readonly text: {
+      readonly en: "Bytes.";
+    };
+  };
+  readonly nsPerSample: {
+    readonly word: "nsPerSample";
+    readonly symbol: "ns/sample";
+    readonly dimension: "time-per-sample";
+    readonly group: "descriptor";
+    readonly doc: "Nanoseconds per sample, a processing cost.";
+    readonly text: {
+      readonly en: "Nanoseconds per sample, a processing cost.";
+    };
+  };
+  readonly plainCount: {
+    readonly word: "plainCount";
+    readonly symbol: "count";
+    readonly dimension: "count";
+    readonly group: "descriptor";
+    readonly doc: "A plain count, with no unit.";
+    readonly text: {
+      readonly en: "A plain count, with no unit.";
+    };
+  };
+  readonly flag: {
+    readonly word: "flag";
+    readonly symbol: "flag";
+    readonly dimension: "none";
+    readonly group: "descriptor";
+    readonly doc: "A yes or a no: one when on, zero when off.";
+    readonly text: {
+      readonly en: "A yes or a no: one when on, zero when off.";
+    };
+  };
+};
+
+/**
+ * What a unit of PARAM_UNITS measures (docs/units.md, The dimensions): two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in. The word `count` has the key `counted`: OMX_PARAM_UNIT_DIMENSIONS_COUNT is the number of words.
+ * @see param/param.json
+ */
+export declare const PARAM_UNIT_DIMENSIONS: {
+  readonly none: {
+    readonly word: "none";
+    readonly doc: "No dimension: a plain number, a multiplier or a yes or a no.";
+    readonly text: {
+      readonly en: "No dimension: a plain number, a multiplier or a yes or a no.";
+    };
+  };
+  readonly time: {
+    readonly word: "time";
+    readonly doc: "A time.";
+    readonly text: {
+      readonly en: "A time.";
+    };
+  };
+  readonly frequency: {
+    readonly word: "frequency";
+    readonly doc: "A frequency.";
+    readonly text: {
+      readonly en: "A frequency.";
+    };
+  };
+  readonly gain: {
+    readonly word: "gain";
+    readonly doc: "A gain: a level relative to another.";
+    readonly text: {
+      readonly en: "A gain: a level relative to another.";
+    };
+  };
+  readonly level: {
+    readonly word: "level";
+    readonly doc: "A level against a fixed reference.";
+    readonly text: {
+      readonly en: "A level against a fixed reference.";
+    };
+  };
+  readonly loudness: {
+    readonly word: "loudness";
+    readonly doc: "A loudness or a loudness difference.";
+    readonly text: {
+      readonly en: "A loudness or a loudness difference.";
+    };
+  };
+  readonly pitch: {
+    readonly word: "pitch";
+    readonly doc: "A pitch or a pitch interval.";
+    readonly text: {
+      readonly en: "A pitch or a pitch interval.";
+    };
+  };
+  readonly angle: {
+    readonly word: "angle";
+    readonly doc: "An angle.";
+    readonly text: {
+      readonly en: "An angle.";
+    };
+  };
+  readonly length: {
+    readonly word: "length";
+    readonly doc: "A length in space.";
+    readonly text: {
+      readonly en: "A length in space.";
+    };
+  };
+  readonly tempo: {
+    readonly word: "tempo";
+    readonly doc: "A tempo.";
+    readonly text: {
+      readonly en: "A tempo.";
+    };
+  };
+  readonly musicalTime: {
+    readonly word: "musical-time";
+    readonly doc: "A length in musical time; it depends on the meter.";
+    readonly text: {
+      readonly en: "A length in musical time; it depends on the meter.";
+    };
+  };
+  readonly counted: {
+    readonly word: "count";
+    readonly doc: "A number of things (frames, a plain count).";
+    readonly text: {
+      readonly en: "A number of things.";
+    };
+  };
+  readonly slope: {
+    readonly word: "slope";
+    readonly doc: "A change of level per octave.";
+    readonly text: {
+      readonly en: "A change of level per octave.";
+    };
+  };
+  readonly rate: {
+    readonly word: "rate";
+    readonly doc: "A change of gain per unit of time.";
+    readonly text: {
+      readonly en: "A change of gain per unit of time.";
+    };
+  };
+  readonly ratio: {
+    readonly word: "ratio";
+    readonly doc: "A ratio n:1.";
+    readonly text: {
+      readonly en: "A ratio n:1.";
+    };
+  };
+  readonly information: {
+    readonly word: "information";
+    readonly doc: "An amount of data.";
+    readonly text: {
+      readonly en: "An amount of data.";
+    };
+  };
+  readonly timePerSample: {
+    readonly word: "time-per-sample";
+    readonly doc: "A processing cost per sample, never a duration.";
+    readonly text: {
+      readonly en: "A processing cost per sample, never a duration.";
+    };
+  };
+};
+
+/**
+ * Where a unit of PARAM_UNITS may be stated (docs/units.md, Q16 ruled: the split is kept): `param`, a unit of the items, the schema's $defs.unit; `descriptor`, a unit only a descriptor's control states, the schema's $defs.descriptorUnit.
+ * @see param/param.json
+ */
+export declare const PARAM_UNIT_SCOPES: {
+  readonly param: {
+    readonly word: "param";
+    readonly doc: "A unit of the items: the schema's $defs.unit, and a descriptor takes it too.";
+    readonly text: {
+      readonly en: "A unit of the items, which a descriptor states too.";
+    };
+  };
+  readonly descriptor: {
+    readonly word: "descriptor";
+    readonly doc: "A unit only a descriptor's control states: the schema's $defs.descriptorUnit.";
+    readonly text: {
+      readonly en: "A unit only a descriptor's control states.";
+    };
+  };
+};
+
+/**
  * The words of CURVE_AXES, in their declared order.
  * @see data/curves.json
  */
@@ -6990,12 +7407,6 @@ export declare const PLUGIN_FEATURE_ANALYZER_WORDS: readonly ["clap.analyzer", "
 export declare const PLUGIN_FEATURE_OTHER_WORDS: readonly ["clap.ambisonic", "clap.mono", "clap.stereo", "clap.surround", "lv2.Constant", "lv2.Function", "lv2.Generator", "lv2.Oscillator", "lv2.Plugin"];
 
 /**
- * The words of PARAM_UNITS, in their declared order.
- * @see data/primitives.json
- */
-export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s"];
-
-/**
  * The words of RESOURCE_KINDS, in their declared order.
  * @see data/resource-profile.json
  */
@@ -7024,6 +7435,24 @@ export declare const RESOURCE_HINTS_WORDS: readonly ["footprint-at-rest", "footp
  * @see data/verbs.json
  */
 export declare const VERB_HOSTS_WORDS: readonly ["plugin-hostd", "omx-clap-host", "mod-host"];
+
+/**
+ * The words of PARAM_UNITS, in their declared order.
+ * @see param/param.json
+ */
+export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag"];
+
+/**
+ * The words of PARAM_UNIT_DIMENSIONS, in their declared order.
+ * @see param/param.json
+ */
+export declare const PARAM_UNIT_DIMENSIONS_WORDS: readonly ["none", "time", "frequency", "gain", "level", "loudness", "pitch", "angle", "length", "tempo", "musical-time", "count", "slope", "rate", "ratio", "information", "time-per-sample"];
+
+/**
+ * The words of PARAM_UNIT_SCOPES, in their declared order.
+ * @see param/param.json
+ */
+export declare const PARAM_UNIT_SCOPES_WORDS: readonly ["param", "descriptor"];
 
 /**
  * The CLAP identifiers (extension ids, factory ids, plugin features, window APIs) by the header's own identifier.

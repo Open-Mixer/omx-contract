@@ -16,7 +16,7 @@ import { CONTRACT_CODES } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { SCHEMA_VERSION } from '../lib/validate.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
 const CLI = join(ROOT, 'bin', 'omx-contract.mjs');
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-owner-requires-'));
@@ -33,6 +33,7 @@ const write = (root, rel, doc) => {
 function contractDir({ clapCore = true } = {}) {
   const root = fresh('contract');
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   if (!clapCore) return root;
   const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap-core');
   write(pdir, 'verbs.json', {

@@ -1,39 +1,39 @@
-db	dB	dB	gain
-dbfs	dBFS	dBFS	level
-ms	ms	ms	time
-s	s	s	time
-min	min	min	time
-hz	Hz	Hz	frequency
-oct	oct	oct	interval
-cents	cents	cents	interval
-st	st	st	interval
-percent	percent	%	fraction
-x	x	x	ratio
-none	none		none
-dbPerOct	dB-oct	dB/oct	slope
-lufs	LUFS	LUFS	loudness
-dbPerS	dB-s	dB/s	gainRate
-dbtp	dBTP	dBTP	level
-dbu	dBu	dBu	level
-lu	LU	LU	loudness
-khz	kHz	kHz	frequency
-mhz	MHz	MHz	frequency
-frames	frames	frames	samples
-bpm	bpm	bpm	tempo
-bar	bar	bar	musicalTime
-beat	beat	beat	musicalTime
-m	m	m	length
-cm	cm	cm	length
-mm	mm	mm	length
-km	km	km	length
-inch	inch	inch	length
-mile	mile	mile	length
-degree	deg	deg	angle
-midiNote	midiNote	midiNote	pitch
-ratio	ratio	ratio	ratio
-coef	coef	coef	ratio
-us	us	us	time
-bytes	bytes	bytes	dataSize
-nsPerSample	ns-per-sample	ns/sample	cpuCost
-plainCount	count	count	count
-flag	flag	flag	flag
+db	dB	dB	gain	param
+dbfs	dBFS	dBFS	level	param
+ms	ms	ms	time	param
+s	s	s	time	param
+min	min	min	time	param
+hz	Hz	Hz	frequency	param
+oct	oct	oct	pitch	param
+cents	cents	cents	pitch	param
+st	st	st	pitch	param
+percent	percent	%	none	param
+x	x	x	none	param
+none	none		none	param
+dbPerOct	dB-oct	dB/oct	slope	param
+lufs	LUFS	LUFS	loudness	param
+dbPerS	dB-s	dB/s	rate	param
+dbtp	dBTP	dBTP	level	descriptor
+dbu	dBu	dBu	level	descriptor
+lu	LU	LU	loudness	descriptor
+khz	kHz	kHz	frequency	descriptor
+mhz	MHz	MHz	frequency	descriptor
+frames	frames	frames	count	descriptor
+bpm	bpm	bpm	tempo	descriptor
+bar	bar	bar	musical-time	descriptor
+beat	beat	beat	musical-time	descriptor
+m	m	m	length	descriptor
+cm	cm	cm	length	descriptor
+mm	mm	mm	length	descriptor
+km	km	km	length	descriptor
+inch	inch	inch	length	descriptor
+mile	mile	mile	length	descriptor
+degree	deg	deg	angle	descriptor
+midiNote	midiNote	midiNote	pitch	descriptor
+ratio	ratio	ratio	ratio	descriptor
+coef	coef	coef	none	descriptor
+us	us	us	time	descriptor
+bytes	bytes	bytes	information	descriptor
+nsPerSample	nsPerSample	ns/sample	time-per-sample	descriptor
+plainCount	plainCount	count	count	descriptor
+flag	flag	flag	none	descriptor

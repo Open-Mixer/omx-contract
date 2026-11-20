@@ -348,12 +348,15 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     kernels.set(k, `${f.pkg} (${f.rel})`);
   }
 
+  // the package that owns `pkg`: a domain's info.x-owner, a package itself
+  const ownerOf = (pkg) => packages.get(pkg)?.manifest.owner ?? pkg;
   for (const f of files) {
     const req = f.doc.requires ?? {};
     for (const [name, where] of referencesOf(f.rel, f.doc)) {
       const target = items.get(name);
       if (!target) refuse('refUnresolved', f.rel, `${where}: refers to ${name}, which no installed file declares`);
-      if (target.pkg !== f.pkg && target.pkg !== SCHEMA_PACKAGE && !(target.pkg in req)) {
+      // omx-contract's items, its data's or a domain's it owns, are every package's to name
+      if (target.pkg !== f.pkg && target.pkg !== SCHEMA_PACKAGE && ownerOf(target.pkg) !== SCHEMA_PACKAGE && !(target.pkg in req)) {
         refuse('refUndeclared', f.rel, `${where}: refers to ${name} of ${target.pkg}, which its requires does not name`);
       }
     }

@@ -20,7 +20,7 @@ import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs'
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT, resolvedOf, texts } from './helpers.mjs';
+import { DATA, installParamDomain, resolvedOf, ROOT, texts } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-verbs-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -43,6 +43,7 @@ const install = (pkg, from, root, version = '1.0.0') => execFileSync('sh', [join
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   install(PKG, FIXTURE, root);
   return root;
 }
@@ -74,6 +75,7 @@ function refusalOf(root) {
 function brokenDir(edit, extra = () => {}) {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   install(PKG, fixtureWith(edit), root);
   extra(root);
   return root;

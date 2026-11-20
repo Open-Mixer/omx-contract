@@ -1061,118 +1061,6 @@
         }
       }
     },
-    "PARAM_UNITS": {
-      "description": "The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit).",
-      "enum": [
-        "dB",
-        "dBFS",
-        "ms",
-        "s",
-        "min",
-        "Hz",
-        "oct",
-        "cents",
-        "st",
-        "percent",
-        "x",
-        "none",
-        "dB-oct",
-        "LUFS",
-        "dB-s"
-      ],
-      "x-omx-texts": {
-        "dB": {
-          "text": {
-            "en": "Decibels, a gain or a level relative to unity."
-          },
-          "args": []
-        },
-        "dBFS": {
-          "text": {
-            "en": "Decibels relative to digital full scale."
-          },
-          "args": []
-        },
-        "ms": {
-          "text": {
-            "en": "Milliseconds."
-          },
-          "args": []
-        },
-        "s": {
-          "text": {
-            "en": "Seconds."
-          },
-          "args": []
-        },
-        "min": {
-          "text": {
-            "en": "Minutes."
-          },
-          "args": []
-        },
-        "Hz": {
-          "text": {
-            "en": "Hertz, a frequency."
-          },
-          "args": []
-        },
-        "oct": {
-          "text": {
-            "en": "Octaves, a bandwidth or an interval."
-          },
-          "args": []
-        },
-        "cents": {
-          "text": {
-            "en": "Cents, a hundredth of a semitone."
-          },
-          "args": []
-        },
-        "st": {
-          "text": {
-            "en": "Semitones."
-          },
-          "args": []
-        },
-        "percent": {
-          "text": {
-            "en": "Percent."
-          },
-          "args": []
-        },
-        "x": {
-          "text": {
-            "en": "A multiplier."
-          },
-          "args": []
-        },
-        "none": {
-          "text": {
-            "en": "No unit: a ratio or a fraction."
-          },
-          "args": []
-        },
-        "dB-oct": {
-          "text": {
-            "en": "A slope in dB per octave (a tilt)."
-          },
-          "args": []
-        },
-        "LUFS": {
-          "text": {
-            "en": "A loudness (ITU-R BS.1770)."
-          },
-          "args": []
-        },
-        "dB-s": {
-          "text": {
-            "en": "A gain change per second."
-          },
-          "args": []
-        }
-      }
-    },
     "RESOURCE_KINDS": {
       "description": "Every resource a host plans a plugin for (FreeMixer/plugin-qualify#116): each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.",
       "enum": [
@@ -1455,6 +1343,433 @@
         "mod-host": {
           "text": {
             "en": "mod-host, the LV2 host whose protocol the others speak."
+          },
+          "args": []
+        }
+      }
+    },
+    "PARAM_UNITS": {
+      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
+      "enum": [
+        "dB",
+        "dBFS",
+        "ms",
+        "s",
+        "min",
+        "Hz",
+        "oct",
+        "cents",
+        "st",
+        "percent",
+        "x",
+        "none",
+        "dB-oct",
+        "LUFS",
+        "dB-s",
+        "dBTP",
+        "dBu",
+        "LU",
+        "kHz",
+        "MHz",
+        "frames",
+        "bpm",
+        "bar",
+        "beat",
+        "m",
+        "cm",
+        "mm",
+        "km",
+        "inch",
+        "mile",
+        "deg",
+        "midiNote",
+        "ratio",
+        "coef",
+        "us",
+        "bytes",
+        "nsPerSample",
+        "plainCount",
+        "flag"
+      ],
+      "x-omx-texts": {
+        "dB": {
+          "text": {
+            "en": "Decibels, a gain or a level relative to unity."
+          },
+          "args": []
+        },
+        "dBFS": {
+          "text": {
+            "en": "Decibels relative to digital full scale."
+          },
+          "args": []
+        },
+        "ms": {
+          "text": {
+            "en": "Milliseconds."
+          },
+          "args": []
+        },
+        "s": {
+          "text": {
+            "en": "Seconds."
+          },
+          "args": []
+        },
+        "min": {
+          "text": {
+            "en": "Minutes."
+          },
+          "args": []
+        },
+        "Hz": {
+          "text": {
+            "en": "Hertz, a frequency."
+          },
+          "args": []
+        },
+        "oct": {
+          "text": {
+            "en": "Octaves, a bandwidth or an interval."
+          },
+          "args": []
+        },
+        "cents": {
+          "text": {
+            "en": "Cents, a hundredth of a semitone."
+          },
+          "args": []
+        },
+        "st": {
+          "text": {
+            "en": "Semitones."
+          },
+          "args": []
+        },
+        "percent": {
+          "text": {
+            "en": "Percent."
+          },
+          "args": []
+        },
+        "x": {
+          "text": {
+            "en": "A multiplier."
+          },
+          "args": []
+        },
+        "none": {
+          "text": {
+            "en": "No unit: a ratio or a fraction."
+          },
+          "args": []
+        },
+        "dB-oct": {
+          "text": {
+            "en": "A slope in dB per octave (a tilt)."
+          },
+          "args": []
+        },
+        "LUFS": {
+          "text": {
+            "en": "A loudness (ITU-R BS.1770)."
+          },
+          "args": []
+        },
+        "dB-s": {
+          "text": {
+            "en": "A gain change per second."
+          },
+          "args": []
+        },
+        "dBTP": {
+          "text": {
+            "en": "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+          },
+          "args": []
+        },
+        "dBu": {
+          "text": {
+            "en": "Decibels relative to 0.7746 volts RMS, an analogue level."
+          },
+          "args": []
+        },
+        "LU": {
+          "text": {
+            "en": "Loudness units, a loudness difference or range (EBU R 128)."
+          },
+          "args": []
+        },
+        "kHz": {
+          "text": {
+            "en": "Kilohertz, a frequency."
+          },
+          "args": []
+        },
+        "MHz": {
+          "text": {
+            "en": "Megahertz, a frequency."
+          },
+          "args": []
+        },
+        "frames": {
+          "text": {
+            "en": "Audio frames, one sample on each channel."
+          },
+          "args": []
+        },
+        "bpm": {
+          "text": {
+            "en": "Beats per minute, a tempo."
+          },
+          "args": []
+        },
+        "bar": {
+          "text": {
+            "en": "Bars, a musical length."
+          },
+          "args": []
+        },
+        "beat": {
+          "text": {
+            "en": "Beats, a musical length."
+          },
+          "args": []
+        },
+        "m": {
+          "text": {
+            "en": "Metres, a length."
+          },
+          "args": []
+        },
+        "cm": {
+          "text": {
+            "en": "Centimetres, a length."
+          },
+          "args": []
+        },
+        "mm": {
+          "text": {
+            "en": "Millimetres, a length."
+          },
+          "args": []
+        },
+        "km": {
+          "text": {
+            "en": "Kilometres, a length."
+          },
+          "args": []
+        },
+        "inch": {
+          "text": {
+            "en": "Inches, a length."
+          },
+          "args": []
+        },
+        "mile": {
+          "text": {
+            "en": "Miles, a length."
+          },
+          "args": []
+        },
+        "deg": {
+          "text": {
+            "en": "Degrees, an angle."
+          },
+          "args": []
+        },
+        "midiNote": {
+          "text": {
+            "en": "A MIDI note number."
+          },
+          "args": []
+        },
+        "ratio": {
+          "text": {
+            "en": "A ratio n:1, a compressor's or an expander's."
+          },
+          "args": []
+        },
+        "coef": {
+          "text": {
+            "en": "A coefficient, a plain multiplier with no unit of its own."
+          },
+          "args": []
+        },
+        "us": {
+          "text": {
+            "en": "Microseconds."
+          },
+          "args": []
+        },
+        "bytes": {
+          "text": {
+            "en": "Bytes."
+          },
+          "args": []
+        },
+        "nsPerSample": {
+          "text": {
+            "en": "Nanoseconds per sample, a processing cost."
+          },
+          "args": []
+        },
+        "plainCount": {
+          "text": {
+            "en": "A plain count, with no unit."
+          },
+          "args": []
+        },
+        "flag": {
+          "text": {
+            "en": "A yes or a no: one when on, zero when off."
+          },
+          "args": []
+        }
+      }
+    },
+    "PARAM_UNIT_DIMENSIONS": {
+      "description": "What a unit of PARAM_UNITS measures (docs/units.md, The dimensions): two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in. The word `count` has the key `counted`: OMX_PARAM_UNIT_DIMENSIONS_COUNT is the number of words.",
+      "enum": [
+        "none",
+        "time",
+        "frequency",
+        "gain",
+        "level",
+        "loudness",
+        "pitch",
+        "angle",
+        "length",
+        "tempo",
+        "musical-time",
+        "count",
+        "slope",
+        "rate",
+        "ratio",
+        "information",
+        "time-per-sample"
+      ],
+      "x-omx-texts": {
+        "none": {
+          "text": {
+            "en": "No dimension: a plain number, a multiplier or a yes or a no."
+          },
+          "args": []
+        },
+        "time": {
+          "text": {
+            "en": "A time."
+          },
+          "args": []
+        },
+        "frequency": {
+          "text": {
+            "en": "A frequency."
+          },
+          "args": []
+        },
+        "gain": {
+          "text": {
+            "en": "A gain: a level relative to another."
+          },
+          "args": []
+        },
+        "level": {
+          "text": {
+            "en": "A level against a fixed reference."
+          },
+          "args": []
+        },
+        "loudness": {
+          "text": {
+            "en": "A loudness or a loudness difference."
+          },
+          "args": []
+        },
+        "pitch": {
+          "text": {
+            "en": "A pitch or a pitch interval."
+          },
+          "args": []
+        },
+        "angle": {
+          "text": {
+            "en": "An angle."
+          },
+          "args": []
+        },
+        "length": {
+          "text": {
+            "en": "A length in space."
+          },
+          "args": []
+        },
+        "tempo": {
+          "text": {
+            "en": "A tempo."
+          },
+          "args": []
+        },
+        "musical-time": {
+          "text": {
+            "en": "A length in musical time; it depends on the meter."
+          },
+          "args": []
+        },
+        "count": {
+          "text": {
+            "en": "A number of things."
+          },
+          "args": []
+        },
+        "slope": {
+          "text": {
+            "en": "A change of level per octave."
+          },
+          "args": []
+        },
+        "rate": {
+          "text": {
+            "en": "A change of gain per unit of time."
+          },
+          "args": []
+        },
+        "ratio": {
+          "text": {
+            "en": "A ratio n:1."
+          },
+          "args": []
+        },
+        "information": {
+          "text": {
+            "en": "An amount of data."
+          },
+          "args": []
+        },
+        "time-per-sample": {
+          "text": {
+            "en": "A processing cost per sample, never a duration."
+          },
+          "args": []
+        }
+      }
+    },
+    "PARAM_UNIT_SCOPES": {
+      "description": "Where a unit of PARAM_UNITS may be stated (docs/units.md, Q16 ruled: the split is kept): `param`, a unit of the items, the schema's $defs.unit; `descriptor`, a unit only a descriptor's control states, the schema's $defs.descriptorUnit.",
+      "enum": [
+        "param",
+        "descriptor"
+      ],
+      "x-omx-texts": {
+        "param": {
+          "text": {
+            "en": "A unit of the items, which a descriptor states too."
+          },
+          "args": []
+        },
+        "descriptor": {
+          "text": {
+            "en": "A unit only a descriptor's control states."
           },
           "args": []
         }

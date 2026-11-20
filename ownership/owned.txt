@@ -83,6 +83,8 @@ LV2_URID_TERMS
 LV2_WORKER_TERMS
 PARAM_SCALES
 PARAM_UNITS
+PARAM_UNIT_DIMENSIONS
+PARAM_UNIT_SCOPES
 CONTRACT_CODES
 schema/omx-contract.schema.json#/else/propertyNames/anyOf/0/enum
 schema/omx-contract.schema.json#/$defs/unit/enum

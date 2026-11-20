@@ -89,6 +89,7 @@ install: all
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
 	sh tools/install-contract-dir.sh -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
 	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR)
+	sh tools/install-contract-dir.sh --domain contract.d/param $(DESTDIR)$(CONTRACTDIR)
 	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' -e 's|@VERSION@|$(VERSION)|' \
 	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' -e 's|@CLIDIR@|$(CLIDIR)|' \
 	  omx-contract.pc.in > $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
@@ -104,7 +105,7 @@ install-rpm-macros: all
 
 install-cli: all build-lib
 	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema \
-	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(CLIDIR)/contract.d/contract $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
+	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(CLIDIR)/contract.d/contract $(DESTDIR)$(CLIDIR)/contract.d/param $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 bin/omx-contract.mjs $(DESTDIR)$(CLIDIR)/bin/
 	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
@@ -112,6 +113,7 @@ install-cli: all build-lib
 	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
 	install -m 0644 contract.d/contract/contract.json $(DESTDIR)$(CLIDIR)/contract.d/contract/
+	install -m 0644 contract.d/param/param.json $(DESTDIR)$(CLIDIR)/contract.d/param/
 	install -m 0644 package.json $(DESTDIR)$(CLIDIR)/
 	for t in vendor/*.tgz; do \
 	  m=$$(basename $$t .tgz | sed 's/-[0-9][^-]*$$//'); \

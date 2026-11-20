@@ -7499,145 +7499,6 @@ export const PLUGIN_FEATURE_OTHER = {
 };
 
 /**
- * How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.
- * @see data/primitives.json
- */
-export const PARAM_SCALES = [
-  "linear",
-  "log",
-  "stepped"
-];
-
-/**
- * The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit).
- *
- * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
- * @see data/primitives.json
- */
-export const PARAM_UNITS = {
-  "db": {
-    "word": "dB",
-    "symbol": "dB",
-    "doc": "Decibels, a gain or a level relative to unity.",
-    "text": {
-      "en": "Decibels, a gain or a level relative to unity."
-    }
-  },
-  "dbfs": {
-    "word": "dBFS",
-    "symbol": "dBFS",
-    "doc": "Decibels relative to digital full scale.",
-    "text": {
-      "en": "Decibels relative to digital full scale."
-    }
-  },
-  "ms": {
-    "word": "ms",
-    "symbol": "ms",
-    "doc": "Milliseconds.",
-    "text": {
-      "en": "Milliseconds."
-    }
-  },
-  "s": {
-    "word": "s",
-    "symbol": "s",
-    "doc": "Seconds.",
-    "text": {
-      "en": "Seconds."
-    }
-  },
-  "min": {
-    "word": "min",
-    "symbol": "min",
-    "doc": "Minutes.",
-    "text": {
-      "en": "Minutes."
-    }
-  },
-  "hz": {
-    "word": "Hz",
-    "symbol": "Hz",
-    "doc": "Hertz, a frequency.",
-    "text": {
-      "en": "Hertz, a frequency."
-    }
-  },
-  "oct": {
-    "word": "oct",
-    "symbol": "oct",
-    "doc": "Octaves, a bandwidth or an interval.",
-    "text": {
-      "en": "Octaves, a bandwidth or an interval."
-    }
-  },
-  "cents": {
-    "word": "cents",
-    "symbol": "cents",
-    "doc": "Cents, a hundredth of a semitone.",
-    "text": {
-      "en": "Cents, a hundredth of a semitone."
-    }
-  },
-  "st": {
-    "word": "st",
-    "symbol": "st",
-    "doc": "Semitones.",
-    "text": {
-      "en": "Semitones."
-    }
-  },
-  "percent": {
-    "word": "percent",
-    "symbol": "%",
-    "doc": "Percent.",
-    "text": {
-      "en": "Percent."
-    }
-  },
-  "x": {
-    "word": "x",
-    "symbol": "x",
-    "doc": "A multiplier.",
-    "text": {
-      "en": "A multiplier."
-    }
-  },
-  "none": {
-    "word": "none",
-    "symbol": "",
-    "doc": "No unit: a ratio or a fraction.",
-    "text": {
-      "en": "No unit: a ratio or a fraction."
-    }
-  },
-  "dbPerOct": {
-    "word": "dB-oct",
-    "symbol": "dB/oct",
-    "doc": "A slope in dB per octave (a tilt).",
-    "text": {
-      "en": "A slope in dB per octave (a tilt)."
-    }
-  },
-  "lufs": {
-    "word": "LUFS",
-    "symbol": "LUFS",
-    "doc": "A loudness (ITU-R BS.1770).",
-    "text": {
-      "en": "A loudness (ITU-R BS.1770)."
-    }
-  },
-  "dbPerS": {
-    "word": "dB-s",
-    "symbol": "dB/s",
-    "doc": "A gain change per second.",
-    "text": {
-      "en": "A gain change per second."
-    }
-  }
-};
-
-/**
  * How often a readout's value is published: 50 Hz, one value every 20 ms, the rate a host sends a moving meter at. Every readout reads it as its `rateHz` (docs/readouts.md).
  * @see data/primitives.json
  */
@@ -8045,6 +7906,562 @@ export const VERB_HOSTS = {
 };
 
 /**
+ * How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.
+ * @see param/param.json
+ */
+export const PARAM_SCALES = [
+  "linear",
+  "log",
+  "stepped"
+];
+
+/**
+ * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
+ *
+ * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
+ * @see param/param.json
+ */
+export const PARAM_UNITS = {
+  "db": {
+    "word": "dB",
+    "symbol": "dB",
+    "dimension": "gain",
+    "group": "param",
+    "doc": "Decibels, a gain or a level relative to unity.",
+    "text": {
+      "en": "Decibels, a gain or a level relative to unity."
+    }
+  },
+  "dbfs": {
+    "word": "dBFS",
+    "symbol": "dBFS",
+    "dimension": "level",
+    "group": "param",
+    "doc": "Decibels relative to digital full scale.",
+    "text": {
+      "en": "Decibels relative to digital full scale."
+    }
+  },
+  "ms": {
+    "word": "ms",
+    "symbol": "ms",
+    "dimension": "time",
+    "group": "param",
+    "doc": "Milliseconds.",
+    "text": {
+      "en": "Milliseconds."
+    }
+  },
+  "s": {
+    "word": "s",
+    "symbol": "s",
+    "dimension": "time",
+    "group": "param",
+    "doc": "Seconds.",
+    "text": {
+      "en": "Seconds."
+    }
+  },
+  "min": {
+    "word": "min",
+    "symbol": "min",
+    "dimension": "time",
+    "group": "param",
+    "doc": "Minutes.",
+    "text": {
+      "en": "Minutes."
+    }
+  },
+  "hz": {
+    "word": "Hz",
+    "symbol": "Hz",
+    "dimension": "frequency",
+    "group": "param",
+    "doc": "Hertz, a frequency.",
+    "text": {
+      "en": "Hertz, a frequency."
+    }
+  },
+  "oct": {
+    "word": "oct",
+    "symbol": "oct",
+    "dimension": "pitch",
+    "group": "param",
+    "doc": "Octaves, a bandwidth or an interval.",
+    "text": {
+      "en": "Octaves, a bandwidth or an interval."
+    }
+  },
+  "cents": {
+    "word": "cents",
+    "symbol": "cents",
+    "dimension": "pitch",
+    "group": "param",
+    "doc": "Cents, a hundredth of a semitone.",
+    "text": {
+      "en": "Cents, a hundredth of a semitone."
+    }
+  },
+  "st": {
+    "word": "st",
+    "symbol": "st",
+    "dimension": "pitch",
+    "group": "param",
+    "doc": "Semitones.",
+    "text": {
+      "en": "Semitones."
+    }
+  },
+  "percent": {
+    "word": "percent",
+    "symbol": "%",
+    "dimension": "none",
+    "group": "param",
+    "doc": "Percent.",
+    "text": {
+      "en": "Percent."
+    }
+  },
+  "x": {
+    "word": "x",
+    "symbol": "x",
+    "dimension": "none",
+    "group": "param",
+    "doc": "A multiplier.",
+    "text": {
+      "en": "A multiplier."
+    }
+  },
+  "none": {
+    "word": "none",
+    "symbol": "",
+    "dimension": "none",
+    "group": "param",
+    "doc": "No unit: a ratio or a fraction.",
+    "text": {
+      "en": "No unit: a ratio or a fraction."
+    }
+  },
+  "dbPerOct": {
+    "word": "dB-oct",
+    "symbol": "dB/oct",
+    "dimension": "slope",
+    "group": "param",
+    "doc": "A slope in dB per octave (a tilt).",
+    "text": {
+      "en": "A slope in dB per octave (a tilt)."
+    }
+  },
+  "lufs": {
+    "word": "LUFS",
+    "symbol": "LUFS",
+    "dimension": "loudness",
+    "group": "param",
+    "doc": "A loudness (ITU-R BS.1770).",
+    "text": {
+      "en": "A loudness (ITU-R BS.1770)."
+    }
+  },
+  "dbPerS": {
+    "word": "dB-s",
+    "symbol": "dB/s",
+    "dimension": "rate",
+    "group": "param",
+    "doc": "A gain change per second.",
+    "text": {
+      "en": "A gain change per second."
+    }
+  },
+  "dbtp": {
+    "word": "dBTP",
+    "symbol": "dBTP",
+    "dimension": "level",
+    "group": "descriptor",
+    "doc": "Decibels true peak, a level measured between the samples (ITU-R BS.1770).",
+    "text": {
+      "en": "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+    }
+  },
+  "dbu": {
+    "word": "dBu",
+    "symbol": "dBu",
+    "dimension": "level",
+    "group": "descriptor",
+    "doc": "Decibels relative to 0.7746 volts RMS, an analogue level.",
+    "text": {
+      "en": "Decibels relative to 0.7746 volts RMS, an analogue level."
+    }
+  },
+  "lu": {
+    "word": "LU",
+    "symbol": "LU",
+    "dimension": "loudness",
+    "group": "descriptor",
+    "doc": "Loudness units, a loudness difference or range (EBU R 128).",
+    "text": {
+      "en": "Loudness units, a loudness difference or range (EBU R 128)."
+    }
+  },
+  "khz": {
+    "word": "kHz",
+    "symbol": "kHz",
+    "dimension": "frequency",
+    "group": "descriptor",
+    "doc": "Kilohertz, a frequency.",
+    "text": {
+      "en": "Kilohertz, a frequency."
+    }
+  },
+  "mhz": {
+    "word": "MHz",
+    "symbol": "MHz",
+    "dimension": "frequency",
+    "group": "descriptor",
+    "doc": "Megahertz, a frequency.",
+    "text": {
+      "en": "Megahertz, a frequency."
+    }
+  },
+  "frames": {
+    "word": "frames",
+    "symbol": "frames",
+    "dimension": "count",
+    "group": "descriptor",
+    "doc": "Audio frames, one sample on each channel.",
+    "text": {
+      "en": "Audio frames, one sample on each channel."
+    }
+  },
+  "bpm": {
+    "word": "bpm",
+    "symbol": "bpm",
+    "dimension": "tempo",
+    "group": "descriptor",
+    "doc": "Beats per minute, a tempo.",
+    "text": {
+      "en": "Beats per minute, a tempo."
+    }
+  },
+  "bar": {
+    "word": "bar",
+    "symbol": "bar",
+    "dimension": "musical-time",
+    "group": "descriptor",
+    "doc": "Bars, a musical length.",
+    "text": {
+      "en": "Bars, a musical length."
+    }
+  },
+  "beat": {
+    "word": "beat",
+    "symbol": "beat",
+    "dimension": "musical-time",
+    "group": "descriptor",
+    "doc": "Beats, a musical length.",
+    "text": {
+      "en": "Beats, a musical length."
+    }
+  },
+  "m": {
+    "word": "m",
+    "symbol": "m",
+    "dimension": "length",
+    "group": "descriptor",
+    "doc": "Metres, a length.",
+    "text": {
+      "en": "Metres, a length."
+    }
+  },
+  "cm": {
+    "word": "cm",
+    "symbol": "cm",
+    "dimension": "length",
+    "group": "descriptor",
+    "doc": "Centimetres, a length.",
+    "text": {
+      "en": "Centimetres, a length."
+    }
+  },
+  "mm": {
+    "word": "mm",
+    "symbol": "mm",
+    "dimension": "length",
+    "group": "descriptor",
+    "doc": "Millimetres, a length.",
+    "text": {
+      "en": "Millimetres, a length."
+    }
+  },
+  "km": {
+    "word": "km",
+    "symbol": "km",
+    "dimension": "length",
+    "group": "descriptor",
+    "doc": "Kilometres, a length.",
+    "text": {
+      "en": "Kilometres, a length."
+    }
+  },
+  "inch": {
+    "word": "inch",
+    "symbol": "inch",
+    "dimension": "length",
+    "group": "descriptor",
+    "doc": "Inches, a length.",
+    "text": {
+      "en": "Inches, a length."
+    }
+  },
+  "mile": {
+    "word": "mile",
+    "symbol": "mile",
+    "dimension": "length",
+    "group": "descriptor",
+    "doc": "Miles, a length.",
+    "text": {
+      "en": "Miles, a length."
+    }
+  },
+  "degree": {
+    "word": "deg",
+    "symbol": "deg",
+    "dimension": "angle",
+    "group": "descriptor",
+    "doc": "Degrees, an angle.",
+    "text": {
+      "en": "Degrees, an angle."
+    }
+  },
+  "midiNote": {
+    "word": "midiNote",
+    "symbol": "midiNote",
+    "dimension": "pitch",
+    "group": "descriptor",
+    "doc": "A MIDI note number.",
+    "text": {
+      "en": "A MIDI note number."
+    }
+  },
+  "ratio": {
+    "word": "ratio",
+    "symbol": "ratio",
+    "dimension": "ratio",
+    "group": "descriptor",
+    "doc": "A ratio n:1, a compressor's or an expander's.",
+    "text": {
+      "en": "A ratio n:1, a compressor's or an expander's."
+    }
+  },
+  "coef": {
+    "word": "coef",
+    "symbol": "coef",
+    "dimension": "none",
+    "group": "descriptor",
+    "doc": "A coefficient, a plain multiplier with no unit of its own.",
+    "text": {
+      "en": "A coefficient, a plain multiplier with no unit of its own."
+    }
+  },
+  "us": {
+    "word": "us",
+    "symbol": "us",
+    "dimension": "time",
+    "group": "descriptor",
+    "doc": "Microseconds.",
+    "text": {
+      "en": "Microseconds."
+    }
+  },
+  "bytes": {
+    "word": "bytes",
+    "symbol": "bytes",
+    "dimension": "information",
+    "group": "descriptor",
+    "doc": "Bytes.",
+    "text": {
+      "en": "Bytes."
+    }
+  },
+  "nsPerSample": {
+    "word": "nsPerSample",
+    "symbol": "ns/sample",
+    "dimension": "time-per-sample",
+    "group": "descriptor",
+    "doc": "Nanoseconds per sample, a processing cost.",
+    "text": {
+      "en": "Nanoseconds per sample, a processing cost."
+    }
+  },
+  "plainCount": {
+    "word": "plainCount",
+    "symbol": "count",
+    "dimension": "count",
+    "group": "descriptor",
+    "doc": "A plain count, with no unit.",
+    "text": {
+      "en": "A plain count, with no unit."
+    }
+  },
+  "flag": {
+    "word": "flag",
+    "symbol": "flag",
+    "dimension": "none",
+    "group": "descriptor",
+    "doc": "A yes or a no: one when on, zero when off.",
+    "text": {
+      "en": "A yes or a no: one when on, zero when off."
+    }
+  }
+};
+
+/**
+ * What a unit of PARAM_UNITS measures (docs/units.md, The dimensions): two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in. The word `count` has the key `counted`: OMX_PARAM_UNIT_DIMENSIONS_COUNT is the number of words.
+ * @see param/param.json
+ */
+export const PARAM_UNIT_DIMENSIONS = {
+  "none": {
+    "word": "none",
+    "doc": "No dimension: a plain number, a multiplier or a yes or a no.",
+    "text": {
+      "en": "No dimension: a plain number, a multiplier or a yes or a no."
+    }
+  },
+  "time": {
+    "word": "time",
+    "doc": "A time.",
+    "text": {
+      "en": "A time."
+    }
+  },
+  "frequency": {
+    "word": "frequency",
+    "doc": "A frequency.",
+    "text": {
+      "en": "A frequency."
+    }
+  },
+  "gain": {
+    "word": "gain",
+    "doc": "A gain: a level relative to another.",
+    "text": {
+      "en": "A gain: a level relative to another."
+    }
+  },
+  "level": {
+    "word": "level",
+    "doc": "A level against a fixed reference.",
+    "text": {
+      "en": "A level against a fixed reference."
+    }
+  },
+  "loudness": {
+    "word": "loudness",
+    "doc": "A loudness or a loudness difference.",
+    "text": {
+      "en": "A loudness or a loudness difference."
+    }
+  },
+  "pitch": {
+    "word": "pitch",
+    "doc": "A pitch or a pitch interval.",
+    "text": {
+      "en": "A pitch or a pitch interval."
+    }
+  },
+  "angle": {
+    "word": "angle",
+    "doc": "An angle.",
+    "text": {
+      "en": "An angle."
+    }
+  },
+  "length": {
+    "word": "length",
+    "doc": "A length in space.",
+    "text": {
+      "en": "A length in space."
+    }
+  },
+  "tempo": {
+    "word": "tempo",
+    "doc": "A tempo.",
+    "text": {
+      "en": "A tempo."
+    }
+  },
+  "musicalTime": {
+    "word": "musical-time",
+    "doc": "A length in musical time; it depends on the meter.",
+    "text": {
+      "en": "A length in musical time; it depends on the meter."
+    }
+  },
+  "counted": {
+    "word": "count",
+    "doc": "A number of things (frames, a plain count).",
+    "text": {
+      "en": "A number of things."
+    }
+  },
+  "slope": {
+    "word": "slope",
+    "doc": "A change of level per octave.",
+    "text": {
+      "en": "A change of level per octave."
+    }
+  },
+  "rate": {
+    "word": "rate",
+    "doc": "A change of gain per unit of time.",
+    "text": {
+      "en": "A change of gain per unit of time."
+    }
+  },
+  "ratio": {
+    "word": "ratio",
+    "doc": "A ratio n:1.",
+    "text": {
+      "en": "A ratio n:1."
+    }
+  },
+  "information": {
+    "word": "information",
+    "doc": "An amount of data.",
+    "text": {
+      "en": "An amount of data."
+    }
+  },
+  "timePerSample": {
+    "word": "time-per-sample",
+    "doc": "A processing cost per sample, never a duration.",
+    "text": {
+      "en": "A processing cost per sample, never a duration."
+    }
+  }
+};
+
+/**
+ * Where a unit of PARAM_UNITS may be stated (docs/units.md, Q16 ruled: the split is kept): `param`, a unit of the items, the schema's $defs.unit; `descriptor`, a unit only a descriptor's control states, the schema's $defs.descriptorUnit.
+ * @see param/param.json
+ */
+export const PARAM_UNIT_SCOPES = {
+  "param": {
+    "word": "param",
+    "doc": "A unit of the items: the schema's $defs.unit, and a descriptor takes it too.",
+    "text": {
+      "en": "A unit of the items, which a descriptor states too."
+    }
+  },
+  "descriptor": {
+    "word": "descriptor",
+    "doc": "A unit only a descriptor's control states: the schema's $defs.descriptorUnit.",
+    "text": {
+      "en": "A unit only a descriptor's control states."
+    }
+  }
+};
+
+/**
  * The words of CURVE_AXES, in their declared order.
  * @see data/curves.json
  */
@@ -8274,28 +8691,6 @@ export const PLUGIN_FEATURE_OTHER_WORDS = [
 ];
 
 /**
- * The words of PARAM_UNITS, in their declared order.
- * @see data/primitives.json
- */
-export const PARAM_UNITS_WORDS = [
-  "dB",
-  "dBFS",
-  "ms",
-  "s",
-  "min",
-  "Hz",
-  "oct",
-  "cents",
-  "st",
-  "percent",
-  "x",
-  "none",
-  "dB-oct",
-  "LUFS",
-  "dB-s"
-];
-
-/**
  * The words of RESOURCE_KINDS, in their declared order.
  * @see data/resource-profile.json
  */
@@ -8364,6 +8759,85 @@ export const VERB_HOSTS_WORDS = [
   "plugin-hostd",
   "omx-clap-host",
   "mod-host"
+];
+
+/**
+ * The words of PARAM_UNITS, in their declared order.
+ * @see param/param.json
+ */
+export const PARAM_UNITS_WORDS = [
+  "dB",
+  "dBFS",
+  "ms",
+  "s",
+  "min",
+  "Hz",
+  "oct",
+  "cents",
+  "st",
+  "percent",
+  "x",
+  "none",
+  "dB-oct",
+  "LUFS",
+  "dB-s",
+  "dBTP",
+  "dBu",
+  "LU",
+  "kHz",
+  "MHz",
+  "frames",
+  "bpm",
+  "bar",
+  "beat",
+  "m",
+  "cm",
+  "mm",
+  "km",
+  "inch",
+  "mile",
+  "deg",
+  "midiNote",
+  "ratio",
+  "coef",
+  "us",
+  "bytes",
+  "nsPerSample",
+  "plainCount",
+  "flag"
+];
+
+/**
+ * The words of PARAM_UNIT_DIMENSIONS, in their declared order.
+ * @see param/param.json
+ */
+export const PARAM_UNIT_DIMENSIONS_WORDS = [
+  "none",
+  "time",
+  "frequency",
+  "gain",
+  "level",
+  "loudness",
+  "pitch",
+  "angle",
+  "length",
+  "tempo",
+  "musical-time",
+  "count",
+  "slope",
+  "rate",
+  "ratio",
+  "information",
+  "time-per-sample"
+];
+
+/**
+ * The words of PARAM_UNIT_SCOPES, in their declared order.
+ * @see param/param.json
+ */
+export const PARAM_UNIT_SCOPES_WORDS = [
+  "param",
+  "descriptor"
 ];
 
 /**

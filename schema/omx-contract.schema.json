@@ -24,8 +24,8 @@
       "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "%", "x", "", "dB/oct", "LUFS", "dB/s"]
     },
     "descriptorUnit": {
-      "description": "A descriptor's unit: a unit of the items, a unit only plugins use (frames, bpm, midiNote, LUFS, deg, ratio, dBTP, LU: LV2 units:frame, units:bpm, units:midiNote, units:degree; LUFS, ratio, n:1, dBTP (true peak) and LU (loudness range) have no LV2 unit), or unknown, the plugin states none (docs/descriptors.md).",
-      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["frames", "bpm", "midiNote", "LUFS", "deg", "ratio", "dBTP", "LU", "unknown"] }]
+      "description": "A descriptor's unit: a unit of the items ($defs.unit), a unit of PARAM_UNITS of scope descriptor, which only a descriptor's control states (rendered from the param domain by tools/unit-enum.mjs, docs/units.md), or unknown, the plugin states none (docs/descriptors.md).",
+      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
     },
     "meaning": {
       "description": "What a control does, the closed list seeded from the panel roles; the LV2 param: or lv2:designation name where LV2 has the term (docs/descriptors.md). unknown: the plugin states none.",

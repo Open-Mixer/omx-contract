@@ -59,6 +59,8 @@ export function scratchUnion() {
   // groups, text and args take this copy of them as their fixture
   cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(dir, 'data/measurement.json'));
   cpSync(join(ROOT, 'schema'), join(dir, 'schema'), { recursive: true });
+  // the standard parameter words are omx-contract's `param` domain, read beside data/ (lib/data.mjs TREE_DOMAINS)
+  cpSync(join(ROOT, 'contract.d/param'), join(dir, 'contract.d/param'), { recursive: true });
   return join(dir, 'data');
 }
 
@@ -157,4 +159,9 @@ export function packedFiles() {
   writeFileSync(join(stage, 'package.json'), JSON.stringify(pkg, null, 2));
   const out = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: stage, stdio: ['ignore', 'pipe', 'pipe'] });
   return JSON.parse(out)[0].files.map((f) => f.path);
+}
+
+/** The `param` domain (the standard parameter words) installed into the contract directory `root`, as `make install` does beside data/. */
+export function installParamDomain(root) {
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '--domain', join(ROOT, 'contract.d/param'), root], { stdio: 'ignore' });
 }

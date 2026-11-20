@@ -253,6 +253,8 @@ export function renderTarget(target, argv) {
       if (target === 'c') return domainCodesC(resolved, pkg, marked);
       throw new Usage(`${pkg} is a domain: it renders its codes header only (--target c), its words are read at run time`);
     }
+    // the reader's own table renders only as the contract domain's codes header (above), never in its owner's
+    resolved.delete(TOOL_TABLE);
     if (target === 'c') return renderC(resolved, { pkg });
     if (target === 'ts') return renderOwnerTs(resolved, pkg, files);
     throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');

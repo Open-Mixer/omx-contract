@@ -4,9 +4,31 @@
  * The declaration as data: load every `data/**.json` file, then resolve each item's references
  * and derivations into plain values. The renderers are pure functions of the resolved items.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { readDomain } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
+
+/**
+ * omx-contract's own domains whose items join the read of a data directory: `<dir>/../contract.d/<name>/<name>.json`,
+ * read as the classic file of its items at `<name>/<name>.json`, the place a read of the installed contract directory
+ * gives it, so the renders of data/ and of the installed tree agree. `param` holds the standard parameter words
+ * (PARAM_SCALES, PARAM_UNITS, PARAM_UNIT_DIMENSIONS; sorting pass V21, V23a+b). A data directory with no such domain
+ * beside it reads as before.
+ */
+export const TREE_DOMAINS = ['param'];
+
+/** The files of the TREE_DOMAINS beside `dir`, `{ rel, text, doc, domain: true }`, each `doc` the classic file of its items. */
+export function treeDomainFiles(dir: string | null): Json[] {
+  if (!dir) return []; // texts handed in with no directory: their files are the whole read
+  return TREE_DOMAINS.flatMap((name) => {
+    const path = join(dir, '..', 'contract.d', name, `${name}.json`);
+    if (!existsSync(path)) return [];
+    // the classic file, its $schema the relative path a file one directory down names (its schema major is not read here)
+    const { doc } = readDomain(name, JSON.parse(readFileSync(path, 'utf8')), '../schema/omx-contract.schema.json', 0);
+    return [{ rel: `${name}/${name}.json`, text: `${JSON.stringify(doc, null, 2)}\n`, doc, domain: true }];
+  });
+}
 
 /**
  * The files at the top of a data directory that are neither declarations nor items: `scale-vectors.json` holds the
@@ -37,11 +59,18 @@ export function dataFiles(dir) {
 export function loadData(dir: string, texts?: Readonly<Record<string, string>>): Json {
   const files: Json[] = [];
   const entries: [string, string][] = texts ? Object.entries((texts) as Record<string, Json>).sort(([a], [b]) => (a < b ? -1 : 1)) : dataFiles(dir).map((p) => [relative(join(dir, '..'), p), readFileSync(p, 'utf8')]);
+  // texts handed in (a tag's data, a test) take a tree domain only where they name its place: a tag before it has none
+  const domains = new Map(treeDomainFiles(dir).filter((f) => !texts || Object.hasOwn(texts, f.rel)).map((f) => [f.rel, f]));
+  for (const rel of domains.keys()) if (!entries.some(([r]) => r === rel)) entries.push([rel, '']);
+  entries.sort(([a], [b]) => (a < b ? -1 : 1));
   const items = new Map();
   for (const [rel, text] of entries) {
     let doc;
-    try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${(e as Error).message}`); }
-    files.push({ rel, text, doc });
+    const domain = domains.get(rel);
+    if (domain) { files.push(domain); doc = domain.doc; } else {
+      try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${(e as Error).message}`); }
+      files.push({ rel, text, doc });
+    }
     for (const [name, item] of entriesOf(rel, doc)) {
       if (items.has(name)) throw new Error(`${rel}: ${name}: already declared by ${items.get(name).rel}`);
       items.set(name, { name, rel, item });
@@ -304,6 +333,7 @@ const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 export type Resolved = Map<string, JsonObject> & {
   kernels: JsonObject;
   packageOf: Map<string, string | undefined>;
+  ownerOf?: Map<string, string>;
   kernelPackageOf: Map<string, string | undefined>;
   renders: JsonObject[];
   checks?: JsonObject[];
@@ -370,6 +400,8 @@ export function resolveData(data: Json): Resolved {
   for (const name of data.items.keys()) out.set(name, resolveItem(name));
   out.kernels = kernelControls(data);
   out.packageOf = new Map([...data.items.values()].map((it) => [it.name, it.pkg]));
+  // a domain's package is read as its own; its owner (info.x-owner) renders it as its own (packageItems)
+  out.ownerOf = new Map([...((data.packages ?? new Map()) as Map<string, Json>)].filter(([, p]) => p.manifest?.owner !== undefined).map(([n, p]) => [n, p.manifest.owner]));
   out.kernelPackageOf = new Map(data.files.filter((f) => isKernelFile(f.rel) && !isDescriptor(f.doc)).map((f) => [kernelName(f.rel), f.pkg]));
   out.renders = data.files.filter((f) => !isDescriptor(f.doc) && isObj(f.doc.render)).map((f) => ({
     rel: f.rel, pkg: f.pkg, render: f.doc.render, items: entriesOf(f.rel, f.doc).map(([n]) => n), kernel: isKernelFile(f.rel) ? kernelName(f.rel) : undefined,
@@ -391,7 +423,9 @@ export function resolveData(data: Json): Resolved {
  * read. A data directory (no package on any file) is the package named, whole.
  */
 export function packageItems(resolved: Resolved, pkg: string | undefined): Resolved {
-  const out = new Map([...resolved].filter(([n]) => resolved.packageOf.get(n) === undefined || resolved.packageOf.get(n) === pkg)) as Resolved;
+  // an item of a domain the package owns (its info.x-owner) is the package's own
+  const own = (p: string | undefined) => p === undefined || p === pkg || (resolved.ownerOf?.get(p) ?? p) === pkg;
+  const out = new Map([...resolved].filter(([n]) => own(resolved.packageOf.get(n)))) as Resolved;
   const mine = (p: string | undefined) => p === undefined || p === pkg;
   out.kernels = Object.fromEntries(Object.entries((resolved.kernels ?? {}) as Record<string, Json>).filter(([k]) => mine(resolved.kernelPackageOf.get(k))));
   out.packageOf = new Map([...resolved.packageOf].filter(([n]) => out.has(n)));

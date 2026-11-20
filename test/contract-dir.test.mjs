@@ -17,7 +17,7 @@ import { SCHEMA_VERSION, fileProblems } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, DATA_ITEMS, ROOT, contractCodesDoc } from './helpers.mjs';
+import { contractCodesDoc, DATA, DATA_ITEMS, installParamDomain, ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-dir-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -29,6 +29,7 @@ const URL3 = installedSchemaUrl(3);
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', VERSION, String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   return root;
 }
 

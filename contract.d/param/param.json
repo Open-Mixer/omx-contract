@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/param",
   "info": {
     "title": "The standard parameter words: the units, what each measures, and the scales",
-    "version": "1.0.0",
+    "version": "3.21.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -12,8 +12,6 @@
       "PARAM_SCALES": {
         "description": "How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.",
         "x-since": "1.3.0",
-        "x-kind": "set",
-        "x-default": "linear",
         "oneOf": [
           {
             "const": "linear",
@@ -30,14 +28,15 @@
             "title": "stepped",
             "x-code": 2
           }
-        ]
+        ],
+        "x-kind": "set",
+        "x-default": "linear"
       },
       "PARAM_UNITS": {
-        "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, and its `x-dimension` what it measures, a word of PARAM_UNIT_DIMENSIONS. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
+        "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
         "x-since": "3.21.0",
         "x-why": "The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.",
-        "x-kind": "words",
-        "x-dimensions": "PARAM_UNIT_DIMENSIONS",
+        "x-groups": "PARAM_UNIT_SCOPES",
         "oneOf": [
           {
             "const": "dB",
@@ -45,6 +44,7 @@
             "description": "Decibels, a gain or a level relative to unity.",
             "x-code": 0,
             "x-text": "Decibels, a gain or a level relative to unity.",
+            "x-group": "param",
             "x-symbol": "dB",
             "x-dimension": "gain"
           },
@@ -54,6 +54,7 @@
             "description": "Decibels relative to digital full scale.",
             "x-code": 1,
             "x-text": "Decibels relative to digital full scale.",
+            "x-group": "param",
             "x-symbol": "dBFS",
             "x-dimension": "level"
           },
@@ -63,6 +64,7 @@
             "description": "Milliseconds.",
             "x-code": 2,
             "x-text": "Milliseconds.",
+            "x-group": "param",
             "x-symbol": "ms",
             "x-dimension": "time"
           },
@@ -72,6 +74,7 @@
             "description": "Seconds.",
             "x-code": 3,
             "x-text": "Seconds.",
+            "x-group": "param",
             "x-symbol": "s",
             "x-dimension": "time"
           },
@@ -81,6 +84,7 @@
             "description": "Minutes.",
             "x-code": 4,
             "x-text": "Minutes.",
+            "x-group": "param",
             "x-symbol": "min",
             "x-dimension": "time"
           },
@@ -90,6 +94,7 @@
             "description": "Hertz, a frequency.",
             "x-code": 5,
             "x-text": "Hertz, a frequency.",
+            "x-group": "param",
             "x-symbol": "Hz",
             "x-dimension": "frequency"
           },
@@ -99,8 +104,9 @@
             "description": "Octaves, a bandwidth or an interval.",
             "x-code": 6,
             "x-text": "Octaves, a bandwidth or an interval.",
+            "x-group": "param",
             "x-symbol": "oct",
-            "x-dimension": "interval"
+            "x-dimension": "pitch"
           },
           {
             "const": "cents",
@@ -108,8 +114,9 @@
             "description": "Cents, a hundredth of a semitone.",
             "x-code": 7,
             "x-text": "Cents, a hundredth of a semitone.",
+            "x-group": "param",
             "x-symbol": "cents",
-            "x-dimension": "interval"
+            "x-dimension": "pitch"
           },
           {
             "const": "st",
@@ -117,8 +124,9 @@
             "description": "Semitones.",
             "x-code": 8,
             "x-text": "Semitones.",
+            "x-group": "param",
             "x-symbol": "st",
-            "x-dimension": "interval"
+            "x-dimension": "pitch"
           },
           {
             "const": "percent",
@@ -126,8 +134,9 @@
             "description": "Percent.",
             "x-code": 9,
             "x-text": "Percent.",
+            "x-group": "param",
             "x-symbol": "%",
-            "x-dimension": "fraction"
+            "x-dimension": "none"
           },
           {
             "const": "x",
@@ -135,8 +144,9 @@
             "description": "A multiplier.",
             "x-code": 10,
             "x-text": "A multiplier.",
+            "x-group": "param",
             "x-symbol": "x",
-            "x-dimension": "ratio"
+            "x-dimension": "none"
           },
           {
             "const": "none",
@@ -144,6 +154,7 @@
             "description": "No unit: a ratio or a fraction.",
             "x-code": 11,
             "x-text": "No unit: a ratio or a fraction.",
+            "x-group": "param",
             "x-symbol": "",
             "x-dimension": "none"
           },
@@ -153,6 +164,7 @@
             "description": "A slope in dB per octave (a tilt).",
             "x-code": 12,
             "x-text": "A slope in dB per octave (a tilt).",
+            "x-group": "param",
             "x-symbol": "dB/oct",
             "x-dimension": "slope"
           },
@@ -162,6 +174,7 @@
             "description": "A loudness (ITU-R BS.1770).",
             "x-code": 13,
             "x-text": "A loudness (ITU-R BS.1770).",
+            "x-group": "param",
             "x-symbol": "LUFS",
             "x-dimension": "loudness"
           },
@@ -171,8 +184,9 @@
             "description": "A gain change per second.",
             "x-code": 14,
             "x-text": "A gain change per second.",
+            "x-group": "param",
             "x-symbol": "dB/s",
-            "x-dimension": "gainRate"
+            "x-dimension": "rate"
           },
           {
             "const": "dBTP",
@@ -180,15 +194,17 @@
             "description": "Decibels true peak, a level measured between the samples (ITU-R BS.1770).",
             "x-code": 15,
             "x-text": "Decibels true peak, a level measured between the samples (ITU-R BS.1770).",
+            "x-group": "descriptor",
             "x-symbol": "dBTP",
             "x-dimension": "level"
           },
           {
             "const": "dBu",
             "title": "dbu",
-            "description": "Decibels relative to 0.775 volts, an analogue level.",
+            "description": "Decibels relative to 0.7746 volts RMS, an analogue level.",
             "x-code": 16,
-            "x-text": "Decibels relative to 0.775 volts, an analogue level.",
+            "x-text": "Decibels relative to 0.7746 volts RMS, an analogue level.",
+            "x-group": "descriptor",
             "x-symbol": "dBu",
             "x-dimension": "level"
           },
@@ -198,6 +214,7 @@
             "description": "Loudness units, a loudness difference or range (EBU R 128).",
             "x-code": 17,
             "x-text": "Loudness units, a loudness difference or range (EBU R 128).",
+            "x-group": "descriptor",
             "x-symbol": "LU",
             "x-dimension": "loudness"
           },
@@ -207,6 +224,7 @@
             "description": "Kilohertz, a frequency.",
             "x-code": 18,
             "x-text": "Kilohertz, a frequency.",
+            "x-group": "descriptor",
             "x-symbol": "kHz",
             "x-dimension": "frequency"
           },
@@ -216,6 +234,7 @@
             "description": "Megahertz, a frequency.",
             "x-code": 19,
             "x-text": "Megahertz, a frequency.",
+            "x-group": "descriptor",
             "x-symbol": "MHz",
             "x-dimension": "frequency"
           },
@@ -225,8 +244,9 @@
             "description": "Audio frames, one sample on each channel.",
             "x-code": 20,
             "x-text": "Audio frames, one sample on each channel.",
+            "x-group": "descriptor",
             "x-symbol": "frames",
-            "x-dimension": "samples"
+            "x-dimension": "count"
           },
           {
             "const": "bpm",
@@ -234,6 +254,7 @@
             "description": "Beats per minute, a tempo.",
             "x-code": 21,
             "x-text": "Beats per minute, a tempo.",
+            "x-group": "descriptor",
             "x-symbol": "bpm",
             "x-dimension": "tempo"
           },
@@ -243,8 +264,9 @@
             "description": "Bars, a musical length.",
             "x-code": 22,
             "x-text": "Bars, a musical length.",
+            "x-group": "descriptor",
             "x-symbol": "bar",
-            "x-dimension": "musicalTime"
+            "x-dimension": "musical-time"
           },
           {
             "const": "beat",
@@ -252,8 +274,9 @@
             "description": "Beats, a musical length.",
             "x-code": 23,
             "x-text": "Beats, a musical length.",
+            "x-group": "descriptor",
             "x-symbol": "beat",
-            "x-dimension": "musicalTime"
+            "x-dimension": "musical-time"
           },
           {
             "const": "m",
@@ -261,6 +284,7 @@
             "description": "Metres, a length.",
             "x-code": 24,
             "x-text": "Metres, a length.",
+            "x-group": "descriptor",
             "x-symbol": "m",
             "x-dimension": "length"
           },
@@ -270,6 +294,7 @@
             "description": "Centimetres, a length.",
             "x-code": 25,
             "x-text": "Centimetres, a length.",
+            "x-group": "descriptor",
             "x-symbol": "cm",
             "x-dimension": "length"
           },
@@ -279,6 +304,7 @@
             "description": "Millimetres, a length.",
             "x-code": 26,
             "x-text": "Millimetres, a length.",
+            "x-group": "descriptor",
             "x-symbol": "mm",
             "x-dimension": "length"
           },
@@ -288,6 +314,7 @@
             "description": "Kilometres, a length.",
             "x-code": 27,
             "x-text": "Kilometres, a length.",
+            "x-group": "descriptor",
             "x-symbol": "km",
             "x-dimension": "length"
           },
@@ -297,6 +324,7 @@
             "description": "Inches, a length.",
             "x-code": 28,
             "x-text": "Inches, a length.",
+            "x-group": "descriptor",
             "x-symbol": "inch",
             "x-dimension": "length"
           },
@@ -306,6 +334,7 @@
             "description": "Miles, a length.",
             "x-code": 29,
             "x-text": "Miles, a length.",
+            "x-group": "descriptor",
             "x-symbol": "mile",
             "x-dimension": "length"
           },
@@ -315,6 +344,7 @@
             "description": "Degrees, an angle.",
             "x-code": 30,
             "x-text": "Degrees, an angle.",
+            "x-group": "descriptor",
             "x-symbol": "deg",
             "x-dimension": "angle"
           },
@@ -324,6 +354,7 @@
             "description": "A MIDI note number.",
             "x-code": 31,
             "x-text": "A MIDI note number.",
+            "x-group": "descriptor",
             "x-symbol": "midiNote",
             "x-dimension": "pitch"
           },
@@ -333,6 +364,7 @@
             "description": "A ratio n:1, a compressor's or an expander's.",
             "x-code": 32,
             "x-text": "A ratio n:1, a compressor's or an expander's.",
+            "x-group": "descriptor",
             "x-symbol": "ratio",
             "x-dimension": "ratio"
           },
@@ -342,8 +374,9 @@
             "description": "A coefficient, a plain multiplier with no unit of its own.",
             "x-code": 33,
             "x-text": "A coefficient, a plain multiplier with no unit of its own.",
+            "x-group": "descriptor",
             "x-symbol": "coef",
-            "x-dimension": "ratio"
+            "x-dimension": "none"
           },
           {
             "const": "us",
@@ -351,6 +384,7 @@
             "description": "Microseconds.",
             "x-code": 34,
             "x-text": "Microseconds.",
+            "x-group": "descriptor",
             "x-symbol": "us",
             "x-dimension": "time"
           },
@@ -360,24 +394,27 @@
             "description": "Bytes.",
             "x-code": 35,
             "x-text": "Bytes.",
+            "x-group": "descriptor",
             "x-symbol": "bytes",
-            "x-dimension": "dataSize"
+            "x-dimension": "information"
           },
           {
-            "const": "ns-per-sample",
+            "const": "nsPerSample",
             "title": "nsPerSample",
             "description": "Nanoseconds per sample, a processing cost.",
             "x-code": 36,
             "x-text": "Nanoseconds per sample, a processing cost.",
+            "x-group": "descriptor",
             "x-symbol": "ns/sample",
-            "x-dimension": "cpuCost"
+            "x-dimension": "time-per-sample"
           },
           {
-            "const": "count",
+            "const": "plainCount",
             "title": "plainCount",
             "description": "A plain count, with no unit.",
             "x-code": 37,
             "x-text": "A plain count, with no unit.",
+            "x-group": "descriptor",
             "x-symbol": "count",
             "x-dimension": "count"
           },
@@ -387,143 +424,160 @@
             "description": "A yes or a no: one when on, zero when off.",
             "x-code": 38,
             "x-text": "A yes or a no: one when on, zero when off.",
+            "x-group": "descriptor",
             "x-symbol": "flag",
-            "x-dimension": "flag"
+            "x-dimension": "none"
           }
-        ]
+        ],
+        "x-kind": "words",
+        "x-dimensions": "PARAM_UNIT_DIMENSIONS"
       },
       "PARAM_UNIT_DIMENSIONS": {
-        "description": "What a unit of PARAM_UNITS measures: two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in.",
+        "description": "What a unit of PARAM_UNITS measures (docs/units.md, The dimensions): two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in. The word `count` has the key `counted`: OMX_PARAM_UNIT_DIMENSIONS_COUNT is the number of words.",
         "x-since": "3.21.0",
-        "x-kind": "words",
         "oneOf": [
           {
             "const": "none",
             "title": "none",
-            "description": "No dimension: a plain number.",
-            "x-code": 0
-          },
-          {
-            "const": "gain",
-            "title": "gain",
-            "description": "A gain: a level relative to another.",
-            "x-code": 1
-          },
-          {
-            "const": "level",
-            "title": "level",
-            "description": "A level against a fixed reference.",
-            "x-code": 2
+            "description": "No dimension: a plain number, a multiplier or a yes or a no.",
+            "x-code": 0,
+            "x-text": "No dimension: a plain number, a multiplier or a yes or a no."
           },
           {
             "const": "time",
             "title": "time",
             "description": "A time.",
-            "x-code": 3
+            "x-code": 1,
+            "x-text": "A time."
           },
           {
             "const": "frequency",
             "title": "frequency",
             "description": "A frequency.",
-            "x-code": 4
+            "x-code": 2,
+            "x-text": "A frequency."
           },
           {
-            "const": "interval",
-            "title": "interval",
-            "description": "A pitch or frequency interval.",
-            "x-code": 5
+            "const": "gain",
+            "title": "gain",
+            "description": "A gain: a level relative to another.",
+            "x-code": 3,
+            "x-text": "A gain: a level relative to another."
           },
           {
-            "const": "fraction",
-            "title": "fraction",
-            "description": "A part of a whole.",
-            "x-code": 6
-          },
-          {
-            "const": "ratio",
-            "title": "ratio",
-            "description": "A ratio of two quantities.",
-            "x-code": 7
-          },
-          {
-            "const": "slope",
-            "title": "slope",
-            "description": "A change of level per octave.",
-            "x-code": 8
+            "const": "level",
+            "title": "level",
+            "description": "A level against a fixed reference.",
+            "x-code": 4,
+            "x-text": "A level against a fixed reference."
           },
           {
             "const": "loudness",
             "title": "loudness",
             "description": "A loudness or a loudness difference.",
-            "x-code": 9
+            "x-code": 5,
+            "x-text": "A loudness or a loudness difference."
           },
           {
-            "const": "gainRate",
-            "title": "gainRate",
-            "description": "A change of gain per unit of time.",
-            "x-code": 10
-          },
-          {
-            "const": "samples",
-            "title": "samples",
-            "description": "A time counted in audio frames.",
-            "x-code": 11
-          },
-          {
-            "const": "tempo",
-            "title": "tempo",
-            "description": "A tempo.",
-            "x-code": 12
-          },
-          {
-            "const": "musicalTime",
-            "title": "musicalTime",
-            "description": "A length in musical time.",
-            "x-code": 13
-          },
-          {
-            "const": "length",
-            "title": "length",
-            "description": "A length in space.",
-            "x-code": 14
+            "const": "pitch",
+            "title": "pitch",
+            "description": "A pitch or a pitch interval.",
+            "x-code": 6,
+            "x-text": "A pitch or a pitch interval."
           },
           {
             "const": "angle",
             "title": "angle",
             "description": "An angle.",
-            "x-code": 15
+            "x-code": 7,
+            "x-text": "An angle."
           },
           {
-            "const": "pitch",
-            "title": "pitch",
-            "description": "A pitch.",
-            "x-code": 16
+            "const": "length",
+            "title": "length",
+            "description": "A length in space.",
+            "x-code": 8,
+            "x-text": "A length in space."
           },
           {
-            "const": "dataSize",
-            "title": "dataSize",
-            "description": "An amount of data.",
-            "x-code": 17
+            "const": "tempo",
+            "title": "tempo",
+            "description": "A tempo.",
+            "x-code": 9,
+            "x-text": "A tempo."
           },
           {
-            "const": "cpuCost",
-            "title": "cpuCost",
-            "description": "A processing cost.",
-            "x-code": 18
+            "const": "musical-time",
+            "title": "musicalTime",
+            "description": "A length in musical time; it depends on the meter.",
+            "x-code": 10,
+            "x-text": "A length in musical time; it depends on the meter."
           },
           {
             "const": "count",
-            "title": "count",
-            "description": "A count.",
-            "x-code": 19
+            "title": "counted",
+            "description": "A number of things (frames, a plain count).",
+            "x-code": 11,
+            "x-text": "A number of things."
           },
           {
-            "const": "flag",
-            "title": "flag",
-            "description": "A yes or a no.",
-            "x-code": 20
+            "const": "slope",
+            "title": "slope",
+            "description": "A change of level per octave.",
+            "x-code": 12,
+            "x-text": "A change of level per octave."
+          },
+          {
+            "const": "rate",
+            "title": "rate",
+            "description": "A change of gain per unit of time.",
+            "x-code": 13,
+            "x-text": "A change of gain per unit of time."
+          },
+          {
+            "const": "ratio",
+            "title": "ratio",
+            "description": "A ratio n:1.",
+            "x-code": 14,
+            "x-text": "A ratio n:1."
+          },
+          {
+            "const": "information",
+            "title": "information",
+            "description": "An amount of data.",
+            "x-code": 15,
+            "x-text": "An amount of data."
+          },
+          {
+            "const": "time-per-sample",
+            "title": "timePerSample",
+            "description": "A processing cost per sample, never a duration.",
+            "x-code": 16,
+            "x-text": "A processing cost per sample, never a duration."
           }
-        ]
+        ],
+        "x-kind": "words"
+      },
+      "PARAM_UNIT_SCOPES": {
+        "description": "Where a unit of PARAM_UNITS may be stated (docs/units.md, Q16 ruled: the split is kept): `param`, a unit of the items, the schema's $defs.unit; `descriptor`, a unit only a descriptor's control states, the schema's $defs.descriptorUnit.",
+        "x-since": "3.21.0",
+        "oneOf": [
+          {
+            "const": "param",
+            "title": "param",
+            "description": "A unit of the items: the schema's $defs.unit, and a descriptor takes it too.",
+            "x-code": 0,
+            "x-text": "A unit of the items, which a descriptor states too."
+          },
+          {
+            "const": "descriptor",
+            "title": "descriptor",
+            "description": "A unit only a descriptor's control states: the schema's $defs.descriptorUnit.",
+            "x-code": 1,
+            "x-text": "A unit only a descriptor's control states."
+          }
+        ],
+        "x-kind": "words"
       }
     }
   }

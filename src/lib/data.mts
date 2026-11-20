@@ -346,7 +346,7 @@ export function resolveData(data: Json): Resolved {
     if (item.c !== undefined) r.c = item.c;
     if (item.docs !== undefined) r.docs = item.docs;
     if (item.kind === 'words') {
-      for (const k of ['groups', 'axes', 'units', 'bases', 'extension']) if (item[k] !== undefined) r[k] = item[k];
+      for (const k of ['groups', 'axes', 'units', 'bases', 'dimensions', 'extension']) if (item[k] !== undefined) r[k] = item[k];
     }
     if (item.kind === 'formatMap') r.format = item.format;
     if (item.kind === 'terms') {

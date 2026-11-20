@@ -180,7 +180,7 @@ function semanticRules(resolved, say) {
       for (const [k, w] of Object.entries((r.value) as Record<string, Json>)) {
         if (w.group !== undefined && r.groups === undefined) say(r.rel, r.name, 'word-group', `${k} names the group ${w.group}, and the item names no groups`);
         else if (w.group !== undefined && groups?.kind === 'words' && !groupWords.has(w.group)) say(r.rel, r.name, 'word-group', `${k}: ${w.group} is no word of ${r.groups}`);
-        for (const [field, itemKey, rule] of [['figureUnit', 'units', 'word-unit'], ['basis', 'bases', 'word-basis']]) {
+        for (const [field, itemKey, rule] of [['figureUnit', 'units', 'word-unit'], ['basis', 'bases', 'word-basis'], ['dimension', 'dimensions', 'word-dimension']]) {
           if (w[field] === undefined) continue;
           const target = r[itemKey] === undefined ? undefined : resolved.get(r[itemKey]);
           if (r[itemKey] === undefined) say(r.rel, r.name, rule, `${k} names the ${field} ${w[field]}, and the item names no ${itemKey}`);

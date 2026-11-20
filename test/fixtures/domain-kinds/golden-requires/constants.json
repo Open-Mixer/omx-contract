@@ -1,0 +1,38 @@
+{
+  "requires": {
+    "omx-contract-schema": ">= 3.0.0",
+    "kinds-terms": ">= 1.0.0"
+  },
+  "render": {
+    "c": [
+      {
+        "header": "kinds_constants.h",
+        "guard": "KINDS_CONSTANTS_H",
+        "project": "kinds-owner",
+        "banner": [
+          "Rendered from the kinds fixture of omx-contract's tests: the numbers the fixture declares."
+        ],
+        "brief": "The numbers of the kinds fixture.",
+        "scope": "file",
+        "scalars": {
+          "comment": "the numbers of the kinds fixture"
+        }
+      }
+    ]
+  },
+  "KINDS_DIGEST_HEX_LEN": {
+    "kind": "scalar",
+    "since": "1.1.0",
+    "doc": "The characters of a SHA-256 digest written in hex, two a byte.",
+    "unit": "",
+    "value": 64
+  },
+  "KINDS_RATE_HZ": {
+    "kind": "scalar",
+    "since": "1.2.0",
+    "doc": "How often the fixture publishes a value.",
+    "why": "A meter moves at this rate.",
+    "unit": "Hz",
+    "value": 50
+  }
+}

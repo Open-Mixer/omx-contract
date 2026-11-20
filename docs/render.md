@@ -111,25 +111,57 @@ and runs the data reader and the renders unchanged on that set. The files come o
 `omx_clap_core_vocabulary.h` and `omx-clap-core-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
 The rebuild, and nothing else:
 
-- every item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
-  `x-file` make that file, in the document's order;
+- an item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
+  `x-file` make that file, in the document's order. An item with no `x-file` is read at run time only: it is not
+  rebuilt and not refused (plugin-db's `PLUGIN_DB_ADDRESS_FORMATS` beside its rebuilt words items), so its words never
+  reach a data render;
 - the root's `x-render` is the `render` block of the file the root's `x-file` names (`hosting.json`); the other
   rebuilt files carry none, so which items render themselves and which go to the vocabulary is what it is today;
-- every item carries `x-source` (its data `source`, when it had one), `x-since` and `description` as today;
-- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since", "source", "doc", "codes" }`: each of
+- every item carries `x-source` (its data `source`, when it had one), `x-since`, `description` and `x-why` (its data
+  `why`, when it had one) as today; every rebuilt item starts `{ "kind", "since", "source", "doc", "why" }`, in that
+  order;
+- an item with `"x-kind": "codes"` (or no `x-kind`) is the data item `{ "kind": "codes", ..., "codes" }`: each of
   its `oneOf` words is one code in the written order, `const` the code, `x-name` its key (the macro stem,
-  `clapExtensionsNotCovered`), `x-text` its English text (`{ "en": <x-text> }`; a second language is a later minor),
-  `description` its doc;
-- an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", "since", "source", "doc", "value": <x-value>,
+  `clapExtensionsNotCovered`), then `description` its doc, `x-text` its English text (`{ "en": <x-text> }`; the other
+  languages are the domain's catalogs) and `x-args` its args;
+- an item with `"x-kind": "words"` is the data item `{ "kind": "words", ..., "groups", "words" }`: `groups` is its
+  `x-groups`, and each of its `oneOf` words is one word in the written order, keyed by its `title`, as
+  `{ "word": <const>, "group": <x-group>, "from": [<ITEM>#<x-term>...], "doc", "text", "args" }`, each key only when
+  the word has it (plugin-db's `PLUGIN_DB_*` words items, which its own renders then read unchanged). The `x-from`
+  of a rebuilt word reaches omx-contract's terms (the schema package), the document's own domain, its `info.x-owner`
+  or a package the document declares in `info.x-requires` (docs/contract-dir.md, "Domains"); a `from` into any other
+  package is refused by item, word, `x-from` and package (`contract.file.invalid`). An item with no `x-file` is never
+  rebuilt, and its `from` is not checked here;
+- an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
+  (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
+- an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
   "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
 
-A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file. A
+A domain that declares `info.x-requires` gives every file it rebuilds a `requires`, its first key: the schema floor
+`"omx-contract-schema": ">= 3.0.0"`, then the declared packages in name order with their floors. A domain that declares
+none rebuilds its files with no `requires`, as before.
+
+A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file.
+
+The same rebuild serves a render of an installed contract directory: `render --target c|ts --package <pkg> --installed
+--with-domain <contractdir>/<domain>` (or `--contract-dir <dir>`) rebuilds the domain's data files into the installed
+package its `info.x-owner` names, each at the place that package's own file would have (`<package>/<x-file>`, or the
+manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
+also read as a domain. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
+`plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is no
+installed package (`contract.package.absent`), a file the package both installs and rebuilds
+(`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed or is below its floor
+(`contract.package.absent`, `contract.package.too-old`), and a rebuilt word's term that the package or domain its
+`x-from` names does not declare (`contract.ref.unresolved`, `contract.ref.undeclared`, naming the word, the item and
+both packages). A
 domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
 The data form stays what it is.
 
-Byte identity is held by two checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
+Byte identity is held by three checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
 domain and `cmp`s the five outputs of the combined read against the pure data render (a changed `x-text`, `x-value`
-or `x-file` is red). The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
+or `x-file` is red). test/domain-kinds.test.mjs holds one item of each kind (codes with `x-args`, words with groups,
+`from`, args and a catalog in a second language, scalars, codes without args and a sheet) to golden data files byte for
+byte, and the c and ts renders of `--with-domain` to those of the golden data. The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
 build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 

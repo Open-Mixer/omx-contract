@@ -12,7 +12,8 @@ does not guess them.
 Units have no single owner (owner ruling, final):
 
 - The units a kernel COMPUTES in belong to omx-dsp, in its `dsp` domain.
-- The units a value is DISPLAYED in belong to omx-panel, in its `panel` domain (value text).
+- How a value is DISPLAYED is omx-panel's, in its `panel` domain: display rules over the owners' units, no unit ids
+  of its own (owner ruling Q6, 2026-11-20).
 - A plugin's CUSTOM units are its own declaration, in its descriptor.
 - The format spellings (CLAP, LV2) belong to the format owner, plugin-db (V27).
 - The units a format has and no kernel computes in (the LV2 lengths, `frames`, `bpm`, `deg`, `midiNote`) are
@@ -63,10 +64,12 @@ item (docs/contract-dir.md, "Domains"), so the generic loader still reads it, an
 
 The item:
 
-- Its name is `<DOMAIN>_UNITS` by the prefix rule: `DSP_UNITS`, `PANEL_UNITS`. One units item per domain.
+- Its name is `<DOMAIN>_UNITS` by the prefix rule: `DSP_UNITS`. One units item per domain. omx-panel's `PANEL_UNITS`
+  is the exception: it holds display rules, not units (below).
 - `x-kind` (required): `units`.
-- `x-units-role` (required): `computes-in` (omx-dsp), `display` (omx-panel) or `format` (plugin-db: a unit a format
-  has and no kernel computes in). A descriptor's units are `custom`.
+- `x-units-role` (required): `computes-in` (omx-dsp) or `format` (plugin-db: a unit a format
+  has and no kernel computes in). A descriptor's units are `custom`. No unit has role `display`: omx-panel declares
+  none (Q6).
 - `description`, `x-since`, `x-why`: as on every item.
 
 Each word (`oneOf` entry):
@@ -138,14 +141,21 @@ the base's owner (the reader merges them). Ruled (owner, 2026-11-20):
 | `km` | `m` | 1000 | length | plugin-db, format (Q5) | km to m: `value * 1000` |
 | `inch` | `m` | 0.0254 | length | plugin-db, format (Q5) | inch to m: `value * 0.0254` |
 | `mile` | `m` | 1609.344 | length | plugin-db, format (Q5) | mile to m: `value * 1609.344` |
-| `kHz` | `Hz` | 1000 | frequency | omx-panel, display (Q6) | the value computed in Hz, shown in kHz |
-| `s` | `ms` | 0.001 | time | omx-panel, display (Q6) | the value computed in ms, shown in s |
-| `percent` | `x` | 0.01 | none | omx-panel, display (Q6) | the 0 to 1 value, shown in % |
 
-The `omx-panel` rows are the owner's ruling as written. Found on applying it: `kHz`, `s` and `percent` are also
-rows of this table's other owners (`kHz` of plugin-db, `s` and `percent` of omx-dsp), and an id or a symbol is unique
-across the merged view (`contract.unit.duplicate`). The panel rows also run the other way (a conversion's `to` is the
-base, and `s` is `ms`'s base). Not guessed here: see the note under OPEN QUESTION 6.
+**Display rules.** omx-panel declares NO unit ids (owner ruling Q6, 2026-11-20). `PANEL_UNITS` is omx-panel's
+display rules over the owners' units: each rule names an owner's unit id to show, the unit id it is computed in (the
+base), a scale and a threshold. The rule adds no unit to the merged view, so it cannot clash with an owner's id or
+symbol. The rules the owner named:
+
+| Shown as | Computed in | Scale | Threshold | Owner of both unit ids |
+|---|---|---|---|---|
+| `kHz` | `Hz` | 0.001 | from 1000 Hz up (Hz is shown below) | `kHz`: plugin-db; `Hz`: omx-dsp |
+| `s` | `ms` | 0.001 | not stated by the owner | omx-dsp |
+| `percent` | `x` (a 0 to 1 value) | 100 | not stated by the owner | omx-dsp |
+
+The thresholds of `s` and `percent` are the panel's own rule to state when it declares `PANEL_UNITS`; the owner gave
+only the `kHz` one. The earlier clash note (the panel's rows against the owners' ids, and the direction of the
+conversion) is resolved by this ruling.
 
 A descriptor declares its custom units in the same form, as an optional `units` array of the descriptor
 (a new field, a minor of the descriptor schema):
@@ -161,12 +171,14 @@ The fields are those of a unit word without the words-item wrapping: `id`, `symb
 
 Built from the lists above, the LV2 unit terms, and the units the omx-dsp 0.33.1 kernel files state (`""` 120
 times, `dB` 115, `ms` 68, `Hz` 65, `%` 27, `cents` 6, `s` 5, `dBFS` 5, `dB/oct` 4, `oct` 3, `x` 1, `st` 1).
-omx-panel declares no unit today: it prints the unit string a description gives it.
+omx-panel declares no unit today: it prints the unit string a description gives it. By ruling it declares none, only
+display rules (below).
 
 Columns: the param-contract token and code; the symbol a descriptor writes (`-` for none); the unit's id (`const`,
 settled for the 12 units of omx-dsp; an open unit's id is set when its owner is ruled); which schema list holds it
 (`u` the items' `unit`, `d` the plugin-only `descriptorUnit`); computes-in (a kernel of omx-dsp 0.33.1 states it);
-display (omx-panel declares it, Q6); the LV2 term (the format spelling, plugin-db's under V27); and the unit's owner.
+display (a panel display rule shows it or starts from it, Q6); the LV2 term (the format spelling, plugin-db's under
+V27); and the unit's owner.
 Owners and ids marked Q-number were ruled by the owner on 2026-11-20; the id of a ruled unit is its symbol.
 
 | Token | Code | Symbol | Id | List | Computes-in | Display | LV2 term | Owner |
@@ -214,8 +226,8 @@ Per owner, what is settled today (owner rulings of 2026-11-20 included):
 - omx-dsp, `DSP_UNITS`: 18 units, by id. The 12 computed in today: `none` (`""`), `s`, `ms`, `dB`, `percent` (`%`),
   `x`, `Hz`, `oct`, `cents`, `st`, `dBFS`, `dB-oct` (`dB/oct`). Ruled to it, no kernel states them yet: `min`, `LUFS`,
   `dB-s` (`dB/s`), the follow-up work of section 4. Ruled to it, with code 258 kept for `ratio`: `ratio`, `dBTP`, `LU`.
-- omx-panel, `PANEL_UNITS` (display): 3 units, `kHz`, `s`, `percent`, each derived (see the derived units and the
-  note under OPEN QUESTION 6).
+- omx-panel, `PANEL_UNITS` (display rules): 0 units, 3 rules over the owners' units (`Hz` shown as `kHz`, `ms` as
+  `s`, `x` as `percent`; the display rules above).
 - plugin-db, the format units (role `format`): 12 units. `frames`, `bpm`, `deg`, `midiNote`; the lengths `m` (the
   base), `cm`, `mm`, `km`, `inch`, `mile`; `kHz` and `MHz`, derived of `Hz`.
 - plugin-db, the LV2 spellings (V27): 24 terms, each naming a unit by id when one is declared.
@@ -293,7 +305,7 @@ typedef struct {
   const char *symbol;        /* as written ("dB", "%", ""); never NULL */
   const char *dimension;     /* a word of CONTRACT_UNIT_DIMENSIONS */
   const char *owner;         /* the domain that declares it ("dsp"); "descriptor" for a custom unit */
-  const char *role;          /* "computes-in", "display", "format" or "custom" */
+  const char *role;          /* "computes-in", "format" or "custom" */
   const char *conversion_to; /* the base unit's id; NULL when it declares no conversion */
   double factor, offset;     /* value in conversion_to = value * factor + offset; 1 and 0 when none */
   const char *lv2_term;      /* the LV2 term that spells it; NULL when none */
@@ -343,7 +355,7 @@ In `src/lib/units-reader.mts`, exported as `@openmixer/omx-contract/units-reader
 ```ts
 export interface Unit {
   readonly id: string; readonly symbol: string; readonly dimension: string;
-  readonly owner: string; readonly role: 'computes-in' | 'display' | 'format' | 'custom';
+  readonly owner: string; readonly role: 'computes-in' | 'format' | 'custom';
   readonly conversion?: { readonly to: string; readonly factor: number; readonly offset: number };
   readonly lv2Term?: string; readonly token?: string; readonly code?: number;
 }
@@ -429,7 +441,8 @@ name to a new one.
 ### SA, every owner: the units as data
 
 - omx-dsp: its `dsp` domain gains `DSP_UNITS`, 18 units: the 12 settled, `min`, `LUFS`, `dB-s`, `ratio`, `dBTP`, `LU`.
-- omx-panel: its `panel` domain gains `PANEL_UNITS`, `kHz`, `s`, `percent` (OPEN QUESTION 6, with its note).
+- omx-panel: its `panel` domain gains `PANEL_UNITS`, 3 display rules over the owners' units, no unit ids (OPEN QUESTION
+6).
 - plugin-db: its `formats` domain (V27) carries the LV2 unit terms as a `unit-spellings` item and the 12 format
   units (role `format`), and the `meaning` words. It replaces `LV2_UNITS_TERMS`' unit terms and `$defs.meaning`.
 - omx-clap-core: the `unit-codes` item. It replaces `OMX_PARAM_CONTRACT_UNITS`.
@@ -501,7 +514,7 @@ validator resolves through the merged reader:
 - `descriptorUnit`: every symbol of the descriptor's view (base and custom), and `unknown`;
 - `meaning`: the words of plugin-db's item (OPEN QUESTION 7, ruled).
 
-So no list is copied by hand, and omx-contract's build reads no other repository. See OPEN QUESTION 8.
+So no list is copied by hand, and omx-contract's build reads no other repository (OPEN QUESTION 8, ruled: a reference).
 
 ### The grep before the drop
 
@@ -572,7 +585,7 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
 - A compile-time table goes stale against the installed domains: it is rendered at each consumer build, never
   committed, so a stale copy cannot exist in a tree.
 - Dropping the literal enums weakens a generic JSON Schema validator: only omx-contract's validator checks units
-  (OPEN QUESTION 8), and `schema-no-unit-list` proves that one does.
+  (accepted by the owner, OPEN QUESTION 8), and `schema-no-unit-list` proves that one does.
 - A plugin declares a custom unit equal to a later shared one: the next open of its descriptor view refuses it by name.
 - An inner repository needs an outer unit: the reader names the owner domain, and the case is fixed by moving the
   word down or the reader (owner ruling).
@@ -612,10 +625,9 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
    are display-only (for example `kHz` for a value computed in `Hz`)? Until ruled, `PANEL_UNITS` is not published.
    - **Ruled (owner, 2026-11-20):** omx-panel declares only the scaled display units it applies: `kHz` from `Hz`,
      `s` from `ms`, `%` from 0 to 1.
-   - **Found on applying it, not guessed:** `kHz` is also plugin-db's (Q5), and `s` and `%` are omx-dsp's, and an id
-     and a symbol are unique across the merged view. For the owner: does the panel declare these as units of its own
-     under other ids and symbols, or does it only name the base and the scale it applies to a unit declared elsewhere
-     (no unit item of its own)? Until that is answered `PANEL_UNITS` is not published.
+   - **Ruled (owner, 2026-11-20), the clash resolved:** omx-panel declares NO new unit ids. Its display rules are a
+     base unit plus a scale over the owner's unit (for example `Hz` shown as `kHz` above 1000). `PANEL_UNITS` is
+     omx-panel's display rules over the owners' units (the display rules in section 1).
 7. **`meaning`.** The 47 words of `$defs.meaning` are not units. Who owns them: omx-panel (they are seeded from the
    panel roles), omx-plugins (role meanings, V31), or plugin-db (the LV2 `param:` and `lv2:designation` spellings)?
    - **Ruled (owner, 2026-11-20):** the `meaning` words belong to plugin-db.
@@ -623,6 +635,7 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
    omx-contract's validator checks it. Is that accepted? The other way is a literal enum rendered at omx-contract's
    build from the installed owners' packages: that makes omx-contract's build read omx-dsp-contract and
    omx-panel-contract, a build cycle, and the rendered order would differ from 3.20.2's bytes.
+   - **Ruled (owner, 2026-11-20):** a reference (`x-units-of`), not a literal list.
 9. **Custom unit ids.** May two descriptors declare custom units with one id and different dimensions or texts?
    The design allows it, as each view is per descriptor.
 10. **`CONTRACT_UNIT_DIMENSIONS`.** Is the dimension list contract format, held in omx-contract's `contract` domain

@@ -85,7 +85,7 @@ export const domainSchema = {
       "additionalProperties": false,
       "properties": {
         "schemas": {
-          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet or a scalar.",
+          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet, a scalar or a terms item.",
           "type": "object",
           "minProperties": 1,
           "propertyNames": {
@@ -104,6 +104,9 @@ export const domainSchema = {
               },
               {
                 "$ref": "#/$defs/scalar"
+              },
+              {
+                "$ref": "#/$defs/terms"
               }
             ]
           }
@@ -194,11 +197,12 @@ export const domainSchema = {
           "type": "boolean"
         },
         "x-kind": {
-          "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, a words item, each word keyed by its title, or a set, its words the ids in order and x-default its default.",
+          "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, a words item, each word keyed by its title, a set, its words the ids in order and x-default its default, or a verbs item, each word a verb keyed by its title.",
           "enum": [
             "codes",
             "words",
-            "set"
+            "set",
+            "verbs"
           ]
         },
         "x-file": {
@@ -318,6 +322,86 @@ export const domainSchema = {
         }
       }
     },
+    "terms": {
+      "description": "A terms item (3.21.0): a format's terms as one specification or header states them, rebuilt as the data form's terms item; the runtime readers serve it as words, the words the term keys.",
+      "type": "object",
+      "required": [
+        "description",
+        "x-kind",
+        "x-format",
+        "x-spec",
+        "x-version",
+        "oneOf"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": {
+          "const": "terms"
+        },
+        "x-file": {
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "type": "object"
+        },
+        "x-format": {
+          "description": "The format, the data form's format (lv2, clap).",
+          "type": "string"
+        },
+        "x-spec": {
+          "description": "The specification's URI or the header's path, the data form's spec.",
+          "type": "string"
+        },
+        "x-version": {
+          "description": "The specification's version, the data form's version.",
+          "type": "string"
+        },
+        "x-deprecated": {
+          "const": true
+        },
+        "oneOf": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/term"
+          }
+        }
+      }
+    },
+    "term": {
+      "description": "One term: const and title its key (the data form's key, which may hold . / + -), x-code its place, x-term the term as the data form writes it.",
+      "type": "object",
+      "required": [
+        "const",
+        "title",
+        "x-code",
+        "x-term"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "const": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "x-code": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "x-term": {
+          "type": "object"
+        }
+      }
+    },
     "word": {
       "type": "object",
       "required": [
@@ -369,6 +453,54 @@ export const domainSchema = {
         "x-dimension": {
           "description": "A word of the item x-dimensions names: what the unit measures; the data form's dimension.",
           "type": "string"
+        },
+        "x-format": {
+          "description": "A verb's format, the line as mod-host's protocol_add_command takes it; the data form's format. Only on a verb.",
+          "type": "string"
+        },
+        "x-reply": {
+          "description": "A verb's reply as the protocol writes it; the data form's reply. Only on a verb.",
+          "type": "string"
+        },
+        "x-codes": {
+          "description": "The refusals a verb answers, each { ref: <ITEM>.<name> }; the data form's codes. Only on a verb.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "ref"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ref": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-implemented-by": {
+          "description": "What each host owes a verb, by host; the data form's implementedBy. Only on a verb.",
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "required",
+              "optional",
+              "unsupported"
+            ]
+          }
+        },
+        "x-since": {
+          "description": "The version a verb came in; the data form's since. Only on a verb.",
+          "type": "string"
+        },
+        "x-resp": {
+          "description": "A reply code's number, the n of resp <n>; the data form's resp. Only on a code.",
+          "type": "integer",
+          "maximum": -1
+        },
+        "x-transient": {
+          "description": "A reply code that says nothing about the plugin or the request; the data form's transient. Only on a code.",
+          "type": "boolean"
         },
         "x-name": {
           "description": "The code's key in the data item it rebuilds, the macro stem (docs/render.md).",

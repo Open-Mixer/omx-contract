@@ -140,6 +140,11 @@ The rebuild, and nothing else:
   `x-dimensions` its `dimensions`, after `groups` (3.21.0, `PARAM_UNITS`);
 - an item with `"x-kind": "set"` is the data item `{ "kind": "set", ..., "ids": [<const>...], "default": <x-default> }`
   (3.21.0, `PARAM_SCALES`);
+- an item with `"x-kind": "verbs"` is the data item `{ "kind": "verbs", ..., "verbs" }`, each verb keyed by its
+  `title` as `{ "verb": <const>, "format", "reply", "codes", "implementedBy", "since", "doc" }`; a code's `x-resp` and
+  `x-transient` are its `resp` and `transient`, written after `code` (3.21.0, plugin-hostd-protocol's verbs);
+- an item with `"x-kind": "terms"` is the data item `{ "kind": "terms", ..., "format", "spec", "version",
+  "deprecated", "terms" }`, each term keyed by its `const` as its `x-term` (3.21.0, the LV2 and CLAP terms);
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,

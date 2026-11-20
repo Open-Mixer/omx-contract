@@ -49,5 +49,12 @@
   {"case":"catalog-without-messages","domain":"demo","needs":null,"verdict":{"code":"contract.catalog.invalid","member":"ca.json"}},
   {"case":"catalog-duplicate-key","domain":"demo","needs":null,"verdict":{"code":"contract.catalog.invalid","member":"duplicate"}},
   {"case":"catalog-not-named-by-a-language","domain":"demo","needs":null,"verdict":{"code":"contract.catalog.invalid","member":"bad_name.json"}},
-  {"case":"catalog-lang-differs-from-its-name","domain":"demo","needs":null,"verdict":{"code":"contract.catalog.invalid","member":"lang"}}
+  {"case":"catalog-lang-differs-from-its-name","domain":"demo","needs":null,"verdict":{"code":"contract.catalog.invalid","member":"lang"}},
+  {"case":"valid-scalar-and-args","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"word-args-not-the-placeholders","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-args"}},
+  {"case":"word-args-absent","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-args"}},
+  {"case":"word-args-without-text","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-args"}},
+  {"case":"word-args-twice","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-args"}},
+  {"case":"scalar-value-not-a-number","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-value"}},
+  {"case":"scalar-unit-absent","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-unit"}}
 ]

@@ -191,6 +191,27 @@
           "bytes": "the bytes of a lane",
           "lanes": "the lanes"
         }
+      },
+      "KINDS_ADDRESS_FORMATS": {
+        "description": "The address formats a reader of the fixture parses at run time: no x-file, so no data file is rebuilt from it.",
+        "x-since": "1.2.0",
+        "oneOf": [
+          {
+            "const": "ipv4",
+            "title": "ipv4",
+            "description": "dotted quad",
+            "x-code": 0
+          },
+          {
+            "const": "ipv6",
+            "title": "ipv6",
+            "x-code": 1,
+            "x-text": "An IPv6 address in {form} form.",
+            "x-args": [
+              "form"
+            ]
+          }
+        ]
       }
     }
   }

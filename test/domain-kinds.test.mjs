@@ -4,16 +4,19 @@
 // "Domains"): a word's stored `x-args`, the `words` kind and the `scalar` kind. The fixture test/fixtures/domain-kinds
 // holds one domain (kinds/kinds.json, with a catalog in a second language), the data files it must rebuild byte for
 // byte (golden/) and the terms its words are taken from (data/terms.json). The codes and sheet kinds of before are
-// held to their golden files too, so the new kinds change nothing for them.
+// held to their golden files too, so the new kinds change nothing for them. An item with no `x-file` is read at run
+// time only: it is not rebuilt, and not refused. The same rebuild serves a render of an installed contract directory
+// (`render --installed --with-domain`), and the runtime reader serves the scalars (the C loader likewise, test/c).
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { after, test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
+import { openDomainAt } from '../lib/domain-reader.mjs';
 import { SCHEMA_VERSION } from '../lib/validate.mjs';
 import { ROOT } from './helpers.mjs';
 
@@ -26,7 +29,7 @@ let n = 0;
 const domain = () => JSON.parse(readFileSync(join(FIX, 'kinds/kinds.json'), 'utf8'));
 const golden = (f) => readFileSync(join(FIX, 'golden', f), 'utf8');
 const cli = (...args) => spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8' });
-const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
+const walk = (d) => (!existsSync(d) ? [] : readdirSync(d, { withFileTypes: true })).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
 
 /** `doc` with only the items `keep` names (the root's `x-render` goes with `constants.json`). */
 function only(doc, keep) {
@@ -169,4 +172,88 @@ test('refused by name: a scalar whose x-value is no number or boolean, and a sca
   const unit = domain();
   delete unit.components.schemas.KINDS_RATE_HZ['x-unit'];
   assert.match(cli('validate', '--contract-dir', contractDir(unit)).stderr, /KINDS_RATE_HZ\.x-unit/);
+});
+
+test('the runtime reader serves a scalar: its value and unit; a words item and an unknown item are refused', () => {
+  const d = openDomainAt(FIX, 'kinds');
+  assert.deepEqual(d.scalar('KINDS_DIGEST_HEX_LEN'), { value: 64, unit: '' });
+  assert.deepEqual(d.scalar('KINDS_RATE_HZ'), { value: 50, unit: 'Hz' });
+  assert.throws(() => d.scalar('KINDS_CODES'), /contract\.word\.unknown|KINDS_CODES/);
+  assert.throws(() => d.scalar('KINDS_NOPE'), /KINDS_NOPE/);
+  assert.equal(d.words('KINDS_ADDRESS_FORMATS').length, 2);
+});
+
+test('an item with no x-file is not rebuilt and not refused; given an x-file, it is (sabotage)', () => {
+  const doc = domain();
+  assert.equal(doc.components.schemas.KINDS_ADDRESS_FORMATS['x-file'], undefined);
+  const files = domainDataFiles('kinds', doc);
+  assert.deepEqual(Object.keys(files).sort(), readdirSync(join(FIX, 'golden')).sort());
+  for (const f of Object.values(files)) assert.ok(!f.includes('KINDS_ADDRESS_FORMATS'));
+  const moved = domain();
+  moved.components.schemas.KINDS_ADDRESS_FORMATS['x-file'] = 'words.json';
+  assert.notEqual(domainDataFiles('kinds', moved)['words.json'], golden('words.json'));
+  const d = withDomain(moved);
+  const r = cli('render', '--target', 'c', '--package', 'kinds-owner', '--data', join(d, 'data'), '--with-domain', join(d, 'kinds'), '--out', join(d, 'out'));
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(readFileSync(join(d, 'out', 'kinds_owner_vocabulary.h'), 'utf8'), /KINDS_ADDRESS_FORMATS/);
+});
+
+/** A contract directory holding the package kinds-owner (`files`, each `{ rel: doc }`, given the installed $schema and a floor) and, when `doc` is given, the domain kinds. */
+function installed(files, doc) {
+  const root = join(SCRATCH, `in-${n++}`);
+  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-owner');
+  mkdirSync(pkg, { recursive: true });
+  const hashes = {};
+  for (const [rel, d] of Object.entries(files)) {
+    const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, ...d }, null, 2)}\n`;
+    writeFileSync(join(pkg, rel), text);
+    hashes[rel] = sha256(Buffer.from(text));
+  }
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-owner', version: '1.2.0', schemaMajor: SCHEMA_MAJOR, files: hashes }, null, 2)}\n`);
+  if (doc) {
+    mkdirSync(join(root, 'kinds', 'catalogs'), { recursive: true });
+    writeFileSync(join(root, 'kinds', 'kinds.json'), `${JSON.stringify(doc, null, 2)}\n`);
+    cpSync(join(FIX, 'kinds/catalogs/ca.json'), join(root, 'kinds', 'catalogs', 'ca.json'));
+  }
+  return root;
+}
+const terms = () => ({ 'terms.json': JSON.parse(readFileSync(join(FIX, 'data/terms.json'), 'utf8')) });
+const installedRender = (root, target, out, ...extra) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'kinds-owner', '--installed', ...extra, '--out', out], { encoding: 'utf8', env: { ...process.env, OMX_CONTRACT_PATH: root } });
+
+test('render --installed --with-domain gives the files the installed golden data gives, byte for byte (c and ts)', () => {
+  const golds = Object.fromEntries(readdirSync(join(FIX, 'golden')).map((f) => [f, JSON.parse(golden(f))]));
+  const pure = installed({ ...terms(), ...golds });
+  const both = installed(terms(), domain());
+  for (const target of ['c', 'ts']) {
+    const a = installedRender(pure, target, join(pure, `out-${target}`));
+    assert.equal(a.status, 0, a.stderr);
+    const b = installedRender(both, target, join(both, `out-${target}`), '--with-domain', join(both, 'kinds'));
+    assert.equal(b.status, 0, b.stderr);
+    const files = walk(join(pure, `out-${target}`)).map((p) => relative(join(pure, `out-${target}`), p)).sort();
+    assert.ok(files.length > 0, `${target}: the installed golden data renders nothing`);
+    assert.deepEqual(walk(join(both, `out-${target}`)).map((p) => relative(join(both, `out-${target}`), p)).sort(), files);
+    for (const f of files) assert.equal(readFileSync(join(both, `out-${target}`, f), 'utf8'), readFileSync(join(pure, `out-${target}`, f), 'utf8'), `${target}: ${f}`);
+  }
+});
+
+test('render --installed --with-domain, sabotage: a changed x-text differs; a file both installed and rebuilt, and an owner not installed, are refused by name', () => {
+  const golds = Object.fromEntries(readdirSync(join(FIX, 'golden')).map((f) => [f, JSON.parse(golden(f))]));
+  const pure = installed({ ...terms(), ...golds });
+  assert.equal(installedRender(pure, 'c', join(pure, 'out')).status, 0);
+  const changed = domain();
+  changed.components.schemas.KINDS_CODES.oneOf[1]['x-text'] += ' Changed.';
+  const c = installed(terms(), changed);
+  assert.equal(installedRender(c, 'c', join(c, 'out'), '--with-domain', join(c, 'kinds')).status, 0);
+  assert.ok(existsSync(join(c, 'out', 'kinds_owner_vocabulary.h')), 'the render with the domain wrote no vocabulary header');
+  assert.notEqual(readFileSync(join(c, 'out', 'kinds_owner_vocabulary.h'), 'utf8'), readFileSync(join(pure, 'out', 'kinds_owner_vocabulary.h'), 'utf8'));
+  const twice = installed({ ...terms(), 'words.json': golds['words.json'] }, domain());
+  const t = installedRender(twice, 'c', join(twice, 'out'), '--with-domain', join(twice, 'kinds'));
+  assert.notEqual(t.status, 0);
+  assert.match(t.stderr, /kinds-owner\/words\.json/);
+  const other = domain();
+  other.info['x-owner'] = 'not-installed';
+  const o = installed(terms(), other);
+  const r = installedRender(o, 'c', join(o, 'out'), '--with-domain', join(o, 'kinds'));
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /not-installed/);
 });

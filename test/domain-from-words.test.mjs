@@ -155,3 +155,29 @@ test('a word of the same domain\'s words item may be named too (the domain is it
   assert.notEqual(w.status, 0);
   assert.match(w.stderr, /XA_COLORS#green/);
 });
+
+/** xb with its first word's from pointing at `<to>#<item>`, the word `term`. */
+function fromAt(to, item, term) {
+  const doc = xb();
+  paint(doc)['x-from'] = [{ $ref: `https://openmixer.org/contract/${to}#/components/schemas/${item}`, 'x-term': term }];
+  return doc;
+}
+
+test('the narrowed path is no hole: a from into omx-contract or the owner package, neither in the read, naming a word that does not exist, is refused by validate (word-from)', () => {
+  for (const [to, item] of [['omx-contract', 'LV2_CORE_TERMS'], ['pkg-b', 'PKG_B_WORDS']]) {
+    const v = cli('validate', '--contract-dir', contractDir({ xa: xa(), xb: fromAt(to, item, 'nope') }));
+    assert.notEqual(v.status, 0, to);
+    assert.match(v.stderr, new RegExp(`^xb/xb\\.json: XB_PAINTS: word-from: crimson: ${item}#nope: `, 'm'), to);
+  }
+});
+
+test('the narrowed path is no hole: a from into omx-contract or the owner package, neither in the read, whose item only another package declares, is refused by name', () => {
+  for (const to of ['omx-contract', 'pkg-b']) {
+    const root = contractDir({ xa: xa(), xb: fromAt(to, 'XA_COLORS', 'red') });
+    for (const r of [cli('validate', '--contract-dir', root), render(root)]) {
+      assert.notEqual(r.status, 0, to);
+      assert.match(r.stderr, /contract\.ref\.undeclared/, to);
+      assert.match(r.stderr, new RegExp(`"crimson".*XA_COLORS#red from ${to}.*declared by xa`), to);
+    }
+  }
+});

@@ -21,7 +21,7 @@
             "x-from": [
               {
                 "$ref": "https://openmixer.org/contract/aux#/components/schemas/AUX_SHADES",
-                "x-term": "paleGrey"
+                "x-term": "red"
               }
             ]
           },

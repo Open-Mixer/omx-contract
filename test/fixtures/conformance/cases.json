@@ -62,5 +62,11 @@
   {"case":"requires-target-absent","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.absent"}},
   {"case":"requires-not-an-object","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}},
   {"case":"requires-floor-not-a-floor","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}},
-  {"case":"requires-bad-name","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}}
+  {"case":"requires-bad-name","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}},
+  {"case":"valid-from-words","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"from-words-title-absent","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.ref.unresolved"}},
+  {"case":"from-words-not-a-words-item","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.ref.unresolved"}},
+  {"case":"from-words-undeclared","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.ref.undeclared"}},
+  {"case":"from-words-below-floor","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.too-old"}},
+  {"case":"from-words-target-absent","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.absent"}}
 ]

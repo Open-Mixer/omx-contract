@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/xb",
+  "info": {
+    "title": "The paints whose words are taken from the colours of xa",
+    "version": "1.0.0",
+    "x-owner": "pkg-b",
+    "x-stability": "experimental",
+    "x-requires": {
+      "xa": ">= 1.0.0"
+    }
+  },
+  "components": {
+    "schemas": {
+      "XB_PAINTS": {
+        "description": "The paints of domain xb.",
+        "x-since": "1.0.0",
+        "x-c-codes": true,
+        "x-kind": "words",
+        "x-file": "paints.json",
+        "oneOf": [
+          {
+            "const": "crimson",
+            "title": "crimson",
+            "description": "A red paint.",
+            "x-code": 0,
+            "x-text": "Crimson",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/xa#/components/schemas/XA_COLORS",
+                "x-term": "red"
+              }
+            ]
+          },
+          {
+            "const": "navy",
+            "title": "navy",
+            "description": "A blue paint.",
+            "x-code": 1,
+            "x-text": "Navy",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/xa#/components/schemas/XA_COLORS",
+                "x-term": "deepBlue"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

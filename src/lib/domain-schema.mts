@@ -359,6 +359,7 @@ export const domainSchema = {
           "pattern": "^[A-Za-z][A-Za-z0-9]*$"
         },
         "x-from": {
+          "description": "What the word is taken from: a term of a terms item, or a word of a words item of another domain (or its own), by its $ref (the domain id and the item) and x-term (the term's key, or the target word's title). A package or domain other than omx-contract, the document's own and its owner is declared in info.x-requires.",
           "type": "array",
           "minItems": 1,
           "items": {
@@ -374,6 +375,7 @@ export const domainSchema = {
                 "pattern": "^https://openmixer\\.org/contract/[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*#/components/schemas/[A-Z][A-Z0-9_]*$"
               },
               "x-term": {
+                "description": "The term's key in a terms item, or the title of the target word in a words item.",
                 "type": "string",
                 "minLength": 1
               }

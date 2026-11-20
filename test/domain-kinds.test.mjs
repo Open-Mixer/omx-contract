@@ -42,18 +42,18 @@ function only(doc, keep) {
   return out;
 }
 
-/** A contract directory: the domain `doc` (and its catalog), and beside it the package kinds-terms holding the terms its words are taken from. */
+/** A contract directory: the domain `doc` (and its catalog), and beside it its owner package kinds-owner holding the terms its words are taken from (the package the words' x-from names). */
 function contractDir(doc) {
   const root = join(SCRATCH, `cd-${n++}`);
   mkdirSync(join(root, 'kinds', 'catalogs'), { recursive: true });
   writeFileSync(join(root, 'kinds', 'kinds.json'), `${JSON.stringify(doc, null, 2)}\n`);
   cpSync(join(FIX, 'kinds/catalogs/ca.json'), join(root, 'kinds', 'catalogs', 'ca.json'));
-  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-terms');
+  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-owner');
   mkdirSync(pkg, { recursive: true });
   const terms = JSON.parse(readFileSync(join(FIX, 'data/terms.json'), 'utf8'));
   const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, ...terms }, null, 2)}\n`;
   writeFileSync(join(pkg, 'terms.json'), text);
-  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: { 'terms.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-owner', version: '1.2.0', schemaMajor: SCHEMA_MAJOR, files: { 'terms.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
   return root;
 }
 
@@ -282,7 +282,7 @@ test('a rebuilt word whose from reaches a package its domain does not declare in
   assert.match(ir.stderr, want);
 });
 
-test('a rebuilt word\'s from may reach omx-contract, its own domain or its owner package; an item read at run time only may reach any', () => {
+test('a rebuilt word\'s from may reach omx-contract, its own domain or its owner package; the rebuild does not check an item read at run time only (the read of a contract directory does)', () => {
   for (const to of ['omx-contract', 'kinds', 'kinds-owner']) assert.equal(domainDataFiles('kinds', fromInto(to))['words.json'], golden('words.json'), to);
   const runtime = domain();
   runtime.components.schemas.KINDS_ADDRESS_FORMATS.oneOf[0]['x-from'] = [{ $ref: 'https://openmixer.org/contract/plugin-db#/components/schemas/KINDS_TERMS', 'x-term': 'latency' }];

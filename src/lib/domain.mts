@@ -262,11 +262,12 @@ function fromsOf(item: string, s: JsonObject): DomainFrom[] {
 }
 
 /**
- * The terms the rebuilt words of a domain take (the words of the items with an `x-file`), for the read of an
- * installed contract directory to resolve in the package each names. Read the document with readDomain() first.
+ * The terms and words the words of a domain take (`x-from`), for the read of a contract directory to resolve in the
+ * package or domain each names: with `rebuilt` (the default) only the words of the items with an `x-file`, the ones
+ * `render --with-domain` rebuilds; else every word. Read the document with readDomain() first.
  */
-export function domainFroms(doc: JsonObject): DomainFrom[] {
-  return Object.entries((doc.components as JsonObject).schemas as Record<string, JsonObject>).filter(([, s]) => s['x-file'] !== undefined).flatMap(([item, s]) => fromsOf(item, s));
+export function domainFroms(doc: JsonObject, { rebuilt = true }: { rebuilt?: boolean } = {}): DomainFrom[] {
+  return Object.entries((doc.components as JsonObject).schemas as Record<string, JsonObject>).filter(([, s]) => !rebuilt || s['x-file'] !== undefined).flatMap(([item, s]) => fromsOf(item, s));
 }
 
 /**

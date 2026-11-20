@@ -214,6 +214,8 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   const domainItems: DomainItems[] = [];
   // the packages each domain read declares in info.x-requires, held to their floors once every package is known
   const declared: { at: string; requires: Record<string, string> }[] = [];
+  // each domain of the read: its document, the package its items are read as, and whether it is rebuilt (--with-domain)
+  const domains = new Map<string, { doc: Json; pkg: string; rebuilt: boolean }>();
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
@@ -239,6 +241,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
       packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
       declared.push({ at, requires: domainRequires(raw) });
+      domains.set(name, { doc: raw, pkg: name, rebuilt: false });
       domainFiles.push(file);
       domainItems.push({ rel: at, items: d.names });
     }
@@ -285,6 +288,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   if (withDomain !== undefined) {
     files.push(...rebuiltFiles(withDomain, packages, files, major));
     declared.push({ at: `${domainPath(withDomain.name)} (--with-domain)`, requires: domainRequires(withDomain.doc) });
+    domains.set(withDomain.name, { doc: withDomain.doc, pkg: (withDomain.doc.info as Json)['x-owner'], rebuilt: true });
   }
   files.push(...domainFiles);
   files.sort((a, b) => (a.rel === b.rel ? (a.pkg < b.pkg ? -1 : 1) : a.rel < b.rel ? -1 : 1));
@@ -331,16 +335,37 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       else if (!atLeast(SCHEMA_VERSION, floorOf(v))) refuse('schemaTooOld', at, `info.x-requires omx-contract-schema ${v}; this reader's schema is ${SCHEMA_VERSION}`);
     }
   }
-  // A rebuilt word's term (x-from) is the item of the package or domain its $ref names: the domain's own words are
-  // its owner's once rebuilt.
-  if (withDomain !== undefined) {
-    const owner = (withDomain.doc.info as Json)['x-owner'];
-    for (const f of domainFroms(withDomain.doc)) {
-      const where = `${domainPath(withDomain.name)}: ${f.where} of the word ${JSON.stringify(f.word)}`;
+  // A word's x-from (docs/contract-dir.md, "Domains"): a term of a terms item or a word of a words item (by its title),
+  // of the package or domain its $ref names, which is omx-contract, the domain, its owner or one info.x-requires
+  // declares (held to its floor above), resolved here when that package or domain is in the read. A rebuilt domain's
+  // own words are its owner's; of a rebuilt domain only the words it rebuilds are in the read.
+  for (const [name, { doc, pkg, rebuilt }] of domains) {
+    const owner = (doc.info as Json)['x-owner'];
+    const allowed = new Set([name, owner, SCHEMA_PACKAGE, ...Object.keys(domainRequires(doc))]);
+    for (const f of domainFroms(doc, { rebuilt })) {
+      const where = `${domainPath(name)}: ${f.where} of the word ${JSON.stringify(f.word)}`;
+      const ref = `${f.item}#${f.term}`;
+      if (!allowed.has(f.to)) refuse('refUndeclared', where, `takes ${ref} from ${f.to}, which the domain's info.x-requires does not declare (it may take from omx-contract, ${name}, its owner ${owner} and the packages x-requires names)`);
+      const want = f.to === name ? pkg : domains.get(f.to)?.pkg ?? f.to;
       const target = items.get(f.item);
-      const want = f.to === withDomain.name ? owner : f.to;
-      if (!target) refuse('refUnresolved', where, `takes ${f.item}#${f.term} from ${f.to}, and no installed file declares ${f.item}`);
-      if (target.pkg !== want) refuse('refUndeclared', where, `takes ${f.item}#${f.term} from ${f.to}, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
+      // a package outside the read (omx-contract's data, an owner not installed beside its domain) is validate's to
+      // look for (rule word-from), as it always was; a declared one is in the read, its floor held above. An item of
+      // the read is never taken for it: that item is the package's that declares it.
+      if (!packages.has(want)) {
+        if (target) refuse('refUndeclared', where, `takes ${ref} from ${f.to}, which is not in the read, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
+        continue;
+      }
+      if (!target) {
+        const s = ((domains.get(f.to)?.doc.components as Json)?.schemas as Json)?.[f.item];
+        const kind = s === undefined ? undefined : s['x-kind'] ?? ('properties' in s ? 'range' : 'oneOf' in s ? 'codes' : 'unknown');
+        if (kind !== undefined) refuse('refUnresolved', where, `takes ${ref} from ${f.to}, and ${f.item} is a ${kind} item of ${f.to}, no words item: a from takes a word of a words item or a term of a terms item`);
+        refuse('refUnresolved', where, `takes ${ref} from ${f.to}, and no installed file declares ${f.item}`);
+      }
+      if (target.pkg !== want) refuse('refUndeclared', where, `takes ${ref} from ${f.to}, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
+      const kind = target.item.kind;
+      const keys = kind === 'terms' ? target.item.terms : kind === 'words' ? target.item.words : undefined;
+      if (keys === undefined) refuse('refUnresolved', where, `takes ${ref} from ${f.to}, and ${f.item} is a ${kind} item, no words or terms item`);
+      if (!Object.hasOwn(keys, f.term)) refuse('refUnresolved', where, `takes ${ref} from ${f.to}, and ${f.item} of ${f.to} has no ${kind === 'terms' ? 'term' : 'word titled'} ${f.term}`);
     }
   }
   // A use (a control taking another control's item, its own kernel's or another's) takes an item of its own kind.

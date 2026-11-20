@@ -50,7 +50,7 @@ and one section or more, in this order:
 | `scalars` `{ comment }` | Every number spelled `OMX_<macro>` as `omx_contract_limits.h` spells it, sorted by macro. |
 | `limits` `{ comment? }` | Every section of `omx_contract_limits.h`, the same defines under the same comments: the tables, scalars, lists, sets and readouts. With `scope: package` this is an owner's whole header (omx-dsp's `omxdsp/omxdsp_definitions.h`). |
 
-A words item's X-macro in `omx_vocabulary.h` is `OMX_<ITEM>(X)`; where an owner's `numbers.table` already has that name (the code sheet's `OMX_PARAM_UNITS(X)`, released) it is `OMX_<ITEM>_WORDS(X)`, so no two installed headers define one name (omx-contract#151).
+A words item's X-macro in `omx_vocabulary.h` is `OMX_<ITEM>(X)`, except for a name a released sheet header defines: the renderer holds that list (`RELEASED_SHEET_TABLES`, today `OMX_PARAM_UNITS`, the code sheet's table in `omx_param_units.h`), and such an item's X-macro is `OMX_<ITEM>_WORDS(X)`, so `PARAM_UNITS` is `OMX_PARAM_UNITS_WORDS(X)`. The list is fixed, not read from the renders present: the sheet and its header move to omx-clap-core, and the name stays the same there (omx-contract#151). A words item has no slot to name its macro; the list is the rule.
 
 A glob is a name, its start (`worker*`), its end (`*Dbfs`) or a part (`*Ring*`). `validate` refuses (rule `render-c`)
 a section with nothing to render, a number that is neither a level nor a non-negative integer, a prose of more than one

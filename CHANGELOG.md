@@ -4,6 +4,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: `omx_vocabulary.h` spells the `PARAM_UNITS` words item's X-macro `OMX_PARAM_UNITS_WORDS(X)`; it defined `OMX_PARAM_UNITS(X)`, the name of the released `omx_param_units.h` table, and the two headers together did not compile under `-Werror` (omx-contract#151). Tree version 3.21.0.
 - ADDED: a domain renders as its data form did (omx-contract#139): `render --target c|ts --package <pkg> --data data --with-domain <dir>` rebuilds the data files the domain came from (each item's `x-file`; `x-kind` codes or sheet, `x-source`, `x-name`, `x-value`, `x-docs`; the root's `x-render` and `x-file`) beside the files still in `data/`, and renders them unchanged, byte for byte. A path in both is refused. The domain schema and the reader accept these words; a domain without them renders as before.
 - ADDED: libomx-domain answers a word's group, `omx_domain_word_group(d, item, word)`: the `x-group` of its `oneOf` entry, NULL for a word with none or an unknown item or word. `omx_domain_word_info` is unchanged and the SONAME stays `libomx-domain.so.0`; the ABI gains this one symbol (behaviour-core decision 4).
 ## 3.20.2

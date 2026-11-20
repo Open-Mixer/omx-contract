@@ -219,7 +219,7 @@ mapped once; the tool names no field.
 ## What validation refuses
 
 A descriptor is held to the schema first; a word the schema does not have is `contract.file.invalid`. Then the
-rules a schema cannot state, each with its own code in `CONTRACT_CODES` (`data/codes.json`). A refusal names the
+rules a schema cannot state, each with its own code in `CONTRACT_CODES` (the `contract` domain). A refusal names the
 file, the control or port, and the code; the reader refuses the whole read on the first one.
 
 | Code | When |

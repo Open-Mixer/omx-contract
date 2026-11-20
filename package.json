@@ -67,6 +67,7 @@
     "lib/",
     "render/",
     "data/",
+    "contract.d/",
     "schema/",
     "shapes/",
     "include/",

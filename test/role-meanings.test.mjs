@@ -31,7 +31,7 @@ const install = (pkg, from, root) => execFileSync('sh', [join(ROOT, 'tools/insta
 /** omx-contract's own directory and the packages `pkgs` ({ name: dir }) installed beside it. */
 function dirWith(pkgs) {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   for (const [pkg, from] of Object.entries(pkgs)) install(pkg, from, root);
   return root;
 }

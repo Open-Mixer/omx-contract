@@ -25,7 +25,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
-import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
+import { KERNEL_SECTIONS, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { domainCheck } from '../lib/domain-check.mjs';
 import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
@@ -99,14 +99,17 @@ function load(argv) {
   return loadData(dir, texts);
 }
 
-/** The tool's own tables at the top of a data directory (data/codes.json), as loaded files. */
+/**
+ * CONTRACT_CODES as a loaded file in its data form, rebuilt from the `contract` domain beside the data directory
+ * (`contract.d/contract/contract.json`, the tree of omx-contract itself). A tree with no such domain has no table.
+ */
 function toolFiles(argv) {
   if (fromContractDir(argv)) return [];
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
-  return TOOL_FILES.filter((f) => existsSync(join(dir, f))).map((f) => {
-    const text = readFileSync(join(dir, f), 'utf8');
-    return { rel: relative(join(dir, '..'), join(dir, f)), text, doc: JSON.parse(text) };
-  });
+  const rel = 'contract.d/contract/contract.json';
+  if (!existsSync(join(dir, '..', rel))) return [];
+  const text = domainDataFiles('contract', JSON.parse(readFileSync(join(dir, '..', rel), 'utf8')))['codes.json'];
+  return [{ rel, text, doc: { $schema: '../../schema/omx-contract.schema.json', ...JSON.parse(text) } }];
 }
 
 /** The owner's catalogs beside its data directory (`catalogs/<lang>.json`, lib/catalog.mjs), as loaded files. */
@@ -190,7 +193,7 @@ function cmdFmt(argv) {
   if (fromContractDir(argv) && !check && (argv.includes('--installed') || filesUnder(resolve(opt(argv, '--contract-dir'))).some((f) => f.endsWith('MANIFEST.json')))) throw new Usage('fmt writes a tree, never an installed contract directory: add --check');
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   const data = load(argv);
-  const files = [...data.files, ...toolFiles(argv)];
+  const files = data.files;
   let bad = 0;
   for (const f of files) {
     const want = formatFile(f);
@@ -310,7 +313,8 @@ function dataAtTag(tag) {
   const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   try { git('rev-parse', '--verify', `${tag}^{commit}`); } catch { throw new Usage(`no tag ${tag} in ${ROOT}`); }
   const texts = {};
-  const isData = (p) => p.endsWith('.json') && ![...TOOL_FILES, ...SIDE_FILES].some((f) => p === `data/${f}`);
+  // a tag before the contract domain still holds its refusal table as data/codes.json, which is no declaration
+  const isData = (p) => p.endsWith('.json') && p !== 'data/codes.json' && !SIDE_FILES.some((f) => p === `data/${f}`);
   for (const rel of git('ls-tree', '-r', '--name-only', tag, '--', 'data').split('\n').filter(isData)) {
     const text = git('show', `${tag}:${rel}`);
     let doc;

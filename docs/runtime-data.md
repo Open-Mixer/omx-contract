@@ -73,7 +73,7 @@ typedef struct omx_domain omx_domain;            /* an opened, validated domain;
 
 /* A function returns 0, or the value of a CONTRACT_CODES code, a constant of the generated omx_contract_codes.h:
    OMX_CONTRACT_CODE_DIR_ABSENT, _FILE_NOT_JSON, _FILE_INVALID, _MANIFEST_INVALID, _PACKAGE_TOO_OLD, _ITEM_UNKNOWN,
-   _WORD_UNKNOWN, _INDEX_RANGE. A value is the code's place in data/codes.json, from 1, and never moves. */
+   _WORD_UNKNOWN, _INDEX_RANGE. A value is the code's place in the contract domain's CONTRACT_CODES, from 1, and never moves. */
 const char *omx_domain_code(int status);         /* the string of a value, "contract.dir.absent" ...: for a message */
 
 typedef struct { const char *code;               /* a code of CONTRACT_CODES, e.g. "contract.dir.absent" */
@@ -108,7 +108,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 
 - **Return values.** Every function returns 0 on success, and on failure the integer value of a code of
   `CONTRACT_CODES`, a constant of the generated header `omxcontract/omx_contract_codes.h` (`OMX_CONTRACT_CODE_ITEM_UNKNOWN`
-  and the rest, rendered from `data/codes.json`; a value is the code's place in that table, and a code is appended,
+  and the rest, rendered from the `contract` domain (`contract.d/contract/contract.json`); a value is the code's place in that table, and a code is appended,
   never moved). A program compares the constant; `omx_domain_code` gives the code's string for a message.
   `omx_domain_text` alone returns NULL: when the key is no word of the domain, and when the word has no source sentence
   (no `x-text`; the catalog's sentence for it is still returned in a language the catalog holds). `omx_domain_word_count` returns -1

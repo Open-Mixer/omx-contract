@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { entriesOf, loadData } from '../lib/data.mjs';
+import { domainDataFiles } from '../lib/domain.mjs';
 import { isMain } from '../lib/entry.mjs';
 
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,12 +34,13 @@ export function wordsOf(item) {
   return [];
 }
 
-/** Every item and enum under `root`: name to `{ file, words }`. The data through the loader, the codes tool file, the schemas' enums. */
+/** Every item and enum under `root`: name to `{ file, words }`. The data through the loader, the codes of the contract domain, the schemas' enums. */
 export function declared(root) {
   const out = new Map();
   const add = (name, file, words) => { if (!out.has(name)) out.set(name, { file, words: [...new Set(words)].sort() }); };
   for (const { name, rel, item } of loadData(join(root, 'data')).items.values()) add(name, rel, wordsOf(item));
-  for (const [name, item] of entriesOf('codes.json', JSON.parse(readFileSync(join(root, 'data/codes.json'), 'utf8')))) add(name, 'data/codes.json', wordsOf(item));
+  const domain = 'contract.d/contract/contract.json';
+  for (const [name, item] of entriesOf('codes.json', JSON.parse(domainDataFiles('contract', JSON.parse(readFileSync(join(root, domain), 'utf8')))['codes.json']))) add(name, domain, wordsOf(item));
   for (const file of SCHEMAS) {
     const walk = (node, ptr) => {
       if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${ptr}/${i}`));

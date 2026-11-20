@@ -11,7 +11,6 @@ vocabulary is mapped beside them, so a word is there before a consumer asks for 
 
 ```
 data/
-  codes.json                   CONTRACT_CODES, the reader's own refusals (a tool table: not installed, not rendered)
   primitives.json  rates.json  the parameter scales, the readout rate, the sample rates
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
@@ -46,7 +45,7 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 
 `<SPEC>` and `<HEADER>` are the file's path below its domain directory in upper snake case
 (`ext/draft/scratch-memory` is `EXT_DRAFT_SCRATCH_MEMORY`). A file holds the items of its
-domain only: `test/data-layout.test.mjs` fails on a file under `hosting/`, a codes item outside `codes.json`, an LV2 URI
+domain only: `test/data-layout.test.mjs` fails on a file under `hosting/`, a codes item (CONTRACT_CODES is the `contract` domain's, `contract.d/contract/contract.json`), an LV2 URI
 outside the file of its specification, a CLAP identifier outside the file of its header, and an item whose name is
 not the one its path gives.
 

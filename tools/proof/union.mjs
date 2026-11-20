@@ -59,7 +59,7 @@ function filesUnder(dir) {
 /** A contract directory of this tree's data/ (as omx-contract at `version`) and every owner. */
 function install(root, version, owners) {
   const sh = (...a) => execFileSync('sh', [INSTALL, ...a], { stdio: ['ignore', 'ignore', 'inherit'] });
-  sh('-x', 'codes.json', 'omx-contract', version, String(SCHEMA_MAJOR), join(ROOT, 'data'), root, 'data');
+  sh('omx-contract', version, String(SCHEMA_MAJOR), join(ROOT, 'data'), root, 'data');
   for (const o of owners) sh(o.pkg, o.version, String(SCHEMA_MAJOR), o.dir, root, 'data');
 }
 

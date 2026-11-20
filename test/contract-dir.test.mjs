@@ -17,7 +17,7 @@ import { SCHEMA_VERSION, fileProblems } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, DATA_ITEMS, ROOT } from './helpers.mjs';
+import { DATA, DATA_ITEMS, ROOT, contractCodesDoc } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-dir-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -28,7 +28,7 @@ const URL3 = installedSchemaUrl(3);
 /** A fresh contract directory holding omx-contract's data/ as the install writes it; returns its root. */
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', VERSION, String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', VERSION, String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   return root;
 }
 
@@ -89,7 +89,7 @@ test('the install writes omx-contract\'s data/ with its manifest: every file, it
   assert.equal(m.tree, 'data');
   const want = dataFiles(DATA).map((p) => p.slice(DATA.length + 1)).sort();
   assert.deepEqual(Object.keys(m.files).sort(), want);
-  assert.ok(!want.includes('codes.json'), 'the reader\'s own codes are not installed');
+  assert.ok(!want.includes('codes.json'), 'no codes file is in data/ any more');
   assert.equal(want.length, dataFiles(DATA).length);
   assert.ok(want.includes('rates.json') && want.includes('primitives.json') && want.some((r) => r.startsWith('formats/')), 'the shared facts and the vocabulary tree');
   assert.ok(!want.some((r) => r.startsWith('hosting/')), 'the hosting codes are omx-clap-core\'s (docs/hosting.md)');
@@ -350,9 +350,9 @@ test('the schema states its version; its major is the package\'s and the directo
   assert.match(readFileSync(join(ROOT, 'omx-contract.pc.in'), 'utf8'), /^contractdir=@CONTRACTDIR@$/m);
 });
 
-test('the codes are data: data/codes.json holds every code once, valid and in the one formatting, and no render carries them', () => {
-  const doc = JSON.parse(readFileSync(join(DATA, 'codes.json'), 'utf8'));
-  assert.deepEqual(fileProblems({ rel: 'data/codes.json', text: '', doc }), []);
+test('the codes are the contract domain\'s: its item holds every code once, valid, and no render carries them', () => {
+  const doc = contractCodesDoc();
+  assert.deepEqual(fileProblems({ rel: 'contract.d/contract/contract.json', text: '', doc }), []);
   const codes = Object.values(CONTRACT_CODES);
   assert.equal(new Set(codes).size, codes.length);
   assert.ok(codes.every((c) => /^contract\.[a-z]+\.[a-z-]+$/.test(c)));

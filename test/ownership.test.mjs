@@ -28,7 +28,7 @@ const run = (...extra) => {
 
 before(() => {
   dir = mkdtempSync(join(tmpdir(), 'ownership-'));
-  for (const d of ['data', 'schema', 'shapes', 'ownership', 'tools']) cpSync(join(ROOT, d), join(dir, d), { recursive: true });
+  for (const d of ['data', 'contract.d', 'schema', 'shapes', 'ownership', 'tools']) cpSync(join(ROOT, d), join(dir, d), { recursive: true });
   git('init', '-q');
   git('add', '-A');
   git('commit', '-q', '-m', 'base');

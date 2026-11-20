@@ -4,7 +4,8 @@
 // the words moved, the readers switched where they read them. The proof is call-level, three arms:
 //  (a) golden: the real reads (lib/codes.mjs `CONTRACT_CODES` and `refuse`, the C header render `renderCodesFile`)
 //      give the 57 codes the 3.20.2 table gave, frozen in test/golden/contract-codes.tsv (value, key, code);
-//  (b) both sources: while data/codes.json exists, the domain's words equal it, word for word;
+//  (b) the one source: the domain holds the golden words and data/codes.json is gone (arm (b), both sources agree, ran
+//      green while both existed: commit e1f520e);
 //  (c) sabotage: a copy of the tool whose domain lacks one word reads a table without it, and its header differs.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -44,16 +45,14 @@ test('(a) the C header render holds the golden rows: place from 1, the string, t
   assert.equal(text, readFileSync(join(ROOT, 'include/omxcontract/omx_contract_codes.h'), 'utf8'), 'byte for byte the committed header');
 });
 
-test('(b) both sources: the domain\'s words are the table\'s, in the table\'s order, while data/codes.json exists', (t) => {
-  const old = join(ROOT, 'data/codes.json');
-  if (!existsSync(old)) return t.skip('data/codes.json is removed');
-  const table = JSON.parse(readFileSync(old, 'utf8')).CONTRACT_CODES.codes;
+test('(a) the domain document holds the golden words: x-name the key, const the code, x-code the place from 0, x-args the placeholders', () => {
   const words = JSON.parse(readFileSync(DOMAIN, 'utf8')).components.schemas.CONTRACT_CODES.oneOf;
-  assert.deepEqual(words.map((w) => w['x-name']), Object.keys(table));
-  words.forEach((w, i) => {
-    const c = table[w['x-name']];
-    assert.deepEqual([w.const, w.description, w['x-text'], w['x-code'], w.title], [c.code, c.doc, c.text.en, i, w['x-name']]);
-  });
+  assert.deepEqual(words.map((w, i) => [w['x-code'], w['x-name'], w.const]), golden.map((g) => [g.value - 1, g.key, g.code]));
+  for (const w of words) assert.deepEqual(w['x-args'] ?? [], [...new Set([...w['x-text'].matchAll(/\{(\w+)\}/g)].map((m) => m[1]))], w['x-name']);
+});
+
+test('data/codes.json is gone: the domain is the one source', () => {
+  assert.equal(existsSync(join(ROOT, 'data/codes.json')), false);
 });
 
 /** The tool, copied, with the domain's `contract.dir.absent` word removed; `run` is called with the copy's root. */

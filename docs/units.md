@@ -322,15 +322,16 @@ export class Units {
   bySymbol(symbol: string): Unit;
   byCode(code: number): Unit;
   codes(): readonly { readonly token: string; readonly code: number; readonly unit?: string }[];
-  text(lang: string | undefined, id: string): string | undefined;
+  text(id: string, lang?: string): string | undefined;
   withDescriptor(descriptor: unknown, at: string): Units;
 }
 ```
 
 `dirs` is a directory, a `:` list or an array; a domain is read from the first that holds it, as `openDomainAt`
-does. Each refusal throws `ContractRefusal` with the same code, member and message as the C reader. The returned
-objects are frozen. The C and TypeScript readers are held to each other by one conformance suite, as the domain
-readers are (`test/fixtures/conformance/cases.json`).
+does. `text(id, lang)` takes its arguments in the order of `omx_units_text(u, id, lang)`. Each refusal throws
+`ContractRefusal` with the same code, member and message as the C reader. The returned objects are frozen. The C
+and TypeScript readers are held to each other by one conformance suite, as the domain readers are
+(`test/fixtures/conformance/cases.json`).
 
 ### The `omx-domain units` command
 

@@ -69,5 +69,7 @@
   {"case":"from-words-undeclared","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.ref.undeclared"}},
   {"case":"from-words-below-floor","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.too-old"}},
   {"case":"from-words-target-absent","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.absent"}},
-  {"case":"valid-set-units","domain":"demo","needs":null,"verdict":"ok"}
+  {"case":"valid-set-units","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"valid-verbs-replies","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"valid-terms","domain":"demo","needs":null,"verdict":"ok"}
 ]

@@ -25,7 +25,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
-import { KERNEL_SECTIONS, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
+import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { domainCheck } from '../lib/domain-check.mjs';
 import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
@@ -75,6 +75,24 @@ function domainArg(withDomain) {
   return { name, doc: JSON.parse(readFileSync(path, 'utf8')), path };
 }
 
+/**
+ * The read of a data directory with the tool's own `contract` domain beside it (`contract.d/contract/contract.json`):
+ * the domain's items but the table the tool reads raw, as ONE file `contract/contract.json`, the place and order an
+ * installed tree reads it at, so the render of data/ and the render of the installed tree agree (docs/contract-dir.md).
+ */
+function withToolDomain(data, dir) {
+  const path = join(dir, '..', 'contract.d/contract/contract.json');
+  if (!existsSync(path)) return data;
+  const { doc } = readDomain('contract', JSON.parse(readFileSync(path, 'utf8')), installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+  const { [TOOL_TABLE]: _table, ...rest } = doc;
+  if (!Object.keys(rest).some((k) => !FILE_KEYS.includes(k))) return data;
+  const rel = 'contract/contract.json';
+  const files = [{ rel, text: JSON.stringify(rest), doc: rest }, ...data.files].sort((a, b) => (a.rel < b.rel ? -1 : 1));
+  const items = new Map();
+  for (const f of files) for (const [name, item] of entriesOf(f.rel, f.doc)) items.set(name, { name, rel: f.rel, item });
+  return { files, items };
+}
+
 /** Whether the input is a contract directory rather than a data directory. */
 const fromContractDir = (argv) => argv.includes('--installed') || argv.includes('--contract-dir');
 
@@ -95,7 +113,7 @@ function load(argv) {
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   if (!existsSync(dir)) throw new Usage(`no data directory ${dir}`);
   const withDomain = opt(argv, '--with-domain');
-  if (withDomain === undefined) return loadData(dir);
+  if (withDomain === undefined) return withToolDomain(loadData(dir), dir);
   // the data files a domain was made from, beside the files still in data/ (docs/render.md): one read, unchanged renders
   const { name, doc: raw } = domainArg(withDomain);
   readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
@@ -215,8 +233,10 @@ function cmdFmt(argv) {
   return 0;
 }
 
-/** The installed file of the `contract` domain, the reader's own table. */
-const TOOL_DOMAIN_FILE = 'contract/contract.json';
+/** The reader's own table: an item of the `contract` domain that renders only as omx_contract_codes.h, in no whole-read render. */
+const TOOL_TABLE = 'CONTRACT_CODES';
+/** The data file the tool reads raw for its own table (toolFiles). */
+const TOOL_TABLE_FILE = 'codes.json';
 
 export function renderTarget(target, argv) {
   const data = load(argv);
@@ -238,8 +258,9 @@ export function renderTarget(target, argv) {
     throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');
   }
   // The reader's own table is no declaration: the installed `contract` domain holds it (docs/contract-dir.md, "The refusal codes"),
-  // and no whole-read render carries it, as the render of data/ never reads it (its one render is omx_contract_codes.h)
-  if (data.packages) for (const [name, it] of [...resolved]) if (it.rel === TOOL_DOMAIN_FILE) resolved.delete(name);
+  // and no whole-read render carries it, as the render of data/ never reads it (its one render is omx_contract_codes.h).
+  // The domain's other items render on both paths.
+  resolved.delete(TOOL_TABLE);
   if (target === 'c') return renderC(resolved);
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));

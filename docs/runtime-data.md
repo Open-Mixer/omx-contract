@@ -80,6 +80,7 @@ typedef struct { const char *code;               /* a code of CONTRACT_CODES, e.
                  char message[256]; } omx_domain_error;   /* names the domain, the place and the reason */
 typedef struct { const char *word, *title, *description; int code; } omx_domain_word_info;
 typedef struct { double min, max, def; int has_default; const char *unit, *scale; } omx_domain_range_info;
+typedef struct { double value; int is_bool; const char *unit; } omx_domain_scalar_info;   /* 3.21.0 */
 
 /* Open <domain> from the installed contract directory and validate it; needs_version is the floor ("1.2.0") or NULL.
    Returns 0 and *out, or a code value and *err (never both). Start-up only. */
@@ -102,6 +103,10 @@ const char *omx_domain_word_group(const omx_domain *d, const char *item, const c
 /* A range, unit and default of a parameter of a range item: min, max, default, unit, scale. */
 int  omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out);
 
+/* (3.21.0) The value of a scalar item (x-kind "scalar"): x-value (true and false as 1 and 0, is_bool set) and x-unit.
+   contract.item.unknown for no such item, contract.word.unknown for a words or range item, which has no value. */
+int  omx_domain_scalar(const omx_domain *d, const char *item, omx_domain_scalar_info *out);
+
 /* The sentence a person sees for a word ("<ITEM>.<word>") in <lang>, else the English source sentence. */
 const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang);
 ```
@@ -120,7 +125,10 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   `contract.index.range` (an index below 0 or at the item's count and above). A refused call leaves its output as it
   was: none of them returns a default value.
 - **What it reads.** A words item is a `components.schemas` entry with a `oneOf` of words, a range item one with
-  `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. A domain name is a slash-separated path
+  `properties` of named parameters, a scalar item one whose `x-kind` is `scalar` (3.21.0; docs/contract-dir.md,
+  "Domains"); any other schema (a sheet) is not served. A word whose `x-args` are not exactly the `{placeholders}` of its
+  `x-text`, each once, is refused (`contract.file.invalid`, naming `x-args`), as the TypeScript reader and the build
+  refuse it. A domain name is a slash-separated path
   (`dsp/kernels`, docs/contract-dir.md): each segment a name of letters, digits, `-` and `_`, never empty, `.` or `..`, no
   leading or trailing `/`, at most `OMX_DOMAIN_NAME_MAX` (255) bytes (a longer name is refused as `contract.manifest.invalid`, and so is a contract directory whose paths do not fit the loader's 4096-byte path: it may exist, it is not absent); the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
   name is refused with `contract.file.invalid` before any file is read. Open checks
@@ -133,7 +141,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 - **Ownership and lifetime.** At open the handle copies everything it will return into its own immutable storage,
   and releases the JSON library's document before `omx_domain_open` returns; sharing between threads never rests on
   the JSON library's internals. A `const char *` and every pointer inside an `omx_domain_word_info` or
-  `omx_domain_range_info` points into that storage, is valid from the call until `omx_domain_close`, is never modified
+  `omx_domain_range_info` or `omx_domain_scalar_info` points into that storage, is valid from the call until `omx_domain_close`, is never modified
   and never freed by the caller, and may be shared between threads after `omx_domain_open` returns. A program that needs a value after close, or in a
   thread with a real-time deadline, copies it at start-up into storage of its own.
 - **Never in the audio thread.** The family allocates (open parses and validates the document) and looks up by string.

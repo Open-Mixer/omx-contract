@@ -13,12 +13,15 @@ import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { refuse } from './codes.mjs';
 import { parseStrict } from './json-strict.mjs';
+import { placeholdersOf } from './placeholders.mjs';
 
 /** The longest domain name, as in the C header (`OMX_DOMAIN_NAME_MAX`). */
 export const DOMAIN_NAME_MAX = 255;
 
 /** A word of a words item: as written, its key, its line (undefined when it has none) and its code. */
 export interface DomainWord { readonly word: string; readonly title: string; readonly description?: string; readonly code: number }
+/** The value of a scalar item (since 3.21.0): a number, or true or false, in its unit (`''` for none). */
+export interface DomainScalar { readonly value: number | boolean; readonly unit: string }
 /** A parameter of a range item. */
 export interface DomainRange { readonly min: number; readonly max: number; readonly default?: number; readonly unit: string; readonly scale: string }
 /** One catalog of a domain: its language and its sentences by key. */
@@ -29,6 +32,9 @@ const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !
 const str = (o: unknown, k: string): string | undefined => (isObj(o) && typeof o[k] === 'string' ? (o[k] as string) : undefined);
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+// info.x-requires: a package or domain name, and its floor (docs/contract-dir.md, "Domains")
+const REQUIRED = /^[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*$/;
+const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const NAME = /^[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*$/;
 const LANG = /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/;
 const ID_PREFIX = 'https://openmixer.org/contract/';
@@ -79,14 +85,15 @@ export function readCatalogs(ddir: string, domain: string): DomainCatalog[] {
 
 interface WordsItem { readonly words: DomainWord[]; readonly texts: Map<string, string> }
 interface RangeItem { readonly params: Map<string, DomainRange> }
+interface ScalarItem { readonly scalar: DomainScalar }
 
 /** An opened, validated domain: read-only lookups of its words, ranges and sentences. */
 export class Domain {
   /** @internal */
-  constructor(private readonly wordItems: Map<string, WordsItem>, private readonly rangeItems: Map<string, RangeItem>, readonly catalogs: readonly DomainCatalog[]) {}
+  constructor(private readonly wordItems: Map<string, WordsItem>, private readonly rangeItems: Map<string, RangeItem>, readonly catalogs: readonly DomainCatalog[], private readonly scalarItems: Map<string, ScalarItem> = new Map()) {}
 
-  private item(name: string): WordsItem | RangeItem {
-    const it = this.wordItems.get(name) ?? this.rangeItems.get(name);
+  private item(name: string): WordsItem | RangeItem | ScalarItem {
+    const it = this.wordItems.get(name) ?? this.rangeItems.get(name) ?? this.scalarItems.get(name);
     if (!it) refuse('itemUnknown', name, `The domain has no item ${name}.`);
     return it!;
   }
@@ -112,6 +119,13 @@ export class Domain {
     return p!;
   }
 
+  /** The value and unit of a scalar item (since 3.21.0). @throws ContractRefusal contract.item.unknown, contract.word.unknown for a words or range item. */
+  scalar(item: string): DomainScalar {
+    const it = this.item(item);
+    if (!('scalar' in it)) refuse('wordUnknown', item, `The item ${item} is no scalar: it has no value.`);
+    return (it as ScalarItem).scalar;
+  }
+
   /** The sentence of a word (`<ITEM>.<word>`) in `lang`, else its English source sentence; undefined when it has neither. */
   text(lang: string | undefined, key: string): string | undefined {
     const dot = key.indexOf('.');
@@ -125,6 +139,23 @@ export class Domain {
     }
     return it.texts.get(w.word);
   }
+}
+
+/** A word's `x-args` (3.21.0): exactly the placeholders of its `x-text`, each once; none when it names none; never without a text. */
+function argsAgree(args: unknown, text: string | undefined): boolean {
+  const named = placeholdersOf(text);
+  if (args === undefined) return named.size === 0;
+  if (text === undefined || !Array.isArray(args) || args.some((a) => typeof a !== 'string' || /[{}]/.test(a))) return false;
+  return new Set(args).size === args.length && args.length === named.size && args.every((a) => named.has(a as string));
+}
+
+/** A scalar item (3.21.0): `x-kind` "scalar", `x-value` a number or true or false, `x-unit` a string. */
+function readScalar(item: string, o: Obj, path: string, domain: string): ScalarItem {
+  const lead = `The domain ${domain} at ${path}`;
+  const v = o['x-value'];
+  if (typeof v !== 'boolean' && (typeof v !== 'number' || !Number.isFinite(v))) refuse('fileInvalid', path, `${lead}: the scalar ${item} has no number, true or false "x-value".`);
+  if (typeof o['x-unit'] !== 'string') refuse('fileInvalid', path, `${lead}: the scalar ${item} has no string "x-unit".`);
+  return { scalar: { value: v as number | boolean, unit: o['x-unit'] as string } };
 }
 
 function readWords(item: string, oneOf: unknown[], path: string, domain: string): WordsItem {
@@ -142,6 +173,7 @@ function readWords(item: string, oneOf: unknown[], path: string, domain: string)
     if (typeof code !== 'number' || !Number.isInteger(code) || code < 0 || code > 0x7fffffff) refuse('fileInvalid', path, `${lead}: the word "${word}" of ${item} has no non-negative integer "x-code".`);
     if (o['x-text'] !== undefined && typeof o['x-text'] !== 'string') refuse('fileInvalid', path, `${lead}: the "x-text" of the word "${word}" of ${item} is not a string.`);
     if (code !== at) refuse('fileInvalid', path, `${lead}: the word "${word}" of ${item} has x-code ${code}, and must have its place in the list, ${at}.`);
+    if (!argsAgree(o['x-args'], o['x-text'] as string | undefined)) refuse('fileInvalid', path, `${lead}: the "x-args" of the word "${word}" of ${item} are not exactly the placeholders of its "x-text", each once.`);
     if (words.some((x) => x.word === word)) refuse('fileInvalid', path, `${lead}: ${item} declares the word "${word}" twice.`);
     words.push({ word: word!, title: o.title as string, ...(o.description === undefined ? {} : { description: o.description as string }), code: code as number });
     if (o['x-text'] !== undefined) texts.set(word!, o['x-text'] as string);
@@ -193,12 +225,21 @@ export function openDomainAt(dirs: string | readonly string[], domain: string, n
   if (version === undefined || !VERSION.test(version)) refuse('manifestInvalid', rel, `${lead} has no info.version of the form x.y.z.`);
   if (!str(info, 'x-owner')) refuse('manifestInvalid', rel, `${lead} has no info.x-owner.`);
   if (stability !== 'experimental' && stability !== 'stable') refuse('manifestInvalid', rel, `${lead}: info.x-stability is ${stability === undefined ? '(absent)' : `"${stability}"`}, and must be "experimental" or "stable".`);
+  const req = isObj(info) ? info['x-requires'] : undefined;
+  if (req !== undefined) {
+    if (!isObj(req)) refuse('manifestInvalid', rel, `${lead}: info.x-requires is not a map of package to floor ">= x.y.z".`);
+    for (const [k, v] of Object.entries(req as Obj)) {
+      if (!REQUIRED.test(k)) refuse('manifestInvalid', rel, `${lead}: info.x-requires names "${k}", which is no package or domain name.`);
+      if (typeof v !== 'string' || !FLOOR.test(v)) refuse('manifestInvalid', rel, `${lead}: info.x-requires of "${k}" is not a floor ">= x.y.z".`);
+    }
+  }
   if (needs !== null && below(triple(version!), triple(needs))) refuse('packageTooOld', rel, `${lead} is version ${version}, below the floor ${needs} the program needs.`);
   const comp = d.components;
   const schemas = isObj(comp) ? comp.schemas : undefined;
   if (!isObj(schemas)) refuse('fileInvalid', rel, `${lead} has no "components"."schemas" object.`);
   const words = new Map<string, WordsItem>();
   const ranges = new Map<string, RangeItem>();
+  const scalars = new Map<string, ScalarItem>();
   for (const [name, s] of Object.entries(schemas as Obj)) {
     if (!isObj(s)) refuse('fileInvalid', rel, `${lead}: the schema ${name} is not an object.`);
     const o = s as Obj;
@@ -207,7 +248,8 @@ export function openDomainAt(dirs: string | readonly string[], domain: string, n
     if (oneOf && props) refuse('fileInvalid', rel, `${lead}: the schema ${name} has both "oneOf" and "properties": it is a words item or a range item, not both.`);
     if (oneOf) words.set(name, readWords(name, oneOf, rel, domain));
     else if (props) ranges.set(name, readParams(name, props, rel, domain));
-    // a schema that is neither a words nor a range item is not served
+    else if (o['x-kind'] === 'scalar') scalars.set(name, readScalar(name, o, rel, domain));
+    // a schema that is no words, range or scalar item (a sheet) is not served
   }
-  return new Domain(words, ranges, readCatalogs(join(root, domain), domain));
+  return new Domain(words, ranges, readCatalogs(join(root, domain), domain), scalars);
 }

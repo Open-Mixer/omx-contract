@@ -54,6 +54,17 @@ export const domainSchema = {
             "experimental",
             "stable"
           ]
+        },
+        "x-requires": {
+          "description": "The packages (or domains) the domain's words take terms from, each with its floor: the requires every data file rebuilt from the domain carries, after the schema floor (docs/contract-dir.md, \"Domains\").",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          }
         }
       }
     },
@@ -256,12 +267,11 @@ export const domainSchema = {
       }
     },
     "scalar": {
-      "description": "A single value render --with-domain rebuilds as a data scalar (docs/render.md): its description the item's doc, x-value the value, x-unit its unit (an empty string for none). Read nowhere else.",
+      "description": "A single value: its description the item's doc, x-value the value, x-unit its unit (an empty string for none). The runtime readers serve it (omx_domain_scalar, Domain.scalar); with an x-file, render --with-domain also rebuilds it as a data scalar (docs/render.md).",
       "type": "object",
       "required": [
         "description",
         "x-kind",
-        "x-file",
         "x-unit",
         "x-value"
       ],

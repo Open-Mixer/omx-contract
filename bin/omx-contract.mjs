@@ -66,6 +66,15 @@ function opts(argv, name) {
   return out;
 }
 
+/** The domain `--with-domain` names, a domain directory: its name (the directory's), document and path. */
+function domainArg(withDomain) {
+  const ddir = resolve(withDomain);
+  const name = basename(ddir);
+  const path = join(ddir, `${domainLeaf(name)}.json`);
+  if (!existsSync(path)) throw new Usage(`--with-domain ${withDomain}: no ${domainLeaf(name)}.json, the document of the domain ${name}`);
+  return { name, doc: JSON.parse(readFileSync(path, 'utf8')), path };
+}
+
 /** Whether the input is a contract directory rather than a data directory. */
 const fromContractDir = (argv) => argv.includes('--installed') || argv.includes('--contract-dir');
 
@@ -79,16 +88,16 @@ function load(argv) {
       needs[m[1]] = m[2];
     }
     const dir = argv.includes('--installed') ? undefined : resolve(opt(argv, '--contract-dir'));
-    return loadContractDir({ dir, needs });
+    // a domain in its data form, its rebuilt files joining the installed package its x-owner names (docs/render.md)
+    const wd = opt(argv, '--with-domain');
+    return loadContractDir({ dir, needs, ...(wd === undefined ? {} : { withDomain: domainArg(wd) }) });
   }
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   if (!existsSync(dir)) throw new Usage(`no data directory ${dir}`);
   const withDomain = opt(argv, '--with-domain');
   if (withDomain === undefined) return loadData(dir);
   // the data files a domain was made from, beside the files still in data/ (docs/render.md): one read, unchanged renders
-  const ddir = resolve(withDomain);
-  const name = basename(ddir);
-  const raw = JSON.parse(readFileSync(join(ddir, `${domainLeaf(name)}.json`), 'utf8'));
+  const { name, doc: raw } = domainArg(withDomain);
   readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
   const texts = Object.fromEntries(loadData(dir).files.map((f) => [f.rel, f.text]));
   for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {

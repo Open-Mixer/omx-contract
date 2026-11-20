@@ -623,7 +623,7 @@
 /** The words of PARAM_UNITS in their declared order, as a C initializer list. */
 #define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s" }
 /** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The closed list of units the items use: each word's `symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry. The schema's $defs.unit enum is these symbols in this order (tools/unit-enum.mjs); a descriptor's unit is one of them or a plugin-only unit (descriptorUnit). */
-#define OMX_PARAM_UNITS(X) \
+#define OMX_PARAM_UNITS_WORDS(X) \
     X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
     X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
     X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "x", X) X(11u, "none", NONE) \

@@ -25,6 +25,13 @@ export const codeMacro = (code) => `OMX_${constCase(code)}`;
 /** A reply code's resp number as C: the code's macro and _RESP (reply.host.pin-absent is OMX_REPLY_HOST_PIN_ABSENT_RESP, -508). */
 export const respMacro = (code) => `${codeMacro(code)}_RESP`;
 
+/**
+ * The X-macro names a released sheet header defines, which a words item never takes: omx_param_units.h's
+ * OMX_PARAM_UNITS(X) (3.20.2). A fixed list, not read from the renders present, because the sheet and its header move
+ * to another package and `omx_vocabulary.h` installs beside that header all the same (omx-contract#151).
+ */
+const RELEASED_SHEET_TABLES = new Set(['OMX_PARAM_UNITS']);
+
 /** A word's C name: OMX_<ITEM>_<NAME>. */
 export const wordMacro = (item, name) => `OMX_${item}_${constCase(name)}`;
 
@@ -65,8 +72,10 @@ export function renderVocabularyHeader(resolved, pkg) {
       const xs = Object.entries(r.value).map(([n, w], i) => `X(${i}u, ${cStringLiteral(w.word)}, ${constCase(n)})`);
       const rows = [];
       for (let i = 0; i < xs.length; i += 4) rows.push(`    ${xs.slice(i, i + 4).join(' ')}`);
+      // OMX_<ITEM>(X), or OMX_<ITEM>_WORDS(X) where a released sheet header defines that name
+      const xname = RELEASED_SHEET_TABLES.has(`OMX_${r.name}`) ? `OMX_${r.name}_WORDS` : `OMX_${r.name}`;
       const doc = `Expands \`X(code, "word", NAME)\` once per word of ${r.name}, in order, the code being its place in the order.${r.doc ? ` ${doxyLine(r.doc)}` : ''}`;
-      lines.push(`/** ${doc} */`, `#define OMX_${r.name}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
+      lines.push(`/** ${doc} */`, `#define ${xname}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
     }
     return lines.join('\n');
   });

@@ -17,7 +17,7 @@ import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
 import { readCatalogs } from './domain-reader.mjs';
 import { parseStrict } from './json-strict.mjs';
-import { DOMAIN_NAME, checkItemPrefixes, domainLeaf, domainPath, readDomain } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain } from './domain.mjs';
 import type { DomainCodes, DomainItems } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
@@ -67,6 +67,12 @@ export interface ContractRootsOptions {
 export interface LoadContractDirOptions extends ContractRootsOptions {
   readonly needs?: Readonly<Record<string, string>>;
   readonly major?: number;
+  /**
+   * A domain read in its data form (docs/render.md, `render --installed --with-domain`): its document `doc`, named
+   * `name`, at `path`. The data files it rebuilds (domainDataFiles) join the installed package its `info.x-owner`
+   * names, and a domain directory of that name in the roots is not also read as a domain.
+   */
+  readonly withDomain?: { readonly name: string; readonly doc: JsonObject; readonly path: string };
 }
 
 /** One file of the read: its reported path, text and document, its package and installed path. */
@@ -186,7 +192,7 @@ function referencesOf(rel, doc) {
  * `needs` is what the consumer requires, `{ <package>: '>= x.y.z' }`.
  * @throws ContractRefusal, the first refusal met; see docs/contract-dir.md for the order.
  */
-export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEMA_MAJOR }: LoadContractDirOptions = {}): {
+export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEMA_MAJOR, withDomain }: LoadContractDirOptions = {}): {
   files: ContractFile[];
   items: Map<string, ContractItem>;
   packages: Map<string, ContractPackage>;
@@ -206,10 +212,12 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   // a domain (docs/contract-dir.md): <root>/<domain>/<domain>.json, read as the classic file of its items
   const domainFiles: Json[] = [];
   const domainItems: DomainItems[] = [];
+  // the packages each domain read declares in info.x-requires, held to their floors once every package is known
+  const declared: { at: string; requires: Record<string, string> }[] = [];
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
-      if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || packages.has(name)) continue;
+      if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || packages.has(name) || name === withDomain?.name) continue;
       const path = join(ddir, `${domainLeaf(name)}.json`);
       const at = domainPath(name);
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
@@ -230,6 +238,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
       packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
+      declared.push({ at, requires: domainRequires(raw) });
       domainFiles.push(file);
       domainItems.push({ rel: at, items: d.names });
     }
@@ -273,6 +282,10 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       files.push(file);
     }
   }
+  if (withDomain !== undefined) {
+    files.push(...rebuiltFiles(withDomain, packages, files, major));
+    declared.push({ at: `${domainPath(withDomain.name)} (--with-domain)`, requires: domainRequires(withDomain.doc) });
+  }
   files.push(...domainFiles);
   files.sort((a, b) => (a.rel === b.rel ? (a.pkg < b.pkg ? -1 : 1) : a.rel < b.rel ? -1 : 1));
 
@@ -311,6 +324,25 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       checkPackage(packages, pkg, v, f.rel);
     }
   }
+  // A domain's declared packages (info.x-requires): installed, at or above the floor; the schema floor is this reader's.
+  for (const { at, requires } of declared) {
+    for (const [pkg, v] of Object.entries(requires)) {
+      if (pkg !== 'omx-contract-schema') checkPackage(packages, pkg, v, at);
+      else if (!atLeast(SCHEMA_VERSION, floorOf(v))) refuse('schemaTooOld', at, `info.x-requires omx-contract-schema ${v}; this reader's schema is ${SCHEMA_VERSION}`);
+    }
+  }
+  // A rebuilt word's term (x-from) is the item of the package or domain its $ref names: the domain's own words are
+  // its owner's once rebuilt.
+  if (withDomain !== undefined) {
+    const owner = (withDomain.doc.info as Json)['x-owner'];
+    for (const f of domainFroms(withDomain.doc)) {
+      const where = `${domainPath(withDomain.name)}: ${f.where} of the word ${JSON.stringify(f.word)}`;
+      const target = items.get(f.item);
+      const want = f.to === withDomain.name ? owner : f.to;
+      if (!target) refuse('refUnresolved', where, `takes ${f.item}#${f.term} from ${f.to}, and no installed file declares ${f.item}`);
+      if (target.pkg !== want) refuse('refUndeclared', where, `takes ${f.item}#${f.term} from ${f.to}, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
+    }
+  }
   // A use (a control taking another control's item, its own kernel's or another's) takes an item of its own kind.
   const [use] = useProblems({ files, items });
   if (use) refuse('refUnresolved', use.rel, `${use.item}: ${use.message}`);
@@ -325,6 +357,29 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     checkPackage(packages, pkg, v, 'needs');
   }
   return { files, items, packages, roots };
+}
+
+/**
+ * The data files the domain `withDomain` rebuilds (docs/render.md), as files of the installed package its
+ * `info.x-owner` names, each at the place the package's own file would have (`<manifest tree or package>/<x-file>`).
+ * @throws ContractRefusal contract.package.absent when that package is not installed, contract.manifest.mismatch for a
+ * file it both installs and rebuilds, contract.file.invalid for a rebuilt file the schema refuses.
+ */
+function rebuiltFiles({ name, doc, path }, packages, installed, major): ContractFile[] {
+  const d = readDomain(name, doc, installedSchemaUrl(major), major);
+  const owner = d.manifest.owner as string;
+  const p = packages.get(owner);
+  if (p?.manifest.files === undefined) refuse('packageAbsent', `${name} (info.x-owner ${owner})`, `the domain ${name} is rebuilt into the package ${owner}, its info.x-owner, and no package ${owner} is installed`);
+  const out: ContractFile[] = [];
+  for (const [file, text] of Object.entries(domainDataFiles(name, doc))) {
+    const rel = `${p.manifest.tree ?? owner}/${file}`;
+    if (installed.some((f) => f.rel === rel && f.pkg === owner)) refuse('manifestMismatch', rel, `installed by the package ${owner} and rebuilt from the domain ${name}: one source per file`);
+    const f = { rel, text, doc: JSON.parse(text), pkg: owner, path, installed: true as const };
+    const problems = fileProblems(f);
+    if (problems.length) refuse('fileInvalid', rel, problems.map((x) => `${x.item}: ${x.rule}: ${x.message}`).join('; '));
+    out.push(f);
+  }
+  return out;
 }
 
 function checkPackage(packages, pkg, v, from) {

@@ -70,9 +70,9 @@ governs code and build dependencies on another repository's sources, and hand co
 | 14 | plugin-qualify reads `PLUGIN_HOSTD_HISTORY_KEYS` | plugin-hostd, a `history` domain | plugin-qualify reads the installed domain | sorting pass |
 | 15 | plugin-hostd-protocol reads plugin-hostd's probe and grouping words | plugin-hostd, as rows 8 and 9 | generated from the installed domains (data, rule 2 as read above) | as rows 8 and 9 |
 | 16 | plugin-db-qualification holds `machine` fixtures and reads `MACHINE_*` | plugin-hostd, `machine` domain | the fixtures stay test data; the store reads the installed domain | none |
-| 17 | omx-contract names outer repositories' words (`VERB_HOSTS`, `PLUGIN_FEATURE_*`, `PANEL_*`, `RESOURCE_HINTS`) | each to its producer (rows 1, 19) | omx-contract drops them (rule 5) | sorting pass |
+| 17 | omx-contract names outer repositories' words (`VERB_HOSTS`, `PLUGIN_FEATURE_*`, `PANEL_*`, `RESOURCE_HINTS`) | each to its producer (rows 1, 19); superseded in part by the amendment 2026-11-20 (standard words stay) | omx-contract drops them (rule 5) | sorting pass |
 | 18 | plugin-hostd holds `machine` and `probe`, read by layers 4 to 6 | plugin-hostd (the prober writes them) | none | none |
-| 19 | the 24 items of `moving-out.txt` with no new owner | `PLUGIN_FEATURE_*` to plugin-db (plugin level); `RESOURCE_*` to plugin-hostd (it places plugins within the budgets); rates and `CURVE_*` to omx-dsp (the kernels' axes and rates); `VERB_HOSTS` to plugin-hostd (host level); `READOUT_RATE_HZ` to omx-panel; `OMX_PARAM_CONTRACT_UNITS` with the units lane (row 30) | omx-contract drops each as its owner publishes it | sorting pass |
+| 19 | the 24 items of `moving-out.txt` with no new owner | `PLUGIN_FEATURE_*` to plugin-db (plugin level); `RESOURCE_*` to plugin-hostd (it places plugins within the budgets); rates and `CURVE_*` to omx-dsp (the kernels' axes and rates); `VERB_HOSTS` to plugin-hostd (host level); `READOUT_RATE_HZ` to omx-panel; `OMX_PARAM_CONTRACT_UNITS` with the units lane (row 30); superseded in part by the amendment 2026-11-20 (see its table) | omx-contract drops each as its owner publishes it | sorting pass |
 | 20 | `QUALIFICATION_MACHINE_CLASSES` and `_HOST_CLASSES` | plugin-hostd, `qualification` domain (row 10) | as row 5 | S8 |
 | 21 | omx-panel gesture kinds and `PANEL_STANDARD_WIDGETS` share eight words in two forms | omx-panel, a `gestures` domain (`x-group`, on omx-contract main) | the widget item references the gesture words; `schema/gestures.json` rendered from the domain | SA, S6 |
 | 22 | the console's `words.json` built from hand TS; the console spells other owners' words | the console for its three items; the rest to rows 6, 7, 10 | the console generates its three from a domain of its own | sorting pass |
@@ -81,9 +81,9 @@ governs code and build dependencies on another repository's sources, and hand co
 | 25 | `PLUGIN_DB_*` items in `data/` beside the `plugin-db` domain | plugin-db, `plugin-db` domain | the 20 items join the domain | sorting pass |
 | 26 | `PLUGIN_HOSTD_GROUPING_*`, `_HISTORY_KEYS` in plugin-hostd `data/` | plugin-hostd, its `grouping` (row 8) and `history` (row 14) domains | the data items become the two domains | sorting pass |
 | 27 | `qualify.*` (plugin-qualify's own command refusals, not plugin words) and `panel.*` code sheets beside their domains | each domain, texts in `x-text` | the sheets are rendered from the domains (the render on omx-contract main) | sorting pass |
-| 28 | omx-contract's own classic data (`CONTRACT_CODES`, `CURVE_*`, `PARAM_SCALES`, rates, `RESOURCE_*`, `VERB_HOSTS`, `PLUGIN_FEATURE_*`) | `CONTRACT_CODES` and `PARAM_SCALES` stay as omx-contract domains (format and cross-cutting); the rest move per row 19 | migrated to domains | sorting pass |
+| 28 | omx-contract's own classic data (`CONTRACT_CODES`, `CURVE_*`, `PARAM_SCALES`, rates, `RESOURCE_*`, `VERB_HOSTS`, `PLUGIN_FEATURE_*`) | `CONTRACT_CODES` and `PARAM_SCALES` stay as omx-contract domains (format and cross-cutting); the rest move per row 19; superseded in part by the amendment 2026-11-20 (see its table) | migrated to domains | sorting pass |
 | 29 | omx-dsp kernels and primitives as `data/` items | omx-dsp, a `dsp` domain | the data items become the domain | sorting pass |
-| 30 | units: `PARAM_UNITS` (added on main by omx-contract#141, never released) and the released `OMX_PARAM_CONTRACT_UNITS` (`omx_param_units.h`, `omx_contract_limits.h`; read by omx-clap-core `param_contract.h`, `clap_host.h`, `omx_clap_ext.h`, `lv2_clap.c` and omx-plugins `omx_param_contract.h`, `param-contract.mjs`, per omx-contract#144) | owned per producer: the units a kernel computes in are omx-dsp's; the units a value is DISPLAYED in are omx-panel's; a plugin's custom units are its own declaration; the format spellings with V27. libomx-domain's merged units view gives a consumer every owner's units as one list | `PARAM_UNITS` leaves main (omx-contract#144) before any tag; `OMX_PARAM_CONTRACT_UNITS` stays byte-identical to 3.20.2 and leaves only with the units lane, after the merged reader is in place | the units lane (V23) |
+| 30 | units: `PARAM_UNITS` (added on main by omx-contract#141, never released) and the released `OMX_PARAM_CONTRACT_UNITS` (`omx_param_units.h`, `omx_contract_limits.h`; read by omx-clap-core `param_contract.h`, `clap_host.h`, `omx_clap_ext.h`, `lv2_clap.c` and omx-plugins `omx_param_contract.h`, `param-contract.mjs`, per omx-contract#144) | superseded (amendment 2026-11-20): the standard units are ONE list in omx-contract (`PARAM_UNITS`, grown, with dimensions); the param-contract code sheet is a CLAP particular at omx-clap-core, mapped to it; a plugin's custom units stay in its declaration; no merged units view | superseded: omx-contract#144 is not merged; `PARAM_UNITS` stays; `OMX_PARAM_CONTRACT_UNITS` moves to omx-clap-core in three PRs (amendment, row V23d) | the amendment 2026-11-20 |
 
 ## This release pass
 
@@ -136,19 +136,19 @@ release numbers are the next minor of each repository after this pass.
 | V16 | `PLUGIN_HOSTD_REPLY_CODES`, `_VERBS`, `_PROTOCOL_VERBS`, `_PROTOCOL_EXTENSIONS` | plugin-hostd-protocol `data/verbs.json` | wire, rule 1 | plugin-hostd-protocol, `protocol` domain | plugin-hostd; the clients | the data items become the domain | plugin-hostd-protocol-contract: `data/verbs.json` becomes a `protocol` domain | SA, S5, S8 | plugin-hostd-protocol next minor, then plugin-hostd 0.21.0 | a verb renamed breaks the clients: the clients' codec tests are generated from the domain |
 | V17 | `PLUGIN_HOSTD_GROUPING_REASONS` (16), `_REASON_GROUPS` | plugin-hostd `data/grouping.json` | host, rule 1 | plugin-hostd, `grouping` domain | plugin-hostd-protocol clients (TypeScript, Python, by hand); plugin-hostd clients | the clients' block is generated; plugin-hostd's `clients/` removed (row 3) | plugin-hostd-contract gains `grouping`; plugin-hostd loses `clients/` | SA, S5, S8 | plugin-hostd 0.21.0, then plugin-hostd-protocol next minor | the two client copies differ today: the generated block replaces both, the codec tests compare |
 | V18 | `PLUGIN_HOSTD_HISTORY_KEYS` (15) | plugin-hostd `data/history.json` | host, rule 1 | plugin-hostd, `history` domain | plugin-qualify `history-file.ts` | read from the installed domain | plugin-hostd-contract gains `history` | SA, S9 | plugin-hostd 0.21.0, then plugin-qualify 0.21.0 | plugin-qualify reads an unknown key: its history-file test reads the installed domain |
-| V19 | `PLUGIN_HOSTD_CLAP_MAP`, `_LV2_MAP` | plugin-hostd AND plugin-qualify `data/formats/` | host, rule 3 | plugin-hostd, `formats-map` domain | plugin-hostd; plugin-qualify (its own drifted copy) | plugin-qualify's `data/formats/*` dropped | plugin-hostd-contract gains `formats-map`; plugin-qualify-contract loses `data/formats/` | SA, S9 | plugin-hostd 0.21.0, then plugin-qualify 0.21.0 | the two copies drifted: the diff is reviewed item by item before the drop, and plugin-qualify's format tests read the domain |
+| V19 | `PLUGIN_HOSTD_CLAP_MAP`, `_LV2_MAP` | plugin-hostd AND plugin-qualify `data/formats/` | host, rule 3 | plugin-hostd, `formats-map` domain (a host mapping: kept). Amendment 2026-11-20: its unit and meaning lookup values read the format levels' mappings (M5) | plugin-hostd; plugin-qualify (its own drifted copy) | plugin-qualify's `data/formats/*` dropped | plugin-hostd-contract gains `formats-map`; plugin-qualify-contract loses `data/formats/` | SA, S9; M5 after F1, F2 | plugin-hostd 0.21.0, then plugin-qualify 0.21.0 | the two copies drifted: the diff is reviewed item by item before the drop, and plugin-qualify's format tests read the domain |
 | V20 | `CONTRACT_CODES` (57) | omx-contract `data/codes.json` | contract format, rule 5 | omx-contract, `contract` domain | `omx_contract_codes.h` and every reader | the data item becomes the domain | omx-contract-contract: `data/codes.json` becomes the `contract` domain | S0 | omx-contract 3.21.0 | every reader of a refusal code: render --check compares the rendered header and module byte for byte in the owner's CI for `omx_contract_codes.h` |
-| V21 | `PARAM_SCALES` | omx-contract `data/primitives.json` | contract format (how a parameter's range is read), rule 5 | omx-contract, `contract` domain | everyone | the data item becomes the domain | omx-contract-contract: `PARAM_SCALES` joins the `contract` domain | S0 | omx-contract 3.21.0 | every parameter reader: render --check compares the rendered header and module byte for byte in the owner's CI |
-| V22 | `READOUT_RATE_HZ` | omx-contract `data/primitives.json` | display, rule 5 | omx-panel, `panel` domain | the panel, the console | omx-contract's copy dropped | omx-panel-contract gains `READOUT_RATE_HZ`; omx-contract-contract loses it | SA, S6, S11; drop SZ | omx-panel 0.16.0, the console's next release; the drop after | a reader of omx-contract's constant breaks at the drop: the drop waits for a grep finding none |
-| V23 | `OMX_PARAM_CONTRACT_UNITS` and the schema's `unit`, `descriptorUnit` and `meaning` enums | omx-contract `data/param-contract.json` + schema enums | split (row 30), rule 5 | per producer: omx-dsp computes-in, omx-panel display, a plugin's custom units in its descriptor, the format spellings with V27; merged by libomx-domain | omx-panel `vocabulary.mjs`; omx-plugins; the console `clap-param-units.ts`; the kernels | readers take the merged view; the schema enums reference it | omx-contract-contract loses `OMX_PARAM_CONTRACT_UNITS` (last); omx-dsp-, omx-panel-contract gain units items; each plugin's descriptor | S0, SA, S2, S6, S10, S11; drop SZ | omx-contract 3.21.0 (merged reader), omx-dsp 0.34.0, omx-panel 0.16.0, omx-plugins next minor, omx-clap-core 0.34.0, the console's next release; the drop last | the widest: released `omx_param_units.h` and `omx_contract_limits.h` readers in kernels, panel, plugins and omx-clap-core; the merged reader lands first and gives the same list, compared against 3.20.2's |
-| V24 | `PLUGIN_FEATURE_AUDIO_EFFECT`, `_INSTRUMENT`, `_NOTE_EFFECT`, `_ANALYZER`, `_OTHER` | omx-contract `data/plugin-features.json` | plugin, rule 5 | plugin-db, `plugin-db` domain | catalogs, the panel | omx-contract's copy dropped | plugin-db-contract gains `PLUGIN_FEATURE_*`; omx-contract-contract loses them | SA, S6, S11; drop SZ | plugin-db next minor, omx-panel 0.16.0, the console's next release; the drop after | catalog and panel readers break at the drop: grep finding none first |
+| V21 | `PARAM_SCALES` | omx-contract `data/primitives.json` | contract format (how a parameter's range is read), rule 5 | omx-contract, a `param` domain (standard words, kept; amendment 2026-11-20, OWNER QUESTION Q1). The CLAP scale codes stay omx-clap-core's, mapped to it (F2, Q2) | everyone | the data item becomes the domain | omx-contract-contract: `PARAM_SCALES` joins the `contract` domain | S0; M1 (S5); F2 (S7) | omx-contract 3.21.0 | every parameter reader: render --check compares the rendered header and module byte for byte in the owner's CI |
+| V22 | `READOUT_RATE_HZ` | omx-contract `data/primitives.json` | display, rule 5 | superseded (amendment 2026-11-20): not a standard word, so it leaves omx-contract; omx-dsp or omx-panel is OWNER QUESTION Q4 | the panel, the console | omx-contract's copy dropped | omx-panel-contract gains `READOUT_RATE_HZ`; omx-contract-contract loses it | waiting on Q4; then SA, S2 or S6, and the old item removed last | omx-panel 0.16.0, the console's next release; the drop after | a reader of omx-contract's constant breaks at the drop: the drop waits for a grep finding none |
+| V23 | `OMX_PARAM_CONTRACT_UNITS` and the schema's `unit`, `descriptorUnit` and `meaning` enums | omx-contract `data/param-contract.json` + schema enums | split (row 30), rule 5 | superseded (amendment 2026-11-20): `PARAM_UNITS` STAYS as the one standard list, grown, each unit with its dimension; the meanings stay; `OMX_PARAM_CONTRACT_UNITS` and `omx_param_units.h` MOVE OUT to omx-clap-core (a CLAP particular, mapped to the standard ids); no merged reader | omx-panel `vocabulary.mjs`; omx-plugins; the console `clap-param-units.ts`; the kernels | readers take the merged view; the schema enums reference it | omx-contract-contract loses `OMX_PARAM_CONTRACT_UNITS` (last); omx-dsp-, omx-panel-contract gain units items; each plugin's descriptor | S0 (the list grows); S7 (the code sheet gains), S6, S8, S10, S11 (readers), the old sheet removed last | omx-contract 3.21.0 (merged reader), omx-dsp 0.34.0, omx-panel 0.16.0, omx-plugins next minor, omx-clap-core 0.34.0, the console's next release; the drop last | the widest: released `omx_param_units.h` and `omx_contract_limits.h` readers in kernels, panel, plugins and omx-clap-core; the merged reader lands first and gives the same list, compared against 3.20.2's |
+| V24 | `PLUGIN_FEATURE_AUDIO_EFFECT`, `_INSTRUMENT`, `_NOTE_EFFECT`, `_ANALYZER`, `_OTHER` | omx-contract `data/plugin-features.json` | plugin, rule 5 | plugin-db, a `plugin-feature` domain (plugin level, kept by the amendment 2026-11-20; R-P open) | catalogs, the panel | omx-contract's copy dropped | plugin-db-contract gains `PLUGIN_FEATURE_*`; omx-contract-contract loses them | SA, S6, S11; drop SZ | plugin-db next minor, omx-panel 0.16.0, the console's next release; the drop after | catalog and panel readers break at the drop: grep finding none first |
 | V25 | `STANDARD_SAMPLE_RATES`, `STANDARD_QUANTA`, `RT_HARD_TARGET`, `ORACLE_FLOOR_RATES`, `ORACLE_FULL_RATES` | omx-contract `data/rates.json` | DSP, rule 5 | omx-dsp, `dsp` domain | omx-dsp oracles; the console | omx-contract's copy dropped | omx-dsp-contract gains the rates; omx-contract-contract loses them | SA, S2, S11; drop SZ | omx-dsp 0.34.0, the console's next release; the drop after | the oracles change rates silently: the oracle tests read the domain, values compared to today's |
 | V26 | `CURVE_AXES`, `CURVE_KINDS` | omx-contract `data/curves.json` | DSP, rule 5 | omx-dsp, `dsp` domain | omx-dsp; omx-contract's schema, through libomx-domain | omx-contract's copy dropped | omx-dsp-contract gains `CURVE_*`; omx-contract-contract loses them | SA, S2; drop SZ | omx-dsp 0.34.0; the drop after | omx-contract's schema reads them through libomx-domain: its schema test fails if absent |
-| V27 | `CLAP_*_TERMS` (about 50), `LV2_*_TERMS` (about 24) | omx-contract `data/formats/` | plugin (the format spellings), rule 5 | plugin-db, `formats` domain | omx-clap-core, plugin-hostd, plugin-qualify (through `from`) | the `from` references point at plugin-db's domain; omx-contract's copy dropped | plugin-db-contract gains `formats`; omx-contract-contract loses `data/formats/` | SA, S7, S8, S9; drop SZ | plugin-db next minor, omx-clap-core 0.34.0, plugin-hostd 0.21.0, plugin-qualify 0.21.0; the drop after | the `from` references in three repositories: each repository's render fails on an unresolved `from` |
-| V28 | `RESOURCE_KINDS`, `_UNITS`, `_BASES`, `_HINTS` | omx-contract `data/resource-profile.json` | host, rule 5 | plugin-hostd, `resource` domain | plugin-db, plugin-qualify, the hosting code | omx-contract's copy dropped | plugin-hostd-contract gains `resource`; omx-contract-contract loses it | SA, S3, S7, S9; drop SZ | plugin-hostd 0.21.0, plugin-db next minor, omx-clap-core 0.34.0, plugin-qualify 0.21.0; the drop after | plugin-db holds them in a stored schema: its schema test reads the domain |
-| V29 | `VERB_HOSTS` | omx-contract `data/verbs.json` | host, rule 5 | plugin-hostd, `qualification` domain beside `QUALIFICATION_ADAPTER_HOSTS` | plugin-hostd-protocol | omx-contract's copy dropped | plugin-hostd-contract gains `VERB_HOSTS`; omx-contract-contract loses it | SA, S5; drop SZ | plugin-hostd 0.21.0, plugin-hostd-protocol next minor; the drop after | protocol's verb table: its codec tests |
+| V27 | `CLAP_*_TERMS` (about 50), `LV2_*_TERMS` (about 24) | omx-contract `data/formats/` | plugin (the format spellings), rule 5 | superseded in part (amendment 2026-11-20): `LV2_*_TERMS` to plugin-db, an `lv2` domain, and `CLAP_*_TERMS` to omx-clap-core, a `clap` domain; each gains its mapping to omx-contract's standard ids (F1, F2) | omx-clap-core, plugin-hostd, plugin-qualify (through `from`) | the `from` references point at plugin-db's domain; omx-contract's copy dropped | plugin-db-contract gains `formats`; omx-contract-contract loses `data/formats/` | SA (plugin-db, omx-clap-core), S3, S7, S8, S9, S10, S11; the old copy removed last | plugin-db next minor, omx-clap-core 0.34.0, plugin-hostd 0.21.0, plugin-qualify 0.21.0; the drop after | the `from` references in three repositories: each repository's render fails on an unresolved `from` |
+| V28 | `RESOURCE_KINDS`, `_UNITS`, `_BASES`, `_HINTS` | omx-contract `data/resource-profile.json` | host, rule 5 | plugin-hostd, `resource` domain (a host word, kept by the amendment 2026-11-20); the members of `RESOURCE_UNITS` that are standard units name the standard ids (Q6) | plugin-db, plugin-qualify, the hosting code | omx-contract's copy dropped | plugin-hostd-contract gains `resource`; omx-contract-contract loses it | SA, S3, S7, S9; drop SZ | plugin-hostd 0.21.0, plugin-db next minor, omx-clap-core 0.34.0, plugin-qualify 0.21.0; the drop after | plugin-db holds them in a stored schema: its schema test reads the domain |
+| V29 | `VERB_HOSTS` | omx-contract `data/verbs.json` | host, rule 5 | superseded (amendment 2026-11-20): a host product word, so it leaves omx-contract; plugin-hostd or omx-clap-core is OWNER QUESTION Q3 | plugin-hostd-protocol | omx-contract's copy dropped | plugin-hostd-contract gains `VERB_HOSTS`; omx-contract-contract loses it | SA, S5; drop SZ | plugin-hostd 0.21.0, plugin-hostd-protocol next minor; the drop after | protocol's verb table: its codec tests |
 | V30 | omx-dsp kernels (43 files) and primitives (15 files: `INSTRUMENT_FAMILIES`, biquad kinds and the rest) | omx-dsp `data/kernels`, `data/primitives` | DSP, rule 1 | omx-dsp, `dsp` domain | omx-dsp include and `ts/`; the console | the data items become the domain | omx-dsp-contract: `data/kernels`, `data/primitives` become the `dsp` domain | SA, S2, S11 | omx-dsp 0.34.0, the console's next release | 58 files: render --check compares the rendered header and module byte for byte in the owner's CI |
-| V31 | `OMX_PLUGINS_ROLE_MEANINGS`, `OMX_PLUGIN_FACE_IDS` | omx-plugins `contract/` | plugin (the plugins' own declarations), rule 1 | omx-plugins, `plugins` domain | omx-panel (role meanings); omx-plugins faces | the data items become the domain | omx-plugins-contract: `contract/` becomes a `plugins` domain | SA, S6, S10 | omx-plugins next minor, omx-panel 0.16.0 | omx-panel reads role meanings: its role test reads the domain |
+| V31 | `OMX_PLUGINS_ROLE_MEANINGS`, `OMX_PLUGIN_FACE_IDS` | omx-plugins `contract/` | plugin (the plugins' own declarations), rule 1 | omx-plugins, `plugins` domain (a plugin's particulars mapped to the standard meanings: kept by the amendment 2026-11-20) | omx-panel (role meanings); omx-plugins faces | the data items become the domain | omx-plugins-contract: `contract/` becomes a `plugins` domain | SA, S6, S10 | omx-plugins next minor, omx-panel 0.16.0 | omx-panel reads role meanings: its role test reads the domain |
 | V32 | `OPENMIXER_CLOCK_REFERENCE_WHY`, `_DRIVER_RING_DISABLED_WHY`, `_RT_HOST_UNRESOLVED_WHY` | the console `words.json` (from hand TS) | the console's own, rule 1 | the console, a domain of its own | the console's server and web UI | `words.json` generated from the domain, not from hand TS (row 22) | the console's package: `words.json` generated from its domain | S11 | the console's next release | the server's messages: the console's words test |
 
 **Rows the owner ruled on (2026-11-19), as proposed:**
@@ -157,3 +157,159 @@ release numbers are the next minor of each repository after this pass.
 - **V12:** the pin verdicts and pools are host level, so plugin-hostd's.
 - **V21:** `PARAM_SCALES` is contract format.
 - **V29:** `VERB_HOSTS` sits with plugin-hostd's adapter hosts.
+
+## Amendment 2026-11-20: standard vocabulary in one place
+
+**The ruling** (owner, 2026-11-20, with its refinements of the same day). It supersedes the per-producer reading of
+standard words (row 30, V23) and every row below that moved a standard word out of omx-contract.
+
+- **Standard words live in ONE place, omx-contract**, and omx-contract holds ONLY them: the standard units (one list,
+  grown from `PARAM_UNITS`: dB, dBFS, dBTP, dBu, LU, LUFS, Hz, kHz, MHz, ms, s, min, %, ratio, frames, bpm, bar,
+  beat, the lengths, ...), the standard parameter meanings, and the unit dimensions.
+- **A level's particulars stay at that level, with that level's MAPPING to the standard ids.** The LV2 terms
+  (`units:db`, `lv2:designation`, the `param:` spellings) are plugin-db's; the CLAP terms and the CLAP unit codes are
+  omx-clap-core's. The param-contract unit code table is the wire encoding of the CLAP-level extension
+  `org.openmixer.param-contract`, so a CLAP particular (ruled by the coordinator, 2026-11-20): omx-clap-core keeps it
+  and maps each code to a standard unit id. Descriptors name standard unit ids, never codes.
+- **Panels.** omx-panel holds the panel words, control kinds and display rules: only the general panel vocabulary and
+  scales. A plugin or format with its own scale maps itself onto the general panel scales and laws at its own level;
+  omx-panel holds no per-plugin or per-format mapping.
+- **A plugin's particulars** (its custom units and words) stay in its own declaration, mapped to the standard ids.
+- **Host-level product words stay with the hosts** unless the owner says otherwise: hosting with omx-clap-core;
+  machine, probe and qualification with plugin-hostd.
+- **Consequences.** No merged units reader, no `x-units-of`, no units flag day. omx-contract#144 (`PARAM_UNITS`
+  leaves) is superseded. S0's "merged views (the units of row 30)" is dropped from S0.
+
+**How each word is judged.** Standard (any plugin or host would use it): omx-contract. A level's particular: that
+level, with its mapping. A host product word: the host. A panel word: omx-panel. Where the rule does not settle it,
+the row says OWNER QUESTION with both readings.
+
+### The fates of the rows
+
+STAYS: the old move out of omx-contract is cancelled. MOVES IN: a copy elsewhere is removed and its consumer reads
+omx-contract. MOVES OUT: a level's particular leaves omx-contract for its level. KEPT: the row's plan stands.
+
+| Row | Word(s) | Old plan | New fate | PRs |
+|---|---|---|---|---|
+| V20 | `CONTRACT_CODES` | omx-contract `contract` domain | KEPT, STAYS: the reader's own refusal codes (rule 5). Gains `contract.descriptor.unit-duplicate` (adopted): the descriptor validator refuses a plugin's own unit that duplicates a standard one (N1) | V20's 2, then N1 |
+| V21 | `PARAM_SCALES` | `contract` domain (owner, 2026-11-19) | STAYS, as a `param` domain item (prefix fits). OWNER QUESTION Q1. The protocol's hand copy MOVES IN (M1). The CLAP extension's scale codes stay omx-clap-core's, mapped to these words (F2, Q2) | 4 (as before) |
+| V22 | `READOUT_RATE_HZ` | omx-panel | Not standard: leaves omx-contract. Destination OWNER QUESTION Q4 | 2 (as before) |
+| V23a | `PARAM_UNITS` | leaves omx-contract (#144), per producer | STAYS: the one standard list, grown to the ruled set (dBTP, dBu, LU, kHz, MHz, frames, bpm, bar, beat, the lengths, degree, midiNote, ratio, ...). The schema's `unit` enum stays rendered from it | 1 (omx-contract) |
+| V23b | unit dimensions | none | MOVES IN, new: each standard unit names its dimension (level, gain, time, frequency, pitch, tempo, length, angle, ratio, ...), in the same PR as V23a | in V23a |
+| V23c | the schema's `meaning` enum | per producer | STAYS: the standard parameter meanings | none |
+| V23d | `OMX_PARAM_CONTRACT_UNITS`, `omx_param_units.h` (the 3.20.2 code sheet and its render) | stays until a merged reader | MOVES OUT to omx-clap-core (a CLAP particular, ruled), mapped code to standard id; codes 260 to 263 for dB/oct, dB/s, dBTP and LU are added there (ruled, Q15). Three PRs, below | 3 + readers (6 in all) |
+| V23e | the merged units reader, `x-units-of`, the units flag day | planned | CANCELLED | none |
+| V23f | the schema's `descriptorUnit` | per plugin | KEPT: a plugin's own unit, in its declaration, mapped to the standard ids; refused when it duplicates a standard unit (N1) | none |
+| V24 | `PLUGIN_FEATURE_*` | plugin-db | KEPT: plugin level (owner, 2026-11-19), not a standard unit, meaning or dimension. R-P open (`plugin-feature`) | 1 (plugin-db), with V27's readers |
+| V27a | `LV2_*_TERMS`, including `data/formats/lv2/units.json` | plugin-db `formats` | MOVES OUT to plugin-db, domain `lv2` (prefix fits), with its mapping to the standard ids (F1). The copies in plugin-hostd, plugin-qualify and omx-formats switch | below |
+| V27b | `CLAP_*_TERMS` | plugin-db `formats` | CHANGED: MOVES OUT to omx-clap-core, domain `clap` (prefix fits), with its mapping to the standard ids (F2) | below |
+| V25 | `STANDARD_SAMPLE_RATES`, `STANDARD_QUANTA`, `RT_HARD_TARGET`, `ORACLE_*_RATES` | omx-dsp | KEPT (DSP level). OWNER QUESTION Q5 for the two standard lists | 3 (as before) |
+| V26 | `CURVE_AXES`, `CURVE_KINDS` | omx-dsp | KEPT (DSP level). The axes' units name the standard unit ids (M2) | 3 (as before) |
+| V28 | `RESOURCE_*` | plugin-hostd | KEPT (host word; its MAP ERROR still waits). `RESOURCE_UNITS` members that are standard units name the standard ids. OWNER QUESTION Q6 | 5 (as before) |
+| V29 | `VERB_HOSTS` | plugin-hostd | A host product word: leaves omx-contract (keeping it as validator vocabulary is withdrawn). Destination OWNER QUESTION Q3 | 2 (as before) |
+| V31 | `OMX_PLUGINS_ROLE_MEANINGS`, `OMX_PLUGIN_FACE_IDS` | omx-plugins | KEPT: a plugin's particulars, mapped to the standard meanings | 3 (as before) |
+| V19 | `PLUGIN_HOSTD_CLAP_MAP`, `_LV2_MAP` | plugin-hostd | KEPT (a host mapping). Its unit and meaning lookup values read F1 and F2 (M5). Its omx-panel PR is replaced by P1 | 4 (as before) |
+| V1 to V4 | panel words, codes, sheet, gestures | omx-panel | KEPT: panel words | as before |
+| V5 to V18 | qualification, machine, probe, scan, plugin-db, hosting, host, protocol, grouping, history words | their hosts and storers | KEPT: host and storer words | as before |
+| V30, V32, Z1 | omx-dsp kernels; the console's own words; the panel family enum | omx-dsp; the console; omx-panel | KEPT | as before |
+
+**V23d, the code sheet, in three PRs:**
+
+1. omx-clap-core gains the sheet (a domain `omx-param-contract`, prefix fits) and its render `omx_param_units.h`,
+   with the mapping of each code to a standard unit id and the Q15 codes. The released code-sheet tests follow it:
+   append-only codes, one define per token, the spelling check, the C `_Static_assert`s and the sabotage.
+2. Each reader switches its read and floors on omx-clap-core's contract package: omx-clap-core `param_contract.h`,
+   `clap_host.h`, `omx_clap_ext.h`, `lv2/clap/lv2_clap.c` and the omx-clap-host twin (in PR 1); omx-plugins
+   `include/omx_param_contract.h`, `tools/param-contract.mjs`, its Makefile and docs; omx-panel's code-sheet read (P2),
+   docs and floors; the wire's `param_info` unit word (D1); the console.
+3. omx-contract removes `data/param-contract.json` and its render LAST, with a test red while any reader still reads it.
+
+The read points (A2): the mapping test is red when a mapped standard id is removed, or when two codes map to one id;
+descriptors carry standard unit ids and never a code (D1 to D3); the encoder and decoder in omx-clap-core are the only
+code readers, which the PR proves with a grep over every repository.
+
+**V27a, the LV2 terms, in the same shape:** plugin-db gains `lv2` and its mapping (F1); plugin-hostd's `term`
+references, plugin-qualify's unit read, omx-formats' LV2 module (Q9) and the console switch; omx-contract removes
+`data/formats/lv2` last. **V27b** follows it for `clap` at omx-clap-core.
+
+### Format-level mappings (new rows)
+
+Each mapping row's call-level test, in the three-arm form: (a) golden: the level's lookup, called for every term of
+the mapped groups, gives the standard id frozen from today's source; (b) both sources: while omx-contract's copy
+exists, the level's terms equal it, and every term either maps to a standard id that exists in omx-contract or is
+named as that level's particular; (c) sabotage: a temporary contract directory whose omx-contract lacks one mapped
+standard id makes the lookup refuse, and a term neither mapped nor named particular is refused.
+
+| Row | Level, item | Maps | Lands |
+|---|---|---|---|
+| F1 | plugin-db `lv2` | `units:*` to standard units; `param:*` designations to standard meanings; the port properties (logarithmic, integer, toggled) to `PARAM_SCALES` | V27a PR 1 |
+| F2 | omx-clap-core `clap` and `omx-param-contract` | each unit code (Q15 included) to a standard unit id; the scale codes to `PARAM_SCALES` (Q2); the parameter flags to scales | V23d PR 1, V27b PR 1 |
+| F3 | omx-panel display rules | none of its own: its role-table units and level units name standard ids and dimensions only | M4 |
+| F4 | a plugin's custom units (omx-plugins' declarations) | each declared unit is a standard id or the plugin's own, mapped; a duplicate is refused (N1) | M3 |
+
+### Hand copies of standard words outside omx-contract (MOVE-IN rows)
+
+Each test is in the three-arm form: (a) the consumer's real read = golden from today's copy; (b) the copy, while it
+exists, equals omx-contract's item; (c) a temporary contract directory whose omx-contract lacks one word makes the
+call refuse or differ, so restoring the copy turns (c) red.
+
+| Row | Copy | Consumer reads | Call-level test |
+|---|---|---|---|
+| M1 | plugin-hostd-protocol `protocol.h` `PHD_PARAM_SCALES` (V21's PR 3) | `PARAM_SCALES`, the X-macro rendered from omx-contract; the protocol-gen cross-check goes | the golden test's `param_info` scale words = golden; (c) no `log` in the temporary item |
+| M2 | omx-dsp `CURVE_UNITS`, `METER_UNITS` and `omx_curve.h` `OMX_CURVE_UNIT_WORDS`; the curve axes' units | the standard unit ids (the subsets and their order stay omx-dsp's) | the curve and meter unit words = golden; (c) no `dbu` in `PARAM_UNITS` refuses the render |
+| M3 | omx-plugins' own `dBu`, `dB/oct` and `ratio` (its format tables and generator) | the standard ids; the `urn:openmixer:unit#` LV2 spellings move to F1 (Q7) | the declared units of every plugin = golden; (c) no `dbu` refuses the declaration |
+| M4 | omx-panel's role-table unit groups, its level-unit list, its slope-unit map | the standard ids and dimensions (F3) | the roles' accepted units = golden; (c) no `dbu` makes a dBu threshold refused |
+| M5 | plugin-hostd `data/formats/{clap,lv2}.json` unit and meaning lookup values | F1 and F2's mappings | describing the fixtures gives the golden descriptors; (c) no `db` in the standard list refuses |
+| M6 | plugin-qualify's meaning list in its scan tool | the standard meanings | the scan's meanings = golden; (c) a meaning removed is refused |
+| M7 | the console's standard unit list, level-unit set, code-name list, standard-to-code map and LV2 symbol table | the standard list; F2 for codes; F1 for LV2 symbols; the generator change lands in the same PR | its unit conformance tests = golden; (c) as above |
+
+**Descriptor and wire fields that hold a code** (they move to the standard id, each with its own call-level test):
+D1, the `param_info` reply's unit word, written from the code's token; D2, the scan's descriptor unit, derived from
+the code's token through plugin-hostd's lookup row (it takes F2's decoder); D3, the console's stored parameter
+contract, where it keys a unit by code name. The omx-contract descriptor schema and omx-plugins' descriptors already
+carry standard units.
+
+### Per-plugin and per-format mappings inside omx-panel (MOVE-OUT rows)
+
+| Row | Table in omx-panel | Moves to |
+|---|---|---|
+| P1 | its LV2 unit table, read from plugin-hostd's LV2 map, and the unit tokens derived from it | plugin-db (F1); omx-panel reads standard ids from the descriptor. Replaces V19's omx-panel PR |
+| P2 | its read of the param-contract code sheet (which units the extension serves, the vendor block) | omx-clap-core (F2), in V23d PR 2 |
+| P3 | group inference's `lv2:designation` table (`param:*` to a group) | plugin-db (F1) maps the designations to standard meanings; omx-panel groups by meaning |
+| P4 | the served-widget table (a standard widget to what the CLAP extension serves) | OWNER QUESTION Q8 |
+
+Checked and found holding none: the role table (keyed by panel family), meaning inference (name heuristics), the
+MOD GUI writer and its looks, the LV2 complement writer, the skin packages, the worked examples, the renderer and
+the store.
+
+### Other rows
+
+- **N1** `contract.descriptor.unit-duplicate` (adopted): a `CONTRACT_CODES` code and its check in the descriptor
+  validator. It lands after V20, which moves `CONTRACT_CODES`.
+
+### R-P, the domain prefix rule
+
+With the standard words in omx-contract, two R-P rows disappear: **V21** (`PARAM_SCALES` in a `param` domain, with
+`PARAM_UNITS`, the meanings and the dimensions: the prefix fits) and **V27** (`lv2` at plugin-db and `clap` at
+omx-clap-core: the prefixes fit). V23d's sheet takes a domain `omx-param-contract`, which fits. R-P still decides
+V15 to V19, V22, V24, V25, V29 and V31.
+
+### OWNER QUESTIONs
+
+- **Q1, `PARAM_SCALES`.** (a) A standard parameter word: stays (as ruled 2026-11-19). (b) Not a unit, meaning or
+  dimension: the scale codes' level, omx-clap-core, owns the words too.
+- **Q2, the param-contract scale codes.** (a) A CLAP particular like the unit codes: omx-clap-core, mapped to
+  `PARAM_SCALES`. (b) Standard, rendered by omx-contract as today.
+- **Q3, `VERB_HOSTS`.** (a) plugin-hostd (the approved map). (b) omx-clap-core, its lowest reader and the hosting
+  words' owner. Either way the validator reads the installed domain.
+- **Q4, `READOUT_RATE_HZ`.** (a) omx-dsp, whose kernels are its only readers. (b) omx-panel (the approved map).
+- **Q5, `STANDARD_SAMPLE_RATES`, `STANDARD_QUANTA`.** (a) Standard (any host uses them): stay. (b) DSP level:
+  omx-dsp (the approved map).
+- **Q6, resource units** (`us`, `bytes`, `nsPerSample`, `plainCount`, `flag`). (a) Standard units: they join the list.
+  (b) Host particulars of plugin-hostd.
+- **Q7, the `urn:openmixer:unit#` LV2 spellings** of dBu, dB/oct and ratio. (a) plugin-db's LV2 mapping (F1). (b)
+  omx-plugins' own declarations.
+- **Q8, the served-widget table.** (a) A CLAP particular: omx-clap-core. (b) A panel word: omx-panel (row 6 has the
+  extension's panel words come from omx-panel).
+- **Q9, omx-formats**, which holds every CLAP and LV2 term module, unreleased. (a) It retires: LV2 to plugin-db, CLAP
+  to omx-clap-core. (b) It is the format level itself, and F1 and F2 land there.

@@ -6,7 +6,7 @@ export const domainSchema = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items and range items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets and scalars under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": [
     "$schema",
@@ -74,7 +74,7 @@ export const domainSchema = {
       "additionalProperties": false,
       "properties": {
         "schemas": {
-          "description": "The items of the domain, each named in upper snake case: a words item or a range item.",
+          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet or a scalar.",
           "type": "object",
           "minProperties": 1,
           "propertyNames": {
@@ -90,6 +90,9 @@ export const domainSchema = {
               },
               {
                 "$ref": "#/$defs/sheet"
+              },
+              {
+                "$ref": "#/$defs/scalar"
               }
             ]
           }
@@ -172,8 +175,11 @@ export const domainSchema = {
           "type": "boolean"
         },
         "x-kind": {
-          "description": "The data item it rebuilds (docs/render.md): a codes item.",
-          "const": "codes"
+          "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, or a words item, each word keyed by its title.",
+          "enum": [
+            "codes",
+            "words"
+          ]
         },
         "x-file": {
           "description": "The data path the item came from.",
@@ -249,6 +255,50 @@ export const domainSchema = {
         }
       }
     },
+    "scalar": {
+      "description": "A single value render --with-domain rebuilds as a data scalar (docs/render.md): its description the item's doc, x-value the value, x-unit its unit (an empty string for none). Read nowhere else.",
+      "type": "object",
+      "required": [
+        "description",
+        "x-kind",
+        "x-file",
+        "x-unit",
+        "x-value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": {
+          "const": "scalar"
+        },
+        "x-file": {
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "type": "object"
+        },
+        "x-unit": {
+          "description": "The scalar's unit, the data form's unit.",
+          "type": "string"
+        },
+        "x-value": {
+          "description": "The scalar's value: a number, or true or false.",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    },
     "word": {
       "type": "object",
       "required": [
@@ -279,6 +329,15 @@ export const domainSchema = {
         "x-text": {
           "description": "The English source sentence the catalogs translate.",
           "type": "string"
+        },
+        "x-args": {
+          "description": "The ordered names of the x-text's {name} placeholders, stored: each placeholder once and no other name; the data form's args.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][A-Za-z0-9]*$"
+          },
+          "uniqueItems": true
         },
         "x-group": {
           "description": "A word of the item x-groups names.",

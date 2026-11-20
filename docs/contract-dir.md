@@ -41,7 +41,14 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   package's version, as omx-clap-core's does, writes that version) (#123). `omx-contract validate` refuses by name an item with no `x-since`, one that is not `MAJOR.MINOR.PATCH`, and one above its document's `info.version`; which version added which item stays the owner's to test.
   `omx-contract domain check <new.json> <committed.json>` compares a freshly generated document with the committed one and refuses by domain, item and word (one line each, exit 1): a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version (new words are appended), and an `info.version` below the committed one; exit 0 prints one PASS line (omx-contract#124). `x-code` is the word's code, today its place in the order
   (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
-  the sentence they translate. An item C switches on carries `"x-c-codes": true`: the whole item becomes constants,
+  the sentence they translate. A word whose `x-text` names placeholders (`{path}`) stores them as `x-args`, the
+  ordered list of their names (`"x-args": ["file", "want", "found"]`, the data form's `args`): stored, never derived
+  from the sentence, because its order is the order a renderer (`<MACRO>_ARGS_INIT`) and a catalog read. The reader
+  refuses by item, word and `x-args` (`contract.file.invalid`) an `x-args` that is not exactly the placeholders of the
+  `x-text`, each once and no other name; one absent where the `x-text` names a placeholder; and one on a word with no
+  `x-text`. A word whose `x-text` names no placeholder, or that has no `x-text`, carries none. A domain's catalog
+  checks its placeholders against these args (`catalog-placeholders`); its keys are `<ITEM>.<word>` for every item,
+  a codes item's words included. An item C switches on carries `"x-c-codes": true`: the whole item becomes constants,
   its codes header (docs/render.md); one C also uses as struct fields or enum values carries `"x-c-xmacro": true` as
   well (ruling 5 of docs/runtime-data.md). `x-c-xmacro` without `x-c-codes` is invalid. An item's name starts with
   its domain's name in upper snake case (`PANEL_FAMILIES` in `panel`); a check refuses one that does not, naming the
@@ -67,10 +74,19 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
-  data path it came from), `x-kind` (`codes` or `sheet`) and `x-source` (its `source`); on each word of a codes item
-  `x-name` (the code's key, the macro stem); and on a sheet `x-value` and `x-docs` (verbatim). `x-text` keeps its
-  meaning above. They are read by `render --with-domain` (docs/render.md).
-  A domain with none of them reads and renders as before.
+  data path it came from), `x-kind` (`codes`, `words`, `scalar` or `sheet`) and `x-source` (its `source`); on each
+  word of a codes item `x-name` (the code's key, the macro stem); on a sheet `x-value` and `x-docs` (verbatim); and on a
+  scalar `x-unit` and `x-value`. `x-text` and `x-args` keep their meaning above. They are read by `render
+  --with-domain` (docs/render.md). A domain with none of them reads and renders as before.
+  - `"x-kind": "codes"` (the default for a words item) rebuilds a data `codes` item, each word keyed by its `x-name`.
+  - `"x-kind": "words"` rebuilds a data `words` item, each word keyed by its `title` (a word of a words item carries
+    no `x-name`; the reader refuses one): `x-groups`, `x-group`, `x-from`, `description`, `x-text` and `x-args` as
+    above. A data words item's `units`, `bases`, `axes` and `extension` and a word's `x`, `y`, `unit`, `symbol`, `scale`,
+    `figureUnit` and `basis` have no domain words yet: an item that needs them stays in `data/`.
+  - `"x-kind": "scalar"` is an item of its own, with no `oneOf`: `description`, `x-since`, optional `x-why` and
+    `x-source`, `x-file`, `x-unit` (a string, `""` for none) and `x-value` (a number, or true or false); the reader
+    refuses another `x-value` and a missing `x-unit` by item. A scalar whose data value is a reference or a derivation
+    has no domain form yet. Like a sheet, a scalar is rebuilt by `render --with-domain` and read nowhere else.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds

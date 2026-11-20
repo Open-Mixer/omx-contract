@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/kinds",
+  "info": {
+    "title": "The kinds fixture: one item of each kind render --with-domain rebuilds",
+    "version": "1.2.0",
+    "x-owner": "kinds-owner",
+    "x-stability": "experimental"
+  },
+  "x-render": {
+    "c": [
+      {
+        "header": "kinds_constants.h",
+        "guard": "KINDS_CONSTANTS_H",
+        "project": "kinds-owner",
+        "banner": [
+          "Rendered from the kinds fixture of omx-contract's tests: the numbers the fixture declares."
+        ],
+        "brief": "The numbers of the kinds fixture.",
+        "scope": "file",
+        "scalars": {
+          "comment": "the numbers of the kinds fixture"
+        }
+      }
+    ]
+  },
+  "x-file": "constants.json",
+  "components": {
+    "schemas": {
+      "KINDS_CODES": {
+        "description": "The refusals of the fixture, each with its sentence and the args the sentence names.",
+        "x-since": "1.0.0",
+        "x-kind": "codes",
+        "x-file": "codes.json",
+        "oneOf": [
+          {
+            "const": "kinds.dir.absent",
+            "title": "dirAbsent",
+            "description": "the directory is absent",
+            "x-code": 0,
+            "x-text": "The directory {path} is absent.",
+            "x-args": [
+              "path"
+            ],
+            "x-name": "dirAbsent"
+          },
+          {
+            "const": "kinds.file.empty",
+            "title": "fileEmpty",
+            "x-code": 1,
+            "x-text": "The file is empty.",
+            "x-name": "fileEmpty"
+          },
+          {
+            "const": "kinds.file.mismatch",
+            "title": "fileMismatch",
+            "description": "a file says another value than the one asked",
+            "x-code": 2,
+            "x-text": "{file} says {found}, and {want} was asked.",
+            "x-args": [
+              "file",
+              "want",
+              "found"
+            ],
+            "x-name": "fileMismatch"
+          }
+        ]
+      },
+      "KINDS_STATES": {
+        "description": "The states a plugin of the fixture is in.",
+        "x-since": "1.0.0",
+        "x-kind": "words",
+        "x-file": "words.json",
+        "oneOf": [
+          {
+            "const": "unqualified",
+            "title": "unqualified",
+            "description": "not qualified yet",
+            "x-code": 0
+          },
+          {
+            "const": "refused",
+            "title": "refused",
+            "description": "qualification refused it",
+            "x-code": 1,
+            "x-text": "It was refused."
+          }
+        ]
+      },
+      "KINDS_REASONS": {
+        "description": "Why a plugin of the fixture is in its state.",
+        "x-since": "1.1.0",
+        "x-why": "A host shows the reason beside the state.",
+        "x-groups": "KINDS_STATES",
+        "x-kind": "words",
+        "x-file": "words.json",
+        "oneOf": [
+          {
+            "const": "never-pinned",
+            "title": "neverPinned",
+            "description": "there is no pinned layer",
+            "x-code": 0,
+            "x-text": "It has never been scanned.",
+            "x-group": "unqualified"
+          },
+          {
+            "const": "latency-unknown",
+            "title": "latencyUnknown",
+            "description": "the plugin reports no latency",
+            "x-code": 1,
+            "x-text": "Its latency of {frames} frames is not reported.",
+            "x-args": [
+              "frames"
+            ],
+            "x-group": "refused",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/omx-contract#/components/schemas/KINDS_TERMS",
+                "x-term": "latency"
+              }
+            ]
+          },
+          {
+            "const": "no-audio",
+            "title": "noAudio",
+            "x-code": 2,
+            "x-text": "It has no audio ports.",
+            "x-group": "refused",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/omx-contract#/components/schemas/KINDS_TERMS",
+                "x-term": "audio-in"
+              },
+              {
+                "$ref": "https://openmixer.org/contract/omx-contract#/components/schemas/KINDS_TERMS",
+                "x-term": "audio-out"
+              }
+            ]
+          }
+        ]
+      },
+      "KINDS_DIGEST_HEX_LEN": {
+        "description": "The characters of a SHA-256 digest written in hex, two a byte.",
+        "x-since": "1.1.0",
+        "x-kind": "scalar",
+        "x-file": "constants.json",
+        "x-unit": "",
+        "x-value": 64
+      },
+      "KINDS_RATE_HZ": {
+        "description": "How often the fixture publishes a value.",
+        "x-since": "1.2.0",
+        "x-why": "A meter moves at this rate.",
+        "x-kind": "scalar",
+        "x-file": "constants.json",
+        "x-unit": "Hz",
+        "x-value": 50
+      },
+      "KINDS_PLAIN": {
+        "description": "Codes with no args: the codes kind as it was before args.",
+        "x-since": "1.0.0",
+        "x-kind": "codes",
+        "x-file": "plain.json",
+        "oneOf": [
+          {
+            "const": "kinds.plain.one",
+            "title": "plainOne",
+            "x-code": 0,
+            "x-text": "The first plain code.",
+            "x-name": "plainOne"
+          },
+          {
+            "const": "kinds.plain.two",
+            "title": "plainTwo",
+            "description": "the second",
+            "x-code": 1,
+            "x-name": "plainTwo"
+          }
+        ]
+      },
+      "KINDS_SHEET": {
+        "description": "A data sheet, rebuilt verbatim.",
+        "x-since": "1.0.0",
+        "x-kind": "sheet",
+        "x-file": "plain.json",
+        "x-value": {
+          "bytes": 4,
+          "lanes": 2
+        },
+        "x-docs": {
+          "bytes": "the bytes of a lane",
+          "lanes": "the lanes"
+        }
+      }
+    }
+  }
+}

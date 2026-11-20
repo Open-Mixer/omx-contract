@@ -159,7 +159,7 @@ function readManifest(pdir, name, major) {
 
 /**
  * A descriptor's latency refs (`frames`, `sweep.min`, `sweep.max`) name a scalar item whose unit is frames or ms, and a
- * sweep whose two ends are refs to scalars of one unit is in order (docs/descriptors.md, `latency`). An unresolved ref is
+ * sweep whose ends are in one unit (an integer is frames) and in order (docs/descriptors.md, `latency`). An unresolved ref is
  * the reference loop's: it is skipped here.
  */
 function latencyRefs(rel, doc, items) {
@@ -178,6 +178,13 @@ function latencyRefs(rel, doc, items) {
   scalarOf(lat.frames, 'latency.frames');
   const lo = scalarOf(lat.sweep?.min, 'latency.sweep.min');
   const hi = scalarOf(lat.sweep?.max, 'latency.sweep.max');
+  // an integer end is frames: a sweep of two units has no order to read, so it is refused too
+  const unitOf = (end, it) => (typeof end === 'number' ? 'frames' : it?.unit);
+  const uMin = unitOf(lat.sweep?.min, lo);
+  const uMax = unitOf(lat.sweep?.max, hi);
+  if (uMin && uMax && uMin !== uMax) {
+    refuse('descriptorLatency', rel, `latency.sweep: min is in ${uMin} and max in ${uMax}; both ends are in one unit`);
+  }
   if (lo && hi && lo.unit === hi.unit && typeof lo.value === 'number' && typeof hi.value === 'number' && lo.value > hi.value) {
     refuse('descriptorLatency', rel, `latency.sweep: min ${lat.sweep.min.ref} (${lo.value} ${lo.unit}) is above max ${lat.sweep.max.ref} (${hi.value} ${hi.unit})`);
   }

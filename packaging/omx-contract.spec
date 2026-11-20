@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.20.2
+Version: 3.21.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -308,6 +308,14 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
+- A domain renders as its data form did: render --target c|ts --package <pkg>
+  --data data --with-domain <dir> rebuilds the data files the domain came from
+  beside the files still in data/ and renders them unchanged (#139, #141).
+- libomx-domain answers a word's group, omx_domain_word_group(); the library
+  keeps .so.0 (#141).
+- CI checks the commit identity on pull requests too (#138).
+
 * Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.2-1
 - The omx-contract command run through a symlink (npx, npm run,
   node_modules/.bin/omx-contract) runs the command: it exited 0 and did nothing,

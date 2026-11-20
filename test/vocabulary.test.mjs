@@ -102,7 +102,9 @@ test('every words item renders an X-macro, X(code, "word", NAME), in its declare
   const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
   assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_VOICE_BASES\(X\) \\\n {4}X\(0u, "declared", DECLARED\) X\(1u, "probe", PROBE\)$/m);
   for (const r of [...withCodes.values()].filter((x) => x.kind === 'words')) {
-    const m = h.match(new RegExp(`^#define OMX_${r.name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
+    // the code sheet of omx_param_units.h owns OMX_PARAM_UNITS(X), released: the words item's is _WORDS (omx-contract#151)
+    const x = r.name === 'PARAM_UNITS' ? 'PARAM_UNITS_WORDS' : r.name;
+    const m = h.match(new RegExp(`^#define OMX_${x}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
     assert.ok(m, `${r.name} renders an X-macro`);
     const got = [...m[1].matchAll(/X\((\d+)u, ("(?:[^"\\]|\\.)*"), (\w+)\)/g)].map(([, c, w, n]) => [Number(c), JSON.parse(w), n]);
     const want = Object.entries(r.value).map(([k, w], i) => {

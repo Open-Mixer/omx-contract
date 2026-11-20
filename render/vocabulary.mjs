@@ -25,6 +25,13 @@ export const codeMacro = (code) => `OMX_${constCase(code)}`;
 /** A reply code's resp number as C: the code's macro and _RESP (reply.host.pin-absent is OMX_REPLY_HOST_PIN_ABSENT_RESP, -508). */
 export const respMacro = (code) => `${codeMacro(code)}_RESP`;
 
+/**
+ * The X-macro names an owner's render already defines: the `numbers.table` of each of its C headers (the code sheet's
+ * OMX_PARAM_UNITS(X), released in omx_param_units.h). A words item never takes one of them (omx-contract#151).
+ */
+const sheetTables = (resolved) =>
+  new Set((resolved.renders ?? []).flatMap((f) => (Array.isArray(f.render.c) ? f.render.c : []).map((h) => h.numbers?.table).filter(Boolean)));
+
 /** A word's C name: OMX_<ITEM>_<NAME>. */
 export const wordMacro = (item, name) => `OMX_${item}_${constCase(name)}`;
 
@@ -45,6 +52,7 @@ export function renderVocabularyHeader(resolved, pkg) {
   const items = vocabularyItems(pkg === undefined ? resolved : packageItems(resolved, pkg));
   if (!items.length) return undefined;
   const guard = `${constCase(vocabularyStem(pkg ?? 'omx-contract'))}_VOCABULARY_H`;
+  const taken = sheetTables(resolved);
   const blocks = items.map((r) => {
     const lines = [`/* ${r.name} (${r.rel}) */`];
     if (r.kind === 'codes') {
@@ -65,8 +73,10 @@ export function renderVocabularyHeader(resolved, pkg) {
       const xs = Object.entries(r.value).map(([n, w], i) => `X(${i}u, ${cStringLiteral(w.word)}, ${constCase(n)})`);
       const rows = [];
       for (let i = 0; i < xs.length; i += 4) rows.push(`    ${xs.slice(i, i + 4).join(' ')}`);
+      // OMX_<ITEM>(X), or OMX_<ITEM>_WORDS(X) where a sheet's table of an owner's header already has that name
+      const xname = taken.has(`OMX_${r.name}`) ? `OMX_${r.name}_WORDS` : `OMX_${r.name}`;
       const doc = `Expands \`X(code, "word", NAME)\` once per word of ${r.name}, in order, the code being its place in the order.${r.doc ? ` ${doxyLine(r.doc)}` : ''}`;
-      lines.push(`/** ${doc} */`, `#define OMX_${r.name}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
+      lines.push(`/** ${doc} */`, `#define ${xname}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
     }
     return lines.join('\n');
   });

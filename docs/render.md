@@ -50,6 +50,8 @@ and one section or more, in this order:
 | `scalars` `{ comment }` | Every number spelled `OMX_<macro>` as `omx_contract_limits.h` spells it, sorted by macro. |
 | `limits` `{ comment? }` | Every section of `omx_contract_limits.h`, the same defines under the same comments: the tables, scalars, lists, sets and readouts. With `scope: package` this is an owner's whole header (omx-dsp's `omxdsp/omxdsp_definitions.h`). |
 
+A words item's X-macro in `omx_vocabulary.h` is `OMX_<ITEM>(X)`; where an owner's `numbers.table` already has that name (the code sheet's `OMX_PARAM_UNITS(X)`, released) it is `OMX_<ITEM>_WORDS(X)`, so no two installed headers define one name (omx-contract#151).
+
 A glob is a name, its start (`worker*`), its end (`*Dbfs`) or a part (`*Ring*`). `validate` refuses (rule `render-c`)
 a section with nothing to render, a number that is neither a level nor a non-negative integer, a prose of more than one
 line and two files that declare one header; the schema refuses an unknown word.

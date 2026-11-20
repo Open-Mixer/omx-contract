@@ -110,6 +110,10 @@ and runs the data reader and the renders unchanged on that set. The files come o
 (omx-clap's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-hosting.{js,d.ts}`,
 `omx_clap_vocabulary.h` and `omx-clap-vocabulary.{js,d.ts}`, the last two also rendering its verbs, from
 `contract.d/omx-clap/omx-clap.json`).
+The files are those of the data form but for one line per item: a render's provenance of an item (the `/* ITEM (<path>) */`
+of a header, the `@see <path>` of a ts module, a verb's `(<path>)`) names a domain item's domain document,
+`contract.d/<domain>/<leaf>.json`, never the `data/<x-file>` the rebuild writes it to, a path that exists nowhere; a data
+item keeps its `data/<file>` (3.21.0).
 The rebuild, and nothing else:
 
 - an item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one

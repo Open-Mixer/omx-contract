@@ -26,7 +26,7 @@ export function treeDomainFiles(dir: string | null): Json[] {
     if (!existsSync(path)) return [];
     // the classic file, its $schema the relative path a file one directory down names (its schema major is not read here)
     const { doc } = readDomain(name, JSON.parse(readFileSync(path, 'utf8')), '../schema/omx-contract.schema.json', 0);
-    return [{ rel: `${name}/${name}.json`, text: `${JSON.stringify(doc, null, 2)}\n`, doc, domain: true }];
+    return [{ rel: `${name}/${name}.json`, text: `${JSON.stringify(doc, null, 2)}\n`, doc, domain: true, source: `contract.d/${name}/${name}.json` }];
   });
 }
 
@@ -73,7 +73,7 @@ export function loadData(dir: string, texts?: Readonly<Record<string, string>>):
     }
     for (const [name, item] of entriesOf(rel, doc)) {
       if (items.has(name)) throw new Error(`${rel}: ${name}: already declared by ${items.get(name).rel}`);
-      items.set(name, { name, rel, item });
+      items.set(name, { name, rel, item, ...(domain?.source === undefined ? {} : { source: domain.source }) });
     }
   }
   return { files, items };
@@ -368,8 +368,12 @@ export function resolveData(data: Json): Resolved {
     if (done.has(name)) return done.get(name)!;
     if (busy.has(name)) throw new Error(`${name}: reference cycle through ${[...busy].join(' -> ')} -> ${name}`);
     busy.add(name);
-    const { rel, item } = data.items.get(name);
+    const { rel, item, source } = data.items.get(name);
     const r: JsonObject = { name, rel, kind: item.kind, doc: item.doc };
+    // where a render's banner says the item comes from (sourceOf): a domain item's domain document,
+    // contract.d/<domain>/<leaf>.json, never the data/<x-file> a rebuild writes it to. Not enumerable: the json render
+    // publishes the item's own fields, and its rel stays the file the read took it from.
+    if (source !== undefined) Object.defineProperty(r, 'source', { value: source, enumerable: false });
     if (item.why !== undefined) r.why = item.why;
     if (item.since !== undefined) r.since = item.since;
     if (item.unit !== undefined) r.unit = item.unit;
@@ -417,6 +421,9 @@ export function resolveData(data: Json): Resolved {
   }
   return out;
 }
+
+/** Where a render's banner says a resolved item comes from: its domain's document for a domain item, else its data file. */
+export const sourceOf = (r: JsonObject): string => (r.source ?? r.rel) as string;
 
 /**
  * The resolved items of one package of a contract directory, in their order, with its kernels, packageOf and renders

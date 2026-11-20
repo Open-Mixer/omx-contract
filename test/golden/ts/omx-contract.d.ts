@@ -638,7 +638,7 @@ export declare const VERB_HOSTS: {
 
 /**
  * How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_SCALES: readonly ["linear", "log", "stepped"];
 
@@ -646,7 +646,7 @@ export declare const PARAM_SCALES: readonly ["linear", "log", "stepped"];
  * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
  *
  * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_UNITS: {
   readonly db: {
@@ -1043,7 +1043,7 @@ export declare const PARAM_UNITS: {
 
 /**
  * What a unit of PARAM_UNITS measures (docs/units.md, The dimensions): two units of one dimension measure the same kind of quantity (ms and s, Hz and kHz), so a reader can tell which units a value may be shown in. The word `count` has the key `counted`: OMX_PARAM_UNIT_DIMENSIONS_COUNT is the number of words.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_UNIT_DIMENSIONS: {
   readonly none: {
@@ -1169,7 +1169,7 @@ export declare const PARAM_UNIT_DIMENSIONS: {
 
 /**
  * Where a unit of PARAM_UNITS may be stated (docs/units.md, Q16 ruled: the split is kept): `param`, a unit of the items, the schema's $defs.unit; `descriptor`, a unit only a descriptor's control states, the schema's $defs.descriptorUnit.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_UNIT_SCOPES: {
   readonly param: {
@@ -1256,18 +1256,18 @@ export declare const VERB_HOSTS_WORDS: readonly ["plugin-hostd", "omx-clap-host"
 
 /**
  * The words of PARAM_UNITS, in their declared order.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag"];
 
 /**
  * The words of PARAM_UNIT_DIMENSIONS, in their declared order.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_UNIT_DIMENSIONS_WORDS: readonly ["none", "time", "frequency", "gain", "level", "loudness", "pitch", "angle", "length", "tempo", "musical-time", "count", "slope", "rate", "ratio", "information", "time-per-sample"];
 
 /**
  * The words of PARAM_UNIT_SCOPES, in their declared order.
- * @see param/param.json
+ * @see contract.d/param/param.json
  */
 export declare const PARAM_UNIT_SCOPES_WORDS: readonly ["param", "descriptor"];

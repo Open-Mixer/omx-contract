@@ -221,6 +221,8 @@ function installed(files, doc) {
   return root;
 }
 const terms = () => ({ 'terms.json': JSON.parse(readFileSync(join(FIX, 'data/terms.json'), 'utf8')) });
+/** A render with each item's provenance (`/* NAME (<path>) *\/`, `@see <path>`) left out: the two forms' sources differ by rule. */
+const unsourced = (t) => t.replace(/^\/\* ([A-Z][A-Z0-9_]*) \([^)]*\) \*\/$/gm, '/* $1 */').replace(/^( \* @see) \S+$/gm, '$1');
 const installedRender = (root, target, out, ...extra) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'kinds-owner', '--installed', ...extra, '--out', out], { encoding: 'utf8', env: { ...process.env, OMX_CONTRACT_PATH: root } });
 
 test('render --installed --with-domain gives the files the installed golden data gives, byte for byte (c and ts)', () => {
@@ -235,7 +237,13 @@ test('render --installed --with-domain gives the files the installed golden data
     const files = walk(`${pure}-out/${target}`).map((p) => relative(`${pure}-out/${target}`, p)).sort();
     assert.ok(files.length > 0, `${target}: the installed golden data renders nothing`);
     assert.deepEqual(walk(`${both}-out/${target}`).map((p) => relative(`${both}-out/${target}`, p)).sort(), files);
-    for (const f of files) assert.equal(readFileSync(join(`${both}-out/${target}`, f), 'utf8'), readFileSync(join(`${pure}-out/${target}`, f), 'utf8'), `${target}: ${f}`);
+    // byte for byte but the provenance: a domain item's banner names its domain's document, the data form its file
+    for (const f of files) {
+      const dom = readFileSync(join(`${both}-out/${target}`, f), 'utf8');
+      assert.equal(unsourced(dom), unsourced(readFileSync(join(`${pure}-out/${target}`, f), 'utf8')), `${target}: ${f}`);
+      assert.ok(!/(?:\(|@see )kinds-owner\/(?:constants|plain|refusals|words)\.json/.test(dom), `${target}: ${f} names a rebuilt data path as a domain item's source`);
+      if (/KINDS_CODES/.test(dom)) assert.match(dom, /contract\.d\/kinds\/kinds\.json/, `${target}: ${f}: a domain item's source is its domain's document`);
+    }
   }
 });
 
@@ -356,7 +364,13 @@ test('x-requires, two packages: render --installed --with-domain takes the decla
     const files = walk(`${pure}-out/${target}`).map((p) => relative(`${pure}-out/${target}`, p)).sort();
     assert.ok(files.length > 0);
     assert.deepEqual(walk(`${both}-out/${target}`).map((p) => relative(`${both}-out/${target}`, p)).sort(), files);
-    for (const f of files) assert.equal(readFileSync(join(`${both}-out/${target}`, f), 'utf8'), readFileSync(join(`${pure}-out/${target}`, f), 'utf8'), `${target}: ${f}`);
+    // byte for byte but the provenance: a domain item's banner names its domain's document, the data form its file
+    for (const f of files) {
+      const dom = readFileSync(join(`${both}-out/${target}`, f), 'utf8');
+      assert.equal(unsourced(dom), unsourced(readFileSync(join(`${pure}-out/${target}`, f), 'utf8')), `${target}: ${f}`);
+      assert.ok(!/(?:\(|@see )kinds-owner\/(?:constants|plain|refusals|words)\.json/.test(dom), `${target}: ${f} names a rebuilt data path as a domain item's source`);
+      if (/KINDS_CODES/.test(dom)) assert.match(dom, /contract\.d\/kinds\/kinds\.json/, `${target}: ${f}: a domain item's source is its domain's document`);
+    }
   }
   // above the floor is taken too
   const newer = twoPackages({}, '1.4.0', declared());

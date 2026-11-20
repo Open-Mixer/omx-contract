@@ -276,7 +276,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       try { raw = parseStrict(text); } catch (e) { refuse('fileNotJson', at, (e as Error).message); }
       if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) refuse('fileInvalid', at, 'a domain document is an object');
       const d = readDomain(name, raw, installedSchemaUrl(major), major);
-      const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true };
+      const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true, source: `contract.d/${at}` };
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
       packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
@@ -340,7 +340,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
         const o = items.get(name);
         refuse('itemDuplicate', `${f.rel} (${f.pkg})`, `${name}: already declared by ${o.pkg} (${o.rel})`);
       }
-      items.set(name, { name, rel: f.rel, item, pkg: f.pkg });
+      items.set(name, { name, rel: f.rel, item, pkg: f.pkg, ...(f.source === undefined ? {} : { source: f.source }) });
     }
   }
 
@@ -471,7 +471,7 @@ function rebuiltFiles({ name, doc, path }, packages, installed, major): Contract
   for (const [file, text] of Object.entries(domainDataFiles(name, doc))) {
     const rel = `${p.manifest.tree ?? owner}/${file}`;
     if (installed.some((f) => f.rel === rel && f.pkg === owner)) refuse('manifestMismatch', rel, `installed by the package ${owner} and rebuilt from the domain ${name}: one source per file`);
-    const f = { rel, text, doc: JSON.parse(text), pkg: owner, path, installed: true as const };
+    const f = { rel, text, doc: JSON.parse(text), pkg: owner, path, installed: true as const, source: `contract.d/${domainPath(name)}` };
     const problems = fileProblems(f);
     if (problems.length) refuse('fileInvalid', rel, problems.map((x) => `${x.item}: ${x.rule}: ${x.message}`).join('; '));
     out.push(f);

@@ -86,9 +86,9 @@ function withToolDomain(data, dir) {
   const { [TOOL_TABLE]: _table, ...rest } = doc;
   if (!Object.keys(rest).some((k) => !FILE_KEYS.includes(k))) return data;
   const rel = 'contract/contract.json';
-  const files = [{ rel, text: JSON.stringify(rest), doc: rest }, ...data.files].sort((a, b) => (a.rel < b.rel ? -1 : 1));
+  const files = [{ rel, text: JSON.stringify(rest), doc: rest, source: 'contract.d/contract/contract.json' }, ...data.files].sort((a, b) => (a.rel < b.rel ? -1 : 1));
   const items = new Map();
-  for (const f of files) for (const [name, item] of entriesOf(f.rel, f.doc)) items.set(name, { name, rel: f.rel, item });
+  for (const f of files) for (const [name, item] of entriesOf(f.rel, f.doc)) items.set(name, { name, rel: f.rel, item, ...(f.source === undefined ? {} : { source: f.source }) });
   return { files, items };
 }
 

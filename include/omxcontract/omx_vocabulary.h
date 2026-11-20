@@ -350,7 +350,7 @@
 #define OMX_VERB_HOSTS(X) \
     X(0u, "plugin-hostd", PLUGIN_HOSTD) X(1u, "omx-clap-host", OMX_CLAP_HOST) X(2u, "mod-host", MOD_HOST)
 
-/* PARAM_UNITS (param/param.json) */
+/* PARAM_UNITS (contract.d/param/param.json) */
 #define OMX_PARAM_UNITS_DB "dB" ///< Decibels, a gain or a level relative to unity.
 /** The source sentence (English) of OMX_PARAM_UNITS_DB. */
 #define OMX_PARAM_UNITS_DB_TEXT_EN "Decibels, a gain or a level relative to unity."
@@ -485,7 +485,7 @@
     X(32u, "ratio", RATIO) X(33u, "coef", COEF) X(34u, "us", US) X(35u, "bytes", BYTES) \
     X(36u, "nsPerSample", NS_PER_SAMPLE) X(37u, "plainCount", PLAIN_COUNT) X(38u, "flag", FLAG)
 
-/* PARAM_UNIT_DIMENSIONS (param/param.json) */
+/* PARAM_UNIT_DIMENSIONS (contract.d/param/param.json) */
 #define OMX_PARAM_UNIT_DIMENSIONS_NONE "none" ///< No dimension: a plain number, a multiplier or a yes or a no.
 /** The source sentence (English) of OMX_PARAM_UNIT_DIMENSIONS_NONE. */
 #define OMX_PARAM_UNIT_DIMENSIONS_NONE_TEXT_EN "No dimension: a plain number, a multiplier or a yes or a no."
@@ -549,7 +549,7 @@
     X(12u, "slope", SLOPE) X(13u, "rate", RATE) X(14u, "ratio", RATIO) X(15u, "information", INFORMATION) \
     X(16u, "time-per-sample", TIME_PER_SAMPLE)
 
-/* PARAM_UNIT_SCOPES (param/param.json) */
+/* PARAM_UNIT_SCOPES (contract.d/param/param.json) */
 #define OMX_PARAM_UNIT_SCOPES_PARAM "param" ///< A unit of the items: the schema's $defs.unit, and a descriptor takes it too.
 /** The source sentence (English) of OMX_PARAM_UNIT_SCOPES_PARAM. */
 #define OMX_PARAM_UNIT_SCOPES_PARAM_TEXT_EN "A unit of the items, which a descriptor states too."

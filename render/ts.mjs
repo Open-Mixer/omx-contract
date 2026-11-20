@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+import { sourceOf } from '../lib/data.mjs';
 import { packageVocabularyTs, wordsExports } from './vocabulary.mjs';
 
 /**
@@ -26,7 +27,7 @@ export function tsType(v, indent = '') {
 
 const docComment = (r) => {
   const text = [r.doc, r.why && `Why: ${r.why}`].filter(Boolean).join('\n\n').replace(/\*\//g, '*\\/');
-  return `/**\n${text.split('\n').map((l) => (l ? ` * ${l}` : ' *')).join('\n')}\n * @see ${r.rel}\n */`;
+  return `/**\n${text.split('\n').map((l) => (l ? ` * ${l}` : ' *')).join('\n')}\n * @see ${sourceOf(r)}\n */`;
 };
 
 /** One item exported under its name: its value (`decl` false) or its declaration with its literal type. */
@@ -62,7 +63,7 @@ function setValuesExports(resolved) {
   const sets = [...resolved.values()].filter((r) => r.kind === 'set' && r.values);
   const one = (r, decl) => {
     const value = Object.fromEntries(r.value.map((id, i) => [id, r.values[i]]));
-    const doc = `/**\n * The value each id of ${r.name} carries, in ${JSON.stringify(r.unit)}; null for an id that carries none.\n * @see ${r.rel}\n */`;
+    const doc = `/**\n * The value each id of ${r.name} carries, in ${JSON.stringify(r.unit)}; null for an id that carries none.\n * @see ${sourceOf(r)}\n */`;
     return decl
       ? `\n${doc}\nexport declare const ${r.name}_VALUES: ${tsType(value)};\n`
       : `\n${doc}\nexport const ${r.name}_VALUES = ${JSON.stringify(value, null, 2)};\n`;

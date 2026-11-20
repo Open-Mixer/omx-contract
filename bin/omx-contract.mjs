@@ -25,7 +25,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
-import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
+import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData, TREE_DOMAINS } from '../lib/data.mjs';
 import { domainCheck } from '../lib/domain-check.mjs';
 import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
@@ -361,6 +361,13 @@ function dataAtTag(tag) {
     if (!isKernelFile(rel) || KERNEL_SECTIONS.some((k) => k in doc)) { texts[rel] = text; continue; }
     const { $schema, ...items } = doc;
     texts[rel] = JSON.stringify({ $schema, ...kernelDocOf(rel, Object.entries(items)) });
+  }
+  // the domains the data read takes beside data/ (lib/data.mjs TREE_DOMAINS), as that read names them
+  for (const name of TREE_DOMAINS) {
+    const at = `contract.d/${name}/${name}.json`;
+    if (!git('ls-tree', '--name-only', tag, '--', at).trim()) continue;
+    const { doc } = readDomain(name, JSON.parse(git('show', `${tag}:${at}`)), '../schema/omx-contract.schema.json', 0);
+    texts[`${name}/${name}.json`] = JSON.stringify(doc);
   }
   return texts;
 }

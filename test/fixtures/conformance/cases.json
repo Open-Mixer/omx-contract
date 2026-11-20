@@ -56,5 +56,11 @@
   {"case":"word-args-without-text","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-args"}},
   {"case":"word-args-twice","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-args"}},
   {"case":"scalar-value-not-a-number","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-value"}},
-  {"case":"scalar-unit-absent","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-unit"}}
+  {"case":"scalar-unit-absent","domain":"demo","needs":null,"verdict":{"code":"contract.file.invalid","member":"x-unit"}},
+  {"case":"valid-requires","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"requires-below-floor","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.too-old"}},
+  {"case":"requires-target-absent","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.absent"}},
+  {"case":"requires-not-an-object","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}},
+  {"case":"requires-floor-not-a-floor","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}},
+  {"case":"requires-bad-name","domain":"demo","needs":null,"verdict":{"code":"contract.manifest.invalid","member":"x-requires"}}
 ]

@@ -7,6 +7,9 @@
 // held to their golden files too, so the new kinds change nothing for them. An item with no `x-file` is read at run
 // time only: it is not rebuilt, and not refused. The same rebuild serves a render of an installed contract directory
 // (`render --installed --with-domain`), and the runtime reader serves the scalars (the C loader likewise, test/c).
+// A domain's `info.x-requires` declares the packages its rebuilt words take terms from, with their floors: each
+// rebuilt file carries them in its `requires` (golden-requires/), and a render of an installed contract directory
+// holds the declared package to its floor (two packages: kinds-owner and kinds-terms).
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -266,7 +269,7 @@ function fromInto(to, item = 'KINDS_REASONS') {
   return doc;
 }
 
-test('a rebuilt word whose from reaches another package is refused by name: a rebuilt file carries no requires', () => {
+test('a rebuilt word whose from reaches a package its domain does not declare in info.x-requires is refused by name', () => {
   const want = /KINDS_REASONS\.oneOf\[1\]\.x-from\[0\].*plugin-db/;
   assert.throws(() => domainDataFiles('kinds', fromInto('plugin-db')), want);
   const d = withDomain(fromInto('plugin-db'));
@@ -284,4 +287,139 @@ test('a rebuilt word\'s from may reach omx-contract, its own domain or its owner
   const runtime = domain();
   runtime.components.schemas.KINDS_ADDRESS_FORMATS.oneOf[0]['x-from'] = [{ $ref: 'https://openmixer.org/contract/plugin-db#/components/schemas/KINDS_TERMS', 'x-term': 'latency' }];
   assert.deepEqual(Object.keys(domainDataFiles('kinds', runtime)).sort(), readdirSync(join(FIX, 'golden')).sort());
+});
+
+const GOLDEN_REQ = join(FIX, 'golden-requires');
+const goldenReq = (f) => readFileSync(join(GOLDEN_REQ, f), 'utf8');
+
+/** The domain with every from of its words pointing into the package kinds-terms, declared in x-requires with `floor` (none when undefined). */
+function declared(floor = '>= 1.0.0') {
+  const doc = domain();
+  if (floor !== undefined) doc.info['x-requires'] = { 'kinds-terms': floor };
+  for (const s of Object.values(doc.components.schemas)) for (const e of s.oneOf ?? []) for (const r of e['x-from'] ?? []) r.$ref = 'https://openmixer.org/contract/kinds-terms#/components/schemas/KINDS_TERMS';
+  return doc;
+}
+
+test('x-requires: every file a domain rebuilds carries its requires, the schema floor first, byte for byte (golden)', () => {
+  const files = domainDataFiles('kinds', declared());
+  assert.deepEqual(Object.keys(files).sort(), readdirSync(GOLDEN_REQ).sort());
+  for (const [f, text] of Object.entries(files)) assert.equal(text, goldenReq(f), f);
+  // a domain with no x-requires still rebuilds its files with no requires, byte for byte
+  for (const [f, text] of Object.entries(domainDataFiles('kinds', domain()))) assert.equal(text, golden(f), f);
+});
+
+test('x-requires, sabotage: drop the declared package and the rebuilt word is refused, naming the package and the word', () => {
+  const doc = declared();
+  doc.info['x-requires'] = { 'kinds-other': '>= 1.0.0' };
+  const want = /KINDS_REASONS\.oneOf\[\d+\]\.x-from\[0\] of the word "[a-z-]+".*kinds-terms/;
+  assert.throws(() => domainDataFiles('kinds', doc), want);
+  delete doc.info['x-requires'];
+  assert.throws(() => domainDataFiles('kinds', doc), want);
+  const d = withDomain(doc);
+  const r = cli('render', '--target', 'c', '--package', 'kinds-owner', '--data', join(d, 'data'), '--with-domain', join(d, 'kinds'), '--out', join(d, 'out'));
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, want);
+});
+
+/** A contract directory with two packages: kinds-owner (`owner`, each `{ rel: doc }`) and, unless `termsVersion` is null, kinds-terms at that version holding the terms; the domain `doc` when given. */
+function twoPackages(owner, termsVersion, doc) {
+  const root = installed(owner, doc);
+  if (termsVersion === null) return root;
+  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-terms');
+  mkdirSync(pkg, { recursive: true });
+  const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, ...terms()['terms.json'] }, null, 2)}\n`;
+  writeFileSync(join(pkg, 'terms.json'), text);
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: termsVersion, schemaMajor: SCHEMA_MAJOR, files: { 'terms.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
+  return root;
+}
+
+test('x-requires, two packages: render --installed --with-domain takes the declared terms at the floor and gives the installed golden render, byte for byte', () => {
+  const golds = Object.fromEntries(readdirSync(GOLDEN_REQ).map((f) => [f, JSON.parse(goldenReq(f))]));
+  const pure = twoPackages(golds, '1.0.0');
+  const both = twoPackages({}, '1.0.0', declared());
+  for (const target of ['c', 'ts']) {
+    const a = installedRender(pure, target, `${pure}-out/${target}`);
+    assert.equal(a.status, 0, a.stderr);
+    const b = installedRender(both, target, `${both}-out/${target}`, '--with-domain', join(both, 'kinds'));
+    assert.equal(b.status, 0, b.stderr);
+    const files = walk(`${pure}-out/${target}`).map((p) => relative(`${pure}-out/${target}`, p)).sort();
+    assert.ok(files.length > 0);
+    assert.deepEqual(walk(`${both}-out/${target}`).map((p) => relative(`${both}-out/${target}`, p)).sort(), files);
+    for (const f of files) assert.equal(readFileSync(join(`${both}-out/${target}`, f), 'utf8'), readFileSync(join(`${pure}-out/${target}`, f), 'utf8'), `${target}: ${f}`);
+  }
+  // above the floor is taken too
+  const newer = twoPackages({}, '1.4.0', declared());
+  const n2 = installedRender(newer, 'c', `${newer}-out`, '--with-domain', join(newer, 'kinds'));
+  assert.equal(n2.status, 0, n2.stderr);
+});
+
+test('x-requires, two packages: a declared package below the floor, or absent, is refused by name; a declared term another package holds is refused by name', () => {
+  const below = twoPackages({}, '1.0.0', declared('>= 1.1.0'));
+  const b = installedRender(below, 'c', `${below}-out`, '--with-domain', join(below, 'kinds'));
+  assert.notEqual(b.status, 0);
+  assert.match(b.stderr, /contract\.package\.too-old/);
+  assert.match(b.stderr, /kinds-terms >= 1\.1\.0.*1\.0\.0/);
+  const absent = twoPackages({}, null, declared());
+  const a = installedRender(absent, 'c', `${absent}-out`, '--with-domain', join(absent, 'kinds'));
+  assert.notEqual(a.status, 0);
+  assert.match(a.stderr, /contract\.package\.absent/);
+  assert.match(a.stderr, /kinds-terms/);
+  // the terms installed by kinds-owner, not by kinds-terms, which the words name
+  const elsewhere = twoPackages(terms(), '1.0.0', declared());
+  rmSync(join(elsewhere, String(SCHEMA_MAJOR), 'kinds-terms', 'terms.json'));
+  writeFileSync(join(elsewhere, String(SCHEMA_MAJOR), 'kinds-terms', 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: {} }, null, 2)}\n`);
+  const e = installedRender(elsewhere, 'c', `${elsewhere}-out`, '--with-domain', join(elsewhere, 'kinds'));
+  assert.notEqual(e.status, 0);
+  assert.match(e.stderr, /contract\.ref\.undeclared/);
+  assert.match(e.stderr, /KINDS_TERMS.*kinds-terms|kinds-terms.*KINDS_TERMS/);
+});
+
+test('x-requires: an installed domain (not rebuilt) is held to its floors too', () => {
+  const ok = twoPackages(terms(), '1.0.0', declared());
+  assert.equal(cli('validate', '--contract-dir', ok).status, 0);
+  const below = twoPackages(terms(), '1.0.0', declared('>= 2.0.0'));
+  const v = cli('validate', '--contract-dir', below);
+  assert.notEqual(v.status, 0);
+  assert.match(v.stderr, /contract\.package\.too-old.*kinds-terms|kinds-terms.*contract\.package\.too-old/s);
+});
+
+const BAD_REQUIRES = {
+  'a floor that is no floor': [{ 'kinds-terms': '1.0.0' }, /x-requires.*kinds-terms/],
+  'a floor that is no semver': [{ 'kinds-terms': '>= 1.0' }, /x-requires.*kinds-terms/],
+  'a key that is no package name': [{ 'Kinds Terms': '>= 1.0.0' }, /x-requires.*Kinds Terms/],
+  'a list, not a map': [['kinds-terms'], /x-requires/],
+};
+for (const [what, [value, name]] of Object.entries(BAD_REQUIRES)) {
+  test(`x-requires refused by name: ${what}`, () => {
+    const doc = declared();
+    doc.info['x-requires'] = value;
+    const v = cli('validate', '--contract-dir', twoPackages(terms(), '1.0.0', doc));
+    assert.notEqual(v.status, 0);
+    assert.match(v.stderr, /contract\.manifest\.invalid/);
+    assert.match(v.stderr, name);
+    const d = withDomain(doc);
+    const r = cli('render', '--target', 'c', '--package', 'kinds-owner', '--data', join(d, 'data'), '--with-domain', join(d, 'kinds'), '--out', join(d, 'out'));
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr, name);
+    assert.throws(() => openDomainAt(twoPackages({}, '1.0.0', doc), 'kinds'), name);
+  });
+}
+
+test('x-requires refused by name: an unknown key of info (x-require)', () => {
+  const doc = declared(undefined);
+  doc.info['x-require'] = { 'kinds-terms': '>= 1.0.0' };
+  const v = cli('validate', '--contract-dir', twoPackages(terms(), '1.0.0', doc));
+  assert.notEqual(v.status, 0);
+  assert.match(v.stderr, /x-require/);
+});
+
+test('the domain schema takes info.x-requires, a map of package to floor, and refuses a bad floor or key', () => {
+  const schema = JSON.parse(readFileSync(join(ROOT, 'schema/domain.schema.json'), 'utf8'));
+  const validate = new Ajv2020({ allErrors: true, strict: true }).compile(schema);
+  assert.ok(validate(declared()), JSON.stringify(validate.errors));
+  for (const [what, [value]] of Object.entries(BAD_REQUIRES)) {
+    const doc = declared();
+    doc.info['x-requires'] = value;
+    assert.equal(validate(doc), false, what);
+  }
 });

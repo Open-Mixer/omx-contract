@@ -326,6 +326,42 @@ export const PANEL_PLACEMENTS = {
 };
 
 /**
+ * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.
+ * @see data/param-contract.json
+ */
+export const OMX_PARAM_CONTRACT_UNITS = {
+  "none": 0,
+  "s": 1,
+  "ms": 2,
+  "min": 3,
+  "bar": 4,
+  "beat": 5,
+  "frame": 6,
+  "m": 7,
+  "cm": 8,
+  "mm": 9,
+  "km": 10,
+  "inch": 11,
+  "mile": 12,
+  "db": 13,
+  "pc": 14,
+  "coef": 15,
+  "hz": 16,
+  "khz": 17,
+  "mhz": 18,
+  "bpm": 19,
+  "oct": 20,
+  "cent": 21,
+  "semitone12TET": 22,
+  "degree": 23,
+  "midiNote": 24,
+  "dbfs": 256,
+  "dbu": 257,
+  "ratio": 258,
+  "lufs": 259
+};
+
+/**
  * The standard sample rates (Hz) the desk recognises, the pro-audio superset. One source of truth for the clock controller's `clock.allowed-rates` seed, the force row's validation ceiling and the device-rate probe fallback. What the operator is OFFERED is always the DEVICE's own `supportedRates`; this is the ceiling a write is refused by, never a menu.
  * @see data/rates.json
  */

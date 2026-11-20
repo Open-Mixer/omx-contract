@@ -16,6 +16,8 @@ data/
                                rates are omx-dsp's, sorting pass V22 and V25)
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
+  param-contract.json          OMX_PARAM_CONTRACT_*: the unit codes of org.openmixer.param-contract/1, rendered to
+                               omx_param_units.h, read as data by omx-panel and plugin-hostd
   panel.json                   PANEL_*: the panel families and widgets
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
   (the format terms are their owners' domains: the LV2 terms plugin-db's `lv2` domain, sorting pass V27a, plugin-db#66;
@@ -31,7 +33,7 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 | A word that is | Goes in | Its item |
 |---|---|---|
 | a resource a host plans for, its unit, its basis, a budget's scope | `resource-profile.json` | `RESOURCE_<LIST>`, kind `words` |
-| a unit code of the parameter contract extension | omx-clap's `omx-param-contract` domain (V23d), mapped to a standard unit id | `OMX_PARAM_CONTRACT_UNITS`, append-only |
+| a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
 | a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | plugin-db's `lv2` domain (V27a), with its mapping to the standard words | `LV2_<SPEC>_TERMS`, kind `terms` |

@@ -116,7 +116,7 @@ installed in the contract directory.
 
 ### Units
 
-The unit list is a words item (3.21.0, behaviour-core decision 3): `PARAM_UNITS` of the `param` domain (`contract.d/param/param.json`),
+The unit list is a words item (3.21.0, behaviour-core decision 3): `PARAM_UNITS` in `data/param-contract.json`,
 one word per unit, each its symbol as written (`dB`, `ms`, `""`, `dB/oct`), in the order the schema lists them. The
 schema's `$defs.unit` enum is rendered from it (`render --check` holds the committed schema to it), so a unit is added
 in one place. `descriptorUnit` keeps its plugin-only units beside it.

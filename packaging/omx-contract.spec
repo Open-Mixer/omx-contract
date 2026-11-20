@@ -322,8 +322,7 @@ a floor, the lowest release whose functions it calls.
   CURVE_KINDS (V26, omx-dsp), PLUGIN_FEATURE_* (V24, plugin-db), the LV2 terms
   with their inventory and coverage (V27a, plugin-db) and the CLAP terms with
   theirs (V27b, omx-clap), with omx_formats.h, omx_contract.py and
-  omx_contract.clap, and the param-contract unit codes with omx_param_units.h
-  (V23d, omx-clap).
+  omx_contract.clap.
 - The CLAP core's packages are named omx-clap.
 - A plugin descriptor's latency gains sweep { min, max } (#155).
 - omx_vocabulary.h spells the PARAM_UNITS X-macro OMX_PARAM_UNITS_WORDS(X): the

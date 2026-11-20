@@ -282,7 +282,7 @@ test('a rebuilt word whose from reaches a package its domain does not declare in
   assert.match(ir.stderr, want);
 });
 
-test('a rebuilt word\'s from may reach omx-contract, its own domain or its owner package; an item read at run time only may reach any', () => {
+test('a rebuilt word\'s from may reach omx-contract, its own domain or its owner package; the rebuild does not check an item read at run time only (the read of a contract directory does)', () => {
   for (const to of ['omx-contract', 'kinds', 'kinds-owner']) assert.equal(domainDataFiles('kinds', fromInto(to))['words.json'], golden('words.json'), to);
   const runtime = domain();
   runtime.components.schemas.KINDS_ADDRESS_FORMATS.oneOf[0]['x-from'] = [{ $ref: 'https://openmixer.org/contract/plugin-db#/components/schemas/KINDS_TERMS', 'x-term': 'latency' }];

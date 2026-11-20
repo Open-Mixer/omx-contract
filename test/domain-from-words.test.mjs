@@ -93,6 +93,7 @@ test('render --installed --with-domain: xb rebuilt into pkg-b takes its words fr
 test('sabotage: the target word removed from xa is refused by name, by render and validate', () => {
   const gone = xa();
   gone.components.schemas.XA_COLORS.oneOf.splice(0, 1);
+  gone.components.schemas.XA_COLORS.oneOf[0]['x-code'] = 0;
   const root = contractDir({ xa: gone, xb: xb() });
   const r = render(root);
   assert.notEqual(r.status, 0);

@@ -71,5 +71,6 @@
   {"case":"from-words-target-absent","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.package.absent"}},
   {"case":"valid-set-units","domain":"demo","needs":null,"verdict":"ok"},
   {"case":"valid-verbs-replies","domain":"demo","needs":null,"verdict":"ok"},
-  {"case":"valid-terms","domain":"demo","needs":null,"verdict":"ok"}
+  {"case":"valid-terms","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"valid-domain-requires-domain","domain":"demo","needs":null,"verdict":"ok"}
 ]

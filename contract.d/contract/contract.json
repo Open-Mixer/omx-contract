@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/contract",
   "info": {
     "title": "The refusal codes of the contract directory",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -645,6 +645,17 @@
               "path"
             ],
             "x-name": "catalogInvalid"
+          },
+          {
+            "const": "contract.descriptor.latency",
+            "title": "descriptorLatency",
+            "description": "a latency sweep whose min is above its max, or a latency ref to an item that is no scalar in frames or ms",
+            "x-code": 57,
+            "x-text": "{descriptor} declares a latency whose sweep has its min above its max, or a latency ref to an item that is no scalar in frames or ms. Fix the latency the detail names.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorLatency"
           }
         ],
         "x-file": "codes.json",

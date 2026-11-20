@@ -420,6 +420,7 @@
     "descriptorFaceDiffers",
     "descriptorInstrument",
     "descriptorIntegrity",
+    "descriptorLatency",
     "descriptorMeter",
     "descriptorOriginSource",
     "descriptorPortDuplicate",

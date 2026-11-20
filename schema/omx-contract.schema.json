@@ -334,10 +334,20 @@
     },
     "latency": {
       "type": "object",
-      "description": "reports: the plugin reports its latency; frames: a constant the plugin or kernel defines, never a measured figure.",
+      "description": "reports: the plugin reports its latency; frames: a constant the plugin or kernel defines, never a measured figure; sweep: for a modulated delay, which has no single latency, the range its lag lies in, so a host checks a measured lag against it. A ref of frames or sweep names a scalar item whose unit is frames or ms; an ms value is read at the running rate, rounded to the nearest frame.",
       "properties": {
         "reports": { "type": "boolean" },
-        "frames": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] }
+        "frames": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] },
+        "sweep": {
+          "type": "object",
+          "description": "The range a modulated delay's lag lies in: min, the sweep's shortest read (the latency it reports), and max, its longest. Each is a non-negative integer of frames or a ref to a scalar item in frames or ms; min is never above max.",
+          "properties": {
+            "min": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] },
+            "max": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] }
+          },
+          "required": ["min", "max"],
+          "additionalProperties": false
+        }
       },
       "required": ["reports"],
       "additionalProperties": false

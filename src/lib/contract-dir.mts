@@ -157,6 +157,32 @@ function readManifest(pdir, name, major) {
   return m;
 }
 
+/**
+ * A descriptor's latency refs (`frames`, `sweep.min`, `sweep.max`) name a scalar item whose unit is frames or ms, and a
+ * sweep whose two ends are refs to scalars of one unit is in order (docs/descriptors.md, `latency`). An unresolved ref is
+ * the reference loop's: it is skipped here.
+ */
+function latencyRefs(rel, doc, items) {
+  const lat = doc.latency;
+  if (typeof lat !== 'object' || lat === null) return;
+  const scalarOf = (v, where) => {
+    if (typeof v !== 'object' || v === null || typeof v.ref !== 'string') return undefined;
+    const target = items.get(v.ref.split('.')[0]);
+    if (!target) return undefined;
+    const it = target.item;
+    if (v.ref.includes('.') || it?.kind !== 'scalar' || (it.unit !== 'frames' && it.unit !== 'ms')) {
+      refuse('descriptorLatency', rel, `${where}: refers to ${v.ref}, which is no scalar in frames or ms`);
+    }
+    return it;
+  };
+  scalarOf(lat.frames, 'latency.frames');
+  const lo = scalarOf(lat.sweep?.min, 'latency.sweep.min');
+  const hi = scalarOf(lat.sweep?.max, 'latency.sweep.max');
+  if (lo && hi && lo.unit === hi.unit && typeof lo.value === 'number' && typeof hi.value === 'number' && lo.value > hi.value) {
+    refuse('descriptorLatency', rel, `latency.sweep: min ${lat.sweep.min.ref} (${lo.value} ${lo.unit}) is above max ${lat.sweep.max.ref} (${hi.value} ${hi.unit})`);
+  }
+}
+
 /** Every `{ ref }` head, `count` derivation and control count a file's items name, as [name, where]. */
 function referencesOf(rel, doc) {
   const out: Json[] = [];
@@ -328,6 +354,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (pkg === 'omx-contract-schema') continue;
       checkPackage(packages, pkg, v, f.rel);
     }
+    if (isDescriptor(f.doc)) latencyRefs(f.rel, f.doc, items);
   }
   // A domain's declared packages (info.x-requires): installed, at or above the floor; the schema floor is this reader's.
   for (const { at, requires } of declared) {

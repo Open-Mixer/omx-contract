@@ -266,12 +266,58 @@ test('a scanned descriptor in the contract directory is contract.origin.misplace
   for (const name of [SCANNED_LV2, SCANNED_CLAP]) assert.equal(readerRefusal(fixture(name)), CONTRACT_CODES.originMisplaced, name);
 });
 
+// latency.sweep (omx-contract#155): the range a modulated delay's lag lies in. Each end is a non-negative integer of
+// frames or a ref to a scalar in frames or ms; min above max is refused by name, by validation and by the reader.
+const SWEEP_ITEMS = () => ({
+  ROT_BASE_MS: { kind: 'scalar', doc: 'The shortest read of the sweep.', unit: 'ms', value: 0.1 },
+  ROT_LONGEST_MS: { kind: 'scalar', doc: 'The longest read of the sweep.', unit: 'ms', value: 1 },
+  ROT_MID_MS: { kind: 'scalar', doc: 'A read between the two.', unit: 'ms', value: 0.5 },
+  ROT_RATE_HZ: { kind: 'scalar', doc: 'A rate, which is no length.', unit: 'Hz', value: 6 },
+});
+const withLatency = (latency) => { const d = fixture(AUTHORED); d.latency = latency; return d; };
+const sweepRead = (latency) => {
+  const root = directory({ 'plugins/omx-delay.json': fixture(AUTHORED), 'plugins/x.json': withLatency(latency), 'plugins/sweep-items.json': { $schema: fixture(AUTHORED).$schema, requires: fixture(AUTHORED).requires, ...SWEEP_ITEMS() } });
+  try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); raised.add(e.code); return e.code; }
+  return undefined;
+};
+
+test('latency.sweep: two integers of frames are valid, and the schema holds each end to a non-negative integer or a ref', () => {
+  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: 5, max: 47 } })), [], 'positive control: 5..47 frames');
+  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: 5, max: 5 } })), [], 'a sweep of one frame is no break');
+  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } })), [], 'refs are valid per file');
+  for (const [what, sweep] of [['a missing max', { min: 5 }], ['a missing min', { max: 5 }], ['a negative min', { min: -1, max: 5 }], ['a fractional max', { min: 1, max: 2.5 }], ['an extra key', { min: 1, max: 2, step: 1 }], ['a string end', { min: '5', max: 6 }]]) {
+    assert.ok(problemsOf(withLatency({ reports: true, sweep })).length > 0, `${what} is refused`);
+  }
+  assert.ok(SCHEMA.$defs.latency.properties.sweep, 'the schema declares latency.sweep');
+});
+
+test('latency.sweep: a min above its max is refused by name, as validation and as the reader', () => {
+  const d = withLatency({ reports: true, sweep: { min: 48, max: 5 } });
+  assert.deepEqual(codesOf(d), [CONTRACT_CODES.descriptorLatency]);
+  assert.equal(sweepRead(d.latency), CONTRACT_CODES.descriptorLatency);
+});
+
+test('latency.sweep: refs to scalars in ms are read, an ms pair in order passes and a pair out of order is refused', () => {
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } }), undefined);
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_MID_MS' } } }), undefined, 'a pair in order');
+  assert.equal(sweepRead({ reports: true, sweep: { min: 5, max: { ref: 'ROT_BASE_MS' } } }), undefined, 'an integer and a ref are not compared');
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_LONGEST_MS' }, max: { ref: 'ROT_BASE_MS' } } }), CONTRACT_CODES.descriptorLatency, 'ms pair out of order');
+});
+
+test('latency.sweep: a latency ref to an item that is no scalar in frames or ms is refused, for sweep and for frames', () => {
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_RATE_HZ' }, max: { ref: 'ROT_LONGEST_MS' } } }), CONTRACT_CODES.descriptorLatency, 'a scalar in Hz');
+  assert.equal(sweepRead({ reports: true, frames: { ref: 'ROT_RATE_HZ' } }), CONTRACT_CODES.descriptorLatency, 'frames: a scalar in Hz');
+  assert.equal(sweepRead({ reports: true, frames: { ref: 'PARAM_SCALES' } }), CONTRACT_CODES.descriptorLatency, 'frames: an item that is no scalar');
+  assert.equal(sweepRead({ reports: true, frames: { ref: 'ROT_BASE_MS' } }), undefined, 'frames: a scalar in ms is read at the running rate');
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_NO_SUCH' }, max: 5 } }), CONTRACT_CODES.refUnresolved, 'an unknown ref is still the existing refusal');
+});
+
 // The codes another package raises, each with the code that raises it (test/fixtures/codes-raised-elsewhere.json).
 const ELSEWHERE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised-elsewhere.json'), 'utf8')).codes;
 
 test('every descriptor code was raised by an arm above, through validation and through the reader', () => {
   const descriptor = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('descriptor')).map(([, c]) => c).filter((c) => !(c in ELSEWHERE));
-  assert.equal(descriptor.length, 13);
+  assert.equal(descriptor.length, 14);
   assert.deepEqual(descriptor.filter((c) => !raised.has(c)), []);
   assert.ok(raised.has(CONTRACT_CODES.originMisplaced));
 });
@@ -355,51 +401,4 @@ test('a meter names its measurement: the six of a level, the one of a gain reduc
   assert.deepEqual(ok(level), [], 'optional: a meter written before the word stays valid');
   assert.deepEqual(SCHEMA.$defs.descriptorMeter.properties.measurement.enum, [...Object.keys(UNIT), 'gain-reduction']);
   for (const measurement of ['rms', 'vu', 'ppm', 'lufs', 5]) assert.ok(ok({ ...level, measurement }).length > 0, `${measurement} is no measurement`);
-});
-
-// latency.sweep (omx-contract#155): the range a modulated delay's lag lies in. Each end is a non-negative integer of
-// frames or a ref to a scalar in frames or ms; min above max is refused by name, by validation and by the reader.
-const SWEEP_ITEMS = () => ({
-  ROT_BASE_MS: { kind: 'scalar', doc: 'The shortest read of the sweep.', unit: 'ms', value: 0.1 },
-  ROT_LONGEST_MS: { kind: 'scalar', doc: 'The longest read of the sweep.', unit: 'ms', value: 1 },
-  ROT_BASE_FRAMES: { kind: 'scalar', doc: 'The shortest read, in frames.', unit: 'frames', value: 5 },
-  ROT_LONGEST_FRAMES: { kind: 'scalar', doc: 'The longest read, in frames.', unit: 'frames', value: 47 },
-  ROT_RATE_HZ: { kind: 'scalar', doc: 'A rate, which is no length.', unit: 'Hz', value: 6 },
-});
-const withLatency = (latency) => { const d = fixture(AUTHORED); d.latency = latency; return d; };
-const sweepRead = (latency) => {
-  const root = directory({ 'plugins/omx-delay.json': fixture(AUTHORED), 'plugins/x.json': withLatency(latency), 'plugins/sweep-items.json': SWEEP_ITEMS() });
-  try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); return e.code; }
-  return undefined;
-};
-
-test('latency.sweep: two integers of frames are valid, and the schema holds each end to a non-negative integer or a ref', () => {
-  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: 5, max: 47 } })), [], 'positive control: 5..47 frames');
-  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: 5, max: 5 } })), [], 'a sweep of one frame is no break');
-  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } })), [], 'refs are valid per file');
-  for (const [what, sweep] of [['a missing max', { min: 5 }], ['a missing min', { max: 5 }], ['a negative min', { min: -1, max: 5 }], ['a fractional max', { min: 1, max: 2.5 }], ['an extra key', { min: 1, max: 2, step: 1 }], ['a string end', { min: '5', max: 6 }]]) {
-    assert.ok(problemsOf(withLatency({ reports: true, sweep })).length > 0, `${what} is refused`);
-  }
-  assert.ok(SCHEMA.$defs.latency.properties.sweep, 'the schema declares latency.sweep');
-});
-
-test('latency.sweep: a min above its max is refused by name, as validation and as the reader', () => {
-  const d = withLatency({ reports: true, sweep: { min: 48, max: 5 } });
-  assert.deepEqual(codesOf(d), [CONTRACT_CODES.descriptorLatency]);
-  assert.equal(sweepRead(d.latency), CONTRACT_CODES.descriptorLatency);
-});
-
-test('latency.sweep: refs to scalars in ms or frames are read, an ms pair in order passes and a pair out of order is refused', () => {
-  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } }), undefined);
-  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_FRAMES' }, max: { ref: 'ROT_LONGEST_FRAMES' } } }), undefined);
-  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_LONGEST_MS' }, max: { ref: 'ROT_BASE_MS' } } }), CONTRACT_CODES.descriptorLatency, 'ms pair out of order');
-  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_LONGEST_FRAMES' }, max: { ref: 'ROT_BASE_FRAMES' } } }), CONTRACT_CODES.descriptorLatency, 'frames pair out of order');
-});
-
-test('latency.sweep: a latency ref to an item that is no scalar in frames or ms is refused, for sweep and for frames', () => {
-  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_RATE_HZ' }, max: { ref: 'ROT_LONGEST_MS' } } }), CONTRACT_CODES.descriptorLatency, 'a scalar in Hz');
-  assert.equal(sweepRead({ reports: true, frames: { ref: 'ROT_RATE_HZ' } }), CONTRACT_CODES.descriptorLatency, 'frames: a scalar in Hz');
-  assert.equal(sweepRead({ reports: true, frames: { ref: 'PARAM_SCALES' } }), CONTRACT_CODES.descriptorLatency, 'frames: an item that is no scalar');
-  assert.equal(sweepRead({ reports: true, frames: { ref: 'ROT_BASE_MS' } }), undefined, 'frames: a scalar in ms is read at the running rate');
-  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_NO_SUCH' }, max: 5 } }), CONTRACT_CODES.refUnresolved, 'an unknown ref is still the existing refusal');
 });

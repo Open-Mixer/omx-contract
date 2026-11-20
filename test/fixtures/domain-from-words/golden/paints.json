@@ -6,26 +6,26 @@
   "XB_PAINTS": {
     "kind": "words",
     "since": "1.0.0",
-    "doc": "The paints of domain xb.",
+    "doc": "The paints of domain xb, each the colour of xa it is taken from.",
     "words": {
-      "crimson": {
-        "word": "crimson",
+      "red": {
+        "word": "red",
         "from": [
           "XA_COLORS#red"
         ],
-        "doc": "A red paint.",
+        "doc": "The warm one.",
         "text": {
-          "en": "Crimson"
+          "en": "Red"
         }
       },
-      "navy": {
-        "word": "navy",
+      "deepBlue": {
+        "word": "deep-blue",
         "from": [
           "XA_COLORS#deepBlue"
         ],
-        "doc": "A blue paint.",
+        "doc": "The cold one.",
         "text": {
-          "en": "Navy"
+          "en": "Blue"
         }
       }
     }

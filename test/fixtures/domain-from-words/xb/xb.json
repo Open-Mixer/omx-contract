@@ -13,18 +13,18 @@
   "components": {
     "schemas": {
       "XB_PAINTS": {
-        "description": "The paints of domain xb.",
+        "description": "The paints of domain xb, each the colour of xa it is taken from.",
         "x-since": "1.0.0",
         "x-c-codes": true,
         "x-kind": "words",
         "x-file": "paints.json",
         "oneOf": [
           {
-            "const": "crimson",
-            "title": "crimson",
-            "description": "A red paint.",
+            "const": "red",
+            "title": "red",
+            "description": "The warm one.",
             "x-code": 0,
-            "x-text": "Crimson",
+            "x-text": "Red",
             "x-from": [
               {
                 "$ref": "https://openmixer.org/contract/xa#/components/schemas/XA_COLORS",
@@ -33,11 +33,11 @@
             ]
           },
           {
-            "const": "navy",
-            "title": "navy",
-            "description": "A blue paint.",
+            "const": "deep-blue",
+            "title": "deepBlue",
+            "description": "The cold one.",
             "x-code": 1,
-            "x-text": "Navy",
+            "x-text": "Blue",
             "x-from": [
               {
                 "$ref": "https://openmixer.org/contract/xa#/components/schemas/XA_COLORS",

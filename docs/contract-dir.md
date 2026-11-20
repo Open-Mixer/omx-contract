@@ -87,6 +87,15 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     (`contract.ref.unresolved`, `contract.ref.undeclared`); an item that is no words or terms item (a range, scalar,
     sheet or codes item, `contract.ref.unresolved`); a term or title the item lacks (`contract.ref.unresolved`). A
     declared package that is absent or below its floor is `contract.package.absent` or `contract.package.too-old`.
+    A word taken from a WORD (format ruling 2026-11-20, `word-from-differs`) is that word, and carries exact copies:
+    its `const`, its `x-code`, its `description` and its `x-text` are the target's, as written. Copies are required,
+    never inherited (owner ruling (b), 2026-11-20): a field the target carries and the word does not is a difference,
+    and a field neither carries is none. A word that differs, or lacks a copy, is refused by item, word and field: by `validate`, rule `word-from-differs` (the data form's `word`,
+    its place in the item, `doc` and `text.en` against the target's), and by the read of a contract directory
+    wherever the target is in the read (`contract.file.invalid`, naming `word-from-differs`). A term target is not
+    compared: a word is never its term. Because the word carries its own copies, the runtime readers (which open one
+    domain and never resolve `x-from`) serve the same description and text as a render, with no reader change. The
+    comparison is one function, lib/word-from.mjs, for both.
     A reference to omx-contract or the owner when that package is not in the read (a domain rendered from its own
     `contract.d`) is left to `validate`, rule `word-from`, as before, which refuses a word or term that does not
     exist; but an item of the read is never taken for it: when another package of the read declares the item, the

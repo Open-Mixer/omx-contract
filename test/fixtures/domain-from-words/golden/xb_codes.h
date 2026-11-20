@@ -10,8 +10,8 @@
  */
 
 /* XB_PAINTS */
-#define OMX_XB_PAINTS_CRIMSON 0u
-#define OMX_XB_PAINTS_NAVY 1u
+#define OMX_XB_PAINTS_RED 0u
+#define OMX_XB_PAINTS_DEEP_BLUE 1u
 #define OMX_XB_PAINTS_COUNT 2u
 
 #endif /* OMX_XB_CODES_H */

@@ -31,7 +31,7 @@ const DOC = {
       },
       SHADE_KINDS: {
         description: 'A second schema, declared after the first, kept after it.',
-        oneOf: [{ const: 'pale', title: 'pale', 'x-code': 0 }],
+        oneOf: [{ const: 'light', title: 'pale', description: 'The pale one.', 'x-code': 0, 'x-text': 'Light' }], // the word SHADE_TONES' light is taken from, which it copies
       },
     },
   },

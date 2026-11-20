@@ -21,6 +21,7 @@ import { roleProblems } from './role-meanings.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderTs } from '../render/ts.mjs';
 import type { Json } from './json.mjs';
+import { fromDifference, fromDifferences } from './word-from.mjs';
 
 const SCHEMA = JSON.parse(readFileSync(new URL('../schema/omx-contract.schema.json', import.meta.url), 'utf8'));
 /** The version of the schema's vocabulary (`x-omx-schema-version`), the one a file's `requires.omx-contract-schema` floor is read against. */
@@ -202,6 +203,13 @@ function semanticRules(resolved, say) {
           // a term of a terms item, or a word of a words item by its key (a domain word's title)
           if (t?.kind !== 'terms' && t?.kind !== 'words') say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} is no terms or words item`);
           else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} has no ${t.kind === 'terms' ? 'term' : 'word'} ${term}`);
+          // a word taken from a word is that word (word-from-differs); a term is not compared
+          else if (t.kind === 'words') {
+            const tw = t.value[term];
+            const mine = { word: w.word, code: Object.keys(r.value).indexOf(k), doc: w.doc, text: w.text?.en };
+            const theirs = { word: tw.word, code: Object.keys(t.value).indexOf(term), doc: tw.doc, text: tw.text?.en };
+            for (const d of fromDifferences(mine, theirs)) say(r.rel, r.name, 'word-from-differs', `${k}: ${ref}: ${fromDifference(d)}`);
+          }
         }
       }
     }

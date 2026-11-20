@@ -358,7 +358,8 @@ Each refusal is a code of `CONTRACT_CODES` (the `contract` domain, `contract.d/c
 `--json`; the command exits 1. Exit 2 is usage or environment, never a pass. The domain is
 the reader's own table and is read raw by the tool (`src/lib/codes.mts`: the reader cannot need itself to read its
 codes). A word's `x-name` is its key, its `const` the code and its place from 0 the code's value minus one
-(`omx_contract_codes.h`, rendered from it). It is installed in the directory as any domain is.
+(`omx_contract_codes.h`, rendered from it). It is installed in the directory as any domain is, and no whole-read render
+(`omx_vocabulary.h`, the json, ts, py and lv2 renders) carries it, from the installed tree or from `data/`: it is no declaration.
 
 | Code | When |
 |---|---|

@@ -215,6 +215,9 @@ function cmdFmt(argv) {
   return 0;
 }
 
+/** The installed file of the `contract` domain, the reader's own table. */
+const TOOL_DOMAIN_FILE = 'contract/contract.json';
+
 export function renderTarget(target, argv) {
   const data = load(argv);
   const resolved = resolveData(data);
@@ -234,6 +237,9 @@ export function renderTarget(target, argv) {
     if (target === 'ts') return renderOwnerTs(resolved, pkg, files);
     throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');
   }
+  // The reader's own table is no declaration: the installed `contract` domain holds it (docs/contract-dir.md, "The refusal codes"),
+  // and no whole-read render carries it, as the render of data/ never reads it (its one render is omx_contract_codes.h)
+  if (data.packages) for (const [name, it] of [...resolved]) if (it.rel === TOOL_DOMAIN_FILE) resolved.delete(name);
   if (target === 'c') return renderC(resolved);
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));

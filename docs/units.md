@@ -69,8 +69,8 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
   holds); `descriptor` is a unit only a descriptor's control may state, and goes to `$defs.descriptorUnit` (today's
   plugin-only units, and the units that join: `bar`, `beat`, the lengths, `kHz`, `MHz`, `dBu`). A descriptor's
   `travel.unit` takes either scope, or `unknown`, which stays the descriptor format's "states no unit" word, not a
-  unit. `LUFS` is in both lists in 3.20.2; here it is `param`, and a descriptor still takes it. Q16 asks whether the
-  split stays.
+  unit. `LUFS` is in both lists in 3.20.2; here it is `param`, and a descriptor still takes it. The split is kept (Q16,
+  ruled).
 - `bar` and `beat` are counts of a musical length (a delay's bar fraction and note denominator). Their length depends
   on the meter, so neither is derived from the other. A transport position (a bar number, a beat in a bar) is a
   position, not a unit.
@@ -91,7 +91,8 @@ Each format level holds its own spellings and a mapping to the standard ids abov
 
 - **The code table, omx-clap-core.** Ruled (coordinator, 2026-11-20; the owner's Q1 answer stands): the unit codes of
   `org.openmixer.param-contract/1` are the wire encoding of a CLAP-level extension, so a CLAP-level particular. 29
-  tokens, each a wire code (0 is no unit, 1 to 24 are the LV2 units one to one, 0x100 up a vendor block) mapped to a
+  tokens, each a wire code (0 is no unit, 1 to 24 are the LV2 units one to one, 0x100 (256) up a vendor block) mapped to
+  a
   standard unit id; codes are append-only. A descriptor names standard unit ids, never codes: only the extension
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
   `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
@@ -121,11 +122,12 @@ The token-to-id map of the code table, where they differ:
 | `bpm` | 19 | `bpm` |
 | `oct` `cent` `semitone12TET` | 20 21 22 | `oct` `cents` `st` |
 | `degree` `midiNote` | 23 24 | `deg` `midiNote` |
-| `dbfs` `dbu` `ratio` `lufs` | 0x100 0x101 0x102 0x103 | `dBFS` `dBu` `ratio` `LUFS` |
-| `dboct` `dbs` `dbtp` `lu` | 260 261 262 263 | `dB-oct` `dB-s` `dBTP` `LU` |
+| `dbfs` `dbu` `ratio` `lufs` | 0x100 (256) 0x101 (257) 0x102 (258) 0x103 (259) | `dBFS` `dBu` `ratio` `LUFS` |
+| `dboct` `dbs` `dbtp` `lu` | 0x104 (260) 0x105 (261) 0x106 (262) 0x107 (263) | `dB-oct` `dB-s` `dBTP` `LU` |
 
 The last row is new (owner ruling Q15, 2026-11-20): `dB/oct`, `dB/s`, `dBTP` and `LU` take the next omx-clap-core
-codes, 260 up, append-only, because our plugins use them. Its tokens are my proposal, spelled as the vendor tokens
+codes, 0x104 (260) up, append-only, because our plugins use them. Its tokens are my proposal, spelled as the vendor
+tokens
 are (lower case). The 3.20.2 sheet has 29 tokens; the table at its new holder has 33.
 
 ## Panels
@@ -184,8 +186,9 @@ Carried from #144: the tests of the released code sheet, which it restores in `t
 this design keeps, over the code table (the tests follow the table to its holder). Each has the
 sabotage arm it has there:
 
-- the codes are the ones omx-plugins shipped (0.15.0), append-only: `none` 0 to `midiNote` 24, `dbfs` 0x100, `dbu`
-  0x101, `ratio` 0x102, `lufs` 0x103; a token added after is above 0x103 (the four of Q15 are 260 to 263);
+- the codes are the ones omx-plugins shipped (0.15.0), append-only: `none` 0 to `midiNote` 24, `dbfs` 0x100 (256),
+  `dbu` 0x101 (257), `ratio` 0x102 (258), `lufs` 0x103 (259); a token added after is above 0x103 (the four of Q15
+  are 0x104 (260) to 0x107 (263));
 - the rendered `omx_param_units.h` has one `OMX_CLAP_UNIT_` define per token and none other, and the same tokens as
   the `OMX_PARAM_UNITS(X)` table, in order;
 - the limits header spells `OMX_PARAM_CONTRACT_UNITS_DB` once, never `OMX_OMX_`;
@@ -208,15 +211,19 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 - Q9: two descriptors may declare the same custom unit id.
 - Q10: the dimensions are contract format, in omx-contract's `contract` domain.
 - Q13: `bar` and `beat` are standard units, in omx-contract's list.
-- Q14: `dBu` is a standard unit, code 257, the 0.7746 V reference, in omx-contract's list.
+- Q14: `dBu` is a standard unit, code 0x101 (257), the 0.7746 V reference, in omx-contract's list.
 
 ## Open questions for the owner
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
-    (`none`), as today. Do they take the next codes (260 up, append-only), or stay without?
-    - **Ruled (coordinator, 2026-11-20):** they take 260 `dB-oct`, 261 `dB-s`, 262 `dBTP`, 263 `LU`, the next
+    (`none`), as today. Do they take the next codes (0x104 (260) up, append-only), or stay without?
+    - **Ruled (coordinator, 2026-11-20):** they take 0x104 (260) `dB-oct`, 0x105 (261) `dB-s`, 0x106 (262) `dBTP`, 0x107
+    (263) `LU`, the next
       omx-clap-core codes, because our plugins use them.
 16. **Keep the split of `$defs.unit` and `$defs.descriptorUnit`?** The list's `scope` (`param` or `descriptor`) defines
     it for now. The split is a 3.20.2 fact: a descriptor takes both lists anyway, so one list of units would do. Keep
     the split, or drop it and render one enum?
+    - **Ruled (coordinator, 2026-11-20):** keep the split. The joiners (`bar`, `beat`, the lengths, `kHz`, `MHz`, `dBu`)
+    have
+      `descriptor` scope, so the released item enum does not widen.
 

@@ -257,3 +257,31 @@ test('render --installed --with-domain, sabotage: a changed x-text differs; a fi
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /not-installed/);
 });
+
+/** The domain with one `from` of KINDS_REASONS.noAudio pointing into the domain `to` instead of omx-contract. */
+function fromInto(to, item = 'KINDS_REASONS') {
+  const doc = domain();
+  const w = doc.components.schemas[item].oneOf.find((x) => x['x-from']);
+  w['x-from'][0].$ref = `https://openmixer.org/contract/${to}#/components/schemas/KINDS_TERMS`;
+  return doc;
+}
+
+test('a rebuilt word whose from reaches another package is refused by name: a rebuilt file carries no requires', () => {
+  const want = /KINDS_REASONS\.oneOf\[1\]\.x-from\[0\].*plugin-db/;
+  assert.throws(() => domainDataFiles('kinds', fromInto('plugin-db')), want);
+  const d = withDomain(fromInto('plugin-db'));
+  const r = cli('render', '--target', 'c', '--package', 'kinds-owner', '--data', join(d, 'data'), '--with-domain', join(d, 'kinds'), '--out', join(d, 'out'));
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, want);
+  const i = installed(terms(), fromInto('plugin-db'));
+  const ir = installedRender(i, 'c', `${i}-out`, '--with-domain', join(i, 'kinds'));
+  assert.notEqual(ir.status, 0);
+  assert.match(ir.stderr, want);
+});
+
+test('a rebuilt word\'s from may reach omx-contract, its own domain or its owner package; an item read at run time only may reach any', () => {
+  for (const to of ['omx-contract', 'kinds', 'kinds-owner']) assert.equal(domainDataFiles('kinds', fromInto(to))['words.json'], golden('words.json'), to);
+  const runtime = domain();
+  runtime.components.schemas.KINDS_ADDRESS_FORMATS.oneOf[0]['x-from'] = [{ $ref: 'https://openmixer.org/contract/plugin-db#/components/schemas/KINDS_TERMS', 'x-term': 'latency' }];
+  assert.deepEqual(Object.keys(domainDataFiles('kinds', runtime)).sort(), readdirSync(join(FIX, 'golden')).sort());
+});

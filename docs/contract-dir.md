@@ -88,7 +88,9 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     sheet or codes item, `contract.ref.unresolved`); a term or title the item lacks (`contract.ref.unresolved`). A
     declared package that is absent or below its floor is `contract.package.absent` or `contract.package.too-old`.
     A reference to omx-contract or the owner when that package is not in the read (a domain rendered from its own
-    `contract.d`) is left to `validate`, rule `word-from`, as before.
+    `contract.d`) is left to `validate`, rule `word-from`, as before, which refuses a word or term that does not
+    exist; but an item of the read is never taken for it: when another package of the read declares the item, the
+    reference is refused by name (`contract.ref.undeclared`, naming the package that declares it).
     The runtime readers (libomx-domain, `openDomainAt`) open one domain and neither read nor resolve `x-from`; the
     conformance suite holds both to opening such a word, and the build to each refusal.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.

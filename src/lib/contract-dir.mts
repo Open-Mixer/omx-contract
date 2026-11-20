@@ -347,10 +347,14 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const ref = `${f.item}#${f.term}`;
       if (!allowed.has(f.to)) refuse('refUndeclared', where, `takes ${ref} from ${f.to}, which the domain's info.x-requires does not declare (it may take from omx-contract, ${name}, its owner ${owner} and the packages x-requires names)`);
       const want = f.to === name ? pkg : domains.get(f.to)?.pkg ?? f.to;
-      // a package outside the read (omx-contract's data, an owner not installed beside its domain) is validate's to
-      // look for (rule word-from), as it always was; a declared one is in the read, its floor held above
-      if (!packages.has(want)) continue;
       const target = items.get(f.item);
+      // a package outside the read (omx-contract's data, an owner not installed beside its domain) is validate's to
+      // look for (rule word-from), as it always was; a declared one is in the read, its floor held above. An item of
+      // the read is never taken for it: that item is the package's that declares it.
+      if (!packages.has(want)) {
+        if (target) refuse('refUndeclared', where, `takes ${ref} from ${f.to}, which is not in the read, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
+        continue;
+      }
       if (!target) {
         const s = ((domains.get(f.to)?.doc.components as Json)?.schemas as Json)?.[f.item];
         const kind = s === undefined ? undefined : s['x-kind'] ?? ('properties' in s ? 'range' : 'oneOf' in s ? 'codes' : 'unknown');

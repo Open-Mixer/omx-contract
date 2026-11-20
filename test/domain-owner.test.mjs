@@ -151,3 +151,20 @@ test('a domain item\'s banner names its domain\'s document, contract.d/<domain>/
   assert.doesNotMatch(ts, /@see param\/param\.json/);
   assert.match(ts, /@see data\/rates\.json/, 'a data item keeps its data/<file>');
 });
+
+// A nested domain (plugin-hostd/grouping) is named by its path after the last contract.d/, as
+// install-contract-dir.sh --domain names it: `--with-domain <tree>/contract.d/owned/nested` is the domain owned/nested,
+// its $id .../contract/owned/nested, its document nested.json; never the directory's basename.
+test('render --with-domain names a nested domain by its path after the last contract.d/', () => {
+  const t = join(SCRATCH, `nested-${n++}`);
+  const doc = domain('owned/nested', 'The nested words of the owner', {
+    OWNED_NESTED_MODES: { description: 'The modes.', 'x-since': '1.0.0', 'x-kind': 'words', 'x-file': 'nested.json', oneOf: [{ const: 'one', title: 'one', description: 'One.', 'x-code': 0 }] },
+  });
+  mkdirSync(join(t, 'contract.d/owned/nested'), { recursive: true });
+  writeFileSync(join(t, 'contract.d/owned/nested/nested.json'), `${JSON.stringify(doc, null, 2)}\n`);
+  const root = contractDir();
+  const out = join(SCRATCH, `out-${n++}`);
+  const r = cli('render', '--target', 'c', '--out', out, '--contract-dir', root, '--package', 'omx-owned', '--with-domain', join(t, 'contract.d/owned/nested'));
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(readFileSync(join(out, 'omx_owned_vocabulary.h'), 'utf8'), /OWNED_NESTED_MODES \(contract\.d\/owned\/nested\/nested\.json\)/);
+});

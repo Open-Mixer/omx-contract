@@ -55,3 +55,4 @@
 55	indexRange	contract.index.range
 56	itemPrefix	contract.item.prefix
 57	catalogInvalid	contract.catalog.invalid
+58	descriptorLatency	contract.descriptor.latency

@@ -75,7 +75,8 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_INDEX_RANGE = 55, ///< `contract.index.range`: a domain function was asked for a word at an index past the item's count
   OMX_CONTRACT_CODE_ITEM_PREFIX = 56, ///< `contract.item.prefix`: an item of a domain does not start with its domain's name, or starts with the name of a longer domain
   OMX_CONTRACT_CODE_CATALOG_INVALID = 57, ///< `contract.catalog.invalid`: a domain's catalog is not a regular file named by a language tag, or is not an object of {text, by} entries
-  OMX_CONTRACT_CODE_LAST = 57 ///< the last value: every value from 1 to this one is a code
+  OMX_CONTRACT_CODE_DESCRIPTOR_LATENCY = 58, ///< `contract.descriptor.latency`: a latency sweep whose min is above its max, or a latency ref to an item that is no scalar in frames or ms
+  OMX_CONTRACT_CODE_LAST = 58 ///< the last value: every value from 1 to this one is a code
 };
 
 /** The table as an X-macro: `X(NAME, value, "code string")` once per code, in value order. */
@@ -136,7 +137,8 @@ enum omx_contract_code {
   X(WORD_UNKNOWN, 54, "contract.word.unknown") \
   X(INDEX_RANGE, 55, "contract.index.range") \
   X(ITEM_PREFIX, 56, "contract.item.prefix") \
-  X(CATALOG_INVALID, 57, "contract.catalog.invalid")
+  X(CATALOG_INVALID, 57, "contract.catalog.invalid") \
+  X(DESCRIPTOR_LATENCY, 58, "contract.descriptor.latency")
 
 #ifdef __cplusplus
 }

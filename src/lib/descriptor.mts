@@ -76,6 +76,11 @@ export function descriptorProblems(rel: string, doc: Json, { scales = PARAM_SCAL
     controls.forEach((c, i) => { if (!c.source?.from) say('descriptorOriginSource', at(i, c), `a ${doc.origin} control with no from link, its own or the file's`); });
   }
 
+  // A sweep of two integers of frames is in order; refs are resolved, and held to the same order, by the reader of the
+  // contract directory, which knows the items they name.
+  const sweep = doc.latency?.sweep;
+  if (isNum(sweep?.min) && isNum(sweep?.max) && sweep.min > sweep.max) say('descriptorLatency', 'latency', `sweep min ${sweep.min} is above max ${sweep.max}`);
+
   // The Easy face names controls by the key a session and a layout name them by; a scan has nothing to read it from.
   if (doc.easy !== undefined) {
     if (doc.origin === 'scanned') say('descriptorEasy', 'easy', 'a scanned descriptor states no easy list: a scan has nothing to read it from');

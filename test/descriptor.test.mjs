@@ -300,7 +300,8 @@ test('latency.sweep: a min above its max is refused by name, as validation and a
 test('latency.sweep: refs to scalars in ms are read, an ms pair in order passes and a pair out of order is refused', () => {
   assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } }), undefined);
   assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_MID_MS' } } }), undefined, 'a pair in order');
-  assert.equal(sweepRead({ reports: true, sweep: { min: 5, max: { ref: 'ROT_BASE_MS' } } }), undefined, 'an integer and a ref are not compared');
+  assert.equal(sweepRead({ reports: true, sweep: { min: 5, max: { ref: 'ROT_BASE_MS' } } }), CONTRACT_CODES.descriptorLatency, 'mixed units: frames and ms');
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: 47 } }), CONTRACT_CODES.descriptorLatency, 'mixed units: ms and frames');
   assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_LONGEST_MS' }, max: { ref: 'ROT_BASE_MS' } } }), CONTRACT_CODES.descriptorLatency, 'ms pair out of order');
 });
 

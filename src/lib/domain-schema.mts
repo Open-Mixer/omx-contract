@@ -6,7 +6,7 @@ export const domainSchema = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets and scalars under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets and scalars under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; x-dimensions and x-dimension likewise; a set's x-default being one of its words; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": [
     "$schema",
@@ -177,6 +177,14 @@ export const domainSchema = {
           "description": "The name of the words item of this document whose words are the groups of this item's words.",
           "type": "string"
         },
+        "x-dimensions": {
+          "description": "The name of the words item of this document whose words are the dimensions of this item's words (a unit list's: what each unit measures); the data form's dimensions.",
+          "type": "string"
+        },
+        "x-default": {
+          "description": "A set's default: one of its words; the data form's default. Only on x-kind set.",
+          "type": "string"
+        },
         "x-c-codes": {
           "description": "The item becomes constants, its codes header.",
           "type": "boolean"
@@ -186,10 +194,11 @@ export const domainSchema = {
           "type": "boolean"
         },
         "x-kind": {
-          "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, or a words item, each word keyed by its title.",
+          "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, a words item, each word keyed by its title, or a set, its words the ids in order and x-default its default.",
           "enum": [
             "codes",
-            "words"
+            "words",
+            "set"
           ]
         },
         "x-file": {
@@ -351,6 +360,14 @@ export const domainSchema = {
         },
         "x-group": {
           "description": "A word of the item x-groups names.",
+          "type": "string"
+        },
+        "x-symbol": {
+          "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell; the data form's symbol.",
+          "type": "string"
+        },
+        "x-dimension": {
+          "description": "A word of the item x-dimensions names: what the unit measures; the data form's dimension.",
           "type": "string"
         },
         "x-name": {

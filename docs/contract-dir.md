@@ -105,15 +105,20 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
-  data path it came from), `x-kind` (`codes`, `words`, `scalar` or `sheet`) and `x-source` (its `source`); on each
+  data path it came from), `x-kind` (`codes`, `words`, `set`, `scalar` or `sheet`) and `x-source` (its `source`); on each
   word of a codes item `x-name` (the code's key, the macro stem); on a sheet `x-value` and `x-docs` (verbatim); and on a
   scalar `x-unit` and `x-value`. `x-text` and `x-args` keep their meaning above. They are read by `render
   --with-domain` (docs/render.md). A domain with none of them reads and renders as before.
   - `"x-kind": "codes"` (the default for a words item) rebuilds a data `codes` item, each word keyed by its `x-name`.
   - `"x-kind": "words"` rebuilds a data `words` item, each word keyed by its `title` (a word of a words item carries
     no `x-name`; the reader refuses one): `x-groups`, `x-group`, `x-from`, `description`, `x-text` and `x-args` as
-    above. A data words item's `units`, `bases`, `axes` and `extension` and a word's `x`, `y`, `unit`, `symbol`, `scale`,
-    `figureUnit` and `basis` have no domain words yet: an item that needs them stays in `data/`.
+    above, and (3.21.0, a unit list) the item's `x-dimensions` (a words item of the document) with each word's
+    `x-symbol` (its symbol as written) and `x-dimension` (a word of that item). A data words item's `units`, `bases`,
+    `axes` and `extension` and a word's `x`, `y`, `unit`, `scale`, `figureUnit` and `basis` have no domain words yet:
+    an item that needs them stays in `data/`.
+  - `"x-kind": "set"` (3.21.0) rebuilds a data `set` of named ids: its words are the ids in their order, and
+    `x-default`, one of its words, the default. Labels, values, a unit and a numeric id have no domain words yet. The
+    runtime readers serve it as a words item.
   - `"x-kind": "scalar"` is an item of its own, with no `oneOf`: `description`, `x-since`, optional `x-why`,
     `x-source` and `x-file`, `x-unit` (a string, `""` for none) and `x-value` (a number, or true or false); every
     reader refuses another `x-value` and a missing `x-unit` by item. A scalar whose data value is a reference or a

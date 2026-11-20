@@ -27,8 +27,8 @@ export const respMacro = (code) => `${codeMacro(code)}_RESP`;
 
 /**
  * The X-macro names a released sheet header defines, which a words item never takes: omx_param_units.h's
- * OMX_PARAM_UNITS(X) (3.20.2). A fixed list, not read from the renders present, because the sheet and its header move
- * to another package and `omx_vocabulary.h` installs beside that header all the same (omx-contract#151).
+ * OMX_PARAM_UNITS(X) (3.20.2; omx-clap's since the sorting pass, V23d). A fixed list, not read from the renders
+ * present, because `omx_vocabulary.h` installs beside that header (omx-contract#151).
  */
 const RELEASED_SHEET_TABLES = new Set(['OMX_PARAM_UNITS']);
 

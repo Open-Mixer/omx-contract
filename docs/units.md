@@ -22,7 +22,7 @@ release pass is over. It follows the owner's ruling of 2026-11-20, which replace
 ## The one list
 
 The list is `PARAM_UNITS` of omx-contract's `param` domain (`contract.d/param/param.json`, sorting pass V21 and V23a+b),
-a words item (`data/param-contract.json` holds the code sheet). It holds the 15 units the items use, then the ruled set
+a words item (the unit codes of `org.openmixer.param-contract/1` are omx-clap's, V23d). It holds the 15 units the items use, then the ruled set
 appended in the table's order: each word's `x-symbol` its symbol, its `x-dimension` a word of `PARAM_UNIT_DIMENSIONS`
 and its group its scope, a word of `PARAM_UNIT_SCOPES` (`tools/unit-enum.mjs` renders `$defs.unit` and
 `$defs.descriptorUnit` from it). The dimension `count` has the key `counted`, since `OMX_PARAM_UNIT_DIMENSIONS_COUNT` is
@@ -113,9 +113,8 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
   `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
   render go to omx-clap-core; each reader (omx-plugins, omx-panel, the console, omx-clap-core's own code) switches its
-  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed last. The PRs
-  are those of the map amendment (the amendment of omx-contract#142, being written). Until then the 3.20.2 sheet is
-  what the readers read.
+  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed by the sorting
+  pass (V23d, 3.21.0): omx-clap's `omx-param-contract` domain holds it, and every reader switches in the same chain.
 - **The scale codes, omx-clap-core.** Ruled (coordinator, 2026-11-20): the param-contract SCALE codes are a CLAP
   particular like the unit codes. They go to omx-clap-core, each code mapped to a word of `PARAM_SCALES`, which stays
   standard in omx-contract (owner answer Q1). This is map row V21b, beside the unit codes.

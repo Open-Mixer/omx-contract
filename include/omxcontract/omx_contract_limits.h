@@ -39,8 +39,14 @@
 #define OMX_PARAM_CONTRACT_UNITS_DB 13
 /** decibels relative to full scale, 0 the largest sample, a level (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_DBFS 256
+/** decibels relative to full scale, true peak, ITU-R BS.1770 (vendor block) */
+#define OMX_PARAM_CONTRACT_UNITS_DBTP 262
 /** decibels relative to 0.775 V RMS, an analogue level (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_DBU 257
+/** decibels per octave, a filter slope (vendor block) */
+#define OMX_PARAM_CONTRACT_UNITS_DB_PER_OCT 260
+/** decibels per second, a rate of level change (vendor block) */
+#define OMX_PARAM_CONTRACT_UNITS_DB_PER_S 261
 /** degrees of arc or of phase */
 #define OMX_PARAM_CONTRACT_UNITS_DEGREE 23
 /** audio frames (samples) at the running rate */
@@ -53,6 +59,8 @@
 #define OMX_PARAM_CONTRACT_UNITS_KHZ 17
 /** kilometres */
 #define OMX_PARAM_CONTRACT_UNITS_KM 10
+/** loudness units, a loudness difference, ITU-R BS.1770 (vendor block) */
+#define OMX_PARAM_CONTRACT_UNITS_LU 263
 /** loudness units relative to full scale, ITU-R BS.1770 (vendor block) */
 #define OMX_PARAM_CONTRACT_UNITS_LUFS 259
 /** metres */

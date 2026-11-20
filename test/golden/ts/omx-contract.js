@@ -358,7 +358,11 @@ export const OMX_PARAM_CONTRACT_UNITS = {
   "dbfs": 256,
   "dbu": 257,
   "ratio": 258,
-  "lufs": 259
+  "lufs": 259,
+  "dbPerOct": 260,
+  "dbPerS": 261,
+  "dbtp": 262,
+  "lu": 263
 };
 
 /**

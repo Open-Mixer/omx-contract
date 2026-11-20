@@ -359,6 +359,10 @@ export declare const OMX_PARAM_CONTRACT_UNITS: {
   readonly dbu: 257;
   readonly ratio: 258;
   readonly lufs: 259;
+  readonly dbPerOct: 260;
+  readonly dbPerS: 261;
+  readonly dbtp: 262;
+  readonly lu: 263;
 };
 
 /**

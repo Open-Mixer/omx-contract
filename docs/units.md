@@ -64,6 +64,11 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
 | `dB-s` | `dB/s` | rate | none (a base unit) | param |
 | `dBTP` | `dBTP` | level | none (logarithmic) | descriptor |
 | `LU` | `LU` | loudness | none (logarithmic) | descriptor |
+| `us` | `us` | time | `s`, 0.000001 | descriptor |
+| `bytes` | `bytes` | information | none (a base unit) | descriptor |
+| `nsPerSample` | `ns/sample` | time-per-sample | none (a base unit) | descriptor |
+| `plainCount` | `count` | count | none (a base unit) | descriptor |
+| `flag` | `flag` | none | none (a base unit) | descriptor |
 
 - `scope` defines the render: `param` is a unit of the items' `$defs.unit` (today's 15, which `PARAM_UNITS` already
   holds); `descriptor` is a unit only a descriptor's control may state, and goes to `$defs.descriptorUnit` (today's
@@ -79,11 +84,20 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
   `unknown`, rendered from the list, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
   schema to it). A unit is added in one place.
 
+- The resource units `us`, `bytes`, `nsPerSample`, `plainCount` and `flag` join the list (coordinator ruling Q6,
+  2026-11-20). They are host resource units, not parameter units, so they have `descriptor` scope: they widen no
+  released item enum. Their words stay with plugin-hostd, whose `RESOURCE_UNITS` name these standard ids (map row M8).
+  Dimensions: `us` is `time`, derived of `s` by 0.000001. `bytes` is `information`, a new dimension, not `count`: a
+  size in bytes is a quantity of data, and `count` is a number of things (`frames`, `plainCount`), so a panel would
+  never offer a conversion between the two. `nsPerSample` is `time-per-sample`, a new dimension, not `time`: it is a
+  cost per sample, and a time dimension would let a reader convert it to `ms` or `s` as a duration. `plainCount` is
+  `count`. `flag` is `none`, a boolean (0 or 1). `nsPerSample` has no base, and neither has any of them but `us`.
+
 ### The dimensions
 
 `CONTRACT_UNIT_DIMENSIONS`, a words item of omx-contract's `contract` domain, as `PARAM_SCALES` is: `none`, `time`,
 `frequency`, `gain`, `level`, `loudness`, `pitch`, `angle`, `length`, `tempo`, `musical-time`, `count`, `slope`,
-`rate`, `ratio`. A derived unit and its base have the same dimension.
+`rate`, `ratio`, `information`, `time-per-sample`. A derived unit and its base have the same dimension.
 
 ### The format levels
 
@@ -92,14 +106,16 @@ Each format level holds its own spellings and a mapping to the standard ids abov
 - **The code table, omx-clap-core.** Ruled (coordinator, 2026-11-20; the owner's Q1 answer stands): the unit codes of
   `org.openmixer.param-contract/1` are the wire encoding of a CLAP-level extension, so a CLAP-level particular. 29
   tokens, each a wire code (0 is no unit, 1 to 24 are the LV2 units one to one, 0x100 (256) up a vendor block) mapped to
-  a
-  standard unit id; codes are append-only. A descriptor names standard unit ids, never codes: only the extension
+  a standard unit id; codes are append-only. A descriptor names standard unit ids, never codes: only the extension
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
   `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
   render go to omx-clap-core; each reader (omx-plugins, omx-panel, the console, omx-clap-core's own code) switches its
   read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed last. The PRs
   are those of the map amendment (the amendment of omx-contract#142, being written). Until then the 3.20.2 sheet is
   what the readers read.
+- **The scale codes, omx-clap-core.** Ruled (coordinator, 2026-11-20): the param-contract SCALE codes are a CLAP
+  particular like the unit codes. They go to omx-clap-core, each code mapped to a word of `PARAM_SCALES`, which stays
+  standard in omx-contract (owner answer Q1). This is map row V21b, beside the unit codes.
 - **LV2, plugin-db.** The LV2 unit terms (`units:db`, `units:khz`, ...), `lv2:designation` and the `param:`
   spellings, each mapped to a standard unit id or parameter meaning. `LV2_UNITS_TERMS`, the unit terms, is NOT in
   plugin-db today (a grep of its main finds none): it lives in omx-contract (`data/formats/lv2/units.json`), with
@@ -128,7 +144,8 @@ The token-to-id map of the code table, where they differ:
 The last row is new (owner ruling Q15, 2026-11-20): `dB/oct`, `dB/s`, `dBTP` and `LU` take the next omx-clap-core
 codes, 0x104 (260) up, append-only, because our plugins use them. Its tokens are my proposal, spelled as the vendor
 tokens
-are (lower case). The 3.20.2 sheet has 29 tokens; the table at its new holder has 33.
+are (lower case). The 3.20.2 sheet has 29 tokens; the table at its new holder has 33. The five resource units carry no
+code.
 
 ## Panels
 
@@ -212,14 +229,15 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 - Q10: the dimensions are contract format, in omx-contract's `contract` domain.
 - Q13: `bar` and `beat` are standard units, in omx-contract's list.
 - Q14: `dBu` is a standard unit, code 0x101 (257), the 0.7746 V reference, in omx-contract's list.
+- Q6 (coordinator): the five resource units join the list, in the units table above, with `descriptor` scope.
+- Q2 (coordinator): the param-contract scale codes are omx-clap-core's, mapped to `PARAM_SCALES` (map row V21b).
 
 ## Open questions for the owner
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
     (`none`), as today. Do they take the next codes (0x104 (260) up, append-only), or stay without?
     - **Ruled (coordinator, 2026-11-20):** they take 0x104 (260) `dB-oct`, 0x105 (261) `dB-s`, 0x106 (262) `dBTP`, 0x107
-    (263) `LU`, the next
-      omx-clap-core codes, because our plugins use them.
+      (263) `LU`, the next omx-clap-core codes, because our plugins use them.
 16. **Keep the split of `$defs.unit` and `$defs.descriptorUnit`?** The list's `scope` (`param` or `descriptor`) defines
     it for now. The split is a 3.20.2 fact: a descriptor takes both lists anyway, so one list of units would do. Keep
     the split, or drop it and render one enum?

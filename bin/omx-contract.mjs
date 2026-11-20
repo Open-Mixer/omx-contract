@@ -65,10 +65,15 @@ function opts(argv, name) {
   return out;
 }
 
-/** The domain `--with-domain` names, a domain directory: its name (the directory's), document and path. */
+/**
+ * The domain `--with-domain` names, a domain directory: its name, document and path. The name is the path after the
+ * last `contract.d/`, as install-contract-dir.sh --domain names it (`contract.d/plugin-hostd/grouping` is the domain
+ * plugin-hostd/grouping); a directory under no contract.d/ is named by its own name.
+ */
 function domainArg(withDomain) {
   const ddir = resolve(withDomain);
-  const name = basename(ddir);
+  const at = ddir.lastIndexOf('/contract.d/');
+  const name = at < 0 ? basename(ddir) : ddir.slice(at + '/contract.d/'.length);
   const path = join(ddir, `${domainLeaf(name)}.json`);
   if (!existsSync(path)) throw new Usage(`--with-domain ${withDomain}: no ${domainLeaf(name)}.json, the document of the domain ${name}`);
   return { name, doc: JSON.parse(readFileSync(path, 'utf8')), path };

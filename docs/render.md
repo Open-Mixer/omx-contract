@@ -114,6 +114,8 @@ The files are those of the data form but for one line per item: a render's prove
 of a header, the `@see <path>` of a ts module, a verb's `(<path>)`) names a domain item's domain document,
 `contract.d/<domain>/<leaf>.json`, never the `data/<x-file>` the rebuild writes it to, a path that exists nowhere; a data
 item keeps its `data/<file>` (3.21.0).
+A `--with-domain` directory is named as `install-contract-dir.sh --domain` names it: by its path after the last
+`contract.d/` (`contract.d/plugin-hostd/grouping` is the domain `plugin-hostd/grouping`).
 The rebuild, and nothing else:
 
 - an item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one

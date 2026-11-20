@@ -4,7 +4,7 @@
 #define OMX_CONTRACT_CODES_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by `omx-contract render --target c` from CONTRACT_CODES (data/codes.json, docs/contract-dir.md): the
+ * Produced by `omx-contract render --target c` from CONTRACT_CODES (contract.d/contract/contract.json, docs/contract-dir.md): the
  * refusal codes, each as the integer a function returns and the string it prints.
  */
 

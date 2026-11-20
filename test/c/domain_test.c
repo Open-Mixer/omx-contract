@@ -262,23 +262,31 @@ static void test_open_or_exit(void) {
   omx_domain_close(d);
 }
 
-/* The values the loader returns are the CONTRACT_CODES values of omx_contract_codes.h, and each prints the string of
-   data/codes.json at its place; every value of the header has a string. */
+/* The values the loader returns are the CONTRACT_CODES values of omx_contract_codes.h, and each prints the string the
+   3.20.2 table had at its place (test/golden/contract-codes.tsv: value, key, code), which is the string of the contract
+   domain's CONTRACT_CODES word at that place; every value of the header has a string. */
 static void test_codes_are_contract_codes(void) {
   json_error_t jerr;
   json_t *root = json_load_file(CODES_JSON, 0, &jerr);
   CHECK(root != NULL);
   if (!root) return;
-  json_t *codes = json_object_get(json_object_get(root, "CONTRACT_CODES"), "codes");
-  CHECK((int)json_object_size(codes) == OMX_CONTRACT_CODE_LAST);
+  json_t *words = json_object_get(json_object_get(json_object_get(json_object_get(root, "components"), "schemas"), "CONTRACT_CODES"), "oneOf");
+  CHECK((int)json_array_size(words) == OMX_CONTRACT_CODE_LAST);
+  FILE *g = fopen(CODES_GOLDEN, "r");
+  CHECK(g != NULL);
   int place = 0;
-  const char *k;
-  json_t *c;
-  json_object_foreach(codes, k, c) {
+  char line[256];
+  while (g && fgets(line, sizeof line, g)) {
+    int value;
+    char key[128], code[128];
+    CHECK(sscanf(line, "%d\t%127s\t%127s", &value, key, code) == 3);
     place++;
-    const char *want = json_string_value(json_object_get(c, "code"));
-    CHECK_STR(omx_domain_code(place), want);
+    CHECK(value == place);
+    CHECK_STR(omx_domain_code(place), code);
+    CHECK_STR(json_string_value(json_object_get(json_array_get(words, (size_t)place - 1), "const")), code);
   }
+  CHECK(place == OMX_CONTRACT_CODE_LAST);
+  if (g) fclose(g);
   CHECK(omx_domain_code(0) == NULL);
   CHECK(omx_domain_code(-1) == NULL);
   CHECK(omx_domain_code(INT_MIN) == NULL);

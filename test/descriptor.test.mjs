@@ -43,7 +43,7 @@ let n = 0;
 /** A contract directory holding omx-contract's data/ as the install writes it and the package `pkg` holding `files`. */
 function directory(files, pkg = 'omx-plugins') {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   const dir = join(root, String(SCHEMA_MAJOR), pkg);
   const listed = {};
   for (const [rel, doc] of Object.entries(files)) {
@@ -283,7 +283,7 @@ test('every code raised elsewhere is registered, names its raiser, and is raised
   const codes = new Set(Object.values(CONTRACT_CODES));
   assert.ok(Object.keys(ELSEWHERE).length > 0, 'positive control: the fixture names a code');
   for (const [code, raiser] of Object.entries(ELSEWHERE)) {
-    assert.ok(codes.has(code), `${code} is not in data/codes.json`);
+    assert.ok(codes.has(code), `${code} is not in the contract domain`);
     assert.match(raiser, /^[a-z0-9-]+ \S+\.(mjs|js|sh|c): \S/, `${code}: name the package, the file and what it compares`);
     assert.equal(raised.has(code), false, `${code} is raised here: give it an arm instead`);
   }

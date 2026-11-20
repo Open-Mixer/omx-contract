@@ -376,10 +376,12 @@ The files are merged in the order of their reported paths, so omx-contract's own
 
 ## The refusal codes
 
-Each refusal is a code of `CONTRACT_CODES` (`data/codes.json`), printed first on its line and as `code` in
-`--json`; the command exits 1. Exit 2 is usage or environment, never a pass. `data/codes.json` is the reader's
-own table: it is validated by the schema like any data file, and it is not a declaration, so the renders do not
-carry it and it is not installed in the directory.
+Each refusal is a code of `CONTRACT_CODES` (the `contract` domain, `contract.d/contract/contract.json`), printed first on its line and as `code` in
+`--json`; the command exits 1. Exit 2 is usage or environment, never a pass. The domain is
+the reader's own table and is read raw by the tool (`src/lib/codes.mts`: the reader cannot need itself to read its
+codes). A word's `x-name` is its key, its `const` the code and its place from 0 the code's value minus one
+(`omx_contract_codes.h`, rendered from it). It is installed in the directory as any domain is, and no whole-read render
+(`omx_vocabulary.h`, the json, ts, py and lv2 renders) carries it, from the installed tree or from `data/`: it is no declaration.
 
 | Code | When |
 |---|---|
@@ -450,7 +452,7 @@ lives with the package that owns it (omx-contract#81 lists the moves). The rule 
 now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and by `test/ownership.test.mjs`.
 
 - **Items.** The check reads `data/` through the loader (`src/lib/data.mts`, so a kernel file's items count as the
-  renders see them) plus the tool file `codes.json`, and it scans every `enum` of `schema/omx-contract.schema.json`
+  renders see them) plus the `contract` domain's CONTRACT_CODES, and it scans every `enum` of `schema/omx-contract.schema.json`
   and `shapes/travel.schema.json`, each named `<file>#<json pointer>`. A side file's fields (`scale-vectors.json`)
   and a file-level key (`$schema`, `render`) are not items.
 - **Lists.** `ownership/owned.txt` names the items omx-contract owns (`CONTRACT_CODES`, the parameter scales, the

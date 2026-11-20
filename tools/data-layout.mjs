@@ -7,7 +7,7 @@
  *
  *   node tools/data-layout.mjs [--data <dir>] [--inventory <dir>]
  *
- * Layout: no hosting code (omx-clap-core's since 3.0.0, docs/hosting.md) and no codes item outside codes.json; an
+ * Layout: no hosting code (omx-clap-core's since 3.0.0, docs/hosting.md) and no codes item (CONTRACT_CODES is the `contract` domain's); an
  * LV2 term only in the file of the specification whose URI it extends; a CLAP identifier only in the file of its
  * header; every item named by its path; the vocabulary files' items by their prefix. Coverage: every term of inventory/lv2.json and inventory/clap.json
  * mapped under its name with its URI or identifier and a status, the specification and its version equal, and no
@@ -28,7 +28,7 @@ export const pathName = (p) => p.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
 
 /** The files at the top of data/ outside the domain directories, and the prefix their items carry. */
 export const TOP = {
-  'codes.json': null, 'primitives.json': null, 'rates.json': null,
+  'primitives.json': null, 'rates.json': null,
   'resource-profile.json': 'RESOURCE_', 'curves.json': 'CURVE_', 'verbs.json': 'VERB_',
   'param-contract.json': 'OMX_PARAM_CONTRACT_', 'plugin-features.json': 'PLUGIN_FEATURE_', 'panel.json': 'PANEL_',
 };
@@ -70,7 +70,7 @@ export function layoutProblems(files) {
       }
     } else if (Object.hasOwn(TOP, rel)) {
       for (const [n] of items) if (TOP[rel] && !n.startsWith(TOP[rel])) say(`${n}: an item of ${rel} is named ${TOP[rel]}...`);
-      if (codesItems.length && rel !== 'codes.json') say(`${codesItems.map(([n]) => n).join(', ')}: a codes item outside codes.json`);
+      if (codesItems.length) say(`${codesItems.map(([n]) => n).join(', ')}: a codes item in data/ (the refusal codes are the contract domain's)`);
     } else {
       say('no rule of docs/data-layout.md places this file');
     }
@@ -120,10 +120,10 @@ export function coverageProblems(files, { lv2, clap }) {
   return out;
 }
 
-/** data/'s files as `[{ rel, doc }]`, rel below `dir`, codes.json included. */
+/** data/'s files as `[{ rel, doc }]`, rel below `dir`. */
 export function readFiles(dir) {
   const rels = dataFiles(dir).map((p) => relative(dir, p));
-  return ['codes.json', ...rels].map((rel) => ({ rel, doc: JSON.parse(readFileSync(join(dir, rel), 'utf8')) }));
+  return rels.map((rel) => ({ rel, doc: JSON.parse(readFileSync(join(dir, rel), 'utf8')) }));
 }
 
 export const readInventory = (dir) => ({

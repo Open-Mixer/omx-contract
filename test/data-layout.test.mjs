@@ -17,11 +17,11 @@ test('every file of data/ sits where its rule places it', () => {
   assert.deepEqual(layoutProblems(files()), []);
 });
 
-test('data/ holds no hosting code: they are omx-clap-core\'s, and only the reader\'s own codes are a codes item', () => {
+test('data/ holds no hosting code: they are omx-clap-core\'s, and no codes item at all: the refusal codes are the contract domain\'s', () => {
   const fs = files();
   assert.ok(fs.length > 1, 'positive control: the files');
   assert.deepEqual(fs.filter((f) => f.rel.startsWith('hosting/')).map((f) => f.rel), []);
-  assert.deepEqual(fs.filter((f) => Object.values(f.doc).some((v) => v?.kind === 'codes')).map((f) => f.rel), ['codes.json']);
+  assert.deepEqual(fs.filter((f) => Object.values(f.doc).some((v) => v?.kind === 'codes')).map((f) => f.rel), []);
 });
 
 test('sabotage: an owner\'s hosting file put back into data/ is named', () => {
@@ -30,10 +30,10 @@ test('sabotage: an owner\'s hosting file put back into data/ is named', () => {
   assert.deepEqual(layoutProblems(fs), ['hosting/cost.json: the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap-core/hosting/), never omx-contract\'s']);
 });
 
-test('sabotage: a codes item outside codes.json is named', () => {
+test('sabotage: a codes item in data/ is named', () => {
   const fs = files();
   doc(fs, 'resource-profile.json').RESOURCE_STRAY_CODES = { kind: 'codes', doc: 'd', codes: { stray: { code: 'hosting.cost.stray' } } };
-  assert.deepEqual(layoutProblems(fs), ['resource-profile.json: RESOURCE_STRAY_CODES: a codes item outside codes.json']);
+  assert.deepEqual(layoutProblems(fs), ['resource-profile.json: RESOURCE_STRAY_CODES: a codes item in data/ (the refusal codes are the contract domain\'s)']);
 });
 
 test('sabotage: unsorted terms are named', () => {

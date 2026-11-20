@@ -5,6 +5,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { domainDataFiles } from '../lib/domain.mjs';
 import { controlGlobal, isKernelFile, isUse, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
@@ -13,6 +14,9 @@ import { renderTs } from '../render/ts.mjs';
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 /** omx-contract's own data: the schema's shared facts, what the committed renders are rendered from. */
 export const DATA = join(ROOT, 'data');
+
+/** CONTRACT_CODES in its data form (`{ CONTRACT_CODES: { kind, since, doc, codes } }`), rebuilt from the `contract` domain. */
+export const contractCodesDoc = () => ({ $schema: '../../schema/omx-contract.schema.json', ...JSON.parse(domainDataFiles('contract', JSON.parse(readFileSync(join(ROOT, 'contract.d/contract/contract.json'), 'utf8')))['codes.json']) });
 
 /** The kinds of the vocabulary (docs/data-layout.md): hosting codes, words and a format's mapped terms. */
 export const VOCABULARY_KINDS = ['codes', 'words', 'terms'];

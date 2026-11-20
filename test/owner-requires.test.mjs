@@ -32,7 +32,7 @@ const write = (root, rel, doc) => {
 /** A contract directory holding omx-contract's data and `omx-clap-core` 0.30.5 with HOST_REPLY_CODES, as an install writes them. */
 function contractDir({ clapCore = true } = {}) {
   const root = fresh('contract');
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   if (!clapCore) return root;
   const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap-core');
   write(pdir, 'verbs.json', {

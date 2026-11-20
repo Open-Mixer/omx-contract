@@ -74,7 +74,7 @@ test('a catalog whose kind, owner or lang does not match falls back, as the JS r
   }
 });
 
-test('render --check: the package manifests ship the python catalog reader beside omx_contract.py', () => {
+test('render --check: the package manifests ship the python catalog reader', () => {
   for (const f of [join(ROOT, 'debian/omx-contract-data.install'), join(ROOT, 'packaging/omx-contract.spec')]) {
     const text = readFileSync(f, 'utf8');
     assert.match(text, /omx_contract_catalog\.py/, f);

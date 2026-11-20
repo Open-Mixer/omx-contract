@@ -69,7 +69,7 @@ The item:
 Each word (`oneOf` entry):
 
 - `const` (required): the unit's id. Letters, digits and `-`, starting with a letter: `dB`, `percent`, `none`,
-  `dB-oct`. Unique across the merged view.
+  `dB-oct` (section 2 settles the ids of omx-dsp's 12 units). Unique across the merged view.
 - `title` (required): the key, the name of its macro, as in every words item.
 - `x-code` (required): its place in the list, from 0, as in every words item. It is not a wire code.
 - `x-symbol` (required): the symbol as written in a descriptor and after a value: `dB`, `%`, `""`, `dB/oct`.
@@ -135,54 +135,55 @@ Built from the lists above, the LV2 unit terms, and the units the omx-dsp 0.33.1
 times, `dB` 115, `ms` 68, `Hz` 65, `%` 27, `cents` 6, `s` 5, `dBFS` 5, `dB/oct` 4, `oct` 3, `x` 1, `st` 1).
 omx-panel declares no unit today: it prints the unit string a description gives it.
 
-Columns: the param-contract token and code; the symbol a descriptor writes (`-` for none); which schema list holds it
+Columns: the param-contract token and code; the symbol a descriptor writes (`-` for none); the unit's id (`const`,
+settled for the 12 units of omx-dsp; an open unit's id is set when its owner is ruled); which schema list holds it
 (`u` the items' `unit`, `d` the plugin-only `descriptorUnit`); computes-in (a kernel of omx-dsp 0.33.1 states it);
 display (omx-panel declares it); the LV2 term (the format spelling, plugin-db's under V27); and the unit's owner.
 
-| Token | Code | Symbol | List | Computes-in | Display | LV2 term | Owner |
-|---|---|---|---|---|---|---|---|
-| `none` | 0 | `""` | u | yes | - | - | omx-dsp |
-| `s` | 1 | `s` | u | yes | - | `s` | omx-dsp |
-| `ms` | 2 | `ms` | u | yes | - | `ms` | omx-dsp |
-| `min` | 3 | `min` | u | no | - | `min` | OPEN QUESTION 2 |
-| `bar` | 4 | - | - | no | - | `bar` | OPEN QUESTION 5 |
-| `beat` | 5 | - | - | no | - | `beat` | OPEN QUESTION 5 |
-| `frame` | 6 | `frames` | d | no | - | `frame` | OPEN QUESTION 3 |
-| `m` | 7 | - | - | no | - | `m` | OPEN QUESTION 5 |
-| `cm` | 8 | - | - | no | - | `cm` | OPEN QUESTION 5 |
-| `mm` | 9 | - | - | no | - | `mm` | OPEN QUESTION 5 |
-| `km` | 10 | - | - | no | - | `km` | OPEN QUESTION 5 |
-| `inch` | 11 | - | - | no | - | `inch` | OPEN QUESTION 5 |
-| `mile` | 12 | - | - | no | - | `mile` | OPEN QUESTION 5 |
-| `db` | 13 | `dB` | u | yes | - | `db` | omx-dsp |
-| `pc` | 14 | `%` | u | yes | - | `pc` | omx-dsp |
-| `coef` | 15 | `x` | u | yes | - | `coef` | omx-dsp |
-| `hz` | 16 | `Hz` | u | yes | - | `hz` | omx-dsp |
-| `khz` | 17 | - | - | no | - | `khz` | OPEN QUESTION 5 |
-| `mhz` | 18 | - | - | no | - | `mhz` | OPEN QUESTION 5 |
-| `bpm` | 19 | `bpm` | d | no | - | `bpm` | OPEN QUESTION 3 |
-| `oct` | 20 | `oct` | u | yes | - | `oct` | omx-dsp |
-| `cent` | 21 | `cents` | u | yes | - | `cent` | omx-dsp |
-| `semitone12TET` | 22 | `st` | u | yes | - | `semitone12TET` | omx-dsp |
-| `degree` | 23 | `deg` | d | no | - | `degree` | OPEN QUESTION 3 |
-| `midiNote` | 24 | `midiNote` | d | no | - | `midiNote` | OPEN QUESTION 3 |
-| `dbfs` | 256 | `dBFS` | u | yes | - | - | omx-dsp |
-| `dbu` | 257 | - | - | no | - | - | OPEN QUESTION 5 |
-| `ratio` | 258 | `ratio` | d | no | - | - | OPEN QUESTION 4 |
-| `lufs` | 259 | `LUFS` | u, d | no | - | - | OPEN QUESTION 2 |
-| - | - | `dB/oct` | u | yes | - | - | omx-dsp |
-| - | - | `dB/s` | u | no | - | - | OPEN QUESTION 2 |
-| - | - | `dBTP` | d | no | - | - | OPEN QUESTION 4 |
-| - | - | `LU` | d | no | - | - | OPEN QUESTION 4 |
-| - | - | `unknown` | d | - | - | - | omx-contract: the descriptor format's "states none" word, not a unit |
+| Token | Code | Symbol | Id | List | Computes-in | Display | LV2 term | Owner |
+|---|---|---|---|---|---|---|---|---|
+| `none` | 0 | `""` | `none` | u | yes | - | - | omx-dsp |
+| `s` | 1 | `s` | `s` | u | yes | - | `s` | omx-dsp |
+| `ms` | 2 | `ms` | `ms` | u | yes | - | `ms` | omx-dsp |
+| `min` | 3 | `min` | - | u | no | - | `min` | OPEN QUESTION 2 |
+| `bar` | 4 | - | - | - | no | - | `bar` | OPEN QUESTION 5 |
+| `beat` | 5 | - | - | - | no | - | `beat` | OPEN QUESTION 5 |
+| `frame` | 6 | `frames` | - | d | no | - | `frame` | OPEN QUESTION 3 |
+| `m` | 7 | - | - | - | no | - | `m` | OPEN QUESTION 5 |
+| `cm` | 8 | - | - | - | no | - | `cm` | OPEN QUESTION 5 |
+| `mm` | 9 | - | - | - | no | - | `mm` | OPEN QUESTION 5 |
+| `km` | 10 | - | - | - | no | - | `km` | OPEN QUESTION 5 |
+| `inch` | 11 | - | - | - | no | - | `inch` | OPEN QUESTION 5 |
+| `mile` | 12 | - | - | - | no | - | `mile` | OPEN QUESTION 5 |
+| `db` | 13 | `dB` | `dB` | u | yes | - | `db` | omx-dsp |
+| `pc` | 14 | `%` | `percent` | u | yes | - | `pc` | omx-dsp |
+| `coef` | 15 | `x` | `x` | u | yes | - | `coef` | omx-dsp |
+| `hz` | 16 | `Hz` | `Hz` | u | yes | - | `hz` | omx-dsp |
+| `khz` | 17 | - | - | - | no | - | `khz` | OPEN QUESTION 5 |
+| `mhz` | 18 | - | - | - | no | - | `mhz` | OPEN QUESTION 5 |
+| `bpm` | 19 | `bpm` | - | d | no | - | `bpm` | OPEN QUESTION 3 |
+| `oct` | 20 | `oct` | `oct` | u | yes | - | `oct` | omx-dsp |
+| `cent` | 21 | `cents` | `cents` | u | yes | - | `cent` | omx-dsp |
+| `semitone12TET` | 22 | `st` | `st` | u | yes | - | `semitone12TET` | omx-dsp |
+| `degree` | 23 | `deg` | - | d | no | - | `degree` | OPEN QUESTION 3 |
+| `midiNote` | 24 | `midiNote` | - | d | no | - | `midiNote` | OPEN QUESTION 3 |
+| `dbfs` | 256 | `dBFS` | `dBFS` | u | yes | - | - | omx-dsp |
+| `dbu` | 257 | - | - | - | no | - | - | OPEN QUESTION 5 |
+| `ratio` | 258 | `ratio` | - | d | no | - | - | OPEN QUESTION 4 |
+| `lufs` | 259 | `LUFS` | - | u, d | no | - | - | OPEN QUESTION 2 |
+| - | - | `dB/oct` | `dB-oct` | u | yes | - | - | omx-dsp |
+| - | - | `dB/s` | - | u | no | - | - | OPEN QUESTION 2 |
+| - | - | `dBTP` | - | d | no | - | - | OPEN QUESTION 4 |
+| - | - | `LU` | - | d | no | - | - | OPEN QUESTION 4 |
+| - | - | `unknown` | - | d | - | - | - | omx-contract: the descriptor format's "states none" word, not a unit |
 
 The wire codes themselves (the code table) are OPEN QUESTION 1. `$defs.meaning` holds no unit; its owner is OPEN
 QUESTION 7.
 
 Per owner, what is settled today:
 
-- omx-dsp, `DSP_UNITS` (computes-in): 12 units. `""` (`none`), `s`, `ms`, `dB`, `%`, `x`, `Hz`, `oct`,
-  `cents`, `st`, `dBFS`, `dB/oct`.
+- omx-dsp, `DSP_UNITS` (computes-in): 12 units, by id: `none` (`""`), `s`, `ms`, `dB`, `percent` (`%`), `x`,
+  `Hz`, `oct`, `cents`, `st`, `dBFS`, `dB-oct` (`dB/oct`).
 - omx-panel, `PANEL_UNITS` (display): 0 units settled.
 - plugin-db, the LV2 spellings (V27): 24 terms, each naming a unit by id when one is declared.
 - plugin-db, the CLAP spellings: 0. CLAP has no unit terms.
@@ -255,7 +256,7 @@ typedef struct {
 } omx_units_floor;
 
 typedef struct {
-  const char *id;            /* the unit's id ("dB", "percent", "none") */
+  const char *id;            /* the unit's id ("dB", "percent", "dB-oct", "none") */
   const char *symbol;        /* as written ("dB", "%", ""); never NULL */
   const char *dimension;     /* a word of CONTRACT_UNIT_DIMENSIONS */
   const char *owner;         /* the domain that declares it ("dsp"); "descriptor" for a custom unit */

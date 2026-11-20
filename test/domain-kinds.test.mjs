@@ -61,7 +61,7 @@ function withDomain(doc) {
 }
 
 test('a codes item whose words store x-args rebuilds the data file with args, byte for byte', () => {
-  assert.equal(domainDataFiles('kinds', only(domain(), ['KINDS_CODES']))['codes.json'], golden('codes.json'));
+  assert.equal(domainDataFiles('kinds', only(domain(), ['KINDS_CODES']))['refusals.json'], golden('refusals.json'));
 });
 
 test('a words item (groups, from, doc, text and args) rebuilds today\'s kind words data file, byte for byte', () => {

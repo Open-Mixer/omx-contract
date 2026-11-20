@@ -31,7 +31,7 @@
         "description": "The refusals of the fixture, each with its sentence and the args the sentence names.",
         "x-since": "1.0.0",
         "x-kind": "codes",
-        "x-file": "codes.json",
+        "x-file": "refusals.json",
         "oneOf": [
           {
             "const": "kinds.dir.absent",

@@ -113,21 +113,31 @@ The rebuild, and nothing else:
   `x-file` make that file, in the document's order;
 - the root's `x-render` is the `render` block of the file the root's `x-file` names (`hosting.json`); the other
   rebuilt files carry none, so which items render themselves and which go to the vocabulary is what it is today;
-- every item carries `x-source` (its data `source`, when it had one), `x-since` and `description` as today;
-- an item with `"x-kind": "codes"` is the data item `{ "kind": "codes", "since", "source", "doc", "codes" }`: each of
+- every item carries `x-source` (its data `source`, when it had one), `x-since`, `description` and `x-why` (its data
+  `why`, when it had one) as today; every rebuilt item starts `{ "kind", "since", "source", "doc", "why" }`, in that
+  order;
+- an item with `"x-kind": "codes"` (or no `x-kind`) is the data item `{ "kind": "codes", ..., "codes" }`: each of
   its `oneOf` words is one code in the written order, `const` the code, `x-name` its key (the macro stem,
-  `clapExtensionsNotCovered`), `x-text` its English text (`{ "en": <x-text> }`; a second language is a later minor),
-  `description` its doc;
-- an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", "since", "source", "doc", "value": <x-value>,
+  `clapExtensionsNotCovered`), then `description` its doc, `x-text` its English text (`{ "en": <x-text> }`; the other
+  languages are the domain's catalogs) and `x-args` its args;
+- an item with `"x-kind": "words"` is the data item `{ "kind": "words", ..., "groups", "words" }`: `groups` is its
+  `x-groups`, and each of its `oneOf` words is one word in the written order, keyed by its `title`, as
+  `{ "word": <const>, "group": <x-group>, "from": [<ITEM>#<x-term>...], "doc", "text", "args" }`, each key only when
+  the word has it (plugin-db's `PLUGIN_DB_*` words items, which its own renders then read unchanged);
+- an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
+  (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
+- an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
   "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
 
 A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file. A
 domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
 The data form stays what it is.
 
-Byte identity is held by two checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
+Byte identity is held by three checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
 domain and `cmp`s the five outputs of the combined read against the pure data render (a changed `x-text`, `x-value`
-or `x-file` is red). The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
+or `x-file` is red). test/domain-kinds.test.mjs holds one item of each kind (codes with `x-args`, words with groups,
+`from`, args and a catalog in a second language, scalars, codes without args and a sheet) to golden data files byte for
+byte, and the c and ts renders of `--with-domain` to those of the golden data. The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
 build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 

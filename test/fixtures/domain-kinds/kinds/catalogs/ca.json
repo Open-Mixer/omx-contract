@@ -3,7 +3,7 @@
   "lang": "ca",
   "owner": "kinds-owner",
   "messages": {
-    "kinds.file.mismatch": {
+    "KINDS_CODES.kinds.file.mismatch": {
       "text": "{file} diu {found}, i es demanava {want}.",
       "by": "human"
     },

@@ -52,6 +52,7 @@ export function renderVocabularyHeader(resolved, pkg) {
         lines.push(documented(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}`, c.doc && doxyLine(c.doc)));
         if (Number.isInteger(c.resp)) lines.push(`#define ${respMacro(c.code)} (${c.resp})`);
         if (c.transient === true) lines.push(`#define ${codeMacro(c.code)}_TRANSIENT 1`);
+        if (c.leavesNoMark === true) lines.push(`#define ${codeMacro(c.code)}_LEAVES_NO_MARK 1`);
         lines.push(...codeTextDefines(codeMacro(c.code), c, cStringLiteral));
       }
     } else {

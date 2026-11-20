@@ -12,7 +12,7 @@
 # MANIFEST.json), the contract and param domains (contract.d/contract/contract.json, contract.d/param/param.json), the schema, the committed renders and languages.json under share/omx-contract; each language pack its one catalog
 # (share/omx-contract/catalogs/<lang>.json, a pack per language of languages.json); the development package the C
 # render, the hand-written C beside it (less omx_domain.h and omx_contract_codes.h), omx-contract.pc, install-contract-dir.sh and (RPM) the rpm macros; the command package the command, its tree under
-# /usr/lib/omx-contract and its man page; python3-omx-contract the package omx_contract (catalog, scale and clap, the
+# /usr/lib/omx-contract and its man page; python3-omx-contract the package omx_contract (catalog and scale, the
 # share/omx-contract readers under their module names) in the interpreter's site-packages (RPM) or dist-packages (deb),
 # shown as /SITE with the bytecode left out; the C loader's two arch-dependent packages (libomx-domain, libomx-domain-devel; deb libomx-domain0, libomx-domain-dev) the library, and
 # its two headers, libomx-domain.pc, the ABI list and the omx-domain command. No file is in two packages, and the command, the development package and
@@ -81,7 +81,7 @@ for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalo
   echo /usr/share/omx-contract/install-contract-dir.sh
   echo /usr/share/pkgconfig/omx-contract.pc
   [ "$kind" = rpm ] && echo /usr/lib/rpm/macros.d/macros.omx-contract) | LC_ALL=C sort > "$tmp/want-$devel"
-(for m in __init__ catalog clap scale shapes/__init__; do echo "/SITE/omx_contract/$m.py"; done
+(for m in __init__ catalog scale shapes/__init__; do echo "/SITE/omx_contract/$m.py"; done
   for f in share/omx-contract/omx_contract_*_shape.py; do echo "/SITE/omx_contract/shapes/$(basename "$f" _shape.py | sed 's/^omx_contract_//').py"; done) | LC_ALL=C sort > "$tmp/want-$py"
 
 bad=0

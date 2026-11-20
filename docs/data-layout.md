@@ -23,7 +23,7 @@ data/
   (the LV2 terms, LV2_<SPEC>_TERMS, are plugin-db's `lv2` domain: sorting pass V27a)
   formats/clap/<header>.json   CLAP_<HEADER>_TERMS: the identifiers of the CLAP header clap/<header>.h
                                (formats/clap/events.json, ext/params.json, ext/draft/scratch-memory.json, ...)
-inventory/lv2.json  clap.json  the formats as installed, written by tools/format-inventory.mjs, never by hand
+inventory/clap.json  the CLAP headers as installed, written by tools/format-inventory.mjs, never by hand
 ```
 
 The verbs are not here either: each package declares its own, in an item of kind `verbs` (docs/contract-dir.md "A
@@ -145,11 +145,11 @@ deprecates.
 
 ## The inventory
 
-`node tools/format-inventory.mjs` reads the installed LV2 bundles (through `serdi`) and CLAP headers and writes
-`inventory/lv2.json` and `inventory/clap.json` with the versions they were read from; `--check` compares instead.
-`test/format-coverage.test.mjs` holds the mapping equal to the inventory: every term of the inventory is mapped with
-a status, and no mapped term is missing from it. When a newer LV2 or CLAP is installed, refresh the inventory and
-map what it adds; the test names each term.
+`node tools/format-inventory.mjs` reads the installed CLAP headers and writes `inventory/clap.json` with the version
+it was read from; `--check` compares instead. `test/format-coverage.test.mjs` holds the mapping equal to the
+inventory: every term of the inventory is mapped with a status, and no mapped term is missing from it. When a newer
+CLAP is installed, refresh the inventory and map what it adds; the test names each term. The LV2 inventory and its
+coverage are plugin-db's (`tools/lv2_inventory.py`, `tests/lv2_coverage_test.py`; sorting pass V27a).
 
 ## The renders
 

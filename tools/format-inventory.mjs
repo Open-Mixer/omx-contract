@@ -2,16 +2,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /*
- * format-inventory.mjs — the inventory of the LV2 and CLAP vocabularies as installed: every term an LV2
- * specification bundle defines and every identifier the CLAP headers declare, with the versions they were read from.
- * The inventory is what data/formats/ maps, term by term (docs/data-layout.md); it is written by this tool and never
- * edited by hand.
+ * format-inventory.mjs — the inventory of the CLAP vocabulary as installed: every identifier the CLAP headers
+ * declare, with the version they were read from. The inventory is what data/formats/clap maps, term by term
+ * (docs/data-layout.md); it is written by this tool and never edited by hand. The LV2 inventory is plugin-db's
+ * (tools/lv2_inventory.py there, sorting pass V27a).
  *
- *   node tools/format-inventory.mjs [--lv2 <lv2 dir>] [--clap <include dir>] [--out <dir>] [--check]
+ *   node tools/format-inventory.mjs [--clap <include dir>] [--out <dir>] [--check]
  *
- * --lv2 defaults to pkg-config's lv2dir (else /usr/lib64/lv2), --clap to pkg-config's includedir for clap (else
- * /usr/include). The LV2 bundles are read through serdi (Turtle to N-Triples); the CLAP headers are read as text.
- * --check compares with inventory/lv2.json and inventory/clap.json instead of writing them.
+ * --clap defaults to pkg-config's includedir for clap (else /usr/include); the CLAP headers are read as text.
+ * --check compares with inventory/clap.json instead of writing it.
  *
  * Exit 0 written or equal; 1 a difference (each named) or a source that cannot be read; 2 usage.
  */
@@ -23,119 +22,6 @@ import { isMain } from '../lib/entry.mjs';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const INVENTORY = join(ROOT, 'inventory');
-
-const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
-const OWL = 'http://www.w3.org/2002/07/owl#';
-const LV2 = 'http://lv2plug.in/ns/lv2core#';
-
-/** The bundles under an LV2 directory that are no LV2 specification: the RDF, OWL and XSD schemas LV2 ships. */
-export const NOT_SPECS = ['schemas.lv2'];
-
-/** The prefixes a type is written with in the inventory, so a reader sees `owl:ObjectProperty`, not the IRI. */
-const CURIES = [
-  ['rdf', RDF], ['rdfs', RDFS], ['owl', OWL], ['lv2', LV2], ['xsd', 'http://www.w3.org/2001/XMLSchema#'],
-  ['atom', 'http://lv2plug.in/ns/ext/atom#'], ['ui', 'http://lv2plug.in/ns/extensions/ui#'],
-  ['units', 'http://lv2plug.in/ns/extensions/units#'], ['opts', 'http://lv2plug.in/ns/ext/options#'],
-  ['patch', 'http://lv2plug.in/ns/ext/patch#'], ['pg', 'http://lv2plug.in/ns/ext/port-groups#'],
-  ['state', 'http://lv2plug.in/ns/ext/state#'], ['time', 'http://lv2plug.in/ns/ext/time#'],
-  ['midi', 'http://lv2plug.in/ns/ext/midi#'], ['ev', 'http://lv2plug.in/ns/ext/event#'],
-  ['param', 'http://lv2plug.in/ns/ext/parameters#'], ['pprops', 'http://lv2plug.in/ns/ext/port-props#'],
-  ['pset', 'http://lv2plug.in/ns/ext/presets#'], ['bufsz', 'http://lv2plug.in/ns/ext/buf-size#'],
-  ['log', 'http://lv2plug.in/ns/ext/log#'], ['morph', 'http://lv2plug.in/ns/ext/morph#'],
-  ['rsz', 'http://lv2plug.in/ns/ext/resize-port#'], ['urid', 'http://lv2plug.in/ns/ext/urid#'],
-  ['work', 'http://lv2plug.in/ns/ext/worker#'], ['dman', 'http://lv2plug.in/ns/ext/dynmanifest#'],
-];
-export const curie = (iri) => {
-  for (const [p, ns] of CURIES) if (iri.startsWith(ns) && /^[A-Za-z0-9_-]+$/.test(iri.slice(ns.length))) return `${p}:${iri.slice(ns.length)}`;
-  return iri;
-};
-
-/** N-Triples text as `[[s, p, o]]`: IRIs bare, a blank node `_:x`, a literal as `"text"` with its datatype dropped. */
-export function parseNTriples(text) {
-  const out = [];
-  const term = /\s*(<[^>]*>|_:\S+|"(?:[^"\\]|\\.)*"(?:\^\^<[^>]*>|@[A-Za-z-]+)?)/y;
-  for (const line of text.split('\n')) {
-    if (!line.trim() || line.startsWith('#')) continue;
-    term.lastIndex = 0;
-    const t = [];
-    for (let i = 0; i < 3; i++) {
-      const m = term.exec(line);
-      if (!m) throw new Error(`not N-Triples: ${line}`);
-      const v = m[1];
-      t.push(v.startsWith('<') ? v.slice(1, -1) : v.startsWith('"') ? v.replace(/(\^\^<[^>]*>|@[A-Za-z-]+)$/, '') : v);
-    }
-    out.push(t);
-  }
-  return out;
-}
-
-const turtle = (file) => parseNTriples(execFileSync('serdi', ['-q', '-i', 'turtle', '-o', 'ntriples', file], { encoding: 'utf8', maxBuffer: 1 << 26 }));
-
-/**
- * One LV2 bundle's specification: `{ bundle, uri, version, terms: [{ uri, name, types, deprecated?, label? }] }`, the
- * terms every IRI a triple of its non-manifest files is about that lies in the specification's namespace (its URI
- * then `#` or `/`) and the specification's own URI (a feature or an extension-data URI in data-access,
- * instance-access and others; named after its bundle, state.lv2, so it never meets a term of its own such as state:state), sorted by IRI. Version is lv2:minorVersion.lv2:microVersion of the manifest.
- */
-export function readLv2Bundle(dir) {
-  const manifest = turtle(join(dir, 'manifest.ttl'));
-  const specs = manifest.filter(([, p, o]) => p === `${RDF}type` && o === `${LV2}Specification`).map(([s]) => s);
-  if (specs.length !== 1) throw new Error(`${dir}: the manifest names ${specs.length} specifications`);
-  const uri = specs[0];
-  const num = (p) => manifest.find(([s, q]) => s === uri && q === `${LV2}${p}`)?.[2]?.replace(/"/g, '');
-  const triples = readdirSync(dir).filter((f) => f.endsWith('.ttl') && f !== 'manifest.ttl').sort().flatMap((f) => turtle(join(dir, f)));
-  const inNs = (iri) => iri === uri || ((iri.startsWith(`${uri}#`) || iri.startsWith(`${uri}/`)) && iri.length > uri.length + 1);
-  const bundle = dir.replace(/^.*\//, '');
-  const terms = new Map();
-  for (const [s, p, o] of triples) {
-    if (!inNs(s)) continue;
-    if (!terms.has(s)) terms.set(s, { uri: s, name: s === uri ? bundle : s.slice(uri.length + 1), types: new Set() });
-    const t = terms.get(s);
-    if (p === `${RDF}type`) t.types.add(curie(o));
-    if (p === `${OWL}deprecated` && /^"(true|1)"$/.test(o)) t.deprecated = true;
-    if (p === `${RDFS}label` && !t.label) t.label = JSON.parse(o);
-  }
-  const specDeprecated = terms.get(uri)?.deprecated === true;
-  const sorted = [...terms.values()].sort((a, b) => (a.uri < b.uri ? -1 : 1)).map((t) => {
-    const o = { uri: t.uri, name: t.name, types: [...t.types].sort() };
-    if (t.deprecated) o.deprecated = true;
-    if (t.label) o.label = t.label;
-    return o;
-  });
-  const out = { bundle, uri, version: `${num('minorVersion')}.${num('microVersion')}` };
-  if (specDeprecated) out.deprecated = true;
-  out.terms = sorted;
-  return out;
-}
-
-/**
- * Every LV2 bundle under `dir` read: `{ specs, unread }`. `specs` is the specifications by bundle name (the bundle's
- * name less `.lv2`); `unread` is `[{ bundle, reason }]` for each bundle that is no specification: a plugin bundle
- * (lv2-airwindows lists plugins in its manifest and names no specification, which is legal LV2) or one the reader
- * cannot read. A bundle never stops the others from being read (#143).
- */
-export function readLv2Dir(dir) {
-  const bundles = readdirSync(dir).filter((b) => b.endsWith('.lv2') && !NOT_SPECS.includes(b) && existsSync(join(dir, b, 'manifest.ttl'))).sort();
-  if (!bundles.length) throw new Error(`no LV2 bundle under ${dir}`);
-  const specs = {};
-  const unread = [];
-  for (const b of bundles) {
-    const name = b.replace(/\.lv2$/, '');
-    try {
-      const manifest = turtle(join(dir, b, 'manifest.ttl'));
-      const names = (type) => manifest.filter(([, p, o]) => p === `${RDF}type` && o === type).length;
-      if (names(`${LV2}Specification`) === 0 && names(`${LV2}Plugin`) > 0) { unread.push({ bundle: name, reason: 'a plugin bundle: its manifest names plugins and no specification' }); continue; }
-      specs[name] = readLv2Bundle(join(dir, b));
-    } catch (e) {
-      unread.push({ bundle: name, reason: String(e.message).replace(`${join(dir, b)}: `, '') });
-    }
-  }
-  return { specs, unread };
-}
-
-/** Every LV2 specification under `dir`, by bundle name; a bundle that is none is left out (readLv2Dir says which and why). */
-export const readLv2 = (dir) => readLv2Dir(dir).specs;
 
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
 
@@ -201,17 +87,12 @@ export function readClap(include) {
 const pkgVar = (pkg, v) => {
   try { return execFileSync('pkg-config', [`--variable=${v}`, pkg], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || undefined; } catch { return undefined; }
 };
-const pkgVersion = (pkg) => {
-  try { return execFileSync('pkg-config', ['--modversion', pkg], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() || undefined; } catch { return undefined; }
-};
-export const defaultLv2Dir = () => pkgVar('lv2', 'lv2dir') ?? '/usr/lib64/lv2';
 export const defaultClapInclude = () => pkgVar('clap', 'includedir') ?? '/usr/include';
 
-/** The two inventory documents of the sources named: `{ 'lv2.json': text, 'clap.json': text }`. */
-export function inventories({ lv2 = defaultLv2Dir(), clap = defaultClapInclude() } = {}) {
-  const l = { format: 'lv2', from: 'the LV2 specification bundles (lv2 package)', version: pkgVersion('lv2') ?? 'unknown', specs: readLv2(lv2) };
+/** The inventory document of the sources named: `{ 'clap.json': text }` (the LV2 inventory is plugin-db's, V27a). */
+export function inventories({ clap = defaultClapInclude() } = {}) {
   const c = { format: 'clap', from: 'the CLAP headers (clap package), private/ left out', ...readClap(clap) };
-  return { 'lv2.json': `${JSON.stringify(l, null, 2)}\n`, 'clap.json': `${JSON.stringify(c, null, 2)}\n` };
+  return { 'clap.json': `${JSON.stringify(c, null, 2)}\n` };
 }
 
 function main(argv) {
@@ -221,7 +102,7 @@ function main(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--check') check = true;
-    else if (['--lv2', '--clap', '--out'].includes(a) && argv[i + 1]) {
+    else if (['--clap', '--out'].includes(a) && argv[i + 1]) {
       const v = argv[++i];
       if (a === '--out') out = v; else opts[a.slice(2)] = v;
     } else { process.stderr.write(`format-inventory: unknown argument ${a}\n`); return 2; }

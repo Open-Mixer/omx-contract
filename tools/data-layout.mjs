@@ -80,31 +80,10 @@ export function layoutProblems(files) {
 
 const fileOf = (files, rel) => files.find((f) => f.rel === rel)?.doc;
 
-/**
- * The coverage problems of `files` against the inventories (`{ lv2, clap }`): `[message]`. The LV2 terms are plugin-db's
- * `lv2` domain (sorting pass V27a): data/ holds none, so the LV2 inventory is held to the files only when `lv2` is
- * given and data/ maps LV2 (a fixture, or a tree before the move).
- */
-export function coverageProblems(files, { lv2, clap }) {
+/** The coverage problems of `files` against the CLAP inventory (`{ clap }`): `[message]`. The LV2 coverage is plugin-db's (V27a). */
+export function coverageProblems(files, { clap }) {
   const out = [];
   const mapped = new Set();
-  const lv2Here = lv2 !== undefined && files.some((f) => f.rel.startsWith('formats/lv2/'));
-  for (const [name, spec] of Object.entries(lv2Here ? lv2.specs : {})) {
-    const rel = `formats/lv2/${name}.json`;
-    const doc = fileOf(files, rel);
-    const it = doc && doc[`LV2_${pathName(name)}_TERMS`];
-    if (!it) { out.push(`${rel}: the LV2 specification ${spec.uri} is not mapped`); continue; }
-    mapped.add(rel);
-    if (it.spec !== spec.uri || it.version !== spec.version) out.push(`${rel}: spec ${it.spec} ${it.version}, the installed one is ${spec.uri} ${spec.version}`);
-    const want = new Map(spec.terms.map((t) => [t.name, t]));
-    for (const [n, t] of want) {
-      const m = it.terms[n];
-      if (!m) out.push(`${rel}: ${t.uri} is not mapped`);
-      else if (m.uri !== t.uri) out.push(`${rel}: ${n} maps ${m.uri}, the term is ${t.uri}`);
-      else if (!m.status) out.push(`${rel}: ${n} has no status`);
-    }
-    for (const n of Object.keys(it.terms)) if (!want.has(n)) out.push(`${rel}: ${n} is no term of the installed ${spec.uri}`);
-  }
   for (const [h, ids] of Object.entries(clap.headers)) {
     const rel = `formats/clap/${h}.json`;
     const doc = fileOf(files, rel);
@@ -132,7 +111,6 @@ export function readFiles(dir) {
 }
 
 export const readInventory = (dir) => ({
-  lv2: JSON.parse(readFileSync(join(dir, 'lv2.json'), 'utf8')),
   clap: JSON.parse(readFileSync(join(dir, 'clap.json'), 'utf8')),
 });
 
@@ -147,7 +125,7 @@ function main(argv) {
   const files = readFiles(data);
   const problems = [...layoutProblems(files), ...coverageProblems(files, readInventory(inventory))];
   for (const p of problems) process.stderr.write(`data-layout: ${p}\n`);
-  if (!problems.length) process.stdout.write(`data-layout: ${files.length} files, each in its place; every installed CLAP term mapped (the LV2 terms are plugin-db's)\n`);
+  if (!problems.length) process.stdout.write(`data-layout: ${files.length} files, each in its place; every installed CLAP term mapped\n`);
   return problems.length ? 1 : 0;
 }
 

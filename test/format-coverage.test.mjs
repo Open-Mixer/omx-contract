@@ -3,17 +3,15 @@
 /**
  * The whole CLAP vocabulary is mapped (docs/data-layout.md): every term of the inventory has its entry and its status,
  * and no entry names a term the inventory lacks. The inventory is the installed sources', checked where they are
- * installed. The LV2 terms are plugin-db's `lv2` domain (sorting pass V27a): data/ maps none, and the LV2 inventory is
- * held to a tree only where it maps LV2 (the sabotage arm plants one file).
+ * installed. The LV2 terms, their inventory and its coverage are plugin-db's (sorting pass V27a, plugin-db#66).
  */
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { coverageProblems, readFiles, readInventory } from '../tools/data-layout.mjs';
-import { defaultClapInclude, defaultLv2Dir, inventories, parseNTriples, readClapHeader, readLv2, readLv2Dir } from '../tools/format-inventory.mjs';
-import { DATA, ROOT, scratchDir } from './helpers.mjs';
+import { defaultClapInclude, inventories, readClapHeader } from '../tools/format-inventory.mjs';
+import { DATA, ROOT } from './helpers.mjs';
 
 const INVENTORY = join(ROOT, 'inventory');
 const files = () => structuredClone(readFiles(DATA));
@@ -32,12 +30,7 @@ test('every CLAP identifier of the inventory is mapped, with a status, and nothi
 
 test('sabotage: a term taken out of the mapping, and one the format does not define, are named', () => {
   const inv = readInventory(INVENTORY);
-  // a tree that maps LV2 is held to the LV2 inventory: one spec planted with a term short
-  let fs = files();
-  const worker = inv.lv2.specs.worker;
-  const terms = Object.fromEntries(worker.terms.filter((t) => t.name !== 'schedule').map((t) => [t.name, { uri: t.uri, kind: 'feature', status: 'used' }]));
-  fs.push({ rel: 'formats/lv2/worker.json', doc: { LV2_WORKER_TERMS: { kind: 'terms', format: 'lv2', spec: worker.uri, version: worker.version, terms } } });
-  assert.ok(coverageProblems(fs, inv).includes('formats/lv2/worker.json: http://lv2plug.in/ns/ext/worker#schedule is not mapped'));
+  let fs;
   fs = files();
   delete doc(fs, 'formats/clap/ext/params.json').CLAP_EXT_PARAMS_TERMS.terms.paramIsStepped;
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/ext/params.json: CLAP_PARAM_IS_STEPPED is not mapped (as paramIsStepped)']);
@@ -46,7 +39,7 @@ test('sabotage: a term taken out of the mapping, and one the format does not def
   assert.deepEqual(coverageProblems(fs, inv), ['formats/clap/ext/tail.json: invented is no identifier of the installed clap/ext/tail.h']);
 });
 
-test('sabotage: a term without its status, a wrong URI and a wrong version are named', () => {
+test('sabotage: a term without its status and a wrong version are named', () => {
   const inv = readInventory(INVENTORY);
   let fs = files();
   delete doc(fs, 'formats/clap/ext/params.json').CLAP_EXT_PARAMS_TERMS.terms.paramIsStepped.status;
@@ -62,9 +55,7 @@ test('sabotage: a newer format installed, one term more, is named until it is ma
   assert.deepEqual(coverageProblems(files(), inv), ['formats/clap/ext/tail.json: CLAP_TAIL_FOREVER is not mapped (as tailForever)']);
 });
 
-test('the inventory reads N-Triples and CLAP declarations as the tool writes them', () => {
-  assert.deepEqual(parseNTriples('<http://a#b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://c#D> .\n<http://a#b> <http://e#f> "x \\"y\\""@en .\n'),
-    [['http://a#b', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'http://c#D'], ['http://a#b', 'http://e#f', '"x \\"y\\""']]);
+test('the inventory reads CLAP declarations as the tool writes them', () => {
   const h = `/* a */ static const CLAP_CONSTEXPR char CLAP_EXT_X[] =\n  "clap.x/1"; // b\nenum clap_x_flags { CLAP_X_A = 1 << 0, CLAP_X_B = 1 << 1, };\n#define CLAP_PLUGIN_FEATURE_Y "y"\nstatic const CLAP_CONSTEXPR uint16_t CLAP_X_ID = 0;\n`;
   assert.deepEqual(readClapHeader(h), [
     { name: 'CLAP_EXT_X', group: 'string', value: 'clap.x/1' },
@@ -75,33 +66,10 @@ test('the inventory reads N-Triples and CLAP declarations as the tool writes the
   ].sort((a, b) => h.indexOf(a.name) - h.indexOf(b.name)));
 });
 
-const serdi = spawnSync('serdi', ['-v'], { encoding: 'utf8' }).error === undefined;
-const installed = serdi && existsSync(join(defaultLv2Dir(), 'core.lv2')) && existsSync(join(defaultClapInclude(), 'clap', 'clap.h'));
+const installed = existsSync(join(defaultClapInclude(), 'clap', 'clap.h'));
 
-test('the committed inventory is the installed LV2 and CLAP, where they are installed', { skip: installed ? false : 'no serdi, LV2 bundles or CLAP headers here' }, () => {
+test('the committed inventory is the installed CLAP, where it is installed', { skip: installed ? false : 'no CLAP headers here' }, () => {
   const docs = inventories();
   const inv = readInventory(INVENTORY);
-  assert.deepEqual(JSON.parse(docs['lv2.json']), inv.lv2, 'inventory/lv2.json: run node tools/format-inventory.mjs and map what changed');
   assert.deepEqual(JSON.parse(docs['clap.json']), inv.clap, 'inventory/clap.json: run node tools/format-inventory.mjs and map what changed');
-});
-
-test('a bundle that is no specification is recorded as unread, and the others are still read (#143)', { skip: serdi ? false : 'no serdi' }, () => {
-  const dir = scratchDir('omx-lv2-bundles-');
-  const bundle = (name, manifest, extra = {}) => {
-    mkdirSync(join(dir, `${name}.lv2`));
-    writeFileSync(join(dir, `${name}.lv2`, 'manifest.ttl'), manifest);
-    for (const [f, t] of Object.entries(extra)) writeFileSync(join(dir, `${name}.lv2`, f), t);
-  };
-  const pfx = '@prefix lv2: <http://lv2plug.in/ns/lv2core#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n';
-  bundle('thing', `${pfx}<http://example.org/thing> a lv2:Specification ; lv2:minorVersion 1 ; lv2:microVersion 2 ; rdfs:seeAlso <thing.ttl> .\n`,
-    { 'thing.ttl': `${pfx}<http://example.org/thing#t> a lv2:Feature ; rdfs:label "t" .\n` });
-  bundle('Airwindows', `${pfx}<urn:airwindows:a> a lv2:Plugin ; lv2:binary <a.so> ; rdfs:seeAlso <a.ttl> .\n<urn:airwindows:b> a lv2:Plugin ; lv2:binary <a.so> ; rdfs:seeAlso <a.ttl> .\n`);
-  bundle('empty', `${pfx}<urn:x> rdfs:label "x" .\n`);
-  const { specs, unread } = readLv2Dir(dir);
-  assert.deepEqual(Object.keys(specs), ['thing']);
-  assert.equal(specs.thing.version, '1.2');
-  assert.deepEqual(unread.map((u) => u.bundle), ['Airwindows', 'empty']);
-  assert.match(unread[0].reason, /plugin bundle/);
-  assert.match(unread[1].reason, /names 0 specifications/);
-  assert.deepEqual(Object.keys(readLv2(dir)), ['thing']);
 });

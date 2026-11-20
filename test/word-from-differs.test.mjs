@@ -5,8 +5,8 @@
 // target's too. A word that differs is refused by name, naming the item, the word and the field, by validate (rule
 // word-from-differs, the data form's word-from) and by the read of a contract directory wherever the target is in the
 // read (contract.file.invalid, naming word-from-differs). A terms target is unchanged: a word is never its term.
-// An ABSENT description or x-text is left open until the owner rules (inherited, or refused): today it is neither, the
-// word reads and rebuilds with none. The fixture is test/fixtures/domain-from-words: xb's XB_PAINTS copy xa's XA_COLORS.
+// An ABSENT description or x-text is refused as a difference (owner ruling (b), 2026-11-20: copies only, no
+// inheritance), so runtime readers and renders give one text with no reader change. The fixture is test/fixtures/domain-from-words: xb's XB_PAINTS copy xa's XA_COLORS.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -83,15 +83,36 @@ for (const [what, [field, edit]] of Object.entries(DIFFERS)) {
   });
 }
 
-test('an absent description and x-text are left open: neither inherited nor refused (the owner rules a, b or c)', () => {
+// Owner ruling (b), 2026-11-20: copies only, no inheritance. A word missing a field its target carries is refused by
+// name, as a differing one is; a field neither carries is no difference.
+for (const [field, key] of [['description', 'description'], ['x-text', 'x-text']]) {
+  test(`refused by name: an absent ${field} where the word it names carries one (copies only, no inheritance)`, () => {
+    const doc = xb();
+    delete paints(doc)[0][key];
+    const v = cli('validate', '--contract-dir', contractDir(doc));
+    assert.notEqual(v.status, 0, 'validate --contract-dir');
+    assert.match(v.stderr, new RegExp(`XB_PAINTS.*word-from-differs.*its ${field} \\(none\\)`), 'validate --contract-dir');
+    const r = render(contractDir(doc));
+    assert.notEqual(r.status, 0, 'render');
+    assert.match(r.stderr, new RegExp(`XB_PAINTS\\.oneOf\\[0\\].*word-from-differs.*its ${field} \\(none\\)`), 'render');
+    const d = cli('validate', '--data', dataDir(doc));
+    assert.notEqual(d.status, 0, 'validate --data');
+    assert.match(d.stderr, new RegExp(`^data/paints\\.json: XB_PAINTS: word-from-differs: red: .*its ${field} \\(none\\)`, 'm'), 'validate --data');
+  });
+}
+
+test('a field neither word carries is no difference: both without a description and an x-text are accepted', () => {
+  const a = xa();
+  for (const e of a.components.schemas.XA_COLORS.oneOf) { delete e.description; delete e['x-text']; }
   const doc = xb();
-  delete paints(doc)[0].description;
-  delete paints(doc)[0]['x-text'];
-  const v = cli('validate', '--contract-dir', contractDir(doc));
+  for (const e of paints(doc)) { delete e.description; delete e['x-text']; }
+  const root = join(SCRATCH, `cd-${n++}`);
+  for (const [name, d] of [['xa', a], ['xb', doc]]) {
+    mkdirSync(join(root, name), { recursive: true });
+    writeFileSync(join(root, name, `${name}.json`), `${JSON.stringify(d, null, 2)}\n`);
+  }
+  const v = cli('validate', '--contract-dir', root);
   assert.equal(v.status, 0, v.stderr);
-  const words = JSON.parse(domainDataFiles('xb', doc)['paints.json']).XB_PAINTS.words;
-  assert.equal('doc' in words.red, false);
-  assert.equal('text' in words.red, false);
 });
 
 test('a terms target is unchanged: a word taken from a term is not that term (the domain-kinds golden words)', () => {

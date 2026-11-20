@@ -146,7 +146,7 @@ test('refused by name: the target domain below the floor, and absent', () => {
 
 test('a word of the same domain\'s words item may be named too (the domain is its own, no x-requires needed)', () => {
   const doc = xa();
-  doc.components.schemas.XA_TINTS = { description: 'Tints of the colours.', 'x-since': '1.0.0', oneOf: [{ const: 'red', title: 'pink', 'x-code': 0, 'x-from': [{ $ref: 'https://openmixer.org/contract/xa#/components/schemas/XA_COLORS', 'x-term': 'red' }] }] };
+  doc.components.schemas.XA_TINTS = { description: 'Tints of the colours.', 'x-since': '1.0.0', oneOf: [{ const: 'red', title: 'pink', description: 'The warm one.', 'x-code': 0, 'x-text': 'Red', 'x-from': [{ $ref: 'https://openmixer.org/contract/xa#/components/schemas/XA_COLORS', 'x-term': 'red' }] }] };
   const root = contractDir({ xa: doc });
   const v = cli('validate', '--contract-dir', root);
   assert.equal(v.status, 0, v.stderr);

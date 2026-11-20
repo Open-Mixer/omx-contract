@@ -400,8 +400,9 @@ export function resolveData(data: Json): Resolved {
   for (const name of data.items.keys()) out.set(name, resolveItem(name));
   out.kernels = kernelControls(data);
   out.packageOf = new Map([...data.items.values()].map((it) => [it.name, it.pkg]));
-  // a domain's package is read as its own; its owner (info.x-owner) renders it as its own (packageItems)
-  out.ownerOf = new Map([...((data.packages ?? new Map()) as Map<string, Json>)].filter(([, p]) => p.manifest?.owner !== undefined).map(([n, p]) => [n, p.manifest.owner]));
+  // an installed domain's items are read at run time and never render into a package's files, except omx-contract's
+  // own TREE_DOMAINS, which its data read takes beside data/: those render into omx-contract's package (packageItems)
+  out.ownerOf = new Map([...((data.packages ?? new Map()) as Map<string, Json>)].filter(([n, p]) => TREE_DOMAINS.includes(n) && p.manifest?.owner === 'omx-contract').map(([n, p]) => [n, p.manifest.owner]));
   out.kernelPackageOf = new Map(data.files.filter((f) => isKernelFile(f.rel) && !isDescriptor(f.doc)).map((f) => [kernelName(f.rel), f.pkg]));
   out.renders = data.files.filter((f) => !isDescriptor(f.doc) && isObj(f.doc.render)).map((f) => ({
     rel: f.rel, pkg: f.pkg, render: f.doc.render, items: entriesOf(f.rel, f.doc).map(([n]) => n), kernel: isKernelFile(f.rel) ? kernelName(f.rel) : undefined,
@@ -423,7 +424,7 @@ export function resolveData(data: Json): Resolved {
  * read. A data directory (no package on any file) is the package named, whole.
  */
 export function packageItems(resolved: Resolved, pkg: string | undefined): Resolved {
-  // an item of a domain the package owns (its info.x-owner) is the package's own
+  // an item of one of omx-contract's TREE_DOMAINS is omx-contract's own (resolveData's ownerOf)
   const own = (p: string | undefined) => p === undefined || p === pkg || (resolved.ownerOf?.get(p) ?? p) === pkg;
   const out = new Map([...resolved].filter(([n]) => own(resolved.packageOf.get(n)))) as Resolved;
   const mine = (p: string | undefined) => p === undefined || p === pkg;

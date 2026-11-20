@@ -7,7 +7,7 @@
  * adds its X-macro. An item that is not marked renders nothing, and a domain with no marked item renders no header.
  */
 import { readFileSync } from 'node:fs';
-import { domainStem } from '../lib/domain.mjs';
+import { domainDataFiles, domainStem } from '../lib/domain.mjs';
 import { packageItems } from '../lib/data.mjs';
 import { constCase, wordMacro } from './vocabulary.mjs';
 import { doxyLine } from './c/c-literals.mjs';
@@ -48,17 +48,17 @@ ${blocks.join('\n\n')}
 }
 
 /**
- * The C header of CONTRACT_CODES (data/codes.json, the reader's own table): `omxcontract/omx_contract_codes.h`. A code's
+ * The C header of CONTRACT_CODES (the `contract` domain, contract.d/contract/contract.json): `omxcontract/omx_contract_codes.h`. A code's
  * VALUE is its place in the table, from 1, in the file's order; a code is appended and never moved or reworded, so a
  * value a program compiled in keeps its meaning. The C loader (omx_domain.h) returns these values; the string a refusal
- * prints is the table's second column. Rendered from this tool's own table, not from the data read, so a read of the
+ * prints is the table's second column. Rendered from this tool's own domain, not from the data read, so a read of the
  * installed directory renders the same bytes.
  */
 export const CODES_HEADER = 'omxcontract/omx_contract_codes.h';
 
 const upperSnake = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
-/** The header text of the CONTRACT_CODES table (a parsed `data/codes.json`). */
+/** The header text of the CONTRACT_CODES table (its data form, which domainDataFiles rebuilds from the domain). */
 export function renderCodesHeader(file) {
   const codes = Object.entries(file.CONTRACT_CODES.codes);
   const rows = codes.map(([k, c], i) => ({ name: upperSnake(k), value: i + 1, code: c.code, doc: c.doc }));
@@ -70,7 +70,7 @@ export function renderCodesHeader(file) {
 #define OMX_CONTRACT_CODES_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by \`omx-contract render --target c\` from CONTRACT_CODES (data/codes.json, docs/contract-dir.md): the
+ * Produced by \`omx-contract render --target c\` from CONTRACT_CODES (contract.d/contract/contract.json, docs/contract-dir.md): the
  * refusal codes, each as the integer a function returns and the string it prints.
  */
 
@@ -102,5 +102,6 @@ ${xLines.join(' \\\n')}
 
 /** The header of this tool's own table. */
 export function renderCodesFile() {
-  return { path: CODES_HEADER, text: renderCodesHeader(JSON.parse(readFileSync(new URL('../data/codes.json', import.meta.url), 'utf8'))) };
+  const domain = JSON.parse(readFileSync(new URL('../contract.d/contract/contract.json', import.meta.url), 'utf8'));
+  return { path: CODES_HEADER, text: renderCodesHeader(JSON.parse(domainDataFiles('contract', domain)['codes.json'])) };
 }

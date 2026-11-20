@@ -71,7 +71,7 @@ Any other key or word is `contract.file.invalid`, never skipped.
 | `ports[]` | `dialects` (`clap`, `midi`, `midiMpe`, `midi2`) | What a note port accepts or emits: CLAP's note dialects | new |
 | `instrument` | `voices`, `polyphonic` | Present exactly when `features` holds `instrument`: notes in, audio out. `voices` only when the plugin states it (CLAP voice info) | new |
 | `needs` | `transport`, `tempo`, `extensions.required`, `extensions.optional` | What the host must give: CLAP host extensions, LV2 `lv2:requiredFeature` and `lv2:optionalFeature`, a `time:Position` input | new |
-| `latency` | `reports`, `frames` | `reports: true` when the plugin reports its latency; `frames` only for a constant the plugin defines, never a measured figure | new |
+| `latency` | `reports`, `frames`, `sweep` | `reports: true` when the plugin reports its latency; `frames` only for a constant the plugin defines, never a measured figure. `sweep: { min, max }` for a modulated delay (a rotary speaker), which has no single latency: its lag moves inside the sweep, for example 5 to 47 frames at 48 kHz, so a host checks a measured lag against the declared range, not one figure; the reported latency is the sweep's shortest read. `min` and `max` are each a non-negative integer of frames or a `{ ref }` to a scalar item whose unit is `frames` or `ms`; a consumer reads an ms value at the running rate, rounded to the nearest frame. The unit of a latency ref is honoured, for `sweep` and for `frames`. A sweep with `min` above `max` (both integers, or both refs to scalars in one unit), a sweep whose ends are in two units (an integer is frames, so an integer with an ms ref is mixed), or a latency ref to an item that is no scalar in frames or ms, is refused (`contract.descriptor.latency`). A plugin with no sweep declares none | new (minor) |
 | file | `easy` | The controls of the plugin's Easy face, in order, at most eight, each by its `symbol`, else its `id`: what a host opens the plugin on, with every control one click away. Optional; never in a `scanned` descriptor, whose scan has nothing to read it from. With none, a host's panel layout picks them from the roles (omx-panel `docs/panel-layout.md`) | new (minor) |
 | file | `choiceUnits` | The unit of a choice's values, declared once by the plugin: an object from a choice control's `name` to a unit, one of the descriptor units (`dB/oct` for a filter slope, `ratio`, `Hz`, ...), never `unknown`. Readers (the MOD GUI generator, the renderer, a host) read the unit here and keep no map of their own. Optional; a choice with no entry carries no unit | new (minor) |
 | `meters[]` | `id`, `symbol`, `name`, `doc`, `kind` (`gain-reduction`, `level`), `channels`, `unit`, `min`, `max`, `scale`, `measurement`, `held`, `clip`, `group`, `source` | A value the plugin publishes while it runs, which a host draws and never writes: CLAP `clap.meters/1` (`id` the meter id, `symbol` its `clap_meter_info.name`), LV2 output control ports. `symbol` is what a host reads it by: the LV2 port's symbol and the output symbol omx-clap-core derives from the CLAP name; a meter of more than one channel has one per channel, `<symbol>_<channel>` from 0. `min`, `max` and `scale` are the display range and scale, a kernel readout's ([readouts.md](readouts.md)) when `source.from` links one. Optional, in the plugin's order; no two meters share an id or a symbol, and no meter answers to a control's symbol. The kinds are what is measured: `level` in `dBFS`, `dBTP`, `LUFS` or `LU`, `gain-reduction` in `dB`; `rms`, `vu` and `ppm` are not words. `measurement`: what is measured, `peak` (dBFS), `true-peak` (dBTP), `lufs-m`, `lufs-s`, `lufs-i` (LUFS) or `lra` (LU) for a level, `gain-reduction` for a gain reduction; optional. `held`: the plugin keeps the block value until the host reads it (a foreign plugin that holds nothing is `false`, its meter unheld). `clip`: a level meter carries a sticky clip word latched by the reader, `false` declares it absent; only a level in `dBFS` or `dBTP` says `true`, and a gain reduction has none. Both are optional booleans | new (minor); `held`, `clip` new (minor) |
@@ -115,6 +115,11 @@ held to this one file by their own tests; neither restates the table. It is no d
 installed in the contract directory.
 
 ### Units
+
+The unit list is a words item (3.21.0, behaviour-core decision 3): `PARAM_UNITS` in `data/param-contract.json`,
+one word per unit, each its symbol as written (`dB`, `ms`, `""`, `dB/oct`), in the order the schema lists them. The
+schema's `$defs.unit` enum is rendered from it (`render --check` holds the committed schema to it), so a unit is added
+in one place. `descriptorUnit` keeps its plugin-only units beside it.
 
 A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st % x`, `""` and, since
 3.1.0, `dB/oct`, a slope such as a key filter's tilt, for which LV2 has no unit, and since 3.7.0 `LUFS`, a loudness, and `dB/s`, a gain change per second), one of the six below, or `unknown`.
@@ -214,7 +219,7 @@ mapped once; the tool names no field.
 ## What validation refuses
 
 A descriptor is held to the schema first; a word the schema does not have is `contract.file.invalid`. Then the
-rules a schema cannot state, each with its own code in `CONTRACT_CODES` (`data/codes.json`). A refusal names the
+rules a schema cannot state, each with its own code in `CONTRACT_CODES` (the `contract` domain). A refusal names the
 file, the control or port, and the code; the reader refuses the whole read on the first one.
 
 | Code | When |
@@ -224,6 +229,7 @@ file, the control or port, and the code; the reader refuses the whole read on th
 | `contract.descriptor.control-duplicate` | Two controls with one `id`, one `name` or one `symbol`. |
 | `contract.descriptor.port-duplicate` | Two ports of one kind and direction with one `id` (CLAP numbers audio and note ports, inputs and outputs, apart). |
 | `contract.descriptor.range` | A travel whose `min` is above its `max`, whose `step` is negative, or whose `default` lies outside it. |
+| `contract.descriptor.latency` | A latency `sweep` whose `min` is above its `max` (both integers, or both refs to scalars in one unit), whose ends are in two units (an integer is frames), or a latency ref (`frames`, `sweep.min`, `sweep.max`) to an item that is no scalar in frames or ms. |
 | `contract.descriptor.choice` | A choice whose `default` is not one of its ids, or whose `labels` or `values` are not one per id. |
 | `contract.descriptor.scale-undeclared` | A scale that is neither an id of `PARAM_SCALES` nor `unknown`. |
 | `contract.descriptor.port-words` | `role`, `channels` or `layout` on a port that is not audio; `dialects` on a port that is not a note port, or a note port without them; a `layout` its `channels` contradict (`mono` 1, `stereo` 2, `surround` more than 2). |

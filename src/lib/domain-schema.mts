@@ -6,7 +6,7 @@ export const domainSchema = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items and range items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets and scalars under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": [
     "$schema",
@@ -54,8 +54,28 @@ export const domainSchema = {
             "experimental",
             "stable"
           ]
+        },
+        "x-requires": {
+          "description": "The packages (or domains) the domain's words take terms from, each with its floor: the requires every data file rebuilt from the domain carries, after the schema floor (docs/contract-dir.md, \"Domains\").",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+          }
         }
       }
+    },
+    "x-render": {
+      "description": "The render block of the data file the root's x-file names, as render --with-domain rebuilds it (docs/render.md).",
+      "type": "object"
+    },
+    "x-file": {
+      "description": "The data path of the file that carried x-render.",
+      "type": "string",
+      "pattern": "\\.json$"
     },
     "components": {
       "type": "object",
@@ -65,7 +85,7 @@ export const domainSchema = {
       "additionalProperties": false,
       "properties": {
         "schemas": {
-          "description": "The items of the domain, each named in upper snake case: a words item or a range item.",
+          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet or a scalar.",
           "type": "object",
           "minProperties": 1,
           "propertyNames": {
@@ -78,6 +98,12 @@ export const domainSchema = {
               },
               {
                 "$ref": "#/$defs/range"
+              },
+              {
+                "$ref": "#/$defs/sheet"
+              },
+              {
+                "$ref": "#/$defs/scalar"
               }
             ]
           }
@@ -159,6 +185,22 @@ export const domainSchema = {
           "description": "The item's codes header also carries an X-macro; only with x-c-codes true.",
           "type": "boolean"
         },
+        "x-kind": {
+          "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, or a words item, each word keyed by its title.",
+          "enum": [
+            "codes",
+            "words"
+          ]
+        },
+        "x-file": {
+          "description": "The data path the item came from.",
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "description": "The data item's source, verbatim.",
+          "type": "object"
+        },
         "oneOf": {
           "type": "array",
           "minItems": 1,
@@ -185,6 +227,85 @@ export const domainSchema = {
           "x-c-codes": {
             "const": true
           }
+        }
+      }
+    },
+    "sheet": {
+      "description": "A data sheet render --with-domain rebuilds (docs/render.md): no words, read nowhere else.",
+      "type": "object",
+      "required": [
+        "description",
+        "x-kind",
+        "x-file",
+        "x-value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": {
+          "const": "sheet"
+        },
+        "x-file": {
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "type": "object"
+        },
+        "x-value": {
+          "description": "The data sheet's value, verbatim.",
+          "type": "object"
+        },
+        "x-docs": {
+          "description": "The data sheet's docs, verbatim.",
+          "type": "object"
+        }
+      }
+    },
+    "scalar": {
+      "description": "A single value: its description the item's doc, x-value the value, x-unit its unit (an empty string for none). The runtime readers serve it (omx_domain_scalar, Domain.scalar); with an x-file, render --with-domain also rebuilds it as a data scalar (docs/render.md).",
+      "type": "object",
+      "required": [
+        "description",
+        "x-kind",
+        "x-unit",
+        "x-value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": {
+          "const": "scalar"
+        },
+        "x-file": {
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "type": "object"
+        },
+        "x-unit": {
+          "description": "The scalar's unit, the data form's unit.",
+          "type": "string"
+        },
+        "x-value": {
+          "description": "The scalar's value: a number, or true or false.",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
         }
       }
     },
@@ -219,11 +340,26 @@ export const domainSchema = {
           "description": "The English source sentence the catalogs translate.",
           "type": "string"
         },
+        "x-args": {
+          "description": "The ordered names of the x-text's {name} placeholders, stored: each placeholder once and no other name; the data form's args.",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][A-Za-z0-9]*$"
+          },
+          "uniqueItems": true
+        },
         "x-group": {
           "description": "A word of the item x-groups names.",
           "type": "string"
         },
+        "x-name": {
+          "description": "The code's key in the data item it rebuilds, the macro stem (docs/render.md).",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+        },
         "x-from": {
+          "description": "What the word is taken from: a term of a terms item, or a word of a words item of another domain (or its own), by its $ref (the domain id and the item) and x-term (the term's key, or the target word's title). A package or domain other than omx-contract, the document's own and its owner is declared in info.x-requires.",
           "type": "array",
           "minItems": 1,
           "items": {
@@ -239,6 +375,7 @@ export const domainSchema = {
                 "pattern": "^https://openmixer\\.org/contract/[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*#/components/schemas/[A-Z][A-Z0-9_]*$"
               },
               "x-term": {
+                "description": "The term's key in a terms item, or the title of the target word in a words item.",
                 "type": "string",
                 "minLength": 1
               }

@@ -66,6 +66,18 @@ static void test_words(void) {
   omx_domain_close(d);
 }
 
+/* a word's group (3.21.0): the x-group of its oneOf entry; NULL for a word with none, an unknown word or item */
+static void test_word_group(void) {
+  omx_domain *d = open_ok("demo", "1.2.0");
+  CHECK_STR(omx_domain_word_group(d, "DEMO_COLORS", "red"), "warm");
+  CHECK_STR(omx_domain_word_group(d, "DEMO_COLORS", "blue"), "cool");
+  CHECK(omx_domain_word_group(d, "DEMO_COLORS", "fbs-fixed") == NULL);
+  CHECK(omx_domain_word_group(d, "DEMO_COLORS", "green") == NULL);
+  CHECK(omx_domain_word_group(d, "NO_SUCH", "red") == NULL);
+  CHECK(omx_domain_word_group(NULL, "DEMO_COLORS", "red") == NULL);
+  omx_domain_close(d);
+}
+
 static void test_lookup_refusals(void) {
   omx_domain *d = open_ok("demo", NULL);
   omx_domain_word_info w;
@@ -250,23 +262,31 @@ static void test_open_or_exit(void) {
   omx_domain_close(d);
 }
 
-/* The values the loader returns are the CONTRACT_CODES values of omx_contract_codes.h, and each prints the string of
-   data/codes.json at its place; every value of the header has a string. */
+/* The values the loader returns are the CONTRACT_CODES values of omx_contract_codes.h, and each prints the string the
+   3.20.2 table had at its place (test/golden/contract-codes.tsv: value, key, code), which is the string of the contract
+   domain's CONTRACT_CODES word at that place; every value of the header has a string. */
 static void test_codes_are_contract_codes(void) {
   json_error_t jerr;
   json_t *root = json_load_file(CODES_JSON, 0, &jerr);
   CHECK(root != NULL);
   if (!root) return;
-  json_t *codes = json_object_get(json_object_get(root, "CONTRACT_CODES"), "codes");
-  CHECK((int)json_object_size(codes) == OMX_CONTRACT_CODE_LAST);
+  json_t *words = json_object_get(json_object_get(json_object_get(json_object_get(root, "components"), "schemas"), "CONTRACT_CODES"), "oneOf");
+  CHECK((int)json_array_size(words) == OMX_CONTRACT_CODE_LAST);
+  FILE *g = fopen(CODES_GOLDEN, "r");
+  CHECK(g != NULL);
   int place = 0;
-  const char *k;
-  json_t *c;
-  json_object_foreach(codes, k, c) {
+  char line[256];
+  while (g && fgets(line, sizeof line, g)) {
+    int value;
+    char key[128], code[128];
+    CHECK(sscanf(line, "%d\t%127s\t%127s", &value, key, code) == 3);
     place++;
-    const char *want = json_string_value(json_object_get(c, "code"));
-    CHECK_STR(omx_domain_code(place), want);
+    CHECK(value == place);
+    CHECK_STR(omx_domain_code(place), code);
+    CHECK_STR(json_string_value(json_object_get(json_array_get(words, (size_t)place - 1), "const")), code);
   }
+  CHECK(place == OMX_CONTRACT_CODE_LAST);
+  if (g) fclose(g);
   CHECK(omx_domain_code(0) == NULL);
   CHECK(omx_domain_code(-1) == NULL);
   CHECK(omx_domain_code(INT_MIN) == NULL);
@@ -922,6 +942,86 @@ static void test_null_arguments(void) {
 }
 
 /* DOMAIN_TEST_ONLY=<name> runs just that one of the hostile-directory tests (an ASan abort ends the process). */
+/* A scalar item (3.21.0, docs/contract-dir.md "Domains"): x-kind scalar, x-unit and x-value, served by omx_domain_scalar()
+   as the TypeScript reader serves it; a value that is no number or true or false, and a missing unit, are refused by name. */
+#define SCALARS "\"DOM_LEN\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":\"\",\"x-value\":64}," \
+  "\"DOM_RATE\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":\"Hz\",\"x-value\":50.5}," \
+  "\"DOM_ON\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":\"\",\"x-value\":true}"
+static void test_scalars(void) {
+  make_scratch();
+  make_doc(INFO_OK, "{" SCALARS ",\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]},\"DOM_P\":{\"properties\":{\"g\":{\"minimum\":0,\"maximum\":1}}}}");
+  omx_domain *d;
+  omx_domain_error err;
+  CHECK(open_scratch("dom", NULL, &d, &err) == 0);
+  if (d) {
+    omx_domain_scalar_info s = { -1, -1, NULL };
+    CHECK(omx_domain_scalar(d, "DOM_LEN", &s) == 0);
+    CHECK(s.value == 64 && s.is_bool == 0);
+    CHECK_STR(s.unit, "");
+    CHECK(omx_domain_scalar(d, "DOM_RATE", &s) == 0);
+    CHECK(s.value == 50.5 && s.is_bool == 0);
+    CHECK_STR(s.unit, "Hz");
+    CHECK(omx_domain_scalar(d, "DOM_ON", &s) == 0);
+    CHECK(s.value == 1 && s.is_bool == 1);
+    omx_domain_scalar_info kept = s;
+    CHECK(omx_domain_scalar(d, "NO_SUCH", &s) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+    CHECK(omx_domain_scalar(d, "DOM_W", &s) == OMX_CONTRACT_CODE_WORD_UNKNOWN);  /* a words item has no value */
+    CHECK(omx_domain_scalar(d, "DOM_P", &s) == OMX_CONTRACT_CODE_WORD_UNKNOWN);  /* nor a range item */
+    CHECK(s.value == kept.value && s.unit == kept.unit);                          /* a refused call leaves out as it was */
+    CHECK(omx_domain_word_count(d, "DOM_LEN") == 0);                              /* a scalar has no words */
+    CHECK(omx_domain_scalar(NULL, "DOM_LEN", &s) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+    CHECK(omx_domain_scalar(d, NULL, &s) == OMX_CONTRACT_CODE_ITEM_UNKNOWN);
+    CHECK(omx_domain_scalar(d, "DOM_LEN", NULL) == 0);
+    omx_domain_close(d);
+  }
+  drop_scratch();
+  int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  doc_is(INFO_OK, "{\"DOM_S\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":\"\",\"x-value\":\"64\"}}", bad, "x-value");
+  doc_is(INFO_OK, "{\"DOM_S\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":\"\",\"x-value\":null}}", bad, "x-value");
+  doc_is(INFO_OK, "{\"DOM_S\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":\"\"}}", bad, "x-value");
+  doc_is(INFO_OK, "{\"DOM_S\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-value\":1}}", bad, "x-unit");
+  doc_is(INFO_OK, "{\"DOM_S\":{\"description\":\"d\",\"x-kind\":\"scalar\",\"x-unit\":7,\"x-value\":1}}", bad, "x-unit");
+  /* a schema that is no words, range or scalar item is still not served (a sheet, rebuilt at build time only) */
+  doc_is(INFO_OK, "{\"DOM_S\":{\"description\":\"d\",\"x-kind\":\"sheet\",\"x-value\":{\"a\":1}},\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}", 0, NULL);
+}
+
+/* A word's x-args (3.21.0): exactly the {name} placeholders of its x-text, each once; refused by name otherwise, as the
+   TypeScript reader and the build refuse it. A word whose x-text names none carries none. */
+#define ARGW(text, args) "{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"T\",\"x-code\":0" text args "}]}}"
+static void test_word_args(void) {
+  int bad = OMX_CONTRACT_CODE_FILE_INVALID;
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file} says {found}, {want} asked\"", ",\"x-args\":[\"file\",\"want\",\"found\"]"), 0, NULL);
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"No placeholder.\"", ""), 0, NULL);
+  doc_is(INFO_OK, ARGW("", ""), 0, NULL);
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{{x}} and {y\"", ",\"x-args\":[\"x\"]"), 0, NULL);           /* {name} as the build reads it */
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file} says {found}\"", ",\"x-args\":[\"file\"]"), bad, "x-args");          /* a placeholder not in x-args */
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file}\"", ",\"x-args\":[\"file\",\"path\"]"), bad, "x-args");             /* an arg the text does not name */
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file}\"", ",\"x-args\":[\"file\",\"file\"]"), bad, "x-args");             /* an arg twice */
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file}\"", ""), bad, "x-args");                                            /* none, and the text names one */
+  doc_is(INFO_OK, ARGW("", ",\"x-args\":[\"file\"]"), bad, "x-args");                                            /* args with no text */
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file}\"", ",\"x-args\":\"file\""), bad, "x-args");                         /* not a list */
+  doc_is(INFO_OK, ARGW(",\"x-text\":\"{file}\"", ",\"x-args\":[1]"), bad, "x-args");                              /* not a list of strings */
+}
+
+/* info.x-requires (docs/contract-dir.md, "Domains"): a map of package to floor ">= x.y.z", as the TypeScript reader
+ * reads it; anything else is refused as MANIFEST_INVALID, naming x-requires. The floors themselves are the build's to
+ * check: a loader opens one domain. */
+#define INFO_REQ(r) "{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-stability\":\"experimental\",\"x-requires\":" r "}"
+static void test_requires(void) {
+  int bad = OMX_CONTRACT_CODE_MANIFEST_INVALID;
+  const char *one = "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}";
+  doc_is(INFO_REQ("{\"plugin-db\":\">= 1.2.0\",\"dsp/kernels\":\">= 0.25.0\"}"), one, 0, NULL);
+  doc_is(INFO_REQ("{}"), one, 0, NULL);
+  doc_is(INFO_REQ("\"plugin-db\""), one, bad, "x-requires");                      /* not a map */
+  doc_is(INFO_REQ("[\"plugin-db\"]"), one, bad, "x-requires");                    /* a list */
+  doc_is(INFO_REQ("{\"plugin-db\":\"1.2.0\"}"), one, bad, "x-requires");          /* no >= */
+  doc_is(INFO_REQ("{\"plugin-db\":\">= 1.2\"}"), one, bad, "x-requires");         /* not x.y.z */
+  doc_is(INFO_REQ("{\"plugin-db\":\">= 01.2.0\"}"), one, bad, "x-requires");      /* a leading zero */
+  doc_is(INFO_REQ("{\"plugin-db\":1}"), one, bad, "x-requires");                  /* not a string */
+  doc_is(INFO_REQ("{\"Plugin DB\":\">= 1.2.0\"}"), one, bad, "Plugin DB");        /* not a package name, named */
+  doc_is(INFO_REQ("{\"plugin-db/\":\">= 1.2.0\"}"), one, bad, "x-requires");      /* an empty segment */
+}
+
 #define RUN(fn) do { const char *only_ = getenv("DOMAIN_TEST_ONLY"); if (!only_ || strcmp(only_, #fn) == 0) fn(); } while (0)
 
 /* info.x-stability is required and is experimental or stable, as the TypeScript reader requires: refused as MANIFEST_INVALID, naming it. */
@@ -943,6 +1043,7 @@ static void test_stability(void) {
 
 int main(void) {
   test_words();
+  test_word_group();
   test_lookup_refusals();
   test_ranges();
   test_text();
@@ -976,6 +1077,9 @@ int main(void) {
   RUN(test_words_are_any_string);
   RUN(test_null_arguments);
   RUN(test_stability);
+  RUN(test_scalars);
+  RUN(test_word_args);
+  RUN(test_requires);
   if (failures) { fprintf(stderr, "%d check(s) failed\n", failures); return 1; }
   if (skips) printf("domain_test: all checks passed, %d test(s) skipped\n", skips);
   else puts("domain_test: all checks passed");

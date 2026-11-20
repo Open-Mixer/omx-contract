@@ -1,0 +1,36 @@
+{
+  "KINDS_TERMS": {
+    "kind": "terms",
+    "since": "1.0.0",
+    "doc": "The format terms the fixture's words are taken from.",
+    "format": "lv2",
+    "spec": "http://lv2plug.in/ns/lv2core",
+    "version": "18.0",
+    "terms": {
+      "audio-in": {
+        "uri": "http://lv2plug.in/ns/lv2core#AudioPort",
+        "kind": "property",
+        "status": "used",
+        "by": [
+          "omx-contract:test/fixtures/domain-kinds/kinds/kinds.json"
+        ]
+      },
+      "audio-out": {
+        "uri": "http://lv2plug.in/ns/lv2core#OutputPort",
+        "kind": "property",
+        "status": "used",
+        "by": [
+          "omx-contract:test/fixtures/domain-kinds/kinds/kinds.json"
+        ]
+      },
+      "latency": {
+        "uri": "http://lv2plug.in/ns/lv2core#latency",
+        "kind": "property",
+        "status": "used",
+        "by": [
+          "omx-contract:test/fixtures/domain-kinds/kinds/kinds.json"
+        ]
+      }
+    }
+  }
+}

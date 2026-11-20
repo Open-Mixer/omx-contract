@@ -1,0 +1,41 @@
+{
+  "requires": {
+    "omx-contract-schema": ">= 3.0.0",
+    "kinds-terms": ">= 1.0.0"
+  },
+  "KINDS_CODES": {
+    "kind": "codes",
+    "since": "1.0.0",
+    "doc": "The refusals of the fixture, each with its sentence and the args the sentence names.",
+    "codes": {
+      "dirAbsent": {
+        "code": "kinds.dir.absent",
+        "doc": "the directory is absent",
+        "text": {
+          "en": "The directory {path} is absent."
+        },
+        "args": [
+          "path"
+        ]
+      },
+      "fileEmpty": {
+        "code": "kinds.file.empty",
+        "text": {
+          "en": "The file is empty."
+        }
+      },
+      "fileMismatch": {
+        "code": "kinds.file.mismatch",
+        "doc": "a file says another value than the one asked",
+        "text": {
+          "en": "{file} says {found}, and {want} was asked."
+        },
+        "args": [
+          "file",
+          "want",
+          "found"
+        ]
+      }
+    }
+  }
+}

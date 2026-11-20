@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/aux",
+  "info": {
+    "title": "The domain the conformance vocabulary requires",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture-aux",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "AUX_SHADES": {
+        "description": "The shades.",
+        "oneOf": [
+          {
+            "const": "dark",
+            "title": "dark",
+            "description": "The dark one.",
+            "x-code": 0
+          }
+        ]
+      }
+    }
+  }
+}

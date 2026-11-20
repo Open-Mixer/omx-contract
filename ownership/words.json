@@ -420,6 +420,7 @@
     "descriptorFaceDiffers",
     "descriptorInstrument",
     "descriptorIntegrity",
+    "descriptorLatency",
     "descriptorMeter",
     "descriptorOriginSource",
     "descriptorPortDuplicate",
@@ -1099,6 +1100,23 @@
     "linear",
     "log",
     "stepped"
+  ],
+  "PARAM_UNITS": [
+    "cents",
+    "db",
+    "dbPerOct",
+    "dbPerS",
+    "dbfs",
+    "hz",
+    "lufs",
+    "min",
+    "ms",
+    "none",
+    "oct",
+    "percent",
+    "s",
+    "st",
+    "x"
   ],
   "PLUGIN_FEATURE_ANALYZER": [
     "clapAnalyzer",

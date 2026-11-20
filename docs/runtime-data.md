@@ -73,13 +73,14 @@ typedef struct omx_domain omx_domain;            /* an opened, validated domain;
 
 /* A function returns 0, or the value of a CONTRACT_CODES code, a constant of the generated omx_contract_codes.h:
    OMX_CONTRACT_CODE_DIR_ABSENT, _FILE_NOT_JSON, _FILE_INVALID, _MANIFEST_INVALID, _PACKAGE_TOO_OLD, _ITEM_UNKNOWN,
-   _WORD_UNKNOWN, _INDEX_RANGE. A value is the code's place in data/codes.json, from 1, and never moves. */
+   _WORD_UNKNOWN, _INDEX_RANGE. A value is the code's place in the contract domain's CONTRACT_CODES, from 1, and never moves. */
 const char *omx_domain_code(int status);         /* the string of a value, "contract.dir.absent" ...: for a message */
 
 typedef struct { const char *code;               /* a code of CONTRACT_CODES, e.g. "contract.dir.absent" */
                  char message[256]; } omx_domain_error;   /* names the domain, the place and the reason */
 typedef struct { const char *word, *title, *description; int code; } omx_domain_word_info;
 typedef struct { double min, max, def; int has_default; const char *unit, *scale; } omx_domain_range_info;
+typedef struct { double value; int is_bool; const char *unit; } omx_domain_scalar_info;   /* 3.21.0 */
 
 /* Open <domain> from the installed contract directory and validate it; needs_version is the floor ("1.2.0") or NULL.
    Returns 0 and *out, or a code value and *err (never both). Start-up only. */
@@ -95,9 +96,16 @@ void omx_domain_close(omx_domain *d);
 int  omx_domain_word(const omx_domain *d, const char *item, const char *word, omx_domain_word_info *out);
 int  omx_domain_word_count(const omx_domain *d, const char *item);               /* in declared order; -1: no such item */
 int  omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_domain_word_info *out);
+/* (3.21.0) A word's group: the `x-group` of its oneOf entry, a string the handle owns; NULL when it has none, or when
+   the item or word does not exist. */
+const char *omx_domain_word_group(const omx_domain *d, const char *item, const char *word);
 
 /* A range, unit and default of a parameter of a range item: min, max, default, unit, scale. */
 int  omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out);
+
+/* (3.21.0) The value of a scalar item (x-kind "scalar"): x-value (true and false as 1 and 0, is_bool set) and x-unit.
+   contract.item.unknown for no such item, contract.word.unknown for a words or range item, which has no value. */
+int  omx_domain_scalar(const omx_domain *d, const char *item, omx_domain_scalar_info *out);
 
 /* The sentence a person sees for a word ("<ITEM>.<word>") in <lang>, else the English source sentence. */
 const char *omx_domain_text(const omx_domain *d, const char *key, const char *lang);
@@ -105,7 +113,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 
 - **Return values.** Every function returns 0 on success, and on failure the integer value of a code of
   `CONTRACT_CODES`, a constant of the generated header `omxcontract/omx_contract_codes.h` (`OMX_CONTRACT_CODE_ITEM_UNKNOWN`
-  and the rest, rendered from `data/codes.json`; a value is the code's place in that table, and a code is appended,
+  and the rest, rendered from the `contract` domain (`contract.d/contract/contract.json`); a value is the code's place in that table, and a code is appended,
   never moved). A program compares the constant; `omx_domain_code` gives the code's string for a message.
   `omx_domain_text` alone returns NULL: when the key is no word of the domain, and when the word has no source sentence
   (no `x-text`; the catalog's sentence for it is still returned in a language the catalog holds). `omx_domain_word_count` returns -1
@@ -117,7 +125,10 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
   `contract.index.range` (an index below 0 or at the item's count and above). A refused call leaves its output as it
   was: none of them returns a default value.
 - **What it reads.** A words item is a `components.schemas` entry with a `oneOf` of words, a range item one with
-  `properties` of named parameters (docs/contract-dir.md, "Domains"); a schema with neither is not served. A domain name is a slash-separated path
+  `properties` of named parameters, a scalar item one whose `x-kind` is `scalar` (3.21.0; docs/contract-dir.md,
+  "Domains"); any other schema (a sheet) is not served. A word whose `x-args` are not exactly the `{placeholders}` of its
+  `x-text`, each once, is refused (`contract.file.invalid`, naming `x-args`), as the TypeScript reader and the build
+  refuse it. A domain name is a slash-separated path
   (`dsp/kernels`, docs/contract-dir.md): each segment a name of letters, digits, `-` and `_`, never empty, `.` or `..`, no
   leading or trailing `/`, at most `OMX_DOMAIN_NAME_MAX` (255) bytes (a longer name is refused as `contract.manifest.invalid`, and so is a contract directory whose paths do not fit the loader's 4096-byte path: it may exist, it is not absent); the document is `<contractdir>/dsp/kernels/kernels.json`, named by the last segment, and an invalid
   name is refused with `contract.file.invalid` before any file is read. Open checks
@@ -130,7 +141,7 @@ const char *omx_domain_text(const omx_domain *d, const char *key, const char *la
 - **Ownership and lifetime.** At open the handle copies everything it will return into its own immutable storage,
   and releases the JSON library's document before `omx_domain_open` returns; sharing between threads never rests on
   the JSON library's internals. A `const char *` and every pointer inside an `omx_domain_word_info` or
-  `omx_domain_range_info` points into that storage, is valid from the call until `omx_domain_close`, is never modified
+  `omx_domain_range_info` or `omx_domain_scalar_info` points into that storage, is valid from the call until `omx_domain_close`, is never modified
   and never freed by the caller, and may be shared between threads after `omx_domain_open` returns. A program that needs a value after close, or in a
   thread with a real-time deadline, copies it at start-up into storage of its own.
 - **Never in the audio thread.** The family allocates (open parses and validates the document) and looks up by string.

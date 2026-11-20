@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/xa",
+  "info": {
+    "title": "The colours a word of another domain is taken from",
+    "version": "1.2.0",
+    "x-owner": "pkg-a",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "XA_COLORS": {
+        "description": "The colours of domain xa.",
+        "x-since": "1.0.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "red",
+            "title": "red",
+            "description": "The warm one.",
+            "x-code": 0,
+            "x-text": "Red"
+          },
+          {
+            "const": "deep-blue",
+            "title": "deepBlue",
+            "description": "The cold one.",
+            "x-code": 1,
+            "x-text": "Blue"
+          }
+        ]
+      },
+      "XA_SIZE": {
+        "description": "A number of domain xa, no words item.",
+        "x-since": "1.0.0",
+        "x-kind": "scalar",
+        "x-unit": "",
+        "x-value": 3
+      }
+    }
+  }
+}

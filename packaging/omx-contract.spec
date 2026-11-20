@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.20.0
+Version: 3.21.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -224,7 +224,7 @@ a floor, the lowest release whose functions it calls.
 %make_build build-c CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 
 %install
-%make_install PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
+%make_install PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir} CLIDIR=%{_prefix}/lib/omx-contract
 %{__make} install-c DESTDIR=%{buildroot} PREFIX=%{_prefix} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir} LIBDIR=%{_libdir} BINDIR=%{_bindir} CONTRACTDIR=%{_datadir}/omx-contract/contract.d CFLAGS="%{build_cflags}" LDFLAGS="%{build_ldflags}"
 %{__make} install-rpm-macros DESTDIR=%{buildroot} PREFIX=%{_prefix} RPMMACRODIR=%{_rpmmacrodir}
 %{__make} install-python DESTDIR=%{buildroot} PYTHONDIR=%{python3_sitelib}
@@ -308,6 +308,43 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Fri Nov 20 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
+- PARAM_UNITS, the closed list of units, is a words item of data/primitives.json
+  and the schema's $defs.unit enum is its render; the words carry a symbol.
+- omx_vocabulary.h spells that item's X-macro OMX_PARAM_UNITS_WORDS(X): the
+  released omx_param_units.h defines OMX_PARAM_UNITS(X), and the two headers
+  together broke the build under -Werror.
+
+* Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.2-1
+- The omx-contract command run through a symlink (npx, npm run,
+  node_modules/.bin/omx-contract) runs the command: it exited 0 and did nothing,
+  so a gate calling it that way passed on a refusal. The CLI and the tools
+  decide "run, not imported" on real paths (#135).
+- @openmixer/omx-contract/entry exports isMain(import.meta.url), that check,
+  for other packages' command-line entry points (#135).
+- omx-contract.pc names the installed command's directory, pkg-config
+  --variable=clidir omx-contract; a package with no npm dependency imports
+  <clidir>/lib/entry.mjs, which ships in omx-contract, so it build-depends on
+  omx-contract itself (#135).
+
+* Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.1-1
+- omx-contract domain check <new> <committed>: an owner's generated domain
+  document against its committed one, refused by name (exit 1): words or items
+  added or removed while info.version is unchanged, an existing word whose
+  x-code moved at any version, an info.version that goes down or is not x.y.z
+  (#128, omx-contract#124).
+- validate refuses an installed domain item whose x-since is not a version or
+  is above its document's info.version (rule domain-x-since, one line per
+  item); the readers do not, so the C loader and the TS reader still open the
+  same documents. docs/contract-dir.md: x-since is the info.version of the
+  domain document that first carried the item (#127, #128).
+- The C loader and the TS reader (openDomainAt) give one verdict per case of
+  one conformance suite, run in CI with the C runner required; the C loader
+  refuses a catalog whose "lang" is not its file's name, and a domain with no
+  x.y.z info.version or no info.x-owner as MANIFEST_INVALID (#121, #126).
+- Packaging: the TypeScript build dependency is a floor only (>= 4.8.4), with
+  no ceiling (#122).
+
 * Wed Nov 18 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.0-1
 - Schema 3.20.0: the domain document, <domain>/<last segment>.json, one JSON Schema
   document with info{title,version,x-owner,x-stability}; words may carry

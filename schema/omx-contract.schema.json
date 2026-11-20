@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.20.0",
+  "x-omx-schema-version": "3.21.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -334,10 +334,20 @@
     },
     "latency": {
       "type": "object",
-      "description": "reports: the plugin reports its latency; frames: a constant the plugin or kernel defines, never a measured figure.",
+      "description": "reports: the plugin reports its latency; frames: a constant the plugin or kernel defines, never a measured figure; sweep: for a modulated delay, which has no single latency, the range its lag lies in, so a host checks a measured lag against it. A ref of frames or sweep names a scalar item whose unit is frames or ms; an ms value is read at the running rate, rounded to the nearest frame.",
       "properties": {
         "reports": { "type": "boolean" },
-        "frames": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] }
+        "frames": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] },
+        "sweep": {
+          "type": "object",
+          "description": "The range a modulated delay's lag lies in: min, the sweep's shortest read (the latency it reports), and max, its longest. Each is a non-negative integer of frames or a ref to a scalar item in frames or ms; min is never above max.",
+          "properties": {
+            "min": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] },
+            "max": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] }
+          },
+          "required": ["min", "max"],
+          "additionalProperties": false
+        }
       },
       "required": ["reports"],
       "additionalProperties": false
@@ -759,7 +769,7 @@
       "additionalProperties": false
     },
     "word": { "type": "string", "pattern": "^[A-Za-z0-9<][A-Za-z0-9._+<-]*$", "description": "A word of a vocabulary as it is written on the wire: letters, digits, '-', '_', '.', '+' and a leading '<' (a band such as <1.5GHz)." },
-    "termRef": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$", "description": "<TERMS item>#<term>: one term of a format's vocabulary (data/formats/), the format word a word of ours borrows its name from." },
+    "termRef": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$", "description": "<TERMS item>#<term>: one term of a format's vocabulary (data/formats/), the format word a word of ours borrows its name from; or <WORDS item>#<word key>: a word of another words item (a domain word's title), the word it is taken from." },
     "words": {
       "type": "object",
       "description": "A closed vocabulary the qualification and its hosts speak (docs/data-layout.md): a lowerCamel name per word, the word as written, optionally the group it falls in (a word of the item `groups` names), its unit and basis (words of the items `units` and `bases` name), the axes it is drawn on (words of the item `axes` names) or, for an axis, its unit and scale, the format terms it is name-compatible with and one line of prose. The words and their order are the contract; a word is never reworded.",
@@ -802,6 +812,7 @@
               "x": { "$ref": "#/$defs/word", "description": "The horizontal axis: a word of the item `axes` names." },
               "y": { "$ref": "#/$defs/word", "description": "The vertical axis: a word of the item `axes` names." },
               "unit": { "$ref": "#/$defs/unit", "description": "An axis word's unit, one of the items' units." },
+              "symbol": { "type": "string", "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell (PARAM_UNITS, since 3.21.0)." },
               "scale": { "type": "string", "pattern": "^[a-z]+$", "description": "An axis word's scale, how a host draws it: an id of PARAM_SCALES." },
               "figureUnit": { "$ref": "#/$defs/word" },
               "basis": { "$ref": "#/$defs/word" },

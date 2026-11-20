@@ -87,9 +87,10 @@ install: all
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
-	sh tools/install-contract-dir.sh -x codes.json -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
+	sh tools/install-contract-dir.sh -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
+	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR)
 	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' -e 's|@VERSION@|$(VERSION)|' \
-	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' \
+	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' -e 's|@CLIDIR@|$(CLIDIR)|' \
 	  omx-contract.pc.in > $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
 	chmod 0644 $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
 
@@ -103,13 +104,14 @@ install-rpm-macros: all
 
 install-cli: all build-lib
 	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema \
-	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
+	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(CLIDIR)/contract.d/contract $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 bin/omx-contract.mjs $(DESTDIR)$(CLIDIR)/bin/
 	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
 	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
 	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
+	install -m 0644 contract.d/contract/contract.json $(DESTDIR)$(CLIDIR)/contract.d/contract/
 	install -m 0644 package.json $(DESTDIR)$(CLIDIR)/
 	for t in vendor/*.tgz; do \
 	  m=$$(basename $$t .tgz | sed 's/-[0-9][^-]*$$//'); \
@@ -180,7 +182,7 @@ test-c:
 	sh test/c/abi_selftest.sh
 	$(MAKE) CBUILD=$(TESTC) CONTRACTDIR=$(CURDIR)/test/fixtures/domain CFLAGS='$(SANFLAGS)' CLI_RPATH=-Wl,-rpath,$(CURDIR)/$(TESTC) build-c
 	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DFIXTURES='"$(CURDIR)/test/fixtures/domain"' \
-	  -DCODES_JSON='"$(CURDIR)/data/codes.json"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
+	  -DCODES_JSON='"$(CURDIR)/contract.d/contract/contract.json"' -DCODES_GOLDEN='"$(CURDIR)/test/golden/contract-codes.tsv"' test/c/domain_test.c -o $(TESTC)/domain_test -L$(TESTC) -Wl,-rpath,$(CURDIR)/$(TESTC) \
 	  $(TESTC)/$(DOMAIN_SO) $(JANSSON_LIBS) -ldl
 	$(TESTC)/domain_test
 	$(CC) $(DOMAIN_CFLAGS) $(SANFLAGS) -DCONFORMANCE='"$(CURDIR)/test/fixtures/conformance"' test/c/conformance_test.c -o $(TESTC)/conformance_test -L$(TESTC) \

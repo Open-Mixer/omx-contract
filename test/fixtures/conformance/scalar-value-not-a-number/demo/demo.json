@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo",
+  "info": {
+    "title": "The conformance vocabulary",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "DEMO_COLORS": {
+        "description": "The colours.",
+        "oneOf": [
+          {
+            "const": "red",
+            "title": "red",
+            "x-code": 0,
+            "x-text": "Red"
+          },
+          {
+            "const": "fbs-fixed",
+            "title": "fbsFixed",
+            "x-code": 1,
+            "x-text": "The {bus} bus at {gain} dB.",
+            "x-args": [
+              "gain",
+              "bus"
+            ]
+          },
+          {
+            "const": "blue",
+            "title": "blue",
+            "x-code": 2
+          }
+        ]
+      },
+      "DEMO_DIGEST_LEN": {
+        "description": "The characters of a digest in hex.",
+        "x-kind": "scalar",
+        "x-unit": "",
+        "x-value": "64"
+      },
+      "DEMO_STRICT": {
+        "description": "Whether the fixture is strict.",
+        "x-kind": "scalar",
+        "x-unit": "",
+        "x-value": true
+      },
+      "DEMO_RATE_HZ": {
+        "description": "The rate of the fixture.",
+        "x-kind": "scalar",
+        "x-unit": "Hz",
+        "x-value": 50.5
+      }
+    }
+  }
+}

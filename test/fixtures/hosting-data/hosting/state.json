@@ -1,0 +1,61 @@
+{
+  "$schema": "../../schema/omx-contract.schema.json",
+  "requires": {
+    "omx-contract-schema": ">= 3.12.0"
+  },
+  "HOSTING_STATE_CODES": {
+    "kind": "codes",
+    "since": "2.18.0",
+    "doc": "The hosting codes of the state dimension: hosting.state.*, the verdict and refusal codes a qualifier, a host or the console write and read by code, never by prose (docs/data-layout.md).",
+    "codes": {
+      "stateNotACopy": {
+        "code": "hosting.state.not-a-copy",
+        "doc": "not a save's copy directory of the root",
+        "text": {
+          "en": "This path is not a save’s copy directory of the state root. Use the copy directory a save actually made."
+        }
+      },
+      "statePathOnAudio": {
+        "code": "hosting.state.path-on-audio",
+        "doc": "makePath: called on the audio role",
+        "text": {
+          "en": "This path was requested from the audio role, where it cannot be made. Request it from outside the audio role."
+        }
+      },
+      "statePathOutside": {
+        "code": "hosting.state.path-outside",
+        "doc": "makePath: empty, absolute, or a `..` component",
+        "text": {
+          "en": "This path is empty, absolute, or steps outside with a `..` component. Use a path relative to the state root, with no `..`."
+        }
+      },
+      "statePathSymlink": {
+        "code": "hosting.state.path-symlink",
+        "doc": "makePath: a component is a symbolic link",
+        "text": {
+          "en": "A component of this path is a symbolic link, which is not allowed here. Use a path with no symbolic links."
+        }
+      },
+      "statePathTooLong": {
+        "code": "hosting.state.path-too-long",
+        "doc": "makePath: PATH_MAX or more, or a long component",
+        "text": {
+          "en": "This path, or one of its components, is too long. Use a shorter path."
+        }
+      },
+      "statePathUnmakeable": {
+        "code": "hosting.state.path-unmakeable",
+        "doc": "makePath: a directory could not be made",
+        "text": {
+          "en": "The directory for this path could not be made. Check that the state root is writable and try again."
+        }
+      },
+      "stateUnreadable": {
+        "code": "hosting.state.unreadable",
+        "text": {
+          "en": "This plugin’s saved state could not be read. Treat it as lost, or restore it from a working copy."
+        }
+      }
+    }
+  }
+}

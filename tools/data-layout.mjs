@@ -55,7 +55,7 @@ export function layoutProblems(files) {
     if (!rel.startsWith('formats/clap/') && items.some(([, it]) => it.kind === 'terms' && it.format === 'clap')) say('CLAP terms outside data/formats/clap/');
     let m;
     if (rel.startsWith('hosting/')) {
-      say('the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap-core/hosting/), never omx-contract\'s');
+      say('the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap/hosting/), never omx-contract\'s');
     } else if ((m = /^formats\/(lv2|clap)\/(.+)\.json$/.exec(rel))) {
       const [, format, path] = m;
       const want = `${format.toUpperCase()}_${pathName(path)}_TERMS`;

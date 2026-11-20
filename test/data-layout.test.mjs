@@ -27,7 +27,7 @@ test('data/ holds no hosting code: they are omx-clap-core\'s, and no codes item 
 test('sabotage: an owner\'s hosting file put back into data/ is named', () => {
   const fs = files();
   fs.push({ rel: 'hosting/cost.json', doc: JSON.parse(readFileSync(join(ROOT, 'test/fixtures/package-codes/hosting/cost.json'), 'utf8')) });
-  assert.deepEqual(layoutProblems(fs), ['hosting/cost.json: the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap-core/hosting/), never omx-contract\'s']);
+  assert.deepEqual(layoutProblems(fs), ['hosting/cost.json: the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap/hosting/), never omx-contract\'s']);
 });
 
 test('sabotage: a codes item in data/ is named', () => {

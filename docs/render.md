@@ -24,7 +24,7 @@ ruled and a domain moves, this page describes how that domain is rendered.
       { "header": "hosted_stage_limits.h", "guard": "HOSTED_STAGE_LIMITS_H", "project": "omx-clap-host",
         "banner": ["..."], "brief": "The hosted stage's numbers, as the OMX_HOSTED_STAGE_ names a host reads.",
         "scalars": { "comment": "every number of the stage, sorted by name" } } ],
-    "ts": { "module": "omx-clap-core-hosting" } },
+    "ts": { "module": "omx-clap-hosting" } },
   "HOSTED_STAGE_LIMITS": { "kind": "sheet", ... },
   "HOSTING_CODES": { "kind": "codes", ... } }
 ```
@@ -80,7 +80,7 @@ its key; a word is `OMX_<ITEM>_<NAME>`, each words item with its `_COUNT` and `_
 `<stem>_vocabulary.h` (guard `<STEM>_VOCABULARY_H`), the ts target `<stem>-vocabulary.js` and `.d.ts` (each item
 exported under its name, and `<ITEM>_WORDS`), at the top of `--out`. The stem is the package's name, `omx` for
 omx-contract: `render --target c --package omx-contract --out include/omxcontract` is `omx_vocabulary.h` byte for byte,
-and omx-clap-core's is `omx_clap_core_vocabulary.h`, guard `OMX_CLAP_CORE_VOCABULARY_H`, so the two include together.
+and omx-clap-core's is `omx_clap_vocabulary.h`, guard `OMX_CLAP_VOCABULARY_H`, so the two include together.
 A package with no such item renders no vocabulary file.
 
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
@@ -107,8 +107,8 @@ A domain may instead render as its data form does (3.21.0, omx-contract#139): th
 renders its package as it does today, with the domain beside its data: `render --target c|ts --package <pkg> --data
 data --with-domain contract.d/<domain>` rebuilds the data files the domain came from, adds the files still in `data/`,
 and runs the data reader and the renders unchanged on that set. The files come out byte for byte those of the data form
-(omx-clap-core's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-core-hosting.{js,d.ts}`,
-`omx_clap_core_vocabulary.h` and `omx-clap-core-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
+(omx-clap-core's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-hosting.{js,d.ts}`,
+`omx_clap_vocabulary.h` and `omx-clap-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
 The rebuild, and nothing else:
 
 - an item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
@@ -183,7 +183,7 @@ build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that 
 added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of
-its `verbs` items as `<stem>_host_verbs.h` (guard `<STEM>_HOST_VERBS_H`), omx-clap-core's `omx_clap_core_host_verbs.h`.
+its `verbs` items as `<stem>_host_verbs.h` (guard `<STEM>_HOST_VERBS_H`), omx-clap-core's `omx_clap_host_verbs.h`.
 A verb is `OMX_VERB_<VERB>` and `OMX_VERB_<VERB>_FMT`, spelled alike in every header, so the whole read's header and a
 package's include together; the table is `<stem>_host_verbs()`. A package that declares no verb renders no verbs file.
 

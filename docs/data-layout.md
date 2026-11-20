@@ -28,7 +28,7 @@ inventory/lv2.json  clap.json  the formats as installed, written by tools/format
 
 The verbs are not here either: each package declares its own, in an item of kind `verbs` (docs/contract-dir.md "A
 package's verbs"); `verbs.json` holds only the hosts they name. The hosting codes are not here. Since 3.0.0 they are omx-clap-core's, one file per dimension in its own
-`data/hosting/`, installed as `contract.d/3/omx-clap-core/hosting/` (docs/hosting.md).
+`data/hosting/`, installed as `contract.d/3/omx-clap/hosting/` (docs/hosting.md).
 
 ## Where a new word goes
 

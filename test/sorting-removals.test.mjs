@@ -76,3 +76,15 @@ test('V27a: no LV2 terms item in the read, no data/formats/lv2, and no RESOURCE_
   assert.ok(from.length > 0, 'positive control: the CLAP terms the resource words still take');
   assert.deepEqual(from.filter((f) => f.startsWith('LV2_')), []);
 });
+
+// The CLAP core's packages are omx-clap (coordinator, 2026-11-20): omx-clap-contract, omx-clap-devel and
+// libomx-clap-dev, pkg-config omx-clap, share/omx-clap, contract.d/3/omx-clap, omx_clap_vocabulary.h and
+// omx_clap_host_verbs.h. No file of this tree names an old package spelling, the release history aside (the repository
+// keeps its name: a citation omx-clap-core:<path> or omx-clap-core#N is the repository's).
+test('the omx-clap package names: no old package spelling outside the release history', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const old = /libomx-clap-core|omx-clap-core-(devel|contract|hosting|vocabulary)|omx_clap_core|OMX_CLAP_CORE_VOCABULARY|contract\.d\/3\/omx-clap-core|share\/omx-clap-core|--package omx-clap-core|pkg-config omx-clap-core/;
+  const files = execFileSync('git', ['-C', ROOT, 'ls-files'], { encoding: 'utf8' }).split('\n').filter((f) => f && !['debian/changelog', 'packaging/omx-contract.spec', 'CHANGELOG.md', 'test/sorting-removals.test.mjs'].includes(f));
+  const hits = files.filter((f) => { try { return old.test(readFileSync(join(ROOT, f), 'utf8')); } catch { return false; } });
+  assert.deepEqual(hits, []);
+});

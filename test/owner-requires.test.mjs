@@ -29,13 +29,13 @@ const write = (root, rel, doc) => {
   writeFileSync(p, typeof doc === 'string' ? doc : `${JSON.stringify(doc, null, 2)}\n`);
 };
 
-/** A contract directory holding omx-contract's data and `omx-clap-core` 0.30.5 with HOST_REPLY_CODES, as an install writes them. */
+/** A contract directory holding omx-contract's data and `omx-clap` 0.30.5 with HOST_REPLY_CODES, as an install writes them. */
 function contractDir({ clapCore = true } = {}) {
   const root = fresh('contract');
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   if (!clapCore) return root;
-  const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap-core');
+  const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
     requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` },
@@ -49,7 +49,7 @@ function contractDir({ clapCore = true } = {}) {
   });
   const files = {};
   for (const f of readdirSync(pdir)) files[f] = sha256(readFileSync(join(pdir, f)));
-  write(pdir, 'MANIFEST.json', { package: 'omx-clap-core', version: '0.30.5', schemaMajor: SCHEMA_MAJOR, files });
+  write(pdir, 'MANIFEST.json', { package: 'omx-clap', version: '0.30.5', schemaMajor: SCHEMA_MAJOR, files });
   return root;
 }
 
@@ -60,7 +60,7 @@ function hostdTree() {
   const tree = fresh('hostd');
   write(tree, 'data/verbs.json', {
     $schema: '../schema/omx-contract.schema.json',
-    requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}`, 'omx-clap-core': '>= 0.30.5' },
+    requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}`, 'omx-clap': '>= 0.30.5' },
     FIXTURE_REPLY_CODES: { kind: 'codes', since: '0.1.0', doc: 'the fixture codes', codes: { placementInvalid: placement } },
     FIXTURE_VERBS: {
       kind: 'verbs', since: '0.1.0', doc: 'the fixture verbs',
@@ -143,7 +143,7 @@ test('a requirement found nowhere is refused by name: the requirement, every pla
   const r = run(hostdTree(), { OMX_CONTRACT_PATH: dir, PATH: process.env.PATH });
   assert.equal(r.status, 1, r.stderr);
   assert.ok(r.stderr.startsWith(`${CONTRACT_CODES.requiresUnresolved} `), r.stderr);
-  assert.match(r.stderr, /omx-clap-core >= 0\.30\.5/);
+  assert.match(r.stderr, /omx-clap >= 0\.30\.5/);
   assert.ok(r.stderr.includes(dir), 'OMX_CONTRACT_PATH is named as a place looked');
   assert.match(r.stderr, /pkg-config/);
   assert.match(r.stderr, /--installed/);
@@ -152,7 +152,7 @@ test('a requirement found nowhere is refused by name: the requirement, every pla
 
 test('a requirement installed below its floor is refused the same way', () => {
   const dir = contractDir();
-  const m = join(dir, String(SCHEMA_MAJOR), 'omx-clap-core/MANIFEST.json');
+  const m = join(dir, String(SCHEMA_MAJOR), 'omx-clap/MANIFEST.json');
   const doc = JSON.parse(readFileSync(m, 'utf8'));
   doc.version = '0.30.4';
   writeFileSync(m, JSON.stringify(doc));

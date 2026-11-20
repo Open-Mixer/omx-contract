@@ -71,6 +71,28 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     is the classic `from` string `LV2_CORE_TERMS#latency`. Until omx-contract's own data/ is migrated into domains, its
     items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
     a file path is never a reference.
+  - `x-from` may also name a WORD of a words item (format ruling (a), 2026-11-20): the `$ref` names the domain and the
+    words item, `x-term` the target word's `title` (not the word as written), so
+    `{ "$ref": "https://openmixer.org/contract/xa#/components/schemas/XA_COLORS", "x-term": "deepBlue" }` names the
+    word `deep-blue` titled `deepBlue` and is the classic `from` string `XA_COLORS#deepBlue`
+    (test/fixtures/domain-from-words). Any domain's words item may be named, the document's own
+    included. The word renders as it does with a terms reference: from its own `const`, `title` and `x-text`; a from
+    adds nothing to a codes header, a vocabulary header or a rebuilt word but its `from` entry (docs/render.md).
+  - The package or domain a `$ref` names is omx-contract, the document's own domain, its `info.x-owner`, or one
+    `info.x-requires` declares (below). The read of a contract directory (`validate`, `render`) refuses a word's
+    `x-from` naming any other (`contract.ref.undeclared`), for every domain it reads (of a domain rebuilt with
+    `--with-domain`, the words it rebuilds). When the package or domain named is in the read (a declared one always
+    is: its floor is held first), the read resolves the reference there and refuses by domain, item, word and
+    reference: an item that package does not declare, or declared by another one
+    (`contract.ref.unresolved`, `contract.ref.undeclared`); an item that is no words or terms item (a range, scalar,
+    sheet or codes item, `contract.ref.unresolved`); a term or title the item lacks (`contract.ref.unresolved`). A
+    declared package that is absent or below its floor is `contract.package.absent` or `contract.package.too-old`.
+    A reference to omx-contract or the owner when that package is not in the read (a domain rendered from its own
+    `contract.d`) is left to `validate`, rule `word-from`, as before, which refuses a word or term that does not
+    exist; but an item of the read is never taken for it: when another package of the read declares the item, the
+    reference is refused by name (`contract.ref.undeclared`, naming the package that declares it).
+    The runtime readers (libomx-domain, `openDomainAt`) open one domain and neither read nor resolve `x-from`; the
+    conformance suite holds both to opening such a word, and the build to each refusal.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the

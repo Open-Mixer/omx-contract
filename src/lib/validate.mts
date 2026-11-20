@@ -199,8 +199,9 @@ function semanticRules(resolved, say) {
         for (const ref of w.from ?? []) {
           const [item, term] = ref.split('#');
           const t = resolved.get(item);
-          if (t?.kind !== 'terms') say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} is no terms item`);
-          else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} has no term ${term}`);
+          // a term of a terms item, or a word of a words item by its key (a domain word's title)
+          if (t?.kind !== 'terms' && t?.kind !== 'words') say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} is no terms or words item`);
+          else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} has no ${t.kind === 'terms' ? 'term' : 'word'} ${term}`);
         }
       }
     }

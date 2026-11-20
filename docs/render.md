@@ -131,7 +131,11 @@ The rebuild, and nothing else:
   of a rebuilt word reaches omx-contract's terms (the schema package), the document's own domain, its `info.x-owner`
   or a package the document declares in `info.x-requires` (docs/contract-dir.md, "Domains"); a `from` into any other
   package is refused by item, word, `x-from` and package (`contract.file.invalid`). An item with no `x-file` is never
-  rebuilt, and its `from` is not checked here;
+  rebuilt, and its `from` is not checked here. A `from` may name a word of a words item as `<ITEM>#<title>`, as well as
+  a term (docs/contract-dir.md, "Domains"); either is written into the rebuilt word as it stands, and the read of the
+  contract directory resolves it. A from renders nothing in a header: the referencing word renders from its own
+  `const`, `title` and `x-text`, as a word with a terms reference does (only the LV2 hints Turtle reads a `from`, and
+  only a terms one);
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,

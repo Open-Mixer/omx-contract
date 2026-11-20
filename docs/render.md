@@ -125,7 +125,11 @@ The rebuild, and nothing else:
 - an item with `"x-kind": "words"` is the data item `{ "kind": "words", ..., "groups", "words" }`: `groups` is its
   `x-groups`, and each of its `oneOf` words is one word in the written order, keyed by its `title`, as
   `{ "word": <const>, "group": <x-group>, "from": [<ITEM>#<x-term>...], "doc", "text", "args" }`, each key only when
-  the word has it (plugin-db's `PLUGIN_DB_*` words items, which its own renders then read unchanged);
+  the word has it (plugin-db's `PLUGIN_DB_*` words items, which its own renders then read unchanged). A rebuilt file
+  carries no `requires`, so the `x-from` of a rebuilt word may reach only terms every file of the owner reads without
+  one: omx-contract's (the schema package), the document's own domain and its `info.x-owner`. A `from` into any other
+  package is refused by item, word, `x-from` and package (`contract.file.invalid`) until the rebuild writes `requires`;
+  an item with no `x-file` is never rebuilt, and its `from` is not checked here;
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,

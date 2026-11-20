@@ -260,6 +260,12 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
     if (s['x-kind'] === 'scalar') { f[item] = { ...head, unit: s['x-unit'], value: s['x-value'] }; continue; }
     // what a word says beside its key, in the order of the data form: doc, text, args
     const said = (e: JsonObject): JsonObject => ({ ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) });
+    // a rebuilt file carries no requires: a from may reach only what every file of the owner reads without one
+    const own = new Set([name, (doc.info as JsonObject)['x-owner'] as string, 'omx-contract']);
+    (s.oneOf as JsonObject[]).forEach((e, i) => ((e['x-from'] ?? []) as JsonObject[]).forEach((r, j) => {
+      const to = (r.$ref as string).slice(domainId('').length).split('#')[0]!;
+      if (!own.has(to)) refuse('fileInvalid', at, `${w}.oneOf[${i}].x-from[${j}] of the word ${JSON.stringify(e.const)} names a term of ${to}, another package: a data file rebuilt from a domain carries no requires, so render --with-domain refuses a from beyond omx-contract, the domain ${name} and its owner ${[...own][1]}`);
+    }));
     if (s['x-kind'] === 'words') {
       const words: JsonObject = {};
       for (const e of s.oneOf as JsonObject[]) {

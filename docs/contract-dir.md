@@ -167,7 +167,8 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   that owns it now. Neither is read from the path.
 - `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
   refused (`contract.manifest.invalid`).
-- `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`), each with
+- `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`) and whose
+  items its items refer to (a verb's `{ "ref": "HOST_REPLY_CODES.<code>" }` of another domain), each with
   its floor in the form of a data file's `requires` (`{ "plugin-db": ">= 1.2.0" }`). It is the `requires` every data
   file rebuilt from the domain carries (docs/render.md, `render --with-domain`), after the schema floor. A value that is
   not a map, a key that is no package or domain name (`[a-z][a-z0-9-]*`, segments joined by `/`) and a floor that is
@@ -207,6 +208,13 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   { "package": "omx-dsp", "version": "0.25.0", "schemaMajor": 3, "tree": "data",
     "files": { "kernels/eq.json": "<sha256 hex of the installed bytes>" } }
   ```
+
+  A domain-only owner, a package whose contract is only domains (plugin-hostd-protocol's `plugin-hostd`, omx-clap's
+  `host` and `omx-clap`), installs no data file: `install-contract-dir.sh --owner <package> <version> <schema major>
+  <contractdir> <domain>...` writes its manifest with `"files": {}` and `"domains"`, the domains its contract is, each
+  installed by its own `--domain` call. The reader refuses a listed domain that is not installed
+  (`contract.manifest.mismatch`), and a manifest with no file and no `domains` (`contract.manifest.invalid`): a
+  plain install of a directory with no data file is still refused.
 
   `package` is the directory's name and `schemaMajor` the major above it. `version` is the package's own version,
   the one a `requires` floor is compared to. `tree` (optional) is the directory of the owner's source tree the

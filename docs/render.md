@@ -160,9 +160,13 @@ The same rebuild serves a render of an installed contract directory: `render --t
 --with-domain <contractdir>/<domain>` (or `--contract-dir <dir>`) rebuilds the domain's data files into the installed
 package its `info.x-owner` names, each at the place that package's own file would have (`<package>/<x-file>`, or the
 manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
-also read as a domain. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
-`plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is no
-installed package (`contract.package.absent`), a file the package both installs and rebuilds
+also read as a domain. `--with-domain` repeats: several domains of one owner (an item of one naming an item of the
+other, the omx-clap `host` and `omx-clap` domains) rebuild into that one package in one read, and a file of one requires
+the other by its domain name (`info.x-requires`), held to its `info.version`. An owner whose contract is only domains
+(a domain-only owner, below) need not be installed: the render builds the package `info.x-owner` names from its domains
+alone, at the domain's `info.version`. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
+`plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is an
+installed domain, no package (`contract.package.absent`), a file the package both installs and rebuilds
 (`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed or is below its floor
 (`contract.package.absent`, `contract.package.too-old`), and a rebuilt word's term that the package or domain its
 `x-from` names does not declare (`contract.ref.unresolved`, `contract.ref.undeclared`, naming the word, the item and

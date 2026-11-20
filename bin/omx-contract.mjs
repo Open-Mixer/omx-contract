@@ -107,21 +107,22 @@ function load(argv) {
     }
     const dir = argv.includes('--installed') ? undefined : resolve(opt(argv, '--contract-dir'));
     // a domain in its data form, its rebuilt files joining the installed package its x-owner names (docs/render.md)
-    const wd = opt(argv, '--with-domain');
-    return loadContractDir({ dir, needs, ...(wd === undefined ? {} : { withDomain: domainArg(wd) }) });
+    return loadContractDir({ dir, needs, withDomains: opts(argv, '--with-domain').map(domainArg) });
   }
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   if (!existsSync(dir)) throw new Usage(`no data directory ${dir}`);
-  const withDomain = opt(argv, '--with-domain');
-  if (withDomain === undefined) return withToolDomain(loadData(dir), dir);
-  // the data files a domain was made from, beside the files still in data/ (docs/render.md): one read, unchanged renders
-  const { name, doc: raw } = domainArg(withDomain);
-  readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+  const withDomains = opts(argv, '--with-domain');
+  if (!withDomains.length) return withToolDomain(loadData(dir), dir);
+  // the data files the domains were made from, beside the files still in data/ (docs/render.md): one read, unchanged
+  // renders; --with-domain repeats, so two domains of one owner (an item of one naming an item of the other) read as one
   const texts = Object.fromEntries(loadData(dir).files.map((f) => [f.rel, f.text]));
-  for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {
-    const rel = `${basename(dir)}/${file}`; // the place the file had in the data directory, as loadData names it
-    if (rel in texts) throw new Usage(`${rel} is in ${dir} and rebuilt from the domain ${name}: one source per file`);
-    texts[rel] = text;
+  for (const { name, doc: raw } of withDomains.map(domainArg)) {
+    readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+    for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {
+      const rel = `${basename(dir)}/${file}`; // the place the file had in the data directory, as loadData names it
+      if (rel in texts) throw new Usage(`${rel} is in ${dir} and rebuilt from the domain ${name}: one source per file`);
+      texts[rel] = text;
+    }
   }
   return loadData(dir, texts);
 }

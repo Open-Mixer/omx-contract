@@ -374,9 +374,11 @@ A descriptor's `travel.unit` and `meters[].unit` are checked against that descri
 ## 4. Migration
 
 Each consumer switches in its own release, in its line of the sorting pass (ownership-map.md, "The sorting pass").
-Nothing is kept twice on purpose: 3.20.2's `OMX_PARAM_CONTRACT_UNITS`, `omx_param_units.h` and the
-`OMX_PARAM_CONTRACT_UNITS_*` lines of `omx_contract_limits.h` stay, unchanged, only until every reader has switched,
-and leave at SZ. The new names are new names: there is no alias of an old name to a new one.
+The staging below keeps 3.20.2's `OMX_PARAM_CONTRACT_UNITS`, `omx_param_units.h` and the
+`OMX_PARAM_CONTRACT_UNITS_*` lines of `omx_contract_limits.h` live beside the merged view from SA until SZ: two
+sources across releases. The owner's no-back-compat rule names that (dual formats, deprecation periods), and no owner
+approval covers it, so the staging is OPEN QUESTION 12. The new names are new names: there is no alias of an old
+name to a new one.
 
 ### S0, omx-contract: the reader
 
@@ -561,3 +563,12 @@ Each test has a sabotage arm: a change that must turn it red, run once and quote
     as `PARAM_SCALES` is (V21), and are the proposed words right?
 11. **Line S7.** V23's lines are S0, SA, S2, S6, S10, S11 and SZ, but omx-clap-core (layer 7) reads the units and V23
     lists its 0.34.0. This spec adds S7 for omx-clap-core. Should V23 say S7?
+12. **The staging.** As written, both sources live from SA until SZ: 3.20.2's `OMX_PARAM_CONTRACT_UNITS`,
+    `omx_param_units.h` and the `OMX_PARAM_CONTRACT_UNITS_*` lines of `omx_contract_limits.h`, and the merged view.
+    That is a period with two sources across releases, which the no-back-compat rule lists, and no owner approval
+    covers it. Is it approved, or does every reader switch in the same release that drops the old header, a flag
+    day per consumer line?
+    - As written: each consumer switches in its own release and no release breaks a build, but two sources live
+      across releases until SZ.
+    - Flag day: there is one source at every moment, but omx-clap-core, omx-plugins, omx-panel and the console
+      release together with omx-contract's drop, and a reader one release late fails to build.

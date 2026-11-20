@@ -21,57 +21,63 @@ release pass is over. It follows the owner's ruling of 2026-11-20, which replace
 
 ## The one list
 
-The list is `PARAM_UNITS` of `data/param-contract.json`, a words item. On main it holds the 15 units the items use,
-each word with its symbol. It is the start. Each word is `id`, `symbol`, `dimension` and, on a derived unit, its
+The list is `PARAM_UNITS` of `data/primitives.json`, a words item (`data/param-contract.json` holds the code sheet). On
+main it holds the 15 units the items use,
+each word with its symbol. It is the start. Each word is `id`, `symbol`, `dimension`, `scope` and, on a derived unit,
+its
 conversion: a `base` unit and a `scale` (a value in the unit times `scale` is a value in `base`). A base has no base of
 its own. A logarithmic unit (`dB`, `dBFS`, `dBu`, `dBTP`, `LUFS`, `LU`) has no conversion: its offset depends on a
 reference. The list holds no code, no LV2 term and no token: those are the format levels' (below).
 
-| Id | Symbol | Dimension | Conversion (base, scale) | Today |
+| Id | Symbol | Dimension | Conversion (base, scale) | Scope |
 |---|---|---|---|---|
-| `none` | `""` | none | none (a base unit) | item |
-| `s` | `s` | time | none (a base unit) | item |
-| `ms` | `ms` | time | `s`, 0.001 | item |
-| `min` | `min` | time | `s`, 60 | item |
-| `bar` | `bar` | musical-time | none (a base unit) | joins |
-| `beat` | `beat` | musical-time | none (a base unit) | joins |
-| `frames` | `frames` | count | none (a base unit) | descriptor-only |
-| `m` | `m` | length | none (a base unit) | joins |
-| `cm` | `cm` | length | `m`, 0.01 | joins |
-| `mm` | `mm` | length | `m`, 0.001 | joins |
-| `km` | `km` | length | `m`, 1000 | joins |
-| `inch` | `inch` | length | `m`, 0.0254 | joins |
-| `mile` | `mile` | length | `m`, 1609.344 | joins |
-| `dB` | `dB` | gain | none (logarithmic) | item |
-| `percent` | `%` | none | none (a base unit) | item |
-| `x` | `x` | none | none (a base unit) | item |
-| `Hz` | `Hz` | frequency | none (a base unit) | item |
-| `kHz` | `kHz` | frequency | `Hz`, 1000 | joins |
-| `MHz` | `MHz` | frequency | `Hz`, 1000000 | joins |
-| `bpm` | `bpm` | tempo | none (a base unit) | descriptor-only |
-| `oct` | `oct` | pitch | none (a base unit) | item |
-| `cents` | `cents` | pitch | none (a base unit) | item |
-| `st` | `st` | pitch | none (a base unit) | item |
-| `deg` | `deg` | angle | none (a base unit) | descriptor-only |
-| `midiNote` | `midiNote` | pitch | none (a base unit) | descriptor-only |
-| `dBFS` | `dBFS` | level | none (logarithmic) | item |
-| `dBu` | `dBu` | level | none (logarithmic) | joins |
-| `ratio` | `ratio` | ratio | none (a base unit) | descriptor-only |
-| `LUFS` | `LUFS` | loudness | none (logarithmic) | item |
-| `dB-oct` | `dB/oct` | slope | none (a base unit) | item |
-| `dB-s` | `dB/s` | rate | none (a base unit) | item |
-| `dBTP` | `dBTP` | level | none (logarithmic) | descriptor-only |
-| `LU` | `LU` | loudness | none (logarithmic) | descriptor-only |
+| `none` | `""` | none | none (a base unit) | param |
+| `s` | `s` | time | none (a base unit) | param |
+| `ms` | `ms` | time | `s`, 0.001 | param |
+| `min` | `min` | time | `s`, 60 | param |
+| `bar` | `bar` | musical-time | none (a base unit) | descriptor |
+| `beat` | `beat` | musical-time | none (a base unit) | descriptor |
+| `frames` | `frames` | count | none (a base unit) | descriptor |
+| `m` | `m` | length | none (a base unit) | descriptor |
+| `cm` | `cm` | length | `m`, 0.01 | descriptor |
+| `mm` | `mm` | length | `m`, 0.001 | descriptor |
+| `km` | `km` | length | `m`, 1000 | descriptor |
+| `inch` | `inch` | length | `m`, 0.0254 | descriptor |
+| `mile` | `mile` | length | `m`, 1609.344 | descriptor |
+| `dB` | `dB` | gain | none (logarithmic) | param |
+| `percent` | `%` | none | `x`, 0.01 | param |
+| `x` | `x` | none | none (a base unit) | param |
+| `Hz` | `Hz` | frequency | none (a base unit) | param |
+| `kHz` | `kHz` | frequency | `Hz`, 1000 | descriptor |
+| `MHz` | `MHz` | frequency | `Hz`, 1000000 | descriptor |
+| `bpm` | `bpm` | tempo | none (a base unit) | descriptor |
+| `oct` | `oct` | pitch | none (a base unit) | param |
+| `cents` | `cents` | pitch | none (a base unit) | param |
+| `st` | `st` | pitch | none (a base unit) | param |
+| `deg` | `deg` | angle | none (a base unit) | descriptor |
+| `midiNote` | `midiNote` | pitch | none (a base unit) | descriptor |
+| `dBFS` | `dBFS` | level | none (logarithmic) | param |
+| `dBu` | `dBu` | level | none (logarithmic) | descriptor |
+| `ratio` | `ratio` | ratio | none (a base unit) | descriptor |
+| `LUFS` | `LUFS` | loudness | none (logarithmic) | param |
+| `dB-oct` | `dB/oct` | slope | none (a base unit) | param |
+| `dB-s` | `dB/s` | rate | none (a base unit) | param |
+| `dBTP` | `dBTP` | level | none (logarithmic) | descriptor |
+| `LU` | `LU` | loudness | none (logarithmic) | descriptor |
 
-- Item: in the schema's `$defs.unit` today. Descriptor-only: in `$defs.descriptorUnit` today (a plugin-only unit).
-  Joins: in neither list today, and in the one list from now on. `unknown` stays the descriptor format's "states no
-  unit" word, not a unit.
+- `scope` defines the render: `param` is a unit of the items' `$defs.unit` (today's 15, which `PARAM_UNITS` already
+  holds); `descriptor` is a unit only a descriptor's control may state, and goes to `$defs.descriptorUnit` (today's
+  plugin-only units, and the units that join: `bar`, `beat`, the lengths, `kHz`, `MHz`, `dBu`). A descriptor's
+  `travel.unit` takes either scope, or `unknown`, which stays the descriptor format's "states no unit" word, not a
+  unit. `LUFS` is in both lists in 3.20.2; here it is `param`, and a descriptor still takes it. Q16 asks whether the
+  split stays.
 - `bar` and `beat` are counts of a musical length (a delay's bar fraction and note denominator). Their length depends
   on the meter, so neither is derived from the other. A transport position (a bar number, a beat in a bar) is a
   position, not a unit.
 - `dBu` is decibels relative to 0.7746 V RMS, an analogue level. `dBV` is not added: nothing uses it.
-- The schema's `$defs.unit` and `$defs.descriptorUnit` are rendered from the list, as `$defs.unit` is today from
-  `PARAM_UNITS` (`render --check` holds the committed schema to it). A unit is added in one place.
+- `$defs.unit` is the symbols of the `param` words and `$defs.descriptorUnit` those of the `descriptor` words and
+  `unknown`, rendered from the list, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
+  schema to it). A unit is added in one place.
 
 ### The dimensions
 
@@ -88,10 +94,16 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   tokens, each a wire code (0 is no unit, 1 to 24 are the LV2 units one to one, 0x100 up a vendor block) mapped to a
   standard unit id; codes are append-only. A descriptor names standard unit ids, never codes: only the extension
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
-  `omx_contract_limits.h`, read by omx-clap-core, omx-plugins, omx-panel and the console. Until it moves (vocabulary
-  moves stay frozen in releases) the 3.20.2 sheet stays where it is, unchanged.
+  `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
+  render go to omx-clap-core; each reader (omx-plugins, omx-panel, the console, omx-clap-core's own code) switches its
+  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed last. The PRs
+  are those of the map amendment (the amendment of omx-contract#142, being written). Until then the 3.20.2 sheet is
+  what the readers read.
 - **LV2, plugin-db.** The LV2 unit terms (`units:db`, `units:khz`, ...), `lv2:designation` and the `param:`
-  spellings, each mapped to a standard unit id or parameter meaning. `LV2_UNITS_TERMS` is the unit terms.
+  spellings, each mapped to a standard unit id or parameter meaning. `LV2_UNITS_TERMS`, the unit terms, is NOT in
+  plugin-db today (a grep of its main finds none): it lives in omx-contract (`data/formats/lv2/units.json`), with
+  copies in plugin-hostd and plugin-qualify (`data/formats/lv2.json`) and omx-formats. It MOVES to plugin-db as new
+  data there, and the copies read it from there.
 
 The token-to-id map of the code table, where they differ:
 
@@ -117,7 +129,9 @@ The token-to-id map of the code table, where they differ:
 
 omx-panel's display rules are behaviour over the units above, not units: it declares no unit id. A rule shows a
 value in a larger unit of the same dimension: `Hz` as `kHz` from 1000 Hz up; `ms` as `s` and a 0 to 1 `x` as `%`,
-with thresholds that are the panel's to state. The rules read the ids, bases and scales of the list; the panel keeps no
+with thresholds that are the panel's to state. The rules read the ids, bases and scales of the list (`ms` to `s` is
+0.001,
+`percent` to `x` is 0.01: the panel holds no scale of its own); the panel keeps no
 unit table of its own.
 
 omx-panel defines only the general panel vocabulary, scales and laws, never a per-plugin or per-format mapping. The
@@ -152,8 +166,8 @@ the term, code, rule or descriptor that mapped it.
 - The merged reader and its `omx-domain` command: withdrawn.
 - The schema reference to a merged view in place of a list (Q8 is moot): withdrawn. The enums are rendered from the
   list.
-- The two-source period and the flag day (Q11, Q12): withdrawn. The list stays where it is, so nothing is staged and
-  no consumer switches.
+- The two-source period and the flag day (Q11, Q12): withdrawn. The list stays where it is (the code
+  table's move is its own row), so nothing of the list is staged and no consumer switches.
 - omx-contract#144 (`PARAM_UNITS` leaves main) is superseded by this ruling: its main change, taking `PARAM_UNITS`
   and its schema enum render off main, is ruled out. Whether it is closed is a coordinator or owner decision, citing
   the one-place ruling. What survives it is carried below. The follow-up of the kernels that state `min`, `LUFS` and
@@ -173,7 +187,8 @@ sabotage arm it has there:
 - a C reader compiles `_Static_assert`s on the codes and expands `OMX_PARAM_UNITS(X)` to find a token's word;
 - sabotage: a code changed in the data (`db` set to 99) is not the shipped code, and the committed header goes stale.
 
-Carried from #144: the list of readers of `OMX_PARAM_CONTRACT_UNITS`, which keep reading it unchanged:
+Carried from #144: the list of readers of `OMX_PARAM_CONTRACT_UNITS`, which switch to omx-clap-core's contract package
+when the sheet moves:
 omx-clap-core (`src/param_contract.h`, `src/clap_host.h`, `src/omx_clap_ext.h`, `lv2/clap/lv2_clap.c` and the
 omx-clap-host twin); omx-plugins (`include/omx_param_contract.h`, `tools/param-contract.mjs`, `Makefile`,
 `docs/declaration-as-descriptor.md`); omx-panel (`docs/behaviour-core.md`, `docs/panel-layout.md`, `BUILDING.md` and its
@@ -194,4 +209,7 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
     (`none`), as today. Do they take the next codes (260 up, append-only), or stay without?
+16. **Keep the split of `$defs.unit` and `$defs.descriptorUnit`?** The list's `scope` (`param` or `descriptor`) defines
+    it for now. The split is a 3.20.2 fact: a descriptor takes both lists anyway, so one list of units would do. Keep
+    the split, or drop it and render one enum?
 

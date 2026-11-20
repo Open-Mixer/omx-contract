@@ -98,3 +98,13 @@ test('the omx-clap package names: no old package spelling outside the release hi
   const hits = files.filter((f) => { try { return old.test(readFileSync(join(ROOT, f), 'utf8')); } catch { return false; } });
   assert.deepEqual(hits, []);
 });
+
+// V23d: the unit codes of org.openmixer.param-contract/1 are a CLAP particular, omx-clap's (its omx-param-contract
+// domain, mapped code to standard unit id; coordinator ruling 2026-11-20). OMX_PARAM_CONTRACT_UNITS, its file
+// data/param-contract.json and its render omx_param_units.h leave omx-contract; every reader switches in the chain.
+test('V23d: no OMX_PARAM_CONTRACT_UNITS in the read, no data/param-contract.json, no omx_param_units.h', () => {
+  assert.ok(!loadData(DATA).items.has('OMX_PARAM_CONTRACT_UNITS'));
+  assert.ok(!existsSync(join(DATA, 'param-contract.json')));
+  assert.ok(!existsSync(join(ROOT, 'include/omxcontract/omx_param_units.h')));
+  for (const f of RENDERS) assert.ok(!/OMX_PARAM_CONTRACT_UNITS|OMX_CLAP_UNIT_/.test(readFileSync(join(ROOT, f), 'utf8')), f);
+});

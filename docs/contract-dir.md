@@ -332,7 +332,7 @@ omx-contract changes for none of it.
 | `format` | The line as mod-host's `protocol_add_command` takes it: the verb, then `%i` (an integer), `%f` (a number) or `%s` (a word) per argument, and a last `...` for the words that may follow. Its first word is the verb. |
 | `reply` | The reply as the protocol writes it: `resp 0`, `resp <count>`, or `resp 0` and its columns. |
 | `codes` | The refusals it answers besides the reply, each `{ "ref": "<ITEM>.<name>" }` to a code of a `codes` item. A reply code is `reply.<group>.<reason>` and carries `resp`, the negative number of `resp <n>`. The codes of another package are named in `requires`, as any reference is. |
-| `implementedBy` | What each host owes the verb, by a word of `VERB_HOSTS` (`data/verbs.json`: `plugin-hostd`, `omx-clap-host`, `mod-host`): `required` (answered as its grammar says), `optional` (answered or refused, never misread) or `unsupported` (refused on purpose). A host left out owes it nothing. A new host is a word added to `VERB_HOSTS`, an omx-contract minor. |
+| `implementedBy` | What each host owes the verb, by a word of `HOSTING_VERB_HOSTS`, omx-clap's hosting words (`hosting/verb-hosts.json`, installed as `3/omx-clap/hosting/verb-hosts.json`: `plugin-hostd`, `omx-clap-host`, `mod-host`), read from the read only: a read with verbs and no such item is refused, `contract.verb.host-unknown`: `required` (answered as its grammar says), `optional` (answered or refused, never misread) or `unsupported` (refused on purpose). A host left out owes it nothing. A new host is a word added to `HOSTING_VERB_HOSTS`, an omx-clap minor; omx-contract ships no host list. |
 | `since`, `doc` | The owner's release that first carried the verb, and one line of prose. |
 
 `MOD_HOST_REPLY_CODES` is a codes item of the same package, `"paramSymbolInvalid": { "code":
@@ -437,7 +437,7 @@ codes). A word's `x-name` is its key, its `const` the code and its place from 0 
 | `contract.ref.undeclared` | A reference names an item of a package the file does not require. |
 | `contract.verb.duplicate` | Two verbs items, of one package or two, declare one verb. |
 | `contract.verb.format` | A verb's format does not start with its verb. |
-| `contract.verb.host-unknown` | A verb's `implementedBy` names a host that is no word of `VERB_HOSTS`. |
+| `contract.verb.host-unknown` | A verb's `implementedBy` names a host that is no word of `HOSTING_VERB_HOSTS`, or the read declares verbs and no `HOSTING_VERB_HOSTS`. |
 | `contract.verb.code-unknown` | A verb's code names an item that is no codes item, or a name that item does not carry. |
 | `contract.role.duplicate` | Two roleMeanings items, of one package or two, declare one role. |
 | `contract.package.absent` | A package the consumer or a file requires is not installed. |

@@ -271,11 +271,6 @@
     "88200",
     "96000"
   ],
-  "VERB_HOSTS": [
-    "modHost",
-    "omxClapHost",
-    "pluginHostd"
-  ],
   "schema/omx-contract.schema.json#/$defs/descriptor/properties/origin/enum": [
     "authored",
     "built",

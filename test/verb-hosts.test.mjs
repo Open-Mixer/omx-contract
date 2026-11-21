@@ -18,15 +18,20 @@ import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderVerbsHeader } from '../render/verbs.mjs';
-import { DATA, installParamDomain, resolvedOf, ROOT, texts } from './helpers.mjs';
+import { DATA, installParamDomain, resolvedOf, ROOT, texts, VERB_HOSTS_FIXTURE } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-verb-hosts-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 const VERBS = join(ROOT, 'test/fixtures/package-verbs');
-const HOSTING = join(ROOT, 'test/fixtures/hosting-verb-hosts');
+const HOSTING = VERB_HOSTS_FIXTURE;
 const ITEM = 'HOSTING_VERB_HOSTS';
 const GOLDEN = join(ROOT, 'test/golden/verbs/omx_host_verbs.h');
+
+const HOSTS = ['plugin-hostd', 'omx-clap-host', 'mod-host'];
+/** The items of a data file `doc` that list the verb hosts: a words item holding the three host words. */
+const hostListsOf = (doc) => Object.entries(doc).filter(([, it]) => it?.kind === 'words'
+  && HOSTS.every((h) => Object.values(it.words ?? {}).some((w) => w.word === h))).map(([n]) => n);
 
 const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), ...a], { stdio: 'ignore' });
 
@@ -75,7 +80,7 @@ test('a contract directory with verbs and no HOSTING_VERB_HOSTS is refused by na
 });
 
 test('validate refuses a data directory with verbs and no HOSTING_VERB_HOSTS, under rule verb-host', () => {
-  const t = texts((docs) => { for (const [rel, d] of Object.entries(docs)) if (d.VERB_HOSTS) delete docs[rel]; });
+  const t = texts((docs) => { for (const rel of Object.keys(docs)) if (hostListsOf(docs[rel]).length) delete docs[rel]; });
   t['data/fixture-host-verbs.json'] = readFileSync(join(VERBS, 'host-verbs.json'), 'utf8');
   t['data/fixture-errors.json'] = readFileSync(join(VERBS, 'errors.json'), 'utf8');
   const probs = validateData(loadData(null, t)).filter((p) => p.rule === 'verb-host');
@@ -84,7 +89,7 @@ test('validate refuses a data directory with verbs and no HOSTING_VERB_HOSTS, un
 });
 
 test('the verbs render refuses by name a read with verbs and no HOSTING_VERB_HOSTS: it reads no host list of its own', () => {
-  const t = texts((docs) => { for (const [rel, d] of Object.entries(docs)) if (d.VERB_HOSTS) delete docs[rel]; });
+  const t = texts((docs) => { for (const rel of Object.keys(docs)) if (hostListsOf(docs[rel]).length) delete docs[rel]; });
   t['data/fixture-host-verbs.json'] = readFileSync(join(VERBS, 'host-verbs.json'), 'utf8');
   t['data/fixture-errors.json'] = readFileSync(join(VERBS, 'errors.json'), 'utf8');
   assert.throws(() => renderVerbsHeader(resolvedOf(t)), /HOSTING_VERB_HOSTS/);
@@ -107,8 +112,9 @@ test('contract.verb.host-unknown reads the item: a host the item drops is refuse
   assert.doesNotThrow(() => loadContractDir({ dir: dir(added) }));
 });
 
-test('omx-contract ships no host list: data/ declares no VERB_HOSTS, and data/verbs.json is gone', () => {
+test('omx-contract ships no host list: no item of data/ lists the verb hosts, and data/verbs.json is gone', () => {
   assert.ok(!existsSync(join(DATA, 'verbs.json')), 'data/verbs.json');
-  assert.ok(!loadData(DATA).items.has('VERB_HOSTS'));
+  assert.deepEqual(loadData(DATA).files.flatMap((f) => hostListsOf(JSON.parse(f.text)).map((n) => `${f.rel}: ${n}`)), []);
+  assert.deepEqual(hostListsOf(JSON.parse(readFileSync(join(HOSTING, 'hosting/verb-hosts.json'), 'utf8'))), [ITEM], 'positive control: the fixture\'s item is one');
   assert.ok(!loadData(DATA).items.has(ITEM), 'the item is omx-clap\'s, never omx-contract\'s');
 });

@@ -578,34 +578,6 @@
         }
       }
     },
-    "VERB_HOSTS": {
-      "description": "The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing.",
-      "enum": [
-        "plugin-hostd",
-        "omx-clap-host",
-        "mod-host"
-      ],
-      "x-omx-texts": {
-        "plugin-hostd": {
-          "text": {
-            "en": "The daemon that places plugins in workers and answers the verbs it adds itself."
-          },
-          "args": []
-        },
-        "omx-clap-host": {
-          "text": {
-            "en": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
-          },
-          "args": []
-        },
-        "mod-host": {
-          "text": {
-            "en": "mod-host, the LV2 host whose protocol the others speak."
-          },
-          "args": []
-        }
-      }
-    },
     "PARAM_UNITS": {
       "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
       "enum": [

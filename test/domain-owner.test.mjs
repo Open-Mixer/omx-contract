@@ -19,7 +19,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
-import { DATA, installParamDomain, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, installVerbHosts, ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-owner-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -63,6 +63,7 @@ function contractDir() {
   execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root], { stdio: 'ignore' });
   installParamDomain(root);
+  installVerbHosts(root);
   return root;
 }
 

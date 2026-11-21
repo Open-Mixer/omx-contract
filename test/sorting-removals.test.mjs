@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // The items the vocabulary sorting pass moves out of omx-contract, each to the new home its row names, leave here
-// (docs/ownership-map.md): V22 READOUT_RATE_HZ (to omx-dsp, a `readout` domain), V25 RT_HARD_TARGET and the oracle
+// (docs/ownership-map.md): V22 READOUT_RATE_HZ (to omx-dsp, `data/primitives/readout.json`), V25 RT_HARD_TARGET and the oracle
 // rate lists (to omx-dsp; the standard rates and quanta stay), V26 CURVE_AXES and CURVE_KINDS (to omx-dsp) and V24
 // PLUGIN_FEATURE_* (to plugin-db, its `plugin-feature` domain). Each is gone from the read of data/ (through the
 // loader every render takes), from the committed renders, from the catalogs and from the ownership lists, and its

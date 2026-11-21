@@ -92,7 +92,7 @@ test('semver: a readout appended is MINOR; removed is MINOR in the development p
   assert.equal(cls([readout({ doc: 'Reworded.' })]).level, 'patch');
 });
 
-// READOUT_RATE_HZ is omx-dsp's (its readout domain, sorting pass V22): the fixture states its rate as a number.
+// READOUT_RATE_HZ is omx-dsp's (its data/primitives/readout.json, sorting pass V22): the fixture states its rate as a number.
 test('a readout bounded by reference: its range read off the travel, its rate a number', () => {
   const declared = loadData(UNION).files.find((f) => f.rel === swell).doc.readouts;
   assert.deepEqual(declared.map((x) => [x.min, x.rateHz]), [[{ ref: 'SWELL_LIMITS.rangeDb.min' }, 50]], 'the range stated once, by reference');

@@ -24,7 +24,7 @@ ruled and a domain moves, this page describes how that domain is rendered.
       { "header": "hosted_stage_limits.h", "guard": "HOSTED_STAGE_LIMITS_H", "project": "omx-clap-host",
         "banner": ["..."], "brief": "The hosted stage's numbers, as the OMX_HOSTED_STAGE_ names a host reads.",
         "scalars": { "comment": "every number of the stage, sorted by name" } } ],
-    "ts": { "module": "omx-clap-core-hosting" } },
+    "ts": { "module": "omx-clap-hosting" } },
   "HOSTED_STAGE_LIMITS": { "kind": "sheet", ... },
   "HOSTING_CODES": { "kind": "codes", ... } }
 ```
@@ -80,8 +80,16 @@ its key; a word is `OMX_<ITEM>_<NAME>`, each words item with its `_COUNT` and `_
 `<stem>_vocabulary.h` (guard `<STEM>_VOCABULARY_H`), the ts target `<stem>-vocabulary.js` and `.d.ts` (each item
 exported under its name, and `<ITEM>_WORDS`), at the top of `--out`. The stem is the package's name, `omx` for
 omx-contract: `render --target c --package omx-contract --out include/omxcontract` is `omx_vocabulary.h` byte for byte,
-and omx-clap-core's is `omx_clap_core_vocabulary.h`, guard `OMX_CLAP_CORE_VOCABULARY_H`, so the two include together.
+and omx-clap-core's is `omx_clap_vocabulary.h`, guard `OMX_CLAP_VOCABULARY_H`, so the two include together.
 A package with no such item renders no vocabulary file.
+
+A set (`"kind": "set"`) may carry `standard` (3.21.0): the standard unit each id stands for, one PARAM_UNITS const
+(contract.d/param, any group) per id in id order, so an owner keeps its own words and names the standard id of each
+(omx-dsp's CURVE_UNITS: `hz` is `Hz`, `pc` is `percent`, `coef` is `coef`). A count that differs from the ids and a
+const PARAM_UNITS lacks are refused by name (rule `set-standard`), and the field on any other kind by the schema. The
+json render carries `standard` on the item, the ts render exports `<SET>_STANDARD` (`{ <id>: <const> }`), and the c
+render `static const char *const OMX_<SET>_STANDARD[OMX_<SET>_COUNT]`, read by enumerator
+(`OMX_CURVE_UNITS_STANDARD[OMX_CURVE_UNITS_HZ]` is `"Hz"`).
 
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
 its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
@@ -107,8 +115,15 @@ A domain may instead render as its data form does (3.21.0, omx-contract#139): th
 renders its package as it does today, with the domain beside its data: `render --target c|ts --package <pkg> --data
 data --with-domain contract.d/<domain>` rebuilds the data files the domain came from, adds the files still in `data/`,
 and runs the data reader and the renders unchanged on that set. The files come out byte for byte those of the data form
-(omx-clap-core's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-core-hosting.{js,d.ts}`,
-`omx_clap_core_vocabulary.h` and `omx-clap-core-vocabulary.{js,d.ts}`, the last two also rendering `data/verbs.json`).
+(omx-clap's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-hosting.{js,d.ts}`,
+`omx_clap_vocabulary.h` and `omx-clap-vocabulary.{js,d.ts}`, the last two also rendering its verbs, from
+`contract.d/omx-clap/omx-clap.json`).
+The files are those of the data form but for one line per item: a render's provenance of an item (the `/* ITEM (<path>) */`
+of a header, the `@see <path>` of a ts module, a verb's `(<path>)`) names a domain item's domain document,
+`contract.d/<domain>/<leaf>.json`, never the `data/<x-file>` the rebuild writes it to, a path that exists nowhere; a data
+item keeps its `data/<file>` (3.21.0).
+A `--with-domain` directory is named as `install-contract-dir.sh --domain` names it: by its path after the last
+`contract.d/` (`contract.d/plugin-hostd/grouping` is the domain `plugin-hostd/grouping`).
 The rebuild, and nothing else:
 
 - an item carries `x-file`, the data path it came from (`hosting.json`, `hosting/clap.json`); the items of one
@@ -136,6 +151,15 @@ The rebuild, and nothing else:
   contract directory resolves it. A from renders nothing in a header: the referencing word renders from its own
   `const`, `title` and `x-text`, as a word with a terms reference does (only the LV2 hints Turtle reads a `from`, and
   only a terms one);
+- a word's `x-symbol`, `x-uri` and `x-dimension` are its `symbol`, `uri` and `dimension`, written after `word`, and an item's
+  `x-dimensions` its `dimensions`, after `groups` (3.21.0, `PARAM_UNITS`);
+- an item with `"x-kind": "set"` is the data item `{ "kind": "set", ..., "ids": [<const>...], "default": <x-default> }`
+  (3.21.0, `PARAM_SCALES`);
+- an item with `"x-kind": "verbs"` is the data item `{ "kind": "verbs", ..., "verbs" }`, each verb keyed by its
+  `title` as `{ "verb": <const>, "format", "reply", "codes", "implementedBy", "since", "doc" }`; a code's `x-resp` and
+  `x-transient` are its `resp` and `transient`, written after `code` (3.21.0, plugin-hostd-protocol's verbs);
+- an item with `"x-kind": "terms"` is the data item `{ "kind": "terms", ..., "format", "spec", "version",
+  "deprecated", "terms" }`, each term keyed by its `const` as its `x-term` (3.21.0, the LV2 and CLAP terms);
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
@@ -151,9 +175,13 @@ The same rebuild serves a render of an installed contract directory: `render --t
 --with-domain <contractdir>/<domain>` (or `--contract-dir <dir>`) rebuilds the domain's data files into the installed
 package its `info.x-owner` names, each at the place that package's own file would have (`<package>/<x-file>`, or the
 manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
-also read as a domain. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
-`plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is no
-installed package (`contract.package.absent`), a file the package both installs and rebuilds
+also read as a domain. `--with-domain` repeats: several domains of one owner (an item of one naming an item of the
+other, the omx-clap `host` and `omx-clap` domains) rebuild into that one package in one read, and a file of one requires
+the other by its domain name (`info.x-requires`), held to its `info.version`. An owner whose contract is only domains
+(a domain-only owner, below) need not be installed: the render builds the package `info.x-owner` names from its domains
+alone, at the domain's `info.version`. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
+`plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is an
+installed domain, no package (`contract.package.absent`), a file the package both installs and rebuilds
 (`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed or is below its floor
 (`contract.package.absent`, `contract.package.too-old`), and a rebuilt word's term that the package or domain its
 `x-from` names does not declare (`contract.ref.unresolved`, `contract.ref.undeclared`, naming the word, the item and
@@ -170,7 +198,7 @@ build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that 
 added to a domain needs no omx-contract release.
 
 `--package` renders the package's verbs the same way, by kind (docs/contract-dir.md "A package's verbs"): every verb of
-its `verbs` items as `<stem>_host_verbs.h` (guard `<STEM>_HOST_VERBS_H`), omx-clap-core's `omx_clap_core_host_verbs.h`.
+its `verbs` items as `<stem>_host_verbs.h` (guard `<STEM>_HOST_VERBS_H`), omx-clap-core's `omx_clap_host_verbs.h`.
 A verb is `OMX_VERB_<VERB>` and `OMX_VERB_<VERB>_FMT`, spelled alike in every header, so the whole read's header and a
 package's include together; the table is `<stem>_host_verbs()`. A package that declares no verb renders no verbs file.
 

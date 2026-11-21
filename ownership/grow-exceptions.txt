@@ -1,0 +1,3 @@
+# one entry per line: <item> | <word> <word>... | <ruling>; a moving-out item grows only by the words its ruling names
+# (tools/check-ownership.mjs GROW_RULED); once the item has moved, its entry goes and this file is empty
+OMX_PARAM_CONTRACT_UNITS | dbPerOct dbPerS dbtp lu | coordinator 2026-11-21: V23d not in this pass; vendor codes 260-263 so the clap layer compiles

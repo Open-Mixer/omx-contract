@@ -38,6 +38,10 @@ export const TOOL_KERNELS = join(ROOT, 'test/fixtures/tool-kernels');
  * own tests: the owner's real file is held by omx-clap-core's CI (make test-contract), not frozen here.
  */
 export const HOSTING = join(TOOL_KERNELS, 'hosting.json');
+/** The LV2 terms as data/formats/lv2 held them before plugin-db's `lv2` domain took them (V27a): a fixture. */
+export const LV2_TERMS = join(ROOT, 'test/fixtures/lv2-terms');
+/** The CLAP terms as data/formats/clap held them before omx-clap's `clap` domain took them (V27b): a fixture. */
+export const CLAP_TERMS = join(ROOT, 'test/fixtures/clap-terms');
 
 const scratch = [];
 process.on('exit', () => { for (const d of scratch) rmSync(d, { recursive: true, force: true }); });
@@ -58,7 +62,14 @@ export function scratchUnion() {
   // the measurement words are plugin-qualify's domain now (omx-contract#81); the tests that read a words item with
   // groups, text and args take this copy of them as their fixture
   cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(dir, 'data/measurement.json'));
+  // the LV2 terms are plugin-db's `lv2` domain now (sorting pass V27a); the tests of the terms, formatMap and formats
+  // machinery take this copy of them, as data/formats/lv2 held them, as their fixture
+  cpSync(LV2_TERMS, join(dir, 'data/formats/lv2'), { recursive: true });
+  // and the CLAP terms, omx-clap's `clap` domain now (V27b), as data/formats/clap held them
+  cpSync(CLAP_TERMS, join(dir, 'data/formats/clap'), { recursive: true });
   cpSync(join(ROOT, 'schema'), join(dir, 'schema'), { recursive: true });
+  // the standard parameter words are omx-contract's `param` domain, read beside data/ (lib/data.mjs TREE_DOMAINS)
+  cpSync(join(ROOT, 'contract.d/param'), join(dir, 'contract.d/param'), { recursive: true });
   return join(dir, 'data');
 }
 
@@ -157,4 +168,9 @@ export function packedFiles() {
   writeFileSync(join(stage, 'package.json'), JSON.stringify(pkg, null, 2));
   const out = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: stage, stdio: ['ignore', 'pipe', 'pipe'] });
   return JSON.parse(out)[0].files.map((f) => f.path);
+}
+
+/** The `param` domain (the standard parameter words) installed into the contract directory `root`, as `make install` does beside data/. */
+export function installParamDomain(root) {
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '--domain', join(ROOT, 'contract.d/param'), root], { stdio: 'ignore' });
 }

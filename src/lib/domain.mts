@@ -88,6 +88,8 @@ const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 /** The schema floor of a file rebuilt from a domain, and of the classic file readDomain() returns. */
 const REBUILT_SCHEMA_FLOOR = '>= 3.0.0';
 const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
+/** An absolute URI (RFC 3986): a scheme, a colon and the rest, no white space; any scheme, urn: as much as http:. */
+const ABSOLUTE_URI = /^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$/;
 
 const only = (o: JsonObject, keys: string[], at: string, what: string): void => {
   for (const k of Object.keys(o)) if (!keys.includes(k)) refuse('fileInvalid', at, `${what}: unknown key ${k} (a ${what} holds ${keys.join(', ')})`);
@@ -112,6 +114,47 @@ function readRange(item: string, s: JsonObject, at: string): void {
     if (df !== undefined && ((df as number) < (mn as number) || (df as number) > (mx as number))) refuse('fileInvalid', at, `${pw}.default is outside its minimum and maximum`);
     for (const k of ['x-unit', 'x-scale']) if ((p as JsonObject)[k] !== undefined && typeof (p as JsonObject)[k] !== 'string') refuse('fileInvalid', at, `${pw}.${k} is not a string`);
   }
+}
+
+/** The kinds a words item (a oneOf of words) rebuilds: a codes item (the default), a words item and a set (its words the ids, `x-default` its default). */
+const WORDS_KINDS = ['codes', 'words', 'set', 'verbs'];
+
+/** A verb's own keys (a word of an item of `x-kind` verbs), each with the data form's key it rebuilds. */
+const VERB_KEYS = [['x-format', 'format'], ['x-reply', 'reply'], ['x-codes', 'codes'], ['x-implemented-by', 'implementedBy'], ['x-since', 'since']];
+
+/** A reply code's own keys (a word of a codes item), each with the data form's key it rebuilds. */
+const REPLY_KEYS = [['x-resp', 'resp'], ['x-transient', 'transient']];
+
+/** A verb's data form: the word its `const`, then its format, reply, codes, implementedBy and since, then its doc. */
+const verbOf = (e: JsonObject): JsonObject => ({ verb: e.const, ...Object.fromEntries(VERB_KEYS.filter(([k]) => e[k!] !== undefined).map(([k, d]) => [d, e[k!]])), ...(e.description === undefined ? {} : { doc: e.description }) });
+
+/**
+ * A terms item (3.21.0, docs/contract-dir.md "Domains"): a format's terms as one specification or header states them,
+ * `x-format`, `x-spec`, `x-version` (and `x-deprecated`) the item's, and a `oneOf` of one word per term: `const` and
+ * `title` the term's key, `x-code` its place, `x-term` the term as the data form writes it (its uri or id, kind,
+ * status, ...; the build holds it to the schema's term). The runtime readers serve it as words, the words the keys.
+ */
+function readTerms(item: string, s: JsonObject, at: string): JsonObject {
+  const w = `components.schemas.${item}`;
+  only(s, ['description', 'x-since', 'x-why', 'x-kind', 'x-file', 'x-source', 'x-format', 'x-spec', 'x-version', 'x-deprecated', 'oneOf'], at, w);
+  if (typeof s.description !== 'string') refuse('fileInvalid', at, `${w}.description is the item's doc`);
+  for (const k of ['x-format', 'x-spec', 'x-version']) if (typeof s[k] !== 'string') refuse('fileInvalid', at, `${w}.${k} is absent or not a string: a terms item names its format, its specification and its version`);
+  if (s['x-deprecated'] !== undefined && s['x-deprecated'] !== true) refuse('fileInvalid', at, `${w}.x-deprecated is not true`);
+  if (!Array.isArray(s.oneOf) || !s.oneOf.length) refuse('fileInvalid', at, `${w}: a terms item is a oneOf of at least one term`);
+  const terms: JsonObject = {};
+  (s.oneOf as JsonObject[]).forEach((e, i) => {
+    const ew = `${w}.oneOf[${i}]`;
+    if (typeof e !== 'object' || e === null || Array.isArray(e)) refuse('fileInvalid', at, `${ew}: not an object`);
+    only(e, ['const', 'title', 'x-code', 'x-term'], at, ew);
+    if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a term's key`);
+    if (e.title !== e.const) refuse('fileInvalid', at, `${ew}.title ${JSON.stringify(e.title)} is not ${JSON.stringify(e.const)}, the term's key`);
+    if (e['x-code'] !== i) refuse('fileInvalid', at, `${ew}.x-code is ${JSON.stringify(e['x-code'])}, and a code is the term's place in the order (${i})`);
+    const t = e['x-term'];
+    if (typeof t !== 'object' || t === null || Array.isArray(t)) refuse('fileInvalid', at, `${ew}.x-term is absent or not an object: a term as the data form writes it`);
+    if (Object.hasOwn(terms, e.const as string)) refuse('fileInvalid', at, `${ew}.const ${JSON.stringify(e.const)} is used twice in ${item}`);
+    terms[e.const as string] = t;
+  });
+  return { kind: 'terms', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), format: s['x-format'], spec: s['x-spec'], version: s['x-version'], ...(s['x-deprecated'] === undefined ? {} : { deprecated: true }), terms };
 }
 
 /** A scalar item (docs/contract-dir.md, "Domains"): one value, `x-value` a number or true or false, in `x-unit` (`""` for none). render --with-domain rebuilds it as a data scalar; it is read nowhere else. */
@@ -193,20 +236,34 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       continue;
     }
     if (s['x-kind'] === 'scalar') { readScalar(item, s, at); names.push(item); continue; } // one value, rebuilt by render --with-domain, read nowhere else
-    only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'x-kind', 'x-file', 'x-source', 'oneOf'], at, w);
-    if (s['x-kind'] !== undefined && s['x-kind'] !== 'codes' && s['x-kind'] !== 'words') refuse('fileInvalid', at, `${w}.x-kind ${JSON.stringify(s['x-kind'])} is not codes, words, scalar or sheet`);
+    if (s['x-kind'] === 'terms') { out[item] = readTerms(item, s, at); names.push(item); continue; } // a format's terms, served as words
+    only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-dimensions', 'x-default', 'x-c-codes', 'x-c-xmacro', 'x-kind', 'x-file', 'x-source', 'oneOf'], at, w);
+    if (s['x-kind'] !== undefined && !WORDS_KINDS.includes(s['x-kind'])) refuse('fileInvalid', at, `${w}.x-kind ${JSON.stringify(s['x-kind'])} is not ${WORDS_KINDS.join(', ')}, scalar or sheet`);
     for (const k of ['x-c-codes', 'x-c-xmacro'])
       if (s[k] !== undefined && typeof s[k] !== 'boolean') refuse('fileInvalid', at, `${w}.${k} is not true or false`);
     if (s['x-c-xmacro'] === true && s['x-c-codes'] !== true) refuse('fileInvalid', at, `${w}.x-c-xmacro without x-c-codes: the X-macro is part of the item's codes header`);
     if (s['x-c-codes'] === true) codes.set(item, { xmacro: s['x-c-xmacro'] === true });
-    if (s['x-groups'] !== undefined && (typeof s['x-groups'] !== 'string' || !(s['x-groups'] in schemas))) refuse('fileInvalid', at, `${w}.x-groups ${JSON.stringify(s['x-groups'])} is no words schema of this document`);
+    for (const k of ['x-groups', 'x-dimensions'])
+      if (s[k] !== undefined && (typeof s[k] !== 'string' || !(s[k] in schemas))) refuse('fileInvalid', at, `${w}.${k} ${JSON.stringify(s[k])} is no words schema of this document`);
     if (!Array.isArray(s.oneOf) || !s.oneOf.length) refuse('fileInvalid', at, `${w}: only a words item is read, a oneOf of const words`);
     if (typeof s.description !== 'string') refuse('fileInvalid', at, `${w}.description is the item's doc`);
     const words: JsonObject = {};
     s.oneOf.forEach((e: JsonObject, i: number) => {
       const ew = `${w}.oneOf[${i}]`;
       if (typeof e !== 'object' || e === null || Array.isArray(e)) refuse('fileInvalid', at, `${ew}: not an object`);
-      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-args', 'x-group', 'x-from', 'x-name'], at, ew);
+      only(e, ['const', 'title', 'description', 'x-code', 'x-text', 'x-args', 'x-group', 'x-from', 'x-name', 'x-symbol', 'x-uri', 'x-dimension', ...VERB_KEYS.map(([k]) => k!), ...REPLY_KEYS.map(([k]) => k!)], at, ew);
+      const kind = s['x-kind'] ?? 'codes';
+      for (const [k] of VERB_KEYS) if (e[k!] !== undefined && kind !== 'verbs') refuse('fileInvalid', at, `${ew}.${k}: only a verb (a word of an item of x-kind verbs) carries ${k}`);
+      if (kind === 'verbs') {
+        for (const k of ['x-format', 'x-reply']) if (typeof e[k] !== 'string') refuse('fileInvalid', at, `${ew}.${k} is absent or not a string: a verb states its format and its reply`);
+        const ib = e['x-implemented-by'];
+        if (typeof ib !== 'object' || ib === null || Array.isArray(ib)) refuse('fileInvalid', at, `${ew}.x-implemented-by is absent or not an object: a verb states what each host owes it`);
+        if (e['x-codes'] !== undefined && !Array.isArray(e['x-codes'])) refuse('fileInvalid', at, `${ew}.x-codes is not a list of { ref }`);
+        if (e['x-since'] !== undefined && typeof e['x-since'] !== 'string') refuse('fileInvalid', at, `${ew}.x-since is not a version`);
+      }
+      for (const [k] of REPLY_KEYS) if (e[k!] !== undefined && kind !== 'codes') refuse('fileInvalid', at, `${ew}.${k}: only a code (a word of an item of x-kind codes) carries ${k}`);
+      if (e['x-resp'] !== undefined && (!Number.isInteger(e['x-resp']) || (e['x-resp'] as number) > -1)) refuse('fileInvalid', at, `${ew}.x-resp ${JSON.stringify(e['x-resp'])} is not a negative whole number, the n of resp <n>`);
+      if (e['x-transient'] !== undefined && typeof e['x-transient'] !== 'boolean') refuse('fileInvalid', at, `${ew}.x-transient is not true or false`);
       if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a word`);
       if (typeof e.title !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(e.title)) refuse('fileInvalid', at, `${ew}.title is not the word's key`);
       if (e.description !== undefined && typeof e.description !== 'string') refuse('fileInvalid', at, `${ew}.description is not the word's line`);
@@ -219,6 +276,15 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
         const gone = g?.oneOf;
         const known = Array.isArray(gone) ? gone.map((x: JsonObject) => x.const) : [];
         if (!known.includes(e['x-group'])) refuse('fileInvalid', at, `${ew}.x-group ${JSON.stringify(e['x-group'])} is no word of the schema ${w}.x-groups names`);
+      }
+      if (e['x-symbol'] !== undefined && typeof e['x-symbol'] !== 'string') refuse('fileInvalid', at, `${ew}.x-symbol is not a string: a unit word's symbol as written`);
+      // the URI a format spells the word as, of any scheme (urn:openmixer:unit#dBoct as much as an http LV2 URI)
+      if (e['x-uri'] !== undefined && (typeof e['x-uri'] !== 'string' || !ABSOLUTE_URI.test(e['x-uri'])))
+        refuse('fileInvalid', at, `${ew} (${JSON.stringify(e.title)}).x-uri ${JSON.stringify(e['x-uri'])} is no absolute URI: <scheme>:<rest>, of any scheme`);
+      if (e['x-dimension'] !== undefined) {
+        if (typeof s['x-dimensions'] !== 'string') refuse('fileInvalid', at, `${ew}.x-dimension ${JSON.stringify(e['x-dimension'])}, and ${w} names no x-dimensions, the words item of its dimensions`);
+        const known = ((schemas[s['x-dimensions'] as string]!.oneOf ?? []) as JsonObject[]).map((x) => x.const);
+        if (!known.includes(e['x-dimension'])) refuse('fileInvalid', at, `${ew}.x-dimension ${JSON.stringify(e['x-dimension'])} is no word of ${s['x-dimensions']}, the schema ${w}.x-dimensions names`);
       }
       const from: string[] = [];
       if (e['x-from'] !== undefined) {
@@ -235,10 +301,24 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       }
       if (e.title in words) refuse('fileInvalid', at, `${ew}.title ${e.title} is used twice in ${item}`);
       if (Object.values(words).some((x: JsonObject) => x.word === e.const)) refuse('fileInvalid', at, `${ew}.const ${JSON.stringify(e.const)} is used twice in ${item}`);
-      words[e.title] = { word: e.const, ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) };
+      words[e.title] = { word: e.const, ...(e['x-symbol'] === undefined ? {} : { symbol: e['x-symbol'] }), ...(e['x-uri'] === undefined ? {} : { uri: e['x-uri'] }), ...(e['x-dimension'] === undefined ? {} : { dimension: e['x-dimension'] }), ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) };
     });
     names.push(item);
-    out[item] = { kind: 'words', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), words };
+    const consts = (s.oneOf as JsonObject[]).map((e) => e.const);
+    if (s['x-default'] !== undefined && s['x-kind'] !== 'set') refuse('fileInvalid', at, `${w}.x-default: only a set (x-kind set) names a default`);
+    if (s['x-default'] !== undefined && !consts.includes(s['x-default'])) refuse('fileInvalid', at, `${w}.x-default ${JSON.stringify(s['x-default'])} is no word of ${item}`);
+    const head = { ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
+    if (s['x-kind'] === 'set') { out[item] = { kind: 'set', ...head, ids: consts, ...(s['x-default'] === undefined ? {} : { default: s['x-default'] }) }; continue; }
+    if (s['x-kind'] === 'verbs') { out[item] = { kind: 'verbs', ...head, verbs: Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.title, verbOf(e)])) }; continue; }
+    // a reply-code item (its words carry x-resp) is read as the data form's codes item, the one a verb's codes name
+    if ((s['x-kind'] ?? 'codes') === 'codes' && (s.oneOf as JsonObject[]).some((e) => e['x-resp'] !== undefined)) {
+      out[item] = { kind: 'codes', ...head, codes: Object.fromEntries((s.oneOf as JsonObject[]).map((e, i) => {
+        if (typeof e['x-name'] !== 'string') refuse('fileInvalid', at, `${w}.oneOf[${i}]: the word ${JSON.stringify(e.const)} of a reply-code item has no x-name, its key`);
+        return [e['x-name'], { code: e.const, ...Object.fromEntries(REPLY_KEYS.filter(([k]) => e[k!] !== undefined).map(([k, d]) => [d, e[k!]])), ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) }];
+      })) };
+      continue;
+    }
+    out[item] = { kind: 'words', ...head, ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), ...(s['x-dimensions'] === undefined ? {} : { dimensions: s['x-dimensions'] }), words };
   }
   return { doc: out, codes, names, manifest: { package: name, owner: info['x-owner'], version: info.version, schemaMajor, title: info.title } };
 }
@@ -310,6 +390,11 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
     const head = { kind: s['x-kind'] ?? 'codes', since: s['x-since'], ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
     if (s['x-kind'] === 'sheet') { f[item] = { ...head, value: s['x-value'], ...(s['x-docs'] === undefined ? {} : { docs: s['x-docs'] }) }; continue; }
     if (s['x-kind'] === 'scalar') { f[item] = { ...head, unit: s['x-unit'], value: s['x-value'] }; continue; }
+    if (s['x-kind'] === 'terms') {
+      f[item] = { ...head, format: s['x-format'], spec: s['x-spec'], version: s['x-version'], ...(s['x-deprecated'] === undefined ? {} : { deprecated: true }), terms: Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.const, e['x-term']])) };
+      continue;
+    }
+    if (s['x-kind'] === 'verbs') { f[item] = { ...head, verbs: Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.title, verbOf(e)])) }; continue; }
     // what a word says beside its key, in the order of the data form: doc, text, args
     const said = (e: JsonObject): JsonObject => ({ ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) });
     // a rebuilt file requires what the domain declares: a from reaches omx-contract, the domain, its owner or a declared package
@@ -322,15 +407,16 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
       const words: JsonObject = {};
       for (const e of s.oneOf as JsonObject[]) {
         const from = ((e['x-from'] ?? []) as JsonObject[]).map((r) => `${REF.exec(r.$ref as string)![1]}#${r['x-term']}`);
-        words[e.title as string] = { word: e.const, ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...said(e) };
+        words[e.title as string] = { word: e.const, ...(e['x-symbol'] === undefined ? {} : { symbol: e['x-symbol'] }), ...(e['x-uri'] === undefined ? {} : { uri: e['x-uri'] }), ...(e['x-dimension'] === undefined ? {} : { dimension: e['x-dimension'] }), ...(e['x-group'] === undefined ? {} : { group: e['x-group'] }), ...(from.length ? { from } : {}), ...said(e) };
       }
-      f[item] = { ...head, ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), words };
+      f[item] = { ...head, ...(s['x-groups'] === undefined ? {} : { groups: s['x-groups'] }), ...(s['x-dimensions'] === undefined ? {} : { dimensions: s['x-dimensions'] }), words };
       continue;
     }
+    if (s['x-kind'] === 'set') { f[item] = { ...head, ids: (s.oneOf as JsonObject[]).map((e) => e.const), ...(s['x-default'] === undefined ? {} : { default: s['x-default'] }) }; continue; }
     const codes: JsonObject = {};
     for (const e of s.oneOf as JsonObject[]) {
       if (typeof e['x-name'] !== 'string') refuse('fileInvalid', at, `${w}: the word ${JSON.stringify(e.const)} has no x-name, its key in the data item`);
-      codes[e['x-name'] as string] = { code: e.const, ...said(e) };
+      codes[e['x-name'] as string] = { code: e.const, ...Object.fromEntries(REPLY_KEYS.filter(([k]) => e[k!] !== undefined).map(([k, d]) => [d, e[k!]])), ...said(e) };
     }
     f[item] = { ...head, codes };
   }

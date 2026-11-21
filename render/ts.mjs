@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-import { formatsExports } from './formats.mjs';
+import { sourceOf } from '../lib/data.mjs';
 import { packageVocabularyTs, wordsExports } from './vocabulary.mjs';
 
 /**
@@ -27,7 +27,7 @@ export function tsType(v, indent = '') {
 
 const docComment = (r) => {
   const text = [r.doc, r.why && `Why: ${r.why}`].filter(Boolean).join('\n\n').replace(/\*\//g, '*\\/');
-  return `/**\n${text.split('\n').map((l) => (l ? ` * ${l}` : ' *')).join('\n')}\n * @see ${r.rel}\n */`;
+  return `/**\n${text.split('\n').map((l) => (l ? ` * ${l}` : ' *')).join('\n')}\n * @see ${sourceOf(r)}\n */`;
 };
 
 /** One item exported under its name: its value (`decl` false) or its declaration with its literal type. */
@@ -63,10 +63,23 @@ function setValuesExports(resolved) {
   const sets = [...resolved.values()].filter((r) => r.kind === 'set' && r.values);
   const one = (r, decl) => {
     const value = Object.fromEntries(r.value.map((id, i) => [id, r.values[i]]));
-    const doc = `/**\n * The value each id of ${r.name} carries, in ${JSON.stringify(r.unit)}; null for an id that carries none.\n * @see ${r.rel}\n */`;
+    const doc = `/**\n * The value each id of ${r.name} carries, in ${JSON.stringify(r.unit)}; null for an id that carries none.\n * @see ${sourceOf(r)}\n */`;
     return decl
       ? `\n${doc}\nexport declare const ${r.name}_VALUES: ${tsType(value)};\n`
       : `\n${doc}\nexport const ${r.name}_VALUES = ${JSON.stringify(value, null, 2)};\n`;
+  };
+  return { js: sets.map((r) => one(r, false)).join(''), dts: sets.map((r) => one(r, true)).join('') };
+}
+
+/** The standard unit each id of a set stands for, `<SET>_STANDARD`: `{ <id>: <PARAM_UNITS const> }`, for every set that names them. */
+function setStandardExports(resolved) {
+  const sets = [...resolved.values()].filter((r) => r.kind === 'set' && r.standard);
+  const one = (r, decl) => {
+    const value = Object.fromEntries(r.value.map((id, i) => [id, r.standard[i]]));
+    const doc = `/**\n * The standard unit (a PARAM_UNITS const) each id of ${r.name} stands for.\n * @see ${sourceOf(r)}\n */`;
+    return decl
+      ? `\n${doc}\nexport declare const ${r.name}_STANDARD: ${tsType(value)};\n`
+      : `\n${doc}\nexport const ${r.name}_STANDARD = ${JSON.stringify(value, null, 2)};\n`;
   };
   return { js: sets.map((r) => one(r, false)).join(''), dts: sets.map((r) => one(r, true)).join('') };
 }
@@ -106,9 +119,9 @@ export function renderTs(resolved) {
   const items = [...resolved.values()];
   const readouts = readoutsExport(resolved);
   const values = setValuesExports(resolved);
+  const standard = setStandardExports(resolved);
   const words = wordsExports(resolved, tsType);
-  const formats = formatsExports(resolved, tsType);
-  const js = BANNER + items.map((r) => itemExport(r, false)).join('') + values.js + words.js + readouts.js + formats.js;
-  const dts = BANNER + items.map((r) => itemExport(r, true)).join('') + values.dts + words.dts + readouts.dts + formats.dts;
+  const js = BANNER + items.map((r) => itemExport(r, false)).join('') + values.js + standard.js + words.js + readouts.js;
+  const dts = BANNER + items.map((r) => itemExport(r, true)).join('') + values.dts + standard.dts + words.dts + readouts.dts;
   return [{ path: 'omx-contract.js', text: js }, { path: 'omx-contract.d.ts', text: dts }];
 }

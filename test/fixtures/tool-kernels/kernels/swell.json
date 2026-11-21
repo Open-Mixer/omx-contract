@@ -108,9 +108,7 @@
       },
       "max": 0,
       "scale": "linear",
-      "rateHz": {
-        "ref": "READOUT_RATE_HZ"
-      }
+      "rateHz": 50
     }
   ],
   "tables": {

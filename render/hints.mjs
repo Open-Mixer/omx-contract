@@ -6,6 +6,7 @@
  * properties as Turtle (`omx-resource-hints.ttl`, the `lv2` target). Neither restates a hint: the order, the units,
  * the types and the prose are read from the item.
  */
+import { sourceOf } from '../lib/data.mjs';
 import { constOf, hintItems, memberOf, unitOf } from '../lib/hints.mjs';
 import { cStringLiteral, doxyLine } from './c/c-literals.mjs';
 
@@ -30,7 +31,7 @@ export function renderHintsHeader(resolved) {
 #define OMX_RESOURCE_HINTS_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by \`omx-contract render --target c\` from ${item.name} (${item.rel}, docs/resource-hints.md):
+ * Produced by \`omx-contract render --target c\` from ${item.name} (${sourceOf(item)}, docs/resource-hints.md):
  * the CLAP extension ${id}, the hints a plugin declares about its own footprint. A hint is a claim:
  * plugin-qualify measures the same resource and a declared figure the measurement does not bear out is a finding.
  */
@@ -118,7 +119,7 @@ export function renderHintsTurtle(resolved) {
   return `# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 # GENERATED: DO NOT EDIT BY HAND.
-# Produced by \`omx-contract render --target lv2\` from ${item.name} (${item.rel}, docs/resource-hints.md):
+# Produced by \`omx-contract render --target lv2\` from ${item.name} (${sourceOf(item)}, docs/resource-hints.md):
 # the hints a plugin declares about its own footprint, as LV2 properties of a plugin.
 @prefix ${prefix}: <${namespace}> .
 @prefix lv2: <http://lv2plug.in/ns/lv2core#> .

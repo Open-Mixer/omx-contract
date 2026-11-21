@@ -52,7 +52,11 @@
       "dbfs": 256,
       "dbu": 257,
       "ratio": 258,
-      "lufs": 259
+      "lufs": 259,
+      "dbPerOct": 260,
+      "dbPerS": 261,
+      "dbtp": 262,
+      "lu": 263
     },
     "docs": {
       "none": "no unit: a plain number, a switch, an index",
@@ -83,7 +87,11 @@
       "dbfs": "decibels relative to full scale, 0 the largest sample, a level (vendor block)",
       "dbu": "decibels relative to 0.775 V RMS, an analogue level (vendor block)",
       "ratio": "a ratio, n to 1, as a compressor states it (vendor block)",
-      "lufs": "loudness units relative to full scale, ITU-R BS.1770 (vendor block)"
+      "lufs": "loudness units relative to full scale, ITU-R BS.1770 (vendor block)",
+      "dbPerOct": "decibels per octave, a filter slope (vendor block)",
+      "dbPerS": "decibels per second, a rate of level change (vendor block)",
+      "dbtp": "decibels relative to full scale, true peak, ITU-R BS.1770 (vendor block)",
+      "lu": "loudness units, a loudness difference, ITU-R BS.1770 (vendor block)"
     }
   }
 }

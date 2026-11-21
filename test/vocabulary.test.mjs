@@ -73,6 +73,7 @@ after(() => rmSync(SCRATCH0, { recursive: true, force: true }));
 cpSync(DATA, join(SCRATCH0, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH0, 'data', 'measurement.json'));
 cpSync(join(ROOT, 'schema'), join(SCRATCH0, 'schema'), { recursive: true });
+cpSync(join(ROOT, 'contract.d/param'), join(SCRATCH0, 'contract.d/param'), { recursive: true });
 const resolved = resolveData(loadData(join(SCRATCH0, 'data')));
 
 // data/ holds no codes item to render since the hosting codes moved to omx-clap-core (docs/hosting.md): the codes
@@ -83,6 +84,7 @@ cpSync(DATA, join(SCRATCH, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/package-codes'), join(SCRATCH, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH, 'data', 'measurement.json'));
 cpSync(join(ROOT, 'schema'), join(SCRATCH, 'schema'), { recursive: true });
+cpSync(join(ROOT, 'contract.d/param'), join(SCRATCH, 'contract.d/param'), { recursive: true });
 const withCodes = resolveData(loadData(join(SCRATCH, 'data')));
 
 test('the C render defines every code and word once, by its code and by its item', () => {

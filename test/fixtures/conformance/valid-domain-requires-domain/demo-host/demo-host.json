@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo-host",
+  "info": {
+    "title": "The conformance host words",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "DEMO_HOST_REPLY_CODES": {
+        "description": "The refusals.",
+        "x-kind": "codes",
+        "oneOf": [
+          {
+            "const": "reply.demo-host.busy",
+            "title": "busy",
+            "x-code": 0,
+            "x-name": "busy",
+            "x-resp": -901,
+            "x-transient": true,
+            "description": "busy",
+            "x-text": "The host is busy; try again.",
+            "x-args": []
+          }
+        ]
+      }
+    }
+  }
+}

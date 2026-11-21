@@ -14,7 +14,6 @@
     "PARAM_UNITS.cents": { "text": "Cents, la centèsima part d’un semitò.", "by": "machine", "model": "lane-draft", "source": "6caaf8e01ce34fa5bd613a50551de4b9ca39df52e6c22d84ee2a8613ca128edb" },
     "PARAM_UNITS.st": { "text": "Semitons.", "by": "machine", "model": "lane-draft", "source": "bff800d02011fbabfbb5253042cb16bef052b1c9b31cfc86e93dc361afe4739a" },
     "PARAM_UNITS.percent": { "text": "Percentatge.", "by": "machine", "model": "lane-draft", "source": "25902dd4e2df491f8d51f9466e820c230b6f5b0bf737307cb351de75580a58e0" },
-    "PARAM_UNITS.x": { "text": "Un multiplicador.", "by": "machine", "model": "lane-draft", "source": "6b3dc52d8d2daec157ee673ef1115a8b6688c89984f6ef0219e38b5c7a7f48c0" },
     "PARAM_UNITS.none": { "text": "Sense unitat: una raó o una fracció.", "by": "machine", "model": "lane-draft", "source": "1f7850d76bcb023a3d0cc0b1cbc96370c71e873151e233eb9228d98912d698a5" },
     "PARAM_UNITS.dB-oct": { "text": "Un pendent en dB per octava (una inclinació).", "by": "machine", "model": "lane-draft", "source": "46134c696557d8518deef4f1d310a10f1f934e606567843b62782227c18542fc" },
     "PARAM_UNITS.LUFS": { "text": "Una sonoritat (ITU-R BS.1770).", "by": "machine", "model": "lane-draft", "source": "f606741b56fad49c7bcf0ad045941eb0197c3ffe10b47fc10fd2a7981a1d163b" },

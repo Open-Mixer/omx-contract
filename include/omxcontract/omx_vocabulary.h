@@ -381,9 +381,6 @@
 #define OMX_PARAM_UNITS_PERCENT "percent" ///< Percent.
 /** The source sentence (English) of OMX_PARAM_UNITS_PERCENT. */
 #define OMX_PARAM_UNITS_PERCENT_TEXT_EN "Percent."
-#define OMX_PARAM_UNITS_X "x" ///< A multiplier.
-/** The source sentence (English) of OMX_PARAM_UNITS_X. */
-#define OMX_PARAM_UNITS_X_TEXT_EN "A multiplier."
 #define OMX_PARAM_UNITS_NONE "none" ///< No unit: a ratio or a fraction.
 /** The source sentence (English) of OMX_PARAM_UNITS_NONE. */
 #define OMX_PARAM_UNITS_NONE_TEXT_EN "No unit: a ratio or a fraction."
@@ -469,21 +466,21 @@
 /** The source sentence (English) of OMX_PARAM_UNITS_FLAG. */
 #define OMX_PARAM_UNITS_FLAG_TEXT_EN "A yes or a no: one when on, zero when off."
 /** The number of words of PARAM_UNITS. */
-#define OMX_PARAM_UNITS_COUNT 39u
+#define OMX_PARAM_UNITS_COUNT 38u
 /** The words of PARAM_UNITS in their declared order, as a C initializer list. */
-#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag" }
-/** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level. */
+#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). A word's code is its position in the list, not a wire number (the wire codes are OMX_PARAM_CONTRACT_UNITS'): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level. */
 #define OMX_PARAM_UNITS_WORDS(X) \
     X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
     X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
-    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "x", X) X(11u, "none", NONE) \
-    X(12u, "dB-oct", DB_PER_OCT) X(13u, "LUFS", LUFS) X(14u, "dB-s", DB_PER_S) X(15u, "dBTP", DBTP) \
-    X(16u, "dBu", DBU) X(17u, "LU", LU) X(18u, "kHz", KHZ) X(19u, "MHz", MHZ) \
-    X(20u, "frames", FRAMES) X(21u, "bpm", BPM) X(22u, "bar", BAR) X(23u, "beat", BEAT) \
-    X(24u, "m", M) X(25u, "cm", CM) X(26u, "mm", MM) X(27u, "km", KM) \
-    X(28u, "inch", INCH) X(29u, "mile", MILE) X(30u, "deg", DEGREE) X(31u, "midiNote", MIDI_NOTE) \
-    X(32u, "ratio", RATIO) X(33u, "coef", COEF) X(34u, "us", US) X(35u, "bytes", BYTES) \
-    X(36u, "nsPerSample", NS_PER_SAMPLE) X(37u, "plainCount", PLAIN_COUNT) X(38u, "flag", FLAG)
+    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "none", NONE) X(11u, "dB-oct", DB_PER_OCT) \
+    X(12u, "LUFS", LUFS) X(13u, "dB-s", DB_PER_S) X(14u, "dBTP", DBTP) X(15u, "dBu", DBU) \
+    X(16u, "LU", LU) X(17u, "kHz", KHZ) X(18u, "MHz", MHZ) X(19u, "frames", FRAMES) \
+    X(20u, "bpm", BPM) X(21u, "bar", BAR) X(22u, "beat", BEAT) X(23u, "m", M) \
+    X(24u, "cm", CM) X(25u, "mm", MM) X(26u, "km", KM) X(27u, "inch", INCH) \
+    X(28u, "mile", MILE) X(29u, "deg", DEGREE) X(30u, "midiNote", MIDI_NOTE) X(31u, "ratio", RATIO) \
+    X(32u, "coef", COEF) X(33u, "us", US) X(34u, "bytes", BYTES) X(35u, "nsPerSample", NS_PER_SAMPLE) \
+    X(36u, "plainCount", PLAIN_COUNT) X(37u, "flag", FLAG)
 
 /* PARAM_UNIT_DIMENSIONS (contract.d/param/param.json) */
 #define OMX_PARAM_UNIT_DIMENSIONS_NONE "none" ///< No dimension: a plain number, a multiplier or a yes or a no.

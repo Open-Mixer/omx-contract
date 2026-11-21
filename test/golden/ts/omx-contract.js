@@ -701,7 +701,7 @@ export const PARAM_SCALES = [
 ];
 
 /**
- * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
+ * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). A word's code is its position in the list, not a wire number (the wire codes are OMX_PARAM_CONTRACT_UNITS'): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
  *
  * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
  * @see contract.d/param/param.json
@@ -805,16 +805,6 @@ export const PARAM_UNITS = {
     "doc": "Percent.",
     "text": {
       "en": "Percent."
-    }
-  },
-  "x": {
-    "word": "x",
-    "symbol": "x",
-    "dimension": "none",
-    "group": "param",
-    "doc": "A multiplier.",
-    "text": {
-      "en": "A multiplier."
     }
   },
   "none": {
@@ -1041,7 +1031,7 @@ export const PARAM_UNITS = {
     "word": "coef",
     "symbol": "coef",
     "dimension": "none",
-    "group": "descriptor",
+    "group": "param",
     "doc": "A coefficient, a plain multiplier with no unit of its own.",
     "text": {
       "en": "A coefficient, a plain multiplier with no unit of its own."
@@ -1413,7 +1403,6 @@ export const PARAM_UNITS_WORDS = [
   "cents",
   "st",
   "percent",
-  "x",
   "none",
   "dB-oct",
   "LUFS",

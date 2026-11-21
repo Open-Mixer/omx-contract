@@ -25,7 +25,7 @@ enum omx_host_verb_level {
   OMX_HOST_VERB_OPTIONAL = 1,
   OMX_HOST_VERB_REQUIRED = 2,
 };
-/* The hosts of VERB_HOSTS, a column each of a verb's level, in this order. */
+/* The hosts of HOSTING_VERB_HOSTS, a column each of a verb's level, in this order. */
 #define OMX_HOST_VERB_HOST_PLUGIN_HOSTD 0u
 #define OMX_HOST_VERB_HOST_OMX_CLAP_HOST 1u
 #define OMX_HOST_VERB_HOST_MOD_HOST 2u
@@ -39,26 +39,26 @@ struct omx_host_verb {
 };
 #endif /* OMX_HOST_VERB_TYPES_H */
 
-/* HOST_VERBS.trackInfo (data/verbs.json): The strip's name, colour and kind: <instance> <name> <#RRGGBB | -> [bus | return | master]; a CLAP plugin reads them through clap.track-info, and the daemon answers an LV2 instance itself. */
+/* HOST_VERBS.trackInfo (data/host-verbs.json): The strip's name, colour and kind: <instance> <name> <#RRGGBB | -> [bus | return | master]; a CLAP plugin reads them through clap.track-info, and the daemon answers an LV2 instance itself. */
 #define OMX_VERB_TRACK_INFO "track_info"
 #define OMX_VERB_TRACK_INFO_FMT "track_info %i %s %s ..."
 #define OMX_VERB_TRACK_INFO_REPLY "resp 0"
 #define OMX_VERB_TRACK_INFO_CODES_COUNT 1u
 #define OMX_VERB_TRACK_INFO_CODES_INIT { -902 } /* reply.mod-host.invalid-operation */
 
-/* HOST_VERBS.remotePages (data/verbs.json): The plugin's remote-control pages, from clap.remote-controls; 0 for an LV2 instance. */
+/* HOST_VERBS.remotePages (data/host-verbs.json): The plugin's remote-control pages, from clap.remote-controls; 0 for an LV2 instance. */
 #define OMX_VERB_REMOTE_PAGES "remote_pages"
 #define OMX_VERB_REMOTE_PAGES_FMT "remote_pages %i"
 #define OMX_VERB_REMOTE_PAGES_REPLY "resp <count>"
 
-/* HOST_VERBS.paramInfo (data/verbs.json): What a parameter's value means: its unit, its scale, and the symbol it keeps across hosts and versions. */
+/* HOST_VERBS.paramInfo (data/host-verbs.json): What a parameter's value means: its unit, its scale, and the symbol it keeps across hosts and versions. */
 #define OMX_VERB_PARAM_INFO "param_info"
 #define OMX_VERB_PARAM_INFO_FMT "param_info %i %s"
 #define OMX_VERB_PARAM_INFO_REPLY "resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>"
 #define OMX_VERB_PARAM_INFO_CODES_COUNT 2u
 #define OMX_VERB_PARAM_INFO_CODES_INIT { -103, -511 } /* reply.mod-host.param-symbol-invalid, reply.plugin-hostd.no-param-contract */
 
-/* HOST_VERBS.chain (data/verbs.json): The instances, in this order, are one chain run in one worker: <chain> <instance> [<instance> ...]; a worker that runs chains in one client is sent the line with the members it holds. */
+/* HOST_VERBS.chain (data/host-verbs.json): The instances, in this order, are one chain run in one worker: <chain> <instance> [<instance> ...]; a worker that runs chains in one client is sent the line with the members it holds. */
 #define OMX_VERB_CHAIN "chain"
 #define OMX_VERB_CHAIN_FMT "chain %i %i ..."
 #define OMX_VERB_CHAIN_REPLY "resp 0"

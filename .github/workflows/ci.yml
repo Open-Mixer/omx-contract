@@ -97,7 +97,6 @@ jobs:
           node bin/omx-contract.mjs render --target json --out share/omx-contract --check
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check
-          node bin/omx-contract.mjs render --target py --out share/omx-contract --check
       - id: handback-shapes
         name: The committed shape renders are the render of the shapes, by the pinned generators (docs/shapes.md)
         run: |
@@ -115,13 +114,14 @@ jobs:
           node bin/omx-contract.mjs render --target json --out share/omx-contract --check --contract-dir "$dir"
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check --contract-dir "$dir"
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check --contract-dir "$dir"
-          node bin/omx-contract.mjs render --target py --out share/omx-contract --check --contract-dir "$dir"
           node bin/omx-contract.mjs links --check
       - id: handback-verbs
         name: A package's verbs, installed beside the data, validate and render the committed fixture headers
         run: |
           vdir="$RUNNER_TEMP/verbs"
           cp -r "$RUNNER_TEMP/inst/usr/share/omx-contract/contract.d" "$vdir"
+          # the hosts the verbs name (V29): omx-clap's hosting/verb-hosts.json, as a fixture, never omx-clap itself
+          sh tools/install-contract-dir.sh omx-clap 0.34.0 3 test/fixtures/hosting-verb-hosts "$vdir" data
           sh tools/install-contract-dir.sh verbs-fixture 1.0.0 3 test/fixtures/package-verbs "$vdir" data
           node bin/omx-contract.mjs validate --contract-dir "$vdir"
           node bin/omx-contract.mjs fmt --check --contract-dir "$vdir"

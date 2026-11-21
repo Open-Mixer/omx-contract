@@ -21,9 +21,12 @@ release pass is over. It follows the owner's ruling of 2026-11-20, which replace
 
 ## The one list
 
-The list is `PARAM_UNITS` of `data/primitives.json`, a words item (`data/param-contract.json` holds the code sheet). On
-main it holds the 15 units the items use,
-each word with its symbol. It is the start. Each word is `id`, `symbol`, `dimension`, `scope` and, on a derived unit,
+The list is `PARAM_UNITS` of omx-contract's `param` domain (`contract.d/param/param.json`, sorting pass V21 and V23a+b),
+a words item (`data/param-contract.json` holds the code sheet). It holds the 15 units the items use, then the ruled set
+appended in the table's order: each word's `x-symbol` its symbol, its `x-dimension` a word of `PARAM_UNIT_DIMENSIONS`
+and its group its scope, a word of `PARAM_UNIT_SCOPES` (`tools/unit-enum.mjs` renders `$defs.unit` and
+`$defs.descriptorUnit` from it). The dimension `count` has the key `counted`, since `OMX_PARAM_UNIT_DIMENSIONS_COUNT` is
+the number of words. The conversions (`base`, `scale`) are not in the domain yet. Each word is `id`, `symbol`, `dimension`, `scope` and, on a derived unit,
 its
 conversion: a `base` unit and a `scale` (a value in the unit times `scale` is a value in `base`). A base has no base of
 its own. A logarithmic unit (`dB`, `dBFS`, `dBu`, `dBTP`, `LUFS`, `LU`) has no conversion: its offset depends on a
@@ -118,7 +121,7 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   standard in omx-contract (owner answer Q1). This is map row V21b, beside the unit codes.
 - **LV2, plugin-db.** The LV2 unit terms (`units:db`, `units:khz`, ...), `lv2:designation` and the `param:`
   spellings, each mapped to a standard unit id or parameter meaning. `LV2_UNITS_TERMS`, the unit terms, is NOT in
-  plugin-db today (a grep of its main finds none): it lives in omx-contract (`data/formats/lv2/units.json`), with
+  plugin-db today (a grep of its main finds none): it lived in omx-contract (`data/formats/lv2/units.json`, removed by the sorting pass, V27a), with
   copies in plugin-hostd and plugin-qualify (`data/formats/lv2.json`) and omx-formats. It MOVES to plugin-db as new
   data there, and the copies read it from there.
 
@@ -220,7 +223,7 @@ omx-clap-host twin); omx-plugins (`include/omx_param_contract.h`, `tools/param-c
 packaging, docs and build floors only); the console.
 
 Not carried: its new test `units-not-owned` (it expects no `PARAM_UNITS`, the opposite of this design), its removal of
-`PARAM_UNITS` from `data/primitives.json`, the schema `symbol` field, `tools/unit-enum.mjs`, the catalogs, the ownership
+`PARAM_UNITS` from `data/primitives.json` (the sorting pass moved it to the `param` domain instead), the schema `symbol` field, `tools/unit-enum.mjs`, the catalogs, the ownership
 files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #144 has no unit data fix beyond these.
 
 ## Owner answers that carry over

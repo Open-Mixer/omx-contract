@@ -33,8 +33,7 @@ that version (`pkg-config --exact-version=2.20.0 omx-contract`), else the npm ta
 - How an owner's own header is spelled by a `render` word in its file: [render.md](render.md).
 - Which data is read at run time by functions and which stays a generated code (a proposed spec, no renders yet
   stopped): [runtime-data.md](runtime-data.md).
-- The curve kinds a panel draws, the axes each is drawn on, and the frequency grid an EQ curve is sampled on:
-  [curves.md](curves.md).
+- The curve kinds a panel draws and the axes each is drawn on are omx-dsp's (sorting pass V26).
 - How a package installs its own definitions into the contract directory, and how a reader reads them:
   [contract-dir.md](contract-dir.md).
 - How a plugin, ours or anyone's, is described in the same words (controls, ports, instruments, what it needs from

@@ -32,7 +32,8 @@ function admittedWords() {
   return words;
 }
 
-const terms = () => read('data/formats/lv2/units.json').LV2_UNITS_TERMS.terms;
+// the LV2 units sheet is plugin-db's lv2 domain now (V27a); the fixture is the sheet as data/formats/lv2 held it
+const terms = () => read('test/fixtures/lv2-terms/units.json').LV2_UNITS_TERMS.terms;
 
 test('every used unit of the sheet carries a word the descriptor vocabulary admits', () => {
   assert.deepEqual(unitWordFaults(terms(), admittedWords()), []);

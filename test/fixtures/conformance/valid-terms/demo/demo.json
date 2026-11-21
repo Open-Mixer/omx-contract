@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo",
+  "info": {
+    "title": "The conformance vocabulary",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "DEMO_UNITS_TERMS": {
+        "description": "The terms of a sample specification.",
+        "x-kind": "terms",
+        "x-format": "lv2",
+        "x-spec": "http://lv2plug.in/ns/extensions/units",
+        "x-version": "5.12",
+        "oneOf": [
+          {
+            "const": "db",
+            "title": "db",
+            "x-code": 0,
+            "x-term": {
+              "uri": "http://lv2plug.in/ns/extensions/units#db",
+              "kind": "unit",
+              "status": "used",
+              "by": [
+                "omx-plugins:tools/gen.mjs"
+              ]
+            }
+          },
+          {
+            "const": "semitone12TET",
+            "title": "semitone12TET",
+            "x-code": 1,
+            "x-term": {
+              "uri": "http://lv2plug.in/ns/extensions/units#semitone12TET",
+              "kind": "unit",
+              "status": "out-of-scope",
+              "ruling": "Not a unit a plugin of ours states."
+            }
+          }
+        ]
+      }
+    }
+  }
+}

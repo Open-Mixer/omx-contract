@@ -7,7 +7,7 @@
  * item) for a schema that references the words, and `<ITEM>_WORDS` in the ts module. `render --package` spells one
  * package's vocabulary the same way, by kind (docs/render.md).
  */
-import { packageItems } from '../lib/data.mjs';
+import { packageItems, sourceOf } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
 import { cStringLiteral, described, documented, doxyLine } from './c/c-literals.mjs';
 
@@ -53,7 +53,7 @@ export function renderVocabularyHeader(resolved, pkg) {
   if (!items.length) return undefined;
   const guard = `${constCase(vocabularyStem(pkg ?? 'omx-contract'))}_VOCABULARY_H`;
   const blocks = items.map((r) => {
-    const lines = [`/* ${r.name} (${r.rel}) */`];
+    const lines = [`/* ${r.name} (${sourceOf(r)}) */`];
     if (r.kind === 'codes') {
       for (const c of Object.values(r.value)) {
         lines.push(documented(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}`, c.doc && doxyLine(c.doc)));
@@ -134,7 +134,7 @@ export function renderVocabularySchema(resolved, version) {
 /** The ts module's `<ITEM>_WORDS`: each words item's words in order, `as const`. */
 export function wordsExports(resolved, tsType) {
   const items = vocabularyItems(resolved).filter((r) => r.kind === 'words');
-  const doc = (r) => `/**\n * The words of ${r.name}, in their declared order.\n * @see ${r.rel}\n */`;
+  const doc = (r) => `/**\n * The words of ${r.name}, in their declared order.\n * @see ${sourceOf(r)}\n */`;
   return {
     js: items.map((r) => `\n${doc(r)}\nexport const ${r.name}_WORDS = ${JSON.stringify(wordsOf(r), null, 2)};\n`).join(''),
     dts: items.map((r) => `\n${doc(r)}\nexport declare const ${r.name}_WORDS: ${tsType(wordsOf(r))};\n`).join(''),

@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A domain renders as its data form does (docs/render.md, omx-contract#139): omx-clap-core's hosting data, converted
-// into a domain, rendered through `render --with-domain` beside the files still in data/ (verbs.json), gives the five
-// files of the pure data render byte for byte.
+// into a domain, rendered through `render --with-domain` beside the files still in data/ (verbs.json, and the hosts its
+// verbs name, hosting/verb-hosts.json), gives the five files of the pure data render byte for byte.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import test from 'node:test';
-import { ROOT } from './helpers.mjs';
+import { ROOT, VERB_HOSTS_FIXTURE } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/hosting-data');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
-const OUTPUTS = { c: ['clap_host_limits.h', 'hosted_stage_limits.h', 'omx_clap_core_vocabulary.h'], ts: ['omx-clap-core-hosting.js', 'omx-clap-core-hosting.d.ts', 'omx-clap-core-vocabulary.js', 'omx-clap-core-vocabulary.d.ts'] };
+const OUTPUTS = { c: ['clap_host_limits.h', 'hosted_stage_limits.h', 'omx_clap_vocabulary.h'], ts: ['omx-clap-hosting.js', 'omx-clap-hosting.d.ts', 'omx-clap-vocabulary.js', 'omx-clap-vocabulary.d.ts'] };
 
 const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
 
@@ -33,7 +33,7 @@ function toDomain(dir) {
       schemas[name] = s;
     }
   }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', info: { title: 'The hosting codes', version: '0.33.1', 'x-owner': 'omx-clap-core', 'x-stability': 'experimental' }, 'x-render': render, 'x-file': renderFile, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', info: { title: 'The hosting codes', version: '0.33.1', 'x-owner': 'omx-clap', 'x-stability': 'experimental' }, 'x-render': render, 'x-file': renderFile, components: { schemas } };
 }
 
 function scratch() {
@@ -43,12 +43,14 @@ function scratch() {
   const data = join(dir, 'data');
   mkdirSync(data);
   cpSync(join(FIX, 'verbs.json'), join(data, 'verbs.json'));
+  // the hosts the verbs name (V29), in both reads: omx-clap's hosting/verb-hosts.json
+  for (const d of [join(dir, 'pure', 'data'), data]) cpSync(join(VERB_HOSTS_FIXTURE, 'hosting'), join(d, 'hosting'), { recursive: true });
   const dom = join(dir, 'hosting');
   mkdirSync(dom);
   return { dir, data, dom };
 }
 
-const render = (target, args, out) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'omx-clap-core', ...args, '--out', out], { encoding: 'utf8' });
+const render = (target, args, out) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'omx-clap', ...args, '--out', out], { encoding: 'utf8' });
 
 function compare(domain) {
   const s = scratch();

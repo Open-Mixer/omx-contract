@@ -155,7 +155,7 @@ print(refused(lambda: m["scale_value"]({"scale": "map", "points": [[0, 0]]}, 0.5
   assert.deepEqual(out.trim().split('\n'), ['True', 'True', 'True', 'True']);
 });
 
-test('render --check: the package manifests ship the python scale reader beside omx_contract.py', () => {
+test('render --check: the package manifests ship the python scale reader', () => {
   for (const f of [join(ROOT, 'debian/omx-contract-data.install'), join(ROOT, 'packaging/omx-contract.spec'), join(ROOT, 'Makefile')]) {
     const text = readFileSync(f, 'utf8');
     assert.match(text, /omx_contract_scale\.py/, f);

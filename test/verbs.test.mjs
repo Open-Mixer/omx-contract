@@ -20,7 +20,7 @@ import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs'
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT, resolvedOf, texts } from './helpers.mjs';
+import { DATA, installParamDomain, installVerbHosts, resolvedOf, ROOT, texts, VERB_HOSTS_FIXTURE } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-verbs-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -43,11 +43,13 @@ const install = (pkg, from, root, version = '1.0.0') => execFileSync('sh', [join
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
+  installVerbHosts(root);
   install(PKG, FIXTURE, root);
   return root;
 }
 
-/** A copy of the fixture tree with `edit(files)` applied to its parsed files ({ 'verbs.json': doc, ... }). */
+/** A copy of the fixture tree with `edit(files)` applied to its parsed files ({ 'host-verbs.json': doc, ... }). */
 function fixtureWith(edit) {
   const dir = join(SCRATCH, `fx-${n++}`);
   cpSync(FIXTURE, dir, { recursive: true });
@@ -56,6 +58,9 @@ function fixtureWith(edit) {
   for (const [f, doc] of Object.entries(files)) writeFileSync(join(dir, f), `${JSON.stringify(doc, null, 2)}\n`);
   return dir;
 }
+
+/** The hosting fixture's document, parsed. */
+const hostingDoc = () => JSON.parse(readFileSync(join(VERB_HOSTS_FIXTURE, 'hosting/verb-hosts.json'), 'utf8'));
 
 const codesRaised = new Set();
 /** The code the read refuses with; the read returns nothing. */
@@ -74,6 +79,8 @@ function refusalOf(root) {
 function brokenDir(edit, extra = () => {}) {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
+  installVerbHosts(root);
   install(PKG, fixtureWith(edit), root);
   extra(root);
   return root;
@@ -82,7 +89,7 @@ function brokenDir(edit, extra = () => {}) {
 test('the fixture installs into a contract directory and reads back: four verbs, their refusals resolved to the code and the resp', () => {
   const root = installed();
   const m = JSON.parse(readFileSync(join(root, String(SCHEMA_MAJOR), PKG, 'MANIFEST.json'), 'utf8'));
-  assert.deepEqual(Object.keys(m.files).sort(), ['errors.json', 'verbs.json']);
+  assert.deepEqual(Object.keys(m.files).sort(), ['errors.json', 'host-verbs.json']);
   for (const [f, h] of Object.entries(m.files)) assert.equal(sha256(readFileSync(join(root, String(SCHEMA_MAJOR), PKG, f))), h);
   const data = loadContractDir({ dir: root });
   assert.equal(data.items.get('HOST_VERBS').pkg, PKG);
@@ -127,7 +134,7 @@ test('rendered from the installed directory: the C header, the package header (c
   assert.equal(readFileSync(join(tsDir, 'omx-contract.js'), 'utf8'), ts.text);
   const mod = await import(`file://${join(tsDir, 'omx-contract.js')}`);
   assert.equal(mod.HOST_VERBS.chain.format, 'chain %i %i ...');
-  assert.deepEqual(mod.VERB_HOSTS_WORDS, ['plugin-hostd', 'omx-clap-host', 'mod-host']);
+  assert.deepEqual(mod.HOSTING_VERB_HOSTS_WORDS, ['plugin-hostd', 'omx-clap-host', 'mod-host']);
   const json = JSON.parse(renderJson(resolved, '0.0.0')[0].text);
   assert.equal(json.items.HOST_VERBS.value.paramInfo.reply, 'resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>');
   assert.equal(json.items.HOST_VERBS.value.paramInfo.codes[0].resp, -103);
@@ -160,7 +167,7 @@ test('a verb declared by two packages is refused: contract.verb.duplicate (one o
   const root = brokenDir(() => {}, (r) => {
     const other = fixtureWith((f) => {
       delete f['errors.json'];
-      const v = f['verbs.json'];
+      const v = f['host-verbs.json'];
       v.OTHER_VERBS = { ...v.HOST_VERBS, verbs: { trackInfo: { ...v.HOST_VERBS.verbs.trackInfo, codes: undefined } } };
       delete v.OTHER_VERBS.verbs.trackInfo.codes;
       delete v.HOST_VERBS;
@@ -173,23 +180,23 @@ test('a verb declared by two packages is refused: contract.verb.duplicate (one o
 });
 
 test('a format whose first word is not the verb is refused: contract.verb.format', () => {
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.remotePages.format = 'remote_page %i'; })), CONTRACT_CODES.verbFormat);
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.remotePages.format = 'remote_page %i'; })), CONTRACT_CODES.verbFormat);
 });
 
 test('an unknown host word is refused: contract.verb.host-unknown', () => {
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'optional'; })), CONTRACT_CODES.verbHostUnknown);
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'optional'; })), CONTRACT_CODES.verbHostUnknown);
 });
 
 test('an unknown code is refused by code: contract.verb.code-unknown for a name or an item that is no code, contract.ref.* for an item no file declares or requires', () => {
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PLUGIN_HOSTD_REPLY_CODES.chainGone'; })), CONTRACT_CODES.verbCodeUnknown);
-  const words = brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'VERB_HOSTS.pluginHostd'; });
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PLUGIN_HOSTD_REPLY_CODES.chainGone'; })), CONTRACT_CODES.verbCodeUnknown);
+  const words = brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PANEL_FAMILIES.gate'; });
   assert.equal(refusalOf(words), CONTRACT_CODES.verbCodeUnknown);
-  assert.throws(() => loadContractDir({ dir: words }), /code VERB_HOSTS\.pluginHostd: VERB_HOSTS is a words item, no codes item/);
-  assert.equal(refusalOf(brokenDir((f) => { f['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH_CODES.chainDuplicate'; })), CONTRACT_CODES.refUnresolved);
+  assert.throws(() => loadContractDir({ dir: words }), /code PANEL_FAMILIES\.gate: PANEL_FAMILIES is a words item, no codes item/);
+  assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH_CODES.chainDuplicate'; })), CONTRACT_CODES.refUnresolved);
   // the codes of another package, named without requiring it
   const root = brokenDir((f) => { delete f['errors.json'].PLUGIN_HOSTD_REPLY_CODES; }, (r) => {
-    const other = fixtureWith((f) => { delete f['verbs.json']; delete f['errors.json'].MOD_HOST_REPLY_CODES; });
-    rmSync(join(other, 'verbs.json'), { force: true });
+    const other = fixtureWith((f) => { delete f['host-verbs.json']; delete f['errors.json'].MOD_HOST_REPLY_CODES; });
+    rmSync(join(other, 'host-verbs.json'), { force: true });
     install('plugin-hostd', other, r);
   });
   assert.equal(refusalOf(root), CONTRACT_CODES.refUndeclared);
@@ -208,19 +215,20 @@ test('validate refuses the same in a data directory, each under its rule', () =>
     const docs = JSON.parse(JSON.stringify(fx));
     edit(docs);
     for (const [f, d] of Object.entries(docs)) t[`data/fixture-${f}`] = JSON.stringify({ ...d, $schema: base.$schema });
+    t['data/fixture-verb-hosts.json'] = JSON.stringify({ ...hostingDoc(), $schema: base.$schema });
     return validateData(loadData(null, t)).map((p) => p.rule);
   };
   assert.deepEqual(read(() => {}), []);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.format = 'chains %i'; }), ['verb-format']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'required'; }), ['verb-host']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'MOD_HOST_REPLY_CODES.gone'; }), ['verb-code']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.again = d['verbs.json'].HOST_VERBS.verbs.chain; }), ['verb-duplicate']);
-  assert.deepEqual(read((d) => { d['verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH.code'; }), ['reference']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.format = 'chains %i'; }), ['verb-format']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.implementedBy.jalv = 'required'; }), ['verb-host']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'MOD_HOST_REPLY_CODES.gone'; }), ['verb-code']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.again = d['host-verbs.json'].HOST_VERBS.verbs.chain; }), ['verb-duplicate']);
+  assert.deepEqual(read((d) => { d['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH.code'; }), ['reference']);
 });
 
 test('the schema holds a verb closed: its fields, its levels, a reply code with its resp and no resp on any other code', () => {
   const probs = (items) => [...new Set(fileProblems({ rel: 'data/x.json', text: '', doc: { $schema: '../schema/omx-contract.schema.json', ...items } }).map((p) => p.item))];
-  const verb = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(join(FIXTURE, 'verbs.json'), 'utf8')).HOST_VERBS));
+  const verb = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(join(FIXTURE, 'host-verbs.json'), 'utf8')).HOST_VERBS));
   const ok = verb();
   assert.deepEqual(probs({ V: ok }), []);
   for (const edit of [
@@ -272,7 +280,7 @@ test('semver: the verbs kind and a verb added are MINOR; a verb removed is MAJOR
   const withFixture = (edit = () => {}) => {
     const t = texts();
     const docs = Object.fromEntries(readdirSync(FIXTURE).map((f) => [f, JSON.parse(readFileSync(join(FIXTURE, f), 'utf8'))]));
-    edit(docs['verbs.json'].HOST_VERBS.verbs, docs);
+    edit(docs['host-verbs.json'].HOST_VERBS.verbs, docs);
     for (const [f, d] of Object.entries(docs)) t[`data/fixture-${f}`] = JSON.stringify({ ...d, $schema: '../schema/omx-contract.schema.json' });
     return resolvedOf(t);
   };

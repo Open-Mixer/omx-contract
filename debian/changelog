@@ -1,13 +1,28 @@
 omx-contract (3.21.0) unstable; urgency=medium
 
-  * PARAM_UNITS, the closed list of units, is a words item of
-    data/primitives.json and the schema's $defs.unit enum is its render;
-    the words carry a symbol.
-  * omx_vocabulary.h spells that item's X-macro OMX_PARAM_UNITS_WORDS(X):
+  * The vocabulary sorting pass (S0): each item lives with its owner.
+  * The domain format carries verbs, reply codes, terms, sets and unit
+    lists, a stored x-args slot and words and scalar items; a word's x-from
+    may name another domain's word; render --with-domain repeats, a domain
+    may refer to the domains its x-requires names, and an owner may be
+    domains only (install-contract-dir.sh --owner).
+  * CONTRACT_CODES is the contract domain's (V20); PARAM_SCALES and
+    PARAM_UNITS are the param domain's (V21, V23a+b): PARAM_UNITS grows to
+    the units the descriptors and the resource words use, each with its
+    symbol, dimension and scope, and the schema's unit enums are its render.
+  * Removed, each held by its new home: READOUT_RATE_HZ (V22, omx-dsp),
+    RT_HARD_TARGET and the oracle rates (V25, omx-dsp), CURVE_AXES and
+    CURVE_KINDS (V26, omx-dsp), PLUGIN_FEATURE_* (V24, plugin-db), the LV2
+    terms with their inventory and coverage (V27a, plugin-db) and the CLAP
+    terms with theirs (V27b, omx-clap), with omx_formats.h, omx_contract.py
+    and omx_contract.clap.
+  * The CLAP core's packages are named omx-clap.
+  * A plugin descriptor's latency gains sweep { min, max } (#155).
+  * omx_vocabulary.h spells the PARAM_UNITS X-macro OMX_PARAM_UNITS_WORDS(X):
     the released omx_param_units.h defines OMX_PARAM_UNITS(X), and the two
     headers together broke the build under -Werror.
 
- -- Pau Aliagas <linuxnow@gmail.com>  Fri, 20 Nov 2026 12:00:00 +0000
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 21 Nov 2026 12:00:00 +0000
 
 omx-contract (3.20.2) unstable; urgency=medium
 

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo",
+  "info": {
+    "title": "The conformance vocabulary",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental",
+    "x-requires": {
+      "demo-host": ">= 1.2.0"
+    }
+  },
+  "components": {
+    "schemas": {
+      "DEMO_VERBS": {
+        "description": "The verbs.",
+        "x-kind": "verbs",
+        "oneOf": [
+          {
+            "const": "demo_ping",
+            "title": "demoPing",
+            "x-code": 0,
+            "x-format": "demo_ping %i",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "DEMO_HOST_REPLY_CODES.busy"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            },
+            "x-since": "1.2.0",
+            "description": "Ping the host."
+          }
+        ]
+      }
+    }
+  }
+}

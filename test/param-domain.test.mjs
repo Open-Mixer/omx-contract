@@ -1,0 +1,114 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+// PARAM_SCALES, PARAM_UNITS and PARAM_UNIT_DIMENSIONS are the items of the `param` domain (contract.d/param/param.json,
+// vocabulary sorting pass V21 and V23a+b): the standard units in one place, grown to the ruled set, each with what it
+// measures. The words moved out of data/primitives.json; the readers read them where they are now. Three arms:
+//  (a) golden: the real reads give the golden words: lib/descriptor.mjs `PARAM_SCALE_IDS`, tools/unit-enum.mjs
+//      `unitWords` (the schema's $defs.unit), the tree read the renders take (`omx-contract render`: the C enum of
+//      the scales, the unit and dimension defines) against test/golden/param-units.tsv, whose first 15 rows are the
+//      units data/primitives.json held, in their order (the list only grows);
+//  (b) the one source: the domain holds the golden words and data/primitives.json holds no PARAM_ item (arm (b), both
+//      sources agree, is the fixture of test/domain-set-units.test.mjs: the 15 units as data/primitives.json held them);
+//  (c) sabotage: a copy of the tool whose domain lacks `log` and `dbu` reads scales without `log`, renders no
+//      OMX_PARAM_SCALES_LOG and no dBu, and its unit-enum check refuses the committed schema.
+import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import test from 'node:test';
+import { PARAM_SCALE_IDS } from '../lib/descriptor.mjs';
+import { descriptorUnitWords, unitWords } from '../tools/unit-enum.mjs';
+import { ROOT } from './helpers.mjs';
+
+const GOLDEN = readFileSync(join(ROOT, 'test/golden/param-units.tsv'), 'utf8').trimEnd().split('\n').map((l) => {
+  const [key, word, symbol, dimension, scope] = l.split('\t');
+  return { key, word, symbol, dimension, scope };
+});
+const BEFORE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/domain-set-units/primitives.json'), 'utf8'));
+const DOMAIN = join(ROOT, 'contract.d/param/param.json');
+const schemas = (path = DOMAIN) => JSON.parse(readFileSync(path, 'utf8')).components.schemas;
+const upperSnake = (k) => k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
+
+test('golden: the first 15 units are the ones data/primitives.json held, in their order', () => {
+  assert.deepEqual(GOLDEN.slice(0, 15).map((g) => [g.key, g.word, g.symbol]), Object.entries(BEFORE.PARAM_UNITS.words).map(([k, w]) => [k, w.word, w.symbol]));
+  // the ruled set (owner, 2026-11-20) and the resource units (Q6) are in it
+  for (const s of ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'coef', 'us', 'bytes', 'ns/sample', 'count', 'flag', 'ms', 's']) {
+    assert.ok(GOLDEN.some((g) => g.symbol === s), s);
+  }
+});
+
+test('(a) PARAM_SCALE_IDS, the descriptor check\'s scales, are the golden ids', () => {
+  assert.deepEqual(PARAM_SCALE_IDS, ['linear', 'log', 'stepped']);
+});
+
+test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.descriptorUnit, are the golden symbols by scope, in order', () => {
+  const param = GOLDEN.filter((g) => g.scope === 'param').map((g) => g.symbol);
+  const own = [...GOLDEN.filter((g) => g.scope === 'descriptor').map((g) => g.symbol), 'unknown'];
+  assert.deepEqual(param, Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.symbol), 'the param scope is the 15 of before');
+  assert.deepEqual(unitWords(ROOT), param);
+  assert.deepEqual(descriptorUnitWords(ROOT), own);
+  const defs = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8')).$defs;
+  assert.deepEqual(defs.unit.enum, param);
+  assert.deepEqual(defs.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: own }]);
+});
+
+test('(a) the committed renders carry the golden words: the scales enum, a define per unit and per dimension', () => {
+  const limits = readFileSync(join(ROOT, 'include/omxcontract/omx_contract_limits.h'), 'utf8');
+  assert.match(limits, /OMX_PARAM_SCALES_LINEAR = 0,[^\n]*\n {2}OMX_PARAM_SCALES_LOG = 1,[^\n]*\n {2}OMX_PARAM_SCALES_STEPPED = 2,/);
+  assert.match(limits, /#define OMX_PARAM_SCALES_DEFAULT OMX_PARAM_SCALES_LINEAR/);
+  const vocab = readFileSync(join(ROOT, 'include/omxcontract/omx_vocabulary.h'), 'utf8');
+  const defines = [...vocab.matchAll(/^#define OMX_PARAM_UNITS_(\w+) "([^"]*)"/gm)].filter((m) => !m[1].endsWith('_TEXT_EN')).map((m) => [m[1], m[2]]);
+  assert.deepEqual(defines, GOLDEN.map((g) => [upperSnake(g.key), g.word]));
+  for (const d of new Set(GOLDEN.map((g) => g.dimension))) assert.match(vocab, new RegExp(`#define OMX_PARAM_UNIT_DIMENSIONS_\\w+ "${d}"`), d);
+  for (const sc of ['param', 'descriptor']) assert.match(vocab, new RegExp(`#define OMX_PARAM_UNIT_SCOPES_${sc.toUpperCase()} "${sc}"`), sc);
+});
+
+test('(b) the domain holds the golden words, each unit\'s dimension a word of PARAM_UNIT_DIMENSIONS; data/ holds no PARAM_ item', () => {
+  const s = schemas();
+  assert.deepEqual(s.PARAM_UNITS.oneOf.map((w) => ({ key: w.title, word: w.const, symbol: w['x-symbol'], dimension: w['x-dimension'], scope: w['x-group'] })), GOLDEN);
+  assert.equal(s.PARAM_UNITS['x-dimensions'], 'PARAM_UNIT_DIMENSIONS');
+  assert.equal(s.PARAM_UNITS['x-groups'], 'PARAM_UNIT_SCOPES');
+  const dims = s.PARAM_UNIT_DIMENSIONS.oneOf.map((w) => w.const);
+  for (const g of GOLDEN) assert.ok(dims.includes(g.dimension), g.key);
+  assert.deepEqual(s.PARAM_SCALES.oneOf.map((w) => w.const), ['linear', 'log', 'stepped']);
+  assert.equal(s.PARAM_SCALES['x-default'], 'linear');
+  assert.ok(!existsSync(join(ROOT, 'data/primitives.json')), 'data/primitives.json is gone: its last item, READOUT_RATE_HZ, went to omx-dsp (V22)');
+});
+
+/** The tool, copied, with `log` gone from PARAM_SCALES and `dbu` from PARAM_UNITS in its domain. */
+function sabotaged(run) {
+  const dir = mkdtempSync(join(tmpdir(), 'param-domain-'));
+  try {
+    for (const d of ['bin', 'lib', 'render', 'tools', 'schema', 'data', 'contract.d', 'include', 'catalogs', 'share', 'package.json']) cpSync(join(ROOT, d), join(dir, d), { recursive: true });
+    symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'));
+    const file = join(dir, 'contract.d/param/param.json');
+    const doc = JSON.parse(readFileSync(file, 'utf8'));
+    for (const [item, word] of [['PARAM_SCALES', 'log'], ['PARAM_UNITS', 'dBu']]) {
+      const words = doc.components.schemas[item].oneOf;
+      const at = words.findIndex((w) => w.const === word);
+      assert.ok(at >= 0, `${item} has ${word}`);
+      words.splice(at, 1);
+      words.forEach((w, i) => { w['x-code'] = i; });
+    }
+    writeFileSync(file, `${JSON.stringify(doc, null, 2)}\n`);
+    return run(dir);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('(c) sabotage: a domain without log and dBu: the scales lack log, the render lacks both, the unit-enum check refuses', () => {
+  sabotaged((dir) => {
+    const ids = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', `import { PARAM_SCALE_IDS } from ${JSON.stringify(join(dir, 'lib/descriptor.mjs'))}; console.log(JSON.stringify(PARAM_SCALE_IDS));`], { encoding: 'utf8' }));
+    assert.deepEqual(ids, ['linear', 'stepped'], 'the descriptor check reads its scales from the domain');
+    const out = join(dir, 'out');
+    execFileSync(process.execPath, [join(dir, 'bin/omx-contract.mjs'), 'render', '--target', 'c', '--out', out], { encoding: 'utf8', cwd: dir });
+    assert.ok(!readFileSync(join(out, 'omxcontract/omx_contract_limits.h'), 'utf8').includes('OMX_PARAM_SCALES_LOG'), 'the render reads the scales from the domain');
+    assert.ok(!readFileSync(join(out, 'omxcontract/omx_vocabulary.h'), 'utf8').includes('OMX_PARAM_UNITS_DBU '), 'the render reads the units from the domain');
+    const r = spawnSync(process.execPath, [join(dir, 'tools/unit-enum.mjs'), '--check', '--root', dir], { encoding: 'utf8' });
+    assert.equal(r.status, 1, 'unit-enum reads the units from the domain');
+    assert.match(r.stderr, /\$defs\.descriptorUnit/);
+    assert.ok(!descriptorUnitWords(dir).includes('dBu'));
+  });
+});

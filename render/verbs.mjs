@@ -7,9 +7,8 @@
  * what each host owes it is a table a host reads at run time. The ts and json renders carry the items as they carry
  * any other.
  */
-import { readFileSync } from 'node:fs';
-import { packageItems } from '../lib/data.mjs';
-import { HOSTS_ITEM } from '../lib/verbs.mjs';
+import { packageItems, sourceOf } from '../lib/data.mjs';
+import { HOSTS_ITEM, NO_HOSTS } from '../lib/verbs.mjs';
 import { cStringLiteral } from './c/c-literals.mjs';
 import { vocabularyStem } from './vocabulary.mjs';
 
@@ -25,16 +24,16 @@ export const VERBS_HEADER = 'omxcontract/omx_host_verbs.h';
 /** A verb's C name: OMX_VERB_ and the word in upper snake case (track_info is OMX_VERB_TRACK_INFO). */
 export const verbMacro = (word) => `OMX_VERB_${constCase(word)}`;
 
-/** The hosts, in the order of VERB_HOSTS: of the read, else of the data this renderer ships with. */
+/** The hosts, in the order of the read's HOSTS_ITEM (omx-clap's hosting words); a read without it is refused by name. */
 function hostsOf(resolved) {
   const r = resolved.get(HOSTS_ITEM);
-  const words = r ? r.value : JSON.parse(readFileSync(new URL('../data/verbs.json', import.meta.url), 'utf8'))[HOSTS_ITEM].words;
-  return Object.values(words).map((w) => w.word);
+  if (r?.kind !== 'words') throw new Error(`render --target c: ${NO_HOSTS}`);
+  return Object.values(r.value).map((w) => w.word);
 }
 
 /** Every verb of `resolved`, items in their order: `[{ item, rel, key, verb }]`, the verb resolved. */
 const verbsIn = (resolved) => [...resolved.values()].filter((r) => r.kind === 'verbs')
-  .flatMap((r) => Object.entries(r.value).map(([key, verb]) => ({ item: r.name, rel: r.rel, key, verb })));
+  .flatMap((r) => Object.entries(r.value).map(([key, verb]) => ({ item: r.name, rel: sourceOf(r), key, verb })));
 
 /** The C names the render spells for each verbs item, `Map<name, Set<C name>>`: its verbs' words and formats. */
 export function verbCNames(resolved) {
@@ -101,7 +100,7 @@ export function renderVerbsHeader(resolved, pkg) {
 enum omx_host_verb_level {
 ${LEVELS.map((l, i) => `  OMX_HOST_VERB_${l.toUpperCase()} = ${i},`).join('\n')}
 };
-/* The hosts of VERB_HOSTS, a column each of a verb's level, in this order. */
+/* The hosts of HOSTING_VERB_HOSTS, a column each of a verb's level, in this order. */
 ${hosts.map((h, i) => `#define OMX_HOST_VERB_HOST_${constCase(h)} ${i}u`).join('\n')}
 #define OMX_HOST_VERB_HOST_COUNT ${hosts.length}u
 #define OMX_HOST_VERB_HOSTS_INIT { ${hosts.map(cStringLiteral).join(', ')} }

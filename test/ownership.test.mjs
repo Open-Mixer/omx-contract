@@ -3,8 +3,8 @@
 /**
  * The ownership gate (docs/contract-dir.md "What omx-contract owns"), through its command line on a scratch copy of the
  * repository whose HEAD is the base: clean on the committed tree, and red, by name, on a new item, a new word inside an
- * existing item, a schema enum word, a line added to moving-out, an item moved back to owned, a duplicate or junk line,
- * and a base git cannot read.
+ * existing item, a schema enum word, a line added to moving-out, an item moved back to owned, a grow exception beyond
+ * its ruling, a duplicate or junk line, and a base git cannot read.
  */
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -82,7 +82,7 @@ test('the override family enum is on the moving-out list, the side-file fields a
   const moving = read('ownership/moving-out.txt');
   const owned = read('ownership/owned.txt');
   assert.match(moving, /^schema\/omx-contract\.schema\.json#.*override.*family.*enum$/m);
-  assert.match(moving, /^VERB_HOSTS$/m);
+  assert.doesNotMatch(moving, /^HOSTING_VERB_HOSTS$/m, 'the verb hosts left with V29: omx-clap\'s, on no list of omx-contract');
   for (const n of ['ulp', 'doc', 'laws', 'render']) {
     assert.ok(!new RegExp(`^${n}$`, 'm').test(owned + moving), `${n} is no item`);
   }
@@ -122,6 +122,71 @@ test('a moved item and its words leave together: removing both is green', () => 
   editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
   editJson('ownership/words.json', (d) => { delete d.PANEL_PLACEMENTS; });
   const r = run();
+  assert.equal(r.status, 0, r.out);
+});
+
+// ownership/grow-exceptions.txt (coordinator ruling 2026-11-21): the moving-out OMX_PARAM_CONTRACT_UNITS grows by
+// dbPerOct, dbPerS, dbtp and lu, the words its ruling names, and by nothing else.
+const SHEET = 'data/param-contract.json';
+const growUnits = (codes) => {
+  editJson(SHEET, (d) => {
+    for (const [w, c] of Object.entries(codes)) { d.OMX_PARAM_CONTRACT_UNITS.value[w] = c; d.OMX_PARAM_CONTRACT_UNITS.docs[w] = `${w} (vendor block)`; }
+  });
+  const u = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', '--update'], { encoding: 'utf8' });
+  assert.equal(u.status, 0, u.stderr);
+};
+const RULED = { dbPerOct: 260, dbPerS: 261, dbtp: 262, lu: 263 };
+const EXC = 'ownership/grow-exceptions.txt';
+const ENTRY = 'OMX_PARAM_CONTRACT_UNITS | dbPerOct dbPerS dbtp lu | coordinator 2026-11-21: V23d not in this pass; vendor codes 260-263 so the clap layer compiles';
+
+test('grow exception: the moving-out units sheet grows by the four ruled words, green', () => {
+  reset();
+  write(EXC, `${ENTRY}\n`);
+  growUnits(RULED);
+  const r = run();
+  assert.equal(r.status, 0, r.out);
+});
+
+test('grow exception: a fifth word is refused by name, in the data and in the entry', () => {
+  reset();
+  write(EXC, `${ENTRY}\n`);
+  growUnits({ ...RULED, planted: 264 });
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /OMX_PARAM_CONTRACT_UNITS: the word "planted" is added to a moving out item/);
+  write(EXC, `${ENTRY.replace('dbtp lu', 'dbtp lu planted')}\n`);
+  r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /grow-exceptions\.txt: OMX_PARAM_CONTRACT_UNITS: the word "planted" is no word its ruling names/);
+});
+
+test('grow exception: an entry for another item is refused by name', () => {
+  reset();
+  write(EXC, `${ENTRY}\nPANEL_FAMILIES | utility_x | coordinator 2026-11-21: planted\n`);
+  const r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /grow-exceptions\.txt: PANEL_FAMILIES has no ruled growth/);
+});
+
+test('grow exception: an entry with no ruling text is refused', () => {
+  reset();
+  write(EXC, 'OMX_PARAM_CONTRACT_UNITS | dbPerOct dbPerS dbtp lu |\n');
+  const r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /grow-exceptions\.txt: OMX_PARAM_CONTRACT_UNITS names no ruling/);
+});
+
+test('grow exception: once the item has moved, a leftover entry is refused and the empty file is green', () => {
+  reset();
+  write(EXC, `${ENTRY}\n`);
+  rmSync(join(dir, SHEET));
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'OMX_PARAM_CONTRACT_UNITS'));
+  editJson('ownership/words.json', (d) => { delete d.OMX_PARAM_CONTRACT_UNITS; });
+  let r = run();
+  assert.equal(r.status, 1);
+  assert.match(r.out, /grow-exceptions\.txt: OMX_PARAM_CONTRACT_UNITS is not on ownership\/moving-out\.txt: .*the file is empty/);
+  write(EXC, '');
+  r = run();
   assert.equal(r.status, 0, r.out);
 });
 

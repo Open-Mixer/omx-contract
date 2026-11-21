@@ -18,7 +18,7 @@ import { fileProblems } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
 const FIXTURES = join(ROOT, 'examples/descriptors');
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
@@ -44,6 +44,7 @@ let n = 0;
 function directory(files, pkg = 'omx-plugins') {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   const dir = join(root, String(SCHEMA_MAJOR), pkg);
   const listed = {};
   for (const [rel, doc] of Object.entries(files)) {
@@ -129,7 +130,9 @@ test('the scanned LV2 plugin: its units, a unit with no word as unknown, a side-
 
 test('the words are the closed lists of docs/descriptors.md', () => {
   const $ = SCHEMA.$defs;
-  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown'] }]);
+  // the descriptor units of PARAM_UNITS (the param domain, docs/units.md), then unknown; every unit a descriptor took before still taken
+  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'coef', 'us', 'bytes', 'ns/sample', 'count', 'flag', 'unknown'] }]);
+  for (const u of ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown']) assert.ok([...$.unit.enum, ...$.descriptorUnit.anyOf[1].enum].includes(u), `${u} is still a descriptor's unit`);
   for (const u of ['frames', 'bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
   assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', '%', 'x', '', 'dB/oct', 'LUFS', 'dB/s'], 'the items\' units are as they were, dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0');
   assert.deepEqual($.meaning.enum, [

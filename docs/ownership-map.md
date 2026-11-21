@@ -347,8 +347,9 @@ Every question of this amendment is ruled; none remains open.
 - **Q2, the param-contract scale codes:** a CLAP particular; they go to omx-clap-core like the unit codes, mapped to the
   standard scales (V21b, F2). Ruled (coordinator, 2026-11-20).
 - **Q3, `VERB_HOSTS`:** plugin-hostd (V29). Ruled (coordinator, 2026-11-20).
-- **Q4, `READOUT_RATE_HZ`:** omx-panel, as the display redraw rate; the DSP ballistics stay in omx-dsp (V22). Ruled
-  (owner, 2026-11-20).
+- **Q4, `READOUT_RATE_HZ`:** SUPERSEDED. It was omx-panel, as the display redraw rate, with the DSP ballistics staying
+  in omx-dsp (V22), ruled (owner, 2026-11-20). The later ruling (coordinator, V22) puts it in omx-dsp, as its classic
+  `data/primitives/readout.json`: the rate the kernels' readouts are published at (the V22 rows above).
 - **Q5, the standard sample rates and quanta:** standard; they stay in omx-contract (V25 split). Ruled (coordinator,
   2026-11-20).
 - **Q6, the resource units:** units; they join the ONE standard list (V28 keeps the words, M8). Ruled (coordinator,

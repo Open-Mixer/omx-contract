@@ -43,6 +43,11 @@ test('the field on a kind that is no set is refused', () => {
   assert.ok(p.some((x) => /^DEMO_SCALAR:schema/.test(x)), p.join('\n'));
 });
 
+test('an item that takes the name <SET>_STANDARD is refused by name', () => {
+  const p = problems(plant((s, d) => { d['data/rates.json'].DEMO_UNITS_STANDARD = { kind: 'scalar', doc: 'A clash.', unit: '', value: 1 }; }));
+  assert.ok(p.some((x) => /^DEMO_UNITS_STANDARD:set-standard: DEMO_UNITS_STANDARD is the renders' table of DEMO_UNITS's standard ids/.test(x)), p.join('\n'));
+});
+
 const planted = () => resolveData(loadData(null, plant()));
 
 test('json: the set carries its standard ids', () => {

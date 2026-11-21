@@ -116,7 +116,7 @@ export function readoutValidator() {
 
 /**
  * The rules about the meaning of the numbers, not their shape (they live with the data they judge):
- * a set's default and labels; a travel's scale is a PARAM_SCALES id; a count; a sheet's default inside its min and
+ * a set's default, labels and standard ids; a travel's scale is a PARAM_SCALES id; a count; a sheet's default inside its min and
  * max; the checks the files declare. No rule names an item.
  */
 /**
@@ -139,6 +139,13 @@ function semanticRules(resolved, say) {
     if (r.kind === 'set') {
       if (r.default !== undefined && !r.value.includes(r.default)) say(r.rel, r.name, 'set-default', `default ${JSON.stringify(r.default)} is not one of ${JSON.stringify(r.value)}`);
       if (r.labels !== undefined && r.labels.length !== r.value.length) say(r.rel, r.name, 'set-labels', `${r.labels.length} labels for ${r.value.length} ids`);
+      if (r.standard !== undefined) {
+        if (r.standard.length !== r.value.length) say(r.rel, r.name, 'set-standard', `${r.standard.length} standard ids for ${r.value.length} ids`);
+        const consts = new Set(Object.values((val('PARAM_UNITS') ?? {}) as Record<string, Json>).map((w) => w.word));
+        r.standard.forEach((s, i) => {
+          if (!consts.has(s)) say(r.rel, r.name, 'set-standard', `the standard id ${JSON.stringify(s)} of ${JSON.stringify(r.value[i])} is no const of PARAM_UNITS`);
+        });
+      }
       if (r.values !== undefined) {
         if (r.values.length !== r.value.length) say(r.rel, r.name, 'set-values', `${r.values.length} values for ${r.value.length} ids`);
         if (r.value.some((id) => typeof id !== 'string')) say(r.rel, r.name, 'set-values', 'a set of numeric ids carries no values: the id is its own value');
@@ -292,6 +299,7 @@ function semanticRules(resolved, say) {
   }
   for (const r of resolved.values()) {
     if (r.kind === 'words' && resolved.has(`${r.name}_WORDS`)) say(r.rel, `${r.name}_WORDS`, 'words-export', `${r.name}_WORDS is the ts render's export of ${r.name}'s words: no item may take the name`);
+    if (r.kind === 'set' && r.standard && resolved.has(`${r.name}_STANDARD`)) say(r.rel, `${r.name}_STANDARD`, 'set-standard', `${r.name}_STANDARD is the renders' table of ${r.name}'s standard ids: no item may take the name`);
     if (r.kind === 'set' && r.values && resolved.has(`${r.name}_VALUES`)) say(r.rel, `${r.name}_VALUES`, 'set-values', `${r.name}_VALUES is the ts render's export of ${r.name}'s values: no item may take the name`);
   }
   if (resolved.has('READOUTS') && Object.values((resolved.kernels ?? {}) as Record<string, Json>).some((k) => k.readouts)) {

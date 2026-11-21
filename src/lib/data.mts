@@ -320,8 +320,8 @@ export function lagrangeReadL1(order) {
 const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /**
- * Resolve every item: `{ name, rel, kind, doc, why?, since?, unit?, c?, shape?, default?, labels?, values?, groups?, axes?, format?, spec?, version?, value }`
- * (default, labels and values: a set's; groups and axes: a words item's; format, spec and version: a terms item's), where `value` has
+ * Resolve every item: `{ name, rel, kind, doc, why?, since?, unit?, c?, shape?, default?, labels?, values?, standard?, groups?, axes?, format?, spec?, version?, value }`
+ * (default, labels, values and standard: a set's; groups and axes: a words item's; format, spec and version: a terms item's), where `value` has
  * every `{ref}` and `{derive}` evaluated. The returned map also carries `kernels`, every kernel's ordered controls
  * (kernelControls) and, for a kernel that declares them, its ordered `readouts` `{ name, doc, unit, min, max, scale,
  * rateHz }` with every reference resolved, which the json render publishes beside the items; `packageOf`, each item's
@@ -393,6 +393,7 @@ export function resolveData(data: Json): Resolved {
       if (item.default !== undefined) r.default = setDefault(item, (v) => val(v, name), name);
       if (item.labels !== undefined) r.labels = item.labels;
       if (item.values !== undefined) r.values = val(item.values, name);
+      if (item.standard !== undefined) r.standard = item.standard;
     }
     if (item.kind === 'travels') r.shape = item.fields ? 'table' : 'travel';
     r.value = val(rawValue(item), name);

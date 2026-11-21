@@ -58,7 +58,8 @@ export const setEnumerators = (set) => set.ids.map((id) => `OMX_${set.name}_${co
  * ids; `OMX_<SET>_COUNT`, and `OMX_<SET>_DEFAULT` when the set names a default. A set whose ids carry values adds
  * `OMX_<SET>_UNIT`, `OMX_<SET>_<ID>_VALUE` for each id that carries one, and `omx_<set>_value(id, &out)`, which writes
  * the id's value and returns 1, or returns 0 for an id that carries none: a kernel reads the number from the id
- * (the drive's roll-off corner), never a sentinel.
+ * (the drive's roll-off corner), never a sentinel. A set that names its standard ids adds `OMX_<SET>_STANDARD`, the
+ * PARAM_UNITS const of each id by enumerator.
  */
 function genSetValues(set, names) {
   const fn = `omx_${set.name.toLowerCase()}_value`;
@@ -93,6 +94,10 @@ function genDeclaredSetsEnums(sets) {
     ];
     if (set.default !== undefined) lines.push(described(`#define OMX_${set.name}_DEFAULT ${names[set.ids.indexOf(set.default)]}`, `The id ${set.name} names as its default.`));
     if (set.values) lines.push(...genSetValues(set, names));
+    if (set.standard) {
+      lines.push(`/** The standard unit (a PARAM_UNITS const) each id of ${set.name} stands for, by enumerator. */`,
+        `static const char *const OMX_${set.name}_STANDARD[OMX_${set.name}_COUNT] = {${set.standard.map(cStringLiteral).join(', ')}};`);
+    }
     return lines.join('\n');
   }).join('\n');
 }

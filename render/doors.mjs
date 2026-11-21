@@ -61,7 +61,7 @@ export function doors(resolved) {
     .map((r) => ({ name: r.name, values: r.value, doc: r.doc, unit: r.unit, since: r.since }))
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const DECLARED_SET_ITEMS = items.filter((r) => r.kind === 'set')
-    .map((r) => ({ name: r.name, ids: r.value, default: r.default, doc: r.doc, since: r.since, labels: r.labels, ...(r.values ? { values: r.values, unit: r.unit } : {}) }))
+    .map((r) => ({ name: r.name, ids: r.value, default: r.default, doc: r.doc, since: r.since, labels: r.labels, ...(r.values ? { values: r.values, unit: r.unit } : {}), ...(r.standard ? { standard: r.standard } : {}) }))
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const STANDARD_SAMPLE_RATES = resolved.get('STANDARD_SAMPLE_RATES')?.value;
   return { NATIVE_LIMIT_TABLES, DECLARED_SCALARS, DECLARED_LISTS, DECLARED_SET_ITEMS, STANDARD_SAMPLE_RATES };

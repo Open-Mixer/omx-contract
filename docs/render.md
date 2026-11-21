@@ -83,6 +83,14 @@ omx-contract: `render --target c --package omx-contract --out include/omxcontrac
 and omx-clap-core's is `omx_clap_vocabulary.h`, guard `OMX_CLAP_VOCABULARY_H`, so the two include together.
 A package with no such item renders no vocabulary file.
 
+A set (`"kind": "set"`) may carry `standard` (3.21.0): the standard unit each id stands for, one PARAM_UNITS const
+(contract.d/param, any group) per id in id order, so an owner keeps its own words and names the standard id of each
+(omx-dsp's CURVE_UNITS: `hz` is `Hz`, `pc` is `percent`, `coef` is `coef`). A count that differs from the ids and a
+const PARAM_UNITS lacks are refused by name (rule `set-standard`), and the field on any other kind by the schema. The
+json render carries `standard` on the item, the ts render exports `<SET>_STANDARD` (`{ <id>: <const> }`), and the c
+render `static const char *const OMX_<SET>_STANDARD[OMX_<SET>_COUNT]`, read by enumerator
+(`OMX_CURVE_UNITS_STANDARD[OMX_CURVE_UNITS_HZ]` is `"Hz"`).
+
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
 its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
 `OMX_<DOMAIN>_CODES_H`, installed as `<includedir>/omxdomain/<domain>_codes.h`; `<DOMAIN>` is the domain's name in

@@ -581,7 +581,7 @@
       },
       "PARAM_UNITS_CLAP_ENCODED": {
         "description": "The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none.",
-        "x-since": "3.21.0",
+        "x-since": "3.23.0",
         "x-why": "A reader that asks whether a unit can be served reads omx-contract only, the innermost layer, so nothing reads outward to omx-clap (coordinator ruling B2, 2026-11-22). Derived by tools/clap-encoded.mjs, never typed.",
         "oneOf": [
           {

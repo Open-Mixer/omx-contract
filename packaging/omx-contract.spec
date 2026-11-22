@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.21.0
+Version: 3.22.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -306,6 +306,12 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Sun Nov 22 2026 Pau Aliagas <linuxnow@gmail.com> - 3.22.0-1
+- VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts a
+  verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the verbs
+  validator and render read them from the read only, refusing by name a read
+  that declares verbs and no HOSTING_VERB_HOSTS.
+
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
 - The vocabulary sorting pass (S0): each item lives with its owner.
 - The domain format carries verbs, reply codes, terms, sets and unit lists, a

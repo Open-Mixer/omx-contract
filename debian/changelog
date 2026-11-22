@@ -1,3 +1,12 @@
+omx-contract (3.22.0) unstable; urgency=medium
+
+  * VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts
+    a verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the
+    verbs validator and render read them from the read only, refusing by
+    name a read that declares verbs and no HOSTING_VERB_HOSTS.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sun, 22 Nov 2026 12:00:00 +0000
+
 omx-contract (3.21.0) unstable; urgency=medium
 
   * The vocabulary sorting pass (S0): each item lives with its owner.

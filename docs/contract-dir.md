@@ -503,10 +503,10 @@ now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and b
   added to a moving-out item in `words.json`, and a name that stood on `moving-out.txt` at the base and now stands on
   `owned.txt` are red.
 - **A ruled growth.** `ownership/grow-exceptions.txt` (`<item> | <word> <word>... | <ruling>`) lets a moving-out item
-  grow by the words a ruling names, and the gate holds the whole of what rulings allowed (`GROW_RULED`): today
-  OMX_PARAM_CONTRACT_UNITS by dbPerOct, dbPerS, dbtp and lu (coordinator 2026-11-21: V23d is not in this pass; the
-  vendor codes 260-263 so the clap layer compiles). A word or an item beyond it, an entry with no ruling text and an
-  entry for an item no longer on `moving-out.txt` are red: once the item has moved, the file is empty.
+  grow by the words a ruling names, and the gate holds the whole of what rulings allowed (`GROW_RULED`,
+  tools/check-ownership.mjs). It is empty today: the one ruled growth went with its item when the item moved out, so
+  no moving-out item may grow. A word or an item beyond it, an entry with no ruling text and an entry for an item no
+  longer on `moving-out.txt` are red: once the item has moved, the file is empty.
 - **The base.** `make ownership` fetches it first, and a base git cannot read (the fetch failed, the ref is absent)
   is a refusal by name, exit 2, never a pass. The one tolerated base is a commit that predates the gate (no
   `tools/check-ownership.mjs` in it): the gate's own first change. Once that change is the base, a base without the

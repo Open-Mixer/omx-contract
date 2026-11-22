@@ -234,11 +234,11 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 
 ## The standard unit id, its display spelling and the code-to-id render
 
-**Status: DESIGN (Q-a and Q-b ruled, the render shape chosen; the mapping-table kind open).** It answers the two
-questions of the V23d readers (Open-Mixer/omx-clap-core#158): which spelling a reader writes for a standard unit,
-and how a C reader gets from a CLAP unit code to that spelling. It describes the list as the sorting pass releases it,
-`PARAM_UNITS` of the `param` domain (`contract.d/param/param.json`), whose words carry a `title` (the item's key, a
-macro stem) and a `const` (the word).
+**Status: DESIGN, all ruled (Q-a, Q-b, the render shape, and questions 17 to 22 of the mapping-table kind and
+S0).** It answers the two questions of the V23d readers (Open-Mixer/omx-clap-core#158): which spelling a reader
+writes for a standard unit, and how a C reader gets from a CLAP unit code to that spelling. It describes the list
+as the sorting pass releases it, `PARAM_UNITS` of the `param` domain (`contract.d/param/param.json`), whose words
+carry a `title` (the item's key, a macro stem) and a `const` (the word).
 
 ### Q-a: a standard unit id is the word's `const`
 
@@ -353,27 +353,35 @@ the source of a lookup. What #215 needs beyond it:
   it name `OMX_PARAM_CONTRACT_UNIT_IDS` (and the LV2 rows plugin-db's `LV2_UNIT_IDS`, `LV2_DESIGNATION_MEANINGS`)
   instead. That is a new word of a map row, a reference where `values` stands.
 
-A proposal, not a ruling (the kind is not ruled; its questions are 17 to 21 below):
+The kind, as ruled (coordinator, 2026-11-22, questions 17 to 20 below):
 
 - **`"x-kind": "formatMap"`**, after the `terms` kind: `x-format` (`clap` or `lv2`) the item's, and a `oneOf` of one
-  word per row, `const` and `title` both the source field (which may hold `.`, `:` and `_`), `x-code` its place and
-  `x-row` the row as the data form writes it (`term` or `from`, `word`, `extension` or `dropped`, `doc`). `render
-  --with-domain` rebuilds the data `formatMap` item from it, the build holds each row to the schema's `formatMapRow`,
-  and the runtime readers serve the item as words, the words its source fields.
+  word per row, `const` and `title` both the source field (which may hold `.`, `:` and `_`) and `x-code` its place.
+  Each field of a row is a word of its own, typed by the domain schema (question 17): `x-term-ref` (the data `term`)
+  or `x-link` (the data `from`; `x-from` already names a words item's term source), then one class, `x-word` with
+  `x-transform` and one of `x-values`, `x-factor` or `x-values-from`, or `x-extension: true`, or `x-dropped` (its
+  `ruling`), and `description` the row's `doc`. A word of any other kind carrying one is refused, as for `verbs`.
+  `render --with-domain` rebuilds the data `formatMap` item from it, and the runtime readers serve the item as words,
+  the words its source fields.
 
   ```json
   "PLUGIN_HOSTD_CLAP_MAP": {
     "description": "...", "x-since": "...", "x-kind": "formatMap", "x-file": "formats/clap.json", "x-format": "clap",
     "oneOf": [
       { "const": "omx_clap_param_contract_entry.unit", "title": "omx_clap_param_contract_entry.unit", "x-code": 0,
-        "x-row": { "from": "omx_clap_ext.h#omx_clap_param_contract_entry.unit",
-                   "word": { "word": "controls[].travel.unit", "transform": "lookup",
-                             "valuesFrom": { "ref": "OMX_PARAM_CONTRACT_UNIT_IDS" } } } } ] }
+        "x-link": "omx_clap_ext.h#omx_clap_param_contract_entry.unit",
+        "x-word": "controls[].travel.unit", "x-transform": "lookup",
+        "x-values-from": { "ref": "OMX_PARAM_CONTRACT_UNIT_IDS" } } ] }
   ```
 
-- **`valuesFrom`**, a word of a row's `word` beside `values` and `factor` (one of the three): `{ "ref": "<ITEM>" }`,
-  a sheet of strings of a package the document's `info.x-requires` names. The build refuses, by row, a ref that
-  resolves to no item, to an item that is no string sheet, or to a package with no floor.
+- **`x-values-from`** `{ "ref": "<ITEM>" }`: a sheet of strings of a package the document's `info.x-requires` names.
+  The build refuses, by row, a ref that resolves to no item, to an item that is no string sheet, or to a package with
+  no floor. The reference lives in the domain source only: the rebuilt `data/formats/clap.json` carries the values
+  expanded from the named sheet, so the rebuild is byte for byte today's file (question 18).
+- **At run time** plugin-hostd's probe resolves the CLAP unit lookup through the rendered `OMX_PARAM_UNIT_IDS(X)` in
+  C (question 19, as Q-b says); the runtime readers still serve no sheet.
+- **LV2** (question 20): plugin-db's `LV2_UNIT_IDS` is its own item, owned by plugin-db, and data only: no C header
+  and no `strings` section. The LV2 rows name it with `x-values-from`.
 
 ### S0: the unit format of `$defs.unit`
 
@@ -382,13 +390,12 @@ A proposal, not a ruling (the kind is not ruled; its questions are 17 to 21 belo
 - **The spelling is answered by Q-a:** a value is the `const` of a `PARAM_UNITS` word.
 - **The dimension word is answered by the list:** a map carries no dimension. A reader that needs one reads the id's
   `x-dimension` in `PARAM_UNITS`; a dimension copied into a map would be a second place for it.
-- **Not answered by Q-a: the enum of the descriptor.** `$defs.unit` and `$defs.descriptorUnit` are the SYMBOLS of the
-  list (`tools/unit-enum.mjs` renders each word's `x-symbol`), so a descriptor's `travel.unit` states `%`, `dB/oct`,
-  `""`. D2 puts the id there. The two differ on six words: `percent` (`%`), `none` (`""`), `dB-oct` (`dB/oct`),
-  `dB-s` (`dB/s`), `nsPerSample` (`ns/sample`), `plainCount` (`count`). Proposal: both enums become the `const`s of
-  their words (`unknown` stays the descriptor's "states no unit" word), and a reader shows the `x-symbol`. It is a
-  change of the descriptor schema: a descriptor that states `%` is refused after it. No alias or dual spelling is
-  proposed (question 22).
+- **The enum of the descriptor keeps the symbols in this pass** (question 22). `$defs.unit` and
+  `$defs.descriptorUnit` are the SYMBOLS of the list (`tools/unit-enum.mjs` renders each word's `x-symbol`), so a
+  descriptor's `travel.unit` states `%`, `dB/oct`, `""`. The ids and symbols differ on six words: `percent` (`%`),
+  `none` (`""`), `dB-oct` (`dB/oct`), `dB-s` (`dB/s`), `nsPerSample` (`ns/sample`), `plainCount` (`count`). Making
+  the enums the ids is a descriptor schema change, filed post-pass as #176 ("Descriptor unit enums become the standard
+  ids").
 
 ### Where the code lands
 
@@ -413,25 +420,30 @@ moves `OMX_PARAM_CONTRACT_UNIT_IDS` to its own file and renders the header (Open
       `descriptor` scope, so the released item enum does not widen.
 
 
-Not ruled yet, from the mapping-table kind and S0 above (Open-Mixer/plugin-hostd#215):
+From the mapping-table kind and S0 above (Open-Mixer/plugin-hostd#215), all ruled; nothing is open:
 
 17. **The kind's name and shape.** Is it `"x-kind": "formatMap"` with each row verbatim in `x-row`, as the `terms`
-    kind keeps a term in `x-term`, or does each word of a row get its own `x-` word (`x-term`, `x-word`,
-    `x-transform`, ...)? The first keeps the domain reader small and the row's schema the data form's; the second lets
-    the reader refuse a bad row word by word without the data schema.
-18. **What the rebuild writes for `valuesFrom`.** Does the rebuilt `data/formats/clap.json` keep the reference (the
-    loader resolves it at run time, and the file differs once from today's), or the values expanded from the named
-    sheet (today's shape, byte for byte, but a copy in the installed file)? #215's gate says "byte for byte"; against
-    which form?
-19. **How the run time reads the named sheet.** The runtime readers serve no sheet (docs/contract-dir.md). Does
-    plugin-hostd's probe resolve the CLAP lookup through the rendered `OMX_PARAM_UNIT_IDS(X)` in C, or do the C loader
-    and `openDomainAt` start serving string sheets?
+    kind keeps a term in `x-term`, or does each field of a row get its own `x-` word?
+    - **Ruling (coordinator, 2026-11-22):** one `x-` word per field. **Why:** each field is then typed by the domain
+      schema and refused by name, with no opaque copy of a row that only the data schema could check.
+18. **What the rebuild writes for `x-values-from`.** The reference, or the values expanded from the named sheet?
+    - **Ruling (coordinator, 2026-11-22):** the expanded values, in the rebuilt `data/formats/clap.json`. **Why:** V19
+      is a pure move, so its output stays byte for byte; the reference lives in the domain source only.
+19. **How the run time reads the named sheet.** Through the rendered `OMX_PARAM_UNIT_IDS(X)`, or do the C loader and
+    `openDomainAt` start serving string sheets?
+    - **Ruling (coordinator, 2026-11-22):** plugin-hostd's probe resolves it through the rendered C
+      `OMX_PARAM_UNIT_IDS(X)`. **Why:** that is Q-b: the lookup is the rendered X-macro, and the loaders gain no new
+      kind for it.
 20. **The LV2 side.** plugin-db's `LV2_UNIT_IDS` keys are terms (`units:db`), which no `<prefix><FIELD>` define
-    spells and which have no sibling numbers sheet, so the `strings` section does not render them. Is the LV2 lookup
-    data only (no C header), or does it need a section of its own?
-21. **A code with no id.** The `strings` section refuses a field the units sheet lacks; should it also refuse a field
-    of the units sheet that has no row (every code mapped), or does that stay the map check's (omx-clap's
-    `param-units-map-check.py`, which holds it today with "no two codes on one id")?
-22. **S0: the descriptor's unit enum.** Do `$defs.unit` and `$defs.descriptorUnit` become the ids (the six words
-    above change, a descriptor schema change with no alias), or does the descriptor keep the symbol, so that D2
-    writes the symbol and only the wire and the stores carry the id?
+    spells. Data only, or a section of its own?
+    - **Ruling (coordinator, 2026-11-22):** `LV2_UNIT_IDS` is its own item, owned by plugin-db, and data only.
+      **Why:** the producer owns its mapping; no C reader needs it, so nothing is rendered for it.
+21. **A code with no id.** Should the `strings` section also refuse a field of the units sheet that has no row?
+    - **Ruling (coordinator, 2026-11-22):** no; it stays in omx-clap's map check (`param-units-map-check.py`, beside
+      "no two codes on one id"). **Why:** one owner for that rule; the render does not hold it a second time.
+22. **S0: the descriptor's unit enum.** Do `$defs.unit` and `$defs.descriptorUnit` become the ids, or does the
+    descriptor keep the symbol?
+    - **Ruling (coordinator, 2026-11-22):** keep the symbols in this pass; the change to the ids is the post-pass
+      issue #176 ("Descriptor unit enums become the standard ids"), naming the six words that differ (`percent` `%`,
+      `none` `""`, `dB-oct` `dB/oct`, `dB-s` `dB/s`, `nsPerSample` `ns/sample`, `plainCount` `count`). **Why:** a
+      schema change is not a move, and this pass only moves.

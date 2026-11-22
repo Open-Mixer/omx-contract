@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/param",
   "info": {
     "title": "The standard parameter words: the units, what each measures, and the scales",
-    "version": "3.21.0",
+    "version": "3.23.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },

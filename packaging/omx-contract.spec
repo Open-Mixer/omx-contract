@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.21.0
+Version: 3.23.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -306,6 +306,16 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Sun Nov 22 2026 Pau Aliagas <linuxnow@gmail.com> - 3.23.0-1
+- The unit codes of org.openmixer.param-contract/1 (OMX_PARAM_CONTRACT_UNITS,
+  data/param-contract.json) and their header omxcontract/omx_param_units.h move
+  to omx-clap in one step (V23d); a consumer that includes the header here
+  fails to build, naming it.
+- PARAM_UNITS_CLAP_ENCODED, a words item of the param domain: the standard unit
+  ids the CLAP extension encodes, each a copy of its PARAM_UNITS word.
+- A sheet of strings, and a header's strings section: the X-macro of a
+  code-to-id map over the defines a sibling header renders.
+
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
 - The vocabulary sorting pass (S0): each item lives with its owner.
 - The domain format carries verbs, reply codes, terms, sets and unit lists, a

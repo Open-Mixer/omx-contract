@@ -108,8 +108,8 @@ function tableOf(spec, items, header) {
 /** The words item a string sheet's values are `const`s of: the standard unit ids (docs/units.md, Q-a). */
 export const STRINGS_WORDS = 'PARAM_UNITS';
 
-/** Whether a sheet is a sheet of strings: every field a string, none nested (schema $defs.stringSheetValue). */
-export const isStringSheet = (r) => r.kind === 'sheet' && Object.values(r.value).every((v) => typeof v === 'string');
+/** Whether a sheet is a sheet of strings by what it declares (every field a plain string, none nested: schema $defs.sheetValue), never by what refs resolve to (data.mts sets r.strings). */
+export const isStringSheet = (r) => r.kind === 'sheet' && r.strings === true;
 
 /**
  * strings: every sheet of strings as the X-macro `<table>(X)`, one `X(<prefix><F>, "<f>", "<value>")` per field in the

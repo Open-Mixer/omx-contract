@@ -70,7 +70,31 @@ export function encodedFaults(root, ids) {
   const want = encodedItem(ids === undefined ? committed(doc) : servedIds(ids, unitsOf(doc)), unitsOf(doc));
   const have = doc.components.schemas[ITEM];
   if (have === undefined) return [`${PARAM} declares no ${ITEM}`];
-  return JSON.stringify(have) === JSON.stringify(want) ? [] : [`${PARAM}: ${ITEM} is not the item tools/clap-encoded.mjs derives${ids === undefined ? ' from its own members' : ' from the map'}: re-run it with --write`];
+  if (JSON.stringify(have) === JSON.stringify(want)) return [];
+  const from = ids === undefined ? ' from its own members' : ' from the map';
+  const head = `${PARAM}: ${ITEM} is not the item tools/clap-encoded.mjs derives${from}: re-run it with --write`;
+  return [head, ...wordFaults(have.oneOf ?? [], want.oneOf)];
+}
+
+/** Each word that differs, by name: one the item has and the derivation does not, the reverse, and a word whose copy differs (its fields). */
+function wordFaults(have, want) {
+  const byConst = (l) => new Map(l.map((w) => [w.const, w]));
+  const h = byConst(have);
+  const w = byConst(want);
+  const out = [];
+  for (const [c, x] of h) {
+    if (!w.has(c)) out.push(`${ITEM}: word ${c}: not in the derived item`);
+    else {
+      const y = w.get(c);
+      const keys = [...new Set([...Object.keys(x), ...Object.keys(y)])].filter((k) => JSON.stringify(x[k]) !== JSON.stringify(y[k]));
+      if (keys.length) out.push(`${ITEM}: word ${c}: ${keys.join(', ')} differ${keys.length === 1 ? 's' : ''} from the derived copy`);
+    }
+  }
+  for (const c of w.keys()) if (!h.has(c)) out.push(`${ITEM}: word ${c}: derived, missing from the item`);
+  const order = have.map((x) => x.const).filter((c) => w.has(c));
+  const wantOrder = want.map((x) => x.const).filter((c) => h.has(c));
+  if (!out.length && JSON.stringify(order) !== JSON.stringify(wantOrder)) out.push(`${ITEM}: the words are not in PARAM_UNITS order`);
+  return out;
 }
 
 if (isMain(import.meta.url)) {

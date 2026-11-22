@@ -69,7 +69,14 @@ test('sabotage: a member whose x-code is not its source\'s is refused by name', 
     [s.oneOf[0], s.oneOf[1]] = [{ ...s.oneOf[1], 'x-code': 0 }, { ...s.oneOf[0], 'x-code': 1 }];
   }, problems);
   assert.ok(out.some((p) => /^PARAM_UNITS_CLAP_ENCODED:word-from-differs:dbfs: PARAM_UNITS#dbfs: its x-code 0 is not the named word's 1$/.test(p)), out.join('\n'));
-  assert.ok(scratch((s) => { s.oneOf[0]['x-text'] = 'planted'; }, (dir) => encodedFaults(dir)).length > 0, 'the tool names an item that is no copy');
+  // the tool names the item and the word that differs, and which of its fields
+  const faults = scratch((s) => { s.oneOf[0]['x-text'] = 'planted'; }, (dir) => encodedFaults(dir));
+  assert.match(faults[0], /PARAM_UNITS_CLAP_ENCODED is not the item tools\/clap-encoded\.mjs derives/);
+  assert.deepEqual(faults.slice(1), [`PARAM_UNITS_CLAP_ENCODED: word ${units()[0].const}: x-text differs from the derived copy`]);
+  // against a map (what --check --ids reads), a word the map serves and the item lacks is named
+  const map = Object.fromEntries(doc().components.schemas[ITEM].oneOf.map((w, i) => [`t${i}`, w.const]));
+  const gone = scratch((s) => { s.oneOf.pop(); }, (dir) => encodedFaults(dir, map));
+  assert.deepEqual(gone.slice(1), [`PARAM_UNITS_CLAP_ENCODED: word ${doc().components.schemas[ITEM].oneOf.at(-1).const}: derived, missing from the item`]);
 });
 
 test('sabotage: a served set that is no prefix of PARAM_UNITS is refused by name', () => {

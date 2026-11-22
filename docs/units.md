@@ -235,7 +235,7 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 ## The standard unit id, its display spelling and the code-to-id render
 
 **Status: DESIGN. Ruled: Q-a, Q-b, the render shape, questions 17 to 22 (the mapping-table kind and S0) and the V23d
-move (B1, B2, (c)) with question 23; nothing is open.** It answers the two questions of the V23d readers
+move (B1, B2, (c)); open: question 23, the form of the B2 item.** It answers the two questions of the V23d readers
 (Open-Mixer/omx-clap-core#158): which spelling a reader writes for a standard unit, and how a C reader gets from a
 CLAP unit code to that spelling. It describes the list as the sorting pass releases it, `PARAM_UNITS` of the `param`
 domain (`contract.d/param/param.json`), whose words carry a `title` (the item's key, a macro stem) and a `const` (the
@@ -415,10 +415,9 @@ The kind, as ruled (coordinator, 2026-11-22, questions 17 to 20 below):
   which needs to know whether a unit can be served, keeps reading omx-contract only, so no build-dep cycle appears and
   nothing reads outward to omx-clap. The item is code of the chain-3 omx-contract PR, beside the `strings` section,
   not of this docs PR.
-  - Its shape (question 23, decided): its own item, `"x-kind": "set"`, its words the ids it serves, each taken from
-    its `PARAM_UNITS` word by `x-from`. It is not a second group of `PARAM_UNITS`: a word carries ONE `x-group`, and
-    `PARAM_UNITS` already uses that slot for its scope (`"x-groups": "PARAM_UNIT_SCOPES"`, docs/contract-dir.md). No
-    group word is added: the item's name says which encoding serves the unit.
+  - Its form is OPEN (question 23). It is not a second group of `PARAM_UNITS`: a word carries ONE `x-group`, and
+    `PARAM_UNITS` uses it for its scope (docs/contract-dir.md). No group word is added: the item's name says which
+    encoding serves the unit.
 - **(c). Ruling (coordinator, 2026-11-22):** the floor the readers of Open-Mixer/omx-clap-core#171 take on omx-clap
   is the first omx-clap release that carries it, the one chain 3 cuts; the chain tool names its version, and no page
   writes a number for it. **Why:** the version exists only when chain 3 cuts it, and a number written here would be a
@@ -477,13 +476,17 @@ From the mapping-table kind and S0 above (Open-Mixer/plugin-hostd#215), all rule
 
 From B2 above:
 
-23. **The shape of the served set.** `PARAM_UNITS`' one `x-group` slot holds the scope. Either (a) the
-    domain format lets a words item name more than one group item (`x-groups` a list, and a word's `x-group` one
-    word per named item), a format change that every reader of `x-group` (the C loader's `omx_domain_word_group()`,
-    `openDomainAt`) follows; or (b) the group is an item of its own in the `param` domain, `PARAM_UNITS_CLAP_ENCODED`,
-    `"x-kind": "set"`, its words the ids it serves, each taken from its `PARAM_UNITS` word by `x-from`, which needs
-    no format change.
-    - **Ruling (coordinator, as the owner of omx-contract, 2026-11-22):** (b), `PARAM_UNITS_CLAP_ENCODED`,
-      `"x-kind": "set"`, its words the ids taken from `PARAM_UNITS` by `x-from`; the group word `clapEncoded` is
-      dropped, since the item's name says it. **Why:** a move changes no format; (b) adds an item and leaves the
-      domain format and every reader of `x-group` as they are.
+23. **The form of the served set, `PARAM_UNITS_CLAP_ENCODED`.** OPEN; the coordinator chooses. The facts:
+    `"x-kind": "set"` is a domain kind at the chain-1 base (`WORDS_KINDS` of `src/lib/domain.mts`; `PARAM_SCALES`
+    uses it), not at main. Both set forms refuse an id with `-`: the data `set` (`$defs.set`, ids
+    `^[A-Za-z0-9]+$`) and the domain `set`, which rebuilds into it. So `dB-oct` and `dB-s`, two of the served ids,
+    fail in either.
+    - **(A), recommended:** an `"x-kind": "words"` item, which exists today, whose words copy `PARAM_UNITS` words by
+      `x-from`, each keeping its `PARAM_UNITS` `x-code`. That holds because the served ids are `PARAM_UNITS` codes
+      0 to 32, a prefix of the list (at the chain-1 base with the `coef` token on `x`, and after #170 with it on
+      `coef`), and a words item's codes are its places, so a copied word's place and code agree. `validate`'s
+      `word-from` and `word-from-differs` check every member. A served set that stops being a prefix is refused by
+      name; it would then need a format change, a new question. No format change now.
+    - **(B):** widen the set id pattern to allow `-`, in the data `set` and the domain `set`. A format change.
+    - **(C):** no omx-contract form in this pass: the served set stays omx-clap's (its map check) until a post-pass
+      issue, and omx-panel does not read it from omx-contract until then.

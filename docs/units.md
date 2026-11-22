@@ -110,9 +110,9 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
   `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
   render go to omx-clap-core; each reader (omx-plugins, omx-panel, the console, omx-clap-core's own code) switches its
-  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed last. The PRs
-  are those of the map amendment (the amendment of omx-contract#142, being written). Until then the 3.20.2 sheet is
-  what the readers read.
+  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed in the same
+  chain-3 run, before any reader renders (B1, below). The PRs are those of the map amendment (the amendment of
+  omx-contract#142, being written). Until then the 3.20.2 sheet is what the readers read.
 - **The scale codes, omx-clap-core.** Ruled (coordinator, 2026-11-20): the param-contract SCALE codes are a CLAP
   particular like the unit codes. They go to omx-clap-core, each code mapped to a word of `PARAM_SCALES`, which stays
   standard in omx-contract (owner answer Q1). This is map row V21b, beside the unit codes.
@@ -234,11 +234,12 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 
 ## The standard unit id, its display spelling and the code-to-id render
 
-**Status: DESIGN, all ruled (Q-a, Q-b, the render shape, and questions 17 to 22 of the mapping-table kind and
-S0).** It answers the two questions of the V23d readers (Open-Mixer/omx-clap-core#158): which spelling a reader
-writes for a standard unit, and how a C reader gets from a CLAP unit code to that spelling. It describes the list
-as the sorting pass releases it, `PARAM_UNITS` of the `param` domain (`contract.d/param/param.json`), whose words
-carry a `title` (the item's key, a macro stem) and a `const` (the word).
+**Status: DESIGN. Ruled: Q-a, Q-b, the render shape, questions 17 to 22 (the mapping-table kind and S0) and the
+V23d move (B1, B2, (c)); open: question 23, the shape of the B2 group.** It answers the two questions of the V23d
+readers (Open-Mixer/omx-clap-core#158): which spelling a reader writes for a standard unit, and how a C reader gets
+from a CLAP unit code to that spelling. It describes the list as the sorting pass releases it, `PARAM_UNITS` of
+the `param` domain (`contract.d/param/param.json`), whose words carry a `title` (the item's key, a macro stem) and a
+`const` (the word).
 
 ### Q-a: a standard unit id is the word's `const`
 
@@ -293,16 +294,18 @@ Open-Mixer/omx-clap-core#171 builds against it.
   nothing else: there is no second numeric sheet keyed to code. The new render spells a code by the name of its
   define in `omx_param_units.h`, never by its number.
 - **A string section.** The render is a `strings` section of an owner's header (docs/render.md): one row per field
-  of a string sheet, `X(<prefix><FIELD>, "<field>", "<value>")`, in the sheet's order, `FIELD` the same upper snake
-  case as the `numbers` section's. The value is quoted because an id carries `-` (and a symbol `/`), which no C
-  identifier can.
+  of a string sheet, `X(<prefix><FIELD>, "<field>", "<value>")`, in the sheet's order. The rule for the first
+  argument: it is `<prefix>` followed by the `numbers` section's `constCase` of the field (an underscore before each
+  capital that follows a lower-case letter or a digit, then upper case: `dbPerOct` is `DB_PER_OCT`,
+  `semitone12TET` is `SEMITONE12_TET`), so it is the very name the units header defines for that field. The value
+  is quoted because an id carries `-` (and a symbol `/`), which no C identifier can.
 - **The header.** `omx_param_unit_ids.h`, macro `OMX_PARAM_UNIT_IDS(X)`:
 
   ```c
   #define OMX_PARAM_UNIT_IDS(X) \
       X(OMX_CLAP_UNIT_NONE, "none", "none") X(OMX_CLAP_UNIT_S, "s", "s") ... \
       X(OMX_CLAP_UNIT_DB, "db", "dB") X(OMX_CLAP_UNIT_PC, "pc", "percent") ... \
-      X(OMX_CLAP_UNIT_DBPEROCT, "dbPerOct", "dB-oct") X(OMX_CLAP_UNIT_DBPERS, "dbPerS", "dB-s") ...
+      X(OMX_CLAP_UNIT_DB_PER_OCT, "dbPerOct", "dB-oct") X(OMX_CLAP_UNIT_DB_PER_S, "dbPerS", "dB-s") ...
   ```
 
 - **The prefix is the units header's.** `strings.prefix` equals `numbers.prefix` of the header that renders
@@ -397,6 +400,31 @@ The kind, as ruled (coordinator, 2026-11-22, questions 17 to 20 below):
   the enums the ids is a descriptor schema change, filed post-pass as #176 ("Descriptor unit enums become the standard
   ids").
 
+### V23d: the move of the code sheet
+
+- **B1. Ruling (coordinator, 2026-11-22):** omx-contract's removal of `OMX_PARAM_CONTRACT_UNITS` (and of its render,
+  `omx_param_units.h`), whose sheet moves to omx-clap, lands in the SAME chain-3 run, in the omx-contract layer,
+  before any reader renders. There is no takeover window, and no rename. The render's `contract.item.duplicate`
+  refusal stays. **Why:** a move is one step: the source is removed and the importers are updated together. A window
+  in which both packages declare the item would be compat machinery, and a rename would give one item a second name.
+  `contract.item.duplicate` then never fires on a correct chain, and still catches a chain that forgot the removal.
+  This replaces "removed last" for this sheet, here and in row V23 of [ownership-map.md](ownership-map.md).
+- **B2. Ruling (coordinator, 2026-11-22):** the set of units the extension serves (the ids that have a code) comes
+  from omx-contract, the innermost layer: a group of `PARAM_UNITS`, the ids `org.openmixer.param-contract/1`
+  encodes. omx-clap's map check holds its mapping onto that group. **Why:** omx-panel, which needs to know whether a
+  unit can be served, keeps reading omx-contract only, so no build-dep cycle appears and nothing reads outward to
+  omx-clap. The group is code of the chain-3 omx-contract PR, beside the `strings` section, not of this docs PR.
+  - The name, my proposal (not ruled): `clapEncoded`, because it says which encoding serves the unit. `served` would
+    leave out who serves it.
+  - The shape needs a choice (question 23). A word of a words item carries ONE `x-group`, the `const` of a word of
+    the one item its `x-groups` names (docs/contract-dir.md), and `PARAM_UNITS` already uses that slot for its scope
+    (`"x-groups": "PARAM_UNIT_SCOPES"`, `param` or `descriptor`). A second group of the same words needs a second
+    slot, or its own item.
+- **(c). Ruling (coordinator, 2026-11-22):** the floor the readers of Open-Mixer/omx-clap-core#171 take on omx-clap
+  is the first omx-clap release that carries it, the one chain 3 cuts; the chain tool names its version, and no page
+  writes a number for it. **Why:** the version exists only when chain 3 cuts it, and a number written here would be a
+  guess that the chain tool would then have to match.
+
 ### Where the code lands
 
 The code is not small, so it is a follow-up PR, after chain 1 tags, on the tagged main: a sheet of strings in the
@@ -447,3 +475,13 @@ From the mapping-table kind and S0 above (Open-Mixer/plugin-hostd#215), all rule
       issue #176 ("Descriptor unit enums become the standard ids"), naming the six words that differ (`percent` `%`,
       `none` `""`, `dB-oct` `dB/oct`, `dB-s` `dB/s`, `nsPerSample` `ns/sample`, `plainCount` `count`). **Why:** a
       schema change is not a move, and this pass only moves.
+
+From B2 above, not ruled yet:
+
+23. **The shape of the `clapEncoded` group.** `PARAM_UNITS`' one `x-group` slot holds the scope. Either (a) the
+    domain format lets a words item name more than one group item (`x-groups` a list, and a word's `x-group` one
+    word per named item), a format change that every reader of `x-group` (the C loader's `omx_domain_word_group()`,
+    `openDomainAt`) follows; or (b) the group is an item of its own in the `param` domain, `PARAM_UNITS_CLAP_ENCODED`,
+    `"x-kind": "set"`, its words the ids it serves, each taken from its `PARAM_UNITS` word by `x-from`, which needs
+    no format change. My proposal is (b): it adds an item, not a format, and the runtime readers already serve a
+    set.

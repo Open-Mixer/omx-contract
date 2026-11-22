@@ -261,6 +261,20 @@ A file may say how the owner's own C headers and TypeScript module spell its ite
 licence project, banner, brief and sections, and the module's name. `render --target c|ts --package <owner>` writes
 them; the tool names no item (docs/render.md).
 
+The `strings` section (DESIGN, docs/units.md, "The render shape") renders a sheet whose values are strings: a
+mapping from a level's own field to a standard word, the first being omx-clap's CLAP unit code to the standard unit
+id. Its `render.c` entry is a header of its own, and its sheet a file of its own (in a domain, its own `x-file`):
+
+```json
+{ "header": "omx_param_unit_ids.h", "guard": "...", "project": "...", "banner": ["..."], "brief": "...",
+  "strings": { "comment": "...", "prefix": "OMX_CLAP_UNIT_", "table": "OMX_PARAM_UNIT_IDS" } }
+```
+
+A sheet's `value` holds numbers today (`$defs.sheetValue`), so the section needs a flat sheet of strings in the schema
+and a domain sheet whose `x-value` is strings (with its `x-file`, so `render --with-domain` rebuilds it); both come
+with the section's code, after chain 1. A sheet of numbers and a sheet of strings never share a file: one header reads
+the items of its own file, so neither section filters items.
+
 ### `checks`: a sum held under a bound
 
 ```json

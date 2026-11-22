@@ -46,7 +46,7 @@ export function encodedItem(members, units) {
   if (members.some((m, i) => m !== prefix[i])) throw new Error(`${ITEM}: the served set is not a prefix of PARAM_UNITS: a words copy cannot hold it (${members.find((m, i) => m !== prefix[i])} is not at its PARAM_UNITS place)`);
   return {
     description: DESCRIPTION,
-    'x-since': '3.21.0',
+    'x-since': '3.23.0',
     'x-why': WHY,
     oneOf: units.slice(0, members.length).map((w) => ({
       const: w.const,

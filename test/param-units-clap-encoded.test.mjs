@@ -7,7 +7,8 @@
 // prefix of PARAM_UNITS. Arms: a member that is no PARAM_UNITS word, a member whose x-code is not its source's and a
 // served set that is no prefix are each refused by name.
 import assert from 'node:assert/strict';
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -76,4 +77,29 @@ test('sabotage: a served set that is no prefix of PARAM_UNITS is refused by name
   assert.throws(() => encodedItem([all[0].const, all[2].const], all), /PARAM_UNITS_CLAP_ENCODED: the served set is not a prefix of PARAM_UNITS: a words copy cannot hold it/);
   assert.throws(() => encodedItem(servedIds({ db: 'dB', us: 'us' }, all), all), /the served set is not a prefix of PARAM_UNITS: a words copy cannot hold it \(us is not at its PARAM_UNITS place\)/);
   assert.doesNotThrow(() => encodedItem(servedIds({ db: 'dB', dbfs: 'dBFS' }, all), all));
+});
+
+test('the item first ships in 3.23.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
+  assert.equal(doc().info.version, '3.23.0');
+  assert.equal(doc().components.schemas[ITEM]['x-since'], doc().info.version);
+  // the installed domain is where validate reads x-since: a contract directory holding the param domain, as installed
+  const dir = mkdtempSync(join(tmpdir(), 'omx-clap-encoded-since-'));
+  try {
+    const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), ...a], { stdio: 'ignore' });
+    const validate = (root) => spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'validate', '--contract-dir', root], { encoding: 'utf8' });
+    for (const [name, since] of [['ok', undefined], ['above', '3.24.0']]) {
+      const src = join(dir, `src-${name}`, 'contract.d', 'param');
+      mkdirSync(src, { recursive: true });
+      const d = doc();
+      if (since) d.components.schemas[ITEM]['x-since'] = since;
+      writeFileSync(join(src, 'param.json'), `${JSON.stringify(d, null, 2)}\n`);
+      const root = join(dir, `cd-${name}`);
+      sh('--domain', src, root);
+      const r = validate(root);
+      if (!since) assert.doesNotMatch(r.stdout + r.stderr, /domain-x-since/, r.stdout + r.stderr);
+      else assert.match(r.stderr, /param\/param\.json: PARAM_UNITS_CLAP_ENCODED: domain-x-since: x-since 3\.24\.0 is above the document's info\.version 3\.23\.0/, r.stdout + r.stderr);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

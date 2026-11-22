@@ -39,12 +39,7 @@ test('on and speed are no meanings: the validator names enabled and rate', () =>
 // The table that maps every CLAP plugin feature and LV2 plugin class onto the feature words (PLUGIN_FEATURE_*, #120)
 // is plugin-db's, in its plugin-feature domain (sorting pass V24), and its tests went with it.
 
-test('the panel families and widgets are declared here, the scan words are a domain of omx-clap-core (#157, #81)', () => {
-  const panel = read('data/panel.json');
-  const ws = (it) => Object.values(it.words).map((w) => w.word);
-  assert.deepEqual(ws(panel.PANEL_FAMILIES), ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility']);
-  assert.deepEqual(ws(panel.PANEL_WIDGETS), ['auto', 'knob', 'fader', 'switch', 'selector']);
-  assert.deepEqual(ws(panel.PANEL_STANDARD_WIDGETS), ['knob', 'fader', 'switch', 'selector', 'meter', 'curve', 'xy', 'display']);
+test('the scan words are a domain of omx-clap-core, no file of this tree (#157, #81); the panel words are owned by omx-panel (V1)', () => {
   // the scan words are omx-clap-core's domain (contract.d/scan/), never a file of this tree (omx-contract#81)
   assert.equal(existsSync(join(ROOT, 'data', 'scan.json')), false);
 });

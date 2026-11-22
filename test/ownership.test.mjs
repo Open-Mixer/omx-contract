@@ -45,24 +45,24 @@ test('the committed tree is clean', () => {
 
 test('a new item in neither list is red, named with its repository-relative file', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_FAKE_WORDS = d.PANEL_FAMILIES; });
+  editJson('data/resource-profile.json', (d) => { d.RESOURCE_FAKE_WORDS = d.RESOURCE_KINDS; });
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_FAKE_WORDS \(data\/panel\.json\) is in neither/);
+  assert.match(r.out, /RESOURCE_FAKE_WORDS \(data\/resource-profile\.json\) is in neither/);
   assert.ok(!r.out.includes(dir), 'a message names a path relative to the repository');
 });
 
 test('a new word inside an existing item is red, named with the item and the word', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_FAMILIES.words.utility_x = { ...Object.values(d.PANEL_FAMILIES.words)[0] }; });
+  editJson('data/resource-profile.json', (d) => { d.RESOURCE_KINDS.words.utility_x = { ...Object.values(d.RESOURCE_KINDS.words)[0] }; });
   let r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_FAMILIES.*utility_x/);
+  assert.match(r.out, /RESOURCE_KINDS.*utility_x/);
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_DISPLAY_KINDS.words.time_response_x = { ...Object.values(d.PANEL_DISPLAY_KINDS.words)[0] }; });
+  editJson('data/resource-profile.json', (d) => { d.RESOURCE_UNITS.words.time_response_x = { ...Object.values(d.RESOURCE_UNITS.words)[0] }; });
   r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_DISPLAY_KINDS.*time_response_x/);
+  assert.match(r.out, /RESOURCE_UNITS.*time_response_x/);
 });
 
 test('a new word in a schema enum is red, named by file and pointer', () => {
@@ -90,7 +90,7 @@ test('the override family enum is on the moving-out list, the side-file fields a
 
 test('a name added to moving-out is red, against the base', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.NEW_THING = d.PANEL_FAMILIES; });
+  editJson('data/resource-profile.json', (d) => { d.NEW_THING = d.RESOURCE_KINDS; });
   editList('ownership/moving-out.txt', (l) => [...l, 'NEW_THING']);
   const r = run();
   assert.equal(r.status, 1);
@@ -99,28 +99,28 @@ test('a name added to moving-out is red, against the base', () => {
 
 test('a moving-out item moved back to owned is red', () => {
   reset();
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
-  editList('ownership/owned.txt', (l) => [...l, 'PANEL_PLACEMENTS']);
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'RESOURCE_UNITS'));
+  editList('ownership/owned.txt', (l) => [...l, 'RESOURCE_UNITS']);
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_PLACEMENTS stood on ownership\/moving-out\.txt at the base/);
+  assert.match(r.out, /RESOURCE_UNITS stood on ownership\/moving-out\.txt at the base/);
 });
 
 test('a word added to a moving-out item in words.json is red, even with the data matching', () => {
   reset();
-  editJson('data/panel.json', (d) => { d.PANEL_FAMILIES.words.utility_x = { ...Object.values(d.PANEL_FAMILIES.words)[0] }; });
+  editJson('data/resource-profile.json', (d) => { d.RESOURCE_KINDS.words.utility_x = { ...Object.values(d.RESOURCE_KINDS.words)[0] }; });
   const u = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', '--update'], { encoding: 'utf8' });
   assert.equal(u.status, 0, u.stderr);
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /PANEL_FAMILIES.*utility_x.*added.*moving out/);
+  assert.match(r.out, /RESOURCE_KINDS.*utility_x.*added.*moving out/);
 });
 
 test('a moved item and its words leave together: removing both is green', () => {
   reset();
-  editJson('data/panel.json', (d) => { delete d.PANEL_PLACEMENTS; });
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'PANEL_PLACEMENTS'));
-  editJson('ownership/words.json', (d) => { delete d.PANEL_PLACEMENTS; });
+  editJson('data/resource-profile.json', (d) => { delete d.RESOURCE_UNITS; });
+  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'RESOURCE_UNITS'));
+  editJson('ownership/words.json', (d) => { delete d.RESOURCE_UNITS; });
   const r = run();
   assert.equal(r.status, 0, r.out);
 });
@@ -162,10 +162,10 @@ test('grow exception: a fifth word is refused by name, in the data and in the en
 
 test('grow exception: an entry for another item is refused by name', () => {
   reset();
-  write(EXC, `${ENTRY}\nPANEL_FAMILIES | utility_x | coordinator 2026-11-21: planted\n`);
+  write(EXC, `${ENTRY}\nRESOURCE_KINDS | utility_x | coordinator 2026-11-21: planted\n`);
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /grow-exceptions\.txt: PANEL_FAMILIES has no ruled growth/);
+  assert.match(r.out, /grow-exceptions\.txt: RESOURCE_KINDS has no ruled growth/);
 });
 
 test('grow exception: an entry with no ruling text is refused', () => {

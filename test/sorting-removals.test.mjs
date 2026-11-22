@@ -3,7 +3,8 @@
 // The items the vocabulary sorting pass moves out of omx-contract, each to the new home its row names, leave here
 // (docs/ownership-map.md): V22 READOUT_RATE_HZ (to omx-dsp, `data/primitives/readout.json`), V25 RT_HARD_TARGET and the oracle
 // rate lists (to omx-dsp; the standard rates and quanta stay), V26 CURVE_AXES and CURVE_KINDS (to omx-dsp) and V24
-// PLUGIN_FEATURE_* (to plugin-db, its `plugin-feature` domain). Each is gone from the read of data/ (through the
+// PLUGIN_FEATURE_* (to plugin-db, its `plugin-feature` domain) and V1 PANEL_FAMILIES, PANEL_STANDARD_WIDGETS, PANEL_WIDGETS,
+// PANEL_DISPLAY_KINDS, PANEL_DISPLAY_SOURCES and PANEL_PLACEMENTS (to omx-panel, its `panel` domain; data/panel.json goes). Each is gone from the read of data/ (through the
 // loader every render takes), from the committed renders, from the catalogs and from the ownership lists, and its
 // file is gone when nothing else was in it. Sabotage arm: the same checks over a copy of data/ that still holds
 // READOUT_RATE_HZ name it.
@@ -19,6 +20,7 @@ const ROWS = {
   V22: ['READOUT_RATE_HZ'],
   V25: ['RT_HARD_TARGET', 'ORACLE_FLOOR_RATES', 'ORACLE_FULL_RATES'],
   V26: ['CURVE_AXES', 'CURVE_KINDS'],
+  V1: ['PANEL_FAMILIES', 'PANEL_STANDARD_WIDGETS', 'PANEL_WIDGETS', 'PANEL_DISPLAY_KINDS', 'PANEL_DISPLAY_SOURCES', 'PANEL_PLACEMENTS'],
   V24: ['PLUGIN_FEATURE_AUDIO_EFFECT', 'PLUGIN_FEATURE_INSTRUMENT', 'PLUGIN_FEATURE_NOTE_EFFECT', 'PLUGIN_FEATURE_ANALYZER', 'PLUGIN_FEATURE_OTHER'],
 };
 const GONE = Object.values(ROWS).flat();
@@ -33,7 +35,7 @@ const inRead = (data) => GONE.filter((n) => loadData(data).items.has(n));
 
 test('the leaving items are in no file of data/, read through the loader', () => {
   assert.deepEqual(inRead(DATA), []);
-  for (const f of ['primitives.json', 'curves.json', 'plugin-features.json']) assert.ok(!existsSync(join(DATA, f)), `data/${f} held only leaving items`);
+  for (const f of ['primitives.json', 'curves.json', 'plugin-features.json', 'panel.json']) assert.ok(!existsSync(join(DATA, f)), `data/${f} held only leaving items`);
   const rates = JSON.parse(readFileSync(join(DATA, 'rates.json'), 'utf8'));
   assert.ok(rates.STANDARD_SAMPLE_RATES && rates.STANDARD_QUANTA, 'the standard rates and quanta stay (V25)');
 });

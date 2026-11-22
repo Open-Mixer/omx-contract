@@ -335,8 +335,11 @@ Open-Mixer/omx-clap-core#171 builds against it.
   `param-unit-ids.json`). Its ROOT `x-render` lists two headers: `omx_param_units.h` (`numbers`, the default scope,
   `file`) and `omx_param_unit_ids.h` (`strings`, with the existing key `"scope": "package"`, which takes the
   package's string sheets, that is `OMX_PARAM_CONTRACT_UNIT_IDS`). **Why:** no item carries an `x-render` and the
-  root form gains no key, so a pass changes no format. **Caveat:** any later omx-clap string sheet would join
-  `OMX_PARAM_UNIT_IDS`, so the render refuses a second string sheet under `scope: package` by name.
+  root form gains no key, so a pass changes no format. **Caveat:** `scope: package` takes every string sheet of the
+  package, so any later omx-clap string sheet would join `OMX_PARAM_UNIT_IDS`. omx-contract's render behaves as today
+  (every string sheet of the package joins; #181 adds no refusal). The refusal is omx-clap's: its map check (arm (r)
+  of Open-Mixer/omx-clap-core#171) reads the root only and refuses a second string sheet in the omx-clap package by
+  name, with a sabotage arm.
 
   ```json
   "x-render": { "c": [
@@ -446,8 +449,9 @@ schema (`sheetValue` holds numbers only today) and in the domain reader (a sheet
 file (the sibling sheet and `PARAM_UNITS`), and their tests, red first: a golden `omx_param_unit_ids.h`, and a
 sabotage arm per refusal (a field the units sheet lacks, a value `db`, a read without `PARAM_UNITS`). omx-clap then
 gives `OMX_PARAM_CONTRACT_UNIT_IDS` its own `x-file`, declares the second header in its domain's root `x-render`
-and renders it (Open-Mixer/omx-clap-core#171). The arms gain one: a second string sheet in the package, refused by
-name.
+and renders it (Open-Mixer/omx-clap-core#171). #171's own arms, in its map check: (r) a second string sheet in the
+omx-clap package, refused by name (the check reads the root only), with a sabotage arm; and the units header holds
+only its own numbers rows, against the golden.
 
 `PARAM_UNITS_CLAP_ENCODED` (B2, question 23) is code of the same chain-3 omx-contract PR: the `"x-kind": "words"`
 item in the `param` domain, red first: the words copy holds `dB-oct` (and `dB-s`), each word's `x-from` naming its

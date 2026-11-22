@@ -276,8 +276,7 @@ declared"):
 
 A sheet's `value` holds numbers today (`$defs.sheetValue`), so the section needs a flat sheet of strings in the schema
 and a domain sheet whose `x-value` is strings (with its `x-file`, so `render --with-domain` rebuilds it); both come
-with the section's code, after chain 1. Any later string sheet of the package would join the table, so the render
-refuses a second string sheet under `scope: package` by name.
+with the section's code, after chain 1. `scope: package` takes every string sheet of the package.
 
 ### `checks`: a sum held under a bound
 

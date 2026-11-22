@@ -263,7 +263,8 @@ them; the tool names no item (docs/render.md).
 
 The `strings` section (DESIGN, docs/units.md, "The render shape") renders a sheet whose values are strings: a
 mapping from a level's own field to a standard word, the first being omx-clap's CLAP unit code to the standard unit
-id. Its `render.c` entry is a header of its own, and its sheet a file of its own (in a domain, its own `x-file`):
+id. In a domain it is declared in the root `x-render`, as every header of a domain is (no item carries an
+`x-render`: coordinator ruling 2026-11-22, docs/units.md, "Where the section is declared"):
 
 ```json
 { "header": "omx_param_unit_ids.h", "guard": "...", "project": "...", "banner": ["..."], "brief": "...",
@@ -272,8 +273,9 @@ id. Its `render.c` entry is a header of its own, and its sheet a file of its own
 
 A sheet's `value` holds numbers today (`$defs.sheetValue`), so the section needs a flat sheet of strings in the schema
 and a domain sheet whose `x-value` is strings (with its `x-file`, so `render --with-domain` rebuilds it); both come
-with the section's code, after chain 1. A sheet of numbers and a sheet of strings never share a file: one header reads
-the items of its own file, so neither section filters items.
+with the section's code, after chain 1. If the root form cannot give the section the ids sheet with the keys it has,
+there is no separate `omx_param_unit_ids.h` in this pass (a post-pass issue); the chain-3 omx-contract lane checks
+which.
 
 ### `checks`: a sum held under a bound
 

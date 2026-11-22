@@ -6,13 +6,14 @@
  * is unique. Each failure names file, item and rule.
  */
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { posix } from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { placeholdersOf } from './placeholders.mjs';
 
 /** The class: the CommonJS module's export is the class itself, which TypeScript types as the module object. */
 type Ajv2020Class = typeof import('ajv/dist/2020.js').default;
-import { FILE_KEYS, KERNEL_KEYS, KERNEL_SECTIONS, controlGlobal, entriesOf, isDescriptor, isKernelFile, isUse, resolveData } from './data.mjs';
+import { FILE_KEYS, KERNEL_KEYS, KERNEL_SECTIONS, controlGlobal, entriesOf, isDescriptor, isKernelFile, isUse, loadData, resolveData } from './data.mjs';
 import { MEANING_SYNONYMS, descriptorProblems } from './descriptor.mjs';
 import { versionBelow } from './domain.mjs';
 import { HINT_UNITS, MAX_HINTS } from './hints.mjs';
@@ -133,8 +134,19 @@ function sentenceRules(r, k, entry, what, say) {
 }
 
 
+/**
+ * This package's own items, resolved once: the shared words (PARAM_SCALES, PARAM_UNITS, ...) a consumer's data names
+ * without declaring. The sorting pass moved them into the param domain (V21, V23a+b), out of every consumer's data, so
+ * a word is read from the data under validation first and from here second; no rule names a word to find it.
+ */
+let contractItems;
+function contractItem(name) {
+  contractItems ??= resolveData(loadData(fileURLToPath(new URL('../data', import.meta.url))));
+  return contractItems.get(name);
+}
+
 function semanticRules(resolved, say) {
-  const val = (name) => resolved.get(name)?.value;
+  const val = (name) => (resolved.get(name) ?? contractItem(name))?.value;
   for (const r of resolved.values()) {
     if (r.kind === 'set') {
       if (r.default !== undefined && !r.value.includes(r.default)) say(r.rel, r.name, 'set-default', `default ${JSON.stringify(r.default)} is not one of ${JSON.stringify(r.value)}`);

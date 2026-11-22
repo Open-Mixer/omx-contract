@@ -11,7 +11,7 @@ import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { UNION, resolvedOf, texts, undocumented } from './helpers.mjs';
+import { UNION, relOf, resolvedOf, texts, undocumented } from './helpers.mjs';
 
 const swell = 'data/kernels/swell.json';
 const readout = (over = {}) => ({ name: 'gainReductionDb', doc: 'The swell gain reduction.', unit: 'dB', min: { ref: 'SWELL_LIMITS.rangeDb.min' }, max: 0, scale: 'linear', rateHz: 50, ...over });
@@ -131,4 +131,12 @@ test('per-band readouts: a gap, a band out of order, a band 0, a zero-padded ban
   assert.equal(problems(withReadouts([...dyneq(), ...multiband()])), '', 'two stems are two runs');
   assert.match(problems(withReadouts([list[0], second, list[1]])), /readout-band:.*the bands sit at ids 0, 2, not side by side/);
   assert.match(problems(withReadouts([readout({ name: 'band01GainDb', min: -24, max: 12 })])), /readout-band:.*band01GainDb: a band is numbered from 1 with no leading zero/);
+});
+
+test('a consumer\'s data names the shared words without declaring them: PARAM_SCALES and PARAM_UNITS are read from this package', () => {
+  // A consumer's data/ (omx-dsp's kernels) does not declare them: the sorting pass moved the words into the param
+  // domain (V21, V23a+b). 2026-11-22: every readout scale and every curve unit was refused as undeclared there.
+  const consumer = (list) => withReadouts(list, (d) => { delete d[relOf('PARAM_SCALES')]; });
+  assert.doesNotMatch(problems(consumer([readout(), second])), /PARAM_SCALES|PARAM_UNITS/);
+  assert.match(problems(consumer([readout({ scale: 'exp' })])), /scale "exp" is not an id of PARAM_SCALES/);
 });

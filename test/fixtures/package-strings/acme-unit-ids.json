@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/omx-contract.schema.json",
+  "render": {
+    "c": [
+      {
+        "header": "acme_unit_ids.h",
+        "guard": "ACME_UNIT_IDS_H",
+        "project": "acme-core",
+        "banner": ["Rendered from ACME_UNIT_IDS of acme-unit-ids.json: the standard unit id of each acme unit code."],
+        "brief": "The standard unit id of each acme unit code, as one X-macro over the ACME_UNIT_ defines of acme_units.h.",
+        "strings": { "comment": "every token as X(code define, \"token\", \"standard id\"), in the sheet's order", "prefix": "ACME_UNIT_", "table": "ACME_UNIT_IDS" }
+      }
+    ]
+  },
+  "ACME_UNIT_IDS": {
+    "kind": "sheet",
+    "doc": "The standard unit id (a PARAM_UNITS const) of each acme token: the fixture of a code-to-id map, never an owner's data.",
+    "value": { "none": "none", "db": "dB", "pc": "percent", "semitone12TET": "st", "degree": "deg", "dbPerOct": "dB-oct" }
+  }
+}

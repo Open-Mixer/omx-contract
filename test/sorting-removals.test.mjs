@@ -3,11 +3,13 @@
 // The items the vocabulary sorting pass moves out of omx-contract, each to the new home its row names, leave here
 // (docs/ownership-map.md): V22 READOUT_RATE_HZ (to omx-dsp, `data/primitives/readout.json`), V25 RT_HARD_TARGET and the oracle
 // rate lists (to omx-dsp; the standard rates and quanta stay), V26 CURVE_AXES and CURVE_KINDS (to omx-dsp) and V24
-// PLUGIN_FEATURE_* (to plugin-db, its `plugin-feature` domain). Each is gone from the read of data/ (through the
+// PLUGIN_FEATURE_* (to plugin-db, its `plugin-feature` domain), V23d OMX_PARAM_CONTRACT_UNITS (to omx-clap, with
+// omx_param_units.h). Each is gone from the read of data/ (through the
 // loader every render takes), from the committed renders, from the catalogs and from the ownership lists, and its
 // file is gone when nothing else was in it. Sabotage arm: the same checks over a copy of data/ that still holds
 // READOUT_RATE_HZ name it.
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -20,8 +22,10 @@ const ROWS = {
   V25: ['RT_HARD_TARGET', 'ORACLE_FLOOR_RATES', 'ORACLE_FULL_RATES'],
   V26: ['CURVE_AXES', 'CURVE_KINDS'],
   V24: ['PLUGIN_FEATURE_AUDIO_EFFECT', 'PLUGIN_FEATURE_INSTRUMENT', 'PLUGIN_FEATURE_NOTE_EFFECT', 'PLUGIN_FEATURE_ANALYZER', 'PLUGIN_FEATURE_OTHER'],
+  V23d: ['OMX_PARAM_CONTRACT_UNITS'],
 };
 const GONE = Object.values(ROWS).flat();
+const hasCc = () => spawnSync('cc', ['--version']).status === 0;
 const RENDERS = ['include/omxcontract/omx_contract_limits.h', 'include/omxcontract/omx_vocabulary.h', 'share/omx-contract/omx-contract.json', 'share/omx-contract/omx-vocabulary.schema.json', 'test/golden/ts/omx-contract.d.ts', 'test/golden/ts/omx-contract.js'];
 const LANGS = ['ca', 'de', 'es', 'fr', 'it', 'pt'];
 
@@ -33,7 +37,7 @@ const inRead = (data) => GONE.filter((n) => loadData(data).items.has(n));
 
 test('the leaving items are in no file of data/, read through the loader', () => {
   assert.deepEqual(inRead(DATA), []);
-  for (const f of ['primitives.json', 'curves.json', 'plugin-features.json']) assert.ok(!existsSync(join(DATA, f)), `data/${f} held only leaving items`);
+  for (const f of ['primitives.json', 'curves.json', 'plugin-features.json', 'param-contract.json']) assert.ok(!existsSync(join(DATA, f)), `data/${f} held only leaving items`);
   const rates = JSON.parse(readFileSync(join(DATA, 'rates.json'), 'utf8'));
   assert.ok(rates.STANDARD_SAMPLE_RATES && rates.STANDARD_QUANTA, 'the standard rates and quanta stay (V25)');
 });
@@ -99,13 +103,34 @@ test('the omx-clap package names: no old package spelling outside the release hi
   assert.deepEqual(hits, []);
 });
 
-// V23d: the unit codes of org.openmixer.param-contract/1 are a CLAP particular, ruled to move to omx-clap. Not in this
-// pass (coordinator ruling, 2026-11-21): the sheet keeps its one home here, and the move is ONE change later, with the
-// console's reader switch (the sheet moves, every reader switches, and this copy is removed together). Until then the
-// sheet, its file and its render are present.
-test('V23d: OMX_PARAM_CONTRACT_UNITS, data/param-contract.json and omx_param_units.h stay until the console switches', () => {
-  assert.ok(loadData(DATA).items.has('OMX_PARAM_CONTRACT_UNITS'));
-  assert.ok(existsSync(join(DATA, 'param-contract.json')));
-  assert.ok(existsSync(join(ROOT, 'include/omxcontract/omx_param_units.h')));
-  assert.match(readFileSync(join(ROOT, 'include/omxcontract/omx_param_units.h'), 'utf8'), /^#define OMX_CLAP_UNIT_DB 13u /m);
+// V23d: the unit codes of org.openmixer.param-contract/1 are a CLAP particular, and the sheet moves to omx-clap in ONE
+// step of the chain-3 omx-contract layer (coordinator ruling B1, 2026-11-22: no window in which both serve it, no
+// rename, no alias): the item, data/param-contract.json and its header omx_param_units.h leave together, and a consumer
+// that still includes the header here fails to build, naming it. omx-clap's own header carries the same defines.
+test('V23d: OMX_PARAM_CONTRACT_UNITS, data/param-contract.json and omx_param_units.h are gone, and nothing installs the header', () => {
+  assert.ok(!loadData(DATA).items.has('OMX_PARAM_CONTRACT_UNITS'));
+  assert.ok(!existsSync(join(DATA, 'param-contract.json')));
+  assert.ok(!existsSync(join(ROOT, 'include/omxcontract/omx_param_units.h')));
+  for (const f of ['Makefile', 'debian/libomx-contract-dev.install', 'packaging/omx-contract.spec']) {
+    const text = readFileSync(join(ROOT, f), 'utf8').split('%changelog')[0];
+    assert.ok(!text.includes('omx_param_units.h'), `${f} names omx_param_units.h`);
+  }
+});
+
+test('V23d: a consumer that includes omxcontract/omx_param_units.h fails to build, naming the header', { skip: !hasCc() && 'no C compiler' }, () => {
+  const dir = mkdtempSync(join(tmpdir(), 'omx-v23d-'));
+  try {
+    // -nostdinc: only this tree's include/ is searched, never a header an older release installed on the build host
+    const cc = (name) => spawnSync('cc', ['-std=c11', '-nostdinc', '-fsyntax-only', '-I', join(ROOT, 'include'), join(dir, name)], { encoding: 'utf8' });
+    writeFileSync(join(dir, 'consumer.c'), '#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_param_units.h>\nint main(void) { return (int)OMX_CLAP_UNIT_DB; }\n');
+    const r = cc('consumer.c');
+    assert.notEqual(r.status, 0, 'the old header still builds');
+    assert.match(r.stderr, /omxcontract\/omx_param_units\.h/);
+    // positive control: the same consumer without the old header builds
+    writeFileSync(join(dir, 'ok.c'), '#include <omxcontract/omx_vocabulary.h>\nint main(void) { return OMX_PARAM_UNITS_COUNT > 0u ? 0 : 1; }\n');
+    const ok = cc('ok.c');
+    assert.equal(ok.status, 0, ok.stderr);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

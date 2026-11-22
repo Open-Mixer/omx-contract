@@ -25,7 +25,7 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const TOP = {
   'rates.json': null,
   'resource-profile.json': 'RESOURCE_', 'verbs.json': 'VERB_',
-  'param-contract.json': 'OMX_PARAM_CONTRACT_', 'panel.json': 'PANEL_',
+  'panel.json': 'PANEL_',
 };
 
 const itemsOf = (doc) => Object.entries(doc).filter(([k]) => !k.startsWith('$') && !['requires', 'source', 'render', 'checks'].includes(k));

@@ -327,82 +327,6 @@
         }
       }
     },
-    "OMX_PARAM_CONTRACT_UNITS": {
-      "rel": "data/param-contract.json",
-      "kind": "sheet",
-      "doc": "The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.",
-      "since": "3.6.0",
-      "docs": {
-        "none": "no unit: a plain number, a switch, an index",
-        "s": "seconds",
-        "ms": "milliseconds",
-        "min": "minutes",
-        "bar": "bars of the transport",
-        "beat": "beats of the transport",
-        "frame": "audio frames (samples) at the running rate",
-        "m": "metres",
-        "cm": "centimetres",
-        "mm": "millimetres",
-        "km": "kilometres",
-        "inch": "inches",
-        "mile": "miles",
-        "db": "decibels, a relative level or a gain",
-        "pc": "percent",
-        "coef": "a coefficient, a plain multiplier (1 is unity)",
-        "hz": "hertz",
-        "khz": "kilohertz",
-        "mhz": "megahertz",
-        "bpm": "beats per minute",
-        "oct": "octaves",
-        "cent": "cents, hundredths of a semitone",
-        "semitone12TET": "semitones of twelve-tone equal temperament",
-        "degree": "degrees of arc or of phase",
-        "midiNote": "a MIDI note number, 0 to 127",
-        "dbfs": "decibels relative to full scale, 0 the largest sample, a level (vendor block)",
-        "dbu": "decibels relative to 0.775 V RMS, an analogue level (vendor block)",
-        "ratio": "a ratio, n to 1, as a compressor states it (vendor block)",
-        "lufs": "loudness units relative to full scale, ITU-R BS.1770 (vendor block)",
-        "dbPerOct": "decibels per octave, a filter slope (vendor block)",
-        "dbPerS": "decibels per second, a rate of level change (vendor block)",
-        "dbtp": "decibels relative to full scale, true peak, ITU-R BS.1770 (vendor block)",
-        "lu": "loudness units, a loudness difference, ITU-R BS.1770 (vendor block)"
-      },
-      "value": {
-        "none": 0,
-        "s": 1,
-        "ms": 2,
-        "min": 3,
-        "bar": 4,
-        "beat": 5,
-        "frame": 6,
-        "m": 7,
-        "cm": 8,
-        "mm": 9,
-        "km": 10,
-        "inch": 11,
-        "mile": 12,
-        "db": 13,
-        "pc": 14,
-        "coef": 15,
-        "hz": 16,
-        "khz": 17,
-        "mhz": 18,
-        "bpm": 19,
-        "oct": 20,
-        "cent": 21,
-        "semitone12TET": 22,
-        "degree": 23,
-        "midiNote": 24,
-        "dbfs": 256,
-        "dbu": 257,
-        "ratio": 258,
-        "lufs": 259,
-        "dbPerOct": 260,
-        "dbPerS": 261,
-        "dbtp": 262,
-        "lu": 263
-      }
-    },
     "STANDARD_SAMPLE_RATES": {
       "rel": "data/rates.json",
       "kind": "list",
@@ -1303,6 +1227,345 @@
           "doc": "A unit only a descriptor's control states: the schema's $defs.descriptorUnit.",
           "text": {
             "en": "A unit only a descriptor's control states."
+          }
+        }
+      }
+    },
+    "PARAM_UNITS_CLAP_ENCODED": {
+      "rel": "param/param.json",
+      "kind": "words",
+      "doc": "The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none.",
+      "why": "A reader that asks whether a unit can be served reads omx-contract only, the innermost layer, so nothing reads outward to omx-clap (coordinator ruling B2, 2026-11-22). Derived by tools/clap-encoded.mjs, never typed.",
+      "since": "3.21.0",
+      "value": {
+        "db": {
+          "word": "dB",
+          "from": [
+            "PARAM_UNITS#db"
+          ],
+          "doc": "Decibels, a gain or a level relative to unity.",
+          "text": {
+            "en": "Decibels, a gain or a level relative to unity."
+          }
+        },
+        "dbfs": {
+          "word": "dBFS",
+          "from": [
+            "PARAM_UNITS#dbfs"
+          ],
+          "doc": "Decibels relative to digital full scale.",
+          "text": {
+            "en": "Decibels relative to digital full scale."
+          }
+        },
+        "ms": {
+          "word": "ms",
+          "from": [
+            "PARAM_UNITS#ms"
+          ],
+          "doc": "Milliseconds.",
+          "text": {
+            "en": "Milliseconds."
+          }
+        },
+        "s": {
+          "word": "s",
+          "from": [
+            "PARAM_UNITS#s"
+          ],
+          "doc": "Seconds.",
+          "text": {
+            "en": "Seconds."
+          }
+        },
+        "min": {
+          "word": "min",
+          "from": [
+            "PARAM_UNITS#min"
+          ],
+          "doc": "Minutes.",
+          "text": {
+            "en": "Minutes."
+          }
+        },
+        "hz": {
+          "word": "Hz",
+          "from": [
+            "PARAM_UNITS#hz"
+          ],
+          "doc": "Hertz, a frequency.",
+          "text": {
+            "en": "Hertz, a frequency."
+          }
+        },
+        "oct": {
+          "word": "oct",
+          "from": [
+            "PARAM_UNITS#oct"
+          ],
+          "doc": "Octaves, a bandwidth or an interval.",
+          "text": {
+            "en": "Octaves, a bandwidth or an interval."
+          }
+        },
+        "cents": {
+          "word": "cents",
+          "from": [
+            "PARAM_UNITS#cents"
+          ],
+          "doc": "Cents, a hundredth of a semitone.",
+          "text": {
+            "en": "Cents, a hundredth of a semitone."
+          }
+        },
+        "st": {
+          "word": "st",
+          "from": [
+            "PARAM_UNITS#st"
+          ],
+          "doc": "Semitones.",
+          "text": {
+            "en": "Semitones."
+          }
+        },
+        "percent": {
+          "word": "percent",
+          "from": [
+            "PARAM_UNITS#percent"
+          ],
+          "doc": "Percent.",
+          "text": {
+            "en": "Percent."
+          }
+        },
+        "x": {
+          "word": "x",
+          "from": [
+            "PARAM_UNITS#x"
+          ],
+          "doc": "A multiplier.",
+          "text": {
+            "en": "A multiplier."
+          }
+        },
+        "none": {
+          "word": "none",
+          "from": [
+            "PARAM_UNITS#none"
+          ],
+          "doc": "No unit: a ratio or a fraction.",
+          "text": {
+            "en": "No unit: a ratio or a fraction."
+          }
+        },
+        "dbPerOct": {
+          "word": "dB-oct",
+          "from": [
+            "PARAM_UNITS#dbPerOct"
+          ],
+          "doc": "A slope in dB per octave (a tilt).",
+          "text": {
+            "en": "A slope in dB per octave (a tilt)."
+          }
+        },
+        "lufs": {
+          "word": "LUFS",
+          "from": [
+            "PARAM_UNITS#lufs"
+          ],
+          "doc": "A loudness (ITU-R BS.1770).",
+          "text": {
+            "en": "A loudness (ITU-R BS.1770)."
+          }
+        },
+        "dbPerS": {
+          "word": "dB-s",
+          "from": [
+            "PARAM_UNITS#dbPerS"
+          ],
+          "doc": "A gain change per second.",
+          "text": {
+            "en": "A gain change per second."
+          }
+        },
+        "dbtp": {
+          "word": "dBTP",
+          "from": [
+            "PARAM_UNITS#dbtp"
+          ],
+          "doc": "Decibels true peak, a level measured between the samples (ITU-R BS.1770).",
+          "text": {
+            "en": "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+          }
+        },
+        "dbu": {
+          "word": "dBu",
+          "from": [
+            "PARAM_UNITS#dbu"
+          ],
+          "doc": "Decibels relative to 0.7746 volts RMS, an analogue level.",
+          "text": {
+            "en": "Decibels relative to 0.7746 volts RMS, an analogue level."
+          }
+        },
+        "lu": {
+          "word": "LU",
+          "from": [
+            "PARAM_UNITS#lu"
+          ],
+          "doc": "Loudness units, a loudness difference or range (EBU R 128).",
+          "text": {
+            "en": "Loudness units, a loudness difference or range (EBU R 128)."
+          }
+        },
+        "khz": {
+          "word": "kHz",
+          "from": [
+            "PARAM_UNITS#khz"
+          ],
+          "doc": "Kilohertz, a frequency.",
+          "text": {
+            "en": "Kilohertz, a frequency."
+          }
+        },
+        "mhz": {
+          "word": "MHz",
+          "from": [
+            "PARAM_UNITS#mhz"
+          ],
+          "doc": "Megahertz, a frequency.",
+          "text": {
+            "en": "Megahertz, a frequency."
+          }
+        },
+        "frames": {
+          "word": "frames",
+          "from": [
+            "PARAM_UNITS#frames"
+          ],
+          "doc": "Audio frames, one sample on each channel.",
+          "text": {
+            "en": "Audio frames, one sample on each channel."
+          }
+        },
+        "bpm": {
+          "word": "bpm",
+          "from": [
+            "PARAM_UNITS#bpm"
+          ],
+          "doc": "Beats per minute, a tempo.",
+          "text": {
+            "en": "Beats per minute, a tempo."
+          }
+        },
+        "bar": {
+          "word": "bar",
+          "from": [
+            "PARAM_UNITS#bar"
+          ],
+          "doc": "Bars, a musical length.",
+          "text": {
+            "en": "Bars, a musical length."
+          }
+        },
+        "beat": {
+          "word": "beat",
+          "from": [
+            "PARAM_UNITS#beat"
+          ],
+          "doc": "Beats, a musical length.",
+          "text": {
+            "en": "Beats, a musical length."
+          }
+        },
+        "m": {
+          "word": "m",
+          "from": [
+            "PARAM_UNITS#m"
+          ],
+          "doc": "Metres, a length.",
+          "text": {
+            "en": "Metres, a length."
+          }
+        },
+        "cm": {
+          "word": "cm",
+          "from": [
+            "PARAM_UNITS#cm"
+          ],
+          "doc": "Centimetres, a length.",
+          "text": {
+            "en": "Centimetres, a length."
+          }
+        },
+        "mm": {
+          "word": "mm",
+          "from": [
+            "PARAM_UNITS#mm"
+          ],
+          "doc": "Millimetres, a length.",
+          "text": {
+            "en": "Millimetres, a length."
+          }
+        },
+        "km": {
+          "word": "km",
+          "from": [
+            "PARAM_UNITS#km"
+          ],
+          "doc": "Kilometres, a length.",
+          "text": {
+            "en": "Kilometres, a length."
+          }
+        },
+        "inch": {
+          "word": "inch",
+          "from": [
+            "PARAM_UNITS#inch"
+          ],
+          "doc": "Inches, a length.",
+          "text": {
+            "en": "Inches, a length."
+          }
+        },
+        "mile": {
+          "word": "mile",
+          "from": [
+            "PARAM_UNITS#mile"
+          ],
+          "doc": "Miles, a length.",
+          "text": {
+            "en": "Miles, a length."
+          }
+        },
+        "degree": {
+          "word": "deg",
+          "from": [
+            "PARAM_UNITS#degree"
+          ],
+          "doc": "Degrees, an angle.",
+          "text": {
+            "en": "Degrees, an angle."
+          }
+        },
+        "midiNote": {
+          "word": "midiNote",
+          "from": [
+            "PARAM_UNITS#midiNote"
+          ],
+          "doc": "A MIDI note number.",
+          "text": {
+            "en": "A MIDI note number."
+          }
+        },
+        "ratio": {
+          "word": "ratio",
+          "from": [
+            "PARAM_UNITS#ratio"
+          ],
+          "doc": "A ratio n:1, a compressor's or an expander's.",
+          "text": {
+            "en": "A ratio n:1, a compressor's or an expander's."
           }
         }
       }

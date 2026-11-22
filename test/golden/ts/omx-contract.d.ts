@@ -326,46 +326,6 @@ export declare const PANEL_PLACEMENTS: {
 };
 
 /**
- * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0.
- * @see data/param-contract.json
- */
-export declare const OMX_PARAM_CONTRACT_UNITS: {
-  readonly none: 0;
-  readonly s: 1;
-  readonly ms: 2;
-  readonly min: 3;
-  readonly bar: 4;
-  readonly beat: 5;
-  readonly frame: 6;
-  readonly m: 7;
-  readonly cm: 8;
-  readonly mm: 9;
-  readonly km: 10;
-  readonly inch: 11;
-  readonly mile: 12;
-  readonly db: 13;
-  readonly pc: 14;
-  readonly coef: 15;
-  readonly hz: 16;
-  readonly khz: 17;
-  readonly mhz: 18;
-  readonly bpm: 19;
-  readonly oct: 20;
-  readonly cent: 21;
-  readonly semitone12TET: 22;
-  readonly degree: 23;
-  readonly midiNote: 24;
-  readonly dbfs: 256;
-  readonly dbu: 257;
-  readonly ratio: 258;
-  readonly lufs: 259;
-  readonly dbPerOct: 260;
-  readonly dbPerS: 261;
-  readonly dbtp: 262;
-  readonly lu: 263;
-};
-
-/**
  * The standard sample rates (Hz) the desk recognises, the pro-audio superset. One source of truth for the clock controller's `clock.allowed-rates` seed, the force row's validation ceiling and the device-rate probe fallback. What the operator is OFFERED is always the DEVICE's own `supportedRates`; this is the ceiling a write is refused by, never a menu.
  * @see data/rates.json
  */
@@ -1229,6 +1189,279 @@ export declare const PARAM_UNIT_SCOPES: {
 };
 
 /**
+ * The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none.
+ *
+ * Why: A reader that asks whether a unit can be served reads omx-contract only, the innermost layer, so nothing reads outward to omx-clap (coordinator ruling B2, 2026-11-22). Derived by tools/clap-encoded.mjs, never typed.
+ * @see contract.d/param/param.json
+ */
+export declare const PARAM_UNITS_CLAP_ENCODED: {
+  readonly db: {
+    readonly word: "dB";
+    readonly from: readonly ["PARAM_UNITS#db"];
+    readonly doc: "Decibels, a gain or a level relative to unity.";
+    readonly text: {
+      readonly en: "Decibels, a gain or a level relative to unity.";
+    };
+  };
+  readonly dbfs: {
+    readonly word: "dBFS";
+    readonly from: readonly ["PARAM_UNITS#dbfs"];
+    readonly doc: "Decibels relative to digital full scale.";
+    readonly text: {
+      readonly en: "Decibels relative to digital full scale.";
+    };
+  };
+  readonly ms: {
+    readonly word: "ms";
+    readonly from: readonly ["PARAM_UNITS#ms"];
+    readonly doc: "Milliseconds.";
+    readonly text: {
+      readonly en: "Milliseconds.";
+    };
+  };
+  readonly s: {
+    readonly word: "s";
+    readonly from: readonly ["PARAM_UNITS#s"];
+    readonly doc: "Seconds.";
+    readonly text: {
+      readonly en: "Seconds.";
+    };
+  };
+  readonly min: {
+    readonly word: "min";
+    readonly from: readonly ["PARAM_UNITS#min"];
+    readonly doc: "Minutes.";
+    readonly text: {
+      readonly en: "Minutes.";
+    };
+  };
+  readonly hz: {
+    readonly word: "Hz";
+    readonly from: readonly ["PARAM_UNITS#hz"];
+    readonly doc: "Hertz, a frequency.";
+    readonly text: {
+      readonly en: "Hertz, a frequency.";
+    };
+  };
+  readonly oct: {
+    readonly word: "oct";
+    readonly from: readonly ["PARAM_UNITS#oct"];
+    readonly doc: "Octaves, a bandwidth or an interval.";
+    readonly text: {
+      readonly en: "Octaves, a bandwidth or an interval.";
+    };
+  };
+  readonly cents: {
+    readonly word: "cents";
+    readonly from: readonly ["PARAM_UNITS#cents"];
+    readonly doc: "Cents, a hundredth of a semitone.";
+    readonly text: {
+      readonly en: "Cents, a hundredth of a semitone.";
+    };
+  };
+  readonly st: {
+    readonly word: "st";
+    readonly from: readonly ["PARAM_UNITS#st"];
+    readonly doc: "Semitones.";
+    readonly text: {
+      readonly en: "Semitones.";
+    };
+  };
+  readonly percent: {
+    readonly word: "percent";
+    readonly from: readonly ["PARAM_UNITS#percent"];
+    readonly doc: "Percent.";
+    readonly text: {
+      readonly en: "Percent.";
+    };
+  };
+  readonly x: {
+    readonly word: "x";
+    readonly from: readonly ["PARAM_UNITS#x"];
+    readonly doc: "A multiplier.";
+    readonly text: {
+      readonly en: "A multiplier.";
+    };
+  };
+  readonly none: {
+    readonly word: "none";
+    readonly from: readonly ["PARAM_UNITS#none"];
+    readonly doc: "No unit: a ratio or a fraction.";
+    readonly text: {
+      readonly en: "No unit: a ratio or a fraction.";
+    };
+  };
+  readonly dbPerOct: {
+    readonly word: "dB-oct";
+    readonly from: readonly ["PARAM_UNITS#dbPerOct"];
+    readonly doc: "A slope in dB per octave (a tilt).";
+    readonly text: {
+      readonly en: "A slope in dB per octave (a tilt).";
+    };
+  };
+  readonly lufs: {
+    readonly word: "LUFS";
+    readonly from: readonly ["PARAM_UNITS#lufs"];
+    readonly doc: "A loudness (ITU-R BS.1770).";
+    readonly text: {
+      readonly en: "A loudness (ITU-R BS.1770).";
+    };
+  };
+  readonly dbPerS: {
+    readonly word: "dB-s";
+    readonly from: readonly ["PARAM_UNITS#dbPerS"];
+    readonly doc: "A gain change per second.";
+    readonly text: {
+      readonly en: "A gain change per second.";
+    };
+  };
+  readonly dbtp: {
+    readonly word: "dBTP";
+    readonly from: readonly ["PARAM_UNITS#dbtp"];
+    readonly doc: "Decibels true peak, a level measured between the samples (ITU-R BS.1770).";
+    readonly text: {
+      readonly en: "Decibels true peak, a level measured between the samples (ITU-R BS.1770).";
+    };
+  };
+  readonly dbu: {
+    readonly word: "dBu";
+    readonly from: readonly ["PARAM_UNITS#dbu"];
+    readonly doc: "Decibels relative to 0.7746 volts RMS, an analogue level.";
+    readonly text: {
+      readonly en: "Decibels relative to 0.7746 volts RMS, an analogue level.";
+    };
+  };
+  readonly lu: {
+    readonly word: "LU";
+    readonly from: readonly ["PARAM_UNITS#lu"];
+    readonly doc: "Loudness units, a loudness difference or range (EBU R 128).";
+    readonly text: {
+      readonly en: "Loudness units, a loudness difference or range (EBU R 128).";
+    };
+  };
+  readonly khz: {
+    readonly word: "kHz";
+    readonly from: readonly ["PARAM_UNITS#khz"];
+    readonly doc: "Kilohertz, a frequency.";
+    readonly text: {
+      readonly en: "Kilohertz, a frequency.";
+    };
+  };
+  readonly mhz: {
+    readonly word: "MHz";
+    readonly from: readonly ["PARAM_UNITS#mhz"];
+    readonly doc: "Megahertz, a frequency.";
+    readonly text: {
+      readonly en: "Megahertz, a frequency.";
+    };
+  };
+  readonly frames: {
+    readonly word: "frames";
+    readonly from: readonly ["PARAM_UNITS#frames"];
+    readonly doc: "Audio frames, one sample on each channel.";
+    readonly text: {
+      readonly en: "Audio frames, one sample on each channel.";
+    };
+  };
+  readonly bpm: {
+    readonly word: "bpm";
+    readonly from: readonly ["PARAM_UNITS#bpm"];
+    readonly doc: "Beats per minute, a tempo.";
+    readonly text: {
+      readonly en: "Beats per minute, a tempo.";
+    };
+  };
+  readonly bar: {
+    readonly word: "bar";
+    readonly from: readonly ["PARAM_UNITS#bar"];
+    readonly doc: "Bars, a musical length.";
+    readonly text: {
+      readonly en: "Bars, a musical length.";
+    };
+  };
+  readonly beat: {
+    readonly word: "beat";
+    readonly from: readonly ["PARAM_UNITS#beat"];
+    readonly doc: "Beats, a musical length.";
+    readonly text: {
+      readonly en: "Beats, a musical length.";
+    };
+  };
+  readonly m: {
+    readonly word: "m";
+    readonly from: readonly ["PARAM_UNITS#m"];
+    readonly doc: "Metres, a length.";
+    readonly text: {
+      readonly en: "Metres, a length.";
+    };
+  };
+  readonly cm: {
+    readonly word: "cm";
+    readonly from: readonly ["PARAM_UNITS#cm"];
+    readonly doc: "Centimetres, a length.";
+    readonly text: {
+      readonly en: "Centimetres, a length.";
+    };
+  };
+  readonly mm: {
+    readonly word: "mm";
+    readonly from: readonly ["PARAM_UNITS#mm"];
+    readonly doc: "Millimetres, a length.";
+    readonly text: {
+      readonly en: "Millimetres, a length.";
+    };
+  };
+  readonly km: {
+    readonly word: "km";
+    readonly from: readonly ["PARAM_UNITS#km"];
+    readonly doc: "Kilometres, a length.";
+    readonly text: {
+      readonly en: "Kilometres, a length.";
+    };
+  };
+  readonly inch: {
+    readonly word: "inch";
+    readonly from: readonly ["PARAM_UNITS#inch"];
+    readonly doc: "Inches, a length.";
+    readonly text: {
+      readonly en: "Inches, a length.";
+    };
+  };
+  readonly mile: {
+    readonly word: "mile";
+    readonly from: readonly ["PARAM_UNITS#mile"];
+    readonly doc: "Miles, a length.";
+    readonly text: {
+      readonly en: "Miles, a length.";
+    };
+  };
+  readonly degree: {
+    readonly word: "deg";
+    readonly from: readonly ["PARAM_UNITS#degree"];
+    readonly doc: "Degrees, an angle.";
+    readonly text: {
+      readonly en: "Degrees, an angle.";
+    };
+  };
+  readonly midiNote: {
+    readonly word: "midiNote";
+    readonly from: readonly ["PARAM_UNITS#midiNote"];
+    readonly doc: "A MIDI note number.";
+    readonly text: {
+      readonly en: "A MIDI note number.";
+    };
+  };
+  readonly ratio: {
+    readonly word: "ratio";
+    readonly from: readonly ["PARAM_UNITS#ratio"];
+    readonly doc: "A ratio n:1, a compressor's or an expander's.";
+    readonly text: {
+      readonly en: "A ratio n:1, a compressor's or an expander's.";
+    };
+  };
+};
+
+/**
  * The words of PANEL_FAMILIES, in their declared order.
  * @see data/panel.json
  */
@@ -1311,3 +1544,9 @@ export declare const PARAM_UNIT_DIMENSIONS_WORDS: readonly ["none", "time", "fre
  * @see contract.d/param/param.json
  */
 export declare const PARAM_UNIT_SCOPES_WORDS: readonly ["param", "descriptor"];
+
+/**
+ * The words of PARAM_UNITS_CLAP_ENCODED, in their declared order.
+ * @see contract.d/param/param.json
+ */
+export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio"];

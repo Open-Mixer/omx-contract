@@ -197,7 +197,7 @@ test('contract.manifest.mismatch: an unlisted file, a listed file missing, a has
   writeFileSync(join(pkgDir(root, 'omx-contract'), 'stray.json'), '{}\n');
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch);
   root = installed();
-  rmSync(join(pkgDir(root, 'omx-contract'), 'param-contract.json'));
+  rmSync(join(pkgDir(root, 'omx-contract'), 'panel.json'));
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch);
   root = installed();
   const p = join(pkgDir(root, 'omx-contract'), 'rates.json');
@@ -287,10 +287,10 @@ test('contract.ref.unresolved and contract.ref.undeclared, and a reference its r
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.refUndeclared);
   root = installed();
   addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(3) }) }, '0.21.0');
-  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar({ ref: 'TEST_A' }), TEST_C: scalar({ ref: 'OMX_PARAM_CONTRACT_UNITS.ms' }) }, { 'omx-dsp': '>= 0.21.0' }) });
+  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar({ ref: 'TEST_A' }), TEST_C: scalar({ ref: 'STANDARD_QUANTA' }) }, { 'omx-dsp': '>= 0.21.0' }) });
   const r = resolveData(loadContractDir({ dir: root }));
   assert.equal(r.get('TEST_B').value, 3);
-  assert.equal(r.get('TEST_C').value, 2, 'an item of omx-contract needs no requires');
+  assert.deepEqual(r.get('TEST_C').value, r.get('STANDARD_QUANTA').value, 'an item of omx-contract needs no requires');
 });
 
 test('contract.package.absent and contract.package.too-old, from a file\'s requires and from the consumer\'s needs', () => {

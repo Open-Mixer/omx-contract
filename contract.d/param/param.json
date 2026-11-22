@@ -578,6 +578,443 @@
           }
         ],
         "x-kind": "words"
+      },
+      "PARAM_UNITS_CLAP_ENCODED": {
+        "description": "The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none.",
+        "x-since": "3.21.0",
+        "x-why": "A reader that asks whether a unit can be served reads omx-contract only, the innermost layer, so nothing reads outward to omx-clap (coordinator ruling B2, 2026-11-22). Derived by tools/clap-encoded.mjs, never typed.",
+        "oneOf": [
+          {
+            "const": "dB",
+            "title": "db",
+            "description": "Decibels, a gain or a level relative to unity.",
+            "x-code": 0,
+            "x-text": "Decibels, a gain or a level relative to unity.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "db"
+              }
+            ]
+          },
+          {
+            "const": "dBFS",
+            "title": "dbfs",
+            "description": "Decibels relative to digital full scale.",
+            "x-code": 1,
+            "x-text": "Decibels relative to digital full scale.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "dbfs"
+              }
+            ]
+          },
+          {
+            "const": "ms",
+            "title": "ms",
+            "description": "Milliseconds.",
+            "x-code": 2,
+            "x-text": "Milliseconds.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "ms"
+              }
+            ]
+          },
+          {
+            "const": "s",
+            "title": "s",
+            "description": "Seconds.",
+            "x-code": 3,
+            "x-text": "Seconds.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "s"
+              }
+            ]
+          },
+          {
+            "const": "min",
+            "title": "min",
+            "description": "Minutes.",
+            "x-code": 4,
+            "x-text": "Minutes.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "min"
+              }
+            ]
+          },
+          {
+            "const": "Hz",
+            "title": "hz",
+            "description": "Hertz, a frequency.",
+            "x-code": 5,
+            "x-text": "Hertz, a frequency.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "hz"
+              }
+            ]
+          },
+          {
+            "const": "oct",
+            "title": "oct",
+            "description": "Octaves, a bandwidth or an interval.",
+            "x-code": 6,
+            "x-text": "Octaves, a bandwidth or an interval.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "oct"
+              }
+            ]
+          },
+          {
+            "const": "cents",
+            "title": "cents",
+            "description": "Cents, a hundredth of a semitone.",
+            "x-code": 7,
+            "x-text": "Cents, a hundredth of a semitone.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "cents"
+              }
+            ]
+          },
+          {
+            "const": "st",
+            "title": "st",
+            "description": "Semitones.",
+            "x-code": 8,
+            "x-text": "Semitones.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "st"
+              }
+            ]
+          },
+          {
+            "const": "percent",
+            "title": "percent",
+            "description": "Percent.",
+            "x-code": 9,
+            "x-text": "Percent.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "percent"
+              }
+            ]
+          },
+          {
+            "const": "x",
+            "title": "x",
+            "description": "A multiplier.",
+            "x-code": 10,
+            "x-text": "A multiplier.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "x"
+              }
+            ]
+          },
+          {
+            "const": "none",
+            "title": "none",
+            "description": "No unit: a ratio or a fraction.",
+            "x-code": 11,
+            "x-text": "No unit: a ratio or a fraction.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "none"
+              }
+            ]
+          },
+          {
+            "const": "dB-oct",
+            "title": "dbPerOct",
+            "description": "A slope in dB per octave (a tilt).",
+            "x-code": 12,
+            "x-text": "A slope in dB per octave (a tilt).",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "dbPerOct"
+              }
+            ]
+          },
+          {
+            "const": "LUFS",
+            "title": "lufs",
+            "description": "A loudness (ITU-R BS.1770).",
+            "x-code": 13,
+            "x-text": "A loudness (ITU-R BS.1770).",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "lufs"
+              }
+            ]
+          },
+          {
+            "const": "dB-s",
+            "title": "dbPerS",
+            "description": "A gain change per second.",
+            "x-code": 14,
+            "x-text": "A gain change per second.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "dbPerS"
+              }
+            ]
+          },
+          {
+            "const": "dBTP",
+            "title": "dbtp",
+            "description": "Decibels true peak, a level measured between the samples (ITU-R BS.1770).",
+            "x-code": 15,
+            "x-text": "Decibels true peak, a level measured between the samples (ITU-R BS.1770).",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "dbtp"
+              }
+            ]
+          },
+          {
+            "const": "dBu",
+            "title": "dbu",
+            "description": "Decibels relative to 0.7746 volts RMS, an analogue level.",
+            "x-code": 16,
+            "x-text": "Decibels relative to 0.7746 volts RMS, an analogue level.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "dbu"
+              }
+            ]
+          },
+          {
+            "const": "LU",
+            "title": "lu",
+            "description": "Loudness units, a loudness difference or range (EBU R 128).",
+            "x-code": 17,
+            "x-text": "Loudness units, a loudness difference or range (EBU R 128).",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "lu"
+              }
+            ]
+          },
+          {
+            "const": "kHz",
+            "title": "khz",
+            "description": "Kilohertz, a frequency.",
+            "x-code": 18,
+            "x-text": "Kilohertz, a frequency.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "khz"
+              }
+            ]
+          },
+          {
+            "const": "MHz",
+            "title": "mhz",
+            "description": "Megahertz, a frequency.",
+            "x-code": 19,
+            "x-text": "Megahertz, a frequency.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "mhz"
+              }
+            ]
+          },
+          {
+            "const": "frames",
+            "title": "frames",
+            "description": "Audio frames, one sample on each channel.",
+            "x-code": 20,
+            "x-text": "Audio frames, one sample on each channel.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "frames"
+              }
+            ]
+          },
+          {
+            "const": "bpm",
+            "title": "bpm",
+            "description": "Beats per minute, a tempo.",
+            "x-code": 21,
+            "x-text": "Beats per minute, a tempo.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "bpm"
+              }
+            ]
+          },
+          {
+            "const": "bar",
+            "title": "bar",
+            "description": "Bars, a musical length.",
+            "x-code": 22,
+            "x-text": "Bars, a musical length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "bar"
+              }
+            ]
+          },
+          {
+            "const": "beat",
+            "title": "beat",
+            "description": "Beats, a musical length.",
+            "x-code": 23,
+            "x-text": "Beats, a musical length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "beat"
+              }
+            ]
+          },
+          {
+            "const": "m",
+            "title": "m",
+            "description": "Metres, a length.",
+            "x-code": 24,
+            "x-text": "Metres, a length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "m"
+              }
+            ]
+          },
+          {
+            "const": "cm",
+            "title": "cm",
+            "description": "Centimetres, a length.",
+            "x-code": 25,
+            "x-text": "Centimetres, a length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "cm"
+              }
+            ]
+          },
+          {
+            "const": "mm",
+            "title": "mm",
+            "description": "Millimetres, a length.",
+            "x-code": 26,
+            "x-text": "Millimetres, a length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "mm"
+              }
+            ]
+          },
+          {
+            "const": "km",
+            "title": "km",
+            "description": "Kilometres, a length.",
+            "x-code": 27,
+            "x-text": "Kilometres, a length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "km"
+              }
+            ]
+          },
+          {
+            "const": "inch",
+            "title": "inch",
+            "description": "Inches, a length.",
+            "x-code": 28,
+            "x-text": "Inches, a length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "inch"
+              }
+            ]
+          },
+          {
+            "const": "mile",
+            "title": "mile",
+            "description": "Miles, a length.",
+            "x-code": 29,
+            "x-text": "Miles, a length.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "mile"
+              }
+            ]
+          },
+          {
+            "const": "deg",
+            "title": "degree",
+            "description": "Degrees, an angle.",
+            "x-code": 30,
+            "x-text": "Degrees, an angle.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "degree"
+              }
+            ]
+          },
+          {
+            "const": "midiNote",
+            "title": "midiNote",
+            "description": "A MIDI note number.",
+            "x-code": 31,
+            "x-text": "A MIDI note number.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "midiNote"
+              }
+            ]
+          },
+          {
+            "const": "ratio",
+            "title": "ratio",
+            "description": "A ratio n:1, a compressor's or an expander's.",
+            "x-code": 32,
+            "x-text": "A ratio n:1, a compressor's or an expander's.",
+            "x-from": [
+              {
+                "$ref": "https://openmixer.org/contract/param#/components/schemas/PARAM_UNITS",
+                "x-term": "ratio"
+              }
+            ]
+          }
+        ],
+        "x-kind": "words"
       }
     }
   }

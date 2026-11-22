@@ -58,7 +58,8 @@ test('(a) the committed renders carry the golden words: the scales enum, a defin
   assert.match(limits, /OMX_PARAM_SCALES_LINEAR = 0,[^\n]*\n {2}OMX_PARAM_SCALES_LOG = 1,[^\n]*\n {2}OMX_PARAM_SCALES_STEPPED = 2,/);
   assert.match(limits, /#define OMX_PARAM_SCALES_DEFAULT OMX_PARAM_SCALES_LINEAR/);
   const vocab = readFileSync(join(ROOT, 'include/omxcontract/omx_vocabulary.h'), 'utf8');
-  const defines = [...vocab.matchAll(/^#define OMX_PARAM_UNITS_(\w+) "([^"]*)"/gm)].filter((m) => !m[1].endsWith('_TEXT_EN')).map((m) => [m[1], m[2]]);
+  // OMX_PARAM_UNITS_CLAP_ENCODED_* are the defines of the words item PARAM_UNITS_CLAP_ENCODED (V23d B2), not of PARAM_UNITS
+  const defines = [...vocab.matchAll(/^#define OMX_PARAM_UNITS_(\w+) "([^"]*)"/gm)].filter((m) => !m[1].endsWith('_TEXT_EN') && !m[1].startsWith('CLAP_ENCODED_')).map((m) => [m[1], m[2]]);
   assert.deepEqual(defines, GOLDEN.map((g) => [upperSnake(g.key), g.word]));
   for (const d of new Set(GOLDEN.map((g) => g.dimension))) assert.match(vocab, new RegExp(`#define OMX_PARAM_UNIT_DIMENSIONS_\\w+ "${d}"`), d);
   for (const sc of ['param', 'descriptor']) assert.match(vocab, new RegExp(`#define OMX_PARAM_UNIT_SCOPES_${sc.toUpperCase()} "${sc}"`), sc);

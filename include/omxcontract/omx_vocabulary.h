@@ -564,4 +564,120 @@
 #define OMX_PARAM_UNIT_SCOPES(X) \
     X(0u, "param", PARAM) X(1u, "descriptor", DESCRIPTOR)
 
+/* PARAM_UNITS_CLAP_ENCODED (contract.d/param/param.json) */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB "dB" ///< Decibels, a gain or a level relative to unity.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DB. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_TEXT_EN "Decibels, a gain or a level relative to unity."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DBFS "dBFS" ///< Decibels relative to digital full scale.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DBFS. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DBFS_TEXT_EN "Decibels relative to digital full scale."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MS "ms" ///< Milliseconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_MS. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MS_TEXT_EN "Milliseconds."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_S "s" ///< Seconds.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_S. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_S_TEXT_EN "Seconds."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MIN "min" ///< Minutes.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_MIN. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MIN_TEXT_EN "Minutes."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_HZ "Hz" ///< Hertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_HZ. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_HZ_TEXT_EN "Hertz, a frequency."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_OCT "oct" ///< Octaves, a bandwidth or an interval.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_OCT. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_OCT_TEXT_EN "Octaves, a bandwidth or an interval."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_CENTS "cents" ///< Cents, a hundredth of a semitone.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_CENTS. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_CENTS_TEXT_EN "Cents, a hundredth of a semitone."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_ST "st" ///< Semitones.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_ST. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_ST_TEXT_EN "Semitones."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_PERCENT "percent" ///< Percent.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_PERCENT. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_PERCENT_TEXT_EN "Percent."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_X "x" ///< A multiplier.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_X. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_X_TEXT_EN "A multiplier."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_NONE "none" ///< No unit: a ratio or a fraction.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_NONE. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_NONE_TEXT_EN "No unit: a ratio or a fraction."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT "dB-oct" ///< A slope in dB per octave (a tilt).
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT_TEXT_EN "A slope in dB per octave (a tilt)."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_LUFS "LUFS" ///< A loudness (ITU-R BS.1770).
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_LUFS. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_LUFS_TEXT_EN "A loudness (ITU-R BS.1770)."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S "dB-s" ///< A gain change per second.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S_TEXT_EN "A gain change per second."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DBTP "dBTP" ///< Decibels true peak, a level measured between the samples (ITU-R BS.1770).
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DBTP. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DBTP_TEXT_EN "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DBU "dBu" ///< Decibels relative to 0.7746 volts RMS, an analogue level.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DBU. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DBU_TEXT_EN "Decibels relative to 0.7746 volts RMS, an analogue level."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_LU "LU" ///< Loudness units, a loudness difference or range (EBU R 128).
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_LU. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_LU_TEXT_EN "Loudness units, a loudness difference or range (EBU R 128)."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_KHZ "kHz" ///< Kilohertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_KHZ. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_KHZ_TEXT_EN "Kilohertz, a frequency."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MHZ "MHz" ///< Megahertz, a frequency.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_MHZ. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MHZ_TEXT_EN "Megahertz, a frequency."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_FRAMES "frames" ///< Audio frames, one sample on each channel.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_FRAMES. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_FRAMES_TEXT_EN "Audio frames, one sample on each channel."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_BPM "bpm" ///< Beats per minute, a tempo.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_BPM. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_BPM_TEXT_EN "Beats per minute, a tempo."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_BAR "bar" ///< Bars, a musical length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_BAR. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_BAR_TEXT_EN "Bars, a musical length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_BEAT "beat" ///< Beats, a musical length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_BEAT. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_BEAT_TEXT_EN "Beats, a musical length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_M "m" ///< Metres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_M. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_M_TEXT_EN "Metres, a length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_CM "cm" ///< Centimetres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_CM. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_CM_TEXT_EN "Centimetres, a length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MM "mm" ///< Millimetres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_MM. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MM_TEXT_EN "Millimetres, a length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_KM "km" ///< Kilometres, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_KM. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_KM_TEXT_EN "Kilometres, a length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_INCH "inch" ///< Inches, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_INCH. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_INCH_TEXT_EN "Inches, a length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MILE "mile" ///< Miles, a length.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_MILE. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MILE_TEXT_EN "Miles, a length."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DEGREE "deg" ///< Degrees, an angle.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DEGREE. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DEGREE_TEXT_EN "Degrees, an angle."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MIDI_NOTE "midiNote" ///< A MIDI note number.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_MIDI_NOTE. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_MIDI_NOTE_TEXT_EN "A MIDI note number."
+#define OMX_PARAM_UNITS_CLAP_ENCODED_RATIO "ratio" ///< A ratio n:1, a compressor's or an expander's.
+/** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_RATIO. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_RATIO_TEXT_EN "A ratio n:1, a compressor's or an expander's."
+/** The number of words of PARAM_UNITS_CLAP_ENCODED. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_COUNT 33u
+/** The words of PARAM_UNITS_CLAP_ENCODED in their declared order, as a C initializer list. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS_CLAP_ENCODED, in order, the code being its place in the order. The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none. */
+#define OMX_PARAM_UNITS_CLAP_ENCODED(X) \
+    X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
+    X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
+    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "x", X) X(11u, "none", NONE) \
+    X(12u, "dB-oct", DB_PER_OCT) X(13u, "LUFS", LUFS) X(14u, "dB-s", DB_PER_S) X(15u, "dBTP", DBTP) \
+    X(16u, "dBu", DBU) X(17u, "LU", LU) X(18u, "kHz", KHZ) X(19u, "MHz", MHZ) \
+    X(20u, "frames", FRAMES) X(21u, "bpm", BPM) X(22u, "bar", BAR) X(23u, "beat", BEAT) \
+    X(24u, "m", M) X(25u, "cm", CM) X(26u, "mm", MM) X(27u, "km", KM) \
+    X(28u, "inch", INCH) X(29u, "mile", MILE) X(30u, "deg", DEGREE) X(31u, "midiNote", MIDI_NOTE) \
+    X(32u, "ratio", RATIO)
+
 #endif /* OMX_VOCABULARY_H */

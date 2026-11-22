@@ -125,44 +125,15 @@ test('a moved item and its words leave together: removing both is green', () => 
   assert.equal(r.status, 0, r.out);
 });
 
-// ownership/grow-exceptions.txt (coordinator ruling 2026-11-21): the moving-out OMX_PARAM_CONTRACT_UNITS grows by
-// dbPerOct, dbPerS, dbtp and lu, the words its ruling names, and by nothing else.
-const SHEET = 'data/param-contract.json';
-const growUnits = (codes) => {
-  editJson(SHEET, (d) => {
-    for (const [w, c] of Object.entries(codes)) { d.OMX_PARAM_CONTRACT_UNITS.value[w] = c; d.OMX_PARAM_CONTRACT_UNITS.docs[w] = `${w} (vendor block)`; }
-  });
-  const u = spawnSync(process.execPath, [TOOL, '--root', dir, '--base', 'HEAD', '--update'], { encoding: 'utf8' });
-  assert.equal(u.status, 0, u.stderr);
-};
-const RULED = { dbPerOct: 260, dbPerS: 261, dbtp: 262, lu: 263 };
+// ownership/grow-exceptions.txt: a moving-out item grows only by the words a ruling names (GROW_RULED). The one ruled
+// growth, OMX_PARAM_CONTRACT_UNITS (coordinator 2026-11-21), went with the item when it moved to omx-clap (V23d), so
+// GROW_RULED is empty and so is the file: any entry is refused by name.
 const EXC = 'ownership/grow-exceptions.txt';
-const ENTRY = 'OMX_PARAM_CONTRACT_UNITS | dbPerOct dbPerS dbtp lu | coordinator 2026-11-21: V23d not in this pass; vendor codes 260-263 so the clap layer compiles';
+const MOVED = 'OMX_PARAM_CONTRACT_UNITS | dbPerOct dbPerS dbtp lu | coordinator 2026-11-21: V23d not in this pass; vendor codes 260-263 so the clap layer compiles';
 
-test('grow exception: the moving-out units sheet grows by the four ruled words, green', () => {
+test('grow exception: an entry for a moving-out item with no ruled growth is refused by name', () => {
   reset();
-  write(EXC, `${ENTRY}\n`);
-  growUnits(RULED);
-  const r = run();
-  assert.equal(r.status, 0, r.out);
-});
-
-test('grow exception: a fifth word is refused by name, in the data and in the entry', () => {
-  reset();
-  write(EXC, `${ENTRY}\n`);
-  growUnits({ ...RULED, planted: 264 });
-  let r = run();
-  assert.equal(r.status, 1);
-  assert.match(r.out, /OMX_PARAM_CONTRACT_UNITS: the word "planted" is added to a moving out item/);
-  write(EXC, `${ENTRY.replace('dbtp lu', 'dbtp lu planted')}\n`);
-  r = run();
-  assert.equal(r.status, 1);
-  assert.match(r.out, /grow-exceptions\.txt: OMX_PARAM_CONTRACT_UNITS: the word "planted" is no word its ruling names/);
-});
-
-test('grow exception: an entry for another item is refused by name', () => {
-  reset();
-  write(EXC, `${ENTRY}\nPANEL_FAMILIES | utility_x | coordinator 2026-11-21: planted\n`);
+  write(EXC, 'PANEL_FAMILIES | utility_x | coordinator 2026-11-21: planted\n');
   const r = run();
   assert.equal(r.status, 1);
   assert.match(r.out, /grow-exceptions\.txt: PANEL_FAMILIES has no ruled growth/);
@@ -170,18 +141,15 @@ test('grow exception: an entry for another item is refused by name', () => {
 
 test('grow exception: an entry with no ruling text is refused', () => {
   reset();
-  write(EXC, 'OMX_PARAM_CONTRACT_UNITS | dbPerOct dbPerS dbtp lu |\n');
+  write(EXC, 'PANEL_FAMILIES | utility_x |\n');
   const r = run();
   assert.equal(r.status, 1);
-  assert.match(r.out, /grow-exceptions\.txt: OMX_PARAM_CONTRACT_UNITS names no ruling/);
+  assert.match(r.out, /grow-exceptions\.txt: PANEL_FAMILIES names no ruling/);
 });
 
-test('grow exception: once the item has moved, a leftover entry is refused and the empty file is green', () => {
+test('grow exception: the moved units sheet\'s leftover entry is refused, and the empty file is green', () => {
   reset();
-  write(EXC, `${ENTRY}\n`);
-  rmSync(join(dir, SHEET));
-  editList('ownership/moving-out.txt', (l) => l.filter((n) => n !== 'OMX_PARAM_CONTRACT_UNITS'));
-  editJson('ownership/words.json', (d) => { delete d.OMX_PARAM_CONTRACT_UNITS; });
+  write(EXC, `${MOVED}\n`);
   let r = run();
   assert.equal(r.status, 1);
   assert.match(r.out, /grow-exceptions\.txt: OMX_PARAM_CONTRACT_UNITS is not on ownership\/moving-out\.txt: .*the file is empty/);

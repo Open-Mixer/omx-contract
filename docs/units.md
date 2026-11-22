@@ -274,7 +274,8 @@ eye:
 So the values of omx-clap's `OMX_PARAM_CONTRACT_UNIT_IDS` are ids: `db` maps to `dB`, `degree` to `deg`,
 `dbPerOct` to `dB-oct`, and its check holds each value to a `const` of `PARAM_UNITS`, not to a key. Arm (c) of
 omx-clap's map check uses `coef`, never `x`: it runs against #181 merged with #170 (`x` removed, `coef` the one plain
-multiplier), since #170 lands before or with #181 in chain 3's one omx-contract layer.
+multiplier), with no fallback to `x`: #170 lands before or with #181 as one chain-3 omx-contract layer, and if
+#170 slips, #171 waits with it.
 
 ### Q-b: the code-to-id lookup is a rendered X-macro
 
@@ -328,14 +329,22 @@ Open-Mixer/omx-clap-core#171 builds against it.
   }
   ```
 
-- **Where the section is declared. Ruling (coordinator, 2026-11-22):** no item-level `x-render`. The ids'
-  `strings` section is declared in the domain's ROOT `x-render`, the one form omx-contract reads, if that root form
-  can name `OMX_PARAM_CONTRACT_UNIT_IDS` for the `strings` section with no new reader key. If it cannot, there is no
-  separate `omx_param_unit_ids.h` in this pass, and the header is a post-pass issue. Which branch holds is being
-  checked in the chain-3 omx-contract lane (#181). **Why:** a pass changes no format, and an `x-render` on an item,
-  or a new key of the root form, would be a format change. (The root form's header reads the items of its
-  `x-file`; whether it can give the `strings` section the ids sheet alone, and the `numbers` section the code sheet
-  alone, with the keys it has, is the open fact.)
+- **Where the section is declared. Ruling (coordinator, 2026-11-22, final; measured: package-scope entry, headers
+  byte-equal, 102 items valid):** the root form, with no item-level `x-render` and no new reader key. One domain
+  document holds the units sheet and the ids sheet, each with its own `x-file` (`param-contract.json`,
+  `param-unit-ids.json`). Its ROOT `x-render` lists two headers: `omx_param_units.h` (`numbers`, the default scope,
+  `file`) and `omx_param_unit_ids.h` (`strings`, with the existing key `"scope": "package"`, which takes the
+  package's string sheets, that is `OMX_PARAM_CONTRACT_UNIT_IDS`). **Why:** no item carries an `x-render` and the
+  root form gains no key, so a pass changes no format. **Caveat:** any later omx-clap string sheet would join
+  `OMX_PARAM_UNIT_IDS`, so the render refuses a second string sheet under `scope: package` by name.
+
+  ```json
+  "x-render": { "c": [
+    { "header": "omx_param_units.h", "...": "...",
+      "numbers": { "comment": "...", "prefix": "OMX_CLAP_UNIT_", "table": "OMX_PARAM_UNITS" } },
+    { "header": "omx_param_unit_ids.h", "...": "...", "scope": "package",
+      "strings": { "comment": "...", "prefix": "OMX_CLAP_UNIT_", "table": "OMX_PARAM_UNIT_IDS" } } ] }
+  ```
 - **The refusals, by name.** The render refuses, naming the header, the item and the field:
   - a field that the sibling numbers sheet (`OMX_PARAM_CONTRACT_UNITS`, the sheet of the header whose
     `numbers.prefix` is this section's prefix) does not name: a row whose first argument would be no define;
@@ -436,8 +445,9 @@ schema (`sheetValue` holds numbers only today) and in the domain reader (a sheet
 `strings` section and its refusals in `render/c/owner-headers.mjs`, which need two items outside the header's own
 file (the sibling sheet and `PARAM_UNITS`), and their tests, red first: a golden `omx_param_unit_ids.h`, and a
 sabotage arm per refusal (a field the units sheet lacks, a value `db`, a read without `PARAM_UNITS`). omx-clap then
-declares the section in its domain's root `x-render` and renders the header (Open-Mixer/omx-clap-core#171), or,
-on the other branch of the ruling above, renders no separate header in this pass.
+gives `OMX_PARAM_CONTRACT_UNIT_IDS` its own `x-file`, declares the second header in its domain's root `x-render`
+and renders it (Open-Mixer/omx-clap-core#171). The arms gain one: a second string sheet in the package, refused by
+name.
 
 `PARAM_UNITS_CLAP_ENCODED` (B2, question 23) is code of the same chain-3 omx-contract PR: the `"x-kind": "words"`
 item in the `param` domain, red first: the words copy holds `dB-oct` (and `dB-s`), each word's `x-from` naming its
@@ -498,7 +508,7 @@ From B2 above:
       copying `PARAM_UNITS` words by `x-from`, each keeping its own `x-code`; no format change. **Limit:** a
       non-prefix of `PARAM_UNITS` is refused by name, and is a new question then. **Why:** a move changes no format,
       and a set cannot hold the served ids. The copy holds because the served ids are `PARAM_UNITS` codes 0 to 32, a
-      prefix of the list (against #181 merged with #170, with the `coef` token on `coef`), and a
+      prefix of the list (against #181 merged with #170, the `coef` token on `coef`, no fallback to `x`), and a
       words item's codes are its places, so a copied word's place and code agree; `validate`'s `word-from` and
       `word-from-differs` check every member.
     - Considered and not taken: widening the set id pattern to allow `-` (a format change), and no omx-contract form

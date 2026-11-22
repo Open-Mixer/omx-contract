@@ -112,3 +112,27 @@ test('(c) sabotage: a domain without log and dBu: the scales lack log, the rende
     assert.ok(!descriptorUnitWords(dir).includes('dBu'));
   });
 });
+
+// The meaning of each scale, as plugin-hostd-protocol's tools/param-scales-gen.py reads it (the word's `description`,
+// first letter lowered, no final stop) into the rows of PHD_PARAM_SCALES. The meanings were protocol.h's own before the
+// sorting pass moved the item (include/plugin-hostd/protocol.h at 710a745^, lines 1068-1071); a move carries every field.
+const SCALE_MEANINGS = [
+  ['linear', 'The value is linear in position.'],
+  ['log', 'The value is geometric in position; both bounds are positive.'],
+  ['stepped', 'The whole numbers from min to max, step 1.'],
+];
+
+/** The PARAM_SCALES words that carry no `description`, by const. */
+const scalesWithoutMeaning = (s) => s.PARAM_SCALES.oneOf.filter((w) => typeof w.description !== 'string' || w.description === '').map((w) => w.const);
+
+test('(d) every PARAM_SCALES word carries its meaning, the description the protocol rows are written from', () => {
+  const s = schemas();
+  assert.deepEqual(scalesWithoutMeaning(s), [], 'a PARAM_SCALES word with no description');
+  assert.deepEqual(s.PARAM_SCALES.oneOf.map((w) => [w.const, w.description]), SCALE_MEANINGS);
+});
+
+test('(d) sabotage: a PARAM_SCALES word whose description is removed is named', () => {
+  const s = schemas();
+  delete s.PARAM_SCALES.oneOf.find((w) => w.const === 'log').description;
+  assert.deepEqual(scalesWithoutMeaning(s), ['log']);
+});

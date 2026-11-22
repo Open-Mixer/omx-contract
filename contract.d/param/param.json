@@ -16,16 +16,19 @@
           {
             "const": "linear",
             "title": "linear",
+            "description": "The value is linear in position.",
             "x-code": 0
           },
           {
             "const": "log",
             "title": "log",
+            "description": "The value is geometric in position; both bounds are positive.",
             "x-code": 1
           },
           {
             "const": "stepped",
             "title": "stepped",
+            "description": "The whole numbers from min to max, step 1.",
             "x-code": 2
           }
         ],

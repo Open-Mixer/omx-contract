@@ -4,8 +4,9 @@
 // own file, rendered as the X-macro <table>(X), one X(<prefix><FIELD>, "<field>", "<value>") per field, the first
 // argument the very define a sibling header's numbers section renders (constCase: dbPerOct is DB_PER_OCT), the value
 // a PARAM_UNITS const. Over a FIXTURE package (test/fixtures/package-strings), never an owner's data: the header byte
-// for byte (test/golden/strings/acme_unit_ids.h), a C consumer joining the two headers, the string sheet valid in
-// its data form and as a domain item with its own x-file, and one refusal per rule, by name: a field the sibling sheet
+// for byte (test/golden/strings/acme_unit_ids.h, and acme_units.h with its own numbers rows only), a C consumer
+// joining the two headers, the string sheet valid in its data form and in the root form a domain ships it in (its own
+// x-file, the one root x-render, the ids header with scope package), and one refusal per rule, by name: a field the sibling sheet
 // does not name, a value that is no PARAM_UNITS const, a read that lacks the sibling or PARAM_UNITS, and a sheet that
 // mixes numbers and strings.
 import assert from 'node:assert/strict';
@@ -22,6 +23,7 @@ import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/package-strings');
 const GOLDEN = join(ROOT, 'test/golden/strings/acme_unit_ids.h');
+const UNITS_GOLDEN = join(ROOT, 'test/golden/strings/acme_units.h');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
 const SH = join(ROOT, 'tools/install-contract-dir.sh');
 const UNITS = 'data/acme-units.json';
@@ -46,6 +48,7 @@ const problems = (t) => validateData(loadData(DATA, t)).map((p) => `${p.item}:${
 test('the strings section renders the golden header byte for byte, each row naming a define of the sibling header', () => {
   const h = header(texts());
   assert.equal(h, readFileSync(GOLDEN, 'utf8'));
+  assert.equal(header(texts(), 'acme_units.h'), readFileSync(UNITS_GOLDEN, 'utf8'), 'the units header holds its own numbers rows only');
   assert.match(h, /^ {4}X\(ACME_UNIT_DB_PER_OCT, "dbPerOct", "dB-oct"\)$/m, 'constCase: dbPerOct is DB_PER_OCT');
   assert.match(h, /^ {4}X\(ACME_UNIT_SEMITONE12_TET, "semitone12TET", "st"\) \\$/m);
   const units = header(texts(), 'acme_units.h');
@@ -80,24 +83,26 @@ int main(void) { const char *a = unit_id(260u), *b = unit_id(14u); return a && b
   }
 });
 
-/** A domain of the fixture owner acme holding one data file's sheet, its render block the file's: `{ name, doc }`. */
-function sheetDomain(name, file) {
-  const f = fixture(file);
-  const [item, it] = Object.entries(f).find(([, v]) => v?.kind === 'sheet');
+/**
+ * The fixture as one domain of the owner acme, as omx-clap ships its code sheet: both sheets, each with its own x-file,
+ * and the ROOT x-render (on the units file) declaring both headers. The units header reads its own file (scope file);
+ * the ids header takes `scope: package`, the existing word, to reach the ids sheet in the other x-file: no new key.
+ */
+function rootFormDomain() {
+  const u = fixture('acme-units.json');
+  const i = fixture('acme-unit-ids.json');
+  const sheet = (it, file) => ({ description: it.doc, 'x-kind': 'sheet', 'x-file': file, 'x-value': it.value, ...(it.docs ? { 'x-docs': it.docs } : {}) });
   return {
-    name,
-    doc: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      $id: `https://openmixer.org/contract/${name}`,
-      info: { title: `The acme fixture's ${item}`, version: '1.0.0', 'x-owner': 'acme', 'x-stability': 'experimental' },
-      'x-render': f.render,
-      'x-file': file,
-      components: { schemas: { [item]: { description: it.doc, 'x-kind': 'sheet', 'x-file': file, 'x-value': it.value, ...(it.docs ? { 'x-docs': it.docs } : {}) } } },
-    },
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: 'https://openmixer.org/contract/acme-param',
+    info: { title: 'The acme fixture\'s unit codes and their standard ids', version: '1.0.0', 'x-owner': 'acme', 'x-stability': 'experimental' },
+    'x-render': { c: [u.render.c[0], { ...i.render.c[0], scope: 'package' }] },
+    'x-file': 'acme-units.json',
+    components: { schemas: { ACME_UNITS: sheet(u.ACME_UNITS, 'acme-units.json'), ACME_UNIT_IDS: sheet(i.ACME_UNIT_IDS, 'acme-unit-ids.json') } },
   };
 }
 
-test('a string sheet with its own x-file validates as a domain item, and renders through render --with-domain', () => {
+test('the root form: one domain, its root x-render declaring both headers (the ids one scope package), validates and renders both goldens', () => {
   const dir = mkdtempSync(join(tmpdir(), 'omx-strings-domain-'));
   try {
     // a contract directory holding omx-contract as make install writes it (the param domain, PARAM_UNITS, with it)
@@ -105,20 +110,25 @@ test('a string sheet with its own x-file validates as a domain item, and renders
     execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
     execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root], { stdio: 'ignore' });
     installParamDomain(root);
-    // the owner's two domains, one file each: the units sheet and its numbers header, the ids sheet and its strings header
-    const args = [];
-    for (const { name, doc } of [sheetDomain('acme-units', 'acme-units.json'), sheetDomain('acme-ids', 'acme-unit-ids.json')]) {
-      mkdirSync(join(dir, 'contract.d', name), { recursive: true });
-      writeFileSync(join(dir, 'contract.d', name, `${name}.json`), `${JSON.stringify(doc, null, 2)}\n`);
-      args.push('--with-domain', join(dir, 'contract.d', name));
-    }
-    const out = join(dir, 'out');
+    const dom = join(dir, 'contract.d', 'acme-param');
+    mkdirSync(dom, { recursive: true });
+    writeFileSync(join(dom, 'acme-param.json'), `${JSON.stringify(rootFormDomain(), null, 2)}\n`);
     const cli = (...a) => spawnSync(process.execPath, [CLI, ...a], { encoding: 'utf8' });
-    const v = cli('validate', '--contract-dir', root, ...args);
+    const v = cli('validate', '--contract-dir', root, '--with-domain', dom);
     assert.equal(v.status, 0, v.stdout + v.stderr);
-    const r = cli('render', '--target', 'c', '--contract-dir', root, '--package', 'acme', ...args, '--out', out);
+    const out = join(dir, 'out');
+    const r = cli('render', '--target', 'c', '--contract-dir', root, '--package', 'acme', '--with-domain', dom, '--out', out);
     assert.equal(r.status, 0, r.stderr);
     assert.equal(readFileSync(join(out, 'acme_unit_ids.h'), 'utf8'), readFileSync(GOLDEN, 'utf8'));
+    // the units header holds its own numbers rows only, byte for byte as the data form renders it: no string reaches it
+    assert.equal(readFileSync(join(out, 'acme_units.h'), 'utf8'), readFileSync(UNITS_GOLDEN, 'utf8'));
+    // validate still refuses a key the domain format does not hold (an item-level x-render is no word of it)
+    const bad = rootFormDomain();
+    bad.components.schemas.ACME_UNIT_IDS['x-render'] = bad['x-render'];
+    writeFileSync(join(dom, 'acme-param.json'), `${JSON.stringify(bad, null, 2)}\n`);
+    const refused = cli('validate', '--contract-dir', root, '--with-domain', dom);
+    assert.notEqual(refused.status, 0);
+    assert.match(refused.stdout + refused.stderr, /unknown key x-render/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

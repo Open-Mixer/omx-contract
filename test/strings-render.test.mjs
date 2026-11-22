@@ -7,8 +7,9 @@
 // for byte (test/golden/strings/acme_unit_ids.h, and acme_units.h with its own numbers rows only), a C consumer
 // joining the two headers, the string sheet valid in its data form and in the root form a domain ships it in (its own
 // x-file, the one root x-render, the ids header with scope package), and one refusal per rule, by name: a field the sibling sheet
-// does not name, a value that is no PARAM_UNITS const, a read that lacks the sibling or PARAM_UNITS, and a sheet that
-// mixes numbers and strings.
+// does not name, a value that is no PARAM_UNITS const, a read that lacks the sibling or PARAM_UNITS, a sheet that
+// mixes numbers and strings, a numbers sheet of refs into the string sheet (a string sheet by what it declares, not
+// by what refs resolve to) and a numbers header that reaches the string sheet, both "is not a finite number".
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -152,6 +153,23 @@ test('sabotage: a read without the sibling header or without PARAM_UNITS is refu
   assert.match(refusal(texts({ drop: [UNITS] })), /^acme_unit_ids\.h: a strings section, and no other header of its package has numbers\.prefix ACME_UNIT_/);
   assert.match(refusal(texts({ units: (d) => { d.render.c[0].numbers.prefix = 'ACME_CODE_'; } })), /no other header of its package has numbers\.prefix ACME_UNIT_/);
   assert.match(refusal(texts({ drop: ['param/param.json'] })), /^acme_unit_ids\.h: a strings section, and the read holds no PARAM_UNITS/);
+});
+
+test('sabotage: a numbers sheet whose fields are refs into the string sheet is no string sheet: refused as not a finite number', () => {
+  // a sheet is a sheet of strings by what it declares, never by what its refs resolve to (data.mts r.strings)
+  const refs = texts({ units: (d) => { const ids = fixture('acme-unit-ids.json').ACME_UNIT_IDS.value;
+    // every field a ref, so the resolved sheet is all strings: only the declared value tells it from a string sheet
+    d.ACME_UNITS.value = Object.fromEntries(Object.keys(ids).map((f) => [f, { ref: `ACME_UNIT_IDS.${f}` }])); } });
+  assert.equal(refusal(refs), 'acme_units.h: ACME_UNITS.none is not a finite number');
+  const out = problems(refs);
+  assert.ok(out.includes('ACME_UNITS:finite:ACME_UNITS.db resolves to "dB"') && out.includes('ACME_UNITS:finite:ACME_UNITS.dbPerOct resolves to "dB-oct"'), out.join('\n'));
+  // the declared string sheet itself is still a string sheet, and the strings render does not take the refs sheet
+  assert.ok(!out.some((p) => p.startsWith('ACME_UNIT_IDS:finite:')), out.join('\n'));
+});
+
+test('sabotage: a numbers header that reaches the string sheet (scope package on the units header) is refused as not a finite number', () => {
+  const t = texts({ units: (d) => { d.render.c[0].scope = 'package'; } });
+  assert.match(refusal(t), /^acme_units\.h: ACME_UNIT_IDS\.\w+ is not a finite number$/);
 });
 
 test('sabotage: a sheet that mixes numbers and strings, or nests a string, is refused by the schema', () => {

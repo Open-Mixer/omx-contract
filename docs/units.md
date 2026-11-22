@@ -432,6 +432,15 @@ file (the sibling sheet and `PARAM_UNITS`), and their tests, red first: a golden
 sabotage arm per refusal (a field the units sheet lacks, a value `db`, a read without `PARAM_UNITS`). omx-clap then
 moves `OMX_PARAM_CONTRACT_UNIT_IDS` to its own file and renders the header (Open-Mixer/omx-clap-core#171).
 
+`PARAM_UNITS_CLAP_ENCODED` (B2) is code of the same chain-3 omx-contract PR, in the form question 23 rules, red
+first:
+
+- under (A): the words copy holds `dB-oct` (and `dB-s`), each word's `x-from` names its `PARAM_UNITS` word and its
+  `x-code` is that word's, red first (before the item exists), with sabotage arms for a copied word whose code differs
+  (`word-from-differs`) and for a served set that is not a prefix (refused by name);
+- under (B): a set holding `dB-oct` validates, red first against today's pattern, which refuses it;
+- under (C): no omx-contract code; the served set stays omx-clap's map check.
+
 ## Open questions for the owner
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
@@ -478,15 +487,16 @@ From B2 above:
 
 23. **The form of the served set, `PARAM_UNITS_CLAP_ENCODED`.** OPEN; the coordinator chooses. The facts:
     `"x-kind": "set"` is a domain kind at the chain-1 base (`WORDS_KINDS` of `src/lib/domain.mts`; `PARAM_SCALES`
-    uses it), not at main. Both set forms refuse an id with `-`: the data `set` (`$defs.set`, ids
-    `^[A-Za-z0-9]+$`) and the domain `set`, which rebuilds into it. So `dB-oct` and `dB-s`, two of the served ids,
-    fail in either.
+    uses it), not at main. Both set forms refuse an id with `-`: the data set kind
+    (`schema/omx-contract.schema.json:742-756`, `$defs.set`, ids `^[A-Za-z0-9]+$`) and the domain `set`, which
+    rebuilds into it. So `dB-oct` and `dB-s`, the mapped ids of codes 260 and 261, fail in either.
     - **(A), recommended:** an `"x-kind": "words"` item, which exists today, whose words copy `PARAM_UNITS` words by
       `x-from`, each keeping its `PARAM_UNITS` `x-code`. That holds because the served ids are `PARAM_UNITS` codes
       0 to 32, a prefix of the list (at the chain-1 base with the `coef` token on `x`, and after #170 with it on
       `coef`), and a words item's codes are its places, so a copied word's place and code agree. `validate`'s
       `word-from` and `word-from-differs` check every member. A served set that stops being a prefix is refused by
-      name; it would then need a format change, a new question. No format change now.
-    - **(B):** widen the set id pattern to allow `-`, in the data `set` and the domain `set`. A format change.
+      name; it would then need a format change, a new question. It changes: none.
+    - **(B):** widen the set id pattern to allow `-`, in the data `set` and the domain `set`. It changes: the set id
+      pattern, a format change.
     - **(C):** no omx-contract form in this pass: the served set stays omx-clap's (its map check) until a post-pass
-      issue, and omx-panel does not read it from omx-contract until then.
+      issue, and omx-panel does not read it from omx-contract until then. It changes: none.

@@ -153,8 +153,7 @@
     "ratio",
     "s",
     "st",
-    "us",
-    "x"
+    "us"
   ],
   "PARAM_UNITS_CLAP_ENCODED": [
     "bar",
@@ -162,6 +161,7 @@
     "bpm",
     "cents",
     "cm",
+    "coef",
     "db",
     "dbPerOct",
     "dbPerS",
@@ -188,8 +188,7 @@
     "percent",
     "ratio",
     "s",
-    "st",
-    "x"
+    "st"
   ],
   "PARAM_UNIT_DIMENSIONS": [
     "angle",
@@ -311,7 +310,6 @@
     "bpm",
     "bytes",
     "cm",
-    "coef",
     "count",
     "dBTP",
     "dBu",
@@ -520,6 +518,7 @@
     "Hz",
     "LUFS",
     "cents",
+    "coef",
     "dB",
     "dB/oct",
     "dB/s",
@@ -528,8 +527,7 @@
     "ms",
     "oct",
     "s",
-    "st",
-    "x"
+    "st"
   ],
   "schema/omx-contract.schema.json#/$defs/verb/properties/implementedBy/additionalProperties/enum": [
     "optional",

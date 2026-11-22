@@ -106,6 +106,38 @@ test('domain check: a word whose x-code moved is refused at the same version and
   }
 });
 
+/** `doc(version)` with PAD_KINDS three words long, and `beta` removed when `drop`: `gamma`'s code shifts from 2 to 1. */
+function shifted(version, mark, drop) {
+  const d = doc(version);
+  const item = d.components.schemas.PAD_KINDS;
+  Object.assign(item, mark);
+  item.oneOf = drop ? [word('alpha', 0), word('gamma', 1)] : [word('alpha', 0), word('beta', 1), word('gamma', 2)];
+  return d;
+}
+
+test('domain check: a code shift in a words item WITHOUT x-c-codes passes, the shift named (omx-contract#167)', () => {
+  const r = check(shifted('1.3.0', {}, true), shifted('1.2.0', {}, false));
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /pad: PAD_KINDS: gamma: x-code shifted from 2 to 1/);
+  assert.match(r.stdout, /no x-c-codes/);
+  assert.match(r.stdout, /PASS/);
+});
+
+test('domain check: a code shift in a words item WITH x-c-codes stays refused, naming x-c-codes', () => {
+  const r = check(shifted('1.3.0', { 'x-c-codes': true }, true), shifted('1.2.0', { 'x-c-codes': true }, false));
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /pad: PAD_KINDS: gamma: x-code moved from 2 to 1/);
+  assert.match(r.stderr, /x-c-codes/);
+  const marked = check(shifted('1.3.0', {}, true), shifted('1.2.0', { 'x-c-codes': true }, false));
+  assert.equal(marked.status, 1, 'the committed item carries x-c-codes: its codes are C constants');
+});
+
+test('domain check: a shift is no exemption from the version: a word removed at the same version is still refused', () => {
+  const r = check(shifted('1.2.0', {}, true), shifted('1.2.0', {}, false));
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /pad.*PAD_KINDS.*beta.*word removed/);
+});
+
 test('domain check: one line per problem', () => {
   const next = doc();
   next.components.schemas.PAD_KINDS.oneOf.push(word('gamma', 2));

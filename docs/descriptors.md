@@ -121,8 +121,8 @@ one word per unit, each its symbol as written (`dB`, `ms`, `""`, `dB/oct`), in t
 schema's `$defs.unit` enum is rendered from it (`render --check` holds the committed schema to it), so a unit is added
 in one place. `descriptorUnit` keeps its plugin-only units beside it.
 
-A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st % x`, `""` and, since
-3.1.0, `dB/oct`, a slope such as a key filter's tilt, for which LV2 has no unit, and since 3.7.0 `LUFS`, a loudness, and `dB/s`, a gain change per second), one of the six below, or `unknown`.
+A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st %`, `""` and, since
+3.1.0, `dB/oct`, a slope such as a key filter's tilt, for which LV2 has no unit, since 3.7.0 `LUFS`, a loudness, and `dB/s`, a gain change per second, and since 3.21.0 `coef`, a coefficient, the plain multiplier, which replaces `x` (omx-contract#167)), one of the six below, or `unknown`.
 
 | Unit | Taken from |
 |---|---|

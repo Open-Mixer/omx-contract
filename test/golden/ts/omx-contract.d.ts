@@ -643,7 +643,7 @@ export declare const VERB_HOSTS: {
 export declare const PARAM_SCALES: readonly ["linear", "log", "stepped"];
 
 /**
- * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
+ * The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). A word's code is its position in the list, not a wire number (the wire codes are OMX_PARAM_CONTRACT_UNITS'): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.
  *
  * Why: The unit list is declared once (omx-panel docs/behaviour-core.md, decision 3): the panel core and descriptor validation read one list.
  * @see contract.d/param/param.json
@@ -747,16 +747,6 @@ export declare const PARAM_UNITS: {
     readonly doc: "Percent.";
     readonly text: {
       readonly en: "Percent.";
-    };
-  };
-  readonly x: {
-    readonly word: "x";
-    readonly symbol: "x";
-    readonly dimension: "none";
-    readonly group: "param";
-    readonly doc: "A multiplier.";
-    readonly text: {
-      readonly en: "A multiplier.";
     };
   };
   readonly none: {
@@ -983,7 +973,7 @@ export declare const PARAM_UNITS: {
     readonly word: "coef";
     readonly symbol: "coef";
     readonly dimension: "none";
-    readonly group: "descriptor";
+    readonly group: "param";
     readonly doc: "A coefficient, a plain multiplier with no unit of its own.";
     readonly text: {
       readonly en: "A coefficient, a plain multiplier with no unit of its own.";
@@ -1275,14 +1265,6 @@ export declare const PARAM_UNITS_CLAP_ENCODED: {
       readonly en: "Percent.";
     };
   };
-  readonly x: {
-    readonly word: "x";
-    readonly from: readonly ["PARAM_UNITS#x"];
-    readonly doc: "A multiplier.";
-    readonly text: {
-      readonly en: "A multiplier.";
-    };
-  };
   readonly none: {
     readonly word: "none";
     readonly from: readonly ["PARAM_UNITS#none"];
@@ -1459,6 +1441,14 @@ export declare const PARAM_UNITS_CLAP_ENCODED: {
       readonly en: "A ratio n:1, a compressor's or an expander's.";
     };
   };
+  readonly coef: {
+    readonly word: "coef";
+    readonly from: readonly ["PARAM_UNITS#coef"];
+    readonly doc: "A coefficient, a plain multiplier with no unit of its own.";
+    readonly text: {
+      readonly en: "A coefficient, a plain multiplier with no unit of its own.";
+    };
+  };
 };
 
 /**
@@ -1531,7 +1521,7 @@ export declare const VERB_HOSTS_WORDS: readonly ["plugin-hostd", "omx-clap-host"
  * The words of PARAM_UNITS, in their declared order.
  * @see contract.d/param/param.json
  */
-export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag"];
+export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag"];
 
 /**
  * The words of PARAM_UNIT_DIMENSIONS, in their declared order.
@@ -1549,4 +1539,4 @@ export declare const PARAM_UNIT_SCOPES_WORDS: readonly ["param", "descriptor"];
  * The words of PARAM_UNITS_CLAP_ENCODED, in their declared order.
  * @see contract.d/param/param.json
  */
-export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "x", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio"];
+export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef"];

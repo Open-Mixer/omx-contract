@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // One id for a plain multiplier (omx-contract#167, coordinator ruling 2026-11-21): PARAM_UNITS holds `coef`, not `x`.
 // `x` is removed, with no alias, and the later words shift: a PARAM_UNITS code is the word's position in the list, not a
-// wire number (the wire codes are OMX_PARAM_CONTRACT_UNITS'), so every reader takes the words, never the codes.
+// wire number (the wire codes are omx-clap's, the unit codes of org.openmixer.param-contract/1), so every reader takes
+// the words, never the codes.
 // `coef` is a unit of the items ($defs.unit), the scope `x` had, so an item stated in `x` states `coef`.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

@@ -133,8 +133,8 @@ directory without a schema major; the macro comes with the installer's domain mo
 `debian/<pkg>-contract.install` lists the same path.
 
 A reader requires the owner's `<pkg>-contract` (rpm `Requires`, deb `Depends`) at its floor, and omx-contract >=
-3.20.0 (the loader), at build and run time. Requiring the data without the program leaves no cycle (plugin-hostd
-requires `plugin-qualify-contract`, not plugin-qualify). The program still refuses by name (exit 78, naming the domain
+3.20.0 (the loader), at build and run time. Requiring the data without the program leaves no cycle (plugin-qualify
+requires `plugin-hostd-contract`, not plugin-hostd). The program still refuses by name (exit 78, naming the domain
 and the directories) when the domain is absent at the moment it needs it, with a test arm. A CI that installs
 omx-contract from a commit pins it by SHA until the 3.20.0 tag replaces it.
 

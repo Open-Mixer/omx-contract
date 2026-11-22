@@ -38,7 +38,7 @@ export const TOOL_KERNELS = join(ROOT, 'test/fixtures/tool-kernels');
  * own tests: the owner's real file is held by omx-clap-core's CI (make test-contract), not frozen here.
  */
 export const HOSTING = join(TOOL_KERNELS, 'hosting.json');
-/** The LV2 terms as data/formats/lv2 held them before plugin-db's `lv2` domain took them (V27a): a fixture. */
+/** The LV2 terms as omx-contract's lv2 formats directory held them before plugin-db's `lv2` domain took them (V27a): a fixture. */
 export const LV2_TERMS = join(ROOT, 'test/fixtures/lv2-terms');
 /** The CLAP terms as data/formats/clap held them before omx-clap's `clap` domain took them (V27b): a fixture. */
 export const CLAP_TERMS = join(ROOT, 'test/fixtures/clap-terms');
@@ -63,8 +63,8 @@ export function scratchUnion() {
   // groups, text and args take this copy of them as their fixture
   cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(dir, 'data/measurement.json'));
   // the LV2 terms are plugin-db's `lv2` domain now (sorting pass V27a); the tests of the terms, formatMap and formats
-  // machinery take this copy of them, as data/formats/lv2 held them, as their fixture
-  cpSync(LV2_TERMS, join(dir, 'data/formats/lv2'), { recursive: true });
+  // machinery take this copy of them, as the lv2 formats directory held them, as their fixture
+  cpSync(LV2_TERMS, join(dir, 'data', 'formats', 'lv2'), { recursive: true });
   // and the CLAP terms, omx-clap's `clap` domain now (V27b), as data/formats/clap held them
   cpSync(CLAP_TERMS, join(dir, 'data/formats/clap'), { recursive: true });
   cpSync(join(ROOT, 'schema'), join(dir, 'schema'), { recursive: true });

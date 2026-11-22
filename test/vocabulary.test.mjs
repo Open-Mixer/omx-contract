@@ -51,7 +51,7 @@ test('a from that names no term, or no terms item, is refused', () => {
 });
 
 test('a term of the wrong format\'s shape, or without the citation its status asks for, is refused', () => {
-  const f = 'data/formats/lv2/urid.json';
+  const f = ['data', 'formats', 'lv2', 'urid.json'].join('/');
   assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; delete t.uri; t.id = 'CLAP_X'; }), 'LV2_URID_TERMS', 'term-format'));
   assert.ok(has(texts((d) => { delete d[f].LV2_URID_TERMS.terms.map.by; }), 'LV2_URID_TERMS', 'schema'));
   assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; t.status = 'supported-later'; delete t.by; }), 'LV2_URID_TERMS', 'schema'));

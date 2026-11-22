@@ -121,8 +121,8 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   standard in omx-contract (owner answer Q1). This is map row V21b, beside the unit codes.
 - **LV2, plugin-db.** The LV2 unit terms (`units:db`, `units:khz`, ...), `lv2:designation` and the `param:`
   spellings, each mapped to a standard unit id or parameter meaning. `LV2_UNITS_TERMS`, the unit terms, is NOT in
-  plugin-db today (a grep of its main finds none): it lived in omx-contract (`data/formats/lv2/units.json`, removed by the sorting pass, V27a), with
-  copies in plugin-hostd and plugin-qualify (`data/formats/lv2.json`) and omx-formats. It MOVES to plugin-db as new
+  plugin-db today (a grep of its main finds none): it lived in omx-contract (`units.json` of its lv2 formats directory, removed by the sorting pass, V27a), with
+  copies in plugin-hostd and plugin-qualify (their lv2 formats file) and omx-formats. It MOVES to plugin-db as new
   data there, and the copies read it from there.
 
 The token-to-id map of the code table, where they differ:

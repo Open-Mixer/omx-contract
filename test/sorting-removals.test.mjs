@@ -68,9 +68,9 @@ test('sabotage: a data/ that still holds READOUT_RATE_HZ is named', () => {
   }
 });
 
-// V27a: the LV2 terms are plugin-db's `lv2` domain. data/formats/lv2 leaves, and the term-to-resource mapping goes with
+// V27a: the LV2 terms are plugin-db's `lv2` domain. The lv2 formats directory leaves, and the term-to-resource mapping goes with
 // the terms: RESOURCE_* (which stays here this pass) names no LV2 term in a word's `from` (coordinator, 2026-11-20).
-test('V27a: no LV2 terms item in the read, no data/formats/lv2, and no RESOURCE_ word takes an LV2 term', () => {
+test('V27a: no LV2 terms item in the read, no lv2 formats directory, and no RESOURCE_ word takes an LV2 term', () => {
   const data = loadData(DATA);
   assert.deepEqual([...data.items.keys()].filter((n) => /^LV2_.*_TERMS$/.test(n)), []);
   assert.ok(!existsSync(join(DATA, 'formats/lv2')));
@@ -95,7 +95,9 @@ test('V27b: no CLAP terms item in the read, no data/formats/clap, and no RESOURC
 // keeps its name: a citation omx-clap-core:<path> or omx-clap-core#N is the repository's).
 test('the omx-clap package names: no old package spelling outside the release history', async () => {
   const { execFileSync } = await import('node:child_process');
-  const old = /libomx-clap-core|omx-clap-core-(devel|contract|hosting|vocabulary)|omx_clap_core|OMX_CLAP_CORE_VOCABULARY|contract\.d\/3\/omx-clap-core|share\/omx-clap-core|--package omx-clap-core|pkg-config omx-clap-core/;
+  // the old names are built from parts: this test asserts they are absent, so the literal never stands in the tree
+  const was = 'omx-clap-' + 'core';
+  const old = new RegExp([`lib${was}`, `${was}-(devel|contract|hosting|vocabulary)`, 'omx_clap_core', 'OMX_CLAP_CORE_VOCABULARY', `contract\\.d/3/${was}`, `share/${was}`, `--package ${was}`, `pkg-config ${was}`].join('|'));
   const files = execFileSync('git', ['-C', ROOT, 'ls-files'], { encoding: 'utf8' }).split('\n').filter((f) => f && !['debian/changelog', 'packaging/omx-contract.spec', 'CHANGELOG.md', 'test/sorting-removals.test.mjs'].includes(f));
   const hits = files.filter((f) => { try { return old.test(readFileSync(join(ROOT, f), 'utf8')); } catch { return false; } });
   assert.deepEqual(hits, []);

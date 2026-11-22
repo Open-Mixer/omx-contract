@@ -14,7 +14,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "analyzer": {
@@ -98,7 +98,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "equalizer": {
@@ -145,7 +145,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "gate": {
@@ -164,7 +164,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "granular": {
@@ -173,7 +173,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "instrument": {
@@ -201,7 +201,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "mixing": {
@@ -229,7 +229,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "note-detector": {
@@ -238,7 +238,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "note-effect": {
@@ -257,7 +257,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "phaser": {
@@ -275,7 +275,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "pitch-shifter": {
@@ -293,7 +293,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "reverb": {
@@ -330,7 +330,7 @@
         "kind": "plugin-feature",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "synthesizer": {

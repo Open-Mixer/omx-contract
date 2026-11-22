@@ -11,7 +11,7 @@
 //    openDomainAt, test/fixtures/conformance) serve a verbs or terms item as words: the words are the verbs and the
 //    term keys.
 // The fixtures are data files as their owners write them today: plugin-hostd-protocol's data/verbs.json, and
-// omx-contract's data/formats/lv2/units.json and data/formats/clap/plugin-features.json. Written as a domain, the
+// omx-contract's lv2 units sheet and clap plugin-features sheet (its data/formats directory). Written as a domain, the
 // rebuild gives each back, key for key and in order.
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

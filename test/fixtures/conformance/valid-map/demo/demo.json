@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo",
+  "info": {
+    "title": "The conformance vocabulary",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "DEMO_UNITS_TERMS": {
+        "description": "The terms of a sample specification.",
+        "x-kind": "terms",
+        "x-format": "lv2",
+        "x-spec": "http://lv2plug.in/ns/extensions/units",
+        "x-version": "5.12",
+        "oneOf": [
+          {
+            "const": "db",
+            "title": "db",
+            "x-code": 0,
+            "x-term": {
+              "uri": "http://lv2plug.in/ns/extensions/units#db",
+              "kind": "unit",
+              "status": "used",
+              "by": [
+                "omx-plugins:tools/gen.mjs"
+              ]
+            }
+          },
+          {
+            "const": "semitone12TET",
+            "title": "semitone12TET",
+            "x-code": 1,
+            "x-term": {
+              "uri": "http://lv2plug.in/ns/extensions/units#semitone12TET",
+              "kind": "unit",
+              "status": "out-of-scope",
+              "ruling": "Not a unit a plugin of ours states."
+            }
+          }
+        ]
+      },
+      "DEMO_LV2_MAP": {
+        "description": "How a sample LV2 scan becomes a descriptor: a word with its lookup, an extension, a drop by its ruling.",
+        "x-kind": "map",
+        "x-format": "lv2",
+        "oneOf": [
+          {
+            "const": "units:unit",
+            "title": "units:unit",
+            "x-code": 0,
+            "x-term": "DEMO_UNITS_TERMS#db",
+            "x-word": {
+              "word": "controls[].travel.unit",
+              "transform": "lookup",
+              "values": {
+                "http://lv2plug.in/ns/extensions/units#db": "dB"
+              }
+            }
+          },
+          {
+            "const": "doap:license",
+            "title": "doap:license",
+            "x-code": 1,
+            "x-from": "http://usefulinc.com/ns/doap#license",
+            "x-extension": true
+          },
+          {
+            "const": "units:semitone12TET",
+            "title": "units:semitone12TET",
+            "x-code": 2,
+            "description": "A unit with no standard id: dropped by its ruling.",
+            "x-term": "DEMO_UNITS_TERMS#semitone12TET",
+            "x-dropped": {
+              "ruling": "Not a unit a plugin of ours states."
+            }
+          }
+        ]
+      }
+    }
+  }
+}

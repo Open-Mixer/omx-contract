@@ -157,6 +157,59 @@ function readTerms(item: string, s: JsonObject, at: string): JsonObject {
   return { kind: 'terms', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), format: s['x-format'], spec: s['x-spec'], version: s['x-version'], ...(s['x-deprecated'] === undefined ? {} : { deprecated: true }), terms };
 }
 
+/** A map row's outcomes and covers: each its domain key and the data form's key it rebuilds, in the data form's order. */
+const MAP_OUTCOMES = [['x-word', 'word'], ['x-extension', 'extension'], ['x-dropped', 'dropped']];
+const MAP_COVERS = [['x-term', 'term'], ['x-from', 'from']];
+/** A map row's keys in the data form's order (docs/descriptors.md): term, from, word, extension, dropped, doc. */
+const MAP_ROW_KEYS = [...MAP_COVERS, ...MAP_OUTCOMES, ['description', 'doc']];
+const TERM_LINK = /^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$/;
+
+/** The data form's rows of a map item read with readMap(): each keyed by its `const`, in the `oneOf`'s order. */
+const mapRows = (s: JsonObject): JsonObject => Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.const, Object.fromEntries(MAP_ROW_KEYS.filter(([k]) => e[k!] !== undefined).map(([k, d]) => [d, e[k!]]))]));
+
+/**
+ * A map item (omx-contract#191, owner ruling 2026-11-23; docs/contract-dir.md "Domains"): one format's mapping table,
+ * `x-format` the item's, and a `oneOf` of one row per source field: `const` and `title` the field, `x-code` its place,
+ * exactly one outcome (`x-word`, `x-extension` or `x-dropped` with its ruling), exactly one cover (`x-term`, the term
+ * link into a terms item, or `x-from`) and `description` its doc. Read as the data form's formatMap item, whose rows the
+ * build holds to the schema and whose term links validate resolves (rule map-term). The runtime readers serve it as
+ * words, the words the source keys.
+ */
+function readMap(item: string, s: JsonObject, at: string): JsonObject {
+  const w = `components.schemas.${item}`;
+  only(s, ['description', 'x-since', 'x-why', 'x-kind', 'x-file', 'x-source', 'x-format', 'oneOf'], at, w);
+  if (typeof s.description !== 'string') refuse('fileInvalid', at, `${w}.description is the item's doc`);
+  if (typeof s['x-format'] !== 'string') refuse('fileInvalid', at, `${w}.x-format is absent or not a string: a map item names the format whose fields it maps`);
+  if (!Array.isArray(s.oneOf) || !s.oneOf.length) refuse('fileInvalid', at, `${w}: a map item is a oneOf of at least one row`);
+  const seen = new Set<string>();
+  (s.oneOf as JsonObject[]).forEach((e, i) => {
+    const ew = `${w}.oneOf[${i}]`;
+    if (typeof e !== 'object' || e === null || Array.isArray(e)) refuse('fileInvalid', at, `${ew}: not an object`);
+    only(e, ['const', 'title', 'x-code', 'description', ...MAP_COVERS.map(([k]) => k!), ...MAP_OUTCOMES.map(([k]) => k!)], at, ew);
+    if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a source field`);
+    const row = `${ew} (${e.const})`;
+    if (e.title !== e.const) refuse('fileInvalid', at, `${row}: its title ${JSON.stringify(e.title)} is not ${JSON.stringify(e.const)}, the source key`);
+    if (e['x-code'] !== i) refuse('fileInvalid', at, `${row}: its x-code ${JSON.stringify(e['x-code'])} is not its place in the order (${i})`);
+    if (seen.has(e.const as string)) refuse('fileInvalid', at, `${row}: the source key is used twice in ${item}`);
+    seen.add(e.const as string);
+    if (e.description !== undefined && typeof e.description !== 'string') refuse('fileInvalid', at, `${row}: its description is not a string`);
+    const outcomes = MAP_OUTCOMES.map(([k]) => k!).filter((k) => e[k] !== undefined);
+    if (!outcomes.length) refuse('fileInvalid', at, `${row} has no outcome: a row has exactly one of x-word, x-extension or x-dropped`);
+    if (outcomes.length > 1) refuse('fileInvalid', at, `${row} has ${outcomes.length === 2 ? 'two' : 'three'} outcomes, ${outcomes.join(' and ')}: a row has exactly one of x-word, x-extension or x-dropped`);
+    const covers = MAP_COVERS.map(([k]) => k!).filter((k) => e[k] !== undefined);
+    if (!covers.length) refuse('fileInvalid', at, `${row} covers nothing: a row names exactly one of x-term or x-from`);
+    if (covers.length > 1) refuse('fileInvalid', at, `${row} covers twice, x-term and x-from: a row names exactly one of x-term or x-from`);
+    if (e['x-term'] !== undefined && (typeof e['x-term'] !== 'string' || !TERM_LINK.test(e['x-term']))) refuse('fileInvalid', at, `${row}: its x-term ${JSON.stringify(e['x-term'])} is no term link <TERMS item>#<term>`);
+    if (e['x-from'] !== undefined && (typeof e['x-from'] !== 'string' || !e['x-from'])) refuse('fileInvalid', at, `${row}: its x-from is not a link or a URL`);
+    if (e['x-extension'] !== undefined && e['x-extension'] !== true) refuse('fileInvalid', at, `${row}: its x-extension is not true`);
+    const d = e['x-dropped'] as JsonObject | undefined;
+    if (d !== undefined && (typeof d !== 'object' || d === null || Array.isArray(d) || typeof d.ruling !== 'string' || !d.ruling)) refuse('fileInvalid', at, `${row}: its x-dropped names no ruling: a dropped row is { "ruling": <the ruling that drops it> }`);
+    const x = e['x-word'] as JsonObject | undefined;
+    if (x !== undefined && (typeof x !== 'object' || x === null || Array.isArray(x) || typeof x.word !== 'string' || typeof x.transform !== 'string')) refuse('fileInvalid', at, `${row}: its x-word is not { word, transform }, the descriptor word and the transform that converts the field`);
+  });
+  return { kind: 'formatMap', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), format: s['x-format'], rows: mapRows(s) };
+}
+
 /** A scalar item (docs/contract-dir.md, "Domains"): one value, `x-value` a number or true or false, in `x-unit` (`""` for none). render --with-domain rebuilds it as a data scalar; it is read nowhere else. */
 function readScalar(item: string, s: JsonObject, at: string): void {
   const w = `components.schemas.${item}`;
@@ -237,8 +290,9 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     }
     if (s['x-kind'] === 'scalar') { readScalar(item, s, at); names.push(item); continue; } // one value, rebuilt by render --with-domain, read nowhere else
     if (s['x-kind'] === 'terms') { out[item] = readTerms(item, s, at); names.push(item); continue; } // a format's terms, served as words
+    if (s['x-kind'] === 'map') { out[item] = readMap(item, s, at); names.push(item); continue; } // a format's mapping table, served as words
     only(s, ['description', 'x-since', 'x-why', 'x-groups', 'x-dimensions', 'x-default', 'x-c-codes', 'x-c-xmacro', 'x-kind', 'x-file', 'x-source', 'oneOf'], at, w);
-    if (s['x-kind'] !== undefined && !WORDS_KINDS.includes(s['x-kind'])) refuse('fileInvalid', at, `${w}.x-kind ${JSON.stringify(s['x-kind'])} is not ${WORDS_KINDS.join(', ')}, scalar or sheet`);
+    if (s['x-kind'] !== undefined && !WORDS_KINDS.includes(s['x-kind'])) refuse('fileInvalid', at, `${w}.x-kind ${JSON.stringify(s['x-kind'])} is not ${WORDS_KINDS.join(', ')}, terms, map, scalar or sheet`);
     for (const k of ['x-c-codes', 'x-c-xmacro'])
       if (s[k] !== undefined && typeof s[k] !== 'boolean') refuse('fileInvalid', at, `${w}.${k} is not true or false`);
     if (s['x-c-xmacro'] === true && s['x-c-codes'] !== true) refuse('fileInvalid', at, `${w}.x-c-xmacro without x-c-codes: the X-macro is part of the item's codes header`);
@@ -336,6 +390,7 @@ export interface DomainFrom {
 }
 
 function fromsOf(item: string, s: JsonObject): DomainFrom[] {
+  if (s['x-kind'] === 'map') return []; // a map row's x-from is the link of a field no terms item holds, no term taken
   return ((s.oneOf ?? []) as JsonObject[]).flatMap((e, i) => ((e['x-from'] ?? []) as JsonObject[]).map((r, j) => ({
     where: `components.schemas.${item}.oneOf[${i}].x-from[${j}]`,
     word: e.const as string,
@@ -363,7 +418,8 @@ export function domainFroms(doc: JsonObject, { rebuilt = true }: { rebuilt?: boo
  * with `codes` (each word's `x-name` its key, `const` its code, `description` its doc, `x-text` its English text,
  * `x-args` its args), `x-kind` words with `groups` and `words` (each word's `title` its key, `const` its word, `x-group`
  * its group, `x-from` its terms, `description`, `x-text` and `x-args` as for a code), `x-kind` scalar with `unit` and
- * `value`, and `x-kind` sheet with `value` and `docs`; the root's `x-render` goes to the file the root's `x-file`
+ * `value`, `x-kind` map as a formatMap with `format` and `rows` (each row `{ term, from, word, extension, dropped, doc }`),
+ * and `x-kind` sheet with `value` and `docs`; the root's `x-render` goes to the file the root's `x-file`
  * names. A domain that declares `info.x-requires` gives every file it rebuilds `requires`, first: the schema floor,
  * then the declared packages in name order; a word whose `x-from` reaches a package beyond those, omx-contract, the
  * domain and its owner is refused by name. Read the document with readDomain() first. An item with no `x-file` is read
@@ -387,13 +443,14 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
     const w = `components.schemas.${item}`;
     if (s['x-file'] === undefined) continue; // read at run time only: no data file holds it
     const f = fileOf(s['x-file'], w);
-    const head = { kind: s['x-kind'] ?? 'codes', since: s['x-since'], ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
+    const head = { kind: s['x-kind'] === 'map' ? 'formatMap' : s['x-kind'] ?? 'codes', since: s['x-since'], ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
     if (s['x-kind'] === 'sheet') { f[item] = { ...head, value: s['x-value'], ...(s['x-docs'] === undefined ? {} : { docs: s['x-docs'] }) }; continue; }
     if (s['x-kind'] === 'scalar') { f[item] = { ...head, unit: s['x-unit'], value: s['x-value'] }; continue; }
     if (s['x-kind'] === 'terms') {
       f[item] = { ...head, format: s['x-format'], spec: s['x-spec'], version: s['x-version'], ...(s['x-deprecated'] === undefined ? {} : { deprecated: true }), terms: Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.const, e['x-term']])) };
       continue;
     }
+    if (s['x-kind'] === 'map') { f[item] = { ...head, format: s['x-format'], rows: mapRows(s) }; continue; }
     if (s['x-kind'] === 'verbs') { f[item] = { ...head, verbs: Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.title, verbOf(e)])) }; continue; }
     // what a word says beside its key, in the order of the data form: doc, text, args
     const said = (e: JsonObject): JsonObject => ({ ...(e.description === undefined ? {} : { doc: e.description }), ...(e['x-text'] === undefined ? {} : { text: { en: e['x-text'] } }), ...(e['x-args'] === undefined ? {} : { args: e['x-args'] }) });

@@ -15,9 +15,9 @@
 // `$schema` and `requires` lines (2-5), which a rebuilt file never carries from a domain with no x-requires
 // (docs/render.md); the digests below are of those bytes.
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
@@ -25,7 +25,8 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import { SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
 import { domainDataFiles, readDomain } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
-import { ROOT, scratchUnion } from './helpers.mjs';
+import { packageVersion } from '../lib/data.mjs';
+import { CLAP_TERMS, DATA, installParamDomain, LV2_TERMS, ROOT, scratchUnion } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/domain-map');
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-map-'));
@@ -61,8 +62,40 @@ const read = (name, doc) => readDomain(name, doc, installedSchemaUrl(SCHEMA_MAJO
 const schema = JSON.parse(readFileSync(join(ROOT, 'schema/domain.schema.json'), 'utf8'));
 const ajv = new Ajv2020({ allErrors: true, strict: false }).compile(schema);
 
-/** The data directory the CLI reads (data/, the LV2 and CLAP terms) and the map domain of `f` under contract.d/. */
+/** The data directory a data render reads (data/, the LV2 and CLAP terms). */
 const UNION = scratchUnion();
+
+/** The terms files of `dir` (test/fixtures/lv2-terms, clap-terms) as the domain `name` of `owner`: its directory. */
+function termsDomain(dir, name, owner) {
+  const walk = (d) => readdirSync(d).sort().flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
+  const schemas = {};
+  for (const f of walk(dir)) {
+    for (const [k, it] of Object.entries(JSON.parse(readFileSync(f, 'utf8')))) {
+      if (it?.kind !== 'terms') continue;
+      schemas[k] = { description: it.doc, 'x-since': '1.0.0', 'x-kind': 'terms', 'x-format': it.format, 'x-spec': it.spec, 'x-version': it.version, ...(it.deprecated ? { 'x-deprecated': true } : {}), oneOf: Object.entries(it.terms).map(([t, v], i) => ({ const: t, title: t, 'x-code': i, 'x-term': v })) };
+    }
+  }
+  const at = join(SCRATCH, 'terms/contract.d', name);
+  mkdirSync(at, { recursive: true });
+  writeFileSync(join(at, `${name}.json`), JSON.stringify({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://openmixer.org/contract/${name}`, info: { title: `The ${name} terms`, version: '1.0.0', 'x-owner': owner, 'x-stability': 'experimental' }, components: { schemas } }));
+  return at;
+}
+
+/**
+ * The contract directory validate reads, as the owner's read is: omx-contract as `make install` writes it, its
+ * contract and param domains, and the LV2 and CLAP terms as the domains lv2 (plugin-db's) and clap (omx-clap's).
+ */
+const CONTRACT_DIR = join(SCRATCH, 'contract-dir');
+{
+  const sh = join(ROOT, 'tools/install-contract-dir.sh');
+  execFileSync('sh', [sh, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, CONTRACT_DIR, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [sh, '--domain', join(ROOT, 'contract.d/contract'), CONTRACT_DIR], { stdio: 'ignore' });
+  installParamDomain(CONTRACT_DIR);
+  for (const d of [termsDomain(LV2_TERMS, 'lv2', 'plugin-db'), termsDomain(CLAP_TERMS, 'clap', 'omx-clap')]) execFileSync('sh', [sh, '--domain', d, CONTRACT_DIR], { stdio: 'ignore' });
+}
+const validate = (dir) => cli('validate', '--contract-dir', CONTRACT_DIR, '--with-domain', dir);
+
+/** The map domain of `f` under a contract.d/ of its own: its directory. */
 function domainDir(f, doc, tag) {
   const dir = join(SCRATCH, tag, 'contract.d/plugin-hostd', f);
   mkdirSync(dir, { recursive: true });
@@ -90,10 +123,11 @@ for (const f of Object.keys(GOLDEN)) {
     assert.deepEqual(classic[item], JSON.parse(domainDataFiles(`plugin-hostd/${f}`, doc)[`formats/${f}.json`])[item]);
   });
 
-  test(`${f}: validate --with-domain reads the map valid; render --target json --with-domain carries it`, () => {
+  test(`${f}: validate --with-domain reads the map valid, its term links resolved; render --target json --with-domain carries it`, () => {
     const dir = domainDir(f, mapDoc(f), `valid-${f}`);
-    const v = cli('validate', '--data', UNION, '--with-domain', dir);
+    const v = validate(dir);
     assert.equal(v.status, 0, v.stderr);
+    assert.match(v.stdout, /valid/);
     const r = cli('render', '--target', 'json', '--data', UNION, '--with-domain', dir, '--out', join(SCRATCH, `json-${f}`));
     assert.equal(r.status, 0, r.stderr);
     const out = JSON.parse(readFileSync(join(SCRATCH, `json-${f}`, 'omx-contract.json'), 'utf8')).items[item];
@@ -118,7 +152,7 @@ function sabotage(tag, edit) {
   edit(rows);
   let reader = '';
   try { read('plugin-hostd/lv2', doc); } catch (e) { reader = e.message; }
-  const v = cli('validate', '--data', UNION, '--with-domain', domainDir('lv2', doc, tag));
+  const v = validate(domainDir('lv2', doc, tag));
   return { reader, schema: ajv(doc), status: v.status, stderr: v.stderr };
 }
 
@@ -152,10 +186,10 @@ test('refused: a dangling term link, a terms item that is not there or a term it
   const item = sabotage('dangling-item', (rows) => { rows['units:unit']['x-term'] = 'LV2_FURLONG_TERMS#unit'; });
   assert.equal(item.reader, '', 'a term link into another domain is resolved by the read of all, not the reader of one');
   assert.notEqual(item.status, 0);
-  assert.match(item.stderr, /PLUGIN_HOSTD_LV2_MAP: map-term: units:unit: LV2_FURLONG_TERMS#unit: LV2_FURLONG_TERMS is no terms item/);
+  assert.match(item.stderr, /formats\/lv2\.json: PLUGIN_HOSTD_LV2_MAP: map-term: units:unit: LV2_FURLONG_TERMS#unit: LV2_FURLONG_TERMS is no terms item/);
   const term = sabotage('dangling-term', (rows) => { rows['units:unit']['x-term'] = 'LV2_UNITS_TERMS#furlong'; });
   assert.notEqual(term.status, 0);
-  assert.match(term.stderr, /PLUGIN_HOSTD_LV2_MAP: map-term: units:unit: LV2_UNITS_TERMS#furlong: LV2_UNITS_TERMS has no term furlong/);
+  assert.match(term.stderr, /formats\/lv2\.json: PLUGIN_HOSTD_LV2_MAP: map-term: units:unit: LV2_UNITS_TERMS#furlong: LV2_UNITS_TERMS has no term furlong/);
 });
 
 test('refused: a row that covers nothing or covers twice (x-term and x-from), a const that is not its title, an x-code out of place', () => {

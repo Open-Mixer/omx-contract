@@ -331,12 +331,33 @@ test('latency: a scalar item in frames is valid, and latency refs to it are read
   assert.match(read({ reports: true, sweep: { min: { ref: 'ROT_LONG_FRAMES' }, max: { ref: 'ROT_LAG_FRAMES' } } }) ?? '', new RegExp(`^${CONTRACT_CODES.descriptorLatency.replace(/\./g, '\\.')}`), 'a frames pair out of order');
 });
 
+// N1 (omx-contract#162, docs/units.md "Plugin particulars"): a descriptor's own units are its own. One whose id or symbol
+// is that of a PARAM_UNITS unit, or of another of its own, is contract.descriptor.unit-duplicate, by validation and by
+// the reader; a distinct own unit passes.
+test('units: a descriptor\'s own unit that repeats a standard unit, or another own unit, is contract.descriptor.unit-duplicate', () => {
+  const withUnits = (units) => { const d = fixture(AUTHORED); d.units = units; return d; };
+  const STONE = { id: 'stone', symbol: 'st.', dimension: 'count', text: { en: 'Stones in the sling' } };
+  assert.deepEqual(problemsOf(withUnits([STONE])), [], 'positive control: a unit of its own passes');
+  const code = 'contract.descriptor.unit-duplicate';
+  assert.equal(CONTRACT_CODES.descriptorUnitDuplicate, code, 'the code is in the contract domain');
+  for (const [what, units] of [
+    ['the id of a standard unit (dBu)', [{ id: 'dBu', symbol: 'dBu (mine)', dimension: 'level' }]],
+    ['the symbol of a standard unit (%)', [{ id: 'myPercent', symbol: '%', dimension: 'none' }]],
+    ['the id of another of its own', [STONE, { ...STONE, symbol: 'stones' }]],
+  ]) {
+    const d = withUnits(units);
+    assert.deepEqual(codesOf(d), [code], what);
+    assert.match(problemsOf(d)[0].message, /repeats|is also/, `${what}: the message names what it repeats`);
+    assert.equal(readerRefusal(d), code, `${what}: the reader refuses it too`);
+  }
+});
+
 // The codes another package raises, each with the code that raises it (test/fixtures/codes-raised-elsewhere.json).
 const ELSEWHERE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised-elsewhere.json'), 'utf8')).codes;
 
 test('every descriptor code was raised by an arm above, through validation and through the reader', () => {
   const descriptor = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('descriptor')).map(([, c]) => c).filter((c) => !(c in ELSEWHERE));
-  assert.equal(descriptor.length, 14);
+  assert.equal(descriptor.length, 15);
   assert.deepEqual(descriptor.filter((c) => !raised.has(c)), []);
   assert.ok(raised.has(CONTRACT_CODES.originMisplaced));
 });

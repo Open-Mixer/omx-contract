@@ -4,8 +4,8 @@
 // package that owns it):
 //  #125 it is read, never skipped: an item its package's files also declare is contract.item.duplicate, a domain named
 //       like a package that does not own it is refused by name, and its items' x-since are held to its info.version;
-//  #190 a floor on that name is the package's: held to the owner manifest's version, never met by the domain's own
-//       info.version, and refused (contract.package.absent) when the domain is installed without its owner manifest.
+//  #190 a floor on that name is held to the domain's info.version when the domain is installed alone (--domain only,
+//       ruling %4 2026-11-23), and to the owner manifest's version when that manifest is installed beside it.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -86,11 +86,17 @@ test('#125: a domain named like a package it does not belong to is refused by na
   assert.match(r.stderr, /contract\.manifest\.mismatch.*owned.*omx-someone-else/s);
 });
 
-test('#190: a floor on a domain named after its owner is held to the owner manifest, never to the domain version', () => {
-  // the domain alone (version 1.0.0): a floor 0.8.0 on its owner is not met by the domain's own version
-  const alone = validate(contractDir(domain()), '--needs', 'owned@>= 0.8.0');
+test('#190: a floor on a domain named after its owner is held to the domain version alone, to the owner manifest beside it', () => {
+  // the domain alone (version 1.0.0, --domain only): the floor is held to its info.version, met at 0.8.0 and 1.0.0
+  const lone = contractDir(domain());
+  for (const floor of ['0.8.0', '1.0.0']) {
+    const r = validate(lone, '--needs', `owned@>= ${floor}`);
+    assert.equal(r.status, 0, `${floor}: ${r.stderr}`);
+  }
+  // and not met above it: too old, naming the domain's version
+  const alone = validate(lone, '--needs', 'owned@>= 1.1.0');
   assert.equal(alone.status, 1, alone.stdout);
-  assert.match(alone.stderr, /contract\.package\.absent.*owned >= 0\.8\.0/s);
+  assert.match(alone.stderr, /contract\.package\.too-old.*owned >= 1\.1\.0.*1\.0\.0/s);
   // its owner manifest below the floor (the sabotage of an older package): too old
   const old = contractDir(domain());
   owner(old, '0.7.0');

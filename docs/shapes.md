@@ -25,7 +25,7 @@ omx-panel's gesture shapes, adds that rule to [contract-dir.md](contract-dir.md)
 | Rule | What it holds |
 |---|---|
 | `$schema` | `https://json-schema.org/draft/2020-12/schema`, the one dialect every reader and both generators read. |
-| `$id` | A URL ending in `.schema.json`: the name a reader validates against. |
+| `$id` | `https://openmixer.org/schema/<owner>/<path>.schema.json`: the name a reader validates against, and `<owner>` the package that publishes the shape. Every render's banner names `Open-Mixer/<owner>` as the source, never the generator's repository (#78). |
 | `title` | One CapitalisedWord: the type's name in every render (`Travel`). |
 | `description` | On the root, on every object and on every property: the renders carry it as the doc comment, so a type is documented where it is declared. |
 | `additionalProperties` | `false` on every object: a closed shape names every key, and the C X-macro of its keys is complete. |

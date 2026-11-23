@@ -342,21 +342,6 @@
     "wetDryRatio",
     "width"
   ],
-  "schema/omx-contract.schema.json#/$defs/override/properties/family/enum": [
-    "deesser",
-    "delay",
-    "drive",
-    "dynamics",
-    "eq",
-    "filter",
-    "gate",
-    "limiter",
-    "modulation",
-    "none",
-    "pitch",
-    "reverb",
-    "utility"
-  ],
   "schema/omx-contract.schema.json#/$defs/override/properties/plugin/properties/format/enum": [
     "clap",
     "lv2"

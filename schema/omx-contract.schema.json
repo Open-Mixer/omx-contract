@@ -153,7 +153,7 @@
           "required": ["paramsFingerprint"],
           "additionalProperties": false
         },
-        "family": { "enum": ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility"], "description": "One word of PANEL_FAMILIES." },
+        "family": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$", "description": "The plugin's family, an identifier: which families exist is omx-panel's PANEL_FAMILIES, checked by its describe (ruling Z1, omx-contract#161)." },
         "controls": { "type": "object", "propertyNames": { "pattern": "^[A-Za-z0-9_]+$" }, "additionalProperties": { "$ref": "#/$defs/overrideControl" } },
         "made": {
           "type": "object",

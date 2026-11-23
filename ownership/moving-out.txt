@@ -6,4 +6,3 @@ RESOURCE_KINDS
 RESOURCE_UNITS
 RESOURCE_BASES
 RESOURCE_HINTS
-schema/omx-contract.schema.json#/$defs/override/properties/family/enum

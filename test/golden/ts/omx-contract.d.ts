@@ -407,7 +407,7 @@ export declare const PARAM_UNITS: {
     };
   };
   readonly dbPerOct: {
-    readonly word: "dB-oct";
+    readonly word: "dBPerOct";
     readonly symbol: "dB/oct";
     readonly dimension: "slope";
     readonly group: "param";
@@ -427,7 +427,7 @@ export declare const PARAM_UNITS: {
     };
   };
   readonly dbPerS: {
-    readonly word: "dB-s";
+    readonly word: "dBPerS";
     readonly symbol: "dB/s";
     readonly dimension: "rate";
     readonly group: "param";
@@ -921,7 +921,7 @@ export declare const PARAM_UNITS_CLAP_ENCODED: {
     };
   };
   readonly dbPerOct: {
-    readonly word: "dB-oct";
+    readonly word: "dBPerOct";
     readonly from: readonly ["PARAM_UNITS#dbPerOct"];
     readonly doc: "A slope in dB per octave (a tilt).";
     readonly text: {
@@ -937,7 +937,7 @@ export declare const PARAM_UNITS_CLAP_ENCODED: {
     };
   };
   readonly dbPerS: {
-    readonly word: "dB-s";
+    readonly word: "dBPerS";
     readonly from: readonly ["PARAM_UNITS#dbPerS"];
     readonly doc: "A gain change per second.";
     readonly text: {
@@ -1126,7 +1126,7 @@ export declare const RESOURCE_HINTS_WORDS: readonly ["footprint-at-rest", "footp
  * The words of PARAM_UNITS, in their declared order.
  * @see contract.d/param/param.json
  */
-export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag"];
+export declare const PARAM_UNITS_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dBPerOct", "LUFS", "dBPerS", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag"];
 
 /**
  * The words of PARAM_UNIT_DIMENSIONS, in their declared order.
@@ -1144,4 +1144,4 @@ export declare const PARAM_UNIT_SCOPES_WORDS: readonly ["param", "descriptor"];
  * The words of PARAM_UNITS_CLAP_ENCODED, in their declared order.
  * @see contract.d/param/param.json
  */
-export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef"];
+export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dBPerOct", "LUFS", "dBPerS", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef"];

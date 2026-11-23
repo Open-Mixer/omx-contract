@@ -189,13 +189,13 @@
 #define OMX_PARAM_UNITS_NONE "none" ///< No unit: a ratio or a fraction.
 /** The source sentence (English) of OMX_PARAM_UNITS_NONE. */
 #define OMX_PARAM_UNITS_NONE_TEXT_EN "No unit: a ratio or a fraction."
-#define OMX_PARAM_UNITS_DB_PER_OCT "dB-oct" ///< A slope in dB per octave (a tilt).
+#define OMX_PARAM_UNITS_DB_PER_OCT "dBPerOct" ///< A slope in dB per octave (a tilt).
 /** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_OCT. */
 #define OMX_PARAM_UNITS_DB_PER_OCT_TEXT_EN "A slope in dB per octave (a tilt)."
 #define OMX_PARAM_UNITS_LUFS "LUFS" ///< A loudness (ITU-R BS.1770).
 /** The source sentence (English) of OMX_PARAM_UNITS_LUFS. */
 #define OMX_PARAM_UNITS_LUFS_TEXT_EN "A loudness (ITU-R BS.1770)."
-#define OMX_PARAM_UNITS_DB_PER_S "dB-s" ///< A gain change per second.
+#define OMX_PARAM_UNITS_DB_PER_S "dBPerS" ///< A gain change per second.
 /** The source sentence (English) of OMX_PARAM_UNITS_DB_PER_S. */
 #define OMX_PARAM_UNITS_DB_PER_S_TEXT_EN "A gain change per second."
 #define OMX_PARAM_UNITS_DBTP "dBTP" ///< Decibels true peak, a level measured between the samples (ITU-R BS.1770).
@@ -273,13 +273,13 @@
 /** The number of words of PARAM_UNITS. */
 #define OMX_PARAM_UNITS_COUNT 38u
 /** The words of PARAM_UNITS in their declared order, as a C initializer list. */
-#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag" }
+#define OMX_PARAM_UNITS_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dBPerOct", "LUFS", "dBPerS", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "nsPerSample", "plainCount", "flag" }
 /** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS, in order, the code being its place in the order. The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `""`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the ids (consts) of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs): the id is the wire word, the `x-symbol` its display rendering only (C2, plugin-hostd#215 D1/D2). A word's code is its position in the list, not a wire number (the wire codes are omx-clap's, the unit codes of org.openmixer.param-contract/1): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level. */
 #define OMX_PARAM_UNITS_WORDS(X) \
     X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
     X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
-    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "none", NONE) X(11u, "dB-oct", DB_PER_OCT) \
-    X(12u, "LUFS", LUFS) X(13u, "dB-s", DB_PER_S) X(14u, "dBTP", DBTP) X(15u, "dBu", DBU) \
+    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "none", NONE) X(11u, "dBPerOct", DB_PER_OCT) \
+    X(12u, "LUFS", LUFS) X(13u, "dBPerS", DB_PER_S) X(14u, "dBTP", DBTP) X(15u, "dBu", DBU) \
     X(16u, "LU", LU) X(17u, "kHz", KHZ) X(18u, "MHz", MHZ) X(19u, "frames", FRAMES) \
     X(20u, "bpm", BPM) X(21u, "bar", BAR) X(22u, "beat", BEAT) X(23u, "m", M) \
     X(24u, "cm", CM) X(25u, "mm", MM) X(26u, "km", KM) X(27u, "inch", INCH) \
@@ -400,13 +400,13 @@
 #define OMX_PARAM_UNITS_CLAP_ENCODED_NONE "none" ///< No unit: a ratio or a fraction.
 /** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_NONE. */
 #define OMX_PARAM_UNITS_CLAP_ENCODED_NONE_TEXT_EN "No unit: a ratio or a fraction."
-#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT "dB-oct" ///< A slope in dB per octave (a tilt).
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT "dBPerOct" ///< A slope in dB per octave (a tilt).
 /** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT. */
 #define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_OCT_TEXT_EN "A slope in dB per octave (a tilt)."
 #define OMX_PARAM_UNITS_CLAP_ENCODED_LUFS "LUFS" ///< A loudness (ITU-R BS.1770).
 /** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_LUFS. */
 #define OMX_PARAM_UNITS_CLAP_ENCODED_LUFS_TEXT_EN "A loudness (ITU-R BS.1770)."
-#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S "dB-s" ///< A gain change per second.
+#define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S "dBPerS" ///< A gain change per second.
 /** The source sentence (English) of OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S. */
 #define OMX_PARAM_UNITS_CLAP_ENCODED_DB_PER_S_TEXT_EN "A gain change per second."
 #define OMX_PARAM_UNITS_CLAP_ENCODED_DBTP "dBTP" ///< Decibels true peak, a level measured between the samples (ITU-R BS.1770).
@@ -469,13 +469,13 @@
 /** The number of words of PARAM_UNITS_CLAP_ENCODED. */
 #define OMX_PARAM_UNITS_CLAP_ENCODED_COUNT 33u
 /** The words of PARAM_UNITS_CLAP_ENCODED in their declared order, as a C initializer list. */
-#define OMX_PARAM_UNITS_CLAP_ENCODED_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef" }
+#define OMX_PARAM_UNITS_CLAP_ENCODED_INIT { "dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dBPerOct", "LUFS", "dBPerS", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef" }
 /** Expands `X(code, "word", NAME)` once per word of PARAM_UNITS_CLAP_ENCODED, in order, the code being its place in the order. The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none. */
 #define OMX_PARAM_UNITS_CLAP_ENCODED(X) \
     X(0u, "dB", DB) X(1u, "dBFS", DBFS) X(2u, "ms", MS) X(3u, "s", S) \
     X(4u, "min", MIN) X(5u, "Hz", HZ) X(6u, "oct", OCT) X(7u, "cents", CENTS) \
-    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "none", NONE) X(11u, "dB-oct", DB_PER_OCT) \
-    X(12u, "LUFS", LUFS) X(13u, "dB-s", DB_PER_S) X(14u, "dBTP", DBTP) X(15u, "dBu", DBU) \
+    X(8u, "st", ST) X(9u, "percent", PERCENT) X(10u, "none", NONE) X(11u, "dBPerOct", DB_PER_OCT) \
+    X(12u, "LUFS", LUFS) X(13u, "dBPerS", DB_PER_S) X(14u, "dBTP", DBTP) X(15u, "dBu", DBU) \
     X(16u, "LU", LU) X(17u, "kHz", KHZ) X(18u, "MHz", MHZ) X(19u, "frames", FRAMES) \
     X(20u, "bpm", BPM) X(21u, "bar", BAR) X(22u, "beat", BEAT) X(23u, "m", M) \
     X(24u, "cm", CM) X(25u, "mm", MM) X(26u, "km", KM) X(27u, "inch", INCH) \

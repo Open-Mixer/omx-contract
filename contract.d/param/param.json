@@ -152,7 +152,7 @@
             "x-dimension": "none"
           },
           {
-            "const": "dB-oct",
+            "const": "dBPerOct",
             "title": "dbPerOct",
             "description": "A slope in dB per octave (a tilt).",
             "x-code": 11,
@@ -172,7 +172,7 @@
             "x-dimension": "loudness"
           },
           {
-            "const": "dB-s",
+            "const": "dBPerS",
             "title": "dbPerS",
             "description": "A gain change per second.",
             "x-code": 13,
@@ -721,7 +721,7 @@
             ]
           },
           {
-            "const": "dB-oct",
+            "const": "dBPerOct",
             "title": "dbPerOct",
             "description": "A slope in dB per octave (a tilt).",
             "x-code": 11,
@@ -747,7 +747,7 @@
             ]
           },
           {
-            "const": "dB-s",
+            "const": "dBPerS",
             "title": "dbPerS",
             "description": "A gain change per second.",
             "x-code": 13,

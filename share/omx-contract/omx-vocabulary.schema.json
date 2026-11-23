@@ -277,9 +277,9 @@
         "st",
         "percent",
         "none",
-        "dB-oct",
+        "dBPerOct",
         "LUFS",
-        "dB-s",
+        "dBPerS",
         "dBTP",
         "dBu",
         "LU",
@@ -372,7 +372,7 @@
           },
           "args": []
         },
-        "dB-oct": {
+        "dBPerOct": {
           "text": {
             "en": "A slope in dB per octave (a tilt)."
           },
@@ -384,7 +384,7 @@
           },
           "args": []
         },
-        "dB-s": {
+        "dBPerS": {
           "text": {
             "en": "A gain change per second."
           },
@@ -697,9 +697,9 @@
         "st",
         "percent",
         "none",
-        "dB-oct",
+        "dBPerOct",
         "LUFS",
-        "dB-s",
+        "dBPerS",
         "dBTP",
         "dBu",
         "LU",
@@ -787,7 +787,7 @@
           },
           "args": []
         },
-        "dB-oct": {
+        "dBPerOct": {
           "text": {
             "en": "A slope in dB per octave (a tilt)."
           },
@@ -799,7 +799,7 @@
           },
           "args": []
         },
-        "dB-s": {
+        "dBPerS": {
           "text": {
             "en": "A gain change per second."
           },

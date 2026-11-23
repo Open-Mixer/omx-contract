@@ -446,7 +446,7 @@
           }
         },
         "dbPerOct": {
-          "word": "dB-oct",
+          "word": "dBPerOct",
           "symbol": "dB/oct",
           "dimension": "slope",
           "group": "param",
@@ -466,7 +466,7 @@
           }
         },
         "dbPerS": {
-          "word": "dB-s",
+          "word": "dBPerS",
           "symbol": "dB/s",
           "dimension": "rate",
           "group": "param",
@@ -984,7 +984,7 @@
           }
         },
         "dbPerOct": {
-          "word": "dB-oct",
+          "word": "dBPerOct",
           "from": [
             "PARAM_UNITS#dbPerOct"
           ],
@@ -1004,7 +1004,7 @@
           }
         },
         "dbPerS": {
-          "word": "dB-s",
+          "word": "dBPerS",
           "from": [
             "PARAM_UNITS#dbPerS"
           ],

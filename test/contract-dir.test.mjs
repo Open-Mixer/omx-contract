@@ -230,12 +230,12 @@ test('contract.schema.major, contract.schema.too-old and contract.schema.floor-a
 });
 
 test('the reader keeps no schema history: a floor older than the installed contract is not re-validated', () => {
-  // "dB-oct" is the id of a unit schema 3.3.0 added (as "dB/oct"); the file states a floor of 3.0.0. Nothing older than the installed schema
+  // "dBPerOct" is the id of a unit schema 3.3.0 added (as "dB/oct"); the file states a floor of 3.0.0. Nothing older than the installed schema
   // is read in development, so there is no schema/history to look in and no floor-understated refusal.
   assert.ok(!existsSync(join(ROOT, 'schema/history')), 'schema/history does not exist');
   assert.ok(!/schema\/history|floor-understated/.test(readFileSync(join(ROOT, 'src/lib/contract-dir.mts'), 'utf8')), 'the reader names no history');
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB-oct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
+  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dBPerOct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
   assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'an older floor loads with no history lookup');
 });
 

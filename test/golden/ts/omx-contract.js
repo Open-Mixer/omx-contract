@@ -425,7 +425,7 @@ export const PARAM_UNITS = {
     }
   },
   "dbPerOct": {
-    "word": "dB-oct",
+    "word": "dBPerOct",
     "symbol": "dB/oct",
     "dimension": "slope",
     "group": "param",
@@ -445,7 +445,7 @@ export const PARAM_UNITS = {
     }
   },
   "dbPerS": {
-    "word": "dB-s",
+    "word": "dBPerS",
     "symbol": "dB/s",
     "dimension": "rate",
     "group": "param",
@@ -961,7 +961,7 @@ export const PARAM_UNITS_CLAP_ENCODED = {
     }
   },
   "dbPerOct": {
-    "word": "dB-oct",
+    "word": "dBPerOct",
     "from": [
       "PARAM_UNITS#dbPerOct"
     ],
@@ -981,7 +981,7 @@ export const PARAM_UNITS_CLAP_ENCODED = {
     }
   },
   "dbPerS": {
-    "word": "dB-s",
+    "word": "dBPerS",
     "from": [
       "PARAM_UNITS#dbPerS"
     ],
@@ -1259,9 +1259,9 @@ export const PARAM_UNITS_WORDS = [
   "st",
   "percent",
   "none",
-  "dB-oct",
+  "dBPerOct",
   "LUFS",
-  "dB-s",
+  "dBPerS",
   "dBTP",
   "dBu",
   "LU",
@@ -1337,9 +1337,9 @@ export const PARAM_UNITS_CLAP_ENCODED_WORDS = [
   "st",
   "percent",
   "none",
-  "dB-oct",
+  "dBPerOct",
   "LUFS",
-  "dB-s",
+  "dBPerS",
   "dBTP",
   "dBu",
   "LU",

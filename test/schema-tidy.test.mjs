@@ -32,6 +32,6 @@ test('the docs state the development-phase rule while lib/semver.mjs carries it,
 
 test('dB/oct is a unit an item may state, and a unit outside the list is still refused', () => {
   const slope = (unit) => texts((d) => { d['data/rates.json'].TILT_PROBE = { kind: 'scalar', doc: 'A tilt slope.', unit, value: 6 }; });
-  assert.deepEqual(validateData(loadData(null, slope('dB-oct'))), []);
+  assert.deepEqual(validateData(loadData(null, slope('dBPerOct'))), []);
   assert.ok(validateData(loadData(null, slope('dB/octave'))).some((p) => p.item === 'TILT_PROBE' && /unit must be equal to one of the allowed values/.test(p.message)));
 });

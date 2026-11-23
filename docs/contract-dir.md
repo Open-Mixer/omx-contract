@@ -184,7 +184,10 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
   that owns it now. Neither is read from the path.
 - A domain is named after the package that owns it, or shares no name with an installed package (ruling V16). A domain
-  named like a package under `<schema major>/` is read whatever its name, never skipped (#125): its `info.x-owner` must
+  named like a package under `<schema major>/` (a directory `<name>/` that holds `<name>/<name>.json`) is read whatever
+  its name, never skipped (#125); a directory of that name holding nested domains only, as plugin-hostd's
+  `<contractdir>/plugin-hostd/` holds `clap`, `grouping`, `history` and `lv2`, is no domain and is read as before
+  (ruling %4 2026-11-24). A package-named domain's `info.x-owner` must
   be that package, or it is refused by name (`contract.manifest.mismatch`), and an item that the package's files and the
   domain both declare is `contract.item.duplicate`, as for any two files. A floor on that name is held to the
   domain's `info.version` when the domain is installed alone (`--domain` only, as plugin-db and plugin-hostd-protocol

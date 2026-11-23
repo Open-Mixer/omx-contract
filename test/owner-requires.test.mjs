@@ -81,7 +81,7 @@ function hostdTree() {
 function qualifyTree({ codes = true } = {}) {
   const tree = fresh('qualify');
   write(tree, 'package.json', { name: '@openmixer/fixture-qualify' });
-  write(tree, 'data/formats/x.json', { $schema: '../../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, FIXTURE_SCALAR: { kind: 'scalar', doc: 'a scalar', unit: '', value: 1 } });
+  write(tree, 'data/formats/x.json', { $schema: '../../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, FIXTURE_SCALAR: { kind: 'scalar', doc: 'a scalar', unit: 'none', value: 1 } });
   if (codes) write(tree, 'schema/codes.json', { kind: 'codes', doc: 'the fixture codes', codes: { descriptorDuplicateSymbol: { code: 'qualify.descriptor.duplicate-symbol', doc: 'a symbol twice', text: { en: 'The plugin declares a symbol twice.' }, args: [] } } });
   write(tree, 'catalogs/ca.json', { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang: 'ca', owner: 'fixture-qualify', messages: { 'qualify.descriptor.duplicate-symbol': { text: 'El plugin declara un símbol dues vegades.', by: 'human' } } });
   return tree;

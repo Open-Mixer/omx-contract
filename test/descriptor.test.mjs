@@ -123,7 +123,7 @@ test('the scanned CLAP plugin: every unit and scale unknown, its module path as 
 
 test('the scanned LV2 plugin: its units, a unit with no word as unknown, a side-chain input', () => {
   const d = fixture(SCANNED_LV2);
-  assert.deepEqual(d.controls.map((c) => c.travel?.unit ?? null), ['dB', '', 'unknown', 'dB', null, 'dB']);
+  assert.deepEqual(d.controls.map((c) => c.travel?.unit ?? null), ['dB', 'none', 'unknown', 'dB', null, 'dB']);
   assert.deepEqual(d.ports.map((p) => [p.role, p.channels, p.layout]), [['main', 2, 'stereo'], ['sidechain', 1, 'mono'], ['main', 2, 'stereo']]);
   assert.ok(d.controls.every((c) => c.source.from.startsWith('compressor.lv2/compressor.ttl#')));
 });
@@ -131,10 +131,10 @@ test('the scanned LV2 plugin: its units, a unit with no word as unknown, a side-
 test('the words are the closed lists of docs/descriptors.md', () => {
   const $ = SCHEMA.$defs;
   // the descriptor units of PARAM_UNITS (the param domain, docs/units.md), then unknown; every unit a descriptor took before still taken, but x, removed for coef (omx-contract#167)
-  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'us', 'bytes', 'ns/sample', 'count', 'flag', 'unknown'] }]);
+  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'us', 'bytes', 'nsPerSample', 'plainCount', 'flag', 'unknown'] }]);
   for (const u of ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown']) assert.ok([...$.unit.enum, ...$.descriptorUnit.anyOf[1].enum].includes(u), `${u} is still a descriptor's unit`);
   for (const u of ['frames', 'bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
-  assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', '%', '', 'dB/oct', 'LUFS', 'dB/s', 'coef'], 'the items\' units: dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0, x removed for coef in 3.21.0 (omx-contract#167)');
+  assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', 'percent', 'none', 'dBPerOct', 'LUFS', 'dBPerS', 'coef'], 'the items\' units: dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0, x removed for coef in 3.21.0 (omx-contract#167)');
   assert.deepEqual($.meaning.enum, [
     'gain', 'threshold', 'ratio', 'attack', 'release', 'hold', 'decay', 'frequency', 'cutoffFrequency', 'resonance', 'bypass',
     'wetDryRatio', 'delay', 'enabled',
@@ -168,8 +168,8 @@ test('a word the schema does not have is contract.file.invalid, never skipped', 
     ['a feature with no word', (d) => { d.plugin.features = ['delay']; }],
     ['a layout with no word', (d) => { d.ports[0].layout = 'quad'; }],
     ['a key no descriptor has', (d) => { d.verdict = 'good'; }],
-    ['an item beside the words', (d) => { d.TEST_A = { kind: 'scalar', doc: 'x', unit: '', value: 1 }; }],
-    ['a toggle with a travel', (d) => { d.controls[4].travel = { min: 0, max: 1, unit: '', scale: 'linear' }; }],
+    ['an item beside the words', (d) => { d.TEST_A = { kind: 'scalar', doc: 'x', unit: 'none', value: 1 }; }],
+    ['a toggle with a travel', (d) => { d.controls[4].travel = { min: 0, max: 1, unit: 'none', scale: 'linear' }; }],
     ['a trigger with a default', (d) => { d.controls[4].kind = 'trigger'; }],
     ['a travel without its unit', (d) => { delete d.controls[0].travel.unit; }],
     ['a travel without its scale', (d) => { delete d.controls[0].travel.scale; }],

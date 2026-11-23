@@ -23,7 +23,7 @@
         "min": 0,
         "max": 100,
         "step": 0.1,
-        "unit": "%",
+        "unit": "percent",
         "default": 40,
         "defaultFrom": "desk"
       }
@@ -80,7 +80,7 @@
     "WAVE_PLANT_BANDS": {
       "kind": "scalar",
       "doc": "The bands the wave may plant: an invented count a declared check sums.",
-      "unit": "",
+      "unit": "none",
       "value": 3
     }
   }

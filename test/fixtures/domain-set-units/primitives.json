@@ -114,7 +114,7 @@
         }
       },
       "dbPerOct": {
-        "word": "dB-oct",
+        "word": "dBPerOct",
         "symbol": "dB/oct",
         "doc": "A slope in dB per octave (a tilt).",
         "text": {
@@ -130,7 +130,7 @@
         }
       },
       "dbPerS": {
-        "word": "dB-s",
+        "word": "dBPerS",
         "symbol": "dB/s",
         "doc": "A gain change per second.",
         "text": {

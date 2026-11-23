@@ -45,10 +45,18 @@ test('(a) PARAM_SCALE_IDS, the descriptor check\'s scales, are the golden ids', 
   assert.deepEqual(PARAM_SCALE_IDS, ['linear', 'log', 'stepped']);
 });
 
-test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.descriptorUnit, are the golden symbols by scope, in order', () => {
-  const param = GOLDEN.filter((g) => g.scope === 'param').map((g) => g.symbol);
-  const own = [...GOLDEN.filter((g) => g.scope === 'descriptor').map((g) => g.symbol), 'unknown'];
-  assert.deepEqual(param, [...Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.symbol).filter((u) => u !== 'x'), 'coef'], 'the param scope is the 15 of before, x removed for coef (omx-contract#167)');
+test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.descriptorUnit, are the golden ids by scope, in order', () => {
+  // C2 (coordinator %4, 2026-11-23, plugin-hostd#215 D1/D2): the schema enumerates the PARAM_UNITS ids, the word a
+  // descriptor and a reply carry; x-symbol ('%', 'dB/oct') is the display rendering and never a wire word
+  const param = GOLDEN.filter((g) => g.scope === 'param').map((g) => g.word);
+  const own = [...GOLDEN.filter((g) => g.scope === 'descriptor').map((g) => g.word), 'unknown'];
+  assert.deepEqual(param, [...Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.word).filter((u) => u !== 'x'), 'coef'], 'the param scope is the 15 of before, x removed for coef (omx-contract#167)');
+  for (const symbol of ['%', '', 'dB/oct', 'dB/s', 'ns/sample', 'count']) {
+    assert.ok(![...param, ...own].includes(symbol), `the symbol ${JSON.stringify(symbol)} is no wire word`);
+  }
+  // a unit id is camelCase, "/" reads "Per" (docs/units.md, 2026-11-23): dBPerOct, nsPerSample, never dB-oct
+  for (const id of [...param, ...own]) assert.match(id, /^[A-Za-z][A-Za-z0-9]*$/, `the unit id ${JSON.stringify(id)} is camelCase`);
+  assert.ok(param.includes('dBPerOct') && param.includes('dBPerS'), 'dB/oct and dB/s are dBPerOct and dBPerS');
   assert.deepEqual(unitWords(ROOT), param);
   assert.deepEqual(descriptorUnitWords(ROOT), own);
   const defs = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8')).$defs;

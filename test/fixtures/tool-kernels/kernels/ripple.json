@@ -35,7 +35,7 @@
     "RIPPLE_FACTORS": {
       "kind": "list",
       "doc": "The ripple factors: an invented integer list.",
-      "unit": "",
+      "unit": "none",
       "values": [
         1,
         2,

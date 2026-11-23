@@ -11,9 +11,9 @@ import { validateData } from '../lib/validate.mjs';
 const RULES = ['travel-order', 'step', 'finite'];
 const check = (items) => validateData(loadData(null, { 'data/x.json': JSON.stringify({ $schema: '../schema/omx-contract.schema.json', ...items }) }))
   .filter((p) => RULES.includes(p.rule)).map((p) => `${p.rule}: ${p.message}`);
-const single = (travel) => ({ T: { kind: 'travels', doc: 'a travel', travel: { unit: '', ...travel } } });
+const single = (travel) => ({ T: { kind: 'travels', doc: 'a travel', travel: { unit: 'none', ...travel } } });
 const table = (fields) => ({ T: { kind: 'travels', doc: 'a table', fields } });
-const LIST = { L: { kind: 'list', doc: 'a list', unit: '', values: [1, 2] } };
+const LIST = { L: { kind: 'list', doc: 'a list', unit: 'none', values: [1, 2] } };
 
 test('a travel whose bounds are ordered, whose step is not negative and whose numbers are finite raises none of the three rules', () => {
   assert.deepEqual(check(single({ min: -1, max: 1, step: 0, default: 0 })), []);

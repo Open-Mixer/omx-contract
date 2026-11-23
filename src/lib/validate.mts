@@ -458,10 +458,16 @@ const SINCE = /^(\d+)\.(\d+)\.(\d+)$/;
  * The x-since half of the domain check (omx-contract#124): every item of a domain document carries an x-since that is
  * MAJOR.MINOR.PATCH and not above the document's info.version. Only `validate` says it; no reader refuses on it.
  */
-function domainSinceProblems(f, manifest): { item: string; message: string }[] {
-  if (!f.installed || !manifest || manifest.files !== undefined || typeof manifest.version !== 'string') return [];
+function domainSinceProblems(f): { item: string; message: string }[] {
+  // an installed domain's document (contract-dir.mts): its file is contract.d/<its path>, read under its own version,
+  // whether or not a package of its name is installed beside it
+  if (!f.installed || f.source !== `contract.d/${f.rel}`) return [];
+  const doc = JSON.parse(f.text);
+  const version = doc?.info?.version;
+  if (typeof version !== 'string') return [];
+  const manifest = { version };
   const out: { item: string; message: string }[] = [];
-  const schemas = JSON.parse(f.text)?.components?.schemas ?? {};
+  const schemas = doc?.components?.schemas ?? {};
   for (const [item, s] of Object.entries(schemas as Record<string, Json>)) {
     const since = s?.['x-since'];
     if (typeof since !== 'string' || !SINCE.test(since)) out.push({ item, message: `x-since ${JSON.stringify(since)} is not MAJOR.MINOR.PATCH: every item carries the info.version of its document that first carried it` });
@@ -475,7 +481,7 @@ export function validateData(data) {
   const problems: Json[] = [];
   const say = (file, item, rule, message) => problems.push({ file, item, rule, message });
   for (const f of data.files) problems.push(...fileProblems(f));
-  for (const f of data.files) for (const p of domainSinceProblems(f, data.packages?.get(f.pkg)?.manifest)) say(f.rel, p.item, 'domain-x-since', p.message);
+  for (const f of data.files) for (const p of domainSinceProblems(f)) say(f.rel, p.item, 'domain-x-since', p.message);
   for (const p of useProblems(data)) say(p.rel, p.item, 'use', p.message);
   if (problems.length) return problems;
 

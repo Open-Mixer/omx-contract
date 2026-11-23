@@ -1,6 +1,7 @@
 # The omx-dsp commit tools/live-owner-data.sh proves this tree against, until the release named (omx-contract#195).
 # 3.21.0 removes READOUT_RATE_HZ (V22) and 3.22.0 publishes in the same chain as the omx-dsp that holds its new home
 # (data/primitives/readout.json, omx-dsp#123); that omx-dsp build-requires this omx-contract, so omx-contract publishes
-# first and omx-dsp's latest release still reads the old items. 1ed8a2d is the omx-dsp head the chain-3 file names (#123's
-# head). From omx-dsp v0.34.0 on the script reads the latest release; the release after that removes this file.
-1ed8a2df00fdd6383ffe07ca531ce960e7e1ca50 until v0.34.0
+# first and omx-dsp's latest release still reads the old items. 804cbc9 is the omx-dsp chain-3 head (omx-dsp#135, stacked
+# on #123: ROTARY_ACCEL_RANGE travels in coef). From omx-dsp v0.34.0 on the script reads the latest release; the
+# release after that removes this file.
+804cbc915f8ea870ea0283197a2c5801fe2b3998 until v0.34.0

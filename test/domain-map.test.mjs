@@ -123,18 +123,21 @@ for (const f of Object.keys(GOLDEN)) {
     assert.deepEqual(classic[item], JSON.parse(domainDataFiles(`plugin-hostd/${f}`, doc)[`formats/${f}.json`])[item]);
   });
 
-  test(`${f}: validate --with-domain refuses 58b7145's coef -> "x" (rule map-unit, omx-contract#193) and nothing else`, () => {
+  test(`${f}: validate --with-domain refuses 58b7145's coef -> "x" and pc -> "%" (rule map-unit, omx-contract#193: a unit is a PARAM_UNITS id) and nothing else`, () => {
     const v = validate(domainDir(f, mapDoc(f), `verbatim-${f}`));
     assert.equal(v.status, 1, v.stdout);
     const lines = v.stderr.trim().split('\n').filter((l) => l.includes(': map-unit: '));
-    assert.equal(lines.length, 1, v.stderr);
-    assert.match(lines[0], /: (coef|units:coef) -> "x" is no PARAM_UNITS standard symbol/);
+    assert.equal(lines.length, 2, v.stderr);
+    assert.ok(lines.some((l) => /: (coef|units:coef) -> "x" is no PARAM_UNITS standard id/.test(l)), v.stderr);
+    assert.ok(lines.some((l) => /: (pc|units:pc) -> "%" is no PARAM_UNITS standard id/.test(l)), v.stderr);
   });
 
-  test(`${f}: validate --with-domain reads the map valid with coef for "x", its term links resolved; render --target json --with-domain carries it`, () => {
-    // The ruled fix (omx-contract#167: coef is the one plain multiplier), the one change from 58b7145.
+  test(`${f}: validate --with-domain reads the map valid with coef for "x" and percent for "%", its term links resolved; render --target json --with-domain carries it`, () => {
+    // The ruled fixes, the only changes from 58b7145: coef is the one plain multiplier (omx-contract#167), and a unit is
+    // spelled by its PARAM_UNITS id, the symbol "%" being display only (C2).
+    const ID = { x: 'coef', '%': 'percent' };
     const doc = mapDoc(f);
-    for (const r of doc.components.schemas[item].oneOf) for (const [k, u] of Object.entries(r['x-word']?.values ?? {})) if (u === 'x') r['x-word'].values[k] = 'coef';
+    for (const r of doc.components.schemas[item].oneOf) for (const [k, u] of Object.entries(r['x-word']?.values ?? {})) if (ID[u]) r['x-word'].values[k] = ID[u];
     const dir = domainDir(f, doc, `valid-${f}`);
     const v = validate(dir);
     assert.equal(v.status, 0, v.stderr);

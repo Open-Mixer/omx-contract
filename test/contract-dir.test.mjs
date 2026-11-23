@@ -65,7 +65,7 @@ function addPackage(root, pkg, files, version = '1.0.0') {
 
 /** A file of a package other than omx-contract: the installed $schema, a schema floor, and its items. */
 const owned = (items, requires = {}) => ({ $schema: URL3, requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}`, ...requires }, ...items });
-const scalar = (value, extra = {}) => ({ kind: 'scalar', doc: 'a test scalar', unit: '', value, ...extra });
+const scalar = (value, extra = {}) => ({ kind: 'scalar', doc: 'a test scalar', unit: 'none', value, ...extra });
 
 const codesRaised = new Set();
 /** The code the read of `root` refuses with; the read returns nothing. */
@@ -230,12 +230,12 @@ test('contract.schema.major, contract.schema.too-old and contract.schema.floor-a
 });
 
 test('the reader keeps no schema history: a floor older than the installed contract is not re-validated', () => {
-  // "dB/oct" is a unit schema 3.3.0 added; the file states a floor of 3.0.0. Nothing older than the installed schema
+  // "dB-oct" is the id of a unit schema 3.3.0 added (as "dB/oct"); the file states a floor of 3.0.0. Nothing older than the installed schema
   // is read in development, so there is no schema/history to look in and no floor-understated refusal.
   assert.ok(!existsSync(join(ROOT, 'schema/history')), 'schema/history does not exist');
   assert.ok(!/schema\/history|floor-understated/.test(readFileSync(join(ROOT, 'src/lib/contract-dir.mts'), 'utf8')), 'the reader names no history');
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB/oct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
+  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB-oct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
   assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'an older floor loads with no history lookup');
 });
 
@@ -249,7 +249,7 @@ test('contract.file.not-json and contract.file.invalid', () => {
     assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.fileInvalid, JSON.stringify(items));
   }
   root = installed();
-  addPackage(root, 'omx-dsp', { 'kernels/k.json': { ...owned({}), controls: [{ name: 'a', kind: 'travel', doc: 'a', travel: { min: 0, max: 1, unit: '' } }], extra: {} } });
+  addPackage(root, 'omx-dsp', { 'kernels/k.json': { ...owned({}), controls: [{ name: 'a', kind: 'travel', doc: 'a', travel: { min: 0, max: 1, unit: 'none' } }], extra: {} } });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.fileInvalid, 'an unknown top-level key of a kernel file');
 });
 
@@ -269,11 +269,11 @@ test('contract.item.prefix: an item of a domain that does not start with its dom
 
 test('contract.kernel.duplicate: two packages each install a file of one kernel, even with names of their own', () => {
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'amount', kind: 'travel', doc: 'the kernel\'s row', travel: { min: 0, max: 1, unit: '' } }] } });
-  addPackage(root, 'openmixer', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: '' } }] } });
+  addPackage(root, 'omx-dsp', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'amount', kind: 'travel', doc: 'the kernel\'s row', travel: { min: 0, max: 1, unit: 'none' } }] } });
+  addPackage(root, 'openmixer', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: 'none' } }] } });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.kernelDuplicate);
   const other = installed();
-  addPackage(other, 'openmixer', { 'kernels/console_hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: '' } }] } });
+  addPackage(other, 'openmixer', { 'kernels/console_hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: 'none' } }] } });
   assert.ok(loadContractDir({ dir: other }).items.has('CONSOLE_HRP_CONSOLE_ONLY_RANGE'), 'a kernel of its own is read');
 });
 
@@ -336,8 +336,8 @@ test('the schema words: requires is a map of floors, source a closed object of l
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { from: link } }) }).length > 0, false, 'from alone is a source');
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { at: 'not a package' } }) }), ['A:schema']);
   const kernel = { $schema: '../../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': '>= 2.15.0' }, source: { impl: link },
-    controls: [{ name: 'a', kind: 'travel', source: { impl: link }, doc: 'a', travel: { min: 0, max: 1, unit: '' } },
-      { name: 'b', kind: 'travel', table: 'K_T', source: { impl: link }, travel: { min: 0, max: 1, unit: '' } }], tables: { K_T: { doc: 't' } } };
+    controls: [{ name: 'a', kind: 'travel', source: { impl: link }, doc: 'a', travel: { min: 0, max: 1, unit: 'none' } },
+      { name: 'b', kind: 'travel', table: 'K_T', source: { impl: link }, travel: { min: 0, max: 1, unit: 'none' } }], tables: { K_T: { doc: 't' } } };
   assert.deepEqual(probs(kernel, 'data/kernels/k.json'), ['-:shape'], 'a table field carries no source of its own');
   delete kernel.controls[1].source;
   assert.deepEqual(probs(kernel, 'data/kernels/k.json'), []);

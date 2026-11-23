@@ -20,12 +20,12 @@
   },
   "$defs": {
     "unit": {
-      "description": "The closed list of units the items use; \"s\" is seconds and \"min\" minutes, \"\" is a ratio or a fraction, \"dB/oct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770), \"dB/s\" a gain change per second and \"coef\" a coefficient, a plain multiplier (omx-contract#167: it replaces \"x\").",
-      "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "%", "", "dB/oct", "LUFS", "dB/s", "coef"]
+      "description": "The closed list of units the items use, each a PARAM_UNITS id (rendered by tools/unit-enum.mjs; the symbol is the display rendering, never this word): \"s\" is seconds and \"min\" minutes, \"none\" a ratio or a fraction, \"percent\" a percentage, \"dB-oct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770), \"dB-s\" a gain change per second and \"coef\" a coefficient, a plain multiplier (omx-contract#167: it replaces \"x\").",
+      "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "coef"]
     },
     "descriptorUnit": {
       "description": "A descriptor's unit: a unit of the items ($defs.unit), a unit of PARAM_UNITS of scope descriptor, which only a descriptor's control states (rendered from the param domain by tools/unit-enum.mjs, docs/units.md), or unknown, the plugin states none (docs/descriptors.md).",
-      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
+      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "us", "bytes", "nsPerSample", "plainCount", "flag", "unknown"] }]
     },
     "meaning": {
       "description": "What a control does, the closed list seeded from the panel roles; the LV2 param: or lv2:designation name where LV2 has the term (docs/descriptors.md). unknown: the plugin states none.",

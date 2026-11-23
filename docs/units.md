@@ -86,8 +86,10 @@ the one plain multiplier, and a reader that stated `x` states `coef`, with no al
   on the meter, so neither is derived from the other. A transport position (a bar number, a beat in a bar) is a
   position, not a unit.
 - `dBu` is decibels relative to 0.7746 V RMS, an analogue level. `dBV` is not added: nothing uses it.
-- `$defs.unit` is the symbols of the `param` words and `$defs.descriptorUnit` those of the `descriptor` words and
-  `unknown`, rendered from the list, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
+- `$defs.unit` is the ids (consts) of the `param` words and `$defs.descriptorUnit` those of the `descriptor` words and
+  `unknown`, rendered from the list (C2, coordinator 2026-11-23, plugin-hostd#215 D1/D2): the id is the word a
+  descriptor, an item and a reply carry (`percent`, `none`, `dB-oct`), and a word's `x-symbol` (`%`, `""`, `dB/oct`)
+  is how a surface displays it, never a wire word, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
   schema to it). A unit is added in one place.
 
 - The resource units `us`, `bytes`, `nsPerSample`, `plainCount` and `flag` join the list (coordinator ruling Q6,

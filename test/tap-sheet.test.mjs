@@ -23,7 +23,7 @@ const items = (dir = UNION) => JSON.parse(renderJson(resolveData(loadData(dir)),
 const header = (dir = UNION) => renderC(resolveData(loadData(dir)))[0].text;
 
 test('an integer travel renders its ceiling as an integer literal', () => {
-  assert.deepEqual(items().ECHO_TAPS_RANGE.value, { min: 1, max: 3, step: 1, unit: '', default: 1, defaultFrom: 'desk' });
+  assert.deepEqual(items().ECHO_TAPS_RANGE.value, { min: 1, max: 3, step: 1, unit: 'none', default: 1, defaultFrom: 'desk' });
   assert.match(header(), /^#define OMX_ECHO_TAPS_RANGE_MAX 3$/m);
 });
 

@@ -3,13 +3,13 @@
   "TOOL_READ_ORDER": {
     "kind": "scalar",
     "doc": "An invented read order.",
-    "unit": "",
+    "unit": "none",
     "value": 2
   },
   "TOOL_READ_L1": {
     "kind": "scalar",
     "doc": "The L1 norm of the invented read.",
-    "unit": "",
+    "unit": "none",
     "value": {
       "derive": "lagrangeReadL1",
       "order": {

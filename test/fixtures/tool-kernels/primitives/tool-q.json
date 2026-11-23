@@ -3,7 +3,7 @@
   "TOOL_Q": {
     "kind": "scalar",
     "doc": "An invented Q: a square root.",
-    "unit": "",
+    "unit": "none",
     "value": {
       "derive": "sqrt",
       "of": 0.36

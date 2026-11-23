@@ -144,7 +144,7 @@
         "x-since": "1.1.0",
         "x-kind": "scalar",
         "x-file": "constants.json",
-        "x-unit": "",
+        "x-unit": "none",
         "x-value": 64
       },
       "KINDS_RATE_HZ": {

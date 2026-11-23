@@ -22,7 +22,7 @@
         "min": 0,
         "max": 0.95,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": 0.3,
         "defaultFrom": "desk"
       }
@@ -35,7 +35,7 @@
         "min": 0,
         "max": 1,
         "step": 0,
-        "unit": "",
+        "unit": "none",
         "default": 0.4,
         "defaultFrom": "desk",
         "byKind": {
@@ -51,7 +51,7 @@
         "min": 1,
         "max": 3,
         "step": 1,
-        "unit": "",
+        "unit": "none",
         "default": 1,
         "defaultFrom": "desk"
       }
@@ -64,7 +64,7 @@
         "min": 0,
         "max": 1,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": 1,
         "defaultFrom": "desk"
       }
@@ -77,7 +77,7 @@
         "min": -1,
         "max": 1,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": 0,
         "defaultFrom": "desk"
       }
@@ -90,7 +90,7 @@
         "min": 0,
         "max": 1,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": 0.6,
         "defaultFrom": "desk"
       }
@@ -103,7 +103,7 @@
         "min": -1,
         "max": 1,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": -0.4,
         "defaultFrom": "desk"
       }
@@ -116,7 +116,7 @@
         "min": 0,
         "max": 1,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": 0.3,
         "defaultFrom": "desk"
       }
@@ -129,7 +129,7 @@
         "min": -1,
         "max": 1,
         "step": 0.01,
-        "unit": "",
+        "unit": "none",
         "default": 0.4,
         "defaultFrom": "desk"
       }
@@ -144,7 +144,7 @@
     "ECHO_TAP_NUMS": {
       "kind": "list",
       "doc": "The echo tap factors, numerators: an invented integer list.",
-      "unit": "",
+      "unit": "none",
       "values": [
         1,
         2,
@@ -154,7 +154,7 @@
     "ECHO_TAP_DENS": {
       "kind": "list",
       "doc": "The echo tap factors, denominators: an invented integer list.",
-      "unit": "",
+      "unit": "none",
       "values": [
         3,
         3,

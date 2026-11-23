@@ -131,10 +131,10 @@ test('the scanned LV2 plugin: its units, a unit with no word as unknown, a side-
 test('the words are the closed lists of docs/descriptors.md', () => {
   const $ = SCHEMA.$defs;
   // the descriptor units of PARAM_UNITS (the param domain, docs/units.md), then unknown; every unit a descriptor took before still taken, but x, removed for coef (omx-contract#167)
-  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'us', 'bytes', 'nsPerSample', 'plainCount', 'flag', 'unknown'] }]);
+  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'us', 'bytes', 'nsPerSample', 'plainCount', 'flag', 'unknown'] }]);
   for (const u of ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown']) assert.ok([...$.unit.enum, ...$.descriptorUnit.anyOf[1].enum].includes(u), `${u} is still a descriptor's unit`);
-  for (const u of ['frames', 'bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
-  assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', 'percent', 'none', 'dBPerOct', 'LUFS', 'dBPerS', 'coef'], 'the items\' units: dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0, x removed for coef in 3.21.0 (omx-contract#167)');
+  for (const u of ['bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
+  assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', 'percent', 'none', 'dBPerOct', 'LUFS', 'dBPerS', 'frames', 'coef'], 'the items\' units: dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0, x removed for coef in 3.21.0 (omx-contract#167), frames a param unit (omx-contract#164)');
   assert.deepEqual($.meaning.enum, [
     'gain', 'threshold', 'ratio', 'attack', 'release', 'hold', 'decay', 'frequency', 'cutoffFrequency', 'resonance', 'bypass',
     'wetDryRatio', 'delay', 'enabled',

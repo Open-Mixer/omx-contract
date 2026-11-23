@@ -490,7 +490,7 @@ export declare const PARAM_UNITS: {
     readonly word: "frames";
     readonly symbol: "frames";
     readonly dimension: "count";
-    readonly group: "descriptor";
+    readonly group: "param";
     readonly doc: "Audio frames, one sample on each channel.";
     readonly text: {
       readonly en: "Audio frames, one sample on each channel.";

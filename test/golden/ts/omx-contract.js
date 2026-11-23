@@ -508,7 +508,7 @@ export const PARAM_UNITS = {
     "word": "frames",
     "symbol": "frames",
     "dimension": "count",
-    "group": "descriptor",
+    "group": "param",
     "doc": "Audio frames, one sample on each channel.",
     "text": {
       "en": "Audio frames, one sample on each channel."

@@ -50,7 +50,7 @@ test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.
   // descriptor and a reply carry; x-symbol ('%', 'dB/oct') is the display rendering and never a wire word
   const param = GOLDEN.filter((g) => g.scope === 'param').map((g) => g.word);
   const own = [...GOLDEN.filter((g) => g.scope === 'descriptor').map((g) => g.word), 'unknown'];
-  assert.deepEqual(param, [...Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.word).filter((u) => u !== 'x'), 'coef'], 'the param scope is the 15 of before, x removed for coef (omx-contract#167)');
+  assert.deepEqual(param, [...Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.word).filter((u) => u !== 'x'), 'frames', 'coef'], 'the param scope is the 15 of before, x removed for coef (omx-contract#167), and frames (omx-contract#164)');
   for (const symbol of ['%', '', 'dB/oct', 'dB/s', 'ns/sample', 'count']) {
     assert.ok(![...param, ...own].includes(symbol), `the symbol ${JSON.stringify(symbol)} is no wire word`);
   }

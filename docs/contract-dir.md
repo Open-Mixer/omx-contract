@@ -325,9 +325,11 @@ package that owns the relation declares it; the tool names none.
 A host's verbs (the lines of mod-host's protocol a controller sends, the replies and refusals they answer, and what
 each host owes them) are declared by the package that owns them: in an item of kind `verbs` in a file of its own
 directory, `<contractdir>/3/<package>/`, as below, or in a words item of `x-kind` `verbs` of a domain it owns. The
-protocol's verbs are the domain `plugin-hostd` of plugin-hostd-protocol, `contract.d/plugin-hostd/plugin-hostd.json`
-(sorting pass V16): PLUGIN_HOSTD_REPLY_CODES, PLUGIN_HOSTD_VERBS, PLUGIN_HOSTD_PROTOCOL_VERBS and
-PLUGIN_HOSTD_PROTOCOL_EXTENSIONS, under the names they had. The hosts a verb's `implementedBy` names are omx-clap's
+protocol's verbs are the domain `plugin-hostd-protocol`, named after the package that owns it,
+`contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (sorting pass V16, ruled 2026-11-23, plugin-hostd-protocol#138):
+PLUGIN_HOSTD_PROTOCOL_REPLY_CODES, PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS, PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS and
+PLUGIN_HOSTD_PROTOCOL_EXTENSIONS, every item starting with its domain's name. It does not share
+`<contractdir>/plugin-hostd/` with plugin-hostd's package and nested domains. The hosts a verb's `implementedBy` names are omx-clap's
 `HOSTING_VERB_HOSTS`, in its hosting data (V29). A package adds a verb by adding the file, the domain word or an entry
 and installing it; omx-contract changes for none of it.
 

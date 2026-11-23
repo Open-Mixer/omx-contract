@@ -225,7 +225,6 @@
       "impulseOnset": {
         "word": "impulse-onset",
         "from": [
-          "LV2_CORE_TERMS#latency",
           "CLAP_EXT_LATENCY_TERMS#latency"
         ],
         "doc": "The delay from a unit impulse to the first output sample above the residual floor: what the plugin does.",
@@ -236,7 +235,6 @@
       "declaredPort": {
         "word": "declared-port",
         "from": [
-          "LV2_CORE_TERMS#latency",
           "CLAP_EXT_LATENCY_TERMS#latency"
         ],
         "doc": "Read from the plugin's own latency report: what it claims.",

@@ -55,6 +55,7 @@ function withPackage(pkg, dir) {
   const root = join(SCRATCH, `cd-${n++}`);
   const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), ...a], { stdio: 'ignore' });
   sh('-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data');
+  sh('--domain', join(ROOT, 'contract.d/param'), root);
   sh(pkg, '0.13.0', String(SCHEMA_MAJOR), dir, root, 'data');
   return root;
 }

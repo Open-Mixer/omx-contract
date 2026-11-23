@@ -2,25 +2,43 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 //
-// The schema's $defs.unit enum, rendered from PARAM_UNITS (data/primitives.json): its words in their declared order.
+// The schema's $defs.unit enum and $defs.descriptorUnit's own enum, rendered from PARAM_UNITS (the `param` domain,
+// contract.d/param/param.json): the symbols of its `param` units, and of its `descriptor` units then `unknown`, in
+// their declared order (docs/units.md: the scope split is kept, Q16).
 // `--write` rewrites schema/omx-contract.schema.json; `--check` exits 1 naming what differs. `--root <dir>` reads
 // another tree (the tests' scratch copies).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { isMain } from '../lib/entry.mjs';
 
-/** The unit symbols of PARAM_UNITS (each word's `symbol`), in declared order. */
-export function unitWords(root) {
-  const item = JSON.parse(readFileSync(join(root, 'data/primitives.json'), 'utf8')).PARAM_UNITS;
-  if (item?.kind !== 'words') throw new Error('data/primitives.json has no PARAM_UNITS words item');
-  return Object.values(item.words).map((w) => w.symbol);
+/** The words of PARAM_UNITS in the `param` domain (contract.d/param/param.json), in declared order. */
+function unitList(root) {
+  const item = JSON.parse(readFileSync(join(root, 'contract.d/param/param.json'), 'utf8')).components?.schemas?.PARAM_UNITS;
+  if (!Array.isArray(item?.oneOf)) throw new Error('contract.d/param/param.json has no PARAM_UNITS words item');
+  return item.oneOf;
 }
 
-/** The schema text with $defs.unit.enum set to `words`, every other byte as it was. */
-export function renderSchema(text, words) {
+/** The symbols (each word's `x-symbol`) of the units of scope `param` (its `x-group`), in declared order: $defs.unit. */
+export function unitWords(root) {
+  return unitList(root).filter((w) => w['x-group'] === 'param').map((w) => w['x-symbol']);
+}
+
+/** The symbols of the units of scope `descriptor`, in declared order, then `unknown`: $defs.descriptorUnit's own enum. */
+export function descriptorUnitWords(root) {
+  return [...unitList(root).filter((w) => w['x-group'] === 'descriptor').map((w) => w['x-symbol']), 'unknown'];
+}
+
+const enumOf = (words) => `[${words.map((w) => JSON.stringify(w)).join(', ')}]`;
+
+/** The schema text with $defs.unit.enum set to `words` and $defs.descriptorUnit's own enum to `own`, every other byte as it was. */
+export function renderSchema(text, words, own) {
   const re = /("unit": \{\n\s+"description": [^\n]*\n\s+"enum": )\[[^\]\n]*\]/;
   if (!re.test(text)) throw new Error('schema/omx-contract.schema.json has no $defs.unit enum line');
-  return text.replace(re, (_, head) => `${head}[${words.map((w) => JSON.stringify(w)).join(', ')}]`);
+  const out = text.replace(re, (_, head) => `${head}${enumOf(words)}`);
+  if (own === undefined) return out;
+  const ro = /("descriptorUnit": \{\n\s+"description": [^\n]*\n\s+"anyOf": \[\{ "\$ref": "#\/\$defs\/unit" \}, \{ "enum": )\[[^\]\n]*\]/;
+  if (!ro.test(out)) throw new Error('schema/omx-contract.schema.json has no $defs.descriptorUnit enum line');
+  return out.replace(ro, (_, head) => `${head}${enumOf(own)}`);
 }
 
 if (isMain(import.meta.url)) {
@@ -30,13 +48,14 @@ if (isMain(import.meta.url)) {
   const file = join(root, 'schema/omx-contract.schema.json');
   const text = readFileSync(file, 'utf8');
   const words = unitWords(root);
-  const next = renderSchema(text, words);
+  const own = descriptorUnitWords(root);
+  const next = renderSchema(text, words, own);
   if (argv.includes('--write')) {
     if (next !== text) writeFileSync(file, next);
   } else if (argv.includes('--check')) {
     if (next !== text) {
-      const have = JSON.parse(text).$defs.unit.enum;
-      console.error(`unit-enum: schema/omx-contract.schema.json $defs.unit is ${JSON.stringify(have)}, PARAM_UNITS renders ${JSON.stringify(words)}: run tools/unit-enum.mjs --write`);
+      const defs = JSON.parse(text).$defs;
+      console.error(`unit-enum: schema/omx-contract.schema.json $defs.unit is ${JSON.stringify(defs.unit.enum)} and $defs.descriptorUnit's own ${JSON.stringify(defs.descriptorUnit.anyOf[1]?.enum)}, PARAM_UNITS renders ${JSON.stringify(words)} and ${JSON.stringify(own)}: run tools/unit-enum.mjs --write`);
       process.exit(1);
     }
   } else {

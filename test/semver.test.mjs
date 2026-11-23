@@ -13,7 +13,7 @@ const base = resolvedOf(texts());
 const level = (fn) => classify(base, resolvedOf(texts(fn))).level;
 
 test('no change is none', () => assert.equal(classify(base, base).level, 'none'));
-test('doc text is PATCH', () => assert.equal(level((d) => { d['data/rates.json'].RT_HARD_TARGET.doc = 'reworded'; }), 'patch'));
+test('doc text is PATCH', () => assert.equal(level((d) => { d['data/rates.json'].STANDARD_QUANTA.doc = 'reworded'; }), 'patch'));
 test('a default moved inside its travel is MINOR', () => assert.equal(level((d, at) => { at('data/kernels/swell.json', 'SWELL_LIMITS.ratio').default = 10; }), 'minor'));
 test('a travel widened is MINOR', () => assert.equal(level((d, at) => { at('data/kernels/swell.json', 'SWELL_LIMITS.ratio').max = 200; }), 'minor'));
 test('a travel narrowed is MAJOR', () => assert.equal(level((d, at) => { at('data/kernels/swell.json', 'SWELL_LIMITS.ratio').max = 30; }), 'major'));

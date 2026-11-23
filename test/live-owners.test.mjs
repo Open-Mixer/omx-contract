@@ -31,6 +31,7 @@ const liveUnion = () => {
   for (const d of live) for (const sub of ['kernels', 'primitives']) if (existsSync(join(d, sub))) cpSync(join(d, sub), join(dir, 'data', sub), { recursive: true });
   cpSync(HOSTING, join(dir, 'data/hosting.json'));
   cpSync(join(ROOT, 'schema'), join(dir, 'schema'), { recursive: true });
+  cpSync(join(ROOT, 'contract.d/param'), join(dir, 'contract.d/param'), { recursive: true });
   return join(dir, 'data');
 };
 

@@ -52,7 +52,7 @@ CI holds all four to the data.
 
 ```
 data/                        omx-contract's own definitions, one file per group, edited by hand
-  rates.json  primitives.json
+  rates.json
 schema/omx-contract.schema.json   JSON Schema 2020-12: five kinds (scalar, travels, sheet, list, set), closed units, refs, closed derivations
 bin/omx-contract.mjs         the CLI
 man/omx-contract.1           its man page

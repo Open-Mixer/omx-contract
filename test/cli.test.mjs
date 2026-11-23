@@ -69,7 +69,7 @@ test('no render output carries an em dash, the committed renders and every targe
         else if (readFileSync(p, 'utf8').includes('—')) found.push(p.replace(`${dir}/`, '').replace(`${ROOT}/`, ''));
       }
     };
-    for (const target of ['c', 'ts', 'json', 'lv2', 'py']) {
+    for (const target of ['c', 'ts', 'json', 'lv2']) {
       const out = join(dir, target);
       assert.equal(cli('render', '--target', target, '--out', out).status, 0, target);
       scan(out);

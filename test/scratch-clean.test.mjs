@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ROOT } from './helpers.mjs';
 
-const FILES = ['kernel-recipe', 'render', 'formats', 'set-values'];
+const FILES = ['kernel-recipe', 'render', 'set-values'];
 
 for (const name of FILES) {
   test(`${name}.test.mjs leaves no scratch directory in TMPDIR`, () => {

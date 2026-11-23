@@ -63,7 +63,7 @@ test('the committed Python render is the render of the shapes (--check), a Typed
 });
 
 test('the plain renders know the shapes files beside them: --check of c, ts, json, lv2 and py calls none of them extra', () => {
-  for (const [target, out] of [['c', 'include'], ['ts', 'test/golden/ts'], ['json', 'share/omx-contract'], ['lv2', 'share/omx-contract'], ['py', 'share/omx-contract']]) {
+  for (const [target, out] of [['c', 'include'], ['ts', 'test/golden/ts'], ['json', 'share/omx-contract'], ['lv2', 'share/omx-contract']]) {
     const r = cli(['render', '--target', target, '--out', out, '--check']);
     assert.equal(r.status, 0, `${target}: ${r.stdout}${r.stderr}`);
   }

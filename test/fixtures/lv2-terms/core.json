@@ -13,7 +13,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "AmplifierPlugin": {
@@ -21,7 +21,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "AnalyserPlugin": {
@@ -49,7 +49,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "CVPort": {
@@ -81,7 +81,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "CompressorPlugin": {
@@ -98,7 +98,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "ControlPort": {
@@ -116,7 +116,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "DelayPlugin": {
@@ -166,7 +166,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "ExpanderPlugin": {
@@ -174,7 +174,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "ExtensionData": {
@@ -194,7 +194,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "FlangerPlugin": {
@@ -210,7 +210,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "GatePlugin": {
@@ -227,7 +227,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "HighpassPlugin": {
@@ -235,7 +235,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "InputPort": {
@@ -271,7 +271,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "MIDIPlugin": {
@@ -279,7 +279,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "Markdown": {
@@ -319,7 +319,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "OutputPort": {
@@ -428,7 +428,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "SpatialPlugin": {
@@ -436,7 +436,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "Specification": {
@@ -450,7 +450,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "Symbol": {
@@ -464,7 +464,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "WaveshaperPlugin": {
@@ -472,7 +472,7 @@
         "kind": "plugin-class",
         "status": "used",
         "by": [
-          "omx-contract:data/plugin-features.json"
+          "plugin-db:contract.d/plugin-feature/plugin-feature.json"
         ]
       },
       "appliesTo": {

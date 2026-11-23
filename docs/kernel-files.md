@@ -82,7 +82,7 @@ Shapes a kernel file's items take beyond the sketch:
   so a data change and its renders land in one commit.
 
 `omx-contract validate` refuses any other key, a constant that is a travel or a set, and a kernel file written
-as a flat item map (the 1.x shape). `rates.json` and `primitives.json` stay item maps.
+as a flat item map (the 1.x shape). `rates.json` stays an item map.
 
 ## The JSON render's kernels
 

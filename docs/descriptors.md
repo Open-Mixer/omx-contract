@@ -163,13 +163,13 @@ meaning, and the validator names the word to use when a file writes one. `shape`
 
 `plugin.features` holds the four words `audio-effect`, `instrument`, `note-effect` and `analyzer`. Every CLAP plugin
 feature (`clap/plugin-features.h`, 39 in clap 1.2.10) and every LV2 plugin class (lv2core, `lv2:*Plugin`) is mapped
-onto one of them, or onto `other` for what fits none, in five items of `data/plugin-features.json`:
-`PLUGIN_FEATURE_AUDIO_EFFECT`, `_INSTRUMENT`, `_NOTE_EFFECT`, `_ANALYZER` and `_OTHER`. A word of an item is the source
-term (`clap.reverb`, `lv2.Allpass`) and its `from` the term of `data/formats/`. A kind of effect (a compressor, a
+onto one of them, or onto `other` for what fits none, in five items of plugin-db's `plugin-feature` domain (sorting
+pass V24): `PLUGIN_FEATURE_AUDIO_EFFECT`, `_INSTRUMENT`, `_NOTE_EFFECT`, `_ANALYZER` and `_OTHER`. A word of an item is
+the source term (`clap.reverb`, `lv2.Allpass`) and its `from` the format's term. A kind of effect (a compressor, a
 reverb, a filter) is an `audio-effect`; the kind itself stays in the extension bag as the source states it. `other`
 is a table target, never a word of `plugin.features`: a feature or class mapped to it, and one no row names, is not
 written in `features`. The instrument rule stands: only a plugin that takes notes is an `instrument`, so a LV2
-generator or oscillator is `other`. A test holds the items to the terms: every feature and class has exactly one row.
+generator or oscillator is `other`. plugin-db's test holds the items to the terms: every feature and class has exactly one row.
 
 ### The extension bag
 

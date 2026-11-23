@@ -8,7 +8,7 @@
  * any other.
  */
 import { readFileSync } from 'node:fs';
-import { packageItems } from '../lib/data.mjs';
+import { packageItems, sourceOf } from '../lib/data.mjs';
 import { HOSTS_ITEM } from '../lib/verbs.mjs';
 import { cStringLiteral } from './c/c-literals.mjs';
 import { vocabularyStem } from './vocabulary.mjs';
@@ -34,7 +34,7 @@ function hostsOf(resolved) {
 
 /** Every verb of `resolved`, items in their order: `[{ item, rel, key, verb }]`, the verb resolved. */
 const verbsIn = (resolved) => [...resolved.values()].filter((r) => r.kind === 'verbs')
-  .flatMap((r) => Object.entries(r.value).map(([key, verb]) => ({ item: r.name, rel: r.rel, key, verb })));
+  .flatMap((r) => Object.entries(r.value).map(([key, verb]) => ({ item: r.name, rel: sourceOf(r), key, verb })));
 
 /** The C names the render spells for each verbs item, `Map<name, Set<C name>>`: its verbs' words and formats. */
 export function verbCNames(resolved) {

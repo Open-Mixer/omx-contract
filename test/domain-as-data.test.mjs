@@ -13,7 +13,7 @@ import { ROOT } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/hosting-data');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
-const OUTPUTS = { c: ['clap_host_limits.h', 'hosted_stage_limits.h', 'omx_clap_core_vocabulary.h'], ts: ['omx-clap-core-hosting.js', 'omx-clap-core-hosting.d.ts', 'omx-clap-core-vocabulary.js', 'omx-clap-core-vocabulary.d.ts'] };
+const OUTPUTS = { c: ['clap_host_limits.h', 'hosted_stage_limits.h', 'omx_clap_vocabulary.h'], ts: ['omx-clap-hosting.js', 'omx-clap-hosting.d.ts', 'omx-clap-vocabulary.js', 'omx-clap-vocabulary.d.ts'] };
 
 const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
 
@@ -33,7 +33,7 @@ function toDomain(dir) {
       schemas[name] = s;
     }
   }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', info: { title: 'The hosting codes', version: '0.33.1', 'x-owner': 'omx-clap-core', 'x-stability': 'experimental' }, 'x-render': render, 'x-file': renderFile, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', info: { title: 'The hosting codes', version: '0.33.1', 'x-owner': 'omx-clap', 'x-stability': 'experimental' }, 'x-render': render, 'x-file': renderFile, components: { schemas } };
 }
 
 function scratch() {
@@ -48,7 +48,7 @@ function scratch() {
   return { dir, data, dom };
 }
 
-const render = (target, args, out) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'omx-clap-core', ...args, '--out', out], { encoding: 'utf8' });
+const render = (target, args, out) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'omx-clap', ...args, '--out', out], { encoding: 'utf8' });
 
 function compare(domain) {
   const s = scratch();

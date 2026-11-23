@@ -123,8 +123,19 @@ for (const f of Object.keys(GOLDEN)) {
     assert.deepEqual(classic[item], JSON.parse(domainDataFiles(`plugin-hostd/${f}`, doc)[`formats/${f}.json`])[item]);
   });
 
-  test(`${f}: validate --with-domain reads the map valid, its term links resolved; render --target json --with-domain carries it`, () => {
-    const dir = domainDir(f, mapDoc(f), `valid-${f}`);
+  test(`${f}: validate --with-domain refuses 58b7145's coef -> "x" (rule map-unit, omx-contract#193) and nothing else`, () => {
+    const v = validate(domainDir(f, mapDoc(f), `verbatim-${f}`));
+    assert.equal(v.status, 1, v.stdout);
+    const lines = v.stderr.trim().split('\n').filter((l) => l.includes(': map-unit: '));
+    assert.equal(lines.length, 1, v.stderr);
+    assert.match(lines[0], /: (coef|units:coef) -> "x" is no PARAM_UNITS standard symbol/);
+  });
+
+  test(`${f}: validate --with-domain reads the map valid with coef for "x", its term links resolved; render --target json --with-domain carries it`, () => {
+    // The ruled fix (omx-contract#167: coef is the one plain multiplier), the one change from 58b7145.
+    const doc = mapDoc(f);
+    for (const r of doc.components.schemas[item].oneOf) for (const [k, u] of Object.entries(r['x-word']?.values ?? {})) if (u === 'x') r['x-word'].values[k] = 'coef';
+    const dir = domainDir(f, doc, `valid-${f}`);
     const v = validate(dir);
     assert.equal(v.status, 0, v.stderr);
     assert.match(v.stdout, /valid/);

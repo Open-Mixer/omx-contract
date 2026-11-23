@@ -19,6 +19,7 @@ import { versionBelow } from './domain.mjs';
 import { HINT_UNITS, MAX_HINTS } from './hints.mjs';
 import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
+import { mapUnitProblems } from './units.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderTs } from '../render/ts.mjs';
 import type { Json } from './json.mjs';
@@ -257,6 +258,8 @@ function semanticRules(resolved, say) {
         else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'map-term', `${field}: ${row.term}: ${item} has no term ${term}`);
         else if (t.format !== r.format) say(r.rel, r.name, 'map-term', `${field}: ${row.term} is a ${t.format} term, and the map is ${r.format}'s`);
       }
+      // A unit lookup's values are PARAM_UNITS standard symbols (omx-contract#193; plugin-hostd#215, decision 2).
+      for (const m of mapUnitProblems(r.value)) say(r.rel, r.name, 'map-unit', m);
     }
     if (r.kind === 'terms') {
       const key = r.format === 'lv2' ? 'uri' : 'id';

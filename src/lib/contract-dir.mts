@@ -488,8 +488,8 @@ function rebuiltFiles({ name, doc, path }, packages, installed, major): Contract
 function checkPackage(packages, pkg, v, from) {
   const p = packages.get(pkg);
   if (!p) refuse('packageAbsent', from, `requires ${pkg} ${v}, which is not installed`);
-  // a domain named after its owner, read with no manifest of that owner: the floor is the package's, which is absent
-  if (p.manifest.files === undefined && p.manifest.owner === pkg) refuse('packageAbsent', from, `requires ${pkg} ${v}: the domain ${pkg} is installed, and the package ${pkg} that owns it is not (its manifest, install-contract-dir.sh --owner); the domain's info.version ${p.manifest.version} is no package version`);
+  // a domain named after its owner and installed alone (--domain only) is held at its info.version; its owner's
+  // manifest, when installed beside it, holds the package's version instead (#190, ruling %4 2026-11-23)
   if (!atLeast(p.manifest.version, floorOf(v))) refuse('packageTooOld', from, `requires ${pkg} ${v}, and ${p.manifest.version} is installed`);
 }
 

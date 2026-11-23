@@ -117,6 +117,12 @@ test('a shape that breaks a rule is refused by name and nothing is rendered (sab
     ['identifiers', (s) => { s.$defs.ScaleTravel.properties['3d-step'] = s.$defs.ScaleTravel.properties.step; }],
     ['patternProperties', (s) => { s.$defs.ScaleMap.patternProperties = { '^x-': { type: 'string' } }; }],
     ['words', (s) => { s.$defs.ScaleTravel.properties.scale.enum = ['linear', 'log', 'stepped', 'no-word', 2]; }],
+    // #72 (2): fooBar and foo_bar are two identifiers, and both spell OMX_SHAPE_SCALE_TRAVEL_FOO_BAR_WORDS
+    ['macros', (s) => {
+      const p = s.$defs.ScaleTravel.properties;
+      p.fooBar = { type: 'string', enum: ['one'], description: 'One.' };
+      p.foo_bar = { type: 'string', enum: ['two'], description: 'Two.' };
+    }],
   ];
   assert.deepEqual(broken.map(([rule]) => rule), SHAPE_RULES.map((r) => r.rule), 'every rule has a sabotage arm');
   for (const [rule, sabotage] of broken) {

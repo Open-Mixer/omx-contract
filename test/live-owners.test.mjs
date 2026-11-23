@@ -224,3 +224,9 @@ test('a pin that is not one 40-hex commit and `until v<x.y.z>` is refused, never
     assert.ok(!r.fetched.some((u) => u.startsWith('archive/')), `${JSON.stringify(pin)}: nothing fetched`);
   }
 });
+
+test('the repository\'s own pin, when there is one, is a pin the script reads', { skip: !existsSync(join(ROOT, 'tools/live-owner.ref')) && 'no tools/live-owner.ref' }, () => {
+  const r = fetchOwner({ pin: readFileSync(join(ROOT, 'tools/live-owner.ref'), 'utf8'), latest: 'v0.0.1' });
+  assert.equal(r.status, 0, r.err);
+  assert.match(r.fetched.at(-1), /^archive\/[0-9a-f]{40}\.tar\.gz$/, 'below its release the pin is read');
+});

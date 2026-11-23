@@ -28,7 +28,8 @@ make install-cli PREFIX=/usr DESTDIR=…   # the omx-contract command, its files
 ```
 
 The tool's tests run over invented kernels (`test/fixtures/tool-kernels/`); CI also fetches the latest omx-dsp release
-(`tools/live-owner-data.sh`) and sets `OMX_LIVE_OWNER_DATA` to its `data/`, so `test/live-owners.test.mjs` reads, validates
+(`tools/live-owner-data.sh`), or the commit `tools/live-owner.ref` pins until the omx-dsp release it names (a release
+that removes an item omx-dsp's next release takes over publishes before it, #195), and sets `OMX_LIVE_OWNER_DATA` to its `data/`, so `test/live-owners.test.mjs` reads, validates
 and renders a live owner's data with this tool, and is red, not skipped, when it finds none. The owner's own values are its
 own tests' (omx-dsp: `make contract-proof` and `make contract-tests`). Locally:
 `OMX_LIVE_OWNER_DATA=$(sh tools/live-owner-data.sh /tmp/omx-dsp) npm test`.

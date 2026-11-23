@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
 import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData, TREE_DOMAINS } from '../lib/data.mjs';
-import { domainCheck } from '../lib/domain-check.mjs';
+import { domainCheckReport } from '../lib/domain-check.mjs';
 import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
@@ -212,9 +212,10 @@ function cmdDomain(argv) {
   const read = (f) => {
     try { return JSON.parse(readFileSync(f, 'utf8')); } catch (e) { throw new Usage(`${f}: ${e.message}`); }
   };
-  const problems = domainCheck(read(next), read(committed));
+  const { problems, shifts } = domainCheckReport(read(next), read(committed));
   for (const p of problems) console.error(p);
   if (problems.length) return 1;
+  for (const s of shifts) console.log(s);
   console.log(`omx-contract domain check: PASS ${next} against ${committed}`);
   return 0;
 }

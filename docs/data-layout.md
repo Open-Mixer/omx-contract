@@ -16,8 +16,6 @@ data/
                                rates are omx-dsp's, sorting pass V22 and V25)
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
-  param-contract.json          OMX_PARAM_CONTRACT_*: the unit codes of org.openmixer.param-contract/1, rendered to
-                               omx_param_units.h, read as data by omx-panel and plugin-hostd
   (the format terms are their owners' domains: the LV2 terms plugin-db's `lv2` domain, sorting pass V27a, plugin-db#66;
    the CLAP terms omx-clap's `clap` domain, V27b, clap#163, with their inventories and coverage checks)
 ```
@@ -31,7 +29,6 @@ package's verbs"); the hosts they name are omx-clap's `HOSTING_VERB_HOSTS` (its 
 | A word that is | Goes in | Its item |
 |---|---|---|
 | a resource a host plans for, its unit, its basis, a budget's scope | `resource-profile.json` | `RESOURCE_<LIST>`, kind `words` |
-| a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
 | a host a verb's `implementedBy` names | omx-clap's `data/hosting/verb-hosts.json` (V29) | `HOSTING_VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | plugin-db's `lv2` domain (V27a), with its mapping to the standard words | `LV2_<SPEC>_TERMS`, kind `terms` |
 | a CLAP identifier declared in `clap/<header>.h` | omx-clap's `clap` domain (V27b), with its mapping to the standard words | `CLAP_<HEADER>_TERMS`, kind `terms` |

@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.21.0",
+  "x-omx-schema-version": "3.23.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -20,12 +20,12 @@
   },
   "$defs": {
     "unit": {
-      "description": "The closed list of units the items use; \"s\" is seconds and \"min\" minutes, \"x\" is a multiplier, \"\" is a ratio or a fraction, \"dB/oct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770) and \"dB/s\" a gain change per second.",
-      "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "%", "x", "", "dB/oct", "LUFS", "dB/s"]
+      "description": "The closed list of units the items use; \"s\" is seconds and \"min\" minutes, \"\" is a ratio or a fraction, \"dB/oct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770), \"dB/s\" a gain change per second and \"coef\" a coefficient, a plain multiplier (omx-contract#167: it replaces \"x\").",
+      "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "%", "", "dB/oct", "LUFS", "dB/s", "coef"]
     },
     "descriptorUnit": {
       "description": "A descriptor's unit: a unit of the items ($defs.unit), a unit of PARAM_UNITS of scope descriptor, which only a descriptor's control states (rendered from the param domain by tools/unit-enum.mjs, docs/units.md), or unknown, the plugin states none (docs/descriptors.md).",
-      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
+      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
     },
     "meaning": {
       "description": "What a control does, the closed list seeded from the panel roles; the LV2 param: or lv2:designation name where LV2 has the term (docs/descriptors.md). unknown: the plugin states none.",
@@ -504,7 +504,7 @@
     "renderGlob": { "type": "string", "pattern": "^\\*?[A-Za-z][A-Za-z0-9]*\\*?$", "description": "A field name, its start (`worker*`), its end (`*Dbfs`) or a part of it (`*Ring*`)." },
     "renderHeader": {
       "type": "object",
-      "description": "One C header: its path, include guard, the project its licence block names, the banner under GENERATED, the @file brief, the system headers it includes, which items it reads (scope: the file's, the default, or the package's) and its sections. numbers: every sheet, each field <prefix><FIELD> with a u literal, a level field (levels) a float one, the omitted fields left out, each with its docs line; with table, the same fields once more as the X-macro table <table>(X), X(<value>, \"<field>\") each. codes: every codes item, <prefix><NAME> its code string. scalars: every number spelled OMX_<macro> as omx_contract_limits.h spells it, sorted by macro. limits: every section of omx_contract_limits.h, the same defines.",
+      "description": "One C header: its path, include guard, the project its licence block names, the banner under GENERATED, the @file brief, the system headers it includes, which items it reads (scope: the file's, the default, or the package's) and its sections. numbers: every sheet, each field <prefix><FIELD> with a u literal, a level field (levels) a float one, the omitted fields left out, each with its docs line; with table, the same fields once more as the X-macro table <table>(X), X(<value>, \"<field>\") each. codes: every codes item, <prefix><NAME> its code string. strings: every sheet of strings as the X-macro <table>(X), X(<prefix><FIELD>, \"<field>\", \"<value>\") each, <prefix> the numbers.prefix of a sibling header of the package, every field one of its sheet's and every value a PARAM_UNITS const. scalars: every number spelled OMX_<macro> as omx_contract_limits.h spells it, sorted by macro. limits: every section of omx_contract_limits.h, the same defines.",
       "properties": {
         "header": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(/[a-z][a-z0-9_]*)*\\.h$" },
         "guard": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*_H$" },
@@ -541,10 +541,20 @@
           "type": "object",
           "properties": { "comment": { "$ref": "#/$defs/renderLine" } },
           "additionalProperties": false
+        },
+        "strings": {
+          "type": "object",
+          "properties": {
+            "comment": { "$ref": "#/$defs/renderLine" },
+            "prefix": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*_$" },
+            "table": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+          },
+          "required": ["comment", "prefix", "table"],
+          "additionalProperties": false
         }
       },
       "required": ["header", "guard", "project", "banner", "brief"],
-      "anyOf": [{ "required": ["numbers"] }, { "required": ["codes"] }, { "required": ["scalars"] }, { "required": ["limits"] }],
+      "anyOf": [{ "required": ["numbers"] }, { "required": ["codes"] }, { "required": ["scalars"] }, { "required": ["limits"] }, { "required": ["strings"] }],
       "additionalProperties": false
     },
     "ref": {
@@ -627,10 +637,21 @@
       "additionalProperties": false
     },
     "sheetValue": {
-      "type": "object",
-      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
-      "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/number" }, { "$ref": "#/$defs/sheetValue" }] },
-      "minProperties": 1
+      "description": "A sheet's value: a sheet of numbers (every leaf a number, a ref or a derivation; a field may nest one), or a sheet of strings, every field a non-empty string and none nested (docs/render.md, the strings section: an owner's code-to-id map).",
+      "oneOf": [
+        {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/number" }, { "$ref": "#/$defs/sheetValue/oneOf/0" }] },
+          "minProperties": 1
+        },
+        {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "additionalProperties": { "type": "string", "minLength": 1 },
+          "minProperties": 1
+        }
+      ]
     },
     "scalar": {
       "type": "object",

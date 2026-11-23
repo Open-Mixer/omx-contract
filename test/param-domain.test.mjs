@@ -5,8 +5,8 @@
 // measures. The words moved out of data/primitives.json; the readers read them where they are now. Three arms:
 //  (a) golden: the real reads give the golden words: lib/descriptor.mjs `PARAM_SCALE_IDS`, tools/unit-enum.mjs
 //      `unitWords` (the schema's $defs.unit), the tree read the renders take (`omx-contract render`: the C enum of
-//      the scales, the unit and dimension defines) against test/golden/param-units.tsv, whose first 15 rows are the
-//      units data/primitives.json held, in their order (the list only grows);
+//      the scales, the unit and dimension defines) against test/golden/param-units.tsv, whose first 14 rows are the
+//      units data/primitives.json held, in their order, but `x`, removed for `coef` (omx-contract#167);
 //  (b) the one source: the domain holds the golden words and data/primitives.json holds no PARAM_ item (arm (b), both
 //      sources agree, is the fixture of test/domain-set-units.test.mjs: the 15 units as data/primitives.json held them);
 //  (c) sabotage: a copy of the tool whose domain lacks `log` and `dbu` reads scales without `log`, renders no
@@ -30,8 +30,11 @@ const DOMAIN = join(ROOT, 'contract.d/param/param.json');
 const schemas = (path = DOMAIN) => JSON.parse(readFileSync(path, 'utf8')).components.schemas;
 const upperSnake = (k) => k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
-test('golden: the first 15 units are the ones data/primitives.json held, in their order', () => {
-  assert.deepEqual(GOLDEN.slice(0, 15).map((g) => [g.key, g.word, g.symbol]), Object.entries(BEFORE.PARAM_UNITS.words).map(([k, w]) => [k, w.word, w.symbol]));
+test('golden: the first 14 units are the ones data/primitives.json held, in their order, but x, removed for coef', () => {
+  const held = Object.entries(BEFORE.PARAM_UNITS.words).filter(([k]) => k !== 'x');
+  assert.equal(held.length, 14);
+  assert.deepEqual(GOLDEN.slice(0, 14).map((g) => [g.key, g.word, g.symbol]), held.map(([k, w]) => [k, w.word, w.symbol]));
+  assert.ok(!GOLDEN.some((g) => g.word === 'x'), 'x is removed (omx-contract#167)');
   // the ruled set (owner, 2026-11-20) and the resource units (Q6) are in it
   for (const s of ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'coef', 'us', 'bytes', 'ns/sample', 'count', 'flag', 'ms', 's']) {
     assert.ok(GOLDEN.some((g) => g.symbol === s), s);
@@ -45,7 +48,7 @@ test('(a) PARAM_SCALE_IDS, the descriptor check\'s scales, are the golden ids', 
 test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.descriptorUnit, are the golden symbols by scope, in order', () => {
   const param = GOLDEN.filter((g) => g.scope === 'param').map((g) => g.symbol);
   const own = [...GOLDEN.filter((g) => g.scope === 'descriptor').map((g) => g.symbol), 'unknown'];
-  assert.deepEqual(param, Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.symbol), 'the param scope is the 15 of before');
+  assert.deepEqual(param, [...Object.values(BEFORE.PARAM_UNITS.words).map((w) => w.symbol).filter((u) => u !== 'x'), 'coef'], 'the param scope is the 15 of before, x removed for coef (omx-contract#167)');
   assert.deepEqual(unitWords(ROOT), param);
   assert.deepEqual(descriptorUnitWords(ROOT), own);
   const defs = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8')).$defs;
@@ -58,7 +61,8 @@ test('(a) the committed renders carry the golden words: the scales enum, a defin
   assert.match(limits, /OMX_PARAM_SCALES_LINEAR = 0,[^\n]*\n {2}OMX_PARAM_SCALES_LOG = 1,[^\n]*\n {2}OMX_PARAM_SCALES_STEPPED = 2,/);
   assert.match(limits, /#define OMX_PARAM_SCALES_DEFAULT OMX_PARAM_SCALES_LINEAR/);
   const vocab = readFileSync(join(ROOT, 'include/omxcontract/omx_vocabulary.h'), 'utf8');
-  const defines = [...vocab.matchAll(/^#define OMX_PARAM_UNITS_(\w+) "([^"]*)"/gm)].filter((m) => !m[1].endsWith('_TEXT_EN')).map((m) => [m[1], m[2]]);
+  // OMX_PARAM_UNITS_CLAP_ENCODED_* are the defines of the words item PARAM_UNITS_CLAP_ENCODED (V23d B2), not of PARAM_UNITS
+  const defines = [...vocab.matchAll(/^#define OMX_PARAM_UNITS_(\w+) "([^"]*)"/gm)].filter((m) => !m[1].endsWith('_TEXT_EN') && !m[1].startsWith('CLAP_ENCODED_')).map((m) => [m[1], m[2]]);
   assert.deepEqual(defines, GOLDEN.map((g) => [upperSnake(g.key), g.word]));
   for (const d of new Set(GOLDEN.map((g) => g.dimension))) assert.match(vocab, new RegExp(`#define OMX_PARAM_UNIT_DIMENSIONS_\\w+ "${d}"`), d);
   for (const sc of ['param', 'descriptor']) assert.match(vocab, new RegExp(`#define OMX_PARAM_UNIT_SCOPES_${sc.toUpperCase()} "${sc}"`), sc);

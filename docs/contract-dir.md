@@ -39,7 +39,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   the version that adds it; never above the document's own `info.version`, and never a version of the owner package
   or of omx-contract unless it is that domain's own `info.version` (a domain whose `info.version` follows its
   package's version, as omx-clap-core's does, writes that version) (#123). `omx-contract validate` refuses by name an item with no `x-since`, one that is not `MAJOR.MINOR.PATCH`, and one above its document's `info.version`; which version added which item stays the owner's to test.
-  `omx-contract domain check <new.json> <committed.json>` compares a freshly generated document with the committed one and refuses by domain, item and word (one line each, exit 1): a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version (new words are appended), and an `info.version` below the committed one; exit 0 prints one PASS line (omx-contract#124). `x-code` is the word's code, today its place in the order
+  `omx-contract domain check <new.json> <committed.json>` compares a freshly generated document with the committed one and refuses by domain, item and word (one line each, exit 1): a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version (new words are appended), and an `info.version` below the committed one; exit 0 prints one PASS line (omx-contract#124). One move is accepted (omx-contract#167): in a words item WITHOUT `x-c-codes`, a code is the word's position, so a word removed or inserted shifts the codes after it; the check prints one line per shifted word, naming that the item has no `x-c-codes`, before the PASS line. In an item with `x-c-codes` (in either document) any moved code stays refused, the refusal naming `x-c-codes`, and a reorder stays refused in every item. The removal or the insertion still needs its raised `info.version`. `x-code` is the word's code, today its place in the order
   (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
   the sentence they translate. A word whose `x-text` names placeholders (`{path}`) stores them as `x-args`, the
   ordered list of their names (`"x-args": ["file", "want", "found"]`, the data form's `args`): stored, never derived
@@ -507,10 +507,10 @@ now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and b
   added to a moving-out item in `words.json`, and a name that stood on `moving-out.txt` at the base and now stands on
   `owned.txt` are red.
 - **A ruled growth.** `ownership/grow-exceptions.txt` (`<item> | <word> <word>... | <ruling>`) lets a moving-out item
-  grow by the words a ruling names, and the gate holds the whole of what rulings allowed (`GROW_RULED`): today
-  OMX_PARAM_CONTRACT_UNITS by dbPerOct, dbPerS, dbtp and lu (coordinator 2026-11-21: V23d is not in this pass; the
-  vendor codes 260-263 so the clap layer compiles). A word or an item beyond it, an entry with no ruling text and an
-  entry for an item no longer on `moving-out.txt` are red: once the item has moved, the file is empty.
+  grow by the words a ruling names, and the gate holds the whole of what rulings allowed (`GROW_RULED`,
+  tools/check-ownership.mjs). It is empty today: the one ruled growth went with its item when the item moved out, so
+  no moving-out item may grow. A word or an item beyond it, an entry with no ruling text and an entry for an item no
+  longer on `moving-out.txt` are red: once the item has moved, the file is empty.
 - **The base.** `make ownership` fetches it first, and a base git cannot read (the fetch failed, the ref is absent)
   is a refusal by name, exit 2, never a pass. The one tolerated base is a commit that predates the gate (no
   `tools/check-ownership.mjs` in it): the gate's own first change. Once that change is the base, a base without the

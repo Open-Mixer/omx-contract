@@ -265,9 +265,12 @@ function semanticRules(resolved, say) {
   }
 
   // Every leaf of every sheet resolves to a finite number: a header reads each as a define, and a reference may
-  // resolve to a list, a set's ids or a string the schema could not see.
+  // resolve to a list, a set's ids or a string the schema could not see. A sheet that DECLARES strings (every field a
+  // string, none nested: schema $defs.sheetValue; data.mts sets r.strings) is no sheet of numbers; its strings section
+  // holds each value (docs/render.md). A sheet of refs that resolve to strings declares none, so it is held here.
   for (const r of resolved.values()) {
     if (r.kind !== 'sheet') continue;
+    if (r.strings === true) continue;
     const walk = (v, at) => {
       if (typeof v === 'object' && v !== null && !Array.isArray(v)) { for (const [k, x] of Object.entries((v) as Record<string, Json>)) walk(x, `${at}.${k}`); return; }
       if (typeof v !== 'number' || !Number.isFinite(v)) say(r.rel, r.name, 'finite', `${at} resolves to ${JSON.stringify(v)}`);

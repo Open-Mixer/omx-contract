@@ -264,7 +264,7 @@
       }
     },
     "PARAM_UNITS": {
-      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
+      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). A word's code is its position in the list, not a wire number (the wire codes are omx-clap's, the unit codes of org.openmixer.param-contract/1): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
       "enum": [
         "dB",
         "dBFS",
@@ -276,7 +276,6 @@
         "cents",
         "st",
         "percent",
-        "x",
         "none",
         "dB-oct",
         "LUFS",
@@ -364,12 +363,6 @@
         "percent": {
           "text": {
             "en": "Percent."
-          },
-          "args": []
-        },
-        "x": {
-          "text": {
-            "en": "A multiplier."
           },
           "args": []
         },
@@ -685,6 +678,244 @@
         "descriptor": {
           "text": {
             "en": "A unit only a descriptor's control states."
+          },
+          "args": []
+        }
+      }
+    },
+    "PARAM_UNITS_CLAP_ENCODED": {
+      "description": "The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none.",
+      "enum": [
+        "dB",
+        "dBFS",
+        "ms",
+        "s",
+        "min",
+        "Hz",
+        "oct",
+        "cents",
+        "st",
+        "percent",
+        "none",
+        "dB-oct",
+        "LUFS",
+        "dB-s",
+        "dBTP",
+        "dBu",
+        "LU",
+        "kHz",
+        "MHz",
+        "frames",
+        "bpm",
+        "bar",
+        "beat",
+        "m",
+        "cm",
+        "mm",
+        "km",
+        "inch",
+        "mile",
+        "deg",
+        "midiNote",
+        "ratio",
+        "coef"
+      ],
+      "x-omx-texts": {
+        "dB": {
+          "text": {
+            "en": "Decibels, a gain or a level relative to unity."
+          },
+          "args": []
+        },
+        "dBFS": {
+          "text": {
+            "en": "Decibels relative to digital full scale."
+          },
+          "args": []
+        },
+        "ms": {
+          "text": {
+            "en": "Milliseconds."
+          },
+          "args": []
+        },
+        "s": {
+          "text": {
+            "en": "Seconds."
+          },
+          "args": []
+        },
+        "min": {
+          "text": {
+            "en": "Minutes."
+          },
+          "args": []
+        },
+        "Hz": {
+          "text": {
+            "en": "Hertz, a frequency."
+          },
+          "args": []
+        },
+        "oct": {
+          "text": {
+            "en": "Octaves, a bandwidth or an interval."
+          },
+          "args": []
+        },
+        "cents": {
+          "text": {
+            "en": "Cents, a hundredth of a semitone."
+          },
+          "args": []
+        },
+        "st": {
+          "text": {
+            "en": "Semitones."
+          },
+          "args": []
+        },
+        "percent": {
+          "text": {
+            "en": "Percent."
+          },
+          "args": []
+        },
+        "none": {
+          "text": {
+            "en": "No unit: a ratio or a fraction."
+          },
+          "args": []
+        },
+        "dB-oct": {
+          "text": {
+            "en": "A slope in dB per octave (a tilt)."
+          },
+          "args": []
+        },
+        "LUFS": {
+          "text": {
+            "en": "A loudness (ITU-R BS.1770)."
+          },
+          "args": []
+        },
+        "dB-s": {
+          "text": {
+            "en": "A gain change per second."
+          },
+          "args": []
+        },
+        "dBTP": {
+          "text": {
+            "en": "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+          },
+          "args": []
+        },
+        "dBu": {
+          "text": {
+            "en": "Decibels relative to 0.7746 volts RMS, an analogue level."
+          },
+          "args": []
+        },
+        "LU": {
+          "text": {
+            "en": "Loudness units, a loudness difference or range (EBU R 128)."
+          },
+          "args": []
+        },
+        "kHz": {
+          "text": {
+            "en": "Kilohertz, a frequency."
+          },
+          "args": []
+        },
+        "MHz": {
+          "text": {
+            "en": "Megahertz, a frequency."
+          },
+          "args": []
+        },
+        "frames": {
+          "text": {
+            "en": "Audio frames, one sample on each channel."
+          },
+          "args": []
+        },
+        "bpm": {
+          "text": {
+            "en": "Beats per minute, a tempo."
+          },
+          "args": []
+        },
+        "bar": {
+          "text": {
+            "en": "Bars, a musical length."
+          },
+          "args": []
+        },
+        "beat": {
+          "text": {
+            "en": "Beats, a musical length."
+          },
+          "args": []
+        },
+        "m": {
+          "text": {
+            "en": "Metres, a length."
+          },
+          "args": []
+        },
+        "cm": {
+          "text": {
+            "en": "Centimetres, a length."
+          },
+          "args": []
+        },
+        "mm": {
+          "text": {
+            "en": "Millimetres, a length."
+          },
+          "args": []
+        },
+        "km": {
+          "text": {
+            "en": "Kilometres, a length."
+          },
+          "args": []
+        },
+        "inch": {
+          "text": {
+            "en": "Inches, a length."
+          },
+          "args": []
+        },
+        "mile": {
+          "text": {
+            "en": "Miles, a length."
+          },
+          "args": []
+        },
+        "deg": {
+          "text": {
+            "en": "Degrees, an angle."
+          },
+          "args": []
+        },
+        "midiNote": {
+          "text": {
+            "en": "A MIDI note number."
+          },
+          "args": []
+        },
+        "ratio": {
+          "text": {
+            "en": "A ratio n:1, a compressor's or an expander's."
+          },
+          "args": []
+        },
+        "coef": {
+          "text": {
+            "en": "A coefficient, a plain multiplier with no unit of its own."
           },
           "args": []
         }

@@ -1,6 +1,5 @@
 # one name per line (an item, or <file>#<pointer> of a schema enum); see docs/contract-dir.md, the ownership gate
 # omx-contract#81: only ever removed, with the item and its words, by the PR that moves it
-OMX_PARAM_CONTRACT_UNITS
 STANDARD_SAMPLE_RATES
 STANDARD_QUANTA
 RESOURCE_KINDS

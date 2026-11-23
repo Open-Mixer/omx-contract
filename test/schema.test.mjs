@@ -13,10 +13,10 @@ test('the shipped data is valid, alone and with the invented kernels and the hos
   assert.deepEqual(validateData(loadData(UNION)), []);
 });
 
-test('data/ holds the quanta, the rates, the scales (the param domain), the param-contract units, the plugin face ids and the vocabulary; every kernel and primitive is its owner\'s', () => {
+test('data/ holds the quanta, the rates, the scales (the param domain), the plugin face ids and the vocabulary; every kernel and primitive is its owner\'s', () => {
   const own = [...loadData(DATA).items.keys()].filter((n) => !VOCABULARY.has(n));
   const owners = new Set([...loadData(UNION).items.keys()].filter((n) => !own.includes(n) && !VOCABULARY.has(n)));
-  assert.deepEqual(own.sort(), ['OMX_PARAM_CONTRACT_UNITS', 'PARAM_SCALES', 'STANDARD_QUANTA', 'STANDARD_SAMPLE_RATES']);
+  assert.deepEqual(own.sort(), ['PARAM_SCALES', 'STANDARD_QUANTA', 'STANDARD_SAMPLE_RATES']);
   assert.equal(loadData(UNION).items.size, DATA_ITEMS + owners.size, 'the files beside data/ shadow none of its items');
   for (const n of ['SWELL_LIMITS', 'HOSTED_STAGE_LIMITS', 'HOSTING_CODES', 'ECHO_TIME_RANGE', 'CONTOUR_MAX_BANDS', 'TOOL_Q']) assert.ok(owners.has(n), `${n} is beside data/`);
   assert.ok(![...owners].some((n) => loadData(DATA).items.has(n)));
@@ -57,12 +57,12 @@ test('a set id is letters and digits, and may start with a digit (#28)', () => {
 test('a set\'s ids may carry a value each, in a unit, null for none (#29)', () => {
   // a set of named ids, so a value can be planted on it: the swell's kinds
   const kinds = (fn) => rules(texts((d, at) => fn(at('data/kernels/swell.json', 'SWELL_KINDS'))));
-  assert.deepEqual(kinds((s) => { s.values = [null, 4]; s.unit = 'x'; }), [], 'a value per id, null for none, is valid');
+  assert.deepEqual(kinds((s) => { s.values = [null, 4]; s.unit = 'coef'; }), [], 'a value per id, null for none, is valid');
   assert.ok(kinds((s) => { s.values = [null, 4]; }).includes('SWELL_KINDS:schema'), 'values without a unit');
   assert.ok(kinds((s) => { s.unit = 'Hz'; }).includes('SWELL_KINDS:schema'), 'a unit without values');
-  assert.ok(kinds((s) => { s.values = [null, 'fast']; s.unit = 'x'; }).includes('SWELL_KINDS:schema'), 'a value that is no number');
-  assert.ok(kinds((s) => { s.values = [4]; s.unit = 'x'; }).includes('SWELL_KINDS:set-values'), 'fewer values than ids');
-  assert.ok(kinds((s) => { s.values = [null, null]; s.unit = 'x'; }).includes('SWELL_KINDS:set-values'), 'no id carries a value');
-  assert.ok(rules(texts((d, at) => { const s = at('data/kernels/contour.json', 'CONTOUR_OVERSAMPLES'); s.values = [1, 2, 8]; s.unit = 'x'; }))
+  assert.ok(kinds((s) => { s.values = [null, 'fast']; s.unit = 'coef'; }).includes('SWELL_KINDS:schema'), 'a value that is no number');
+  assert.ok(kinds((s) => { s.values = [4]; s.unit = 'coef'; }).includes('SWELL_KINDS:set-values'), 'fewer values than ids');
+  assert.ok(kinds((s) => { s.values = [null, null]; s.unit = 'coef'; }).includes('SWELL_KINDS:set-values'), 'no id carries a value');
+  assert.ok(rules(texts((d, at) => { const s = at('data/kernels/contour.json', 'CONTOUR_OVERSAMPLES'); s.values = [1, 2, 8]; s.unit = 'coef'; }))
     .includes('CONTOUR_OVERSAMPLES:set-values'), 'a numeric id is its own value');
 });

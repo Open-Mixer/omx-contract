@@ -212,6 +212,26 @@ ${d.STANDARD_SAMPLE_RATES ? ratesTail(d.STANDARD_SAMPLE_RATES) : ''}`;
 const scalarsBlock = (resolved) => genDeclaredScalarsBlock(doors(resolved).DECLARED_SCALARS, new Set());
 
 /**
+ * What a strings section reads beyond its own file (render/c/owner-headers.mjs), read-only: `sibling(prefix)`, the one
+ * header of package `pkg` whose numbers.prefix is `prefix`, with the sheets of its file (`{ header, numbers, sheets }`,
+ * undefined when none), and `item(name)`, an item of the whole read (the standard unit list, which omx-contract
+ * declares).
+ */
+function stringsRead(resolved, pkg) {
+  return Object.freeze({
+    sibling(prefix) {
+      for (const f of resolved.renders ?? []) {
+        if (f.pkg !== pkg || !Array.isArray(f.render.c)) continue;
+        const h = f.render.c.find((x) => x.numbers?.prefix === prefix);
+        if (h) return { header: h.header, numbers: h.numbers, sheets: f.items.map((n) => resolved.get(n)).filter((r) => r?.kind === 'sheet') };
+      }
+      return undefined;
+    },
+    item: (name) => resolved.get(name),
+  });
+}
+
+/**
  * The headers the `render.c` words of the data declare, `[{ path, text, pkg, omx }]`, `path` the word's `header`;
  * `omx` when a section spells OMX_ names (scalars, limits), which omx_contract_limits.h of a whole read holds already.
  * A header reads the items of the file that declares it, or with `scope: package` every item of its package. Those of
@@ -232,7 +252,7 @@ export function ownerHeaders(resolved, { pkg, all = false } = {}) {
         items = new Map(f.items.map((n) => [n, resolved.get(n)]));
         items.kernels = f.kernel !== undefined && resolved.kernels?.[f.kernel] ? { [f.kernel]: resolved.kernels[f.kernel] } : {};
       }
-      const text = renderOwnerHeader(h, items, { scalars: scalarsBlock, limits: limitsSections });
+      const text = renderOwnerHeader(h, items, { scalars: scalarsBlock, limits: limitsSections }, h.strings ? stringsRead(resolved, f.pkg) : undefined);
       out.push({ path: h.header, text, pkg: f.pkg, omx: Boolean(h.scalars || h.limits) });
     }
   }

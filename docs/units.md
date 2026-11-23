@@ -31,6 +31,9 @@ its
 conversion: a `base` unit and a `scale` (a value in the unit times `scale` is a value in `base`). A base has no base of
 its own. A logarithmic unit (`dB`, `dBFS`, `dBu`, `dBTP`, `LUFS`, `LU`) has no conversion: its offset depends on a
 reference. The list holds no code, no LV2 term and no token: those are the format levels' (below).
+A word's `x-code` is its position in the list, not a wire number: readers take the words, and a unit removed
+shifts the codes after it. `x` was removed (omx-contract#167, coordinator ruling 2026-11-21): `coef`, scope `param`, is
+the one plain multiplier, and a reader that stated `x` states `coef`, with no alias.
 
 | Id | Symbol | Dimension | Conversion (base, scale) | Scope |
 |---|---|---|---|---|
@@ -48,8 +51,7 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
 | `inch` | `inch` | length | `m`, 0.0254 | descriptor |
 | `mile` | `mile` | length | `m`, 1609.344 | descriptor |
 | `dB` | `dB` | gain | none (logarithmic) | param |
-| `percent` | `%` | none | `x`, 0.01 | param |
-| `x` | `x` | none | none (a base unit) | param |
+| `percent` | `%` | none | `coef`, 0.01 | param |
 | `Hz` | `Hz` | frequency | none (a base unit) | param |
 | `kHz` | `kHz` | frequency | `Hz`, 1000 | descriptor |
 | `MHz` | `MHz` | frequency | `Hz`, 1000000 | descriptor |
@@ -62,6 +64,7 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
 | `dBFS` | `dBFS` | level | none (logarithmic) | param |
 | `dBu` | `dBu` | level | none (logarithmic) | descriptor |
 | `ratio` | `ratio` | ratio | none (a base unit) | descriptor |
+| `coef` | `coef` | none | none (a base unit) | param |
 | `LUFS` | `LUFS` | loudness | none (logarithmic) | param |
 | `dB-oct` | `dB/oct` | slope | none (a base unit) | param |
 | `dB-s` | `dB/s` | rate | none (a base unit) | param |
@@ -136,7 +139,7 @@ The token-to-id map of the code table, where they differ:
 | `m` `cm` `mm` `km` `inch` `mile` | 7 to 12 | the same ids |
 | `db` | 13 | `dB` |
 | `pc` | 14 | `percent` |
-| `coef` | 15 | `x` |
+| `coef` | 15 | `coef` |
 | `hz` `khz` `mhz` | 16 17 18 | `Hz` `kHz` `MHz` |
 | `bpm` | 19 | `bpm` |
 | `oct` `cent` `semitone12TET` | 20 21 22 | `oct` `cents` `st` |
@@ -153,10 +156,10 @@ code.
 ## Panels
 
 omx-panel's display rules are behaviour over the units above, not units: it declares no unit id. A rule shows a
-value in a larger unit of the same dimension: `Hz` as `kHz` from 1000 Hz up; `ms` as `s` and a 0 to 1 `x` as `%`,
+value in a larger unit of the same dimension: `Hz` as `kHz` from 1000 Hz up; `ms` as `s` and a 0 to 1 `coef` as `%`,
 with thresholds that are the panel's to state. The rules read the ids, bases and scales of the list (`ms` to `s` is
 0.001,
-`percent` to `x` is 0.01: the panel holds no scale of its own); the panel keeps no
+`percent` to `coef` is 0.01: the panel holds no scale of its own); the panel keeps no
 unit table of its own.
 
 omx-panel defines only the general panel vocabulary, scales and laws, never a per-plugin or per-format mapping. The

@@ -233,7 +233,10 @@ omx-contract. MOVES OUT: a level's particular leaves omx-contract for its level.
    `clap_host.h`, `omx_clap_ext.h`, `lv2/clap/lv2_clap.c` and the omx-clap-host twin (in PR 1); omx-plugins
    `include/omx_param_contract.h`, `tools/param-contract.mjs`, its Makefile and docs; omx-panel's code-sheet read (P2),
    docs and floors; the wire's `param_info` unit word (D1); the console.
-3. omx-contract removes `data/param-contract.json` and its render LAST, with a test red while any reader still reads it.
+3. omx-contract removes `data/param-contract.json` and its render `omx_param_units.h` in the SAME chain-3 run, in its
+   omx-contract layer, before any reader renders (coordinator ruling B1, 2026-11-22, docs/units.md: no window in which
+   both serve it, no rename); a consumer that includes the old header fails to build, naming it. The served set, the
+   ids the extension encodes, stays here as `PARAM_UNITS_CLAP_ENCODED` (B2), derived by `tools/clap-encoded.mjs`.
 
 The read points (A2): the mapping test is red when a mapped standard id is removed, or when two codes map to one id;
 descriptors carry standard unit ids and never a code (D1 to D3); the encoder and decoder in omx-clap-core are the only

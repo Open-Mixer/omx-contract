@@ -118,8 +118,8 @@ test('an item the engine does not declare is cited by an origin sentence, and a 
 
 test('a set\'s values are held to the answers (#29)', () => {
   const root = scratchTree();
-  edit(root, 'data/kernels/ripple.json', (d, at) => { const k = at('RIPPLE_MODES'); k.values = [null, 4]; k.unit = 'x'; });
-  edit(root, 'recipes/answers/ripple.json', (a) => { const k = a.items.find((i) => i.name === 'RIPPLE_MODES'); k.values = [null, 2]; k.unit = 'x'; });
+  edit(root, 'data/kernels/ripple.json', (d, at) => { const k = at('RIPPLE_MODES'); k.values = [null, 4]; k.unit = 'coef'; });
+  edit(root, 'recipes/answers/ripple.json', (a) => { const k = a.items.find((i) => i.name === 'RIPPLE_MODES'); k.values = [null, 2]; k.unit = 'coef'; });
   assert.match(gapsOf(root), /RIPPLE_MODES: values \[null,4\] in the kernel file, \[null,2\] in the answers/);
 });
 

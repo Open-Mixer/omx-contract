@@ -28,7 +28,7 @@ const ORDER = {
   c: ['render'],
   number: ['ref', 'derive', 'of', 'order'],
   source: ['from', 'impl', 'at'],
-  renderHeader: ['header', 'guard', 'project', 'banner', 'brief', 'includes', 'scope', 'numbers', 'codes', 'scalars', 'limits'],
+  renderHeader: ['header', 'guard', 'project', 'banner', 'brief', 'includes', 'scope', 'numbers', 'codes', 'strings', 'scalars', 'limits'],
   renderSection: ['comment', 'prefix', 'omit', 'levels', 'table'],
 };
 
@@ -106,7 +106,7 @@ function render(r) {
     out.c = out.c.map((h) => {
       if (!isObj(h)) return h;
       const o = ordered(h, ORDER.renderHeader);
-      for (const k of ['numbers', 'codes', 'scalars', 'limits']) if (isObj(o[k])) o[k] = ordered(o[k], ORDER.renderSection);
+      for (const k of ['numbers', 'codes', 'strings', 'scalars', 'limits']) if (isObj(o[k])) o[k] = ordered(o[k], ORDER.renderSection);
       return o;
     });
   }

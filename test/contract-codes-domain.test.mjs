@@ -24,8 +24,8 @@ const golden = readFileSync(join(ROOT, 'test/golden/contract-codes.tsv'), 'utf8'
 const DOMAIN = join(ROOT, 'contract.d/contract/contract.json');
 const upperSnake = (k) => k.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
-test('golden: 58 codes, the values 1..58 in order', () => {
-  assert.equal(golden.length, 58);
+test('golden: 59 codes, the values 1..59 in order', () => {
+  assert.equal(golden.length, 59);
   assert.deepEqual(golden.map((g) => g.value), golden.map((_, i) => i + 1));
 });
 
@@ -79,11 +79,11 @@ test('(c) sabotage: a domain without contract.dir.absent leaves the reader witho
   sabotaged((dir) => {
     const table = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', `import { CONTRACT_CODES } from ${JSON.stringify(join(dir, 'lib/codes.mjs'))}; console.log(JSON.stringify(CONTRACT_CODES));`], { encoding: 'utf8' }));
     assert.equal(table.dirAbsent, undefined, 'the reader reads its words from the domain');
-    assert.equal(Object.keys(table).length, 57);
+    assert.equal(Object.keys(table).length, 58);
     const out = join(dir, 'out');
     execFileSync(process.execPath, [join(dir, 'bin/omx-contract.mjs'), 'render', '--target', 'c', '--out', out], { encoding: 'utf8' });
     const header = readFileSync(join(out, 'omxcontract/omx_contract_codes.h'), 'utf8');
     assert.ok(!header.includes('contract.dir.absent'), 'the header renders the domain');
-    assert.match(header, /OMX_CONTRACT_CODE_LAST = 57 /);
+    assert.match(header, /OMX_CONTRACT_CODE_LAST = 58 /);
   });
 });

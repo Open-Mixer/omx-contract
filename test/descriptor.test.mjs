@@ -150,7 +150,7 @@ test('the words are the closed lists of docs/descriptors.md', () => {
   assert.deepEqual($.port.properties.layout.enum, ['mono', 'stereo', 'surround']);
   assert.deepEqual($.port.properties.dialects.items.enum, ['clap', 'midi', 'midiMpe', 'midi2']);
   assert.deepEqual($.plugin.properties.features.items.enum, ['audio-effect', 'instrument', 'note-effect', 'analyzer']);
-  assert.deepEqual(Object.keys($.descriptor.properties), ['$schema', 'requires', 'origin', 'plugin', 'controls', 'ports', 'instrument', 'needs', 'latency', 'easy', 'meters', 'choiceUnits', 'integrity', 'extensions', 'source']);
+  assert.deepEqual(Object.keys($.descriptor.properties), ['$schema', 'requires', 'origin', 'plugin', 'controls', 'ports', 'instrument', 'needs', 'latency', 'easy', 'meters', 'choiceUnits', 'units', 'integrity', 'extensions', 'source']);
   assert.deepEqual($.descriptorIntegrity.required, ['version', 'commit']);
   assert.deepEqual(Object.keys($.descriptorIntegrity.properties), ['version', 'commit']);
   assert.deepEqual(PARAM_SCALE_IDS, ['linear', 'log', 'stepped']);

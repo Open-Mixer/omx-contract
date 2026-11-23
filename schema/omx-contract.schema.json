@@ -68,6 +68,11 @@
           "description": "The unit of a choice's values, declared once by the plugin (docs/descriptors.md): a choice control's name to one of the descriptor units, never unknown. A reader takes the unit from here and keeps no map of its own. Optional; a choice with no entry carries no unit.",
           "additionalProperties": { "allOf": [{ "$ref": "#/$defs/descriptorUnit" }, { "not": { "const": "unknown" } }] }
         },
+        "units": {
+          "type": "array", "minItems": 1,
+          "description": "The plugin's own units, which no unit of PARAM_UNITS is (docs/units.md, Plugin particulars): each with its camelCase id, its symbol, its dimension, its conversion onto a unit and its name by language. A custom unit has no wire code. One whose id or symbol is that of a PARAM_UNITS unit, or of another of its own, is refused (contract.descriptor.unit-duplicate).",
+          "items": { "$ref": "#/$defs/descriptorOwnUnit" }
+        },
         "integrity": { "$ref": "#/$defs/descriptorIntegrity" },
         "extensions": { "$ref": "#/$defs/extensions" },
         "source": { "$ref": "#/$defs/source" }
@@ -251,6 +256,21 @@
           "then": { "properties": { "travel": false, "ids": false, "labels": false, "values": false, "default": false } }
         }
       ],
+      "additionalProperties": false
+    },
+    "descriptorOwnUnit": {
+      "type": "object",
+      "description": "A unit of the plugin's own (docs/descriptors.md, units): id, camelCase as a standard unit id is; symbol, as a surface displays it; dimension, a word of PARAM_UNIT_DIMENSIONS; base and scale, a value in the unit times scale is a value in base, stated together; text, its name by language.",
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
+        "symbol": { "type": "string", "minLength": 1 },
+        "dimension": { "type": "string", "pattern": "^[a-z][a-z-]*$" },
+        "base": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
+        "scale": { "type": "number", "exclusiveMinimum": 0 },
+        "text": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/text" } }
+      },
+      "required": ["id", "symbol", "dimension"],
+      "dependentRequired": { "base": ["scale"], "scale": ["base"] },
       "additionalProperties": false
     },
     "descriptorIntegrity": {

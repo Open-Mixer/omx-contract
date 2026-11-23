@@ -160,6 +160,11 @@ The rebuild, and nothing else:
   `x-transient` are its `resp` and `transient`, written after `code` (3.21.0, plugin-hostd-protocol's verbs);
 - an item with `"x-kind": "terms"` is the data item `{ "kind": "terms", ..., "format", "spec", "version",
   "deprecated", "terms" }`, each term keyed by its `const` as its `x-term` (3.21.0, the LV2 and CLAP terms);
+- an item with `"x-kind": "map"` is the data item `{ "kind": "formatMap", ..., "format", "rows" }`, each row keyed by
+  its `const` as `{ "term": <x-term>, "from": <x-from>, "word": <x-word>, "extension": <x-extension>, "dropped":
+  <x-dropped>, "doc": <description> }`, each key only when the row has it (omx-contract#191, plugin-hostd's
+  `PLUGIN_HOSTD_CLAP_MAP` and `PLUGIN_HOSTD_LV2_MAP`; test/domain-map.test.mjs rebuilds both byte for byte those of
+  plugin-hostd's data/formats at fac7531, its `$schema` and `requires` lines aside);
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,

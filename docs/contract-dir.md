@@ -105,7 +105,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
-  data path it came from), `x-kind` (`codes`, `words`, `set`, `verbs`, `terms`, `scalar` or `sheet`) and `x-source` (its `source`); on each
+  data path it came from), `x-kind` (`codes`, `words`, `set`, `verbs`, `terms`, `map`, `scalar` or `sheet`) and `x-source` (its `source`); on each
   word of a codes item `x-name` (the code's key, the macro stem); on a sheet `x-value` and `x-docs` (verbatim); and on a
   scalar `x-unit` and `x-value`. `x-text` and `x-args` keep their meaning above. They are read by `render
   --with-domain` (docs/render.md). A domain with none of them reads and renders as before.
@@ -133,6 +133,22 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     hold `.`, `/`, `+` and `-`), `x-code` its place and `x-term` the term as the data form writes it (its `uri` or `id`,
     `kind`, `status`, `by`, `issue`, `ruling`, ...). It rebuilds the data `terms` item; the build holds each term to the
     schema's term, and the runtime readers serve the item as words, the words the term keys.
+  - `"x-kind": "map"` (omx-contract#191, owner ruling 2026-11-23) is one format's mapping table: `x-format` the
+    item's, and a `oneOf` of one row per source field, `const` and `title` both the field as the format names it
+    (`units:unit`, `clap_param_info.min_value`, `omx_clap_panel_display.meter_ids[0]`), `x-code` its place and
+    `description` its doc. A row has exactly one outcome: `x-word` (the descriptor word it becomes, `{ word, transform,
+    values? | factor? }`, `values` its lookup sub-table, a code token or unit IRI to its value), `x-extension` (`true`,
+    carried in the extension bag) or `x-dropped` (`{ ruling }`, dropped by the ruling it names); and exactly one cover:
+    `x-term`, the term link `<TERMS item>#<term>` into a terms item of the map's format (an `x-kind` terms item, its
+    `x-spec` the standard it mirrors), or `x-from`, the link or URL of a field no terms item holds. A lookup value of a
+    unit is a `PARAM_UNITS` id spelled as its standard symbol, and a plugin unit with no standard id is a dropped row
+    with its ruling, never a new spelling (plugin-hostd#215, decision 2). It rebuilds the data `formatMap` item
+    (docs/descriptors.md, "The format maps"), each row `{ term, from, word, extension, dropped, doc }` keyed by its
+    `const`, in the `oneOf`'s order. The reader refuses by item and row a row with no outcome or two (naming them), a
+    dropped row without a ruling, a row that covers nothing or covers twice, a `title` that is not the `const` and an
+    `x-code` out of place; `validate` refuses a term link that resolves to no term of a terms item of the map's format
+    (rule `map-term`), wherever the terms item is in the read. The runtime readers serve it as words, the words the
+    source keys.
   - `"x-kind": "scalar"` is an item of its own, with no `oneOf`: `description`, `x-since`, optional `x-why`,
     `x-source` and `x-file`, `x-unit` (a string, `""` for none) and `x-value` (a number, or true or false); every
     reader refuses another `x-value` and a missing `x-unit` by item. A scalar whose data value is a reference or a
@@ -141,7 +157,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   - An item with no `x-file` is read at run time only: `render --with-domain` does not rebuild it and does not refuse
     it, so one domain may hold items rebuilt into data files and items that only the loaders read.
   - What the runtime readers (the C loader and `openDomainAt`, held to each other by test/fixtures/conformance) serve:
-    words items (any `x-kind` of a words item, and a terms item, its words the term keys), range items and scalar items. A sheet is not served: it is rebuilt at
+    words items (any `x-kind` of a words item, a terms item, its words the term keys, and a map item, its words the source keys), range items and scalar items. A sheet is not served: it is rebuilt at
     build time and read nowhere else. Both readers refuse a word whose `x-args` disagree with its `x-text`, as the
     build does.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner

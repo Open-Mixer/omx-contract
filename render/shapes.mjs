@@ -53,12 +53,18 @@ function* nodes(s, path = '') {
 /** The object nodes of a shape, each `[path, node]`: the root when it is one, every $defs entry and every nested one. */
 const objects = (s) => [...nodes(s)].filter(([, n]) => n.type === 'object');
 
-/** The enum or const words of a property node, its oneOf and anyOf branches' included, or undefined when it has none. */
+/**
+ * The enum or const words of a property node, its oneOf and anyOf branches' included, each `{ word, id, named }`, or
+ * undefined when it has none: `id` the word's X-macro identifier, the const's `x-name` when it states one (#76), else
+ * the word itself; `named` whether it came from `x-name`. A word is listed once.
+ */
 const wordsOf = (p) => {
-  const own = p.enum ?? (p.const !== undefined ? [p.const] : undefined);
+  const own = p.enum !== undefined ? p.enum.map((word) => ({ word, id: word, named: false }))
+    : p.const !== undefined ? [{ word: p.const, id: p['x-name'] ?? p.const, named: p['x-name'] !== undefined }] : undefined;
   const branches = [...(p.oneOf ?? []), ...(p.anyOf ?? [])].map(wordsOf).filter(Boolean).flat();
   if (!own && !branches.length) return undefined;
-  return [...new Set([...(own ?? []), ...branches])];
+  const seen = new Set();
+  return [...(own ?? []), ...branches].filter((w) => !seen.has(w.word) && seen.add(w.word));
 };
 
 const upper = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
@@ -112,8 +118,20 @@ export const SHAPE_RULES = [
     check: (s) => objects(s).flatMap(([path, n]) => Object.entries(n.properties ?? {}).flatMap(([k, p]) => {
       const words = wordsOf(p);
       if (!words) return [];
-      const bad = words.filter((w) => typeof w !== 'string' || !C_IDENT.test(w));
-      return bad.length ? [{ path: `${path}/properties/${k}`, message: `the words ${JSON.stringify(bad)} are not C identifiers: an enum or const of ${k} is strings, each one identifier` }] : [];
+      const at = `${path}/properties/${k}`;
+      const out = [];
+      const notString = words.filter((w) => typeof w.word !== 'string').map((w) => w.word);
+      if (notString.length) out.push({ path: at, message: `the words ${JSON.stringify(notString)} are not strings: an enum or const of ${k} is strings` });
+      const unnamed = words.filter((w) => typeof w.word === 'string' && !w.named && !C_IDENT.test(w.word)).map((w) => w.word);
+      if (unnamed.length) out.push({ path: at, message: `the words ${JSON.stringify(unnamed)} of ${k} are not C identifiers: state each as a oneOf const naming its identifier in "x-name"` });
+      const badName = words.filter((w) => w.named && (typeof w.id !== 'string' || !C_IDENT.test(w.id))).map((w) => w.id);
+      if (badName.length) out.push({ path: at, message: `the x-name ${JSON.stringify(badName)} of ${k} is not a C identifier` });
+      const ids = new Map();
+      for (const w of words) {
+        if (ids.has(w.id)) out.push({ path: at, message: `the words ${JSON.stringify(ids.get(w.id))} and ${JSON.stringify(w.word)} of ${k} have one identifier, ${w.id}` });
+        else ids.set(w.id, w.word);
+      }
+      return out;
     })),
   },
   {
@@ -225,7 +243,7 @@ function renderShapeC({ name, rel, schema }) {
       const words = wordsOf(p);
       if (!words) continue;
       lines.push(doxy(`The words of ${title}.${k}, each as X(identifier, "word"): ${p.description}`));
-      lines.push(`#define ${O}_${macroStem(k)}_WORDS(X) ${words.map((w) => `X(${w}, ${cStringLiteral(w)})`).join(' ')}`);
+      lines.push(`#define ${O}_${macroStem(k)}_WORDS(X) ${words.map((w) => `X(${w.id}, ${cStringLiteral(w.word)})`).join(' ')}`);
     }
   }
   lines.push('', `#endif /* ${guard} */`, '');

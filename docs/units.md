@@ -43,7 +43,7 @@ the one plain multiplier, and a reader that stated `x` states `coef`, with no al
 | `min` | `min` | time | `s`, 60 | param |
 | `bar` | `bar` | musical-time | none (a base unit) | descriptor |
 | `beat` | `beat` | musical-time | none (a base unit) | descriptor |
-| `frames` | `frames` | count | none (a base unit) | descriptor |
+| `frames` | `frames` | count | none (a base unit) | param |
 | `m` | `m` | length | none (a base unit) | descriptor |
 | `cm` | `cm` | length | `m`, 0.01 | descriptor |
 | `mm` | `mm` | length | `m`, 0.001 | descriptor |
@@ -82,6 +82,10 @@ the one plain multiplier, and a reader that stated `x` states `coef`, with no al
   `travel.unit` takes either scope, or `unknown`, which stays the descriptor format's "states no unit" word, not a
   unit. `LUFS` is in both lists in 3.20.2; here it is `param`, and a descriptor still takes it. The split is kept (Q16,
   ruled).
+- `frames` is `param` (omx-contract#164): a descriptor's latency refs (`latency.frames`, `latency.sweep.min` and `.max`)
+  name a scalar item in `frames` or `ms`, and a scalar item's unit is a word of `$defs.unit`, so a constant count of
+  frames can be a scalar only with `frames` in that list. It widens the item enum by one word (minor); a descriptor's
+  `travel.unit` takes it as before. Its code (its position) does not move.
 - `bar` and `beat` are counts of a musical length (a delay's bar fraction and note denominator). Their length depends
   on the meter, so neither is derived from the other. A transport position (a bar number, a beat in a bar) is a
   position, not a unit.

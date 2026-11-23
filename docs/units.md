@@ -66,8 +66,8 @@ the one plain multiplier, and a reader that stated `x` states `coef`, with no al
 | `ratio` | `ratio` | ratio | none (a base unit) | descriptor |
 | `coef` | `coef` | none | none (a base unit) | param |
 | `LUFS` | `LUFS` | loudness | none (logarithmic) | param |
-| `dB-oct` | `dB/oct` | slope | none (a base unit) | param |
-| `dB-s` | `dB/s` | rate | none (a base unit) | param |
+| `dBPerOct` | `dB/oct` | slope | none (a base unit) | param |
+| `dBPerS` | `dB/s` | rate | none (a base unit) | param |
 | `dBTP` | `dBTP` | level | none (logarithmic) | descriptor |
 | `LU` | `LU` | loudness | none (logarithmic) | descriptor |
 | `us` | `us` | time | `s`, 0.000001 | descriptor |
@@ -88,9 +88,14 @@ the one plain multiplier, and a reader that stated `x` states `coef`, with no al
 - `dBu` is decibels relative to 0.7746 V RMS, an analogue level. `dBV` is not added: nothing uses it.
 - `$defs.unit` is the ids (consts) of the `param` words and `$defs.descriptorUnit` those of the `descriptor` words and
   `unknown`, rendered from the list (C2, coordinator 2026-11-23, plugin-hostd#215 D1/D2): the id is the word a
-  descriptor, an item and a reply carry (`percent`, `none`, `dB-oct`), and a word's `x-symbol` (`%`, `""`, `dB/oct`)
+  descriptor, an item and a reply carry (`percent`, `none`, `dBPerOct`), and a word's `x-symbol` (`%`, `""`, `dB/oct`)
   is how a surface displays it, never a wire word, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
   schema to it). A unit is added in one place.
+- **A unit id is camelCase, and `/` reads `Per`** (coordinator and owner, 2026-11-23): letters and digits only,
+  starting with a letter, never `-`, `/` or a space: `dBPerOct` for dB/oct, `dBPerS` for dB/s, `nsPerSample` for
+  ns/sample, as `midiNote` and `plainCount`. The case of a standard symbol is kept (`dB`, `Hz`, `kHz`, `LUFS`). The
+  symbol as written stays the word's `x-symbol`, the display. The domain reader refuses, naming it, a unit word (a word
+  carrying `x-symbol`) whose id breaks this. `dB-oct` and `dB-s` were renamed under it, with no alias.
 
 - The resource units `us`, `bytes`, `nsPerSample`, `plainCount` and `flag` join the list (coordinator ruling Q6,
   2026-11-20). They are host resource units, not parameter units, so they have `descriptor` scope: they widen no
@@ -147,7 +152,7 @@ The token-to-id map of the code table, where they differ:
 | `oct` `cent` `semitone12TET` | 20 21 22 | `oct` `cents` `st` |
 | `degree` `midiNote` | 23 24 | `deg` `midiNote` |
 | `dbfs` `dbu` `ratio` `lufs` | 0x100 (256) 0x101 (257) 0x102 (258) 0x103 (259) | `dBFS` `dBu` `ratio` `LUFS` |
-| `dboct` `dbs` `dbtp` `lu` | 0x104 (260) 0x105 (261) 0x106 (262) 0x107 (263) | `dB-oct` `dB-s` `dBTP` `LU` |
+| `dboct` `dbs` `dbtp` `lu` | 0x104 (260) 0x105 (261) 0x106 (262) 0x107 (263) | `dBPerOct` `dBPerS` `dBTP` `LU` |
 
 The last row is new (owner ruling Q15, 2026-11-20): `dB/oct`, `dB/s`, `dBTP` and `LU` take the next omx-clap-core
 codes, 0x104 (260) up, append-only, because our plugins use them. Its tokens are my proposal, spelled as the vendor
@@ -244,7 +249,7 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
     (`none`), as today. Do they take the next codes (0x104 (260) up, append-only), or stay without?
-    - **Ruled (coordinator, 2026-11-20):** they take 0x104 (260) `dB-oct`, 0x105 (261) `dB-s`, 0x106 (262) `dBTP`, 0x107
+    - **Ruled (coordinator, 2026-11-20):** they take 0x104 (260) `dBPerOct`, 0x105 (261) `dBPerS` (spelled `dB-oct` and `dB-s` until the camelCase rule below), 0x106 (262) `dBTP`, 0x107
       (263) `LU`, the next omx-clap-core codes, because our plugins use them.
 16. **Keep the split of `$defs.unit` and `$defs.descriptorUnit`?** The list's `scope` (`param` or `descriptor`) defines
     it for now. The split is a 3.20.2 fact: a descriptor takes both lists anyway, so one list of units would do. Keep

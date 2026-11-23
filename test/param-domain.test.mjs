@@ -54,6 +54,9 @@ test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.
   for (const symbol of ['%', '', 'dB/oct', 'dB/s', 'ns/sample', 'count']) {
     assert.ok(![...param, ...own].includes(symbol), `the symbol ${JSON.stringify(symbol)} is no wire word`);
   }
+  // a unit id is camelCase, "/" reads "Per" (docs/units.md, 2026-11-23): dBPerOct, nsPerSample, never dB-oct
+  for (const id of [...param, ...own]) assert.match(id, /^[A-Za-z][A-Za-z0-9]*$/, `the unit id ${JSON.stringify(id)} is camelCase`);
+  assert.ok(param.includes('dBPerOct') && param.includes('dBPerS'), 'dB/oct and dB/s are dBPerOct and dBPerS');
   assert.deepEqual(unitWords(ROOT), param);
   assert.deepEqual(descriptorUnitWords(ROOT), own);
   const defs = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8')).$defs;

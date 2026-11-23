@@ -289,7 +289,7 @@ export function pyGeneratorVersion(root = join(import.meta.dirname, '..')) {
   const pin = pyGeneratorPin(root);
   const r = spawnSync(pyGeneratorCommand(), ['--version'], { encoding: 'utf8' });
   const got = r.status === 0 ? (r.stdout.trim().split(/\s+/).pop() ?? '') : '';
-  if (r.status !== 0) return { ok: false, why: `datamodel-codegen is not installed (tools/shapes-requirements.txt pins ${pin}; pip install -r tools/shapes-requirements.txt, or set OMX_DATAMODEL_CODEGEN)` };
+  if (r.status !== 0) return { ok: false, why: `datamodel-codegen is not installed (tools/shapes-requirements.txt pins ${pin}; pip install -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt, or set OMX_DATAMODEL_CODEGEN)` };
   if (got !== pin) return { ok: false, why: `datamodel-codegen ${got} is not the pinned ${pin} of tools/shapes-requirements.txt: its output would differ` };
   return { ok: true, why: '' };
 }

@@ -45,8 +45,8 @@ omx-contract render --target c  --shapes --out include               # omxcontra
 
 | Target | Tool | What it writes |
 |---|---|---|
-| `ts` | `json-schema-to-typescript`, pinned exactly in `package.json` (`npm ci`) | an interface per object, a union for a `oneOf`, the descriptions as JSDoc; published in the npm tarball under `dist/ts/shapes/` and exported as `@openmixer/omx-contract/shapes/<name>` |
-| `py` | `datamodel-code-generator`, pinned exactly in `tools/shapes-requirements.txt` (`pip install -r tools/shapes-requirements.txt`, or `$OMX_DATAMODEL_CODEGEN` naming the command) | a `TypedDict` per object, `Literal` words, the descriptions as docstrings; installed as `omx_contract.shapes.<name>` by `python3-omx-contract` |
+| `ts` | `json-schema-to-typescript`, pinned exactly in `package.json`, its whole dependency tree pinned by `package-lock.json` (`npm ci`) | an interface per object, a union for a `oneOf`, the descriptions as JSDoc; published in the npm tarball under `dist/ts/shapes/` and exported as `@openmixer/omx-contract/shapes/<name>` |
+| `py` | `datamodel-code-generator`, pinned exactly in `tools/shapes-requirements.txt`, its whole dependency tree in `tools/shapes-constraints.txt` (`pip install -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt`, or `$OMX_DATAMODEL_CODEGEN` naming the command) | a `TypedDict` per object, `Literal` words, the descriptions as docstrings; installed as `omx_contract.shapes.<name>` by `python3-omx-contract` |
 | `c` | this package's own render | the schema's installed path and `$id`, and per object its keys, its required keys and each enum's words as X-macros (`OMX_SHAPE_SCALE_TRAVEL_KEYS(X)`, `..._REQUIRED(X)`, `..._SCALE_WORDS(X)`); no struct |
 
 C gets no generated struct: no standard generator writes one from JSON Schema, and a C reader parses a document by key

@@ -84,7 +84,7 @@ jobs:
         name: Install the one runtime dependency, and the two pinned shape generators (docs/shapes.md)
         run: |
           npm ci
-          python3 -m pip install --user -r tools/shapes-requirements.txt
+          python3 -m pip install --user -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt
       - id: handback-validate
         name: The data is valid and in the one formatting
         run: |

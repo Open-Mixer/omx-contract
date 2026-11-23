@@ -60,7 +60,7 @@ jobs:
         name: Install the one runtime dependency, and the two pinned shape generators (docs/shapes.md)
         run: |
           npm ci
-          python3 -m pip install --user -r tools/shapes-requirements.txt
+          python3 -m pip install --user -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt
       - name: The tag names the package version
         if: github.ref_type == 'tag'
         env:

@@ -225,3 +225,25 @@ test('the CLI refuses a ts shapes render when the installed json-schema-to-types
   assert.match(r.stderr, /render --target ts --shapes: json-schema-to-typescript 1\.0\.0 is not the pinned \d+\.\d+\.\d+ of package\.json/);
   assert.ok(!existsSync(out), 'nothing rendered');
 });
+
+// #76: a word the wire spells as no C identifier ("-", "fbs-fixed") is a oneOf const naming its identifier in x-name;
+// the C render is X(<x-name>, "<word>"), and the TypeScript render keeps the word. An enum has no place for x-name.
+test('a word that is no C identifier renders under its x-name, and is refused in an enum or without one', async () => {
+  const s = travel();
+  s.$defs.ScaleTravel.properties.scale = { description: 'The scale.', oneOf: [
+    { type: 'string', enum: ['linear', 'log'], description: 'Smooth.' },
+    { type: 'string', const: '-', 'x-name': 'unshaped', description: 'No shape.' },
+    { type: 'string', const: 'fbs-fixed', 'x-name': 'fbsFixed', description: 'A fixed FBS band.' },
+  ] };
+  const dir = treeWith(s);
+  assert.deepEqual(shapeProblems(shapesOf(dir)[0]), [], 'positive: words named by x-name pass');
+  const [{ text }] = renderShapesC(dir, join(dir, 'shapes'));
+  assert.match(text, /#define OMX_SHAPE_SCALE_TRAVEL_SCALE_WORDS\(X\) X\(linear, "linear"\) X\(log, "log"\) X\(unshaped, "-"\) X\(fbsFixed, "fbs-fixed"\)/);
+  const [{ text: ts }] = await renderShapesTs(ROOT, join(dir, 'shapes'));
+  assert.match(ts, /"fbs-fixed"/, 'the TypeScript type keeps the wire word');
+  const refused = (mutate) => { const t = structuredClone(s); mutate(t.$defs.ScaleTravel.properties.scale.oneOf); return shapeProblems(shapesOf(treeWith(t))[0]).filter((p) => p.rule === 'words'); };
+  assert.equal(refused((o) => { delete o[2]['x-name']; }).length, 1, 'a word that is no identifier, with no x-name');
+  assert.equal(refused((o) => { o[0].enum = ['linear', 'fbs-fixed']; }).length, 1, 'a word that is no identifier, in an enum');
+  assert.equal(refused((o) => { o[2]['x-name'] = 'fbs-fixed'; }).length, 1, 'an x-name that is no identifier');
+  assert.equal(refused((o) => { o[1]['x-name'] = 'log'; }).length, 1, 'two words of one property with one identifier');
+});

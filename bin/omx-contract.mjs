@@ -33,7 +33,7 @@ import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
-import { lineOf, unitGate, unitProblems } from '../lib/units.mjs';
+import { lineFinder, unitGate, unitProblems } from '../lib/units.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
 import { placeholdersOf } from '../lib/placeholders.mjs';
@@ -462,12 +462,9 @@ function cmdUnits(argv) {
     try { doc = JSON.parse(text); } catch (e) { console.error(`omx-contract units: ${f}: no JSON (${e.message})`); return 2; }
     const found = unitProblems(doc, gate);
     checked += found.checked;
-    const from = new Map();
+    const lineOf = lineFinder(text);
     for (const p of found) {
-      const k = `${p.key}\0${p.value}`;
-      const line = lineOf(text, p.key, p.value, from.get(k) ?? 1);
-      if (line) from.set(k, line + 1);
-      console.error(`${f}:${line}: ${p.message}`);
+      console.error(`${f}:${lineOf(p.key, p.value)}: ${p.message}`);
       refused++;
     }
   }

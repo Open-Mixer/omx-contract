@@ -123,12 +123,25 @@ export function unitProblems(doc: Json, gate: UnitGate = unitGate()): UnitProble
   return out;
 }
 
-/** The 1-based line of `text` that states `"key": "value"`, the first at or after `from`; 0 when none does. */
-export function lineOf(text: string, key: string, value: string, from = 1): number {
-  const needle = new RegExp(`${JSON.stringify(key).replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}\\s*:\\s*${JSON.stringify(value).replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}`);
+const quoted = (s: string) => JSON.stringify(s).replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+
+/**
+ * A line finder over `text`: `find(key, value)` is the 1-based line of the next line stating `"key": "value"` (each
+ * pair resumes after its last answer, so the problems of one file, in document order, get their lines in one pass
+ * per pair); 0 when none does.
+ */
+export function lineFinder(text: string): (key: string, value: string) => number {
   const lines = text.split('\n');
-  for (let i = from - 1; i < lines.length; i++) if (needle.test(lines[i]!)) return i + 1;
-  return 0;
+  const next = new Map<string, number>();
+  return (key, value) => {
+    const pair = `${key}\0${value}`;
+    const needle = new RegExp(`${quoted(key)}\\s*:\\s*${quoted(value)}`);
+    for (let i = next.get(pair) ?? 0; i < lines.length; i++) {
+      if (needle.test(lines[i]!)) { next.set(pair, i + 1); return i + 1; }
+    }
+    next.set(pair, lines.length);
+    return 0;
+  };
 }
 
 /** A format map's rows (the data form's formatMap value): each unit lookup value that is no symbol (rule map-unit). */

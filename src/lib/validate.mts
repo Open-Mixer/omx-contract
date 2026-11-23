@@ -258,7 +258,7 @@ function semanticRules(resolved, say) {
         else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'map-term', `${field}: ${row.term}: ${item} has no term ${term}`);
         else if (t.format !== r.format) say(r.rel, r.name, 'map-term', `${field}: ${row.term} is a ${t.format} term, and the map is ${r.format}'s`);
       }
-      // A unit lookup's values are PARAM_UNITS standard symbols (omx-contract#193; plugin-hostd#215, decision 2).
+      // A unit lookup's values are PARAM_UNITS standard ids (omx-contract#193; plugin-hostd#215, decision 2).
       for (const m of mapUnitProblems(r.value)) say(r.rel, r.name, 'map-unit', m);
     }
     if (r.kind === 'terms') {

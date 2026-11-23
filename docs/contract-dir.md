@@ -141,7 +141,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     carried in the extension bag) or `x-dropped` (`{ ruling }`, dropped by the ruling it names); and exactly one cover:
     `x-term`, the term link `<TERMS item>#<term>` into a terms item of the map's format (an `x-kind` terms item, its
     `x-spec` the standard it mirrors), or `x-from`, the link or URL of a field no terms item holds. A lookup value of a
-    unit is a `PARAM_UNITS` id spelled as its standard symbol, and a plugin unit with no standard id is a dropped row
+    unit is a `PARAM_UNITS` id (its const; the `x-symbol` is display only), and a plugin unit with no standard id is a dropped row
     with its ruling, never a new spelling (plugin-hostd#215, decision 2). It rebuilds the data `formatMap` item
     (docs/descriptors.md, "The format maps"), each row `{ term, from, word, extension, dropped, doc }` keyed by its
     `const`, in the `oneOf`'s order. The reader refuses by item and row a row with no outcome or two (naming them), a

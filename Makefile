@@ -220,6 +220,25 @@ fuzz:
 # make exits 2 on any failure, as it does for every recipe; the script's own exit tells a finding (1) from a gate that
 # could not run (2).
 DOXYGEN_BASE ?= origin/main
+# The published reference: Open-Mixer/.github's docs-publish.yml runs this with DOCS_OUT, an empty absolute directory,
+# then renders the Markdown and the man pages and, at a release tag, publishes the tree under
+# https://www.openmixer.org/reference/omx-contract/<version>/. The base-free half of the documentation gate runs first
+# (tools/doxygen-gate.sh: every declaration of the installed headers documented or in docs/doxygen-baseline.txt; the
+# shrink against a base is doxygen-check's, in ci.yml), then only what the tree generates or keeps: the C API reference
+# (api/), the contract's pages of docs/ (the gate's baseline left out), the man pages, README, BUILDING and LICENSE.
+.PHONY: docs-site
+docs-site:
+	@case "$(DOCS_OUT)" in /*) ;; *) echo "docs-site: FAIL - DOCS_OUT '$(DOCS_OUT)' is not an absolute directory: name the directory the reference is written to" >&2; exit 1;; esac
+	sh tools/doxygen-gate.sh
+	rm -rf build/doxygen && mkdir -p build/doxygen
+	doxygen Doxyfile >/dev/null
+	@test -f build/doxygen/html/index.html || { echo "docs-site: FAIL - doxygen wrote no build/doxygen/html/index.html" >&2; exit 1; }
+	mkdir -p $(DOCS_OUT)/api $(DOCS_OUT)/docs $(DOCS_OUT)/man
+	cp -a build/doxygen/html/. $(DOCS_OUT)/api/
+	cp README.md BUILDING.md LICENSE $(DOCS_OUT)/
+	cp docs/*.md $(DOCS_OUT)/docs/
+	cp man/*.1 $(DOCS_OUT)/man/
+
 doxygen-check:
 	@if [ -z "$(DOXYGEN_BASE)" ]; then echo "doxygen-check: set DOXYGEN_BASE to the ref the baseline is held to (origin/main)" >&2; exit 2; \
 	elif git cat-file -e "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" 2>/dev/null; then \

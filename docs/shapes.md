@@ -32,7 +32,7 @@ omx-panel's gesture shapes, adds that rule to [contract-dir.md](contract-dir.md)
 | `titles` | Every object, nested ones too, has a title, and no two, in one shape or across shapes, spell the same macro stem: each object's macros and type are named by it, and one would render over the other. |
 | `identifiers` | Every key is a C identifier (`[A-Za-z_][A-Za-z0-9_]*`): a key is an X-macro argument, one token, so no two collide. |
 | `patternProperties` | Absent: a key set named by a pattern has no key for the C macros to name, so it is refused by name, never dropped. |
-| `words` | Every `enum` or `const` of a property is strings, each a C identifier: they render as the `_WORDS(X)` macro, and the words of a `oneOf` or `anyOf` branch join it. |
+| `words` | Every `enum` or `const` of a property is strings: they render as the `_WORDS(X)` macro, `X(<identifier>, "<word>")` each, and the words of a `oneOf` or `anyOf` branch join it. A word that is a C identifier is its own identifier. A word that is not one (`-`, `fbs-fixed`, as the wire spells it) is the `const` of a branch that names its identifier in `x-name` (`{ "const": "fbs-fixed", "x-name": "fbsFixed", "description": "..." }`), as a domain word names its macro stem; an `enum` has no place for it, so it is refused there. No mangling: the identifier is declared, never derived. Two words of one property with one identifier are refused (#76). |
 | `macros` | Every macro the C render defines is defined once: two keys that spell one stem (`fooBar` and `foo_bar` both give `..._FOO_BAR_WORDS`), or a title and a key, are refused by both paths (#72). |
 
 ## The renders

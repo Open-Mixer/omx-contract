@@ -159,3 +159,68 @@ test('no workflow writes a command substitution straight into GITHUB_ENV or GITH
   assert.ok(shape.test('echo "X=$(cmd)" >> "$GITHUB_ENV"'), 'positive control: the pattern sees the shape');
   for (const f of WORKFLOWS) for (const [i, l] of workflow(f).split('\n').entries()) assert.doesNotMatch(l, shape, `${f}:${i + 1}`);
 });
+
+// Which omx-dsp the proof reads (omx-contract#195). A release that removes an item omx-dsp's next release takes over
+// publishes before that release (omx-dsp build-requires it), so the latest omx-dsp release still reads the item and
+// the proof of the tag fails: v3.21.0 against omx-dsp 0.33.1, READOUT_RATE_HZ. tools/live-owner.ref names the commit the
+// chain ships instead, until the release that carries it; from that release on, the latest release again.
+const SHA = '1ed8a2df00fdd6383ffe07ca531ce960e7e1ca50';
+/** Run tools/live-owner-data.sh in a scratch tree with a stub curl: what it fetched, what it printed, its status. */
+const fetchOwner = ({ pin, latest, tag }) => {
+  const dir = scratchDir('omx-owner-fetch-');
+  mkdirSync(join(dir, 'tools'));
+  mkdirSync(join(dir, 'bin'));
+  cpSync(join(ROOT, 'tools/live-owner-data.sh'), join(dir, 'tools/live-owner-data.sh'));
+  if (pin !== undefined) writeFileSync(join(dir, 'tools/live-owner.ref'), pin);
+  // the archive's top directory is named as GitHub names it: omx-dsp-<version> for a tag, omx-dsp-<sha> for a commit
+  writeFileSync(join(dir, 'bin/curl'), [
+    '#!/bin/sh',
+    `for a; do url=$a; done; echo "$url" >> "${dir}/fetched"`,
+    'case $url in',
+    `  */releases/latest) printf '{\\n  "tag_name": "%s",\\n}\\n' "${latest}" ;;`,
+    '  */archive/refs/tags/v*.tar.gz) top=${url##*/v}; top=omx-dsp-${top%.tar.gz} ;;',
+    '  */archive/*.tar.gz) top=${url##*/}; top=omx-dsp-${top%.tar.gz} ;;',
+    '  *) exit 22 ;;',
+    'esac',
+    `[ -z "\${top:-}" ] || { s=$(mktemp -d "${dir}/a.XXXXXX"); mkdir -p "$s/$top/data/kernels"; tar -cz -C "$s" "$top"; }`,
+    '',
+  ].join('\n'), { mode: 0o755 });
+  const r = spawnSync('sh', [join(dir, 'tools/live-owner-data.sh'), join(dir, 'out'), ...(tag ? [tag] : [])], {
+    encoding: 'utf8',
+    env: { ...process.env, PATH: `${join(dir, 'bin')}:${process.env.PATH}`, GITHUB_REPOSITORY_OWNER: 'Open-Mixer', GITHUB_TOKEN: '' },
+  });
+  const fetched = existsSync(join(dir, 'fetched')) ? readFileSync(join(dir, 'fetched'), 'utf8').trim().split('\n') : [];
+  return { status: r.status, out: r.stdout.trim().replace(`${dir}/out/`, ''), fetched: fetched.map((u) => u.replace(/^.*\/omx-dsp\//, '')), err: r.stderr };
+};
+
+test('with no pin the proof reads omx-dsp\'s latest release', () => {
+  const r = fetchOwner({ latest: 'v0.33.1' });
+  assert.equal(r.status, 0, r.err);
+  assert.deepEqual(r.fetched, ['releases/latest', 'archive/refs/tags/v0.33.1.tar.gz']);
+  assert.equal(r.out, 'omx-dsp-0.33.1/data');
+});
+
+test('a pin names the omx-dsp commit the proof reads until the release it names is out', () => {
+  const pin = `# the commit omx-dsp 0.34.0 is cut from (omx-dsp#123)\n${SHA} until v0.34.0\n`;
+  const before = fetchOwner({ pin, latest: 'v0.33.1' });
+  assert.equal(before.status, 0, before.err);
+  assert.deepEqual(before.fetched, ['releases/latest', `archive/${SHA}.tar.gz`]);
+  assert.equal(before.out, `omx-dsp-${SHA}/data`);
+  for (const latest of ['v0.34.0', 'v0.34.1', 'v0.40.0']) {
+    const after = fetchOwner({ pin, latest });
+    assert.equal(after.status, 0, after.err);
+    assert.deepEqual(after.fetched, ['releases/latest', `archive/refs/tags/${latest}.tar.gz`], `latest ${latest}: the pin is retired`);
+    assert.match(after.err, /live-owner\.ref is retired/, `latest ${latest}: it says so`);
+  }
+  const named = fetchOwner({ pin, latest: 'v0.33.1', tag: 'v0.32.4' });
+  assert.deepEqual(named.fetched, ['archive/refs/tags/v0.32.4.tar.gz'], 'a tag given on the command line wins');
+});
+
+test('a pin that is not one 40-hex commit and `until v<x.y.z>` is refused, never read as no pin', () => {
+  for (const pin of [`${SHA}\n`, `${SHA.slice(0, 12)} until v0.34.0\n`, `${SHA} until 0.34.0\n`, `main until v0.34.0\n`, '# nothing\n', `${SHA} until v0.34.0\n${SHA} until v0.35.0\n`]) {
+    const r = fetchOwner({ pin, latest: 'v0.33.1' });
+    assert.notEqual(r.status, 0, `${JSON.stringify(pin)} was accepted`);
+    assert.equal(r.out, '', `${JSON.stringify(pin)}: no path printed`);
+    assert.ok(!r.fetched.some((u) => u.startsWith('archive/')), `${JSON.stringify(pin)}: nothing fetched`);
+  }
+});

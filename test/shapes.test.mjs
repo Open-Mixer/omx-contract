@@ -11,7 +11,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ROOT } from './helpers.mjs';
@@ -192,4 +192,30 @@ test('a render\'s banner names the owner of the schema from its $id, not omx-con
   s.$id = 'https://example.org/travel.schema.json';
   const bad = shapeProblems(shapesOf(treeWith(s))[0]);
   assert.ok(bad.some((p) => p.rule === '$id' && /openmixer\.org\/schema\/<owner>\//.test(p.message)), JSON.stringify(bad));
+});
+
+// #72 (1): the CLI's ts render holds json-schema-to-typescript to its pin. A copy of the CLI whose node_modules holds
+// the generator at another version is refused by name, and the same copy with the pinned one renders (positive control).
+test('the CLI refuses a ts shapes render when the installed json-schema-to-typescript is not the pinned one', () => {
+  const farm = (version) => {
+    const pkg = tmp();
+    cpSync(join(ROOT, 'bin'), join(pkg, 'bin'), { recursive: true });
+    for (const e of readdirSync(ROOT)) if (!['bin', 'node_modules', '.git'].includes(e)) symlinkSync(join(ROOT, e), join(pkg, e));
+    mkdirSync(join(pkg, 'node_modules'));
+    for (const e of readdirSync(join(ROOT, 'node_modules'))) if (e !== 'json-schema-to-typescript') symlinkSync(join(ROOT, 'node_modules', e), join(pkg, 'node_modules', e));
+    const gen = join(pkg, 'node_modules/json-schema-to-typescript');
+    if (version === undefined) symlinkSync(join(ROOT, 'node_modules/json-schema-to-typescript'), gen);
+    else { mkdirSync(gen); writeFileSync(join(gen, 'package.json'), JSON.stringify({ name: 'json-schema-to-typescript', version })); }
+    return pkg;
+  };
+  const run = (pkg, out) => spawnSync(process.execPath, [join(pkg, 'bin/omx-contract.mjs'), 'render', '--target', 'ts', '--shapes', '--out', out], { cwd: pkg, encoding: 'utf8' });
+  const good = farm();
+  const ok = run(good, join(tmp(), 'out'));
+  assert.equal(ok.status, 0, `positive control: the copy with the pinned generator renders: ${ok.stderr}`);
+  const bad = farm('1.0.0');
+  const out = join(tmp(), 'out');
+  const r = run(bad, out);
+  assert.equal(r.status, 1, 'another version: no pass');
+  assert.match(r.stderr, /render --target ts --shapes: json-schema-to-typescript 1\.0\.0 is not the pinned \d+\.\d+\.\d+ of package\.json/);
+  assert.ok(!existsSync(out), 'nothing rendered');
 });

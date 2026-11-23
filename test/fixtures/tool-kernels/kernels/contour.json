@@ -55,7 +55,7 @@
         "min": 0.2,
         "max": 12,
         "step": 0.1,
-        "unit": ""
+        "unit": "none"
       },
       "count": "CONTOUR_BAND_COUNTS"
     },
@@ -67,7 +67,7 @@
         "min": 0.2,
         "max": 60,
         "step": 1,
-        "unit": ""
+        "unit": "none"
       },
       "of": "q",
       "when": {
@@ -133,13 +133,13 @@
     "CONTOUR_MAX_BANDS": {
       "kind": "scalar",
       "doc": "The most bands a contour holds: an invented count.",
-      "unit": "",
+      "unit": "none",
       "value": 12
     },
     "CONTOUR_RESERVE": {
       "kind": "scalar",
       "doc": "The contour bands kept back: an invented count a declared check sums.",
-      "unit": "",
+      "unit": "none",
       "value": 5
     },
     "CONTOUR_BAND_COUNTS": {
@@ -175,7 +175,7 @@
     "CONTOUR_CENTRE_COUNT": {
       "kind": "scalar",
       "doc": "How many centres: an invented count derived from the list.",
-      "unit": "",
+      "unit": "none",
       "value": {
         "derive": "count",
         "of": "CONTOUR_CENTRES_HZ"

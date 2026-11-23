@@ -16,7 +16,7 @@ and nothing else. A sketch, values abridged
   "$schema": "../../schema/omx-contract.schema.json",
   "controls": [
     { "name": "rateHz", "kind": "travel", "global": "TREMOLO_RATE_RANGE", "doc": "…", "travel": { "min": 0.1, "max": 20, "unit": "Hz", "default": 5 } },
-    { "name": "depth", "kind": "travel", "doc": "…", "travel": { "min": 0, "max": 1, "unit": "", "default": 0.5 } },
+    { "name": "depth", "kind": "travel", "doc": "…", "travel": { "min": 0, "max": 1, "unit": "none", "default": 0.5 } },
     { "name": "mode", "kind": "choice", "doc": "…", "ids": ["tremolo", "pan"], "labels": ["Tremolo", "Pan"] },
     { "name": "thresholdDb", "kind": "travel", "table": "GATE_LIMITS", "travel": { "min": -80, "max": 0, "unit": "dB" } }
   ],

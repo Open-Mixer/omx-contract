@@ -55,10 +55,10 @@ export const K_LIMIT = 7;
 const items = (extra = {}) => ({
   $schema: '../schema/omx-contract.schema.json',
   K_MAX_MS: { kind: 'scalar', doc: 'd', unit: 'ms', value: 100, source: { from: 'include/omxdsp/omx_k.h#OMX_K_MAX_MS', impl: 'src/omx_k.c#omx_k_plan' } },
-  K_Q: { kind: 'scalar', doc: 'd', unit: '', value: 0.7071067811865476, source: { from: 'include/omxdsp/omx_k.h#OMX_K_Q', impl: 'include/omxdsp/omx_k.h#OMX_K_Q' } },
+  K_Q: { kind: 'scalar', doc: 'd', unit: 'none', value: 0.7071067811865476, source: { from: 'include/omxdsp/omx_k.h#OMX_K_Q', impl: 'include/omxdsp/omx_k.h#OMX_K_Q' } },
   K_KINDS: { kind: 'set', doc: 'd', ids: ['peak', 'lowShelf', 'highShelf'], source: { from: 'include/omxdsp/omx_k.h#enum omx_k_kind', impl: 'include/omxdsp/omx_k.h#enum omx_k_kind' } },
   K_TRAVEL: { kind: 'travels', doc: 'd', travel: { min: 0, max: 100, unit: 'ms' }, source: { from: { max: 'include/omxdsp/omx_k.h#OMX_K_MAX_MS' }, impl: 'src/omx_k.c#omx_k_travel_clamp' } },
-  K_RATES: { kind: 'list', doc: 'd', unit: '', values: [44100, 48000], source: { from: 'src/k.ts#K_RATES', impl: 'src/k.ts#K_RATES', at: 'openmixer@6ee8a9b' } },
+  K_RATES: { kind: 'list', doc: 'd', unit: 'none', values: [44100, 48000], source: { from: 'src/k.ts#K_RATES', impl: 'src/k.ts#K_RATES', at: 'openmixer@6ee8a9b' } },
   ...extra,
 });
 const dataOf = (doc) => loadData(null, { 'data/x.json': JSON.stringify(doc) });
@@ -98,17 +98,17 @@ test('the good links pass, with the value each defines; at-links are unchecked u
 });
 
 test('contract.source.absent: the link\'s path is not in the tree, or leaves it', () => {
-  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { impl: 'src/gone.c#omx_k_plan' } } }), 'K_A', 'sourceAbsent');
-  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { impl: '../outside.c#omx_k_plan' } } }), 'K_A', 'sourceAbsent');
+  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { impl: 'src/gone.c#omx_k_plan' } } }), 'K_A', 'sourceAbsent');
+  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { impl: '../outside.c#omx_k_plan' } } }), 'K_A', 'sourceAbsent');
 });
 
 test('contract.source.symbol-absent: the symbol was renamed or moved', () => {
-  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { impl: 'src/omx_k.c#omx_k_plan_renamed' } } }), 'K_A', 'sourceSymbolAbsent');
-  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { impl: 'include/omxdsp/omx_k.h#struct omx_k_kind' } } }), 'K_A', 'sourceSymbolAbsent');
+  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { impl: 'src/omx_k.c#omx_k_plan_renamed' } } }), 'K_A', 'sourceSymbolAbsent');
+  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { impl: 'include/omxdsp/omx_k.h#struct omx_k_kind' } } }), 'K_A', 'sourceSymbolAbsent');
 });
 
 test('contract.source.ambiguous: the path defines the symbol twice', () => {
-  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { from: 'include/omxdsp/omx_k.h#OMX_K_TWICE' } } }), 'K_A', 'sourceAmbiguous');
+  arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { from: 'include/omxdsp/omx_k.h#OMX_K_TWICE' } } }), 'K_A', 'sourceAmbiguous');
 });
 
 test('contract.source.differs: the code holds another value than the definition', () => {
@@ -131,12 +131,12 @@ test('contract.source.differs: the code holds another value than the definition'
 
 test('contract.source.unevaluable: a selector into a table, a function, a macro with parameters', () => {
   for (const from of ['src/omx_k.c#omx_k_table[0].maxVoices', 'src/omx_k.c#omx_k_plan', 'include/omxdsp/omx_k.h#OMX_K_SQUARE']) {
-    arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: '', value: 4, source: { from } } }), 'K_A', 'sourceUnevaluable');
+    arm(items({ K_A: { kind: 'scalar', doc: 'd', unit: 'none', value: 4, source: { from } } }), 'K_A', 'sourceUnevaluable');
   }
 });
 
 test('contract.source.unread: the connector does not name the item', () => {
-  arm(items({ K_LIMIT: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { impl: 'src/omx_k.c#omx_k_other' } } }), 'K_LIMIT', 'sourceUnread');
+  arm(items({ K_LIMIT: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { impl: 'src/omx_k.c#omx_k_other' } } }), 'K_LIMIT', 'sourceUnread');
   // the enum is K_KINDS's twin: an impl that is the item's own from link holds it; any other enum must name it
   const twin = items();
   twin.K_KINDS.source.impl = 'include/omxdsp/omx_k.h#enum omx_k_kind';
@@ -148,7 +148,7 @@ test('contract.source.unread: the connector does not name the item', () => {
 });
 
 test('contract.source.none only with --require-impl; a file\'s source stands for its items', () => {
-  const doc = items({ K_BARE: { kind: 'scalar', doc: 'd', unit: '', value: 1 } });
+  const doc = items({ K_BARE: { kind: 'scalar', doc: 'd', unit: 'none', value: 1 } });
   assert.deepEqual(codesOf(doc), []);
   arm(doc, 'K_BARE', 'sourceNone', { requireImpl: true });
   const filed = { ...items(), source: { impl: 'src/omx_k.c#omx_k_plan' }, K_MAX_MS_DOUBLE: { kind: 'scalar', doc: 'd', unit: 'ms', value: 200 } };
@@ -212,7 +212,7 @@ test('an impl names its item by any C name the render spells for it: a limit tab
 
 test('a link may carry its own at: an impl in the owner\'s tree beside a from in another tree at the commit it was read', () => {
   put(TREE, 'src/limit.c', 'int k_limit_clamp(int v) { return v > OMX_K_LIMIT ? OMX_K_LIMIT : v; }\n');
-  const doc = items({ K_LIMIT: { kind: 'scalar', doc: 'd', unit: '', value: 7, source: { impl: 'src/limit.c#k_limit_clamp', from: { link: 'src/k.ts#K_LIMIT', at: 'openmixer@6ee8a9b' } } } });
+  const doc = items({ K_LIMIT: { kind: 'scalar', doc: 'd', unit: 'none', value: 7, source: { impl: 'src/limit.c#k_limit_clamp', from: { link: 'src/k.ts#K_LIMIT', at: 'openmixer@6ee8a9b' } } } });
   const r = checkLinks(dataOf(doc), { root: TREE });
   assert.deepEqual(r.problems, []);
   assert.ok(r.unchecked.includes('K_LIMIT src/k.ts#K_LIMIT (at openmixer@6ee8a9b)'), 'the from lies in a tree not named');
@@ -223,7 +223,7 @@ test('a link may carry its own at: an impl in the owner\'s tree beside a from in
   const map = items({ K_TRAVEL: { ...items().K_TRAVEL, source: { impl: 'src/omx_k.c#omx_k_travel_clamp', from: { max: { link: 'src/k.ts#K_LIMIT', at: 'openmixer@6ee8a9b' } } } } });
   assert.deepEqual(codesOf(map, { trees: { openmixer: OTHER } }), [`K_TRAVEL:${CONTRACT_CODES.sourceDiffers}`], 'a field of a from map with its own at: K_LIMIT 7 is not the max 100');
   assert.deepEqual(validateData(dataOf(doc)).filter((p) => p.rule === 'schema'), [], 'the schema takes { link, at }');
-  const bad = items({ K_X: { kind: 'scalar', doc: 'd', unit: '', value: 1, source: { from: { link: 'src/k.ts#K_LIMIT', at: 'not a package' } } } });
+  const bad = items({ K_X: { kind: 'scalar', doc: 'd', unit: 'none', value: 1, source: { from: { link: 'src/k.ts#K_LIMIT', at: 'not a package' } } } });
   assert.ok(validateData(dataOf(bad)).some((p) => p.item === 'K_X' && p.rule === 'schema'), 'an at that is no <package>@<version> is refused');
 });
 

@@ -61,7 +61,7 @@ test('validate: no item may take the name of a set\'s values export', () => {
     const s = at('data/kernels/swell.json', 'SWELL_KINDS');
     s.values = [null, 4];
     s.unit = 'coef';
-    d['data/rates.json'].SWELL_KINDS_VALUES = { kind: 'scalar', doc: 'a clash', unit: '', value: 1 };
+    d['data/rates.json'].SWELL_KINDS_VALUES = { kind: 'scalar', doc: 'a clash', unit: 'none', value: 1 };
   })));
   assert.ok(problems.some((p) => p.rule === 'set-values' && /SWELL_KINDS_VALUES is the ts render's export/.test(p.message)));
 });

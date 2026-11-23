@@ -264,7 +264,7 @@
       }
     },
     "PARAM_UNITS": {
-      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). A word's code is its position in the list, not a wire number (the wire codes are omx-clap's, the unit codes of org.openmixer.param-contract/1): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
+      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the ids (consts) of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs): the id is the wire word, the `x-symbol` its display rendering only (C2, plugin-hostd#215 D1/D2). A word's code is its position in the list, not a wire number (the wire codes are omx-clap's, the unit codes of org.openmixer.param-contract/1): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
       "enum": [
         "dB",
         "dBFS",
@@ -277,9 +277,9 @@
         "st",
         "percent",
         "none",
-        "dB-oct",
+        "dBPerOct",
         "LUFS",
-        "dB-s",
+        "dBPerS",
         "dBTP",
         "dBu",
         "LU",
@@ -372,7 +372,7 @@
           },
           "args": []
         },
-        "dB-oct": {
+        "dBPerOct": {
           "text": {
             "en": "A slope in dB per octave (a tilt)."
           },
@@ -384,7 +384,7 @@
           },
           "args": []
         },
-        "dB-s": {
+        "dBPerS": {
           "text": {
             "en": "A gain change per second."
           },
@@ -697,9 +697,9 @@
         "st",
         "percent",
         "none",
-        "dB-oct",
+        "dBPerOct",
         "LUFS",
-        "dB-s",
+        "dBPerS",
         "dBTP",
         "dBu",
         "LU",
@@ -787,7 +787,7 @@
           },
           "args": []
         },
-        "dB-oct": {
+        "dBPerOct": {
           "text": {
             "en": "A slope in dB per octave (a tilt)."
           },
@@ -799,7 +799,7 @@
           },
           "args": []
         },
-        "dB-s": {
+        "dBPerS": {
           "text": {
             "en": "A gain change per second."
           },

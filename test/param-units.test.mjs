@@ -18,7 +18,7 @@ const check = (root) => spawnSync(process.execPath, [join(ROOT, 'tools/unit-enum
 test('PARAM_UNITS is a words item and the schema unit enum is its param words, in order', () => {
   const item = read(ROOT, 'contract.d/param/param.json').components.schemas.PARAM_UNITS;
   assert.equal(item?.['x-kind'], 'words', 'the param domain has no PARAM_UNITS words item');
-  const words = item.oneOf.filter((w) => w['x-group'] === 'param').map((w) => w['x-symbol']);
+  const words = item.oneOf.filter((w) => w['x-group'] === 'param').map((w) => w.const);
   assert.deepEqual(read(ROOT, 'schema/omx-contract.schema.json').$defs.unit.enum, words);
   const r = check(ROOT);
   assert.equal(r.status, 0, r.stderr);

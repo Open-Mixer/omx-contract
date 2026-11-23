@@ -2,16 +2,16 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
  * The unit gate (omx-contract#193; decision 2 of plugin-hostd#215, owner ruling 2026-11-23): a unit is a PARAM_UNITS
- * standard symbol, never an alias, a lowercase spelling or a unit of the owner's own; a unit with no standard id is a
- * dropped row (docs/units.md). `omx-contract units --check` runs it over any owner's files, whatever their shape, and
+ * standard id (a word's const; its x-symbol is display only, C2), never an alias, a display symbol, a lowercase
+ * spelling or a unit of the owner's own; a unit with no standard id is a dropped row (docs/units.md). `omx-contract units --check` runs it over any owner's files, whatever their shape, and
  * validate holds a format map's unit lookups by it (rule map-unit).
  *
  * Nothing here lists a key or a word. The schema says which are unit-valued: every property whose schema is
  * `$defs.unit` or `$defs.descriptorUnit` (directly, or a member of its allOf or anyOf) is a unit key, every property
  * whose additionalProperties is one is a map of units, and a descriptor word (`controls[].travel.unit`) is a unit word
  * when its path through `$defs.descriptor` ends at such a property. A domain spells a data key `x-<key>`, so each unit
- * key is held in that spelling too. The symbols are `$defs.descriptorUnit`'s, which tools/unit-enum.mjs renders from
- * PARAM_UNITS's `x-symbol`s and `render --check` holds equal; `unknown`, the descriptor's "states no unit", is a unit
+ * key is held in that spelling too. The ids are `$defs.descriptorUnit`'s, which tools/unit-enum.mjs renders from
+ * PARAM_UNITS's consts and `render --check` holds equal; `unknown`, the descriptor's "states no unit", is a unit
  * key's value only, never a lookup's or a map of units'.
  */
 import { readFileSync } from 'node:fs';
@@ -23,8 +23,8 @@ const UNIT_REFS = new Set(['#/$defs/unit', '#/$defs/descriptorUnit']);
 export const UNKNOWN = 'unknown';
 
 export interface UnitGate {
-  /** PARAM_UNITS's standard symbols. */
-  symbols: Set<string>;
+  /** PARAM_UNITS's standard ids. */
+  ids: Set<string>;
   /** The keys whose string value is a unit (`unit`, and its domain spelling `x-unit`). */
   unitKeys: Set<string>;
   /** The keys whose value is an object of units (`choiceUnits`). */
@@ -61,7 +61,7 @@ export function unitGate(schema: Json = SCHEMA): UnitGate {
   };
   walk(defs);
   const own = defs.descriptorUnit.anyOf.flatMap((m: Json) => (m.$ref === '#/$defs/unit' ? defs.unit.enum : m.enum ?? []));
-  const symbols = new Set<string>(own.filter((u: string) => u !== UNKNOWN));
+  const ids = new Set<string>(own.filter((u: string) => u !== UNKNOWN));
   const deref = (s: Json): Json => {
     let at = s;
     for (let n = 0; at?.$ref && n < 16; n++) at = defs[at.$ref.replace('#/$defs/', '')];
@@ -84,14 +84,14 @@ export function unitGate(schema: Json = SCHEMA): UnitGate {
     }
     return false;
   };
-  return { symbols, unitKeys, unitMapKeys, isUnitWord };
+  return { ids, unitKeys, unitMapKeys, isUnitWord };
 }
 
 const esc = (k: string) => k.replace(/~/g, '~0').replace(/\//g, '~1');
-const NO_SYMBOL = 'is no PARAM_UNITS standard symbol';
+const NO_ID = 'is no PARAM_UNITS standard id';
 
 /**
- * Every unit `doc` states that is no standard symbol: a unit key's string (or `unknown`), each value of a map of
+ * Every unit `doc` states that is no standard id: a unit key's string (or `unknown`), each value of a map of
  * units, and each lookup value of a map row whose word (`word`, or a domain's `x-word`) is a unit word.
  */
 export function unitProblems(doc: Json, gate: UnitGate = unitGate()): UnitProblem[] & { checked: number } {
@@ -100,8 +100,8 @@ export function unitProblems(doc: Json, gate: UnitGate = unitGate()): UnitProble
   const hold = (pointer: string, key: string, v: Json, unknownOk: boolean, why: string) => {
     if (typeof v !== 'string') return;
     out.checked++;
-    if (gate.symbols.has(v) || (unknownOk && v === UNKNOWN)) return;
-    out.push({ pointer, key, value: v, message: `${pointer}: ${JSON.stringify(v)} ${NO_SYMBOL}${why}` });
+    if (gate.ids.has(v) || (unknownOk && v === UNKNOWN)) return;
+    out.push({ pointer, key, value: v, message: `${pointer}: ${JSON.stringify(v)} ${NO_ID}${why}` });
   };
   const visit = (v: Json, at: string): void => {
     if (v === null || typeof v !== 'object') return;
@@ -144,15 +144,15 @@ export function lineFinder(text: string): (key: string, value: string) => number
   };
 }
 
-/** A format map's rows (the data form's formatMap value): each unit lookup value that is no symbol (rule map-unit). */
+/** A format map's rows (the data form's formatMap value): each unit lookup value that is no id (rule map-unit). */
 export function mapUnitProblems(rows: Record<string, Json>, gate: UnitGate = unitGate()): string[] {
   const out: string[] = [];
   for (const [field, row] of Object.entries(rows)) {
     const w = row?.word;
     if (!w || typeof w.word !== 'string' || !w.values || !gate.isUnitWord(w.word)) continue;
     for (const [from, to] of Object.entries(w.values as Record<string, Json>)) {
-      if (typeof to === 'string' && gate.symbols.has(to)) continue;
-      out.push(`${field}: ${from} -> ${JSON.stringify(to)} ${NO_SYMBOL}: a unit with no standard id is a dropped row (plugin-hostd#215, decision 2)`);
+      if (typeof to === 'string' && gate.ids.has(to)) continue;
+      out.push(`${field}: ${from} -> ${JSON.stringify(to)} ${NO_ID}: a unit with no standard id is a dropped row (plugin-hostd#215, decision 2)`);
     }
   }
   return out;

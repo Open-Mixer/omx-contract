@@ -118,7 +118,7 @@
     "contract.verb.duplicate": { "text": "El verb {verb} està declarat per més d’un paquet o element. Un verb té un únic propietari: elimineu la declaració sobrant.", "by": "human" },
     "contract.role.duplicate": { "text": "El rol {role} està declarat per més d’un paquet o element. Un rol té un únic propietari: elimineu la declaració sobrant.", "by": "human" },
     "contract.verb.format": { "text": "El format del verb {verb} no comença pel mateix verb. Canvieu el nom del format perquè comenci per {verb}.", "by": "human" },
-    "contract.verb.host-unknown": { "text": "El verb {verb} anomena un host que no és cap paraula de VERB_HOSTS. Afegiu-lo allà, o corregiu l'implementedBy del verb.", "by": "human" },
+    "contract.verb.host-unknown": { "text": "El verb {verb} anomena un host que no és cap paraula de HOSTING_VERB_HOSTS. Afegiu-lo allà, o corregiu l'implementedBy del verb.", "by": "human" },
     "RESOURCE_BASES.declared": { "text": "El que el connector declara sobre si mateix.", "by": "machine", "model": "draft-prose", "source": "fea6785063827292b832a563e5a86da3d778514f7e703fa6b92f6d518f346f20" },
     "RESOURCE_KINDS.block-length": { "text": "Les longituds de bloc que accepta un connector.", "by": "machine", "model": "draft-prose", "source": "60030dc6dbb2eaa6aa9d35e57b09816a2c1df2704f20cef90f82c16a7fdc4cf3" },
     "RESOURCE_KINDS.disk-io": { "text": "Els bytes que un connector llegeix en carregar-se i mentre processa.", "by": "machine", "model": "draft-prose", "source": "95113d4c325166a67bef9bbf9b31f7d6685dcc10269c8507e9814d94bfb23173" },
@@ -152,9 +152,6 @@
     "RESOURCE_KINDS.latency": { "text": "Els fotogrames que un plugin retarda la seva sortida, per taxa i quàntum.", "by": "machine", "model": "draft-prose", "source": "2634919f0ca87c7a48fb120ea9ae854aaddf65b049ee21bb6eaf2c1d1ac9cd9b" },
     "RESOURCE_KINDS.memory": { "text": "La petjada per instància i el seu creixement durant un test.", "by": "machine", "model": "draft-prose", "source": "2bf258e8ed7b7af4aa40702ddf4ad27ee43941a05c2ca043f66394c1dac1ec74" },
     "RESOURCE_KINDS.scratch-memory": { "text": "La memòria que un plugin sol·licita al seu host per a la seva crida de procés.", "by": "machine", "model": "draft-prose", "source": "7d94ba7e1c6c7d9c3909825a50eb2f316d823260bc261d19b2fab4b58449ac34" },
-    "VERB_HOSTS.mod-host": { "text": "mod-host, l'host LV2 el protocol del qual parlen els altres.", "by": "machine", "model": "draft-prose", "source": "4e56109462279217eadda38642a18903cd5f4de2298004d386b5b7f8eb80489b" },
-    "VERB_HOSTS.omx-clap-host": { "text": "El worker d'omx-clap-core: un host per a plugins CLAP, i un LV2 a través del seu adaptador.", "by": "machine", "model": "draft-prose", "source": "10a8f2fb1f743371634c55c144ef88342347ab981e7b157fbbfc20cbe9b8d474" },
-    "VERB_HOSTS.plugin-hostd": { "text": "El daemon que col·loca els plugins en els workers i respon als verbs que afegeix ell mateix.", "by": "machine", "model": "draft-prose", "source": "0493bc3f63941f477be62985435b85ef31880db59edb614d5106e14883fdec17" },
     "contract.word.unknown": { "text": "{word} no és cap paraula ni nom de l’element {item}. Demaneu-ne un que l’element declari.", "by": "machine", "model": "lane-draft", "source": "7478051718abcabc0e48e0ed122946eebfbfdc2004344473efee9236a68ba44b" }
   }
 }

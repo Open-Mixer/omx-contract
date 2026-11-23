@@ -5,17 +5,22 @@
  * `validate` (a data directory) and the contract-directory reader refuse the same things. Each problem names its
  * CONTRACT_CODES code by name; `validate` reports it under the rule of the same name.
  */
-import { readFileSync } from 'node:fs';
 import type { Json } from './json.mjs';
 
-/** The item that lists the hosts a verb's implementedBy may name, and the file it ships in. */
-export const HOSTS_ITEM = 'VERB_HOSTS';
-const HOSTS_FILE = new URL('../data/verbs.json', import.meta.url);
+/**
+ * The item that lists the hosts a verb's implementedBy may name: omx-clap's hosting words
+ * (data/hosting/verb-hosts.json, installed as `<major>/omx-clap/hosting/verb-hosts.json`). omx-contract ships none.
+ */
+export const HOSTS_ITEM = 'HOSTING_VERB_HOSTS';
 
-/** The host words: those of the read's VERB_HOSTS, else of the one this reader ships with. */
+/** Why a read with verbs and no host list is refused: the hosts are read from the read only. */
+export const NO_HOSTS = `the read declares verbs but no words item ${HOSTS_ITEM} (omx-clap's hosting/verb-hosts.json): a verb's hosts are read there and nowhere else`;
+
+/** The host words of the read's HOSTS_ITEM, in their order; undefined when the read holds no such words item. */
 export function hostWords(items) {
-  const words = items.get(HOSTS_ITEM)?.item.words ?? JSON.parse(readFileSync(HOSTS_FILE, 'utf8'))[HOSTS_ITEM].words;
-  return Object.values(words as Record<string, Json>).map((w) => w.word);
+  const it = items.get(HOSTS_ITEM)?.item;
+  if (it?.kind !== 'words') return undefined;
+  return Object.values((it.words ?? {}) as Record<string, Json>).map((w) => w.word);
 }
 
 /** Every verb of the read, in item order: `[{ item, key, verb, rel, pkg }]`. */
@@ -31,15 +36,21 @@ export function verbsOf(items) {
 /**
  * The problems of every verb of `items` (a read's items, `Map<name, { name, rel, item, pkg }>`):
  * `[{ name, rel, item, message }]`, `name` the CONTRACT_CODES name: verbDuplicate (one word declared twice),
- * verbFormat (a format whose first word is not the verb), verbHostUnknown (an implementedBy key that is no host word),
+ * verbFormat (a format whose first word is not the verb), verbHostUnknown (an implementedBy key that is no host word,
+ * or verbs in a read with no HOSTS_ITEM),
  * verbCodeUnknown (a code whose item is no codes item, or carries no such name). A code whose item no file declares is
  * the reference machinery's (contract.ref.unresolved), and is left to it.
  */
 export function verbProblems(items) {
   const out: Json[] = [];
-  const hosts = hostWords(items);
+  const verbs = verbsOf(items);
+  const hosts = hostWords(items) ?? [];
+  if (verbs.length && !hostWords(items)) {
+    const { item, key, rel } = verbs[0];
+    return [{ name: 'verbHostUnknown', rel, item: `${item}.${key}`, message: NO_HOSTS }];
+  }
   const owners = new Map();
-  for (const { item, key, verb, rel, pkg } of verbsOf(items)) {
+  for (const { item, key, verb, rel, pkg } of verbs) {
     const at = `${item}.${key}`;
     const say = (name, message) => out.push({ name, rel, item: at, message });
     const word = verb.verb;

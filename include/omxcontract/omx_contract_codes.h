@@ -33,7 +33,7 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_REF_UNDECLARED = 13, ///< `contract.ref.undeclared`: a reference names an item of a package the file does not require
   OMX_CONTRACT_CODE_VERB_DUPLICATE = 14, ///< `contract.verb.duplicate`: two verbs items, of one package or two, declare one verb: a verb has one owner
   OMX_CONTRACT_CODE_VERB_FORMAT = 15, ///< `contract.verb.format`: a verb's format does not start with the verb it declares
-  OMX_CONTRACT_CODE_VERB_HOST_UNKNOWN = 16, ///< `contract.verb.host-unknown`: a verb's implementedBy names a host that is no word of VERB_HOSTS
+  OMX_CONTRACT_CODE_VERB_HOST_UNKNOWN = 16, ///< `contract.verb.host-unknown`: a verb's implementedBy names a host that is no word of HOSTING_VERB_HOSTS
   OMX_CONTRACT_CODE_VERB_CODE_UNKNOWN = 17, ///< `contract.verb.code-unknown`: a verb's code names an item that is no codes item, or a name that item does not carry
   OMX_CONTRACT_CODE_ROLE_DUPLICATE = 18, ///< `contract.role.duplicate`: two roleMeanings items, of one package or two, declare one role: a role has one owner
   OMX_CONTRACT_CODE_PACKAGE_ABSENT = 19, ///< `contract.package.absent`: a package the consumer or a file requires is not installed

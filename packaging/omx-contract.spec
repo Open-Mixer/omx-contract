@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.23.0
+Version: 3.22.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -306,7 +306,7 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
-* Sun Nov 22 2026 Pau Aliagas <linuxnow@gmail.com> - 3.23.0-1
+* Mon Nov 23 2026 Pau Aliagas <linuxnow@gmail.com> - 3.22.0-1
 - The unit codes of org.openmixer.param-contract/1 (OMX_PARAM_CONTRACT_UNITS,
   data/param-contract.json) and their header omxcontract/omx_param_units.h move
   to omx-clap in one step (V23d); a consumer that includes the header here
@@ -315,6 +315,10 @@ a floor, the lowest release whose functions it calls.
   ids the CLAP extension encodes, each a copy of its PARAM_UNITS word.
 - A sheet of strings, and a header's strings section: the X-macro of a
   code-to-id map over the defines a sibling header renders.
+- VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts a
+  verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the verbs
+  validator and render read them from the read only, refusing by name a read
+  that declares verbs and no HOSTING_VERB_HOSTS.
 
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
 - The vocabulary sorting pass (S0): each item lives with its owner.
@@ -338,10 +342,6 @@ a floor, the lowest release whose functions it calls.
 - omx_vocabulary.h spells the PARAM_UNITS X-macro OMX_PARAM_UNITS_WORDS(X): the
   released omx_param_units.h defines OMX_PARAM_UNITS(X), and the two headers
   together broke the build under -Werror.
-- VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts a
-  verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the verbs
-  validator and render read them from the read only, refusing by name a read
-  that declares verbs and no HOSTING_VERB_HOSTS.
 
 * Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.2-1
 - The omx-contract command run through a symlink (npx, npm run,

@@ -86,8 +86,8 @@ test('sabotage: a served set that is no prefix of PARAM_UNITS is refused by name
   assert.doesNotThrow(() => encodedItem(servedIds({ db: 'dB', dbfs: 'dBFS' }, all), all));
 });
 
-test('the item first ships in 3.23.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
-  assert.equal(doc().info.version, '3.23.0');
+test('the item first ships in 3.22.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
+  assert.equal(doc().info.version, '3.22.0');
   assert.equal(doc().components.schemas[ITEM]['x-since'], doc().info.version);
   // the installed domain is where validate reads x-since: a contract directory holding the param domain, as installed
   const dir = mkdtempSync(join(tmpdir(), 'omx-clap-encoded-since-'));
@@ -104,7 +104,7 @@ test('the item first ships in 3.23.0, and an x-since above the domain\'s info.ve
       sh('--domain', src, root);
       const r = validate(root);
       if (!since) assert.doesNotMatch(r.stdout + r.stderr, /domain-x-since/, r.stdout + r.stderr);
-      else assert.match(r.stderr, /param\/param\.json: PARAM_UNITS_CLAP_ENCODED: domain-x-since: x-since 3\.24\.0 is above the document's info\.version 3\.23\.0/, r.stdout + r.stderr);
+      else assert.match(r.stderr, /param\/param\.json: PARAM_UNITS_CLAP_ENCODED: domain-x-since: x-since 3\.24\.0 is above the document's info\.version 3\.22\.0/, r.stdout + r.stderr);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });

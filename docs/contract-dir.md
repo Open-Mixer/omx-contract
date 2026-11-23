@@ -307,9 +307,13 @@ package that owns the relation declares it; the tool names none.
 ## A package's verbs
 
 A host's verbs (the lines of mod-host's protocol a controller sends, the replies and refusals they answer, and what
-each host owes them) are declared by the package that owns them, in an item of kind `verbs` in a file of its own
-directory, `<contractdir>/3/<package>/`. A package adds a verb by adding the file or an entry to it and installing it;
-omx-contract changes for none of it.
+each host owes them) are declared by the package that owns them: in an item of kind `verbs` in a file of its own
+directory, `<contractdir>/3/<package>/`, as below, or in a words item of `x-kind` `verbs` of a domain it owns. The
+protocol's verbs are the domain `plugin-hostd` of plugin-hostd-protocol, `contract.d/plugin-hostd/plugin-hostd.json`
+(sorting pass V16): PLUGIN_HOSTD_REPLY_CODES, PLUGIN_HOSTD_VERBS, PLUGIN_HOSTD_PROTOCOL_VERBS and
+PLUGIN_HOSTD_PROTOCOL_EXTENSIONS, under the names they had. The hosts a verb's `implementedBy` names are omx-clap's
+`HOSTING_VERB_HOSTS`, in its hosting data (V29). A package adds a verb by adding the file, the domain word or an entry
+and installing it; omx-contract changes for none of it.
 
 ```json
 { "$schema": "../schema/omx-contract.schema.json",
@@ -332,7 +336,7 @@ omx-contract changes for none of it.
 | `format` | The line as mod-host's `protocol_add_command` takes it: the verb, then `%i` (an integer), `%f` (a number) or `%s` (a word) per argument, and a last `...` for the words that may follow. Its first word is the verb. |
 | `reply` | The reply as the protocol writes it: `resp 0`, `resp <count>`, or `resp 0` and its columns. |
 | `codes` | The refusals it answers besides the reply, each `{ "ref": "<ITEM>.<name>" }` to a code of a `codes` item. A reply code is `reply.<group>.<reason>` and carries `resp`, the negative number of `resp <n>`. The codes of another package are named in `requires`, as any reference is. |
-| `implementedBy` | What each host owes the verb, by a word of `VERB_HOSTS` (`data/verbs.json`: `plugin-hostd`, `omx-clap-host`, `mod-host`): `required` (answered as its grammar says), `optional` (answered or refused, never misread) or `unsupported` (refused on purpose). A host left out owes it nothing. A new host is a word added to `VERB_HOSTS`, an omx-contract minor. |
+| `implementedBy` | What each host owes the verb, by a word of `HOSTING_VERB_HOSTS`, omx-clap's hosting words (`hosting/verb-hosts.json`, installed as `3/omx-clap/hosting/verb-hosts.json`: `plugin-hostd`, `omx-clap-host`, `mod-host`), read from the read only: a read with verbs and no such item is refused, `contract.verb.host-unknown`: `required` (answered as its grammar says), `optional` (answered or refused, never misread) or `unsupported` (refused on purpose). A host left out owes it nothing. A new host is a word added to `HOSTING_VERB_HOSTS`, an omx-clap minor; omx-contract ships no host list. |
 | `since`, `doc` | The owner's release that first carried the verb, and one line of prose. |
 
 `MOD_HOST_REPLY_CODES` is a codes item of the same package, `"paramSymbolInvalid": { "code":
@@ -437,7 +441,7 @@ codes). A word's `x-name` is its key, its `const` the code and its place from 0 
 | `contract.ref.undeclared` | A reference names an item of a package the file does not require. |
 | `contract.verb.duplicate` | Two verbs items, of one package or two, declare one verb. |
 | `contract.verb.format` | A verb's format does not start with its verb. |
-| `contract.verb.host-unknown` | A verb's `implementedBy` names a host that is no word of `VERB_HOSTS`. |
+| `contract.verb.host-unknown` | A verb's `implementedBy` names a host that is no word of `HOSTING_VERB_HOSTS`, or the read declares verbs and no `HOSTING_VERB_HOSTS`. |
 | `contract.verb.code-unknown` | A verb's code names an item that is no codes item, or a name that item does not carry. |
 | `contract.role.duplicate` | Two roleMeanings items, of one package or two, declare one role. |
 | `contract.package.absent` | A package the consumer or a file requires is not installed. |

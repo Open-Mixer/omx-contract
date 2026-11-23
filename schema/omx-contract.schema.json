@@ -967,7 +967,7 @@
         },
         "implementedBy": {
           "type": "object",
-          "description": "What each host owes the verb, by a word of VERB_HOSTS: required, answered as its grammar says; optional, answered or refused, never misread; unsupported, refused on purpose. A host the map leaves out owes it nothing, as unsupported.",
+          "description": "What each host owes the verb, by a word of HOSTING_VERB_HOSTS (omx-clap's hosting words): required, answered as its grammar says; optional, answered or refused, never misread; unsupported, refused on purpose. A host the map leaves out owes it nothing, as unsupported.",
           "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
           "additionalProperties": { "enum": ["required", "optional", "unsupported"] },
           "minProperties": 1

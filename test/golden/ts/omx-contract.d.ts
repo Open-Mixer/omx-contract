@@ -324,36 +324,6 @@ export declare const RESOURCE_HINTS: {
 };
 
 /**
- * The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing.
- *
- * Why: A host's verbs were typed twice, in plugin-hostd's protocol.h and in omx-clap-core's command table; a verbs item declares them once, and the hosts it names are a closed list, so a misspelt host is refused rather than read as a host that owes nothing.
- * @see data/verbs.json
- */
-export declare const VERB_HOSTS: {
-  readonly pluginHostd: {
-    readonly word: "plugin-hostd";
-    readonly doc: "The daemon that places plugins in workers and answers the verbs it adds itself.";
-    readonly text: {
-      readonly en: "The daemon that places plugins in workers and answers the verbs it adds itself.";
-    };
-  };
-  readonly omxClapHost: {
-    readonly word: "omx-clap-host";
-    readonly doc: "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.";
-    readonly text: {
-      readonly en: "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.";
-    };
-  };
-  readonly modHost: {
-    readonly word: "mod-host";
-    readonly doc: "mod-host, the LV2 host whose protocol the others speak.";
-    readonly text: {
-      readonly en: "mod-host, the LV2 host whose protocol the others speak.";
-    };
-  };
-};
-
-/**
  * How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`.
  * @see contract.d/param/param.json
  */
@@ -928,12 +898,6 @@ export declare const RESOURCE_BASES_WORDS: readonly ["declared", "measured", "pr
  * @see data/resource-profile.json
  */
 export declare const RESOURCE_HINTS_WORDS: readonly ["footprint-at-rest", "footprint-per-voice", "shared-load", "threads-spawned", "streams-from-disk", "opens-sockets", "activate-time"];
-
-/**
- * The words of VERB_HOSTS, in their declared order.
- * @see data/verbs.json
- */
-export declare const VERB_HOSTS_WORDS: readonly ["plugin-hostd", "omx-clap-host", "mod-host"];
 
 /**
  * The words of PARAM_UNITS, in their declared order.

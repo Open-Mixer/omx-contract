@@ -20,7 +20,7 @@ import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs'
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, installParamDomain, installVerbHosts, resolvedOf, ROOT, texts, VERB_HOSTS_FIXTURE } from './helpers.mjs';
+import { DATA, installParamDomain, resolvedOf, ROOT, texts } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-verbs-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -44,7 +44,6 @@ function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
-  installVerbHosts(root);
   install(PKG, FIXTURE, root);
   return root;
 }
@@ -58,9 +57,6 @@ function fixtureWith(edit) {
   for (const [f, doc] of Object.entries(files)) writeFileSync(join(dir, f), `${JSON.stringify(doc, null, 2)}\n`);
   return dir;
 }
-
-/** The hosting fixture's document, parsed. */
-const hostingDoc = () => JSON.parse(readFileSync(join(VERB_HOSTS_FIXTURE, 'hosting/verb-hosts.json'), 'utf8'));
 
 const codesRaised = new Set();
 /** The code the read refuses with; the read returns nothing. */
@@ -80,7 +76,6 @@ function brokenDir(edit, extra = () => {}) {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
-  installVerbHosts(root);
   install(PKG, fixtureWith(edit), root);
   extra(root);
   return root;
@@ -134,7 +129,7 @@ test('rendered from the installed directory: the C header, the package header (c
   assert.equal(readFileSync(join(tsDir, 'omx-contract.js'), 'utf8'), ts.text);
   const mod = await import(`file://${join(tsDir, 'omx-contract.js')}`);
   assert.equal(mod.HOST_VERBS.chain.format, 'chain %i %i ...');
-  assert.deepEqual(mod.HOSTING_VERB_HOSTS_WORDS, ['plugin-hostd', 'omx-clap-host', 'mod-host']);
+  assert.deepEqual(mod.VERB_HOSTS_WORDS, ['plugin-hostd', 'omx-clap-host', 'mod-host']);
   const json = JSON.parse(renderJson(resolved, '0.0.0')[0].text);
   assert.equal(json.items.HOST_VERBS.value.paramInfo.reply, 'resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>');
   assert.equal(json.items.HOST_VERBS.value.paramInfo.codes[0].resp, -103);
@@ -189,9 +184,9 @@ test('an unknown host word is refused: contract.verb.host-unknown', () => {
 
 test('an unknown code is refused by code: contract.verb.code-unknown for a name or an item that is no code, contract.ref.* for an item no file declares or requires', () => {
   assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PLUGIN_HOSTD_REPLY_CODES.chainGone'; })), CONTRACT_CODES.verbCodeUnknown);
-  const words = brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'RESOURCE_BASES.declared'; });
+  const words = brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'VERB_HOSTS.pluginHostd'; });
   assert.equal(refusalOf(words), CONTRACT_CODES.verbCodeUnknown);
-  assert.throws(() => loadContractDir({ dir: words }), /code RESOURCE_BASES\.declared: RESOURCE_BASES is a words item, no codes item/);
+  assert.throws(() => loadContractDir({ dir: words }), /code VERB_HOSTS\.pluginHostd: VERB_HOSTS is a words item, no codes item/);
   assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH_CODES.chainDuplicate'; })), CONTRACT_CODES.refUnresolved);
   // the codes of another package, named without requiring it
   const root = brokenDir((f) => { delete f['errors.json'].PLUGIN_HOSTD_REPLY_CODES; }, (r) => {
@@ -215,7 +210,6 @@ test('validate refuses the same in a data directory, each under its rule', () =>
     const docs = JSON.parse(JSON.stringify(fx));
     edit(docs);
     for (const [f, d] of Object.entries(docs)) t[`data/fixture-${f}`] = JSON.stringify({ ...d, $schema: base.$schema });
-    t['data/fixture-verb-hosts.json'] = JSON.stringify({ ...hostingDoc(), $schema: base.$schema });
     return validateData(loadData(null, t)).map((p) => p.rule);
   };
   assert.deepEqual(read(() => {}), []);

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A domain renders as its data form does (docs/render.md, omx-contract#139): omx-clap-core's hosting data, converted
-// into a domain, rendered through `render --with-domain` beside the files still in data/ (verbs.json, and the hosts its
-// verbs name, hosting/verb-hosts.json), gives the five files of the pure data render byte for byte.
+// into a domain, rendered through `render --with-domain` beside the files still in data/ (verbs.json), gives the five
+// files of the pure data render byte for byte.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import test from 'node:test';
-import { ROOT, VERB_HOSTS_FIXTURE } from './helpers.mjs';
+import { ROOT } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/hosting-data');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
@@ -43,8 +43,6 @@ function scratch() {
   const data = join(dir, 'data');
   mkdirSync(data);
   cpSync(join(FIX, 'verbs.json'), join(data, 'verbs.json'));
-  // the hosts the verbs name (V29), in both reads: omx-clap's hosting/verb-hosts.json
-  for (const d of [join(dir, 'pure', 'data'), data]) cpSync(join(VERB_HOSTS_FIXTURE, 'hosting'), join(d, 'hosting'), { recursive: true });
   const dom = join(dir, 'hosting');
   mkdirSync(dom);
   return { dir, data, dom };

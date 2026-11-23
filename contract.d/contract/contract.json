@@ -181,9 +181,9 @@
           {
             "const": "contract.verb.host-unknown",
             "title": "verbHostUnknown",
-            "description": "a verb's implementedBy names a host that is no word of HOSTING_VERB_HOSTS",
+            "description": "a verb's implementedBy names a host that is no word of VERB_HOSTS",
             "x-code": 15,
-            "x-text": "Verb {verb} names a host that is not a word of HOSTING_VERB_HOSTS. Add the host there, or fix the verb’s implementedBy.",
+            "x-text": "Verb {verb} names a host that is not a word of VERB_HOSTS. Add the host there, or fix the verb’s implementedBy.",
             "x-args": [
               "verb"
             ],

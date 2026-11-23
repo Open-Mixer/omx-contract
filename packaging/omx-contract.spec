@@ -328,10 +328,6 @@ a floor, the lowest release whose functions it calls.
 - omx_vocabulary.h spells the PARAM_UNITS X-macro OMX_PARAM_UNITS_WORDS(X): the
   released omx_param_units.h defines OMX_PARAM_UNITS(X), and the two headers
   together broke the build under -Werror.
-- VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts a
-  verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the verbs
-  validator and render read them from the read only, refusing by name a read
-  that declares verbs and no HOSTING_VERB_HOSTS.
 
 * Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 3.20.2-1
 - The omx-contract command run through a symlink (npx, npm run,

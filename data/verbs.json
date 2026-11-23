@@ -1,9 +1,6 @@
 {
-  "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": {
-    "omx-contract-schema": ">= 3.12.0"
-  },
-  "HOSTING_VERB_HOSTS": {
+  "$schema": "../schema/omx-contract.schema.json",
+  "VERB_HOSTS": {
     "kind": "words",
     "since": "3.3.0",
     "doc": "The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing.",

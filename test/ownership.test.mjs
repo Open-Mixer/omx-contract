@@ -82,7 +82,7 @@ test('the override family enum is on the moving-out list, the side-file fields a
   const moving = read('ownership/moving-out.txt');
   const owned = read('ownership/owned.txt');
   assert.match(moving, /^schema\/omx-contract\.schema\.json#.*override.*family.*enum$/m);
-  assert.doesNotMatch(moving, /^HOSTING_VERB_HOSTS$/m, 'the verb hosts left with V29: omx-clap\'s, on no list of omx-contract');
+  assert.match(moving, /^VERB_HOSTS$/m);
   for (const n of ['ulp', 'doc', 'laws', 'render']) {
     assert.ok(!new RegExp(`^${n}$`, 'm').test(owned + moving), `${n} is no item`);
   }

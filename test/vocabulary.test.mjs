@@ -60,7 +60,7 @@ test('a term of the wrong format\'s shape, or without the citation its status as
 });
 
 test('an item named as a words item\'s ts export is refused', () => {
-  assert.ok(problems(texts((d) => { d[R].RESOURCE_BASES_WORDS = { kind: 'scalar', doc: 'x', unit: '', value: 1 }; })).some((p) => p.rule === 'words-export'));
+  assert.ok(problems(texts((d) => { d[R].RESOURCE_BASES_WORDS = { kind: 'scalar', doc: 'x', unit: 'none', value: 1 }; })).some((p) => p.rule === 'words-export'));
 });
 
 test('a word whose C name meets a words item\'s _COUNT is refused', () => {

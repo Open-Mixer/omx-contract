@@ -433,7 +433,7 @@ function cmdSemver(argv) {
  * A problem prints its CONTRACT_CODES code first; links that lie in a tree not named by `--at` are reported unchecked.
  */
 /**
- * `units --check <path>...`: every unit the JSON files under each path state is a PARAM_UNITS standard symbol
+ * `units --check <path>...`: every unit the JSON files under each path state is a PARAM_UNITS standard id
  * (lib/units.mjs; omx-contract#193). An owner runs it over its own files in its own CI, whatever their shape
  * (docs/unit-gate.md). Exit 1 names file:line, the JSON pointer and the value; exit 2 is a path that is absent,
  * a file that is no JSON, or files that state no unit at all (a wrong path is never a pass).

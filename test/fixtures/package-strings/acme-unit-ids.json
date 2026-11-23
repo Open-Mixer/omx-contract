@@ -15,6 +15,6 @@
   "ACME_UNIT_IDS": {
     "kind": "sheet",
     "doc": "The standard unit id (a PARAM_UNITS const) of each acme token: the fixture of a code-to-id map, never an owner's data.",
-    "value": { "none": "none", "db": "dB", "pc": "percent", "semitone12TET": "st", "degree": "deg", "dbPerOct": "dB-oct" }
+    "value": { "none": "none", "db": "dB", "pc": "percent", "semitone12TET": "st", "degree": "deg", "dbPerOct": "dBPerOct" }
   }
 }

@@ -263,6 +263,9 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || domains.has(name) || withDomains.some((w) => w.name === name)) continue;
       const path = join(ddir, `${domainLeaf(name)}.json`);
       const at = domainPath(name);
+      // a package-named directory is a domain only when it holds <name>/<name>.json; one of nested domains only
+      // (plugin-hostd's <contractdir>/plugin-hostd/) is read as before (ruling %4 2026-11-24)
+      if (!existsSync(path) && packages.has(name)) continue;
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
       const present = filesUnder(ddir).filter((f) => !(f.startsWith('catalogs/') && f.endsWith('.json')));
       if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);

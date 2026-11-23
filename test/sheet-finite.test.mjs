@@ -7,7 +7,7 @@ import { loadData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { DATA } from './helpers.mjs';
 
-const scalar = (value) => ({ kind: 'scalar', doc: 'a scalar', unit: '', value });
+const scalar = (value) => ({ kind: 'scalar', doc: 'a scalar', unit: 'none', value });
 const sheet = (value) => ({ kind: 'sheet', doc: 'a sheet', value });
 const finite = (items) => validateData(loadData(null, { 'data/x.json': JSON.stringify({ $schema: '../schema/omx-contract.schema.json', ...items }) }))
   .filter((p) => p.rule === 'finite').map((p) => `${p.item}: ${p.message}`);
@@ -17,7 +17,7 @@ test('a sheet whose leaves all resolve to finite numbers passes, nested and by r
 });
 
 test('a leaf that resolves to anything but a finite number is refused, wherever it sits and whatever the sheet is named', () => {
-  const items = { L: { kind: 'list', doc: 'a list', unit: '', values: [1, 2] }, B: scalar(true), S: { kind: 'set', doc: 'a set', ids: ['x', 'y'] } };
+  const items = { L: { kind: 'list', doc: 'a list', unit: 'none', values: [1, 2] }, B: scalar(true), S: { kind: 'set', doc: 'a set', ids: ['x', 'y'] } };
   assert.deepEqual(finite({ ...items, SOME_TABLE: sheet({ a: 1, b: { ref: 'L' } }) }), ['SOME_TABLE: SOME_TABLE.b resolves to [1,2]']);
   assert.deepEqual(finite({ ...items, OTHER: sheet({ deep: { er: { ref: 'B' } } }) }), ['OTHER: OTHER.deep.er resolves to true']);
   assert.deepEqual(finite({ ...items, THIRD: sheet({ ids: { ref: 'S' } }) }), ['THIRD: THIRD.ids resolves to ["x","y"]']);

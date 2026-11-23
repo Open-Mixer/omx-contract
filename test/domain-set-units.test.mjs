@@ -98,3 +98,10 @@ test('refused by name: an x-dimension that is no word of x-dimensions, one with 
   assert.match(refusal((s) => { s.SAMPLE_UNITS['x-dimensions'] = 'SAMPLE_MASSES'; }), /x-dimensions "SAMPLE_MASSES" is no words schema/);
   assert.match(refusal((s) => { s.SAMPLE_UNITS.oneOf[0]['x-symbol'] = 1; }), /x-symbol is not a string/);
 });
+
+test('refused by name: a unit word whose id is not camelCase, a "-" or a "/" in it (docs/units.md, 2026-11-23)', () => {
+  for (const bad of ['dB-oct', 'dB/oct', 'ns per sample', '9db']) {
+    const said = refusal((s) => { s.SAMPLE_UNITS.oneOf[0].const = bad; });
+    assert.ok(String(said).includes(`unit id ${JSON.stringify(bad)} is not camelCase`), said);
+  }
+});

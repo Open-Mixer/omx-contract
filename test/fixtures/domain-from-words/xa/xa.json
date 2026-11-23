@@ -34,7 +34,7 @@
         "description": "A number of domain xa, no words item.",
         "x-since": "1.0.0",
         "x-kind": "scalar",
-        "x-unit": "",
+        "x-unit": "none",
         "x-value": 3
       }
     }

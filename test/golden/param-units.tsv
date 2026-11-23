@@ -9,9 +9,9 @@ cents	cents	cents	pitch	param
 st	st	st	pitch	param
 percent	percent	%	none	param
 none	none		none	param
-dbPerOct	dB-oct	dB/oct	slope	param
+dbPerOct	dBPerOct	dB/oct	slope	param
 lufs	LUFS	LUFS	loudness	param
-dbPerS	dB-s	dB/s	rate	param
+dbPerS	dBPerS	dB/s	rate	param
 dbtp	dBTP	dBTP	level	descriptor
 dbu	dBu	dBu	level	descriptor
 lu	LU	LU	loudness	descriptor

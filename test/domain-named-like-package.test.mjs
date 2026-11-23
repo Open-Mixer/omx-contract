@@ -111,3 +111,19 @@ test('#190: a floor on a domain named after its owner is held to the domain vers
   assert.equal(above.status, 1, 'the package is 0.9.0: a floor of 1.0.0 is not met by the domain version');
   assert.match(above.stderr, /contract\.package\.too-old/);
 });
+
+test('#199 (ruling %4 2026-11-24): a package-named directory of nested domains only, as plugin-hostd installs its tree, is read as before', () => {
+  // plugin-hostd's shape: the package under 3/, and <root>/plugin-hostd/ holding clap, grouping, ... with no plugin-hostd.json
+  const root = contractDir();
+  classic(root, '1.0.0', 'OWNED_EXTRA');
+  const src = join(SCRATCH, `src-${n++}`, 'contract.d', 'owned', 'clap');
+  mkdirSync(src, { recursive: true });
+  const nested = domain();
+  nested.$id = 'https://openmixer.org/contract/owned/clap';
+  nested.components.schemas = { OWNED_CLAP_MODES: { ...nested.components.schemas.OWNED_MODES } };
+  writeFileSync(join(src, 'clap.json'), `${JSON.stringify(nested, null, 2)}\n`);
+  execFileSync('sh', [SH, '--domain', src, root], { stdio: 'ignore' });
+  const r = validate(root, '--needs', 'owned@>= 1.0.0');
+  assert.equal(r.status, 0, `a directory with no owned/owned.json is no package-named domain: ${r.stderr}`);
+  assert.doesNotMatch(r.stderr, /contract\.manifest\.absent/);
+});

@@ -57,7 +57,7 @@
         2,
         3
       ],
-      "unit": "",
+      "unit": "none",
       "doc": "The ripple factors: an invented integer list."
     }
   ]

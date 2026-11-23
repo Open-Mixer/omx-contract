@@ -186,10 +186,10 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - A domain is named after the package that owns it, or shares no name with an installed package (ruling V16). A domain
   named like a package under `<schema major>/` is read whatever its name, never skipped (#125): its `info.x-owner` must
   be that package, or it is refused by name (`contract.manifest.mismatch`), and an item that the package's files and the
-  domain both declare is `contract.item.duplicate`, as for any two files. A floor on that name is the PACKAGE's: it is
-  held to the package's manifest `version`, never to the domain's `info.version` (#190). So an owner whose domain bears
-  its name installs its manifest beside it (`--owner`, below), and a floor on a domain named after its owner, read with
-  no manifest of that owner, is `contract.package.absent`.
+  domain both declare is `contract.item.duplicate`, as for any two files. A floor on that name is held to the
+  domain's `info.version` when the domain is installed alone (`--domain` only, as plugin-db and plugin-hostd-protocol
+  install theirs; ruling %4 2026-11-23, #190), and to the owner's manifest `version` when that owner's manifest is
+  installed beside it (`--owner`, below): the manifest, where there is one, is the package's version.
 - `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
   refused (`contract.manifest.invalid`).
 - `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`) and whose

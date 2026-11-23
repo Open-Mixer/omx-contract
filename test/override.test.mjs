@@ -38,7 +38,9 @@ test('the schema: the override words, one major, a closed list of keys', () => {
   const arms = [
     (d) => { d.verdict = 'good'; },
     (d) => { delete d.plugin; },
-    (d) => { d.family = 'synth'; },
+    (d) => { d.family = 'Synth'; },
+    (d) => { d.family = 'fake_family'; },
+    (d) => { d.family = ''; },
     (d) => { d.controls['5'].meaning = 'unknown'; },
     (d) => { d.controls['5'].meaning = 'on'; },
     (d) => { d.controls['5'].travel.unit = 'unknown'; },
@@ -56,7 +58,15 @@ test('the schema: the override words, one major, a closed list of keys', () => {
     arm(d);
     assert.ok(overrideSchemaProblems(d).length > 0, `arm ${i}`);
   }
-  assert.deepEqual(read('schema/omx-contract.schema.json').$defs.override.properties.family.enum, ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility'].map((w) => w), 'the families are PANEL_FAMILIES');
+  // Z1 (#161): which families exist is omx-panel's (its describe); here a family is an identifier, any one
+  const family = read('schema/omx-contract.schema.json').$defs.override.properties.family;
+  assert.equal(family.enum, undefined, 'no copy of PANEL_FAMILIES');
+  assert.equal(family.pattern, '^[a-z][A-Za-z0-9]*$');
+  for (const f of ['synth', 'eq', 'stereoTools']) {
+    const d = override('good');
+    d.family = f;
+    assert.deepEqual(overrideSchemaProblems(d), [], f);
+  }
   assert.deepEqual(read('schema/omx-contract.schema.json').$defs.overrideTravel.properties.scale.enum, PARAM_SCALE_IDS);
 });
 

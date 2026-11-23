@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets and scalars under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; x-dimensions and x-dimension likewise; a set's x-default being one of its words; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets, scalars, terms items and map items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; x-dimensions and x-dimension likewise; a set's x-default being one of its words; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); a map row's const being its title and the outcome and cover rules a schema states again by name; a map row's term link resolving to a term of a terms item of the map's format, which the read of all the data checks (validate, rule map-term); and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": ["$schema", "$id", "info", "components"],
   "additionalProperties": false,
@@ -38,11 +38,11 @@
       "additionalProperties": false,
       "properties": {
         "schemas": {
-          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet, a scalar or a terms item.",
+          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet, a scalar, a terms item or a map item.",
           "type": "object",
           "minProperties": 1,
           "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
-          "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/words" }, { "$ref": "#/$defs/range" }, { "$ref": "#/$defs/sheet" }, { "$ref": "#/$defs/scalar" }, { "$ref": "#/$defs/terms" }] }
+          "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/words" }, { "$ref": "#/$defs/range" }, { "$ref": "#/$defs/sheet" }, { "$ref": "#/$defs/scalar" }, { "$ref": "#/$defs/terms" }, { "$ref": "#/$defs/map" }] }
         }
       }
     }
@@ -147,6 +147,59 @@
         "x-deprecated": { "const": true },
         "oneOf": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/term" } }
       }
+    },
+    "map": {
+      "description": "A map item (omx-contract#191, owner ruling 2026-11-23): one format's mapping table, every field a scan of the format reads, each a row keyed by its source field; rebuilt as the data form's formatMap item (docs/descriptors.md), whose rows validate checks. The runtime readers serve it as words, the words the source keys.",
+      "type": "object",
+      "required": ["description", "x-kind", "x-format", "oneOf"],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "type": "string" },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": { "const": "map" },
+        "x-file": { "type": "string", "pattern": "\\.json$" },
+        "x-source": { "type": "object" },
+        "x-format": { "description": "The format whose fields the rows map (lv2, clap), the data form's format.", "type": "string" },
+        "oneOf": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/mapRow" } }
+      }
+    },
+    "mapRow": {
+      "description": "One row of a map: const and title its source key, the field as the format names it (units:unit, clap_param_info.min_value, omx_clap_panel_display.meter_ids[0]); x-code its place; exactly one outcome, x-word, x-extension or x-dropped; exactly one cover, x-term or x-from; description its doc. The data form's row is { term, from, word, extension, dropped, doc }.",
+      "type": "object",
+      "required": ["const", "title", "x-code"],
+      "additionalProperties": false,
+      "properties": {
+        "const": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\[[0-9]+\\])?([.:#/][A-Za-z0-9_][A-Za-z0-9_-]*(\\[[0-9]+\\])?)*$" },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "x-code": { "type": "integer", "minimum": 0 },
+        "x-term": { "description": "The term link, <TERMS item>#<term>: the term of a terms item of the map's format (an x-kind terms item, its x-spec the standard) the field is; the data form's term.", "type": "string", "pattern": "^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$" },
+        "x-from": { "description": "For a field no terms item holds: where it is defined, a link <path>#<symbol>[.<field>] or an http(s) URL; the data form's from.", "type": "string", "minLength": 1 },
+        "x-word": {
+          "description": "The outcome descriptor word: the word the field becomes, the transform that converts it and that transform's data, the lookup sub-table values (a code token or unit IRI to its value; a unit's value is a PARAM_UNITS id spelled as its standard symbol, plugin-hostd#215 decision 2) or factor. Never code. The data form's word, verbatim.",
+          "type": "object",
+          "required": ["word", "transform"],
+          "additionalProperties": false,
+          "properties": {
+            "word": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*(\\[\\])?(\\.[a-z][A-Za-z0-9]*(\\[\\])?)*$" },
+            "transform": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+            "values": { "type": "object", "additionalProperties": { "anyOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }] }, "minProperties": 1 },
+            "factor": { "type": "number" }
+          },
+          "not": { "required": ["values", "factor"], "properties": { "values": true, "factor": true } }
+        },
+        "x-extension": { "description": "The outcome extension passthrough: the field is carried in the descriptor's extension bag; the data form's extension.", "const": true },
+        "x-dropped": {
+          "description": "The outcome dropped-with-ruling: the field is read and dropped, by the ruling named (a plugin unit with no standard id is such a row, plugin-hostd#215 decision 2); the data form's dropped.",
+          "type": "object",
+          "required": ["ruling"],
+          "additionalProperties": false,
+          "properties": { "ruling": { "type": "string", "minLength": 1 } }
+        }
+      },
+      "oneOf": [{ "required": ["x-word"], "properties": { "x-word": true } }, { "required": ["x-extension"], "properties": { "x-extension": true } }, { "required": ["x-dropped"], "properties": { "x-dropped": true } }],
+      "allOf": [{ "oneOf": [{ "required": ["x-term"], "properties": { "x-term": true } }, { "required": ["x-from"], "properties": { "x-from": true } }] }]
     },
     "term": {
       "description": "One term: const and title its key (the data form's key, which may hold . / + -), x-code its place, x-term the term as the data form writes it.",

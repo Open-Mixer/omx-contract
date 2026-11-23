@@ -202,6 +202,9 @@ CLAP struct fields, `rdfs:comment`, `doap:name`). `validate` refuses (rule `map-
 terms item, or a term of another format. The coverage test of the package that installs the map holds every field
 mapped once; the tool names no field.
 
+In a domain, a map is an item of `"x-kind": "map"` (docs/contract-dir.md, "Domains"): one row per source field, its
+class and its cover under their `x-` names, rebuilt by `render --with-domain` as this item.
+
 ## The three origins
 
 | Origin | What | Made by | Lives in | Its links |

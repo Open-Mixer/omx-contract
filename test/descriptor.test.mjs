@@ -316,6 +316,21 @@ test('latency.sweep: a latency ref to an item that is no scalar in frames or ms 
   assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_NO_SUCH' }, max: 5 } }), CONTRACT_CODES.refUnresolved, 'an unknown ref is still the existing refusal');
 });
 
+// omx-contract#164: a scalar item may be in frames ($defs.unit holds frames), so a latency ref to a constant count of
+// frames can occur: frames and sweep refs to scalars in frames are read, and a frames pair out of order is refused.
+test('latency: a scalar item in frames is valid, and latency refs to it are read and held in order', () => {
+  const items = { ROT_LAG_FRAMES: { kind: 'scalar', doc: 'The shortest lag, in frames.', unit: 'frames', value: 5 }, ROT_LONG_FRAMES: { kind: 'scalar', doc: 'The longest lag, in frames.', unit: 'frames', value: 47 } };
+  const read = (latency) => {
+    const root = directory({ 'plugins/omx-delay.json': fixture(AUTHORED), 'plugins/x.json': withLatency(latency), 'plugins/frame-items.json': { $schema: fixture(AUTHORED).$schema, requires: fixture(AUTHORED).requires, ...items } });
+    try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); return `${e.code}: ${e.message}`; }
+    return undefined;
+  };
+  assert.equal(read({ reports: true, frames: { ref: 'ROT_LAG_FRAMES' } }), undefined, 'frames: a scalar in frames');
+  assert.equal(read({ reports: true, sweep: { min: { ref: 'ROT_LAG_FRAMES' }, max: { ref: 'ROT_LONG_FRAMES' } } }), undefined, 'a frames pair in order');
+  assert.equal(read({ reports: true, sweep: { min: 3, max: { ref: 'ROT_LONG_FRAMES' } } }), undefined, 'an integer and a frames ref are one unit');
+  assert.match(read({ reports: true, sweep: { min: { ref: 'ROT_LONG_FRAMES' }, max: { ref: 'ROT_LAG_FRAMES' } } }) ?? '', new RegExp(`^${CONTRACT_CODES.descriptorLatency.replace(/\./g, '\\.')}`), 'a frames pair out of order');
+});
+
 // The codes another package raises, each with the code that raises it (test/fixtures/codes-raised-elsewhere.json).
 const ELSEWHERE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised-elsewhere.json'), 'utf8')).codes;
 

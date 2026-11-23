@@ -116,7 +116,35 @@ export const SHAPE_RULES = [
       return bad.length ? [{ path: `${path}/properties/${k}`, message: `the words ${JSON.stringify(bad)} are not C identifiers: an enum or const of ${k} is strings, each one identifier` }] : [];
     })),
   },
+  {
+    // two keys (fooBar and foo_bar), or a title and a key, that spell one macro: the header would define it twice
+    rule: 'macros',
+    check: (s) => {
+      const seen = new Map();
+      const out = [];
+      for (const m of macrosOf(s)) {
+        const first = seen.get(m.macro);
+        if (first) out.push({ path: m.path, message: `${m.what} renders ${m.macro}, as ${first.what} (${first.path}) does: every macro is defined once` });
+        else seen.set(m.macro, m);
+      }
+      return out;
+    },
+  },
 ];
+
+/** Every macro the C render of a shape defines, each `{ macro, path, what }`, in render order (renderShapeC). */
+function macrosOf(s) {
+  const P = `OMX_SHAPE_${macroStem(s.title ?? '')}`;
+  const out = [{ macro: `${P}_SCHEMA`, path: '/', what: `the schema of ${s.title}` }, { macro: `${P}_ID`, path: '/', what: `the $id of ${s.title}` }];
+  for (const [path, obj] of objects(s)) {
+    const O = `OMX_SHAPE_${macroStem(obj.title ?? '')}`;
+    out.push({ macro: `${O}_KEYS`, path, what: `the keys of ${obj.title}` }, { macro: `${O}_REQUIRED`, path, what: `the required keys of ${obj.title}` });
+    for (const [k, p] of Object.entries(obj.properties ?? {})) {
+      if (wordsOf(p)) out.push({ macro: `${O}_${macroStem(k)}_WORDS`, path: `${path}/properties/${k}`, what: `the words of ${obj.title}.${k}` });
+    }
+  }
+  return out;
+}
 
 /** The problems of one shape, by rule; empty when it may be rendered. */
 export function shapeProblems({ schema }) {

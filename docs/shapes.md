@@ -33,6 +33,7 @@ omx-panel's gesture shapes, adds that rule to [contract-dir.md](contract-dir.md)
 | `identifiers` | Every key is a C identifier (`[A-Za-z_][A-Za-z0-9_]*`): a key is an X-macro argument, one token, so no two collide. |
 | `patternProperties` | Absent: a key set named by a pattern has no key for the C macros to name, so it is refused by name, never dropped. |
 | `words` | Every `enum` or `const` of a property is strings, each a C identifier: they render as the `_WORDS(X)` macro, and the words of a `oneOf` or `anyOf` branch join it. |
+| `macros` | Every macro the C render defines is defined once: two keys that spell one stem (`fooBar` and `foo_bar` both give `..._FOO_BAR_WORDS`), or a title and a key, are refused by both paths (#72). |
 
 ## The renders
 

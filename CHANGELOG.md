@@ -4,6 +4,13 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: `render --data <dir> --with-domain <domain dir>` names the domain's document,
+  `contract.d/<domain>/<leaf>.json`, in every provenance line of a file it rebuilds from the domain (a ts module's
+  GENERATED line and `@see` lines, a header's `/* ITEM (<path>) */`, a verb's `(<path>)`), as `--installed` and
+  `--contract-dir` do and as docs/render.md says; it named `data/<x-file>`, the path the rebuild writes, which exists
+  nowhere (#241). The data reader takes the rebuilt files' sources beside their texts. test/domain-as-data and
+  test/domain-kinds compare everything but those lines byte for byte and hold the lines to the domain document. An
+  owner that commits files rendered by this form re-renders them: `render --check` reads the old lines as stale.
 - FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
   <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
   do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in

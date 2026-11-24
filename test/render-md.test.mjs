@@ -21,8 +21,8 @@ test('render --target md writes one page per domain and one for the package\'s c
   assert.ok(existsSync(join(out, 'param.md')) && existsSync(join(out, 'omx-contract.md')));
   const param = readFileSync(join(out, 'param.md'), 'utf8');
   assert.match(param, /^# param$/m);
-  assert.match(param, /^## PARAM_MEANINGS\n\nwords, since 3\.22\.0\. What a descriptor control does/m);
-  assert.match(param, /^\| `bandwidth` \| bandwidth \|  \|  \| An EQ band's or a filter's width, in octaves; q is its quality factor\. \|$/m);
+  assert.match(param, /^## PARAM_UNIT_SCOPES\n\nwords, since 3\.21\.0\. Where a unit of PARAM_UNITS may be stated/m);
+  assert.match(param, /^\| `param` \| param \|  \|  \| A unit of the items: the schema's \$defs\.unit, and a descriptor takes it too\. \|$/m);
   assert.match(param, /^\| `dB` \| db \| param \| dB \| Decibels, a gain or a level relative to unity\. \|$/m, 'a unit word shows its symbol');
   assert.match(param, /^Ids: `linear`, `log`, `stepped`\. Default: `linear`\.$/m, 'a set lists its ids and default');
   const own = readFileSync(join(out, 'omx-contract.md'), 'utf8');

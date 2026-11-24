@@ -92,6 +92,11 @@ json render carries `standard` on the item, the ts render exports `<SET>_STANDAR
 render `static const char *const OMX_<SET>_STANDARD[OMX_<SET>_COUNT]`, read by enumerator
 (`OMX_CURVE_UNITS_STANDARD[OMX_CURVE_UNITS_HZ]` is `"Hz"`).
 
+A set's C enumerator is `OMX_<SET>_<ID>`, the id in upper snake case, except in a set whose ids are all PARAM_UNITS
+consts (a unit set, such as omx-dsp's METER_UNITS): there each enumerator is named from the id's PARAM_UNITS title,
+the name `OMX_PARAM_UNITS_<TITLE>` already uses, so `dB` is `OMX_<SET>_DB`, `kHz` `_KHZ`, `dBFS` `_DBFS`, `dBTP`
+`_DBTP` and `dB-oct` `_DB_PER_OCT`, never `_D_B` (ruling of 2026-11-23, omx-contract#206). The id stays the wire word.
+
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
 its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
 `OMX_<DOMAIN>_CODES_H`, installed as `<includedir>/omxdomain/<domain>_codes.h`; `<DOMAIN>` is the domain's name in

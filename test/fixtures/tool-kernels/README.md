@@ -17,4 +17,4 @@ so a test can break one and watch the check name it:
 - `primitives/`: a square root and its readers, a Lagrange read norm, a travels item with fields of its own.
 
 The definitions themselves are proved where they live (omx-dsp's `make contract-proof` and `make contract-tests`); the
-one test against live owner data is test/live-owners.test.mjs.
+owner's data is read back by the owner against the omx-contract it installs (omx-dsp's `make contract-dir`), never here.

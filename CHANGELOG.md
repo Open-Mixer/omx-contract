@@ -10,6 +10,20 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   with staged on: the quick set by default, matrix: full for a promotion candidate (Open-Mixer/.github#274 lets a
   staged run build full). npm follows the promotion, never the bare tag: publish.yml runs when release completes and
   publishes only when its promote jobs all succeeded, from the tag's commit.
+- FIXED: tools/kernel-recipe.mjs is installed 0755: the deb build's lintian refused it as script-not-executable
+  (a #! file shipped 0644). Every #! file under tools/ is 100755 in git, and two tests hold both.
+- FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a
+  unit id is camelCase) is not held against it, so the bump check classifies a rename the wave makes on purpose
+  (v3.21.0's dB-oct, now dBPerOct) instead of refusing the old file. Every other rule holds, and a tree being built
+  or installed is still refused a non-camelCase unit id.
+- REMOVED: the live-owners leg (#234). omx-contract reads no level above it: tools/live-owner-data.sh,
+  tools/live-owner.ref and test/live-owners.test.mjs are gone, and so are their steps in ci.yml, release.yml and
+  publish.yml. Each owner proves its own data against the omx-contract it installs (omx-dsp: make contract-dir,
+  definitions-check, units-check; the "tool names no owner item" check moves up with omx-dsp#167).
+  test/no-upward-read.test.mjs refuses an upward read.
+- FIXED: `render --target c --package <owner>` names an owner's unit set by the PARAM_UNITS titles, as the whole read
+  does: `dB` is `_DB`, never `_D_B` (#228). The owner's header holds its own items, which carry no PARAM_UNITS; the titles
+  now come from the whole read.
 - ADDED: the -devel (-dev) package installs the kernel recipe under `<datadir>/omx-contract/recipes/`, named by the
   .pc's `recipesdir`, and the CLI tree ships `tools/kernel-recipe.mjs`, which run from `<clidir>` reads that recipe
   (#227): a consumer's contract tools (omx-dsp's completeness proof) need no source checkout or git tag for it.

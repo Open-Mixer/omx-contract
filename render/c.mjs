@@ -171,7 +171,8 @@ export function limitsSections(resolved) {
   const above = defined(tables);
   const scalars = d.DECLARED_SCALARS.length ? genDeclaredScalarsBlock(d.DECLARED_SCALARS, above) : '';
   const lists = d.DECLARED_LISTS.length ? genDeclaredListsBlock(d.DECLARED_LISTS, defined([tables, scalars].join('\n'))) : '';
-  const sets = d.DECLARED_SET_ITEMS.length ? genDeclaredSetsEnums(d.DECLARED_SET_ITEMS, unitTitles(resolved)) : '';
+  // an owner's header reads its own items, which hold no PARAM_UNITS (omx-contract's): ownerHeaders hands the titles of the whole read
+  const sets = d.DECLARED_SET_ITEMS.length ? genDeclaredSetsEnums(d.DECLARED_SET_ITEMS, resolved.unitTitles ?? unitTitles(resolved)) : '';
   const readouts = genReadouts(resolved.kernels);
   const sections = [
     [tables, `/* Per-parameter numeric travel, one block per \`travels\` table named <PREFIX>_LIMITS:
@@ -248,6 +249,7 @@ function stringsRead(resolved, pkg) {
 export function ownerHeaders(resolved, { pkg, all = false } = {}) {
   const out = [];
   const seen = new Map();
+  const titles = unitTitles(resolved);
   for (const f of resolved.renders ?? []) {
     if (!Array.isArray(f.render.c) || (!all && f.pkg !== undefined && f.pkg !== pkg)) continue;
     for (const h of f.render.c) {
@@ -259,6 +261,8 @@ export function ownerHeaders(resolved, { pkg, all = false } = {}) {
         items = new Map(f.items.map((n) => [n, resolved.get(n)]));
         items.kernels = f.kernel !== undefined && resolved.kernels?.[f.kernel] ? { [f.kernel]: resolved.kernels[f.kernel] } : {};
       }
+      // a unit set is named by the PARAM_UNITS titles of the whole read (dB _DB, never _D_B), whatever items the header holds
+      items.unitTitles = titles;
       const text = renderOwnerHeader(h, items, { scalars: scalarsBlock, limits: limitsSections }, h.strings ? stringsRead(resolved, f.pkg) : undefined);
       out.push({ path: h.header, text, pkg: f.pkg, omx: Boolean(h.scalars || h.limits) });
     }

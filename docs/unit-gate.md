@@ -73,5 +73,4 @@ units to the ids.
 
 A unit removed from `PARAM_UNITS`, or renamed, reaches each owner's gate in the omx-contract release that carries the
 change. Before that release, run the gate from the candidate omx-contract over each owner's head (the commands in the
-table above). Do this in the same chain, as omx-contract's live-owner proof already does for omx-dsp
-(`tools/live-owner-data.sh`).
+table above). Do this in the same chain: each owner's CI installs the staged omx-contract and runs its gate against it.

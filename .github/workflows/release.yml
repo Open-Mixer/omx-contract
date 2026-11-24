@@ -92,13 +92,6 @@ jobs:
           git fetch -q origin main
           main=$(git rev-parse -q --verify origin/main) || { echo "::error::no origin/main to hold the tag to"; exit 1; }
           git merge-base --is-ancestor "$GITHUB_SHA" "$main" || { echo "::error::the tag's commit $GITHUB_SHA is not on main ($main): fast-forward main to it first"; exit 1; }
-      - name: The live owner's data, so the live-owner check runs here too (tools/live-owner-data.sh)
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          data=$(sh tools/live-owner-data.sh "$RUNNER_TEMP/omx-dsp")
-          test -n "$data"
-          echo "OMX_LIVE_OWNER_DATA=$data" >> "$GITHUB_ENV"
       - run: npm test
       - name: The bump covers every change since the previous tag
         run: |

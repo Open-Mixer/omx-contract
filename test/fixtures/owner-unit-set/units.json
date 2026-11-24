@@ -1,0 +1,15 @@
+{
+  "$schema": "../schema/omx-contract.schema.json",
+  "ACME_UNITS": {
+    "kind": "set",
+    "doc": "The units an acme band reads: PARAM_UNITS ids, and one word of its own.",
+    "ids": [
+      "dB",
+      "kHz",
+      "dBFS",
+      "dBu",
+      "dBTP",
+      "highCut"
+    ]
+  }
+}

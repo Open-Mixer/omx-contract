@@ -113,7 +113,7 @@ install-cli: all build-lib
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
 	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
 	# the recipe reader a consumer's completeness proof imports (omx-contract#227); run from here it reads <recipesdir>
-	install -m 0644 tools/kernel-recipe.mjs $(DESTDIR)$(CLIDIR)/tools/
+	install -m 0755 tools/kernel-recipe.mjs $(DESTDIR)$(CLIDIR)/tools/
 	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
 	install -m 0644 contract.d/contract/contract.json $(DESTDIR)$(CLIDIR)/contract.d/contract/

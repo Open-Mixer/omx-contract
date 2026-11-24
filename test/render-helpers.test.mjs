@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas
 // The C text helpers live in render/c/c-literals.mjs. The frozen limits renderer they once shared a file with is gone:
-// no render module imports it, test/live-owners.test.mjs keeps no exemption for it, and package.json publishes no
+// no render module imports it, no test keeps an exemption for it (test/live-owners.test.mjs, while it was there), and package.json publishes no
 // export for it. `leftovers` names what is still there; the sabotage test plants each one in a scratch copy.
 import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -24,7 +24,8 @@ function leftovers(root) {
     }
   }
   if (Object.hasOwn(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).exports ?? {}, `./${OLD}`)) out.push(`package.json exports ./${OLD}`);
-  if (readFileSync(join(root, 'test/live-owners.test.mjs'), 'utf8').includes(OLD)) out.push(`live-owners.test.mjs exempts ${OLD}`);
+  const exempt = join(root, 'test/live-owners.test.mjs');
+  if (existsSync(exempt) && readFileSync(exempt, 'utf8').includes(OLD)) out.push(`live-owners.test.mjs exempts ${OLD}`);
   return out;
 }
 
@@ -42,12 +43,12 @@ test('sabotage: each leftover planted in a scratch copy is named', () => {
       p.exports[`./${OLD}`] = { import: `./render/c/${OLD}.mjs` };
       writeFileSync(join(r, 'package.json'), JSON.stringify(p));
     },
-    [`live-owners.test.mjs exempts ${OLD}`]: (r) => writeFileSync(join(r, 'test/live-owners.test.mjs'), `// render/c/${OLD}.mjs\n`),
+    [`live-owners.test.mjs exempts ${OLD}`]: (r) => { mkdirSync(join(r, 'test'), { recursive: true }); writeFileSync(join(r, 'test/live-owners.test.mjs'), `// render/c/${OLD}.mjs\n`); },
   };
   for (const [expected, doIt] of Object.entries(plant)) {
     const scratch = mkdtempSync(join(tmpdir(), 'render-helpers-'));
     try {
-      for (const rel of ['render', 'lib', 'bin', 'package.json', 'test/live-owners.test.mjs']) {
+      for (const rel of ['render', 'lib', 'bin', 'package.json', 'test/live-owners.test.mjs'].filter((x) => existsSync(join(ROOT, x)))) {
         mkdirSync(dirname(join(scratch, rel)), { recursive: true });
         cpSync(join(ROOT, rel), join(scratch, rel), { recursive: true });
       }

@@ -207,3 +207,43 @@ test('the reader opens a document whose x-since is above its info.version: only 
   delete d.components.schemas.PAD_KINDS['x-since'];
   assert.ok(loadContractDir({ dir: dirWith(d) }).packages.has('pad'));
 });
+
+/** `doc(version)` marked stable: the append-only ratchet of omx-contract#89 holds it. */
+const stable = (version, over) => { const d = doc(version, over); d.info['x-stability'] = 'stable'; return d; };
+
+test('domain check, stable: a word removed is refused unless the major rises, naming the major (#89)', () => {
+  const minor = stable('1.3.0');
+  minor.components.schemas.PAD_MODES.oneOf.pop();
+  const r = check(minor, stable('1.2.0'));
+  assert.equal(r.status, 1, r.stdout);
+  assert.match(r.stderr, /pad: PAD_MODES: off: word removed in the stable major 1 \(1\.2\.0 to 1\.3\.0\): a stable domain is append-only within a major/);
+  const major = stable('2.0.0');
+  major.components.schemas.PAD_MODES.oneOf.pop();
+  assert.equal(check(major, stable('1.2.0')).status, 0);
+});
+
+test('domain check, stable: an item removed and a code shifted are refused within the major (#89)', () => {
+  const gone = stable('1.3.0');
+  delete gone.components.schemas.PAD_MODES;
+  assert.match(check(gone, stable('1.2.0')).stderr, /pad: PAD_MODES: item removed in the stable major 1/);
+  const s = (v, drop) => { const d = shifted(v, {}, drop); d.info['x-stability'] = 'stable'; return d; };
+  const r = check(s('1.3.0', true), s('1.2.0', false));
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /pad: PAD_KINDS: gamma: x-code shifted from 2 to 1 in the stable major 1/);
+  assert.equal(check(s('2.0.0', true), s('1.2.0', false)).status, 0);
+});
+
+test('domain check, stable: a word added needs a MINOR, a PATCH is refused (#89)', () => {
+  const patch = stable('1.2.1');
+  patch.components.schemas.PAD_KINDS.oneOf.push(word('gamma', 2));
+  assert.match(check(patch, stable('1.2.0')).stderr, /pad: PAD_KINDS: gamma: word added at a PATCH \(1\.2\.0 to 1\.2\.1\): an addition is a MINOR/);
+  const minor = stable('1.3.0');
+  minor.components.schemas.PAD_KINDS.oneOf.push(word('gamma', 2));
+  assert.equal(check(minor, stable('1.2.0')).status, 0);
+});
+
+test('domain check, experimental: a removal at a MINOR still passes (development phase) (#89)', () => {
+  const next = doc('1.3.0');
+  next.components.schemas.PAD_MODES.oneOf.pop();
+  assert.equal(check(next, doc('1.2.0')).status, 0);
+});

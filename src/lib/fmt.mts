@@ -136,8 +136,8 @@ export function formatDoc(doc) {
 const DOMAIN_ORDER = {
   file: ['$schema', '$id', 'info', 'components'],
   info: ['title', 'version', 'x-owner', 'x-stability'],
-  schema: ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'],
-  word: ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from'],
+  schema: ['description', 'x-since', 'x-why', 'x-groups', 'x-units', 'x-bases', 'x-extension', 'x-c-codes', 'x-c-xmacro', 'oneOf'],
+  word: ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-figure-unit', 'x-basis', 'x-from'],
   from: ['$ref', 'x-term'],
 };
 

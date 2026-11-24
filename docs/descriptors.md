@@ -167,12 +167,14 @@ the term, the meaning carries its name.
 | `delay` (a delay time) | `param:delay` |
 | `enabled` (on when the control is on; the inverse of `bypass`) | `lv2:enabled` |
 | `range`, `knee`, `hysteresis`, `makeup`, `lookahead`, `ceiling`, `output`, `q`, `bandwidth` (a band's width, in octaves; `q` is its quality factor, since 3.22.0), `slope`, `width`, `drive`, `tone`, `rate`, `depth`, `feedback`, `spread`, `predelay`, `size`, `damping`, `lowCut`, `highCut`, `shift`, `fine`, `sync`, `division`, `listen`, `shape`, `model`, `algorithm`, `mode`, `type`, `pingpong` | none |
+| `amount` (how strongly a process acts), `number` (voices, taps, bands or stages), `balance` (a pan, or one part's level against another's), `link` (a channel link), `solo` (one part heard alone; `listen` is the side signal), `order` (a chain's stage order), `acceleration` (how fast a moving part changes speed), `dispersion` (how far frequencies spread apart in time, a spring's chirp), `window` (how long a stretch of signal is read or turned at once) | none |
 | `unknown` | The plugin states no meaning |
 
 An authored control whose role has no word in the list waits for its word (a new meaning is a schema minor); it
 never leaves `meaning` out. One word per meaning, no synonyms: `on` is `enabled` and `speed` is `rate`, so neither is a
 meaning, and the validator names the word to use when a file writes one. `shape`, `model`, `algorithm`, `mode` and
-`type` (a choice of which one) and `pingpong` (a delay's bounce) came with 3.7.0.
+`type` (a choice of which one) and `pingpong` (a delay's bounce) came with 3.7.0. The nine words of the row above `unknown`
+were added in 3.22.0 for roles omx-plugins' authored controls play and no word named (#221).
 
 ### Plugin features
 

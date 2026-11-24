@@ -29,7 +29,7 @@
     },
     "meaning": {
       "description": "A control's ROLE, what it does: a word of PARAM_MEANINGS (the param domain, contract.d/param/param.json), which renders this enum (tools/unit-enum.mjs); required on every control since 3.22.0, declared and never inferred (omx-contract#61, docs/descriptors.md). The LV2 param: or lv2:designation name where LV2 has the term. unknown: the plugin states none.",
-      "enum": ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "unknown"]
+      "enum": ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "amount", "number", "balance", "link", "solo", "order", "acceleration", "dispersion", "window", "unknown"]
     },
     "handle": {
       "description": "A host's handle on a control or a port: a CLAP id (an integer) or an LV2 port symbol.",

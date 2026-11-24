@@ -624,13 +624,40 @@
 #define OMX_PARAM_MEANINGS_PINGPONG "pingpong" ///< On when a delay bounces between the channels.
 /** The source sentence (English) of OMX_PARAM_MEANINGS_PINGPONG. */
 #define OMX_PARAM_MEANINGS_PINGPONG_TEXT_EN "On when a delay bounces between the channels."
+#define OMX_PARAM_MEANINGS_AMOUNT "amount" ///< How strongly a process acts, from none to all of it: a balancer's pull toward its target.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_AMOUNT. */
+#define OMX_PARAM_MEANINGS_AMOUNT_TEXT_EN "How strongly a process acts."
+#define OMX_PARAM_MEANINGS_NUMBER "number" ///< How many of a repeated part a process runs: voices, delay taps, bands or stages.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_NUMBER. */
+#define OMX_PARAM_MEANINGS_NUMBER_TEXT_EN "A number of voices, taps, bands or stages."
+#define OMX_PARAM_MEANINGS_BALANCE "balance" ///< Where a signal sits between two sides: a pan between the left and right channels, or one part's level against another's.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_BALANCE. */
+#define OMX_PARAM_MEANINGS_BALANCE_TEXT_EN "A pan or a balance between two sides."
+#define OMX_PARAM_MEANINGS_LINK "link" ///< How a process ties its channels together: on when they act as one, or a choice of how they are linked.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_LINK. */
+#define OMX_PARAM_MEANINGS_LINK_TEXT_EN "A channel link."
+#define OMX_PARAM_MEANINGS_SOLO "solo" ///< On when one part of a process is heard alone, the others silent; listen is the side signal heard alone.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SOLO. */
+#define OMX_PARAM_MEANINGS_SOLO_TEXT_EN "On when one part is heard alone."
+#define OMX_PARAM_MEANINGS_ORDER "order" ///< The order a chain's stages run in.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_ORDER. */
+#define OMX_PARAM_MEANINGS_ORDER_TEXT_EN "A stage order."
+#define OMX_PARAM_MEANINGS_ACCELERATION "acceleration" ///< How fast a moving part changes speed: a rotor's spin-up and slow-down.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_ACCELERATION. */
+#define OMX_PARAM_MEANINGS_ACCELERATION_TEXT_EN "An acceleration."
+#define OMX_PARAM_MEANINGS_DISPERSION "dispersion" ///< How far a process spreads a sound's frequencies apart in time: a spring's chirp.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DISPERSION. */
+#define OMX_PARAM_MEANINGS_DISPERSION_TEXT_EN "A dispersion."
+#define OMX_PARAM_MEANINGS_WINDOW "window" ///< How long a stretch of signal a process reads or turns at once: a loudness window, a reverse reverb's swell.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_WINDOW. */
+#define OMX_PARAM_MEANINGS_WINDOW_TEXT_EN "A window length."
 #define OMX_PARAM_MEANINGS_UNKNOWN "unknown" ///< The plugin states no meaning: the control has no role and is bound to nothing.
 /** The source sentence (English) of OMX_PARAM_MEANINGS_UNKNOWN. */
 #define OMX_PARAM_MEANINGS_UNKNOWN_TEXT_EN "The plugin states no meaning."
 /** The number of words of PARAM_MEANINGS. */
-#define OMX_PARAM_MEANINGS_COUNT 48u
+#define OMX_PARAM_MEANINGS_COUNT 57u
 /** The words of PARAM_MEANINGS in their declared order, as a C initializer list. */
-#define OMX_PARAM_MEANINGS_INIT { "gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "unknown" }
+#define OMX_PARAM_MEANINGS_INIT { "gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "amount", "number", "balance", "link", "solo", "order", "acceleration", "dispersion", "window", "unknown" }
 /** Expands `X(code, "word", NAME)` once per word of PARAM_MEANINGS, in order, the code being its place in the order. What a descriptor control does, its ROLE (docs/descriptors.md, "Meanings"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it. */
 #define OMX_PARAM_MEANINGS(X) \
     X(0u, "gain", GAIN) X(1u, "threshold", THRESHOLD) X(2u, "ratio", RATIO) X(3u, "attack", ATTACK) \
@@ -644,6 +671,9 @@
     X(32u, "size", SIZE) X(33u, "damping", DAMPING) X(34u, "lowCut", LOW_CUT) X(35u, "highCut", HIGH_CUT) \
     X(36u, "shift", SHIFT) X(37u, "fine", FINE) X(38u, "sync", SYNC) X(39u, "division", DIVISION) \
     X(40u, "listen", LISTEN) X(41u, "shape", SHAPE) X(42u, "model", MODEL) X(43u, "algorithm", ALGORITHM) \
-    X(44u, "mode", MODE) X(45u, "type", TYPE) X(46u, "pingpong", PINGPONG) X(47u, "unknown", UNKNOWN)
+    X(44u, "mode", MODE) X(45u, "type", TYPE) X(46u, "pingpong", PINGPONG) X(47u, "amount", AMOUNT) \
+    X(48u, "number", NUMBER) X(49u, "balance", BALANCE) X(50u, "link", LINK) X(51u, "solo", SOLO) \
+    X(52u, "order", ORDER) X(53u, "acceleration", ACCELERATION) X(54u, "dispersion", DISPERSION) X(55u, "window", WINDOW) \
+    X(56u, "unknown", UNKNOWN)
 
 #endif /* OMX_VOCABULARY_H */

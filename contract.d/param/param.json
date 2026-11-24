@@ -1343,10 +1343,73 @@
             "x-text": "On when a delay bounces between the channels."
           },
           {
+            "const": "amount",
+            "title": "amount",
+            "description": "How strongly a process acts, from none to all of it: a balancer's pull toward its target.",
+            "x-code": 47,
+            "x-text": "How strongly a process acts."
+          },
+          {
+            "const": "number",
+            "title": "number",
+            "description": "How many of a repeated part a process runs: voices, delay taps, bands or stages.",
+            "x-code": 48,
+            "x-text": "A number of voices, taps, bands or stages."
+          },
+          {
+            "const": "balance",
+            "title": "balance",
+            "description": "Where a signal sits between two sides: a pan between the left and right channels, or one part's level against another's.",
+            "x-code": 49,
+            "x-text": "A pan or a balance between two sides."
+          },
+          {
+            "const": "link",
+            "title": "link",
+            "description": "How a process ties its channels together: on when they act as one, or a choice of how they are linked.",
+            "x-code": 50,
+            "x-text": "A channel link."
+          },
+          {
+            "const": "solo",
+            "title": "solo",
+            "description": "On when one part of a process is heard alone, the others silent; listen is the side signal heard alone.",
+            "x-code": 51,
+            "x-text": "On when one part is heard alone."
+          },
+          {
+            "const": "order",
+            "title": "order",
+            "description": "The order a chain's stages run in.",
+            "x-code": 52,
+            "x-text": "A stage order."
+          },
+          {
+            "const": "acceleration",
+            "title": "acceleration",
+            "description": "How fast a moving part changes speed: a rotor's spin-up and slow-down.",
+            "x-code": 53,
+            "x-text": "An acceleration."
+          },
+          {
+            "const": "dispersion",
+            "title": "dispersion",
+            "description": "How far a process spreads a sound's frequencies apart in time: a spring's chirp.",
+            "x-code": 54,
+            "x-text": "A dispersion."
+          },
+          {
+            "const": "window",
+            "title": "window",
+            "description": "How long a stretch of signal a process reads or turns at once: a loudness window, a reverse reverb's swell.",
+            "x-code": 55,
+            "x-text": "A window length."
+          },
+          {
             "const": "unknown",
             "title": "unknown",
             "description": "The plugin states no meaning: the control has no role and is bound to nothing.",
-            "x-code": 47,
+            "x-code": 56,
             "x-text": "The plugin states no meaning."
           }
         ],

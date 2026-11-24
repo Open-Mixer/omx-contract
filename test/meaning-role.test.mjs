@@ -62,3 +62,19 @@ test('sabotage: a domain without bandwidth leaves the schema enum stale, and uni
   assert.equal(r.status, 1, r.stderr);
   assert.match(r.stderr, /\$defs\.meaning/);
 });
+
+// #221: the roles omx-plugins' authored controls play and no word named (omx-plugins#208), each a word before unknown,
+// its code its place in the order (the domain is experimental: unknown's code moved, #167)
+const ADDED_221 = ['amount', 'number', 'balance', 'link', 'solo', 'order', 'acceleration', 'dispersion', 'window'];
+
+test('#221: the nine words come before unknown, each code its place, and an authored control may state each', () => {
+  const item = JSON.parse(readFileSync(join(ROOT, 'contract.d/param/param.json'), 'utf8')).components.schemas.PARAM_MEANINGS.oneOf;
+  const words = item.map((w) => w.const);
+  assert.deepEqual(words.slice(-ADDED_221.length - 1, -1), ADDED_221);
+  item.forEach((w, i) => assert.equal(w['x-code'], i, `${w.const}: x-code ${w['x-code']}, place ${i}`));
+  const doc = example('authored-omx-delay.json');
+  for (const word of ADDED_221) {
+    doc.controls[0].meaning = word;
+    assert.deepEqual(problemsOf(doc), [], word);
+  }
+});

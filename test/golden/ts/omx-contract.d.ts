@@ -1443,6 +1443,69 @@ export declare const PARAM_MEANINGS: {
       readonly en: "On when a delay bounces between the channels.";
     };
   };
+  readonly amount: {
+    readonly word: "amount";
+    readonly doc: "How strongly a process acts, from none to all of it: a balancer's pull toward its target.";
+    readonly text: {
+      readonly en: "How strongly a process acts.";
+    };
+  };
+  readonly number: {
+    readonly word: "number";
+    readonly doc: "How many of a repeated part a process runs: voices, delay taps, bands or stages.";
+    readonly text: {
+      readonly en: "A number of voices, taps, bands or stages.";
+    };
+  };
+  readonly balance: {
+    readonly word: "balance";
+    readonly doc: "Where a signal sits between two sides: a pan between the left and right channels, or one part's level against another's.";
+    readonly text: {
+      readonly en: "A pan or a balance between two sides.";
+    };
+  };
+  readonly link: {
+    readonly word: "link";
+    readonly doc: "How a process ties its channels together: on when they act as one, or a choice of how they are linked.";
+    readonly text: {
+      readonly en: "A channel link.";
+    };
+  };
+  readonly solo: {
+    readonly word: "solo";
+    readonly doc: "On when one part of a process is heard alone, the others silent; listen is the side signal heard alone.";
+    readonly text: {
+      readonly en: "On when one part is heard alone.";
+    };
+  };
+  readonly order: {
+    readonly word: "order";
+    readonly doc: "The order a chain's stages run in.";
+    readonly text: {
+      readonly en: "A stage order.";
+    };
+  };
+  readonly acceleration: {
+    readonly word: "acceleration";
+    readonly doc: "How fast a moving part changes speed: a rotor's spin-up and slow-down.";
+    readonly text: {
+      readonly en: "An acceleration.";
+    };
+  };
+  readonly dispersion: {
+    readonly word: "dispersion";
+    readonly doc: "How far a process spreads a sound's frequencies apart in time: a spring's chirp.";
+    readonly text: {
+      readonly en: "A dispersion.";
+    };
+  };
+  readonly window: {
+    readonly word: "window";
+    readonly doc: "How long a stretch of signal a process reads or turns at once: a loudness window, a reverse reverb's swell.";
+    readonly text: {
+      readonly en: "A window length.";
+    };
+  };
   readonly unknown: {
     readonly word: "unknown";
     readonly doc: "The plugin states no meaning: the control has no role and is bound to nothing.";
@@ -1504,4 +1567,4 @@ export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms
  * The words of PARAM_MEANINGS, in their declared order.
  * @see contract.d/param/param.json
  */
-export declare const PARAM_MEANINGS_WORDS: readonly ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "unknown"];
+export declare const PARAM_MEANINGS_WORDS: readonly ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "amount", "number", "balance", "link", "solo", "order", "acceleration", "dispersion", "window", "unknown"];

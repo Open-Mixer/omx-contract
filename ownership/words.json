@@ -61,8 +61,11 @@
     "wordUnknown"
   ],
   "PARAM_MEANINGS": [
+    "acceleration",
     "algorithm",
+    "amount",
     "attack",
+    "balance",
     "bandwidth",
     "bypass",
     "ceiling",
@@ -71,6 +74,7 @@
     "decay",
     "delay",
     "depth",
+    "dispersion",
     "division",
     "drive",
     "enabled",
@@ -82,12 +86,15 @@
     "hold",
     "hysteresis",
     "knee",
+    "link",
     "listen",
     "lookahead",
     "lowCut",
     "makeup",
     "mode",
     "model",
+    "number",
+    "order",
     "output",
     "pingpong",
     "predelay",
@@ -101,6 +108,7 @@
     "shift",
     "size",
     "slope",
+    "solo",
     "spread",
     "sync",
     "threshold",
@@ -108,7 +116,8 @@
     "type",
     "unknown",
     "wetDryRatio",
-    "width"
+    "width",
+    "window"
   ],
   "PARAM_SCALES": [
     "linear",

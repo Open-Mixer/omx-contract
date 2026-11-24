@@ -971,6 +971,15 @@
         "mode",
         "type",
         "pingpong",
+        "amount",
+        "number",
+        "balance",
+        "link",
+        "solo",
+        "order",
+        "acceleration",
+        "dispersion",
+        "window",
         "unknown"
       ],
       "x-omx-texts": {
@@ -1253,6 +1262,60 @@
         "pingpong": {
           "text": {
             "en": "On when a delay bounces between the channels."
+          },
+          "args": []
+        },
+        "amount": {
+          "text": {
+            "en": "How strongly a process acts."
+          },
+          "args": []
+        },
+        "number": {
+          "text": {
+            "en": "A number of voices, taps, bands or stages."
+          },
+          "args": []
+        },
+        "balance": {
+          "text": {
+            "en": "A pan or a balance between two sides."
+          },
+          "args": []
+        },
+        "link": {
+          "text": {
+            "en": "A channel link."
+          },
+          "args": []
+        },
+        "solo": {
+          "text": {
+            "en": "On when one part is heard alone."
+          },
+          "args": []
+        },
+        "order": {
+          "text": {
+            "en": "A stage order."
+          },
+          "args": []
+        },
+        "acceleration": {
+          "text": {
+            "en": "An acceleration."
+          },
+          "args": []
+        },
+        "dispersion": {
+          "text": {
+            "en": "A dispersion."
+          },
+          "args": []
+        },
+        "window": {
+          "text": {
+            "en": "A window length."
           },
           "args": []
         },

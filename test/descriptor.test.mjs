@@ -141,6 +141,7 @@ test('the words are the closed lists of docs/descriptors.md', () => {
     'range', 'knee', 'hysteresis', 'makeup', 'lookahead', 'ceiling', 'output', 'q', 'bandwidth', 'slope', 'width', 'drive', 'tone', 'rate',
     'depth', 'feedback', 'spread', 'predelay', 'size', 'damping', 'lowCut', 'highCut', 'shift', 'fine', 'sync', 'division', 'listen',
     'shape', 'model', 'algorithm', 'mode', 'type', 'pingpong',
+    'amount', 'number', 'balance', 'link', 'solo', 'order', 'acceleration', 'dispersion', 'window',
     'unknown',
   ]);
   assert.deepEqual($.descriptor.properties.origin.enum, ['authored', 'built', 'scanned']);

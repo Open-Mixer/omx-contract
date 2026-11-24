@@ -1551,6 +1551,69 @@
             "en": "On when a delay bounces between the channels."
           }
         },
+        "amount": {
+          "word": "amount",
+          "doc": "How strongly a process acts, from none to all of it: a balancer's pull toward its target.",
+          "text": {
+            "en": "How strongly a process acts."
+          }
+        },
+        "number": {
+          "word": "number",
+          "doc": "How many of a repeated part a process runs: voices, delay taps, bands or stages.",
+          "text": {
+            "en": "A number of voices, taps, bands or stages."
+          }
+        },
+        "balance": {
+          "word": "balance",
+          "doc": "Where a signal sits between two sides: a pan between the left and right channels, or one part's level against another's.",
+          "text": {
+            "en": "A pan or a balance between two sides."
+          }
+        },
+        "link": {
+          "word": "link",
+          "doc": "How a process ties its channels together: on when they act as one, or a choice of how they are linked.",
+          "text": {
+            "en": "A channel link."
+          }
+        },
+        "solo": {
+          "word": "solo",
+          "doc": "On when one part of a process is heard alone, the others silent; listen is the side signal heard alone.",
+          "text": {
+            "en": "On when one part is heard alone."
+          }
+        },
+        "order": {
+          "word": "order",
+          "doc": "The order a chain's stages run in.",
+          "text": {
+            "en": "A stage order."
+          }
+        },
+        "acceleration": {
+          "word": "acceleration",
+          "doc": "How fast a moving part changes speed: a rotor's spin-up and slow-down.",
+          "text": {
+            "en": "An acceleration."
+          }
+        },
+        "dispersion": {
+          "word": "dispersion",
+          "doc": "How far a process spreads a sound's frequencies apart in time: a spring's chirp.",
+          "text": {
+            "en": "A dispersion."
+          }
+        },
+        "window": {
+          "word": "window",
+          "doc": "How long a stretch of signal a process reads or turns at once: a loudness window, a reverse reverb's swell.",
+          "text": {
+            "en": "A window length."
+          }
+        },
         "unknown": {
           "word": "unknown",
           "doc": "The plugin states no meaning: the control has no role and is bound to nothing.",

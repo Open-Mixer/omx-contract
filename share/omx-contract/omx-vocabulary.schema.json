@@ -1328,7 +1328,7 @@
       }
     },
     "PARAM_FILTER_RESPONSES": {
-      "description": "The response of the filter a descriptor control sets (docs/descriptors.md, \"Filter responses\"; omx-contract#208): optional on a control, a closed list, one word per shape. The words and their order are omx-dsp's BIQUAD_KINDS, the section kinds its EQ design builds (omx_eq_kind), so a word's code is the integer a kernel reads for it. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).",
+      "description": "The response of the filter a descriptor control sets (docs/descriptors.md, \"Filter responses\"; omx-contract#208): optional on a control, a closed list, one word per shape. omx-dsp's EQ design reads these words' codes for the section kinds it builds (omx_eq_kind, through this item's render), so a word's code is the integer a kernel reads for it and is never moved. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).",
       "enum": [
         "peaking",
         "lowShelf",

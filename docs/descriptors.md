@@ -191,8 +191,9 @@ found by the word it states here, never by a word in a control's name (omx-contr
 - The words are a closed words item of omx-contract's `param` domain, `PARAM_FILTER_RESPONSES`
   (`contract.d/param/param.json`), in the order below; the schema's `$defs.filterResponse` enum is its render
   (`tools/unit-enum.mjs`, held by its `--check`), so a word is added in one place, a schema minor.
-- The words and their order are omx-dsp's `BIQUAD_KINDS`, the section kinds its EQ design builds (`omx_eq_kind`), so a
-  word's code is the integer a kernel reads for it. A word outside the list (`hpf`, `bell`, `highPass`) is
+- The words are the section kinds omx-dsp's EQ design builds: its `omx_eq_kind` reads each word's code from this item's
+  render (`OMX_PARAM_FILTER_RESPONSES(X)`), so a code is the integer a kernel reads and is never moved. The list lives
+  here only; omx-dsp types it nowhere and its own check refuses a copy. A word outside the list (`hpf`, `bell`, `highPass`) is
   `contract.file.invalid`, and the refusal names the field and the words.
 
 | Response | Shape |

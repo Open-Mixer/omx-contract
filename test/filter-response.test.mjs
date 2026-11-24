@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A filter control states its response (omx-contract#208; docs/descriptors.md, "Filter responses"): an optional word
-// of PARAM_FILTER_RESPONSES (the param domain), whose words the schema's $defs.filterResponse enum renders. The words are
-// omx-dsp's BIQUAD_KINDS, in its order, so a consumer finds an EQ's edges by the word in any language, never by a name.
+// of PARAM_FILTER_RESPONSES (the param domain), whose words the schema's $defs.filterResponse enum renders, so a consumer
+// finds an EQ's edges by the word in any language, never by a name. The words are held here as the item states them:
+// omx-contract reads no level above it (test/no-upward-read.test.mjs), and omx-dsp's EQ design reads this item's codes,
+// held there by its own check.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, readFileSync, writeFileSync } from 'node:fs';
@@ -17,13 +19,13 @@ const problemsOf = (doc) => fileProblems({ rel: 'descriptors/x.json', text: '', 
 const item = () => JSON.parse(readFileSync(join(ROOT, 'contract.d/param/param.json'), 'utf8')).components.schemas.PARAM_FILTER_RESPONSES;
 const SCHEMA = () => JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
 
-// omx-dsp data/primitives/biquad-kinds.json, BIQUAD_KINDS: the section kinds omx_eq_design builds, in omx_eq_kind's order
-const BIQUAD_KINDS = ['peaking', 'lowShelf', 'highShelf', 'highpass', 'lowpass', 'notch', 'bandpass', 'allpass1', 'allpass2'];
+const WORDS = () => item().oneOf.map((w) => w.const);
 
-test('PARAM_FILTER_RESPONSES is a words item of the param domain: omx-dsp\'s BIQUAD_KINDS, each code its place', () => {
+test('PARAM_FILTER_RESPONSES is a words item of the param domain, each code its place, each id camelCase', () => {
   const it = item();
   assert.equal(it?.['x-kind'], 'words', 'contract.d/param/param.json has the PARAM_FILTER_RESPONSES words item');
-  assert.deepEqual(it.oneOf.map((w) => w.const), BIQUAD_KINDS);
+  assert.ok(it.oneOf.length > 0, 'positive control: the item has words');
+  assert.ok(WORDS().includes('highpass') && WORDS().includes('lowpass'), 'the two edge words');
   it.oneOf.forEach((w, i) => {
     assert.equal(w['x-code'], i, `${w.const}: x-code ${w['x-code']}, place ${i}`);
     assert.match(w.const, /^[a-z][A-Za-z0-9]*$/, `${w.const} is camelCase`);
@@ -32,8 +34,8 @@ test('PARAM_FILTER_RESPONSES is a words item of the param domain: omx-dsp\'s BIQ
 
 test('$defs.filterResponse is the item\'s words in its order, and a control may carry response', () => {
   const $ = SCHEMA().$defs;
-  assert.deepEqual($.filterResponse?.enum, BIQUAD_KINDS);
-  assert.deepEqual(unitEnum.filterResponseWords?.(ROOT), BIQUAD_KINDS);
+  assert.deepEqual($.filterResponse?.enum, WORDS());
+  assert.deepEqual(unitEnum.filterResponseWords?.(ROOT), WORDS());
   assert.deepEqual($.descriptorControl.properties.response, { $ref: '#/$defs/filterResponse' });
   assert.ok(!$.descriptorControl.required.includes('response'), 'response is optional');
 });
@@ -51,7 +53,7 @@ test('every word is accepted on a control, and the field absent is accepted', ()
   const doc = example('authored-omx-delay.json');
   assert.ok(doc.controls.every((c) => c.response === undefined), 'positive control: the delay states no response');
   assert.deepEqual(problemsOf(doc), []);
-  for (const w of BIQUAD_KINDS) {
+  for (const w of WORDS()) {
     doc.controls[2].response = w;
     assert.deepEqual(problemsOf(doc), [], w);
   }
@@ -62,7 +64,8 @@ test('sabotage: an unknown response word is refused by name, naming the field an
     const doc = example('authored-omx-delay.json');
     doc.controls[2].response = bad;
     const p = problemsOf(doc);
-    assert.ok(p.some((x) => /^schema:\/controls\/2\/response must be equal to one of the allowed values \(peaking, lowShelf, highShelf, highpass, lowpass, notch, bandpass, allpass1, allpass2\)$/.test(x)), `${bad}: ${p.join('\n')}`);
+    const want = `schema:/controls/2/response must be equal to one of the allowed values (${WORDS().join(', ')})`;
+    assert.ok(p.includes(want), `${bad}: ${p.join('\n')}`);
   }
 });
 

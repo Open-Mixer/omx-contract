@@ -226,8 +226,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "description": "The data item's source, verbatim.",
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "oneOf": {
           "type": "array",
@@ -282,7 +281,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-value": {
           "description": "The data sheet's value, verbatim.",
@@ -318,7 +317,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-unit": {
           "description": "The scalar's unit, the data form's unit.",
@@ -363,7 +362,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-format": {
           "description": "The format, the data form's format (lv2, clap).",
@@ -413,7 +412,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-format": {
           "description": "The format whose fields the rows map (lv2, clap), the data form's format.",
@@ -751,6 +750,88 @@ export const domainSchema = {
           }
         }
       }
+    },
+    "source": {
+      "type": "object",
+      "description": "Where a definition comes from and where it is implemented (docs/contract-dir.md): from, the provenance, a link compared to the whole value or a map from a field path of the value to a link; impl, the connector; at, <package>@<version> of links outside the owner's tree. A link may carry its own at ({ link, at }), which stands for it in place of the source's.",
+      "properties": {
+        "from": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/oneLink"
+            },
+            {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)*$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/oneLink"
+              },
+              "minProperties": 1
+            }
+          ]
+        },
+        "impl": {
+          "$ref": "#/$defs/links"
+        },
+        "at": {
+          "$ref": "#/$defs/at"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "links": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/oneLink"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/oneLink"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      ]
+    },
+    "oneLink": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/link"
+        },
+        {
+          "$ref": "#/$defs/linkAt"
+        }
+      ]
+    },
+    "linkAt": {
+      "type": "object",
+      "description": "One link with its own at: <package>@<version> of the tree it lies in, in place of the source's (an impl in the owner's tree beside a from in the console's, at the commit it was imported from).",
+      "properties": {
+        "link": {
+          "$ref": "#/$defs/link"
+        },
+        "at": {
+          "$ref": "#/$defs/at"
+        }
+      },
+      "required": [
+        "link",
+        "at"
+      ],
+      "additionalProperties": false
+    },
+    "link": {
+      "type": "string",
+      "description": "<path>#<symbol>[.<field>|[<key>]]...: a path relative to the owner's root, a symbol defined there (enum X and struct X name a tag), and selectors into its value.",
+      "pattern": "^[A-Za-z0-9_+.-]+(/[A-Za-z0-9_+.-]+)*#((enum|struct|union) )?[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*|\\[[A-Za-z0-9_.-]+\\])*$"
+    },
+    "at": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*@[A-Za-z0-9._+-]+$"
     }
   }
 } as const;

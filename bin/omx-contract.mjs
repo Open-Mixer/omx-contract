@@ -247,6 +247,9 @@ const TOOL_TABLE = 'CONTRACT_CODES';
 /** The data file the tool reads raw for its own table (toolFiles). */
 const TOOL_TABLE_FILE = 'codes.json';
 
+/** Each item's effective source (its own, else its file's; a domain item's x-source), as `links` reads it, for the md pages. */
+const mdSources = (data) => new Map(sourcesOf(data).map((s) => [s.name, s.source]));
+
 export function renderTarget(target, argv) {
   const data = load(argv);
   const resolved = resolveData(data);
@@ -256,7 +259,7 @@ export function renderTarget(target, argv) {
     // from a data directory (the owner's tree) every file.
     if (data.packages && !data.packages.has(pkg)) throw new Usage(`no package ${pkg} is installed`);
     // the reference pages of the package's items (docs/render.md, #202)
-    if (target === 'md') { resolved.delete(TOOL_TABLE); return renderMd(resolved, { pkg, fallback: pkg }); }
+    if (target === 'md') { resolved.delete(TOOL_TABLE); return renderMd(resolved, { pkg, fallback: pkg, sources: mdSources(data) }); }
     const files = data.files.filter((f) => (f.pkg ?? pkg) === pkg);
     // A domain is read at run time: its one render is its codes header (docs/render.md)
     const marked = data.packages?.get(pkg)?.codes;
@@ -278,7 +281,7 @@ export function renderTarget(target, argv) {
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));
   if (target === 'lv2') return renderLv2(resolved);
-  if (target === 'md') return renderMd(resolved);
+  if (target === 'md') return renderMd(resolved, { sources: mdSources(data) });
   // the declarations have no Python render since the format terms left (V27b): py renders the shapes only
   if (target === 'py') throw new Usage('render --target py renders the shapes only: add --shapes');
   throw new Usage(`unknown target ${target} (c, ts, json, lv2, md, py --shapes)`);

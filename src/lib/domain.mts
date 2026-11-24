@@ -131,6 +131,12 @@ const REPLY_KEYS = [['x-resp', 'resp'], ['x-transient', 'transient']];
 const verbOf = (e: JsonObject): JsonObject => ({ verb: e.const, ...Object.fromEntries(VERB_KEYS.filter(([k]) => e[k!] !== undefined).map(([k, d]) => [d, e[k!]])), ...(e.description === undefined ? {} : { doc: e.description }) });
 
 /**
+ * An item's head as the data form writes it, from its domain keys: `since`, `source` (its `x-source`, omx-contract#215:
+ * every read carries it, so `links` reads a domain's links), `doc` and `why`, each only where the item has it.
+ */
+const itemHead = (s: JsonObject): JsonObject => ({ ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) });
+
+/**
  * A terms item (3.21.0, docs/contract-dir.md "Domains"): a format's terms as one specification or header states them,
  * `x-format`, `x-spec`, `x-version` (and `x-deprecated`) the item's, and a `oneOf` of one word per term: `const` and
  * `title` the term's key, `x-code` its place, `x-term` the term as the data form writes it (its uri or id, kind,
@@ -156,7 +162,7 @@ function readTerms(item: string, s: JsonObject, at: string): JsonObject {
     if (Object.hasOwn(terms, e.const as string)) refuse('fileInvalid', at, `${ew}.const ${JSON.stringify(e.const)} is used twice in ${item}`);
     terms[e.const as string] = t;
   });
-  return { kind: 'terms', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), format: s['x-format'], spec: s['x-spec'], version: s['x-version'], ...(s['x-deprecated'] === undefined ? {} : { deprecated: true }), terms };
+  return { kind: 'terms', ...itemHead(s), format: s['x-format'], spec: s['x-spec'], version: s['x-version'], ...(s['x-deprecated'] === undefined ? {} : { deprecated: true }), terms };
 }
 
 /** A map row's outcomes and covers: each its domain key and the data form's key it rebuilds, in the data form's order. */
@@ -209,7 +215,7 @@ function readMap(item: string, s: JsonObject, at: string): JsonObject {
     const x = e['x-word'] as JsonObject | undefined;
     if (x !== undefined && (typeof x !== 'object' || x === null || Array.isArray(x) || typeof x.word !== 'string' || typeof x.transform !== 'string')) refuse('fileInvalid', at, `${row}: its x-word is not { word, transform }, the descriptor word and the transform that converts the field`);
   });
-  return { kind: 'formatMap', ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }), format: s['x-format'], rows: mapRows(s) };
+  return { kind: 'formatMap', ...itemHead(s), format: s['x-format'], rows: mapRows(s) };
 }
 
 /** A scalar item (docs/contract-dir.md, "Domains"): one value, `x-value` a number or true or false, in `x-unit` (`""` for none). render --with-domain rebuilds it as a data scalar; it is read nowhere else. */
@@ -380,7 +386,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
     const consts = (s.oneOf as JsonObject[]).map((e) => e.const);
     if (s['x-default'] !== undefined && s['x-kind'] !== 'set') refuse('fileInvalid', at, `${w}.x-default: only a set (x-kind set) names a default`);
     if (s['x-default'] !== undefined && !consts.includes(s['x-default'])) refuse('fileInvalid', at, `${w}.x-default ${JSON.stringify(s['x-default'])} is no word of ${item}`);
-    const head = { ...(s['x-since'] === undefined ? {} : { since: s['x-since'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
+    const head = itemHead(s);
     if (s['x-kind'] === 'set') { out[item] = { kind: 'set', ...head, ids: consts, ...(s['x-default'] === undefined ? {} : { default: s['x-default'] }) }; continue; }
     if (s['x-kind'] === 'verbs') { out[item] = { kind: 'verbs', ...head, verbs: Object.fromEntries((s.oneOf as JsonObject[]).map((e) => [e.title, verbOf(e)])) }; continue; }
     // a reply-code item (its words carry x-resp) is read as the data form's codes item, the one a verb's codes name
@@ -462,7 +468,7 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
     const w = `components.schemas.${item}`;
     if (s['x-file'] === undefined) continue; // read at run time only: no data file holds it
     const f = fileOf(s['x-file'], w);
-    const head = { kind: s['x-kind'] === 'map' ? 'formatMap' : s['x-kind'] ?? 'codes', since: s['x-since'], ...(s['x-source'] === undefined ? {} : { source: s['x-source'] }), doc: s.description, ...(s['x-why'] === undefined ? {} : { why: s['x-why'] }) };
+    const head = { kind: s['x-kind'] === 'map' ? 'formatMap' : s['x-kind'] ?? 'codes', ...itemHead(s) };
     if (s['x-kind'] === 'sheet') { f[item] = { ...head, value: s['x-value'], ...(s['x-docs'] === undefined ? {} : { docs: s['x-docs'] }) }; continue; }
     if (s['x-kind'] === 'scalar') { f[item] = { ...head, unit: s['x-unit'], value: s['x-value'] }; continue; }
     if (s['x-kind'] === 'terms') {

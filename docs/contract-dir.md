@@ -103,6 +103,25 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     The runtime readers (libomx-domain, `openDomainAt`) open one domain and neither read nor resolve `x-from`; the
     conformance suite holds both to opening such a word, and the build to each refusal.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
+- **Per-entry doc and source links (omx-contract#215, the lane's ruling of 2026-11-24).** A domain carries what a
+  classic item that moves into it holds, so the move loses nothing and data/ can drop the item (one home: the reader
+  refuses a second copy, `contract.item.duplicate`):
+  - each word's or code's `doc` is its `description`, and its English text is its `x-text`: never one for the other
+    (a code's `text.en` written as its `description` loses the doc). `render --target md`'s doc check refuses a word or a
+    code of a domain with no `description` by page, item and word, as it refuses a classic one with no `doc`;
+  - an item's `source` (the provenance and connector links, "`source`: provenance and connector" below) is its
+    `x-source`, of the same shape: the domain schema's `$defs/source` (with `link`, `linkAt`, `oneLink`, `links` and
+    `at`) is the classic schema's, held equal to it by test/domain-doc-source.test.mjs because the domain schema
+    compiles standalone. Any item may carry one, with or without an `x-file`. Every read of a contract directory
+    carries it into the item's `source`: the installed read (a domain read as a package of its own name) as much as
+    `render --with-domain`. So `omx-contract links --contract-dir <dir> --package <domain>` lists a domain's links,
+    `links --check` checks them against the owner's tree as it checks a classic item's (an absent symbol, an unread
+    impl, a differing from), and `render --target md` prints them. A malformed `x-source` is refused by the schema
+    and by the read (`contract.file.invalid`, naming the item). The runtime readers (the C loader, `openDomainAt`) do
+    not read it: an item carrying one opens as before (test/fixtures/conformance, `item-source`).
+  - Not covered: a sheet or a scalar is not in the installed read (it is rebuilt by `render --with-domain` and read at
+    run time), so its `x-source` reaches `links` through `--with-domain` only. A per-word source has no domain form,
+    as it has no classic one.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
   data path it came from), `x-kind` (`codes`, `words`, `set`, `verbs`, `terms`, `map`, `scalar` or `sheet`) and `x-source` (its `source`); on each

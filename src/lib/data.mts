@@ -53,10 +53,12 @@ export function dataFiles(dir) {
 
 /**
  * The raw data: `{ files: [{ path, rel, doc }], items: Map<name, { name, rel, item }> }`, items in
- * file order then key order. `files` may be handed in as `{ rel: text }` (a tag's data, a test).
+ * file order then key order. `files` may be handed in as `{ rel: text }` (a tag's data, a test). `sources` names, by
+ * rel, the document a handed-in file was rebuilt from (`render --data --with-domain`: the domain's
+ * `contract.d/<domain>/<leaf>.json`); the file and its items carry it as `source`, the provenance sourceOf reads.
  * @throws naming the file when one is not JSON, and an item declared by two files.
  */
-export function loadData(dir: string, texts?: Readonly<Record<string, string>>): Json {
+export function loadData(dir: string, texts?: Readonly<Record<string, string>>, sources: Readonly<Record<string, string>> = {}): Json {
   const files: Json[] = [];
   const entries: [string, string][] = texts ? Object.entries((texts) as Record<string, Json>).sort(([a], [b]) => (a < b ? -1 : 1)) : dataFiles(dir).map((p) => [relative(join(dir, '..'), p), readFileSync(p, 'utf8')]);
   // texts handed in (a tag's data, a test) take a tree domain only where they name its place: a tag before it has none
@@ -67,13 +69,14 @@ export function loadData(dir: string, texts?: Readonly<Record<string, string>>):
   for (const [rel, text] of entries) {
     let doc;
     const domain = domains.get(rel);
+    const source = domain?.source ?? (Object.hasOwn(sources, rel) ? sources[rel] : undefined);
     if (domain) { files.push(domain); doc = domain.doc; } else {
       try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${(e as Error).message}`); }
-      files.push({ rel, text, doc });
+      files.push({ rel, text, doc, ...(source === undefined ? {} : { source }) });
     }
     for (const [name, item] of entriesOf(rel, doc)) {
       if (items.has(name)) throw new Error(`${rel}: ${name}: already declared by ${items.get(name).rel}`);
-      items.set(name, { name, rel, item, ...(domain?.source === undefined ? {} : { source: domain.source }) });
+      items.set(name, { name, rel, item, ...(source === undefined ? {} : { source }) });
     }
   }
   return { files, items };

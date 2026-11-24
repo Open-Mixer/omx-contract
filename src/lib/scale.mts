@@ -22,6 +22,14 @@ export type PositionLaw = 'linear' | 'log' | 'stepped' | 'map';
 /** The words this library gives a law to: PARAM_SCALES' ids and the override `map`. `unknown` is served linear. */
 export const POSITION_LAWS: readonly PositionLaw[] = Object.freeze(['linear', 'log', 'stepped', 'map']);
 
+/**
+ * One named member per word of POSITION_LAWS, made from it and never listed beside it (omx-contract#46): a surface
+ * that branches on one law writes `Law.LOG`, not `'log'`. A member is the word itself.
+ */
+export const Law: { readonly [W in PositionLaw as Uppercase<W>]: W } = Object.freeze(
+  Object.fromEntries(POSITION_LAWS.map((w) => [w.toUpperCase(), w])),
+) as { readonly [W in PositionLaw as Uppercase<W>]: W };
+
 /** A travel as a descriptor states it: `step` for a stepped one, `unknown` is served linear. */
 export interface ScaleTravel {
   readonly scale?: PositionLaw | 'unknown';

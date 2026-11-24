@@ -60,6 +60,16 @@ test('LAWS: linear, log, stepped, map', { skip: !hasPython && 'no python3' }, ()
   assert.equal(run(`print(m["LAWS"])`).trim(), "('linear', 'log', 'stepped', 'map')");
 });
 
+test('Law: one named member per word of LAWS, in its order, each the word itself (#46)', { skip: !hasPython && 'no python3' }, () => {
+  assert.equal(run('print([(x.name, x.value) for x in m["Law"]], m["Law"].LOG == "log", isinstance(m["Law"].MAP, str))').trim(),
+    "[('LINEAR', 'linear'), ('LOG', 'log'), ('STEPPED', 'stepped'), ('MAP', 'map')] True True");
+});
+
+test('Law is made from LAWS, never listed beside it: a word added to LAWS is a member', { skip: !hasPython && 'no python3' }, () => {
+  const source = readFileSync(MODULE, 'utf8').replace('LAWS = ("linear", "log", "stepped", "map")', 'LAWS = ("linear", "log", "stepped", "map", "cubic")');
+  assert.equal(run('print([x.value for x in m["Law"]] == list(m["LAWS"]), m["Law"].CUBIC.value)', source).trim(), 'True cubic');
+});
+
 test('the vectors pass both ways within one ulp', { skip: !hasPython && 'no python3' }, () => {
   assert.deepEqual(misses(), []);
 });

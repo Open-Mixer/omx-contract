@@ -1194,6 +1194,349 @@ export const PARAM_UNITS_CLAP_ENCODED = {
 };
 
 /**
+ * What a descriptor control does, its ROLE (docs/descriptors.md, "Meanings"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it.
+ * @see contract.d/param/param.json
+ */
+export const PARAM_MEANINGS = {
+  "gain": {
+    "word": "gain",
+    "doc": "A gain, a level change in dB or as a factor (LV2 param:gain).",
+    "text": {
+      "en": "A gain."
+    }
+  },
+  "threshold": {
+    "word": "threshold",
+    "doc": "The level a dynamics process acts above or below (LV2 param:threshold).",
+    "text": {
+      "en": "A threshold."
+    }
+  },
+  "ratio": {
+    "word": "ratio",
+    "doc": "A dynamics ratio, n:1 (LV2 param:ratio).",
+    "text": {
+      "en": "A dynamics ratio."
+    }
+  },
+  "attack": {
+    "word": "attack",
+    "doc": "How fast a process engages (LV2 param:attack).",
+    "text": {
+      "en": "An attack time."
+    }
+  },
+  "release": {
+    "word": "release",
+    "doc": "How fast a process lets go (LV2 param:release).",
+    "text": {
+      "en": "A release time."
+    }
+  },
+  "hold": {
+    "word": "hold",
+    "doc": "How long a process holds before it releases (LV2 param:hold).",
+    "text": {
+      "en": "A hold time."
+    }
+  },
+  "decay": {
+    "word": "decay",
+    "doc": "How fast a sound or an envelope dies away (LV2 param:decay).",
+    "text": {
+      "en": "A decay time."
+    }
+  },
+  "frequency": {
+    "word": "frequency",
+    "doc": "A frequency: an EQ band's centre, an oscillator's pitch (LV2 param:frequency).",
+    "text": {
+      "en": "A frequency."
+    }
+  },
+  "cutoffFrequency": {
+    "word": "cutoffFrequency",
+    "doc": "A filter's cutoff frequency (LV2 param:cutoffFrequency).",
+    "text": {
+      "en": "A filter's cutoff frequency."
+    }
+  },
+  "resonance": {
+    "word": "resonance",
+    "doc": "A filter's resonance (LV2 param:resonance).",
+    "text": {
+      "en": "A filter's resonance."
+    }
+  },
+  "bypass": {
+    "word": "bypass",
+    "doc": "On when the process is bypassed (LV2 param:bypass); the inverse of enabled.",
+    "text": {
+      "en": "On when the process is bypassed."
+    }
+  },
+  "wetDryRatio": {
+    "word": "wetDryRatio",
+    "doc": "The mix of a wet and a dry signal (LV2 param:wetDryRatio).",
+    "text": {
+      "en": "The mix of a wet and a dry signal."
+    }
+  },
+  "delay": {
+    "word": "delay",
+    "doc": "A delay time (LV2 param:delay).",
+    "text": {
+      "en": "A delay time."
+    }
+  },
+  "enabled": {
+    "word": "enabled",
+    "doc": "On when the process is on (LV2 lv2:enabled); the inverse of bypass.",
+    "text": {
+      "en": "On when the process is on."
+    }
+  },
+  "range": {
+    "word": "range",
+    "doc": "How far a process may act: a gate's or an expander's range.",
+    "text": {
+      "en": "A gate's or an expander's range."
+    }
+  },
+  "knee": {
+    "word": "knee",
+    "doc": "How gradually a dynamics process engages around its threshold.",
+    "text": {
+      "en": "A dynamics knee."
+    }
+  },
+  "hysteresis": {
+    "word": "hysteresis",
+    "doc": "The gap between a gate's opening and closing levels.",
+    "text": {
+      "en": "A gate's hysteresis."
+    }
+  },
+  "makeup": {
+    "word": "makeup",
+    "doc": "The gain applied after a dynamics process.",
+    "text": {
+      "en": "A makeup gain."
+    }
+  },
+  "lookahead": {
+    "word": "lookahead",
+    "doc": "How far ahead a process reads its input.",
+    "text": {
+      "en": "A lookahead time."
+    }
+  },
+  "ceiling": {
+    "word": "ceiling",
+    "doc": "The level a limiter's output never exceeds.",
+    "text": {
+      "en": "A limiter's ceiling."
+    }
+  },
+  "output": {
+    "word": "output",
+    "doc": "The output level of a process.",
+    "text": {
+      "en": "An output level."
+    }
+  },
+  "q": {
+    "word": "q",
+    "doc": "An EQ band's or a filter's quality factor.",
+    "text": {
+      "en": "A quality factor, Q."
+    }
+  },
+  "bandwidth": {
+    "word": "bandwidth",
+    "doc": "An EQ band's or a filter's width, in octaves; q is its quality factor.",
+    "text": {
+      "en": "A bandwidth, in octaves."
+    }
+  },
+  "slope": {
+    "word": "slope",
+    "doc": "How steeply a filter or a shelf rolls off.",
+    "text": {
+      "en": "A filter's slope."
+    }
+  },
+  "width": {
+    "word": "width",
+    "doc": "A stereo width.",
+    "text": {
+      "en": "A stereo width."
+    }
+  },
+  "drive": {
+    "word": "drive",
+    "doc": "How hard a saturation or distortion is driven.",
+    "text": {
+      "en": "A drive amount."
+    }
+  },
+  "tone": {
+    "word": "tone",
+    "doc": "A tone control: a brightness or a darkness.",
+    "text": {
+      "en": "A tone control."
+    }
+  },
+  "rate": {
+    "word": "rate",
+    "doc": "The rate of a modulation, such as an LFO's speed.",
+    "text": {
+      "en": "A modulation rate."
+    }
+  },
+  "depth": {
+    "word": "depth",
+    "doc": "The depth of a modulation.",
+    "text": {
+      "en": "A modulation depth."
+    }
+  },
+  "feedback": {
+    "word": "feedback",
+    "doc": "How much of a process's output feeds back into its input.",
+    "text": {
+      "en": "A feedback amount."
+    }
+  },
+  "spread": {
+    "word": "spread",
+    "doc": "How far voices or taps are spread apart.",
+    "text": {
+      "en": "A spread."
+    }
+  },
+  "predelay": {
+    "word": "predelay",
+    "doc": "The delay before a reverb's tail.",
+    "text": {
+      "en": "A reverb's predelay."
+    }
+  },
+  "size": {
+    "word": "size",
+    "doc": "A reverb's room size.",
+    "text": {
+      "en": "A room size."
+    }
+  },
+  "damping": {
+    "word": "damping",
+    "doc": "How fast a reverb's high frequencies die away.",
+    "text": {
+      "en": "A reverb's damping."
+    }
+  },
+  "lowCut": {
+    "word": "lowCut",
+    "doc": "A low cut, a high-pass corner.",
+    "text": {
+      "en": "A low cut."
+    }
+  },
+  "highCut": {
+    "word": "highCut",
+    "doc": "A high cut, a low-pass corner.",
+    "text": {
+      "en": "A high cut."
+    }
+  },
+  "shift": {
+    "word": "shift",
+    "doc": "A pitch or a frequency shift.",
+    "text": {
+      "en": "A pitch or frequency shift."
+    }
+  },
+  "fine": {
+    "word": "fine",
+    "doc": "A fine adjustment of another control.",
+    "text": {
+      "en": "A fine adjustment."
+    }
+  },
+  "sync": {
+    "word": "sync",
+    "doc": "On when a time follows the host's tempo.",
+    "text": {
+      "en": "On when a time follows the tempo."
+    }
+  },
+  "division": {
+    "word": "division",
+    "doc": "A note division a tempo-synced time takes.",
+    "text": {
+      "en": "A note division."
+    }
+  },
+  "listen": {
+    "word": "listen",
+    "doc": "On when the process's side signal is heard alone.",
+    "text": {
+      "en": "On when the side signal is heard alone."
+    }
+  },
+  "shape": {
+    "word": "shape",
+    "doc": "A choice of waveform or curve shape.",
+    "text": {
+      "en": "A choice of shape."
+    }
+  },
+  "model": {
+    "word": "model",
+    "doc": "A choice of the modelled unit.",
+    "text": {
+      "en": "A choice of model."
+    }
+  },
+  "algorithm": {
+    "word": "algorithm",
+    "doc": "A choice of algorithm.",
+    "text": {
+      "en": "A choice of algorithm."
+    }
+  },
+  "mode": {
+    "word": "mode",
+    "doc": "A choice of mode.",
+    "text": {
+      "en": "A choice of mode."
+    }
+  },
+  "type": {
+    "word": "type",
+    "doc": "A choice of type, such as a filter's.",
+    "text": {
+      "en": "A choice of type."
+    }
+  },
+  "pingpong": {
+    "word": "pingpong",
+    "doc": "On when a delay bounces between the channels.",
+    "text": {
+      "en": "On when a delay bounces between the channels."
+    }
+  },
+  "unknown": {
+    "word": "unknown",
+    "doc": "The plugin states no meaning: the control has no role and is bound to nothing.",
+    "text": {
+      "en": "The plugin states no meaning."
+    }
+  }
+};
+
+/**
  * The words of RESOURCE_KINDS, in their declared order.
  * @see data/resource-profile.json
  */
@@ -1370,4 +1713,59 @@ export const PARAM_UNITS_CLAP_ENCODED_WORDS = [
   "midiNote",
   "ratio",
   "coef"
+];
+
+/**
+ * The words of PARAM_MEANINGS, in their declared order.
+ * @see contract.d/param/param.json
+ */
+export const PARAM_MEANINGS_WORDS = [
+  "gain",
+  "threshold",
+  "ratio",
+  "attack",
+  "release",
+  "hold",
+  "decay",
+  "frequency",
+  "cutoffFrequency",
+  "resonance",
+  "bypass",
+  "wetDryRatio",
+  "delay",
+  "enabled",
+  "range",
+  "knee",
+  "hysteresis",
+  "makeup",
+  "lookahead",
+  "ceiling",
+  "output",
+  "q",
+  "bandwidth",
+  "slope",
+  "width",
+  "drive",
+  "tone",
+  "rate",
+  "depth",
+  "feedback",
+  "spread",
+  "predelay",
+  "size",
+  "damping",
+  "lowCut",
+  "highCut",
+  "shift",
+  "fine",
+  "sync",
+  "division",
+  "listen",
+  "shape",
+  "model",
+  "algorithm",
+  "mode",
+  "type",
+  "pingpong",
+  "unknown"
 ];

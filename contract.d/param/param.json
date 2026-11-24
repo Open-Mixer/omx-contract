@@ -1008,6 +1008,349 @@
           }
         ],
         "x-kind": "words"
+      },
+      "PARAM_MEANINGS": {
+        "description": "What a descriptor control does, its ROLE (docs/descriptors.md, \"Meanings\"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it.",
+        "x-since": "3.22.0",
+        "oneOf": [
+          {
+            "const": "gain",
+            "title": "gain",
+            "description": "A gain, a level change in dB or as a factor (LV2 param:gain).",
+            "x-code": 0,
+            "x-text": "A gain."
+          },
+          {
+            "const": "threshold",
+            "title": "threshold",
+            "description": "The level a dynamics process acts above or below (LV2 param:threshold).",
+            "x-code": 1,
+            "x-text": "A threshold."
+          },
+          {
+            "const": "ratio",
+            "title": "ratio",
+            "description": "A dynamics ratio, n:1 (LV2 param:ratio).",
+            "x-code": 2,
+            "x-text": "A dynamics ratio."
+          },
+          {
+            "const": "attack",
+            "title": "attack",
+            "description": "How fast a process engages (LV2 param:attack).",
+            "x-code": 3,
+            "x-text": "An attack time."
+          },
+          {
+            "const": "release",
+            "title": "release",
+            "description": "How fast a process lets go (LV2 param:release).",
+            "x-code": 4,
+            "x-text": "A release time."
+          },
+          {
+            "const": "hold",
+            "title": "hold",
+            "description": "How long a process holds before it releases (LV2 param:hold).",
+            "x-code": 5,
+            "x-text": "A hold time."
+          },
+          {
+            "const": "decay",
+            "title": "decay",
+            "description": "How fast a sound or an envelope dies away (LV2 param:decay).",
+            "x-code": 6,
+            "x-text": "A decay time."
+          },
+          {
+            "const": "frequency",
+            "title": "frequency",
+            "description": "A frequency: an EQ band's centre, an oscillator's pitch (LV2 param:frequency).",
+            "x-code": 7,
+            "x-text": "A frequency."
+          },
+          {
+            "const": "cutoffFrequency",
+            "title": "cutoffFrequency",
+            "description": "A filter's cutoff frequency (LV2 param:cutoffFrequency).",
+            "x-code": 8,
+            "x-text": "A filter's cutoff frequency."
+          },
+          {
+            "const": "resonance",
+            "title": "resonance",
+            "description": "A filter's resonance (LV2 param:resonance).",
+            "x-code": 9,
+            "x-text": "A filter's resonance."
+          },
+          {
+            "const": "bypass",
+            "title": "bypass",
+            "description": "On when the process is bypassed (LV2 param:bypass); the inverse of enabled.",
+            "x-code": 10,
+            "x-text": "On when the process is bypassed."
+          },
+          {
+            "const": "wetDryRatio",
+            "title": "wetDryRatio",
+            "description": "The mix of a wet and a dry signal (LV2 param:wetDryRatio).",
+            "x-code": 11,
+            "x-text": "The mix of a wet and a dry signal."
+          },
+          {
+            "const": "delay",
+            "title": "delay",
+            "description": "A delay time (LV2 param:delay).",
+            "x-code": 12,
+            "x-text": "A delay time."
+          },
+          {
+            "const": "enabled",
+            "title": "enabled",
+            "description": "On when the process is on (LV2 lv2:enabled); the inverse of bypass.",
+            "x-code": 13,
+            "x-text": "On when the process is on."
+          },
+          {
+            "const": "range",
+            "title": "range",
+            "description": "How far a process may act: a gate's or an expander's range.",
+            "x-code": 14,
+            "x-text": "A gate's or an expander's range."
+          },
+          {
+            "const": "knee",
+            "title": "knee",
+            "description": "How gradually a dynamics process engages around its threshold.",
+            "x-code": 15,
+            "x-text": "A dynamics knee."
+          },
+          {
+            "const": "hysteresis",
+            "title": "hysteresis",
+            "description": "The gap between a gate's opening and closing levels.",
+            "x-code": 16,
+            "x-text": "A gate's hysteresis."
+          },
+          {
+            "const": "makeup",
+            "title": "makeup",
+            "description": "The gain applied after a dynamics process.",
+            "x-code": 17,
+            "x-text": "A makeup gain."
+          },
+          {
+            "const": "lookahead",
+            "title": "lookahead",
+            "description": "How far ahead a process reads its input.",
+            "x-code": 18,
+            "x-text": "A lookahead time."
+          },
+          {
+            "const": "ceiling",
+            "title": "ceiling",
+            "description": "The level a limiter's output never exceeds.",
+            "x-code": 19,
+            "x-text": "A limiter's ceiling."
+          },
+          {
+            "const": "output",
+            "title": "output",
+            "description": "The output level of a process.",
+            "x-code": 20,
+            "x-text": "An output level."
+          },
+          {
+            "const": "q",
+            "title": "q",
+            "description": "An EQ band's or a filter's quality factor.",
+            "x-code": 21,
+            "x-text": "A quality factor, Q."
+          },
+          {
+            "const": "bandwidth",
+            "title": "bandwidth",
+            "description": "An EQ band's or a filter's width, in octaves; q is its quality factor.",
+            "x-code": 22,
+            "x-text": "A bandwidth, in octaves."
+          },
+          {
+            "const": "slope",
+            "title": "slope",
+            "description": "How steeply a filter or a shelf rolls off.",
+            "x-code": 23,
+            "x-text": "A filter's slope."
+          },
+          {
+            "const": "width",
+            "title": "width",
+            "description": "A stereo width.",
+            "x-code": 24,
+            "x-text": "A stereo width."
+          },
+          {
+            "const": "drive",
+            "title": "drive",
+            "description": "How hard a saturation or distortion is driven.",
+            "x-code": 25,
+            "x-text": "A drive amount."
+          },
+          {
+            "const": "tone",
+            "title": "tone",
+            "description": "A tone control: a brightness or a darkness.",
+            "x-code": 26,
+            "x-text": "A tone control."
+          },
+          {
+            "const": "rate",
+            "title": "rate",
+            "description": "The rate of a modulation, such as an LFO's speed.",
+            "x-code": 27,
+            "x-text": "A modulation rate."
+          },
+          {
+            "const": "depth",
+            "title": "depth",
+            "description": "The depth of a modulation.",
+            "x-code": 28,
+            "x-text": "A modulation depth."
+          },
+          {
+            "const": "feedback",
+            "title": "feedback",
+            "description": "How much of a process's output feeds back into its input.",
+            "x-code": 29,
+            "x-text": "A feedback amount."
+          },
+          {
+            "const": "spread",
+            "title": "spread",
+            "description": "How far voices or taps are spread apart.",
+            "x-code": 30,
+            "x-text": "A spread."
+          },
+          {
+            "const": "predelay",
+            "title": "predelay",
+            "description": "The delay before a reverb's tail.",
+            "x-code": 31,
+            "x-text": "A reverb's predelay."
+          },
+          {
+            "const": "size",
+            "title": "size",
+            "description": "A reverb's room size.",
+            "x-code": 32,
+            "x-text": "A room size."
+          },
+          {
+            "const": "damping",
+            "title": "damping",
+            "description": "How fast a reverb's high frequencies die away.",
+            "x-code": 33,
+            "x-text": "A reverb's damping."
+          },
+          {
+            "const": "lowCut",
+            "title": "lowCut",
+            "description": "A low cut, a high-pass corner.",
+            "x-code": 34,
+            "x-text": "A low cut."
+          },
+          {
+            "const": "highCut",
+            "title": "highCut",
+            "description": "A high cut, a low-pass corner.",
+            "x-code": 35,
+            "x-text": "A high cut."
+          },
+          {
+            "const": "shift",
+            "title": "shift",
+            "description": "A pitch or a frequency shift.",
+            "x-code": 36,
+            "x-text": "A pitch or frequency shift."
+          },
+          {
+            "const": "fine",
+            "title": "fine",
+            "description": "A fine adjustment of another control.",
+            "x-code": 37,
+            "x-text": "A fine adjustment."
+          },
+          {
+            "const": "sync",
+            "title": "sync",
+            "description": "On when a time follows the host's tempo.",
+            "x-code": 38,
+            "x-text": "On when a time follows the tempo."
+          },
+          {
+            "const": "division",
+            "title": "division",
+            "description": "A note division a tempo-synced time takes.",
+            "x-code": 39,
+            "x-text": "A note division."
+          },
+          {
+            "const": "listen",
+            "title": "listen",
+            "description": "On when the process's side signal is heard alone.",
+            "x-code": 40,
+            "x-text": "On when the side signal is heard alone."
+          },
+          {
+            "const": "shape",
+            "title": "shape",
+            "description": "A choice of waveform or curve shape.",
+            "x-code": 41,
+            "x-text": "A choice of shape."
+          },
+          {
+            "const": "model",
+            "title": "model",
+            "description": "A choice of the modelled unit.",
+            "x-code": 42,
+            "x-text": "A choice of model."
+          },
+          {
+            "const": "algorithm",
+            "title": "algorithm",
+            "description": "A choice of algorithm.",
+            "x-code": 43,
+            "x-text": "A choice of algorithm."
+          },
+          {
+            "const": "mode",
+            "title": "mode",
+            "description": "A choice of mode.",
+            "x-code": 44,
+            "x-text": "A choice of mode."
+          },
+          {
+            "const": "type",
+            "title": "type",
+            "description": "A choice of type, such as a filter's.",
+            "x-code": 45,
+            "x-text": "A choice of type."
+          },
+          {
+            "const": "pingpong",
+            "title": "pingpong",
+            "description": "On when a delay bounces between the channels.",
+            "x-code": 46,
+            "x-text": "On when a delay bounces between the channels."
+          },
+          {
+            "const": "unknown",
+            "title": "unknown",
+            "description": "The plugin states no meaning: the control has no role and is bound to nothing.",
+            "x-code": 47,
+            "x-text": "The plugin states no meaning."
+          }
+        ],
+        "x-kind": "words"
       }
     }
   }

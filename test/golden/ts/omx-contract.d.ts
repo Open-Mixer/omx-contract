@@ -1110,6 +1110,349 @@ export declare const PARAM_UNITS_CLAP_ENCODED: {
 };
 
 /**
+ * What a descriptor control does, its ROLE (docs/descriptors.md, "Meanings"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it.
+ * @see contract.d/param/param.json
+ */
+export declare const PARAM_MEANINGS: {
+  readonly gain: {
+    readonly word: "gain";
+    readonly doc: "A gain, a level change in dB or as a factor (LV2 param:gain).";
+    readonly text: {
+      readonly en: "A gain.";
+    };
+  };
+  readonly threshold: {
+    readonly word: "threshold";
+    readonly doc: "The level a dynamics process acts above or below (LV2 param:threshold).";
+    readonly text: {
+      readonly en: "A threshold.";
+    };
+  };
+  readonly ratio: {
+    readonly word: "ratio";
+    readonly doc: "A dynamics ratio, n:1 (LV2 param:ratio).";
+    readonly text: {
+      readonly en: "A dynamics ratio.";
+    };
+  };
+  readonly attack: {
+    readonly word: "attack";
+    readonly doc: "How fast a process engages (LV2 param:attack).";
+    readonly text: {
+      readonly en: "An attack time.";
+    };
+  };
+  readonly release: {
+    readonly word: "release";
+    readonly doc: "How fast a process lets go (LV2 param:release).";
+    readonly text: {
+      readonly en: "A release time.";
+    };
+  };
+  readonly hold: {
+    readonly word: "hold";
+    readonly doc: "How long a process holds before it releases (LV2 param:hold).";
+    readonly text: {
+      readonly en: "A hold time.";
+    };
+  };
+  readonly decay: {
+    readonly word: "decay";
+    readonly doc: "How fast a sound or an envelope dies away (LV2 param:decay).";
+    readonly text: {
+      readonly en: "A decay time.";
+    };
+  };
+  readonly frequency: {
+    readonly word: "frequency";
+    readonly doc: "A frequency: an EQ band's centre, an oscillator's pitch (LV2 param:frequency).";
+    readonly text: {
+      readonly en: "A frequency.";
+    };
+  };
+  readonly cutoffFrequency: {
+    readonly word: "cutoffFrequency";
+    readonly doc: "A filter's cutoff frequency (LV2 param:cutoffFrequency).";
+    readonly text: {
+      readonly en: "A filter's cutoff frequency.";
+    };
+  };
+  readonly resonance: {
+    readonly word: "resonance";
+    readonly doc: "A filter's resonance (LV2 param:resonance).";
+    readonly text: {
+      readonly en: "A filter's resonance.";
+    };
+  };
+  readonly bypass: {
+    readonly word: "bypass";
+    readonly doc: "On when the process is bypassed (LV2 param:bypass); the inverse of enabled.";
+    readonly text: {
+      readonly en: "On when the process is bypassed.";
+    };
+  };
+  readonly wetDryRatio: {
+    readonly word: "wetDryRatio";
+    readonly doc: "The mix of a wet and a dry signal (LV2 param:wetDryRatio).";
+    readonly text: {
+      readonly en: "The mix of a wet and a dry signal.";
+    };
+  };
+  readonly delay: {
+    readonly word: "delay";
+    readonly doc: "A delay time (LV2 param:delay).";
+    readonly text: {
+      readonly en: "A delay time.";
+    };
+  };
+  readonly enabled: {
+    readonly word: "enabled";
+    readonly doc: "On when the process is on (LV2 lv2:enabled); the inverse of bypass.";
+    readonly text: {
+      readonly en: "On when the process is on.";
+    };
+  };
+  readonly range: {
+    readonly word: "range";
+    readonly doc: "How far a process may act: a gate's or an expander's range.";
+    readonly text: {
+      readonly en: "A gate's or an expander's range.";
+    };
+  };
+  readonly knee: {
+    readonly word: "knee";
+    readonly doc: "How gradually a dynamics process engages around its threshold.";
+    readonly text: {
+      readonly en: "A dynamics knee.";
+    };
+  };
+  readonly hysteresis: {
+    readonly word: "hysteresis";
+    readonly doc: "The gap between a gate's opening and closing levels.";
+    readonly text: {
+      readonly en: "A gate's hysteresis.";
+    };
+  };
+  readonly makeup: {
+    readonly word: "makeup";
+    readonly doc: "The gain applied after a dynamics process.";
+    readonly text: {
+      readonly en: "A makeup gain.";
+    };
+  };
+  readonly lookahead: {
+    readonly word: "lookahead";
+    readonly doc: "How far ahead a process reads its input.";
+    readonly text: {
+      readonly en: "A lookahead time.";
+    };
+  };
+  readonly ceiling: {
+    readonly word: "ceiling";
+    readonly doc: "The level a limiter's output never exceeds.";
+    readonly text: {
+      readonly en: "A limiter's ceiling.";
+    };
+  };
+  readonly output: {
+    readonly word: "output";
+    readonly doc: "The output level of a process.";
+    readonly text: {
+      readonly en: "An output level.";
+    };
+  };
+  readonly q: {
+    readonly word: "q";
+    readonly doc: "An EQ band's or a filter's quality factor.";
+    readonly text: {
+      readonly en: "A quality factor, Q.";
+    };
+  };
+  readonly bandwidth: {
+    readonly word: "bandwidth";
+    readonly doc: "An EQ band's or a filter's width, in octaves; q is its quality factor.";
+    readonly text: {
+      readonly en: "A bandwidth, in octaves.";
+    };
+  };
+  readonly slope: {
+    readonly word: "slope";
+    readonly doc: "How steeply a filter or a shelf rolls off.";
+    readonly text: {
+      readonly en: "A filter's slope.";
+    };
+  };
+  readonly width: {
+    readonly word: "width";
+    readonly doc: "A stereo width.";
+    readonly text: {
+      readonly en: "A stereo width.";
+    };
+  };
+  readonly drive: {
+    readonly word: "drive";
+    readonly doc: "How hard a saturation or distortion is driven.";
+    readonly text: {
+      readonly en: "A drive amount.";
+    };
+  };
+  readonly tone: {
+    readonly word: "tone";
+    readonly doc: "A tone control: a brightness or a darkness.";
+    readonly text: {
+      readonly en: "A tone control.";
+    };
+  };
+  readonly rate: {
+    readonly word: "rate";
+    readonly doc: "The rate of a modulation, such as an LFO's speed.";
+    readonly text: {
+      readonly en: "A modulation rate.";
+    };
+  };
+  readonly depth: {
+    readonly word: "depth";
+    readonly doc: "The depth of a modulation.";
+    readonly text: {
+      readonly en: "A modulation depth.";
+    };
+  };
+  readonly feedback: {
+    readonly word: "feedback";
+    readonly doc: "How much of a process's output feeds back into its input.";
+    readonly text: {
+      readonly en: "A feedback amount.";
+    };
+  };
+  readonly spread: {
+    readonly word: "spread";
+    readonly doc: "How far voices or taps are spread apart.";
+    readonly text: {
+      readonly en: "A spread.";
+    };
+  };
+  readonly predelay: {
+    readonly word: "predelay";
+    readonly doc: "The delay before a reverb's tail.";
+    readonly text: {
+      readonly en: "A reverb's predelay.";
+    };
+  };
+  readonly size: {
+    readonly word: "size";
+    readonly doc: "A reverb's room size.";
+    readonly text: {
+      readonly en: "A room size.";
+    };
+  };
+  readonly damping: {
+    readonly word: "damping";
+    readonly doc: "How fast a reverb's high frequencies die away.";
+    readonly text: {
+      readonly en: "A reverb's damping.";
+    };
+  };
+  readonly lowCut: {
+    readonly word: "lowCut";
+    readonly doc: "A low cut, a high-pass corner.";
+    readonly text: {
+      readonly en: "A low cut.";
+    };
+  };
+  readonly highCut: {
+    readonly word: "highCut";
+    readonly doc: "A high cut, a low-pass corner.";
+    readonly text: {
+      readonly en: "A high cut.";
+    };
+  };
+  readonly shift: {
+    readonly word: "shift";
+    readonly doc: "A pitch or a frequency shift.";
+    readonly text: {
+      readonly en: "A pitch or frequency shift.";
+    };
+  };
+  readonly fine: {
+    readonly word: "fine";
+    readonly doc: "A fine adjustment of another control.";
+    readonly text: {
+      readonly en: "A fine adjustment.";
+    };
+  };
+  readonly sync: {
+    readonly word: "sync";
+    readonly doc: "On when a time follows the host's tempo.";
+    readonly text: {
+      readonly en: "On when a time follows the tempo.";
+    };
+  };
+  readonly division: {
+    readonly word: "division";
+    readonly doc: "A note division a tempo-synced time takes.";
+    readonly text: {
+      readonly en: "A note division.";
+    };
+  };
+  readonly listen: {
+    readonly word: "listen";
+    readonly doc: "On when the process's side signal is heard alone.";
+    readonly text: {
+      readonly en: "On when the side signal is heard alone.";
+    };
+  };
+  readonly shape: {
+    readonly word: "shape";
+    readonly doc: "A choice of waveform or curve shape.";
+    readonly text: {
+      readonly en: "A choice of shape.";
+    };
+  };
+  readonly model: {
+    readonly word: "model";
+    readonly doc: "A choice of the modelled unit.";
+    readonly text: {
+      readonly en: "A choice of model.";
+    };
+  };
+  readonly algorithm: {
+    readonly word: "algorithm";
+    readonly doc: "A choice of algorithm.";
+    readonly text: {
+      readonly en: "A choice of algorithm.";
+    };
+  };
+  readonly mode: {
+    readonly word: "mode";
+    readonly doc: "A choice of mode.";
+    readonly text: {
+      readonly en: "A choice of mode.";
+    };
+  };
+  readonly type: {
+    readonly word: "type";
+    readonly doc: "A choice of type, such as a filter's.";
+    readonly text: {
+      readonly en: "A choice of type.";
+    };
+  };
+  readonly pingpong: {
+    readonly word: "pingpong";
+    readonly doc: "On when a delay bounces between the channels.";
+    readonly text: {
+      readonly en: "On when a delay bounces between the channels.";
+    };
+  };
+  readonly unknown: {
+    readonly word: "unknown";
+    readonly doc: "The plugin states no meaning: the control has no role and is bound to nothing.";
+    readonly text: {
+      readonly en: "The plugin states no meaning.";
+    };
+  };
+};
+
+/**
  * The words of RESOURCE_KINDS, in their declared order.
  * @see data/resource-profile.json
  */
@@ -1156,3 +1499,9 @@ export declare const PARAM_UNIT_SCOPES_WORDS: readonly ["param", "descriptor"];
  * @see contract.d/param/param.json
  */
 export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dB-oct", "LUFS", "dB-s", "dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef"];
+
+/**
+ * The words of PARAM_MEANINGS, in their declared order.
+ * @see contract.d/param/param.json
+ */
+export declare const PARAM_MEANINGS_WORDS: readonly ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "unknown"];

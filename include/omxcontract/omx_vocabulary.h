@@ -482,4 +482,168 @@
     X(28u, "mile", MILE) X(29u, "deg", DEGREE) X(30u, "midiNote", MIDI_NOTE) X(31u, "ratio", RATIO) \
     X(32u, "coef", COEF)
 
+/* PARAM_MEANINGS (contract.d/param/param.json) */
+#define OMX_PARAM_MEANINGS_GAIN "gain" ///< A gain, a level change in dB or as a factor (LV2 param:gain).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_GAIN. */
+#define OMX_PARAM_MEANINGS_GAIN_TEXT_EN "A gain."
+#define OMX_PARAM_MEANINGS_THRESHOLD "threshold" ///< The level a dynamics process acts above or below (LV2 param:threshold).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_THRESHOLD. */
+#define OMX_PARAM_MEANINGS_THRESHOLD_TEXT_EN "A threshold."
+#define OMX_PARAM_MEANINGS_RATIO "ratio" ///< A dynamics ratio, n:1 (LV2 param:ratio).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_RATIO. */
+#define OMX_PARAM_MEANINGS_RATIO_TEXT_EN "A dynamics ratio."
+#define OMX_PARAM_MEANINGS_ATTACK "attack" ///< How fast a process engages (LV2 param:attack).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_ATTACK. */
+#define OMX_PARAM_MEANINGS_ATTACK_TEXT_EN "An attack time."
+#define OMX_PARAM_MEANINGS_RELEASE "release" ///< How fast a process lets go (LV2 param:release).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_RELEASE. */
+#define OMX_PARAM_MEANINGS_RELEASE_TEXT_EN "A release time."
+#define OMX_PARAM_MEANINGS_HOLD "hold" ///< How long a process holds before it releases (LV2 param:hold).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_HOLD. */
+#define OMX_PARAM_MEANINGS_HOLD_TEXT_EN "A hold time."
+#define OMX_PARAM_MEANINGS_DECAY "decay" ///< How fast a sound or an envelope dies away (LV2 param:decay).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DECAY. */
+#define OMX_PARAM_MEANINGS_DECAY_TEXT_EN "A decay time."
+#define OMX_PARAM_MEANINGS_FREQUENCY "frequency" ///< A frequency: an EQ band's centre, an oscillator's pitch (LV2 param:frequency).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_FREQUENCY. */
+#define OMX_PARAM_MEANINGS_FREQUENCY_TEXT_EN "A frequency."
+#define OMX_PARAM_MEANINGS_CUTOFF_FREQUENCY "cutoffFrequency" ///< A filter's cutoff frequency (LV2 param:cutoffFrequency).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_CUTOFF_FREQUENCY. */
+#define OMX_PARAM_MEANINGS_CUTOFF_FREQUENCY_TEXT_EN "A filter's cutoff frequency."
+#define OMX_PARAM_MEANINGS_RESONANCE "resonance" ///< A filter's resonance (LV2 param:resonance).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_RESONANCE. */
+#define OMX_PARAM_MEANINGS_RESONANCE_TEXT_EN "A filter's resonance."
+#define OMX_PARAM_MEANINGS_BYPASS "bypass" ///< On when the process is bypassed (LV2 param:bypass); the inverse of enabled.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_BYPASS. */
+#define OMX_PARAM_MEANINGS_BYPASS_TEXT_EN "On when the process is bypassed."
+#define OMX_PARAM_MEANINGS_WET_DRY_RATIO "wetDryRatio" ///< The mix of a wet and a dry signal (LV2 param:wetDryRatio).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_WET_DRY_RATIO. */
+#define OMX_PARAM_MEANINGS_WET_DRY_RATIO_TEXT_EN "The mix of a wet and a dry signal."
+#define OMX_PARAM_MEANINGS_DELAY "delay" ///< A delay time (LV2 param:delay).
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DELAY. */
+#define OMX_PARAM_MEANINGS_DELAY_TEXT_EN "A delay time."
+#define OMX_PARAM_MEANINGS_ENABLED "enabled" ///< On when the process is on (LV2 lv2:enabled); the inverse of bypass.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_ENABLED. */
+#define OMX_PARAM_MEANINGS_ENABLED_TEXT_EN "On when the process is on."
+#define OMX_PARAM_MEANINGS_RANGE "range" ///< How far a process may act: a gate's or an expander's range.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_RANGE. */
+#define OMX_PARAM_MEANINGS_RANGE_TEXT_EN "A gate's or an expander's range."
+#define OMX_PARAM_MEANINGS_KNEE "knee" ///< How gradually a dynamics process engages around its threshold.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_KNEE. */
+#define OMX_PARAM_MEANINGS_KNEE_TEXT_EN "A dynamics knee."
+#define OMX_PARAM_MEANINGS_HYSTERESIS "hysteresis" ///< The gap between a gate's opening and closing levels.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_HYSTERESIS. */
+#define OMX_PARAM_MEANINGS_HYSTERESIS_TEXT_EN "A gate's hysteresis."
+#define OMX_PARAM_MEANINGS_MAKEUP "makeup" ///< The gain applied after a dynamics process.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_MAKEUP. */
+#define OMX_PARAM_MEANINGS_MAKEUP_TEXT_EN "A makeup gain."
+#define OMX_PARAM_MEANINGS_LOOKAHEAD "lookahead" ///< How far ahead a process reads its input.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_LOOKAHEAD. */
+#define OMX_PARAM_MEANINGS_LOOKAHEAD_TEXT_EN "A lookahead time."
+#define OMX_PARAM_MEANINGS_CEILING "ceiling" ///< The level a limiter's output never exceeds.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_CEILING. */
+#define OMX_PARAM_MEANINGS_CEILING_TEXT_EN "A limiter's ceiling."
+#define OMX_PARAM_MEANINGS_OUTPUT "output" ///< The output level of a process.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_OUTPUT. */
+#define OMX_PARAM_MEANINGS_OUTPUT_TEXT_EN "An output level."
+#define OMX_PARAM_MEANINGS_Q "q" ///< An EQ band's or a filter's quality factor.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_Q. */
+#define OMX_PARAM_MEANINGS_Q_TEXT_EN "A quality factor, Q."
+#define OMX_PARAM_MEANINGS_BANDWIDTH "bandwidth" ///< An EQ band's or a filter's width, in octaves; q is its quality factor.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_BANDWIDTH. */
+#define OMX_PARAM_MEANINGS_BANDWIDTH_TEXT_EN "A bandwidth, in octaves."
+#define OMX_PARAM_MEANINGS_SLOPE "slope" ///< How steeply a filter or a shelf rolls off.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SLOPE. */
+#define OMX_PARAM_MEANINGS_SLOPE_TEXT_EN "A filter's slope."
+#define OMX_PARAM_MEANINGS_WIDTH "width" ///< A stereo width.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_WIDTH. */
+#define OMX_PARAM_MEANINGS_WIDTH_TEXT_EN "A stereo width."
+#define OMX_PARAM_MEANINGS_DRIVE "drive" ///< How hard a saturation or distortion is driven.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DRIVE. */
+#define OMX_PARAM_MEANINGS_DRIVE_TEXT_EN "A drive amount."
+#define OMX_PARAM_MEANINGS_TONE "tone" ///< A tone control: a brightness or a darkness.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_TONE. */
+#define OMX_PARAM_MEANINGS_TONE_TEXT_EN "A tone control."
+#define OMX_PARAM_MEANINGS_RATE "rate" ///< The rate of a modulation, such as an LFO's speed.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_RATE. */
+#define OMX_PARAM_MEANINGS_RATE_TEXT_EN "A modulation rate."
+#define OMX_PARAM_MEANINGS_DEPTH "depth" ///< The depth of a modulation.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DEPTH. */
+#define OMX_PARAM_MEANINGS_DEPTH_TEXT_EN "A modulation depth."
+#define OMX_PARAM_MEANINGS_FEEDBACK "feedback" ///< How much of a process's output feeds back into its input.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_FEEDBACK. */
+#define OMX_PARAM_MEANINGS_FEEDBACK_TEXT_EN "A feedback amount."
+#define OMX_PARAM_MEANINGS_SPREAD "spread" ///< How far voices or taps are spread apart.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SPREAD. */
+#define OMX_PARAM_MEANINGS_SPREAD_TEXT_EN "A spread."
+#define OMX_PARAM_MEANINGS_PREDELAY "predelay" ///< The delay before a reverb's tail.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_PREDELAY. */
+#define OMX_PARAM_MEANINGS_PREDELAY_TEXT_EN "A reverb's predelay."
+#define OMX_PARAM_MEANINGS_SIZE "size" ///< A reverb's room size.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SIZE. */
+#define OMX_PARAM_MEANINGS_SIZE_TEXT_EN "A room size."
+#define OMX_PARAM_MEANINGS_DAMPING "damping" ///< How fast a reverb's high frequencies die away.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DAMPING. */
+#define OMX_PARAM_MEANINGS_DAMPING_TEXT_EN "A reverb's damping."
+#define OMX_PARAM_MEANINGS_LOW_CUT "lowCut" ///< A low cut, a high-pass corner.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_LOW_CUT. */
+#define OMX_PARAM_MEANINGS_LOW_CUT_TEXT_EN "A low cut."
+#define OMX_PARAM_MEANINGS_HIGH_CUT "highCut" ///< A high cut, a low-pass corner.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_HIGH_CUT. */
+#define OMX_PARAM_MEANINGS_HIGH_CUT_TEXT_EN "A high cut."
+#define OMX_PARAM_MEANINGS_SHIFT "shift" ///< A pitch or a frequency shift.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SHIFT. */
+#define OMX_PARAM_MEANINGS_SHIFT_TEXT_EN "A pitch or frequency shift."
+#define OMX_PARAM_MEANINGS_FINE "fine" ///< A fine adjustment of another control.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_FINE. */
+#define OMX_PARAM_MEANINGS_FINE_TEXT_EN "A fine adjustment."
+#define OMX_PARAM_MEANINGS_SYNC "sync" ///< On when a time follows the host's tempo.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SYNC. */
+#define OMX_PARAM_MEANINGS_SYNC_TEXT_EN "On when a time follows the tempo."
+#define OMX_PARAM_MEANINGS_DIVISION "division" ///< A note division a tempo-synced time takes.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_DIVISION. */
+#define OMX_PARAM_MEANINGS_DIVISION_TEXT_EN "A note division."
+#define OMX_PARAM_MEANINGS_LISTEN "listen" ///< On when the process's side signal is heard alone.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_LISTEN. */
+#define OMX_PARAM_MEANINGS_LISTEN_TEXT_EN "On when the side signal is heard alone."
+#define OMX_PARAM_MEANINGS_SHAPE "shape" ///< A choice of waveform or curve shape.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_SHAPE. */
+#define OMX_PARAM_MEANINGS_SHAPE_TEXT_EN "A choice of shape."
+#define OMX_PARAM_MEANINGS_MODEL "model" ///< A choice of the modelled unit.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_MODEL. */
+#define OMX_PARAM_MEANINGS_MODEL_TEXT_EN "A choice of model."
+#define OMX_PARAM_MEANINGS_ALGORITHM "algorithm" ///< A choice of algorithm.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_ALGORITHM. */
+#define OMX_PARAM_MEANINGS_ALGORITHM_TEXT_EN "A choice of algorithm."
+#define OMX_PARAM_MEANINGS_MODE "mode" ///< A choice of mode.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_MODE. */
+#define OMX_PARAM_MEANINGS_MODE_TEXT_EN "A choice of mode."
+#define OMX_PARAM_MEANINGS_TYPE "type" ///< A choice of type, such as a filter's.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_TYPE. */
+#define OMX_PARAM_MEANINGS_TYPE_TEXT_EN "A choice of type."
+#define OMX_PARAM_MEANINGS_PINGPONG "pingpong" ///< On when a delay bounces between the channels.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_PINGPONG. */
+#define OMX_PARAM_MEANINGS_PINGPONG_TEXT_EN "On when a delay bounces between the channels."
+#define OMX_PARAM_MEANINGS_UNKNOWN "unknown" ///< The plugin states no meaning: the control has no role and is bound to nothing.
+/** The source sentence (English) of OMX_PARAM_MEANINGS_UNKNOWN. */
+#define OMX_PARAM_MEANINGS_UNKNOWN_TEXT_EN "The plugin states no meaning."
+/** The number of words of PARAM_MEANINGS. */
+#define OMX_PARAM_MEANINGS_COUNT 48u
+/** The words of PARAM_MEANINGS in their declared order, as a C initializer list. */
+#define OMX_PARAM_MEANINGS_INIT { "gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "unknown" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_MEANINGS, in order, the code being its place in the order. What a descriptor control does, its ROLE (docs/descriptors.md, "Meanings"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it. */
+#define OMX_PARAM_MEANINGS(X) \
+    X(0u, "gain", GAIN) X(1u, "threshold", THRESHOLD) X(2u, "ratio", RATIO) X(3u, "attack", ATTACK) \
+    X(4u, "release", RELEASE) X(5u, "hold", HOLD) X(6u, "decay", DECAY) X(7u, "frequency", FREQUENCY) \
+    X(8u, "cutoffFrequency", CUTOFF_FREQUENCY) X(9u, "resonance", RESONANCE) X(10u, "bypass", BYPASS) X(11u, "wetDryRatio", WET_DRY_RATIO) \
+    X(12u, "delay", DELAY) X(13u, "enabled", ENABLED) X(14u, "range", RANGE) X(15u, "knee", KNEE) \
+    X(16u, "hysteresis", HYSTERESIS) X(17u, "makeup", MAKEUP) X(18u, "lookahead", LOOKAHEAD) X(19u, "ceiling", CEILING) \
+    X(20u, "output", OUTPUT) X(21u, "q", Q) X(22u, "bandwidth", BANDWIDTH) X(23u, "slope", SLOPE) \
+    X(24u, "width", WIDTH) X(25u, "drive", DRIVE) X(26u, "tone", TONE) X(27u, "rate", RATE) \
+    X(28u, "depth", DEPTH) X(29u, "feedback", FEEDBACK) X(30u, "spread", SPREAD) X(31u, "predelay", PREDELAY) \
+    X(32u, "size", SIZE) X(33u, "damping", DAMPING) X(34u, "lowCut", LOW_CUT) X(35u, "highCut", HIGH_CUT) \
+    X(36u, "shift", SHIFT) X(37u, "fine", FINE) X(38u, "sync", SYNC) X(39u, "division", DIVISION) \
+    X(40u, "listen", LISTEN) X(41u, "shape", SHAPE) X(42u, "model", MODEL) X(43u, "algorithm", ALGORITHM) \
+    X(44u, "mode", MODE) X(45u, "type", TYPE) X(46u, "pingpong", PINGPONG) X(47u, "unknown", UNKNOWN)
+
 #endif /* OMX_VOCABULARY_H */

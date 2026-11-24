@@ -920,6 +920,349 @@
           "args": []
         }
       }
+    },
+    "PARAM_MEANINGS": {
+      "description": "What a descriptor control does, its ROLE (docs/descriptors.md, \"Meanings\"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it.",
+      "enum": [
+        "gain",
+        "threshold",
+        "ratio",
+        "attack",
+        "release",
+        "hold",
+        "decay",
+        "frequency",
+        "cutoffFrequency",
+        "resonance",
+        "bypass",
+        "wetDryRatio",
+        "delay",
+        "enabled",
+        "range",
+        "knee",
+        "hysteresis",
+        "makeup",
+        "lookahead",
+        "ceiling",
+        "output",
+        "q",
+        "bandwidth",
+        "slope",
+        "width",
+        "drive",
+        "tone",
+        "rate",
+        "depth",
+        "feedback",
+        "spread",
+        "predelay",
+        "size",
+        "damping",
+        "lowCut",
+        "highCut",
+        "shift",
+        "fine",
+        "sync",
+        "division",
+        "listen",
+        "shape",
+        "model",
+        "algorithm",
+        "mode",
+        "type",
+        "pingpong",
+        "unknown"
+      ],
+      "x-omx-texts": {
+        "gain": {
+          "text": {
+            "en": "A gain."
+          },
+          "args": []
+        },
+        "threshold": {
+          "text": {
+            "en": "A threshold."
+          },
+          "args": []
+        },
+        "ratio": {
+          "text": {
+            "en": "A dynamics ratio."
+          },
+          "args": []
+        },
+        "attack": {
+          "text": {
+            "en": "An attack time."
+          },
+          "args": []
+        },
+        "release": {
+          "text": {
+            "en": "A release time."
+          },
+          "args": []
+        },
+        "hold": {
+          "text": {
+            "en": "A hold time."
+          },
+          "args": []
+        },
+        "decay": {
+          "text": {
+            "en": "A decay time."
+          },
+          "args": []
+        },
+        "frequency": {
+          "text": {
+            "en": "A frequency."
+          },
+          "args": []
+        },
+        "cutoffFrequency": {
+          "text": {
+            "en": "A filter's cutoff frequency."
+          },
+          "args": []
+        },
+        "resonance": {
+          "text": {
+            "en": "A filter's resonance."
+          },
+          "args": []
+        },
+        "bypass": {
+          "text": {
+            "en": "On when the process is bypassed."
+          },
+          "args": []
+        },
+        "wetDryRatio": {
+          "text": {
+            "en": "The mix of a wet and a dry signal."
+          },
+          "args": []
+        },
+        "delay": {
+          "text": {
+            "en": "A delay time."
+          },
+          "args": []
+        },
+        "enabled": {
+          "text": {
+            "en": "On when the process is on."
+          },
+          "args": []
+        },
+        "range": {
+          "text": {
+            "en": "A gate's or an expander's range."
+          },
+          "args": []
+        },
+        "knee": {
+          "text": {
+            "en": "A dynamics knee."
+          },
+          "args": []
+        },
+        "hysteresis": {
+          "text": {
+            "en": "A gate's hysteresis."
+          },
+          "args": []
+        },
+        "makeup": {
+          "text": {
+            "en": "A makeup gain."
+          },
+          "args": []
+        },
+        "lookahead": {
+          "text": {
+            "en": "A lookahead time."
+          },
+          "args": []
+        },
+        "ceiling": {
+          "text": {
+            "en": "A limiter's ceiling."
+          },
+          "args": []
+        },
+        "output": {
+          "text": {
+            "en": "An output level."
+          },
+          "args": []
+        },
+        "q": {
+          "text": {
+            "en": "A quality factor, Q."
+          },
+          "args": []
+        },
+        "bandwidth": {
+          "text": {
+            "en": "A bandwidth, in octaves."
+          },
+          "args": []
+        },
+        "slope": {
+          "text": {
+            "en": "A filter's slope."
+          },
+          "args": []
+        },
+        "width": {
+          "text": {
+            "en": "A stereo width."
+          },
+          "args": []
+        },
+        "drive": {
+          "text": {
+            "en": "A drive amount."
+          },
+          "args": []
+        },
+        "tone": {
+          "text": {
+            "en": "A tone control."
+          },
+          "args": []
+        },
+        "rate": {
+          "text": {
+            "en": "A modulation rate."
+          },
+          "args": []
+        },
+        "depth": {
+          "text": {
+            "en": "A modulation depth."
+          },
+          "args": []
+        },
+        "feedback": {
+          "text": {
+            "en": "A feedback amount."
+          },
+          "args": []
+        },
+        "spread": {
+          "text": {
+            "en": "A spread."
+          },
+          "args": []
+        },
+        "predelay": {
+          "text": {
+            "en": "A reverb's predelay."
+          },
+          "args": []
+        },
+        "size": {
+          "text": {
+            "en": "A room size."
+          },
+          "args": []
+        },
+        "damping": {
+          "text": {
+            "en": "A reverb's damping."
+          },
+          "args": []
+        },
+        "lowCut": {
+          "text": {
+            "en": "A low cut."
+          },
+          "args": []
+        },
+        "highCut": {
+          "text": {
+            "en": "A high cut."
+          },
+          "args": []
+        },
+        "shift": {
+          "text": {
+            "en": "A pitch or frequency shift."
+          },
+          "args": []
+        },
+        "fine": {
+          "text": {
+            "en": "A fine adjustment."
+          },
+          "args": []
+        },
+        "sync": {
+          "text": {
+            "en": "On when a time follows the tempo."
+          },
+          "args": []
+        },
+        "division": {
+          "text": {
+            "en": "A note division."
+          },
+          "args": []
+        },
+        "listen": {
+          "text": {
+            "en": "On when the side signal is heard alone."
+          },
+          "args": []
+        },
+        "shape": {
+          "text": {
+            "en": "A choice of shape."
+          },
+          "args": []
+        },
+        "model": {
+          "text": {
+            "en": "A choice of model."
+          },
+          "args": []
+        },
+        "algorithm": {
+          "text": {
+            "en": "A choice of algorithm."
+          },
+          "args": []
+        },
+        "mode": {
+          "text": {
+            "en": "A choice of mode."
+          },
+          "args": []
+        },
+        "type": {
+          "text": {
+            "en": "A choice of type."
+          },
+          "args": []
+        },
+        "pingpong": {
+          "text": {
+            "en": "On when a delay bounces between the channels."
+          },
+          "args": []
+        },
+        "unknown": {
+          "text": {
+            "en": "The plugin states no meaning."
+          },
+          "args": []
+        }
+      }
     }
   }
 }

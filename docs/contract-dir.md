@@ -122,6 +122,16 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   - Not covered: a sheet or a scalar is not in the installed read (it is rebuilt by `render --with-domain` and read at
     run time), so its `x-source` reaches `links` through `--with-domain` only. A per-word source has no domain form,
     as it has no classic one.
+  - The move, as proved on omx-clap's HOSTING_*_CODES (19 items, omx-clap-core#136 at 0ab8db1, fedora:45): the items
+    leave data/ and the domain is their source; each item keeps its `x-file` and the codes header's block of the old
+    file's `render` word becomes the domain's `x-render`, with a root `x-file` of its own (one source per file: an item
+    the prefix rule keeps out of the domain, as HOSTED_STAGE_LIMITS, stays in the old file with the rest of its render
+    word). The owner then renders and checks links through `--with-domain <contractdir>/<domain>`, as it does for any
+    domain it rebuilds: the C spelling an impl's code uses (`CLAP_HOST_CODE_<NAME>`) is a name of the item only where
+    that render word is read, so `links --check --package <domain>` over the installed read alone reports such an impl
+    as `contract.source.unread`. Result: the read validates with one home, `links --check` checks the moved items' 5
+    links among 22 with no problem, and clap_host_limits.h renders byte for byte; a rendered vocabulary's per-item
+    comment names the domain document in place of the data file.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
   data path it came from), `x-kind` (`codes`, `words`, `set`, `verbs`, `terms`, `map`, `scalar` or `sheet`) and `x-source` (its `source`); on each

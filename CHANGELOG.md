@@ -19,6 +19,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   (#61, ruling R1 of 2026-11-24: declare, don't infer). Its words are PARAM_MEANINGS, a words item of the `param`
   domain, and the schema's `$defs.meaning` is their render (`tools/unit-enum.mjs`); `bandwidth` (a band's width in
   octaves) is added beside `q`. A built or scanned control the plugin states no role for writes `unknown`.
+- ADDED: nine PARAM_MEANINGS words for roles authored controls play and no word named (#221): `amount`, `number`,
+  `balance`, `link`, `solo`, `order`, `acceleration`, `dispersion` and `window`, before `unknown`, which stays last
+  (its code moves from 47 to 56; the domain is experimental). The schema's `$defs.meaning` has 57 words.
 - FIXED: `translate --source` no longer skips a source key by its shape (omx-contract#48, #186): only a key starting
   with `_` is file metadata; any other key that is not a sentence `{ text, args }` (a bare string) refuses the file by
   name, so `--check` never counts fewer keys than the source holds and calls the catalogs whole.

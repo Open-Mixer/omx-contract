@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
+  <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
+  do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in
+  its GENERATED comment (the owner's `banner` words) and is unchanged. omx-clap re-renders its hosting codes module.
 - FIXED: tools/kernel-recipe.mjs is installed 0755: the deb build's lintian refused it as script-not-executable
   (a #! file shipped 0644). Every #! file under tools/ is 100755 in git, and two tests hold both.
 - FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a

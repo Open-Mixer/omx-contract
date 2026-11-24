@@ -4,6 +4,17 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- CHANGED (development phase, every installer follows): `install-contract-dir.sh --domain <dir> <contractdir> <package>`
+  names the installing package, and a domain whose `info.x-owner` is another is refused (#88). plugin-db,
+  plugin-hostd-protocol, omx-clap and omx-dsp name themselves in their install line when they take this release.
+- ADDED: `domain check` holds a `stable` domain to an append-only ratchet of its own version: a removal or a shifted
+  code needs the MAJOR, an addition at least a MINOR (#89). Experimental domains are checked as before.
+- ADDED: a domain words item spells `units`, `bases`, `extension`, `figureUnit` and `basis` as `x-units`, `x-bases`,
+  `x-extension`, `x-figure-unit` and `x-basis` (V28, #189), so the resource hints can move to plugin-hostd.
+- ADDED: `render --target md`, one reference page per domain and per package, refusing an undocumented item, word or
+  code (#202); `make docs-site` publishes them under `domains/`.
+- ADDED: a shape may hold a map keyed by data (`additionalProperties` the value's schema, no `properties`), and a key
+  that is no C identifier names its identifier in `x-name` (#75).
 - FIXED: `translate --source` no longer skips a source key by its shape (omx-contract#48, #186): only a key starting
   with `_` is file metadata; any other key that is not a sentence `{ text, args }` (a bare string) refuses the file by
   name, so `--check` never counts fewer keys than the source holds and calls the catalogs whole.

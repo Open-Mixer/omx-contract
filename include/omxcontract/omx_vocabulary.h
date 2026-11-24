@@ -69,7 +69,7 @@
     X(12u, "network", NETWORK) X(13u, "state", STATE)
 
 /* RESOURCE_UNITS (data/resource-profile.json) */
-#define OMX_RESOURCE_UNITS_NS_PER_SAMPLE "ns-per-sample"
+#define OMX_RESOURCE_UNITS_NS_PER_SAMPLE "nsPerSample"
 /** The source sentence (English) of OMX_RESOURCE_UNITS_NS_PER_SAMPLE. */
 #define OMX_RESOURCE_UNITS_NS_PER_SAMPLE_TEXT_EN "Nanoseconds per sample."
 #define OMX_RESOURCE_UNITS_FRAMES "frames"
@@ -99,10 +99,10 @@
 /** The number of words of RESOURCE_UNITS. */
 #define OMX_RESOURCE_UNITS_COUNT 9u
 /** The words of RESOURCE_UNITS in their declared order, as a C initializer list. */
-#define OMX_RESOURCE_UNITS_INIT { "ns-per-sample", "frames", "ms", "us", "s", "bytes", "count", "ratio", "flag" }
+#define OMX_RESOURCE_UNITS_INIT { "nsPerSample", "frames", "ms", "us", "s", "bytes", "count", "ratio", "flag" }
 /** Expands `X(code, "word", NAME)` once per word of RESOURCE_UNITS, in order, the code being its place in the order. The units a resource figure is given in; an LV2 unit's name where LV2 has one. */
 #define OMX_RESOURCE_UNITS(X) \
-    X(0u, "ns-per-sample", NS_PER_SAMPLE) X(1u, "frames", FRAMES) X(2u, "ms", MS) X(3u, "us", US) \
+    X(0u, "nsPerSample", NS_PER_SAMPLE) X(1u, "frames", FRAMES) X(2u, "ms", MS) X(3u, "us", US) \
     X(4u, "s", S) X(5u, "bytes", BYTES) X(6u, "count", PLAIN_COUNT) X(7u, "ratio", RATIO) \
     X(8u, "flag", FLAG)
 

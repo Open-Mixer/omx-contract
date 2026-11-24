@@ -112,7 +112,7 @@
     "RESOURCE_UNITS": {
       "description": "The units a resource figure is given in; an LV2 unit's name where LV2 has one.",
       "enum": [
-        "ns-per-sample",
+        "nsPerSample",
         "frames",
         "ms",
         "us",
@@ -123,7 +123,7 @@
         "flag"
       ],
       "x-omx-texts": {
-        "ns-per-sample": {
+        "nsPerSample": {
           "text": {
             "en": "Nanoseconds per sample."
           },

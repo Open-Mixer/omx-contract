@@ -139,7 +139,7 @@ export const RESOURCE_KINDS = {
  */
 export const RESOURCE_UNITS = {
   "nsPerSample": {
-    "word": "ns-per-sample",
+    "word": "nsPerSample",
     "text": {
       "en": "Nanoseconds per sample."
     }
@@ -1208,7 +1208,7 @@ export const RESOURCE_KINDS_WORDS = [
  * @see data/resource-profile.json
  */
 export const RESOURCE_UNITS_WORDS = [
-  "ns-per-sample",
+  "nsPerSample",
   "frames",
   "ms",
   "us",

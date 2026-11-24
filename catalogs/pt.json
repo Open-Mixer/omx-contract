@@ -123,7 +123,7 @@
     "RESOURCE_UNITS.flag": { "text": "Sim ou não: um quando o plugin faz a operação, zero quando não.", "by": "machine", "model": "draft-prose", "source": "96a54d5cfc9e3937638f219ff48cdf80bee488fc11101f5b381ddfee88adfc12" },
     "RESOURCE_UNITS.frames": { "text": "Uma contagem de quadros de áudio.", "by": "machine", "model": "draft-prose", "source": "f99468bc0e59d61e96c13ab3ee4e1eea6e289e372ca959ed54bd3342d347ad0e" },
     "RESOURCE_UNITS.ms": { "text": "Milissegundos.", "by": "machine", "model": "draft-prose", "source": "cd9db9648154ed6cedcb89b7f63f20ffc7f8fe3a5c39f494a8156a134fc68f7b" },
-    "RESOURCE_UNITS.ns-per-sample": { "text": "Nanosegundos por amostra.", "by": "machine", "model": "draft-prose", "source": "215f854636fffc99abba320cbe27aec154b6f954ac8f2de556d82d5b70e9e8f8" },
+    "RESOURCE_UNITS.nsPerSample": { "text": "Nanosegundos por amostra.", "by": "machine", "model": "draft-prose", "source": "215f854636fffc99abba320cbe27aec154b6f954ac8f2de556d82d5b70e9e8f8" },
     "RESOURCE_UNITS.ratio": { "text": "Uma proporção, sem unidade.", "by": "machine", "model": "draft-prose", "source": "04392989de93829c1d04c81749e434a87f6a7e1f7f064b3ed37a02021d9e0a8a" },
     "RESOURCE_UNITS.s": { "text": "Segundos.", "by": "machine", "model": "draft-prose", "source": "b9f760839e768b3964df7bd66fbc07d84a5cc85dd305fdb08cc18dc5127141d6" },
     "RESOURCE_UNITS.us": { "text": "Microsegundos.", "by": "machine", "model": "draft-prose", "source": "52d1187ed94b1c7c3ffb0df7f5d85e685e24b433a51a574e68bf1a2b90c016e6" },

@@ -17,7 +17,7 @@ import { loadData, packageVersion } from '../lib/data.mjs';
 import { meaningOfRoles } from '../lib/role-meanings.mjs';
 import { classify } from '../lib/semver.mjs';
 import { SCHEMA_VERSION, validateData } from '../lib/validate.mjs';
-import { DATA, ROOT, texts } from './helpers.mjs';
+import { DATA, installParamDomain, ROOT, texts } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-roles-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -32,6 +32,7 @@ const install = (pkg, from, root) => execFileSync('sh', [join(ROOT, 'tools/insta
 function dirWith(pkgs) {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   for (const [pkg, from] of Object.entries(pkgs)) install(pkg, from, root);
   return root;
 }

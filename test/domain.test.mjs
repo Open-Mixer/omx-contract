@@ -20,9 +20,9 @@ const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 
-/** The domain document of data/panel.json, as the owner writes it: each words item a oneOf of const words. */
+/** The domain document of test/fixtures/panel-v1/panel.json (the words data/panel.json held before V1 moved them to omx-panel), as the owner writes it: each words item a oneOf of const words. */
 function panelDomain() {
-  const old = JSON.parse(readFileSync(join(DATA, 'panel.json'), 'utf8'));
+  const old = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/panel-v1/panel.json'), 'utf8'));
   const schemas = {};
   for (const [name, it] of Object.entries(old)) {
     if (name === '$schema') continue;
@@ -67,7 +67,7 @@ test('a domain renders its marked words as codes only: one define per word and t
   const doc = panelDomain();
   doc.components.schemas.PANEL_FAMILIES['x-c-codes'] = true;
   const resolved = resolveData(loadContractDir({ dir: dirWith(doc) }));
-  const old = resolveData(loadData(DATA)).get('PANEL_FAMILIES').value;
+  const old = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/panel-v1/panel.json'), 'utf8')).PANEL_FAMILIES.words;
   const [h] = domainCodesC(resolved, 'panel', loadContractDir({ dir: dirWith(doc) }).packages.get('panel').codes);
   assert.equal(h.path, 'panel_codes.h');
   const defines = h.text.split('\n').filter((l) => l.startsWith('#define OMX_PANEL_FAMILIES_'));

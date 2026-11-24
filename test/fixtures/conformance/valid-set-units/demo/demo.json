@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/demo",
+  "info": {
+    "title": "The conformance vocabulary",
+    "version": "1.2.0",
+    "x-owner": "omx-fixture",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "DEMO_SCALES": {
+        "description": "The scales.",
+        "x-kind": "set",
+        "x-default": "linear",
+        "oneOf": [
+          {
+            "const": "linear",
+            "title": "linear",
+            "x-code": 0
+          },
+          {
+            "const": "log",
+            "title": "log",
+            "x-code": 1
+          }
+        ]
+      },
+      "DEMO_DIMENSIONS": {
+        "description": "What a unit measures.",
+        "x-kind": "words",
+        "oneOf": [
+          {
+            "const": "time",
+            "title": "time",
+            "x-code": 0,
+            "description": "A time."
+          }
+        ]
+      },
+      "DEMO_UNITS": {
+        "description": "The units.",
+        "x-kind": "words",
+        "x-dimensions": "DEMO_DIMENSIONS",
+        "oneOf": [
+          {
+            "const": "ms",
+            "title": "ms",
+            "x-code": 0,
+            "x-symbol": "ms",
+            "x-dimension": "time",
+            "description": "Milliseconds."
+          },
+          {
+            "const": "percent",
+            "title": "percent",
+            "x-code": 1,
+            "x-symbol": "%",
+            "x-dimension": "time",
+            "description": "Percent."
+          }
+        ]
+      }
+    }
+  }
+}

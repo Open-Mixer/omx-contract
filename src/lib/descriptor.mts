@@ -10,8 +10,8 @@ import { CONTRACT_CODES } from './codes.mjs';
 import { validate as validateSchema } from './schema-validate.mjs';
 import type { Json } from './json.mjs';
 
-/** The ids of PARAM_SCALES, the scales a travel may name, read from omx-contract's own data. */
-export const PARAM_SCALE_IDS: readonly string[] = JSON.parse(readFileSync(new URL('../data/primitives.json', import.meta.url), 'utf8')).PARAM_SCALES.ids;
+/** The ids of PARAM_SCALES, the scales a travel may name, read from omx-contract's own `param` domain (contract.d/param/param.json): its words in order. */
+export const PARAM_SCALE_IDS: readonly string[] = (JSON.parse(readFileSync(new URL('../contract.d/param/param.json', import.meta.url), 'utf8')).components.schemas.PARAM_SCALES.oneOf as { const: string }[]).map((w) => w.const);
 
 /** The value a descriptor writes for a unit, a scale or a meaning the plugin does not state. */
 export const UNKNOWN = 'unknown' as const;

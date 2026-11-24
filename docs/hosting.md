@@ -33,10 +33,10 @@ More than one package writes or reads a hosting code (the qualifier in its verdi
 adapter in their refusals, the console when it renders them), so every one of them is declared once, by the CLAP
 core: omx-clap-core's own `data/hosting/`, one file per dimension (`HOSTING_STABILITY_CODES`,
 `HOSTING_RT_SAFETY_CODES`, `HOSTING_TOPOLOGY_CODES` and the rest, with `HOSTING_REALISED_CODES` for what the console
-did with a verdict), installed as `contract.d/3/omx-clap-core/hosting/`. omx-contract declared them in its own
+did with a verdict), installed as `contract.d/3/omx-clap/hosting/`. omx-contract declared them in its own
 `data/hosting/` until 2.20.0; 3.0.0 moved the 16 files to omx-clap-core byte for byte and holds no hosting code. Each
 code's name is the operator-facing key a consumer reads it by, unique across the files. omx-clap-core renders them
-with `omx-contract render --target c|ts --package omx-clap-core` (docs/render.md), as `omx_clap_core_vocabulary.h`
+with `omx-contract render --target c|ts --package omx-clap` (docs/render.md), as `omx_clap_vocabulary.h`
 and its ts module, with the C names omx-contract's `omx_vocabulary.h` gave them.
 
 ## The render
@@ -46,5 +46,5 @@ one `CLAP_HOST_<FIELD>` define per core number (an integer as an unsigned litera
 `worker*` fields left out) and one `CLAP_HOST_CODE_<NAME>` define per refusal code, each followed by its prose as a
 `///<` comment; `hosted_stage_limits.h`, every number as `OMX_HOSTED_STAGE_<FIELD>`, the worker fields included; and a
 TypeScript module of both items. omx-clap-core renders them with `omx-contract render --target c|ts --package
-omx-clap-core` and commits them, byte for byte, so it builds on its own and its source is public; the render of a whole
+omx-clap` and commits them, byte for byte, so it builds on its own and its source is public; the render of a whole
 read writes `clap_host_limits.h` as `omxcontract/clap_host_limits.h` beside `omx_contract_limits.h`.

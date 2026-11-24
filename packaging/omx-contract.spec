@@ -79,8 +79,7 @@ Requires: python3
 The Python package omx_contract: omx_contract.catalog reads an owner's catalogs
 (the sentence of a code in a language, falling back to its English source),
 omx_contract.scale is the position law of a control (scale_position,
-scale_value), omx_contract.clap the CLAP identifiers and numbers the headers
-declare. A program writes `import omx_contract.catalog` instead of loading a
+scale_value). A program writes `import omx_contract.catalog` instead of loading a
 file by its path. Each submodule is the file omx-contract-data ships under
 share/omx-contract, byte for byte; those files stay there for one release.
 Its documentation is on openmixer.org.
@@ -252,7 +251,6 @@ a floor, the lowest release whose functions it calls.
 %{_datadir}/omx-contract/shapes/
 %{_datadir}/omx-contract/omx-contract.json
 %{_datadir}/omx-contract/omx-vocabulary.schema.json
-%{_datadir}/omx-contract/omx_contract.py
 %{_datadir}/omx-contract/omx_contract_catalog.py
 %{_datadir}/omx-contract/omx_contract_scale.py
 %{_datadir}/omx-contract/scale-vectors.json
@@ -308,10 +306,26 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
-* Fri Nov 20 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
-- PARAM_UNITS, the closed list of units, is a words item of data/primitives.json
-  and the schema's $defs.unit enum is its render; the words carry a symbol.
-- omx_vocabulary.h spells that item's X-macro OMX_PARAM_UNITS_WORDS(X): the
+* Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
+- The vocabulary sorting pass (S0): each item lives with its owner.
+- The domain format carries verbs, reply codes, terms, sets and unit lists, a
+  stored x-args slot and words and scalar items; a word's x-from may name
+  another domain's word; render --with-domain repeats, a domain may refer to
+  the domains its x-requires names, and an owner may be domains only
+  (install-contract-dir.sh --owner).
+- CONTRACT_CODES is the contract domain's (V20); PARAM_SCALES and PARAM_UNITS
+  are the param domain's (V21, V23a+b): PARAM_UNITS grows to the units the
+  descriptors and the resource words use, each with its symbol, dimension and
+  scope, and the schema's unit enums are its render.
+- Removed, each held by its new home: READOUT_RATE_HZ (V22, omx-dsp),
+  RT_HARD_TARGET and the oracle rates (V25, omx-dsp), CURVE_AXES and
+  CURVE_KINDS (V26, omx-dsp), PLUGIN_FEATURE_* (V24, plugin-db), the LV2 terms
+  with their inventory and coverage (V27a, plugin-db) and the CLAP terms with
+  theirs (V27b, omx-clap), with omx_formats.h, omx_contract.py and
+  omx_contract.clap.
+- The CLAP core's packages are named omx-clap.
+- A plugin descriptor's latency gains sweep { min, max } (#155).
+- omx_vocabulary.h spells the PARAM_UNITS X-macro OMX_PARAM_UNITS_WORDS(X): the
   released omx_param_units.h defines OMX_PARAM_UNITS(X), and the two headers
   together broke the build under -Werror.
 

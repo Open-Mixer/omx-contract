@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The words of the LV2 units sheet (data/formats/lv2/units.json). A reader takes a unit's spelling from the sheet,
+ * The words of the LV2 units sheet (units.json of the lv2 formats directory). A reader takes a unit's spelling from the sheet,
  * never from a table of its own, so every unit the sheet calls used carries a word, and that word is one the
  * descriptor vocabulary admits (schema/omx-contract.schema.json, $defs.descriptorUnit). A unit not used yet carries
  * none: a reader falls back to the plugin's own symbol for it.
@@ -32,7 +32,8 @@ function admittedWords() {
   return words;
 }
 
-const terms = () => read('data/formats/lv2/units.json').LV2_UNITS_TERMS.terms;
+// the LV2 units sheet is plugin-db's lv2 domain now (V27a); the fixture is the sheet as the lv2 formats directory held it
+const terms = () => read('test/fixtures/lv2-terms/units.json').LV2_UNITS_TERMS.terms;
 
 test('every used unit of the sheet carries a word the descriptor vocabulary admits', () => {
   assert.deepEqual(unitWordFaults(terms(), admittedWords()), []);

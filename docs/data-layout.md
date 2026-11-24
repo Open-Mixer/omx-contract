@@ -11,37 +11,31 @@ vocabulary is mapped beside them, so a word is there before a consumer asks for 
 
 ```
 data/
-  primitives.json  rates.json  the parameter scales, the readout rate, the sample rates
+  rates.json                   the standard sample rates and quanta (the parameter scales and units are the `param`
+                               domain, contract.d/param/param.json; the readout rate, the RT target and the oracle
+                               rates are omx-dsp's, sorting pass V22 and V25)
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
-  curves.json                  CURVE_*: the kinds of picture a panel draws, and the axes each is drawn on
   param-contract.json          OMX_PARAM_CONTRACT_*: the unit codes of org.openmixer.param-contract/1, rendered to
                                omx_param_units.h, read as data by omx-panel and plugin-hostd
-  plugin-features.json         PLUGIN_FEATURE_*: every CLAP plugin feature and LV2 plugin class onto a descriptor feature word, or other
-  panel.json                   PANEL_*: the panel families and widgets
   verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
-  formats/lv2/<spec>.json      LV2_<SPEC>_TERMS: the terms of the LV2 specification bundle <spec>.lv2
-  formats/clap/<header>.json   CLAP_<HEADER>_TERMS: the identifiers of the CLAP header clap/<header>.h
-                               (formats/clap/events.json, ext/params.json, ext/draft/scratch-memory.json, ...)
-inventory/lv2.json  clap.json  the formats as installed, written by tools/format-inventory.mjs, never by hand
+  (the format terms are their owners' domains: the LV2 terms plugin-db's `lv2` domain, sorting pass V27a, plugin-db#66;
+   the CLAP terms omx-clap's `clap` domain, V27b, clap#163, with their inventories and coverage checks)
 ```
 
 The verbs are not here either: each package declares its own, in an item of kind `verbs` (docs/contract-dir.md "A
 package's verbs"); `verbs.json` holds only the hosts they name. The hosting codes are not here. Since 3.0.0 they are omx-clap-core's, one file per dimension in its own
-`data/hosting/`, installed as `contract.d/3/omx-clap-core/hosting/` (docs/hosting.md).
+`data/hosting/`, installed as `contract.d/3/omx-clap/hosting/` (docs/hosting.md).
 
 ## Where a new word goes
 
 | A word that is | Goes in | Its item |
 |---|---|---|
 | a resource a host plans for, its unit, its basis, a budget's scope | `resource-profile.json` | `RESOURCE_<LIST>`, kind `words` |
-| a curve kind a panel draws, or an axis one is drawn on | `curves.json` | `CURVE_KINDS`, `CURVE_AXES`, kind `words` |
 | a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
-| a CLAP feature or LV2 class and the feature word it becomes | `plugin-features.json` | `PLUGIN_FEATURE_<WORD>`, kind `words`, one item per target |
-| a panel family or widget | `panel.json` | `PANEL_<LIST>`, kind `words` |
 | a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
-| an LV2 term `<spec URI>#<name>` | `formats/lv2/<spec>.json`, `<spec>` the bundle it is defined in | `LV2_<SPEC>_TERMS`, kind `terms` |
-| a CLAP identifier declared in `clap/<header>.h` | `formats/clap/<header>.json` | `CLAP_<HEADER>_TERMS`, the path in upper snake case |
+| an LV2 term `<spec URI>#<name>` | plugin-db's `lv2` domain (V27a), with its mapping to the standard words | `LV2_<SPEC>_TERMS`, kind `terms` |
+| a CLAP identifier declared in `clap/<header>.h` | omx-clap's `clap` domain (V27b), with its mapping to the standard words | `CLAP_<HEADER>_TERMS`, kind `terms` |
 
 `<SPEC>` and `<HEADER>` are the file's path below its domain directory in upper snake case
 (`ext/draft/scratch-memory` is `EXT_DRAFT_SCRATCH_MEMORY`). A file holds the items of its
@@ -84,8 +78,8 @@ not the one its path gives.
   surface renders through `@openmixer/omx-contract/catalog`: `loadCatalog(owner, lang)`, then `sentenceOf(catalog, key,
   text.en)` (the catalog's sentence, else the source sentence) and `fill(sentence, args)`; `catalogProblems` and
   `catalogKeys` are the checks, for an owner that validates its catalogs in its own build. A Python surface (Zynthian)
-  reads the same shape with `share/omx-contract/omx_contract_catalog.py`, hand-written and installed beside the
-  generated `omx_contract.py`: `load_catalog(owner, lang)`, `sentence_of(catalog, key, source)` and `fill(sentence,
+  reads the same shape with `share/omx-contract/omx_contract_catalog.py`, hand-written and installed in
+  `share/omx-contract/`: `load_catalog(owner, lang)`, `sentence_of(catalog, key, source)` and `fill(sentence,
   args)`, no schema validation of its own (a surface only ever reads an installed catalog; `validate --catalogs`
   checks one at build time).
 - **Language packs** (omx-contract#21). An entry of a catalog is
@@ -124,7 +118,7 @@ not the one its path gives.
 - Every word and code `data/` declares carries its own source sentence (omx-contract#2); a word another package
   declares, in its own tree, may still have none until that package's lane adds it.
 - A `words` item's words keep their declared order, which is part of the contract (a rating's severity, a band's
-  ascent). A word may name its `group`, a word of the item its `groups` names, its `x` and `y`, words of the item its `axes` names (an axis word then states its `unit` and `scale`, docs/curves.md), and the format terms it is
+  ascent). A word may name its `group`, a word of the item its `groups` names, its `x` and `y`, words of the item its `axes` names (an axis word then states its `unit` and `scale`), and the format terms it is
   name-compatible with (`from: ["LV2_CORE_TERMS#latency", "CLAP_EXT_LATENCY_TERMS#latency"]`); each resolves.
 - A `terms` item's terms are sorted by name (`omx-contract fmt` sorts them). The name is the format's own: an LV2
   term's local name (the specification's own URI after its bundle, `state.lv2`, apart from the term `state`), a CLAP string constant's text less
@@ -147,11 +141,9 @@ deprecates.
 
 ## The inventory
 
-`node tools/format-inventory.mjs` reads the installed LV2 bundles (through `serdi`) and CLAP headers and writes
-`inventory/lv2.json` and `inventory/clap.json` with the versions they were read from; `--check` compares instead.
-`test/format-coverage.test.mjs` holds the mapping equal to the inventory: every term of the inventory is mapped with
-a status, and no mapped term is missing from it. When a newer LV2 or CLAP is installed, refresh the inventory and
-map what it adds; the test names each term.
+The inventories of the installed formats and the checks that every term of them is mapped are the terms' owners':
+plugin-db's for LV2 (`tools/lv2_inventory.py`, `tests/lv2_coverage_test.py`; V27a) and omx-clap's for CLAP
+(`tools/clap_inventory.py`, `tests/clap_inventory_test.py`; V27b).
 
 ## The renders
 

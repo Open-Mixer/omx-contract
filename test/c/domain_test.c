@@ -424,12 +424,15 @@ static void test_version_strictness(void) {
 }
 
 /* A file that appears in catalogs/ between the loader's counting pass and its reading pass: the hook below creates
-   some right after the loader's rewinddir. It must be refused, never written past the array counted for. */
+   some when the loader rewinds, between the two passes. It must be refused, never written past the array counted for.
+   The files are made BEFORE the real rewinddir: POSIX leaves unspecified whether readdir returns a file added after
+   the most recent opendir or rewinddir, and btrfs (and an overlayfs upper on it) does not, so files made after the
+   rewind are never read there and the case is not exercised. A rewind refers the stream to the directory as it is
+   then, so files made before it are read on every filesystem. */
 static const char *gain_dir;
 void rewinddir(DIR *dh) {
   static void (*real)(DIR *);
   if (!real) *(void **)&real = dlsym(RTLD_NEXT, "rewinddir");
-  real(dh);
   if (gain_dir) {
     char path[600];
     for (int i = 0; i < 40; i++) {
@@ -440,6 +443,7 @@ void rewinddir(DIR *dh) {
     }
     gain_dir = NULL;
   }
+  real(dh);
 }
 
 static void test_catalog_gains_a_file(void) {
@@ -454,8 +458,10 @@ static void test_catalog_gains_a_file(void) {
   gain_dir = dir;
   omx_domain *d;
   omx_domain_error err;
-  CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_CATALOG_INVALID);
+  int rc = open_scratch("dom", NULL, &d, &err);
+  CHECK(rc == OMX_CONTRACT_CODE_CATALOG_INVALID);
   CHECK(strstr(err.message, "changed") != NULL);
+  if (!rc) omx_domain_close(d); /* a loader that let the change through handed back a handle: the check above fails, not a leak report */
   gain_dir = NULL;
   drop_scratch();
 }

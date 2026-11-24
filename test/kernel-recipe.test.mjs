@@ -30,6 +30,7 @@ function scratchTree() {
   const dir = scratchDir('omx-kernel-recipe-');
   for (const p of ['schema', 'recipes', 'package.json']) cpSync(join(ROOT, p), join(dir, p), { recursive: true });
   cpSync(join(ROOT, 'data'), join(dir, 'data'), { recursive: true });
+  cpSync(join(ROOT, 'contract.d/param'), join(dir, 'contract.d/param'), { recursive: true });
   mkdirSync(join(dir, 'data/kernels'), { recursive: true });
   for (const f of readdirSync(join(TOOL_KERNELS, 'answers'))) cpSync(join(TOOL_KERNELS, 'kernels', f), join(dir, 'data/kernels', f));
   cpSync(join(TOOL_KERNELS, 'answers'), join(dir, 'recipes/answers'), { recursive: true });

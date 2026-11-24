@@ -94,7 +94,7 @@
         "x-c-xmacro": { "description": "The item's codes header also carries an X-macro; only with x-c-codes true.", "type": "boolean" },
         "x-kind": { "description": "The data item it rebuilds (docs/render.md): a codes item (the default), each code keyed by its word's x-name, a words item, each word keyed by its title, a set, its words the ids in order and x-default its default, or a verbs item, each word a verb keyed by its title.", "enum": ["codes", "words", "set", "verbs"] },
         "x-file": { "description": "The data path the item came from.", "type": "string", "pattern": "\\.json$" },
-        "x-source": { "description": "The data item's source, verbatim.", "type": "object" },
+        "x-source": { "$ref": "#/$defs/source" },
         "oneOf": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/word" } }
       },
       "if": { "required": ["x-c-xmacro"], "properties": { "x-c-xmacro": { "const": true } } },
@@ -111,7 +111,7 @@
         "x-why": {},
         "x-kind": { "const": "sheet" },
         "x-file": { "type": "string", "pattern": "\\.json$" },
-        "x-source": { "type": "object" },
+        "x-source": { "$ref": "#/$defs/source" },
         "x-value": { "description": "The data sheet's value, verbatim.", "type": "object" },
         "x-docs": { "description": "The data sheet's docs, verbatim.", "type": "object" }
       }
@@ -127,7 +127,7 @@
         "x-why": {},
         "x-kind": { "const": "scalar" },
         "x-file": { "type": "string", "pattern": "\\.json$" },
-        "x-source": { "type": "object" },
+        "x-source": { "$ref": "#/$defs/source" },
         "x-unit": { "description": "The scalar's unit, the data form's unit.", "type": "string" },
         "x-value": { "description": "The scalar's value: a number, or true or false.", "oneOf": [{ "type": "number" }, { "type": "boolean" }] }
       }
@@ -143,7 +143,7 @@
         "x-why": {},
         "x-kind": { "const": "terms" },
         "x-file": { "type": "string", "pattern": "\\.json$" },
-        "x-source": { "type": "object" },
+        "x-source": { "$ref": "#/$defs/source" },
         "x-format": { "description": "The format, the data form's format (lv2, clap).", "type": "string" },
         "x-spec": { "description": "The specification's URI or the header's path, the data form's spec.", "type": "string" },
         "x-version": { "description": "The specification's version, the data form's version.", "type": "string" },
@@ -162,7 +162,7 @@
         "x-why": {},
         "x-kind": { "const": "map" },
         "x-file": { "type": "string", "pattern": "\\.json$" },
-        "x-source": { "type": "object" },
+        "x-source": { "$ref": "#/$defs/source" },
         "x-format": { "description": "The format whose fields the rows map (lv2, clap), the data form's format.", "type": "string" },
         "oneOf": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/mapRow" } }
       }
@@ -256,6 +256,12 @@
           }
         }
       }
-    }
+    },
+    "source": {"type": "object", "description": "Where a definition comes from and where it is implemented (docs/contract-dir.md): from, the provenance, a link compared to the whole value or a map from a field path of the value to a link; impl, the connector; at, <package>@<version> of links outside the owner's tree. A link may carry its own at ({ link, at }), which stands for it in place of the source's.", "properties": {"from": {"oneOf": [{"$ref": "#/$defs/oneLink"}, {"type": "object", "propertyNames": {"pattern": "^[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)*$"}, "additionalProperties": {"$ref": "#/$defs/oneLink"}, "minProperties": 1}]}, "impl": {"$ref": "#/$defs/links"}, "at": {"$ref": "#/$defs/at"}}, "minProperties": 1, "additionalProperties": false},
+    "links": {"oneOf": [{"$ref": "#/$defs/oneLink"}, {"type": "array", "items": {"$ref": "#/$defs/oneLink"}, "minItems": 1, "uniqueItems": true}]},
+    "oneLink": {"oneOf": [{"$ref": "#/$defs/link"}, {"$ref": "#/$defs/linkAt"}]},
+    "linkAt": {"type": "object", "description": "One link with its own at: <package>@<version> of the tree it lies in, in place of the source's (an impl in the owner's tree beside a from in the console's, at the commit it was imported from).", "properties": {"link": {"$ref": "#/$defs/link"}, "at": {"$ref": "#/$defs/at"}}, "required": ["link", "at"], "additionalProperties": false},
+    "link": {"type": "string", "description": "<path>#<symbol>[.<field>|[<key>]]...: a path relative to the owner's root, a symbol defined there (enum X and struct X name a tag), and selectors into its value.", "pattern": "^[A-Za-z0-9_+.-]+(/[A-Za-z0-9_+.-]+)*#((enum|struct|union) )?[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*|\\[[A-Za-z0-9_.-]+\\])*$"},
+    "at": {"type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*@[A-Za-z0-9._+-]+$"}
   }
 }

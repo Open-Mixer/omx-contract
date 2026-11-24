@@ -75,5 +75,7 @@
   {"case":"valid-map","domain":"demo","needs":null,"verdict":"ok"},
   {"case":"valid-domain-requires-domain","domain":"demo","needs":null,"verdict":"ok"},
   {"case":"valid-word-uri","domain":"demo","needs":null,"verdict":"ok"},
-  {"case":"word-uri-not-a-uri","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.file.invalid"}}
+  {"case":"word-uri-not-a-uri","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.file.invalid"}},
+  {"case":"item-source","domain":"demo","needs":null,"verdict":"ok"},
+  {"case":"item-source-invalid","domain":"demo","needs":null,"verdict":"ok","build":{"code":"contract.file.invalid"}}
 ]

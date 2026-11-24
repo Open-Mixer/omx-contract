@@ -261,7 +261,8 @@ vocabularies as human-readable pages, a target of the one `render` command and n
 domain, `<dir>/<domain>.md` (a nested domain's `/` read `-`: `dsp-kernels.md`), and one per package for the items of
 its classic data files, `<dir>/<package>.md`. It reads the same resolved items the json target reads, from `--data`,
 `--installed` or `--contract-dir` (`--package <p>` keeps that package's pages). A page gives each item, in name order,
-its name, kind, `since` and `doc`; a words item a table of its words (the word, its key, its group, unit symbol or
+its name, kind, `since` and `doc`, then its `source` links when it has any (one line, `Source: impl ...; from ...`,
+each link with its own `at` where it has one; a domain item's `x-source`, omx-contract#215); a words item a table of its words (the word, its key, its group, unit symbol or
 dimension where it has one, and its `doc`), a codes item a table of its codes and their `doc`, a set its ids and
 default, a list its values and unit, a scalar its value and unit, and a sheet a table of its fields and values.
 

@@ -4,6 +4,11 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- ADDED: a domain item carries its per-entry doc (each word's or code's `description`, never its `x-text`) and its
+  `source` links (`x-source`, the classic `source` shape, `$defs/source` of the domain schema) into every read, the
+  installed one included: `links` lists and `links --check` checks a domain's links (`--package <domain>`), `render
+  --target md` prints them, and a malformed `x-source` is refused (#215). omx-clap's hosting codes can move into
+  their domain with nothing lost.
 - CHANGED (development phase, every installer follows): `install-contract-dir.sh --domain <dir> <contractdir> <package>`
   names the installing package, and a domain whose `info.x-owner` is another is refused (#88). plugin-db,
   plugin-hostd-protocol, omx-clap and omx-dsp name themselves in their install line when they take this release.

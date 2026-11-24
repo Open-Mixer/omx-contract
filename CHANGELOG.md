@@ -8,6 +8,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
   do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in
   its GENERATED comment (the owner's `banner` words) and is unchanged. omx-clap re-renders its hosting codes module.
+- CHANGED: a v<version> tag PROMOTES and never builds (#230). release.yml's tag path calls Open-Mixer/.github
+  promote-staged.yml, which copies the signed files the staged build of that commit left under staging/ (rpm and deb)
+  to the channel root and creates the GitHub release; the tag's commit must be on main. The build is the dispatch
+  with staged on: the quick set by default, matrix: full for a promotion candidate (Open-Mixer/.github#274 lets a
+  staged run build full). npm follows the promotion, never the bare tag: publish.yml runs when release completes and
+  publishes only when its promote jobs all succeeded, from the tag's commit.
 - FIXED: tools/kernel-recipe.mjs is installed 0755: the deb build's lintian refused it as script-not-executable
   (a #! file shipped 0644). Every #! file under tools/ is 100755 in git, and two tests hold both.
 - FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a

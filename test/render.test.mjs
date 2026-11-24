@@ -59,7 +59,11 @@ int main(void) {
 }
 `);
   execFileSync(cc[0], [...cc.slice(1), '-std=c11', '-Wall', '-Wextra', '-Werror', '-Wno-unused-function', '-I', join(RENDERS, 'include'), src, '-o', join(dir, 't'), '-lm']);
-  assert.equal(execFileSync(join(dir, 't'), { encoding: 'utf8' }), '-70 0.6 3 6 3 12 1500\n');
+  // the values a C reader must see, read from the declarations, never retyped (test audit row 12)
+  const r = resolved();
+  const want = [r.get('SWELL_LIMITS').value.thresholdDb.min, r.get('TOOL_Q').value, r.get('CONTOUR_CENTRE_COUNT').value,
+    r.get('STANDARD_SAMPLE_RATES').value.length, r.get('CONTOUR_SHELF').value.gainDb, r.get('CONTOUR_MAX_BANDS').value, r.get('ECHO_TIME_RANGE').value.max];
+  assert.equal(execFileSync(join(dir, 't'), { encoding: 'utf8' }), `${want.join(' ')}\n`);
 });
 
 // The C header's rate tail says where the list it renders is declared: the data file that declares

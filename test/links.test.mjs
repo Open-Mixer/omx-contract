@@ -229,6 +229,6 @@ test('a link may carry its own at: an impl in the owner\'s tree beside a from in
 
 test('every source code has its arm', () => {
   const source = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('source')).map(([, c]) => c);
+  assert.ok(source.length > 0, 'the source codes are read');
   assert.deepEqual(source.filter((c) => !raised.has(c)), []);
-  assert.equal(source.length, 7);
 });

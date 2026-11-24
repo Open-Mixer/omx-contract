@@ -169,8 +169,9 @@ test('a map covers the plugin\'s ends, strictly monotonic; a measured entry carr
 });
 
 test('the codes are registered, each with its name, and the override never touches the scan\'s fingerprint', () => {
-  for (const [name] of ARMS.slice(0, 8)) assert.match(CONTRACT_CODES[name], /^contract\.override\./);
-  assert.equal(Object.keys(CONTRACT_CODES).filter((k) => k.startsWith('override')).length, 8);
+  for (const [name] of ARMS.filter(([n]) => n.startsWith('override'))) assert.match(CONTRACT_CODES[name], /^contract\.override\./);
+  // every override code has its arm, read from CONTRACT_CODES and never counted by hand (test audit row 11)
+  assert.deepEqual(Object.keys(CONTRACT_CODES).filter((k) => k.startsWith('override') && !ARMS.some(([n]) => n === k)), []);
   assert.equal(apply([override('good')]).descriptor.paramsFingerprint, undefined);
 });
 

@@ -238,6 +238,7 @@ docs-site:
 	cp README.md BUILDING.md LICENSE $(DOCS_OUT)/
 	cp docs/*.md $(DOCS_OUT)/docs/
 	cp man/*.1 $(DOCS_OUT)/man/
+	node bin/omx-contract.mjs render --target md --out $(DOCS_OUT)/domains
 
 doxygen-check:
 	@if [ -z "$(DOXYGEN_BASE)" ]; then echo "doxygen-check: set DOXYGEN_BASE to the ref the baseline is held to (origin/main)" >&2; exit 2; \

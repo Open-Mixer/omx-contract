@@ -61,7 +61,7 @@ Any other key or word is `contract.file.invalid`, never skipped.
 | control | `symbol` | The stable name a session keys the control by, beside a CLAP `clap_id`: our authored plugins' parameter-contract symbol, so a restore finds the control when ids move. Optional; an LV2 control's `id` is its symbol already | new |
 | control | `label` | The display name, when it differs from `name` | new |
 | control | `group` | A path, outer first: `["Filter", "Envelope"]`. CLAP `module`, LV2 `pg:group`, our panel section | new |
-| control | `meaning` | What the control does, from the closed list below. A skin binds by meaning, never by id | new |
+| control | `meaning` | The control's role: what it does, a word of PARAM_MEANINGS (below). REQUIRED on every control since 3.22.0 (omx-contract#61); a skin and a panel bind by meaning, never by id, and never infer a role from a name or a unit | new; required 3.22.0 |
 | control | `hidden`, `readonly`, `automatable` | CLAP `IS_HIDDEN`, `IS_READONLY`, `IS_AUTOMATABLE`; LV2 `pprops:notOnGUI`, an output control | new |
 | control | `source` | The control's own links, in the place of the file's | existing |
 | `travel` | units `frames`, `bpm`, `midiNote`, `LUFS`, `deg`, `ratio`, `dBTP`, `LU` | Units a plugin uses that no item does (below) | new; `ratio` 3.0.0; `dBTP` and `LU` for the loudness meters |
@@ -142,8 +142,22 @@ The item list is the units the items use; these seven are for descriptors, `LUFS
 
 ### Meanings
 
-The closed list, seeded from the roles our plugin panels bind. Where LV2's `param:` vocabulary or `lv2:designation`
-has the term, the meaning carries its name.
+A control's `meaning` is its ROLE, and it is declared, never inferred (ruling R1 of 2026-11-24 on omx-contract#61:
+declare, don't infer). Two controls can look alike to a consumer (a band's bandwidth in octaves and its Q, both
+plain numbers on one EQ band), and a consumer that guessed a role from a word in a name or from a unit guessed wrong
+(omx-panel's band grouping took the bandwidth as the Q). So:
+
+- `meaning` is REQUIRED on every control of every descriptor (schema 3.22.0). An `authored` descriptor states a word
+  of the list (never `unknown`, `contract.descriptor.unknown-authored`); a `built` or `scanned` one writes the word
+  the plugin states, or `unknown`.
+- The words are a closed words item of omx-contract's `param` domain, `PARAM_MEANINGS`
+  (`contract.d/param/param.json`), in the order below; the schema's `$defs.meaning` enum is its render
+  (`tools/unit-enum.mjs`, held by its `--check`), so a meaning is added in one place, a schema minor.
+- A consumer reads the declared word. A control whose meaning is `unknown` has no role: it is shown by its `group`
+  and `name` and bound to nothing. No consumer falls back to a name, a unit or a position to find a role.
+
+The list was seeded from the roles our plugin panels bind. Where LV2's `param:` vocabulary or `lv2:designation` has
+the term, the meaning carries its name.
 
 | Meaning | LV2 term |
 |---|---|
@@ -151,11 +165,11 @@ has the term, the meaning carries its name.
 | `wetDryRatio` (the mix of a wet and a dry signal) | `param:wetDryRatio` |
 | `delay` (a delay time) | `param:delay` |
 | `enabled` (on when the control is on; the inverse of `bypass`) | `lv2:enabled` |
-| `range`, `knee`, `hysteresis`, `makeup`, `lookahead`, `ceiling`, `output`, `q`, `slope`, `width`, `drive`, `tone`, `rate`, `depth`, `feedback`, `spread`, `predelay`, `size`, `damping`, `lowCut`, `highCut`, `shift`, `fine`, `sync`, `division`, `listen`, `shape`, `model`, `algorithm`, `mode`, `type`, `pingpong` | none |
+| `range`, `knee`, `hysteresis`, `makeup`, `lookahead`, `ceiling`, `output`, `q`, `bandwidth` (a band's width, in octaves; `q` is its quality factor, since 3.22.0), `slope`, `width`, `drive`, `tone`, `rate`, `depth`, `feedback`, `spread`, `predelay`, `size`, `damping`, `lowCut`, `highCut`, `shift`, `fine`, `sync`, `division`, `listen`, `shape`, `model`, `algorithm`, `mode`, `type`, `pingpong` | none |
 | `unknown` | The plugin states no meaning |
 
-A control with no meaning in the list leaves `meaning` out and is shown by its `group` and `name`. A new meaning is
-a schema minor. One word per meaning, no synonyms: `on` is `enabled` and `speed` is `rate`, so neither is a
+An authored control whose role has no word in the list waits for its word (a new meaning is a schema minor); it
+never leaves `meaning` out. One word per meaning, no synonyms: `on` is `enabled` and `speed` is `rate`, so neither is a
 meaning, and the validator names the word to use when a file writes one. `shape`, `model`, `algorithm`, `mode` and
 `type` (a choice of which one) and `pingpong` (a delay's bounce) came with 3.7.0.
 

@@ -276,6 +276,34 @@ test('a reply code declared transient is a _TRANSIENT macro in the package vocab
   for (const c of transient) assert.match(ts, new RegExp(`"code": "${c.code.replace(/\./g, '\\.')}",[^}]*"transient": true`), c.code);
 });
 
+test('a reply code may declare that it leaves no mark on the plugin: the schema takes a boolean on a reply code, nothing else', () => {
+  const probs = (items) => [...new Set(fileProblems({ rel: 'data/x.json', text: '', doc: { $schema: '../schema/omx-contract.schema.json', ...items } }).map((p) => p.item))];
+  const codes = (c) => ({ kind: 'codes', doc: 'd', codes: { a: c } });
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, leavesNoMark: true }) }), []);
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, leavesNoMark: false }) }), []);
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, leavesNoMark: 'yes' }) }), ['C'], 'a boolean');
+  assert.deepEqual(probs({ C: codes({ code: 'hosting.x.y', leavesNoMark: true }) }), ['C'], 'only a reply code leaves no mark');
+  // the two classes are separate properties: a code may be in either, both or neither
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, transient: true, leavesNoMark: true }) }), []);
+});
+
+test('a reply code declared to leave no mark is a _LEAVES_NO_MARK macro in the package vocabulary header, and a code not declared so has none', () => {
+  const root = installed();
+  const resolved = resolveData(loadContractDir({ dir: root }));
+  const pkg = packageVocabularyC(resolved, PKG)[0].text;
+  const codes = [...resolved.values()].filter((r) => r.kind === 'codes').flatMap((r) => Object.values(r.value)).filter((c) => pkg.includes(`"${c.code}"`));
+  const marked = codes.filter((c) => c.leavesNoMark === true);
+  assert.ok(marked.length >= 1 && marked.length < codes.length, 'the fixture declares a code that leaves no mark and a code that does not');
+  assert.ok(marked.every((c) => c.transient !== true), 'the fixture\'s code that leaves no mark is not transient: the classes are read apart');
+  const macros = [...pkg.matchAll(/^#define (OMX_REPLY_\w+)_LEAVES_NO_MARK 1$/gm)].map((m) => m[1]);
+  const macro = (c) => `OMX_${c.code.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase()}`;
+  assert.deepEqual(macros.sort(), marked.map(macro).sort());
+  const transientMacros = [...pkg.matchAll(/^#define (OMX_REPLY_\w+)_TRANSIENT 1$/gm)].map((m) => m[1]);
+  assert.deepEqual(transientMacros.sort(), codes.filter((c) => c.transient === true).map(macro).sort(), 'the transient macros unchanged');
+  const ts = renderTs(resolved).find((f) => f.path.endsWith('.js'))?.text ?? '';
+  for (const c of marked) assert.match(ts, new RegExp(`"code": "${c.code.replace(/\./g, '\\.')}",[^}]*"leavesNoMark": true`), c.code);
+});
+
 test('semver: the verbs kind and a verb added are MINOR; a verb removed is MAJOR, in the development phase too', () => {
   const withFixture = (edit = () => {}) => {
     const t = texts();

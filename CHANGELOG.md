@@ -7,8 +7,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 - CHANGED: a v<version> tag PROMOTES and never builds (#230). release.yml's tag path calls Open-Mixer/.github
   promote-staged.yml, which copies the signed files the staged build of that commit left under staging/ (rpm and deb)
   to the channel root and creates the GitHub release; the tag's commit must be on main. The build is the dispatch
-  with staged on, the whole matrix by default (matrix: quick for a layer test). npm's latest moves at the promotion
-  (publish.yml, same tag).
+  with staged on: the quick set by default, matrix: full for a promotion candidate (Open-Mixer/.github#274 lets a
+  staged run build full). npm follows the promotion, never the bare tag: publish.yml runs when release completes and
+  publishes only when its promote jobs all succeeded, from the tag's commit.
 - ADDED: the -devel (-dev) package installs the kernel recipe under `<datadir>/omx-contract/recipes/`, named by the
   .pc's `recipesdir`, and the CLI tree ships `tools/kernel-recipe.mjs`, which run from `<clidir>` reads that recipe
   (#227): a consumer's contract tools (omx-dsp's completeness proof) need no source checkout or git tag for it.

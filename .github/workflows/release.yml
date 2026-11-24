@@ -6,8 +6,10 @@ name: release
 # python3-omx-contract and a language pack per language of share/omx-contract/languages.json (RPM), and omx-contract,
 # omx-contract-data, libomx-contract-dev, python3-omx-contract and the packs (DEB), through Open-Mixer/.github's
 # build-rpm.yml and build-deb.yml, signed, into the staging channel (staging/rpm and staging/deb of the channel
-# repository), where the next layer of the release chain builds against them. The whole matrix by default (matrix:
-# full), since only a full staged tree can be promoted; matrix: quick builds the quick set for a layer test.
+# repository), where the next layer of the release chain builds against them. The quick set by default (matrix:
+# quick, the staging of a devel run); a promotion candidate is dispatched with matrix: full, the only staged tree a tag
+# can promote (promote-staged refuses one that lacks a release or architecture). A full staged run needs the shared
+# release-matrix to allow it (Open-Mixer/.github, the pairing change).
 # omx-contract is the first layer of a wave, so its staged run passes staging-bootstrap: the staging channel may not
 # exist yet when its build starts. staged-deps is still declared and handed on; the shared workflows ignore it.
 #
@@ -16,8 +18,9 @@ name: release
 # tag), then Open-Mixer/.github promote-staged.yml copies the identical signed files that commit left under staging/
 # to the channel root, rpm and deb, re-signs the repository metadata, checks the channel serves the same bytes and
 # that they install, and creates the GitHub release; the `npm pack` tarball is attached to it. What the layers above
-# were built against is what ships. The npm package is published by publish.yml on the same tag (npmjs.com trusts
-# that file by name), so npm's latest moves at the promotion.
+# were built against is what ships. npm follows the promotion, never the bare tag: publish.yml runs when this
+# workflow completes for a v* tag and publishes only when its promote jobs all succeeded, so a refused promotion
+# leaves npm's latest where it was.
 #
 # A manual run with version (and commit) set is a dry run of the promotion: it finds and checks the staged build and
 # publishes nothing.
@@ -32,10 +35,10 @@ on:
         type: boolean
         default: false
       matrix:
-        description: 'full (every release and architecture: what a tag can promote) or quick (fc45 x86_64, trixie arm64: a layer test only)'
+        description: 'quick (fc45 x86_64, trixie arm64: the staging of every devel run) or full (every release and architecture: a promotion candidate, the only tree a tag can promote)'
         type: choice
-        options: [full, quick]
-        default: full
+        options: [quick, full]
+        default: quick
       version:
         description: 'A dry run of the promotion: the staged version to find (no v). Set, nothing is built'
         type: string

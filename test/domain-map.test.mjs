@@ -26,7 +26,7 @@ import { SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
 import { domainDataFiles, readDomain } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
 import { packageVersion } from '../lib/data.mjs';
-import { CLAP_TERMS, DATA, installParamDomain, LV2_TERMS, ROOT, scratchUnion } from './helpers.mjs';
+import { CLAP_TERMS, DATA, installParamDomain, LV2_TERMS, ROOT, scratchUnion, domainOwner } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/domain-map');
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-map-'));
@@ -89,9 +89,9 @@ const CONTRACT_DIR = join(SCRATCH, 'contract-dir');
 {
   const sh = join(ROOT, 'tools/install-contract-dir.sh');
   execFileSync('sh', [sh, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, CONTRACT_DIR, 'data'], { stdio: 'ignore' });
-  execFileSync('sh', [sh, '--domain', join(ROOT, 'contract.d/contract'), CONTRACT_DIR], { stdio: 'ignore' });
+  execFileSync('sh', [sh, '--domain', join(ROOT, 'contract.d/contract'), CONTRACT_DIR, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
   installParamDomain(CONTRACT_DIR);
-  for (const d of [termsDomain(LV2_TERMS, 'lv2', 'plugin-db'), termsDomain(CLAP_TERMS, 'clap', 'omx-clap')]) execFileSync('sh', [sh, '--domain', d, CONTRACT_DIR], { stdio: 'ignore' });
+  for (const d of [termsDomain(LV2_TERMS, 'lv2', 'plugin-db'), termsDomain(CLAP_TERMS, 'clap', 'omx-clap')]) execFileSync('sh', [sh, '--domain', d, CONTRACT_DIR, domainOwner(d)], { stdio: 'ignore' });
 }
 const validate = (dir) => cli('validate', '--contract-dir', CONTRACT_DIR, '--with-domain', dir);
 

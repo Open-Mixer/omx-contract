@@ -171,9 +171,15 @@ export function packedFiles() {
   return JSON.parse(out)[0].files.map((f) => f.path);
 }
 
+/**
+ * The package a domain directory names as its owner, its document's info.x-owner: the package install-contract-dir.sh
+ * --domain installs it for (#88). Test plumbing for installs whose subject is not the binding itself.
+ */
+export const domainOwner = (dir) => JSON.parse(readFileSync(join(dir, `${dir.replace(/\/+$/, '').split('/').pop()}.json`), 'utf8')).info['x-owner'];
+
 /** The `param` domain (the standard parameter words) installed into the contract directory `root`, as `make install` does beside data/. */
 export function installParamDomain(root) {
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '--domain', join(ROOT, 'contract.d/param'), root], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '--domain', join(ROOT, 'contract.d/param'), root, 'omx-contract'], { stdio: 'ignore' });
 }
 
 /**

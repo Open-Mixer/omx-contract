@@ -19,7 +19,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
-import { DATA, installParamDomain, installVerbHosts, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, installVerbHosts, ROOT, domainOwner } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-owner-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -61,7 +61,7 @@ function tree() {
 function contractDir() {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
-  execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root], { stdio: 'ignore' });
+  execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
   installParamDomain(root);
   installVerbHosts(root);
   return root;
@@ -93,7 +93,7 @@ test('(c) install --owner: a package with no data file, its manifest naming its 
   const missing = cli('validate', '--contract-dir', root);
   assert.equal(missing.status, 1, 'a listed domain that is not installed is refused');
   assert.match(missing.stderr, /contract\.manifest\.mismatch.*owned-host/s);
-  for (const d of ['owned-host', 'owned']) execFileSync('sh', [SH, '--domain', join(t, 'contract.d', d), root], { stdio: 'ignore' });
+  for (const d of ['owned-host', 'owned']) execFileSync('sh', [SH, '--domain', join(t, 'contract.d', d), root, domainOwner(join(t, 'contract.d', d))], { stdio: 'ignore' });
   const ok = cli('validate', '--contract-dir', root);
   assert.equal(ok.status, 0, ok.stderr);
   // a plain install of a directory with no data file stays refused: --owner says the package is only domains

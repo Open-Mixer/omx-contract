@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
-import { DATA, installParamDomain, installVerbHosts, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, installVerbHosts, ROOT, domainOwner } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-named-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -35,7 +35,7 @@ const domain = (owner = 'owned', since = '1.0.0') => ({
 function contractDir(doc) {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), MAJOR, DATA, root, 'data'], { stdio: 'ignore' });
-  execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root], { stdio: 'ignore' });
+  execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
   installParamDomain(root);
   installVerbHosts(root);
   if (doc) {
@@ -122,7 +122,7 @@ test('#199 (ruling %4 2026-11-24): a package-named directory of nested domains o
   nested.$id = 'https://openmixer.org/contract/owned/clap';
   nested.components.schemas = { OWNED_CLAP_MODES: { ...nested.components.schemas.OWNED_MODES } };
   writeFileSync(join(src, 'clap.json'), `${JSON.stringify(nested, null, 2)}\n`);
-  execFileSync('sh', [SH, '--domain', src, root], { stdio: 'ignore' });
+  execFileSync('sh', [SH, '--domain', src, root, domainOwner(src)], { stdio: 'ignore' });
   const r = validate(root, '--needs', 'owned@>= 1.0.0');
   assert.equal(r.status, 0, `a directory with no owned/owned.json is no package-named domain: ${r.stderr}`);
   assert.doesNotMatch(r.stderr, /contract\.manifest\.absent/);

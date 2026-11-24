@@ -43,7 +43,7 @@ The installed contract directory, `contract.d/<domain>/`, the one the reader alr
 `pkg-config --variable=contractdir omx-contract` (docs/contract-dir.md). A domain is read by name, and its
 `info.version` is compared to the floor the consumer declares (`needs`). Nothing else is a source: no copy in the
 consumer's tree, no default compiled in.
-A domain is installed into it by `tools/install-contract-dir.sh --domain contract.d/<domain> <contractdir>` (docs/contract-dir.md).
+A domain is installed into it by `tools/install-contract-dir.sh --domain contract.d/<domain> <contractdir> <package>` (the package that owns it, its `info.x-owner`) (docs/contract-dir.md).
 
 Every domain document carries `info.x-stability`: `experimental` or `stable`. This follows Kubernetes' alpha, beta and
 stable API levels and LV2's unstable extensions. While the project is in development every domain is `experimental`.

@@ -16,6 +16,8 @@ const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-install-domain-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 const SCRIPT = join(ROOT, 'tools/install-contract-dir.sh');
 const WIDGET = join(ROOT, 'test/fixtures/install-domain/widget');
+/** The package that owns the fixture domain, its info.x-owner: the one --domain may install it for (#88). */
+const OWNER = 'omx-fixture';
 let n = 0;
 
 /** A source tree `<tmp>/contract.d/<name>` holding a copy of the widget fixture (document renamed to the leaf); returns its path. */
@@ -35,7 +37,7 @@ const files = (dir, pre = '') => readdirSync(dir, { withFileTypes: true }).flatM
 test('--domain copies the document and the catalogs byte for byte, and the reader reads the domain', () => {
   const from = source();
   const to = dest();
-  const r = run('--domain', from, to);
+  const r = run('--domain', from, to, OWNER);
   assert.equal(r.status, 0, r.stderr);
   assert.deepEqual(files(join(to, 'widget')), ['catalogs/ca.json', 'widget.json']);
   for (const f of ['widget.json', 'catalogs/ca.json']) {
@@ -52,11 +54,11 @@ test('the domain name is the path after the last contract.d/ component', () => {
   const nested = join(SCRATCH, `n-${n++}`, 'contract.d', 'x', 'contract.d', 'widget');
   cpSync(from, nested, { recursive: true });
   const to = dest();
-  assert.equal(run('--domain', `${nested}/`, to).status, 0);
+  assert.equal(run('--domain', `${nested}/`, to, OWNER).status, 0);
   assert.ok(existsSync(join(to, 'widget', 'widget.json')));
   const deep = source('formats/clap');
   const to2 = dest();
-  assert.equal(run('--domain', deep, to2).status, 0);
+  assert.equal(run('--domain', deep, to2, OWNER).status, 0);
   assert.ok(existsSync(join(to2, 'formats/clap/clap.json')));
 });
 
@@ -70,7 +72,7 @@ test('a usage error is exit 2: no contract.d component, a name that is not [a-z]
   cpSync(from, digit, { recursive: true });
   for (const arg of [plain, upper, digit, join(SCRATCH, 'contract.d', 'absent')]) {
     const to = dest();
-    const r = run('--domain', arg, to);
+    const r = run('--domain', arg, to, OWNER);
     assert.equal(r.status, 2, `${arg}: ${r.stderr}`);
     assert.ok(/domain/.test(r.stderr), `a domain usage message: ${r.stderr}`);
     assert.ok(!existsSync(to), 'nothing installed');
@@ -81,7 +83,7 @@ test('a usage error is exit 2: no contract.d component, a name that is not [a-z]
 /** A refusal: exit 1, the message names `named`, nothing installed. */
 function refused(from, named) {
   const to = dest();
-  const r = run('--domain', from, to);
+  const r = run('--domain', from, to, OWNER);
   assert.equal(r.status, 1, r.stderr);
   assert.ok(r.stderr.includes(named), `${named} is named: ${r.stderr}`);
   assert.ok(!existsSync(join(to, 'widget')), 'nothing installed');
@@ -122,16 +124,16 @@ test('refusals: no document, a file beside the document, a bad catalog name, a s
 test('a nested domain directory is skipped, never copied; reinstalling replaces only the domain\'s own files', () => {
   const to = dest();
   const sub = source('formats/clap'); // installed beside, by its own call
-  assert.equal(run('--domain', sub, to).status, 0);
+  assert.equal(run('--domain', sub, to, OWNER).status, 0);
   const from = source('formats');
   cpSync(sub, join(from, 'clap'), { recursive: true });
-  assert.equal(run('--domain', from, to).status, 0);
+  assert.equal(run('--domain', from, to, OWNER).status, 0);
   assert.deepEqual(files(join(to, 'formats')), ['catalogs/ca.json', 'clap/catalogs/ca.json', 'clap/clap.json', 'formats.json']);
   // the source of the sub-domain is changed in the install only; a reinstall of the parent leaves it
   const mark = join(to, 'formats/clap/clap.json');
   writeFileSync(mark, '{"kept":true}\n');
   rmSync(join(from, 'catalogs', 'ca.json'));
-  assert.equal(run('--domain', from, to).status, 0);
+  assert.equal(run('--domain', from, to, OWNER).status, 0);
   assert.equal(readFileSync(mark, 'utf8'), '{"kept":true}\n');
   assert.deepEqual(files(join(to, 'formats')), ['clap/catalogs/ca.json', 'clap/clap.json', 'formats.json']);
 });
@@ -155,4 +157,22 @@ test('%{omx_contract_domain_dir} is the contract directory without the schema ma
   const ev = (m) => spawnSync('rpm', ['--macros', `/usr/lib/rpm/macros:${macros}`, '--define', '_datadir /usr/share', '--eval', m], { encoding: 'utf8' }).stdout.trim();
   assert.equal(ev('%{omx_contract_domain_dir}'), '/usr/share/omx-contract/contract.d');
   assert.equal(ev('%{omx_contract_dir}'), '/usr/share/omx-contract/contract.d/3');
+});
+
+test('the document\'s info.x-owner must be the installing package: another is refused naming both, none is a usage error (#88)', () => {
+  const from = source();
+  const to = dest();
+  const r = run('--domain', from, to, 'omx-intruder');
+  assert.equal(r.status, 1, r.stderr);
+  assert.match(r.stderr, /info\.x-owner is omx-fixture, not omx-intruder/);
+  assert.ok(r.stderr.includes('widget.json'), r.stderr);
+  assert.ok(!existsSync(join(to, 'widget')), 'nothing installed');
+  const u = run('--domain', from, dest());
+  assert.equal(u.status, 2, 'the package is a required argument');
+  assert.match(u.stderr, /<package>/);
+  const doc = join(from, 'widget.json');
+  writeFileSync(doc, readFileSync(doc, 'utf8').replace(/"x-owner": "omx-fixture",?/, ''));
+  const none = run('--domain', from, dest(), OWNER);
+  assert.equal(none.status, 1, 'a document with no x-owner is refused');
+  assert.match(none.stderr, /no info\.x-owner/);
 });

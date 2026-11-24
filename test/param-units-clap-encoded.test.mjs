@@ -15,7 +15,7 @@ import { test } from 'node:test';
 import { loadData, resolveData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { encodedFaults, encodedItem, ITEM, servedIds } from '../tools/clap-encoded.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, ROOT, domainOwner } from './helpers.mjs';
 
 const PARAM = 'contract.d/param/param.json';
 const doc = () => JSON.parse(readFileSync(join(ROOT, PARAM), 'utf8'));
@@ -101,7 +101,7 @@ test('the item first ships in 3.22.0, and an x-since above the domain\'s info.ve
       if (since) d.components.schemas[ITEM]['x-since'] = since;
       writeFileSync(join(src, 'param.json'), `${JSON.stringify(d, null, 2)}\n`);
       const root = join(dir, `cd-${name}`);
-      sh('--domain', src, root);
+      sh('--domain', src, root, domainOwner(src));
       const r = validate(root);
       if (!since) assert.doesNotMatch(r.stdout + r.stderr, /domain-x-since/, r.stdout + r.stderr);
       else assert.match(r.stderr, /param\/param\.json: PARAM_UNITS_CLAP_ENCODED: domain-x-since: x-since 3\.24\.0 is above the document's info\.version 3\.22\.0/, r.stdout + r.stderr);

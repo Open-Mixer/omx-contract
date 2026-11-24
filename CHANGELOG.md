@@ -4,6 +4,17 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- CHANGED (development phase, every installer follows): `install-contract-dir.sh --domain <dir> <contractdir> <package>`
+  names the installing package, and a domain whose `info.x-owner` is another is refused (#88). plugin-db,
+  plugin-hostd-protocol, omx-clap and omx-dsp name themselves in their install line when they take this release.
+- ADDED: `domain check` holds a `stable` domain to an append-only ratchet of its own version: a removal or a shifted
+  code needs the MAJOR, an addition at least a MINOR (#89). Experimental domains are checked as before.
+- ADDED: a domain words item spells `units`, `bases`, `extension`, `figureUnit` and `basis` as `x-units`, `x-bases`,
+  `x-extension`, `x-figure-unit` and `x-basis` (V28, #189), so the resource hints can move to plugin-hostd.
+- ADDED: `render --target md`, one reference page per domain and per package, refusing an undocumented item, word or
+  code (#202); `make docs-site` publishes them under `domains/`.
+- ADDED: a shape may hold a map keyed by data (`additionalProperties` the value's schema, no `properties`), and a key
+  that is no C identifier names its identifier in `x-name` (#75).
 - CHANGED (MINOR, development phase): a descriptor control's `meaning`, its ROLE, is REQUIRED on every control
   (#61, ruling R1 of 2026-11-24: declare, don't infer). Its words are PARAM_MEANINGS, a words item of the `param`
   domain, and the schema's `$defs.meaning` is their render (`tools/unit-enum.mjs`); `bandwidth` (a band's width in

@@ -16,6 +16,9 @@ test('validate, fmt --check and every render --check pass on the shipped tree', 
   assert.equal(cli('render', '--target', 'c', '--out', join(ROOT, 'include'), '--check').status, 0);
   assert.equal(cli('render', '--target', 'json', '--out', join(ROOT, 'share/omx-contract'), '--check').status, 0);
   assert.equal(cli('render', '--target', 'ts', '--out', join(ROOT, 'test/golden/ts'), '--check').status, 0);
+  // the lv2 render too: this test is the one place the committed renders are checked (test audit row 14, the CI step
+  // that ran the same checks is gone)
+  assert.equal(cli('render', '--target', 'lv2', '--out', join(ROOT, 'share/omx-contract'), '--check').status, 0);
 });
 
 test('a usage error exits 2, never a pass', () => {

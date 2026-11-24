@@ -225,7 +225,7 @@ test('a data directory is the package it is rendered for: an owner renders from 
   assert.equal(readFileSync(join(out, 'acme_limits.h'), 'utf8'), EXPECTED);
 });
 
-// The tool naming no owner's item is held against the live owners' data: test/live-owners.test.mjs.
+// The tool naming no owner's item is held by the owner, against the installed tool (it read omx-dsp's data here until the devel wave 2026-11-24).
 
 /** An owner's data directory: a kernel, a sheet, and the file that carries its omx-style word. */
 const omxOwner = (edit) => {

@@ -66,7 +66,7 @@ test('every live kernel file is the one formatting, and its items declare it aga
  * by data/, the hosting file and the live owners: a unit that gains a user leaves the table (`dB/oct` did with the
  * comp's key filter slope, omx-dsp c208f5f, released in 0.27.0).
  */
-const AWAITING_USER = { LUFS: 'FreeMixer/omx-contract#145', 'dB/s': 'FreeMixer/omx-contract#145' };
+const AWAITING_USER = { LUFS: 'FreeMixer/omx-contract#145', dBPerS: 'FreeMixer/omx-contract#145' };
 
 /**
  * A unit whose one user declares it outside any contract data, with where. `min` is FBS_COOLDOWN_MINUTES_RANGE's, which

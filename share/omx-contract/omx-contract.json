@@ -144,7 +144,7 @@
       "since": "2.18.0",
       "value": {
         "nsPerSample": {
-          "word": "ns-per-sample",
+          "word": "nsPerSample",
           "doc": "Nanoseconds per sample.",
           "text": {
             "en": "Nanoseconds per sample."

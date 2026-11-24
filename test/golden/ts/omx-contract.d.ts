@@ -125,7 +125,7 @@ export declare const RESOURCE_KINDS: {
  */
 export declare const RESOURCE_UNITS: {
   readonly nsPerSample: {
-    readonly word: "ns-per-sample";
+    readonly word: "nsPerSample";
     readonly doc: "Nanoseconds per sample.";
     readonly text: {
       readonly en: "Nanoseconds per sample.";
@@ -1525,7 +1525,7 @@ export declare const RESOURCE_KINDS_WORDS: readonly ["cpu", "memory", "scratch-m
  * The words of RESOURCE_UNITS, in their declared order.
  * @see data/resource-profile.json
  */
-export declare const RESOURCE_UNITS_WORDS: readonly ["ns-per-sample", "frames", "ms", "us", "s", "bytes", "count", "ratio", "flag"];
+export declare const RESOURCE_UNITS_WORDS: readonly ["nsPerSample", "frames", "ms", "us", "s", "bytes", "count", "ratio", "flag"];
 
 /**
  * The words of RESOURCE_BASES, in their declared order.

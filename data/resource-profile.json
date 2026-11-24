@@ -111,7 +111,7 @@
     "doc": "The units a resource figure is given in; an LV2 unit's name where LV2 has one.",
     "words": {
       "nsPerSample": {
-        "word": "ns-per-sample",
+        "word": "nsPerSample",
         "doc": "Nanoseconds per sample.",
         "text": {
           "en": "Nanoseconds per sample."

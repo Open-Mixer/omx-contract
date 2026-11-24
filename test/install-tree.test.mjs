@@ -8,7 +8,7 @@
 // the Debian .install lists ship each path.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
@@ -66,4 +66,15 @@ test('the RPM %files and the Debian .install lists ship the recipe directory and
   assert.match(dev, /^usr\/share\/omx-contract\/recipes$/m, 'libomx-contract-dev ships recipes/');
   // the CLI tree is shipped whole by omx-contract (RPM: %{_prefix}/lib/omx-contract/, deb: usr/lib/omx-contract)
   assert.match(readFileSync(join(ROOT, 'debian/omx-contract.install'), 'utf8'), /^usr\/lib\/omx-contract$/m);
+});
+
+// lintian's script-not-executable (the staged deb build of devel 896ec8c, trixie arm64, exit 2): a file the package
+// ships with a #! line is run, so it is installed executable. tools/kernel-recipe.mjs went in 0644.
+test('every file the CLI tree installs with a #! line is executable (lintian script-not-executable)', () => {
+  const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? (e.name === 'node_modules' ? [] : walk(join(d, e.name))) : [join(d, e.name)]);
+  const root = at('usr/lib/omx-contract');
+  const scripts = walk(root).filter((f) => readFileSync(f).subarray(0, 2).toString() === '#!');
+  assert.ok(scripts.some((f) => f.endsWith('/tools/kernel-recipe.mjs')), 'positive control: the recipe reader is a #! file');
+  const bad = scripts.filter((f) => (statSync(f).mode & 0o111) !== 0o111).map((f) => f.slice(root.length + 1));
+  assert.deepEqual(bad, [], `installed #! files not executable: ${bad.join(', ')}`);
 });

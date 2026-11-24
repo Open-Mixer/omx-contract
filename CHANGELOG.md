@@ -4,6 +4,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: tools/kernel-recipe.mjs is installed 0755: the deb build's lintian refused it as script-not-executable
+  (a #! file shipped 0644). Every #! file under tools/ is 100755 in git, and two tests hold both.
 - FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a
   unit id is camelCase) is not held against it, so the bump check classifies a rename the wave makes on purpose
   (v3.21.0's dB-oct, now dBPerOct) instead of refusing the old file. Every other rule holds, and a tree being built

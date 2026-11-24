@@ -353,8 +353,11 @@
     "words"
   ],
   "schema/omx-contract.schema.json#/$defs/meaning/enum": [
+    "acceleration",
     "algorithm",
+    "amount",
     "attack",
+    "balance",
     "bandwidth",
     "bypass",
     "ceiling",
@@ -363,6 +366,7 @@
     "decay",
     "delay",
     "depth",
+    "dispersion",
     "division",
     "drive",
     "enabled",
@@ -374,12 +378,15 @@
     "hold",
     "hysteresis",
     "knee",
+    "link",
     "listen",
     "lookahead",
     "lowCut",
     "makeup",
     "mode",
     "model",
+    "number",
+    "order",
     "output",
     "pingpong",
     "predelay",
@@ -393,6 +400,7 @@
     "shift",
     "size",
     "slope",
+    "solo",
     "spread",
     "sync",
     "threshold",
@@ -400,7 +408,8 @@
     "type",
     "unknown",
     "wetDryRatio",
-    "width"
+    "width",
+    "window"
   ],
   "schema/omx-contract.schema.json#/$defs/override/properties/plugin/properties/format/enum": [
     "clap",

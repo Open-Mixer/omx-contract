@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
+import { readDomain } from '../lib/domain.mjs';
 import { loadContractDir } from '../lib/contract-dir.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
 import { domainCodesC } from '../render/codes.mjs';
@@ -19,9 +20,9 @@ const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 
-/** The domain document of data/panel.json, as the owner writes it: each words item a oneOf of const words. */
+/** The domain document of test/fixtures/panel-v1/panel.json (the words data/panel.json held before V1 moved them to omx-panel), as the owner writes it: each words item a oneOf of const words. */
 function panelDomain() {
-  const old = JSON.parse(readFileSync(join(DATA, 'panel.json'), 'utf8'));
+  const old = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/panel-v1/panel.json'), 'utf8'));
   const schemas = {};
   for (const [name, it] of Object.entries(old)) {
     if (name === '$schema') continue;
@@ -44,6 +45,11 @@ function dirWith(doc, name = 'panel') {
   return root;
 }
 
+function refusalError(root) {
+  try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); return e; }
+  assert.fail('the read was not refused');
+}
+
 function refusalOf(root) {
   try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); return e.code; }
   assert.fail('the read was not refused');
@@ -61,7 +67,7 @@ test('a domain renders its marked words as codes only: one define per word and t
   const doc = panelDomain();
   doc.components.schemas.PANEL_FAMILIES['x-c-codes'] = true;
   const resolved = resolveData(loadContractDir({ dir: dirWith(doc) }));
-  const old = resolveData(loadData(DATA)).get('PANEL_FAMILIES').value;
+  const old = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/panel-v1/panel.json'), 'utf8')).PANEL_FAMILIES.words;
   const [h] = domainCodesC(resolved, 'panel', loadContractDir({ dir: dirWith(doc) }).packages.get('panel').codes);
   assert.equal(h.path, 'panel_codes.h');
   const defines = h.text.split('\n').filter((l) => l.startsWith('#define OMX_PANEL_FAMILIES_'));
@@ -174,11 +180,17 @@ test('a group no word of the groups schema names, and a $ref that is no domain i
   assert.equal(refusalOf(dirWith(path, 'grouped')), CONTRACT_CODES.fileInvalid);
 });
 
-test('an x-from $ref names a nested domain, dsp/kernels', () => {
+test('an x-from $ref names a nested domain, dsp/kernels: read as its item, and held to info.x-requires by name', () => {
   const doc = groupedDomain();
-  doc.components.schemas.GROUPED_REASONS.oneOf[1]['x-from'][0].$ref = 'https://openmixer.org/contract/dsp/kernels#/components/schemas/X';
-  const d = loadContractDir({ dir: dirWith(doc, 'grouped') });
-  assert.deepEqual(d.items.get('GROUPED_REASONS').item.words.impulse.from, ['X#latency']);
+  doc.components.schemas.GROUPED_REASONS.oneOf[1]['x-from'][0].$ref = 'https://openmixer.org/contract/dsp/kernels#/components/schemas/DSP_KERNELS_X';
+  assert.deepEqual(readDomain('grouped', doc, 'https://example.org/s.json', 3).doc.GROUPED_REASONS.words.impulse.from, ['DSP_KERNELS_X#latency']);
+  const undeclared = refusalError(dirWith(doc, 'grouped'));
+  assert.equal(undeclared.code, CONTRACT_CODES.refUndeclared);
+  assert.match(undeclared.message, /dsp\/kernels/);
+  doc.info['x-requires'] = { 'dsp/kernels': '>= 1.0.0' };
+  const absent = refusalError(dirWith(doc, 'grouped'));
+  assert.equal(absent.code, CONTRACT_CODES.packageAbsent);
+  assert.match(absent.message, /dsp\/kernels/);
 });
 
 test('a domain directory may hold catalogs/<lang>.json, and nothing else beside its document', () => {

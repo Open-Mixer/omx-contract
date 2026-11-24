@@ -17,7 +17,7 @@ import { SCHEMA_VERSION, fileProblems } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, DATA_ITEMS, ROOT } from './helpers.mjs';
+import { contractCodesDoc, DATA, DATA_ITEMS, installParamDomain, ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-dir-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -28,7 +28,8 @@ const URL3 = installedSchemaUrl(3);
 /** A fresh contract directory holding omx-contract's data/ as the install writes it; returns its root. */
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', VERSION, String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', VERSION, String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   return root;
 }
 
@@ -89,9 +90,10 @@ test('the install writes omx-contract\'s data/ with its manifest: every file, it
   assert.equal(m.tree, 'data');
   const want = dataFiles(DATA).map((p) => p.slice(DATA.length + 1)).sort();
   assert.deepEqual(Object.keys(m.files).sort(), want);
-  assert.ok(!want.includes('codes.json'), 'the reader\'s own codes are not installed');
+  assert.ok(!want.includes('codes.json'), 'no codes file is in data/ any more');
   assert.equal(want.length, dataFiles(DATA).length);
-  assert.ok(want.includes('rates.json') && want.includes('primitives.json') && want.some((r) => r.startsWith('formats/')), 'the shared facts and the vocabulary tree');
+  assert.ok(want.includes('rates.json') && want.includes('verbs.json'), 'the shared facts and the vocabulary files');
+  assert.ok(!want.some((r) => r.startsWith('formats/')), 'no format terms: their owners\' domains hold them (V27a/V27b)');
   assert.ok(!want.some((r) => r.startsWith('hosting/')), 'the hosting codes are omx-clap-core\'s (docs/hosting.md)');
   for (const rel of want) {
     const bytes = readFileSync(join(dir, rel));
@@ -133,11 +135,11 @@ test('a perturbed installed value moves every render: the reader reads the direc
   const root = installed();
   const p = join(pkgDir(root, 'omx-contract'), 'rates.json');
   const doc = JSON.parse(readFileSync(p, 'utf8'));
-  doc.RT_HARD_TARGET.value.rate = 176400;
+  doc.STANDARD_SAMPLE_RATES.values.push(384000);
   writeFileSync(p, `${JSON.stringify(doc, null, 2)}\n`);
   rehash(root, 'omx-contract');
   const r = resolveData(loadContractDir({ dir: root }));
-  assert.equal(r.get('RT_HARD_TARGET').value.rate, 176400);
+  assert.ok(JSON.stringify(r.get('STANDARD_SAMPLE_RATES')).includes('384000'));
   assert.equal(main(['render', '--target', 'c', '--out', join(ROOT, 'include'), '--check', '--contract-dir', root]), 1);
   assert.equal(main(['render', '--target', 'ts', '--out', join(ROOT, 'test/golden/ts'), '--check', '--contract-dir', root]), 1);
   assert.equal(main(['render', '--target', 'json', '--out', join(ROOT, 'share/omx-contract'), '--check', '--contract-dir', root]), 1);
@@ -195,13 +197,13 @@ test('contract.manifest.mismatch: an unlisted file, a listed file missing, a has
   writeFileSync(join(pkgDir(root, 'omx-contract'), 'stray.json'), '{}\n');
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch);
   root = installed();
-  rmSync(join(pkgDir(root, 'omx-contract'), 'primitives.json'));
+  rmSync(join(pkgDir(root, 'omx-contract'), 'param-contract.json'));
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch);
   root = installed();
   const p = join(pkgDir(root, 'omx-contract'), 'rates.json');
   const text = readFileSync(p, 'utf8');
-  assert.ok(text.includes('"rate": 192000'));
-  writeFileSync(p, text.replace('"rate": 192000', '"rate": 176400'));
+  assert.ok(text.includes('192000'));
+  writeFileSync(p, text.replace('192000', '176400'));
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch, 'an edit after install is caught by its hash');
 });
 
@@ -252,7 +254,7 @@ test('contract.file.not-json and contract.file.invalid', () => {
 
 test('contract.item.duplicate: two packages declare one name', () => {
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ RT_HARD_TARGET: scalar(1) }) });
+  addPackage(root, 'omx-dsp', { 'x.json': owned({ STANDARD_QUANTA: scalar(1) }) });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.itemDuplicate);
 });
 
@@ -285,10 +287,10 @@ test('contract.ref.unresolved and contract.ref.undeclared, and a reference its r
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.refUndeclared);
   root = installed();
   addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(3) }) }, '0.21.0');
-  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar({ ref: 'TEST_A' }), TEST_C: scalar({ ref: 'RT_HARD_TARGET.rate' }) }, { 'omx-dsp': '>= 0.21.0' }) });
+  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar({ ref: 'TEST_A' }), TEST_C: scalar({ ref: 'OMX_PARAM_CONTRACT_UNITS.ms' }) }, { 'omx-dsp': '>= 0.21.0' }) });
   const r = resolveData(loadContractDir({ dir: root }));
   assert.equal(r.get('TEST_B').value, 3);
-  assert.equal(r.get('TEST_C').value, 192000, 'an item of omx-contract needs no requires');
+  assert.equal(r.get('TEST_C').value, 2, 'an item of omx-contract needs no requires');
 });
 
 test('contract.package.absent and contract.package.too-old, from a file\'s requires and from the consumer\'s needs', () => {
@@ -307,7 +309,7 @@ test('contract.package.absent and contract.package.too-old, from a file\'s requi
 
 test('a refusal stops the whole read: the CLI prints the code first, as JSON with --json, and renders nothing', () => {
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ RT_HARD_TARGET: scalar(1) }) });
+  addPackage(root, 'omx-dsp', { 'x.json': owned({ STANDARD_QUANTA: scalar(1) }) });
   const out = join(SCRATCH, 'render-out');
   const r = spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'render', '--target', 'c', '--out', out, '--contract-dir', root, '--json'], { encoding: 'utf8' });
   assert.equal(r.status, 1);
@@ -350,9 +352,9 @@ test('the schema states its version; its major is the package\'s and the directo
   assert.match(readFileSync(join(ROOT, 'omx-contract.pc.in'), 'utf8'), /^contractdir=@CONTRACTDIR@$/m);
 });
 
-test('the codes are data: data/codes.json holds every code once, valid and in the one formatting, and no render carries them', () => {
-  const doc = JSON.parse(readFileSync(join(DATA, 'codes.json'), 'utf8'));
-  assert.deepEqual(fileProblems({ rel: 'data/codes.json', text: '', doc }), []);
+test('the codes are the contract domain\'s: its item holds every code once, valid, and no render carries them', () => {
+  const doc = contractCodesDoc();
+  assert.deepEqual(fileProblems({ rel: 'contract.d/contract/contract.json', text: '', doc }), []);
   const codes = Object.values(CONTRACT_CODES);
   assert.equal(new Set(codes).size, codes.length);
   assert.ok(codes.every((c) => /^contract\.[a-z]+\.[a-z-]+$/.test(c)));

@@ -25,7 +25,7 @@ import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
-import { KERNEL_SECTIONS, SIDE_FILES, TOOL_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData } from '../lib/data.mjs';
+import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData, TREE_DOMAINS } from '../lib/data.mjs';
 import { domainCheck } from '../lib/domain-check.mjs';
 import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
@@ -37,7 +37,6 @@ import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mj
 import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC } from '../render/c.mjs';
 import { domainCodesC } from '../render/codes.mjs';
-import { renderFormatsPy } from '../render/formats.mjs';
 import { renderLv2 } from '../render/hints.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderOwnerTs, renderTs } from '../render/ts.mjs';
@@ -66,6 +65,38 @@ function opts(argv, name) {
   return out;
 }
 
+/**
+ * The domain `--with-domain` names, a domain directory: its name, document and path. The name is the path after the
+ * last `contract.d/`, as install-contract-dir.sh --domain names it (`contract.d/plugin-hostd/grouping` is the domain
+ * plugin-hostd/grouping); a directory under no contract.d/ is named by its own name.
+ */
+function domainArg(withDomain) {
+  const ddir = resolve(withDomain);
+  const at = ddir.lastIndexOf('/contract.d/');
+  const name = at < 0 ? basename(ddir) : ddir.slice(at + '/contract.d/'.length);
+  const path = join(ddir, `${domainLeaf(name)}.json`);
+  if (!existsSync(path)) throw new Usage(`--with-domain ${withDomain}: no ${domainLeaf(name)}.json, the document of the domain ${name}`);
+  return { name, doc: JSON.parse(readFileSync(path, 'utf8')), path };
+}
+
+/**
+ * The read of a data directory with the tool's own `contract` domain beside it (`contract.d/contract/contract.json`):
+ * the domain's items but the table the tool reads raw, as ONE file `contract/contract.json`, the place and order an
+ * installed tree reads it at, so the render of data/ and the render of the installed tree agree (docs/contract-dir.md).
+ */
+function withToolDomain(data, dir) {
+  const path = join(dir, '..', 'contract.d/contract/contract.json');
+  if (!existsSync(path)) return data;
+  const { doc } = readDomain('contract', JSON.parse(readFileSync(path, 'utf8')), installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+  const { [TOOL_TABLE]: _table, ...rest } = doc;
+  if (!Object.keys(rest).some((k) => !FILE_KEYS.includes(k))) return data;
+  const rel = 'contract/contract.json';
+  const files = [{ rel, text: JSON.stringify(rest), doc: rest, source: 'contract.d/contract/contract.json' }, ...data.files].sort((a, b) => (a.rel < b.rel ? -1 : 1));
+  const items = new Map();
+  for (const f of files) for (const [name, item] of entriesOf(f.rel, f.doc)) items.set(name, { name, rel: f.rel, item, ...(f.source === undefined ? {} : { source: f.source }) });
+  return { files, items };
+}
+
 /** Whether the input is a contract directory rather than a data directory. */
 const fromContractDir = (argv) => argv.includes('--installed') || argv.includes('--contract-dir');
 
@@ -79,34 +110,38 @@ function load(argv) {
       needs[m[1]] = m[2];
     }
     const dir = argv.includes('--installed') ? undefined : resolve(opt(argv, '--contract-dir'));
-    return loadContractDir({ dir, needs });
+    // a domain in its data form, its rebuilt files joining the installed package its x-owner names (docs/render.md)
+    return loadContractDir({ dir, needs, withDomains: opts(argv, '--with-domain').map(domainArg) });
   }
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   if (!existsSync(dir)) throw new Usage(`no data directory ${dir}`);
-  const withDomain = opt(argv, '--with-domain');
-  if (withDomain === undefined) return loadData(dir);
-  // the data files a domain was made from, beside the files still in data/ (docs/render.md): one read, unchanged renders
-  const ddir = resolve(withDomain);
-  const name = basename(ddir);
-  const raw = JSON.parse(readFileSync(join(ddir, `${domainLeaf(name)}.json`), 'utf8'));
-  readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+  const withDomains = opts(argv, '--with-domain');
+  if (!withDomains.length) return withToolDomain(loadData(dir), dir);
+  // the data files the domains were made from, beside the files still in data/ (docs/render.md): one read, unchanged
+  // renders; --with-domain repeats, so two domains of one owner (an item of one naming an item of the other) read as one
   const texts = Object.fromEntries(loadData(dir).files.map((f) => [f.rel, f.text]));
-  for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {
-    const rel = `${basename(dir)}/${file}`; // the place the file had in the data directory, as loadData names it
-    if (rel in texts) throw new Usage(`${rel} is in ${dir} and rebuilt from the domain ${name}: one source per file`);
-    texts[rel] = text;
+  for (const { name, doc: raw } of withDomains.map(domainArg)) {
+    readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
+    for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {
+      const rel = `${basename(dir)}/${file}`; // the place the file had in the data directory, as loadData names it
+      if (rel in texts) throw new Usage(`${rel} is in ${dir} and rebuilt from the domain ${name}: one source per file`);
+      texts[rel] = text;
+    }
   }
   return loadData(dir, texts);
 }
 
-/** The tool's own tables at the top of a data directory (data/codes.json), as loaded files. */
+/**
+ * CONTRACT_CODES as a loaded file in its data form, rebuilt from the `contract` domain beside the data directory
+ * (`contract.d/contract/contract.json`, the tree of omx-contract itself). A tree with no such domain has no table.
+ */
 function toolFiles(argv) {
   if (fromContractDir(argv)) return [];
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
-  return TOOL_FILES.filter((f) => existsSync(join(dir, f))).map((f) => {
-    const text = readFileSync(join(dir, f), 'utf8');
-    return { rel: relative(join(dir, '..'), join(dir, f)), text, doc: JSON.parse(text) };
-  });
+  const rel = 'contract.d/contract/contract.json';
+  if (!existsSync(join(dir, '..', rel))) return [];
+  const text = domainDataFiles('contract', JSON.parse(readFileSync(join(dir, '..', rel), 'utf8')))['codes.json'];
+  return [{ rel, text, doc: { $schema: '../../schema/omx-contract.schema.json', ...JSON.parse(text) } }];
 }
 
 /** The owner's catalogs beside its data directory (`catalogs/<lang>.json`, lib/catalog.mjs), as loaded files. */
@@ -190,7 +225,7 @@ function cmdFmt(argv) {
   if (fromContractDir(argv) && !check && (argv.includes('--installed') || filesUnder(resolve(opt(argv, '--contract-dir'))).some((f) => f.endsWith('MANIFEST.json')))) throw new Usage('fmt writes a tree, never an installed contract directory: add --check');
   const dir = resolve(opt(argv, '--data') ?? join(ROOT, 'data'));
   const data = load(argv);
-  const files = [...data.files, ...toolFiles(argv)];
+  const files = data.files;
   let bad = 0;
   for (const f of files) {
     const want = formatFile(f);
@@ -202,6 +237,11 @@ function cmdFmt(argv) {
   console.log(`omx-contract fmt${check ? ' --check' : ''}: ${files.length} files formatted`);
   return 0;
 }
+
+/** The reader's own table: an item of the `contract` domain that renders only as omx_contract_codes.h, in no whole-read render. */
+const TOOL_TABLE = 'CONTRACT_CODES';
+/** The data file the tool reads raw for its own table (toolFiles). */
+const TOOL_TABLE_FILE = 'codes.json';
 
 export function renderTarget(target, argv) {
   const data = load(argv);
@@ -218,19 +258,23 @@ export function renderTarget(target, argv) {
       if (target === 'c') return domainCodesC(resolved, pkg, marked);
       throw new Usage(`${pkg} is a domain: it renders its codes header only (--target c), its words are read at run time`);
     }
+    // the reader's own table renders only as the contract domain's codes header (above), never in its owner's
+    resolved.delete(TOOL_TABLE);
     if (target === 'c') return renderC(resolved, { pkg });
     if (target === 'ts') return renderOwnerTs(resolved, pkg, files);
-    throw new Usage('the json, lv2 and py renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');
+    throw new Usage('the json and lv2 renders are the whole read, named @openmixer/omx-contract: --package renders c and ts');
   }
+  // The reader's own table is no declaration: the installed `contract` domain holds it (docs/contract-dir.md, "The refusal codes"),
+  // and no whole-read render carries it, as the render of data/ never reads it (its one render is omx_contract_codes.h).
+  // The domain's other items render on both paths.
+  resolved.delete(TOOL_TABLE);
   if (target === 'c') return renderC(resolved);
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));
   if (target === 'lv2') return renderLv2(resolved);
-  if (target === 'py') {
-    const py = renderFormatsPy(resolved);
-    return py === undefined ? [] : [{ path: 'omx_contract.py', text: py }];
-  }
-  throw new Usage(`unknown target ${target} (c, ts, json, lv2, py)`);
+  // the declarations have no Python render since the format terms left (V27b): py renders the shapes only
+  if (target === 'py') throw new Usage('render --target py renders the shapes only: add --shapes');
+  throw new Usage(`unknown target ${target} (c, ts, json, lv2, py --shapes)`);
 }
 
 /** The target and --out of a render, checked. */
@@ -273,8 +317,8 @@ function finishRender(target, out, files, argv, shapes) {
     if (target === 'c') { named.add('omxcontract/omx_json_write.h'); named.add('omxcontract/omx_domain.h'); }
     // the json, lv2 and py renders are committed side by side (share/omx-contract/): each knows the others' files
     if (['json', 'lv2', 'py'].includes(target) || (shapes && target === 'py')) {
-      for (const t of ['json', 'lv2', 'py']) for (const f of renderTarget(t, argv)) named.add(f.path);
-      // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered), shipped beside omx_contract.py
+      for (const t of ['json', 'lv2']) for (const f of renderTarget(t, argv)) named.add(f.path);
+      // share/omx-contract/ also holds the hand-written Python catalog and position-law readers (not rendered)
       named.add('omx_contract_catalog.py');
       named.add('omx_contract_scale.py');
       // and the language list (hand-written: the languages every owner ships a catalog of, omx-contract#21)
@@ -310,7 +354,8 @@ function dataAtTag(tag) {
   const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   try { git('rev-parse', '--verify', `${tag}^{commit}`); } catch { throw new Usage(`no tag ${tag} in ${ROOT}`); }
   const texts = {};
-  const isData = (p) => p.endsWith('.json') && ![...TOOL_FILES, ...SIDE_FILES].some((f) => p === `data/${f}`);
+  // a tag before the contract domain still holds its refusal table as data/codes.json, which is no declaration
+  const isData = (p) => p.endsWith('.json') && p !== 'data/codes.json' && !SIDE_FILES.some((f) => p === `data/${f}`);
   for (const rel of git('ls-tree', '-r', '--name-only', tag, '--', 'data').split('\n').filter(isData)) {
     const text = git('show', `${tag}:${rel}`);
     let doc;
@@ -318,6 +363,13 @@ function dataAtTag(tag) {
     if (!isKernelFile(rel) || KERNEL_SECTIONS.some((k) => k in doc)) { texts[rel] = text; continue; }
     const { $schema, ...items } = doc;
     texts[rel] = JSON.stringify({ $schema, ...kernelDocOf(rel, Object.entries(items)) });
+  }
+  // the domains the data read takes beside data/ (lib/data.mjs TREE_DOMAINS), as that read names them
+  for (const name of TREE_DOMAINS) {
+    const at = `contract.d/${name}/${name}.json`;
+    if (!git('ls-tree', '--name-only', tag, '--', at).trim()) continue;
+    const { doc } = readDomain(name, JSON.parse(git('show', `${tag}:${at}`)), '../schema/omx-contract.schema.json', 0);
+    texts[`${name}/${name}.json`] = JSON.stringify(doc);
   }
   return texts;
 }

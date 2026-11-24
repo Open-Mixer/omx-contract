@@ -1,0 +1,36 @@
+{
+  "requires": {
+    "omx-contract-schema": ">= 3.0.0",
+    "kinds-terms": ">= 1.0.0"
+  },
+  "KINDS_PLAIN": {
+    "kind": "codes",
+    "since": "1.0.0",
+    "doc": "Codes with no args: the codes kind as it was before args.",
+    "codes": {
+      "plainOne": {
+        "code": "kinds.plain.one",
+        "text": {
+          "en": "The first plain code."
+        }
+      },
+      "plainTwo": {
+        "code": "kinds.plain.two",
+        "doc": "the second"
+      }
+    }
+  },
+  "KINDS_SHEET": {
+    "kind": "sheet",
+    "since": "1.0.0",
+    "doc": "A data sheet, rebuilt verbatim.",
+    "value": {
+      "bytes": 4,
+      "lanes": 2
+    },
+    "docs": {
+      "bytes": "the bytes of a lane",
+      "lanes": "the lanes"
+    }
+  }
+}

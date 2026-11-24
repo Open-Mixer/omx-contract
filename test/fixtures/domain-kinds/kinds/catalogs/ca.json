@@ -1,0 +1,15 @@
+{
+  "kind": "catalog",
+  "lang": "ca",
+  "owner": "kinds-owner",
+  "messages": {
+    "KINDS_CODES.kinds.file.mismatch": {
+      "text": "{file} diu {found}, i es demanava {want}.",
+      "by": "human"
+    },
+    "KINDS_REASONS.latency-unknown": {
+      "text": "La seva latència de {frames} mostres no es declara.",
+      "by": "human"
+    }
+  }
+}

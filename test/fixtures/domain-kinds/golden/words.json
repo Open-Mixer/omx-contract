@@ -1,0 +1,62 @@
+{
+  "KINDS_STATES": {
+    "kind": "words",
+    "since": "1.0.0",
+    "doc": "The states a plugin of the fixture is in.",
+    "words": {
+      "unqualified": {
+        "word": "unqualified",
+        "doc": "not qualified yet"
+      },
+      "refused": {
+        "word": "refused",
+        "doc": "qualification refused it",
+        "text": {
+          "en": "It was refused."
+        }
+      }
+    }
+  },
+  "KINDS_REASONS": {
+    "kind": "words",
+    "since": "1.1.0",
+    "doc": "Why a plugin of the fixture is in its state.",
+    "why": "A host shows the reason beside the state.",
+    "groups": "KINDS_STATES",
+    "words": {
+      "neverPinned": {
+        "word": "never-pinned",
+        "group": "unqualified",
+        "doc": "there is no pinned layer",
+        "text": {
+          "en": "It has never been scanned."
+        }
+      },
+      "latencyUnknown": {
+        "word": "latency-unknown",
+        "group": "refused",
+        "from": [
+          "KINDS_TERMS#latency"
+        ],
+        "doc": "the plugin reports no latency",
+        "text": {
+          "en": "Its latency of {frames} frames is not reported."
+        },
+        "args": [
+          "frames"
+        ]
+      },
+      "noAudio": {
+        "word": "no-audio",
+        "group": "refused",
+        "from": [
+          "KINDS_TERMS#audio-in",
+          "KINDS_TERMS#audio-out"
+        ],
+        "text": {
+          "en": "It has no audio ports."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "requires": {
+    "omx-contract-schema": ">= 3.0.0",
+    "xa": ">= 1.0.0"
+  },
+  "XB_PAINTS": {
+    "kind": "words",
+    "since": "1.0.0",
+    "doc": "The paints of domain xb, each the colour of xa it is taken from.",
+    "words": {
+      "red": {
+        "word": "red",
+        "from": [
+          "XA_COLORS#red"
+        ],
+        "doc": "The warm one.",
+        "text": {
+          "en": "Red"
+        }
+      },
+      "deepBlue": {
+        "word": "deep-blue",
+        "from": [
+          "XA_COLORS#deepBlue"
+        ],
+        "doc": "The cold one.",
+        "text": {
+          "en": "Blue"
+        }
+      }
+    }
+  }
+}

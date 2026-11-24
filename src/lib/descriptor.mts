@@ -10,8 +10,8 @@ import { CONTRACT_CODES } from './codes.mjs';
 import { validate as validateSchema } from './schema-validate.mjs';
 import type { Json } from './json.mjs';
 
-/** The ids of PARAM_SCALES, the scales a travel may name, read from omx-contract's own data. */
-export const PARAM_SCALE_IDS: readonly string[] = JSON.parse(readFileSync(new URL('../data/primitives.json', import.meta.url), 'utf8')).PARAM_SCALES.ids;
+/** The ids of PARAM_SCALES, the scales a travel may name, read from omx-contract's own `param` domain (contract.d/param/param.json): its words in order. */
+export const PARAM_SCALE_IDS: readonly string[] = (JSON.parse(readFileSync(new URL('../contract.d/param/param.json', import.meta.url), 'utf8')).components.schemas.PARAM_SCALES.oneOf as { const: string }[]).map((w) => w.const);
 
 /** The value a descriptor writes for a unit, a scale or a meaning the plugin does not state. */
 export const UNKNOWN = 'unknown' as const;
@@ -75,6 +75,11 @@ export function descriptorProblems(rel: string, doc: Json, { scales = PARAM_SCAL
     if (!controls.length) say('descriptorOriginSource', '-', `a ${doc.origin} descriptor carries no from link`);
     controls.forEach((c, i) => { if (!c.source?.from) say('descriptorOriginSource', at(i, c), `a ${doc.origin} control with no from link, its own or the file's`); });
   }
+
+  // A sweep of two integers of frames is in order; refs are resolved, and held to the same order, by the reader of the
+  // contract directory, which knows the items they name.
+  const sweep = doc.latency?.sweep;
+  if (isNum(sweep?.min) && isNum(sweep?.max) && sweep.min > sweep.max) say('descriptorLatency', 'latency', `sweep min ${sweep.min} is above max ${sweep.max}`);
 
   // The Easy face names controls by the key a session and a layout name them by; a scan has nothing to read it from.
   if (doc.easy !== undefined) {

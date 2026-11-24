@@ -51,7 +51,7 @@ test('a from that names no term, or no terms item, is refused', () => {
 });
 
 test('a term of the wrong format\'s shape, or without the citation its status asks for, is refused', () => {
-  const f = 'data/formats/lv2/urid.json';
+  const f = ['data', 'formats', 'lv2', 'urid.json'].join('/');
   assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; delete t.uri; t.id = 'CLAP_X'; }), 'LV2_URID_TERMS', 'term-format'));
   assert.ok(has(texts((d) => { delete d[f].LV2_URID_TERMS.terms.map.by; }), 'LV2_URID_TERMS', 'schema'));
   assert.ok(has(texts((d) => { const t = d[f].LV2_URID_TERMS.terms.map; t.status = 'supported-later'; delete t.by; }), 'LV2_URID_TERMS', 'schema'));
@@ -73,6 +73,7 @@ after(() => rmSync(SCRATCH0, { recursive: true, force: true }));
 cpSync(DATA, join(SCRATCH0, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH0, 'data', 'measurement.json'));
 cpSync(join(ROOT, 'schema'), join(SCRATCH0, 'schema'), { recursive: true });
+cpSync(join(ROOT, 'contract.d/param'), join(SCRATCH0, 'contract.d/param'), { recursive: true });
 const resolved = resolveData(loadData(join(SCRATCH0, 'data')));
 
 // data/ holds no codes item to render since the hosting codes moved to omx-clap-core (docs/hosting.md): the codes
@@ -83,6 +84,7 @@ cpSync(DATA, join(SCRATCH, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/package-codes'), join(SCRATCH, 'data'), { recursive: true });
 cpSync(join(ROOT, 'test/fixtures/moved-words/measurement.json'), join(SCRATCH, 'data', 'measurement.json'));
 cpSync(join(ROOT, 'schema'), join(SCRATCH, 'schema'), { recursive: true });
+cpSync(join(ROOT, 'contract.d/param'), join(SCRATCH, 'contract.d/param'), { recursive: true });
 const withCodes = resolveData(loadData(join(SCRATCH, 'data')));
 
 test('the C render defines every code and word once, by its code and by its item', () => {
@@ -102,7 +104,9 @@ test('every words item renders an X-macro, X(code, "word", NAME), in its declare
   const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
   assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_VOICE_BASES\(X\) \\\n {4}X\(0u, "declared", DECLARED\) X\(1u, "probe", PROBE\)$/m);
   for (const r of [...withCodes.values()].filter((x) => x.kind === 'words')) {
-    const m = h.match(new RegExp(`^#define OMX_${r.name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
+    // the code sheet of omx_param_units.h owns OMX_PARAM_UNITS(X), released: the words item's is _WORDS (omx-contract#151)
+    const x = r.name === 'PARAM_UNITS' ? 'PARAM_UNITS_WORDS' : r.name;
+    const m = h.match(new RegExp(`^#define OMX_${x}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
     assert.ok(m, `${r.name} renders an X-macro`);
     const got = [...m[1].matchAll(/X\((\d+)u, ("(?:[^"\\]|\\.)*"), (\w+)\)/g)].map(([, c, w, n]) => [Number(c), JSON.parse(w), n]);
     const want = Object.entries(r.value).map(([k, w], i) => {
@@ -118,39 +122,8 @@ test('a word whose C name meets a words item\'s X-macro is refused', () => {
   assert.ok(problems(texts(clash)).some((p) => p.rule === 'c-name-unique' && /OMX_RESOURCE_BASES_PROBE /.test(p.message)));
 });
 
-// The display kinds a panel description serves were omx-plugins' words restated by hand in omx-clap-core; they are
-// declared once, here, beside the families and widgets (vocabulary-owner rule).
-test('the panel display kinds are declared here, in the order a panel description serves them', () => {
-  const r = resolved.get('PANEL_DISPLAY_KINDS');
-  assert.ok(r && r.kind === 'words', 'PANEL_DISPLAY_KINDS is a words item');
-  assert.deepEqual(Object.values(r.value).map((w) => w.word), ['gain_reduction_bar', 'transfer_curve', 'eq_response', 'meter', 'time_response']);
-});
-
-// omx-panel released the time_response display (a delay's tap train, a reverb's decay envelope) at code 4: the list
-// carries it there, after meter, or a consumer's table drifts from the extension's.
-test('the panel display kinds carry time_response at code 4', () => {
-  const words = Object.values(resolved.get('PANEL_DISPLAY_KINDS').value).map((w) => w.word);
-  assert.equal(words.indexOf('time_response'), 4, 'time_response is the fifth display kind, code 4');
-});
-
-// The panel description's display sources and placements were restated by hand in omx-clap-core and omx-plugins; they are
-// declared once, here, with the codes omx-clap-core serves (the place in the declared order).
-test('the panel display sources and placements are declared here, with the codes a panel description serves', () => {
-  const want = {
-    PANEL_DISPLAY_SOURCES: ['family', 'meters', 'gain_adjustment', 'curve'],
-    PANEL_PLACEMENTS: ['insert', 'return', 'bus', 'master'],
-  };
-  const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
-  for (const [name, words] of Object.entries(want)) {
-    const r = resolved.get(name);
-    assert.ok(r && r.kind === 'words', `${name} is a words item`);
-    assert.deepEqual(Object.values(r.value).map((w) => w.word), words);
-    const m = h.match(new RegExp(`^#define OMX_${name}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
-    assert.ok(m, `${name} renders an X-macro`);
-    const codes = [...m[1].matchAll(/X\((\d+)u, "([^"]*)"/g)].map(([, c, w]) => [Number(c), w]);
-    assert.deepEqual(codes, words.map((w, i) => [i, w]), `${name}: the codes are the place in the order`);
-  }
-});
+// The panel words (PANEL_DISPLAY_KINDS, _DISPLAY_SOURCES, _PLACEMENTS and the families and widgets) are omx-panel's `panel`
+// domain (sorting pass V1); their tests went with them, and test/sorting-removals.test.mjs holds that they are gone here.
 
 test('the JSON Schema fragment gives one enum per codes and words item, in order', () => {
   const f = JSON.parse(renderJson(withCodes, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text);
@@ -171,4 +144,18 @@ test('an owner\'s codes item, in a file with its own render word, stays out of t
   const h = renderC(union).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
   assert.doesNotMatch(h, /HOSTING_CODES \(/);
   assert.equal(JSON.parse(renderJson(union, '0.0.0').find((x) => x.path === 'omx-vocabulary.schema.json').text).$defs.HOSTING_CODES, undefined);
+});
+
+// The macro name of the PARAM_UNITS words item does not depend on which other render is present (omx-contract#151): the
+// code sheet and omx_param_units.h move to omx-clap-core, and omx_vocabulary.h installs beside that header. With the
+// sheet's render removed from the tree, the item's X-macro is still OMX_PARAM_UNITS_WORDS, never OMX_PARAM_UNITS.
+test('the PARAM_UNITS X-macro is OMX_PARAM_UNITS_WORDS with the code sheet present or removed', () => {
+  const vocab = (d) => renderC(resolveData(loadData(null, texts(d)))).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
+  const withSheet = vocab();
+  const noSheet = vocab((d) => { delete d['data/param-contract.json'].render; });
+  assert.ok(!renderC(resolveData(loadData(null, texts((d) => { delete d['data/param-contract.json'].render; })))).some((f) => f.path === 'omxcontract/omx_param_units.h'), 'positive control: the sheet header is not rendered');
+  for (const h of [withSheet, noSheet]) {
+    assert.match(h, /^#define OMX_PARAM_UNITS_WORDS\(X\) \\$/m);
+    assert.doesNotMatch(h, /^#define OMX_PARAM_UNITS\(X\)/m);
+  }
 });

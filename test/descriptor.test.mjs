@@ -18,7 +18,7 @@ import { fileProblems } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
 const FIXTURES = join(ROOT, 'examples/descriptors');
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
@@ -43,7 +43,8 @@ let n = 0;
 /** A contract directory holding omx-contract's data/ as the install writes it and the package `pkg` holding `files`. */
 function directory(files, pkg = 'omx-plugins') {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   const dir = join(root, String(SCHEMA_MAJOR), pkg);
   const listed = {};
   for (const [rel, doc] of Object.entries(files)) {
@@ -129,7 +130,9 @@ test('the scanned LV2 plugin: its units, a unit with no word as unknown, a side-
 
 test('the words are the closed lists of docs/descriptors.md', () => {
   const $ = SCHEMA.$defs;
-  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown'] }]);
+  // the descriptor units of PARAM_UNITS (the param domain, docs/units.md), then unknown; every unit a descriptor took before still taken
+  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'coef', 'us', 'bytes', 'ns/sample', 'count', 'flag', 'unknown'] }]);
+  for (const u of ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown']) assert.ok([...$.unit.enum, ...$.descriptorUnit.anyOf[1].enum].includes(u), `${u} is still a descriptor's unit`);
   for (const u of ['frames', 'bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
   assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', '%', 'x', '', 'dB/oct', 'LUFS', 'dB/s'], 'the items\' units are as they were, dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0');
   assert.deepEqual($.meaning.enum, [
@@ -266,12 +269,59 @@ test('a scanned descriptor in the contract directory is contract.origin.misplace
   for (const name of [SCANNED_LV2, SCANNED_CLAP]) assert.equal(readerRefusal(fixture(name)), CONTRACT_CODES.originMisplaced, name);
 });
 
+// latency.sweep (omx-contract#155): the range a modulated delay's lag lies in. Each end is a non-negative integer of
+// frames or a ref to a scalar in frames or ms; min above max is refused by name, by validation and by the reader.
+const SWEEP_ITEMS = () => ({
+  ROT_BASE_MS: { kind: 'scalar', doc: 'The shortest read of the sweep.', unit: 'ms', value: 0.1 },
+  ROT_LONGEST_MS: { kind: 'scalar', doc: 'The longest read of the sweep.', unit: 'ms', value: 1 },
+  ROT_MID_MS: { kind: 'scalar', doc: 'A read between the two.', unit: 'ms', value: 0.5 },
+  ROT_RATE_HZ: { kind: 'scalar', doc: 'A rate, which is no length.', unit: 'Hz', value: 6 },
+});
+const withLatency = (latency) => { const d = fixture(AUTHORED); d.latency = latency; return d; };
+const sweepRead = (latency) => {
+  const root = directory({ 'plugins/omx-delay.json': fixture(AUTHORED), 'plugins/x.json': withLatency(latency), 'plugins/sweep-items.json': { $schema: fixture(AUTHORED).$schema, requires: fixture(AUTHORED).requires, ...SWEEP_ITEMS() } });
+  try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); raised.add(e.code); return e.code; }
+  return undefined;
+};
+
+test('latency.sweep: two integers of frames are valid, and the schema holds each end to a non-negative integer or a ref', () => {
+  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: 5, max: 47 } })), [], 'positive control: 5..47 frames');
+  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: 5, max: 5 } })), [], 'a sweep of one frame is no break');
+  assert.deepEqual(problemsOf(withLatency({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } })), [], 'refs are valid per file');
+  for (const [what, sweep] of [['a missing max', { min: 5 }], ['a missing min', { max: 5 }], ['a negative min', { min: -1, max: 5 }], ['a fractional max', { min: 1, max: 2.5 }], ['an extra key', { min: 1, max: 2, step: 1 }], ['a string end', { min: '5', max: 6 }]]) {
+    assert.ok(problemsOf(withLatency({ reports: true, sweep })).length > 0, `${what} is refused`);
+  }
+  assert.ok(SCHEMA.$defs.latency.properties.sweep, 'the schema declares latency.sweep');
+});
+
+test('latency.sweep: a min above its max is refused by name, as validation and as the reader', () => {
+  const d = withLatency({ reports: true, sweep: { min: 48, max: 5 } });
+  assert.deepEqual(codesOf(d), [CONTRACT_CODES.descriptorLatency]);
+  assert.equal(sweepRead(d.latency), CONTRACT_CODES.descriptorLatency);
+});
+
+test('latency.sweep: refs to scalars in ms are read, an ms pair in order passes and a pair out of order is refused', () => {
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_LONGEST_MS' } } }), undefined);
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: { ref: 'ROT_MID_MS' } } }), undefined, 'a pair in order');
+  assert.equal(sweepRead({ reports: true, sweep: { min: 5, max: { ref: 'ROT_BASE_MS' } } }), CONTRACT_CODES.descriptorLatency, 'mixed units: frames and ms');
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_BASE_MS' }, max: 47 } }), CONTRACT_CODES.descriptorLatency, 'mixed units: ms and frames');
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_LONGEST_MS' }, max: { ref: 'ROT_BASE_MS' } } }), CONTRACT_CODES.descriptorLatency, 'ms pair out of order');
+});
+
+test('latency.sweep: a latency ref to an item that is no scalar in frames or ms is refused, for sweep and for frames', () => {
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_RATE_HZ' }, max: { ref: 'ROT_LONGEST_MS' } } }), CONTRACT_CODES.descriptorLatency, 'a scalar in Hz');
+  assert.equal(sweepRead({ reports: true, frames: { ref: 'ROT_RATE_HZ' } }), CONTRACT_CODES.descriptorLatency, 'frames: a scalar in Hz');
+  assert.equal(sweepRead({ reports: true, frames: { ref: 'PARAM_SCALES' } }), CONTRACT_CODES.descriptorLatency, 'frames: an item that is no scalar');
+  assert.equal(sweepRead({ reports: true, frames: { ref: 'ROT_BASE_MS' } }), undefined, 'frames: a scalar in ms is read at the running rate');
+  assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_NO_SUCH' }, max: 5 } }), CONTRACT_CODES.refUnresolved, 'an unknown ref is still the existing refusal');
+});
+
 // The codes another package raises, each with the code that raises it (test/fixtures/codes-raised-elsewhere.json).
 const ELSEWHERE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised-elsewhere.json'), 'utf8')).codes;
 
 test('every descriptor code was raised by an arm above, through validation and through the reader', () => {
   const descriptor = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('descriptor')).map(([, c]) => c).filter((c) => !(c in ELSEWHERE));
-  assert.equal(descriptor.length, 13);
+  assert.equal(descriptor.length, 14);
   assert.deepEqual(descriptor.filter((c) => !raised.has(c)), []);
   assert.ok(raised.has(CONTRACT_CODES.originMisplaced));
 });
@@ -283,7 +333,7 @@ test('every code raised elsewhere is registered, names its raiser, and is raised
   const codes = new Set(Object.values(CONTRACT_CODES));
   assert.ok(Object.keys(ELSEWHERE).length > 0, 'positive control: the fixture names a code');
   for (const [code, raiser] of Object.entries(ELSEWHERE)) {
-    assert.ok(codes.has(code), `${code} is not in data/codes.json`);
+    assert.ok(codes.has(code), `${code} is not in the contract domain`);
     assert.match(raiser, /^[a-z0-9-]+ \S+\.(mjs|js|sh|c): \S/, `${code}: name the package, the file and what it compares`);
     assert.equal(raised.has(code), false, `${code} is raised here: give it an arm instead`);
   }

@@ -29,7 +29,7 @@ per control; an override may change the word (`travel.scale`) or give points (`m
   step. `unknown` is served linear. Anything else throws `RangeError`.
 
 A Python surface (Zynthian, `zyngine/zynthian_position_law.py`) reads the same law from
-`share/omx-contract/omx_contract_scale.py`, hand-written and installed beside the generated `omx_contract.py`:
+`share/omx-contract/omx_contract_scale.py`, hand-written and installed in `share/omx-contract/`:
 `LAWS`, `effective_law(travel)`, `scale_position(travel, value)` and `scale_value(travel, p)`, the same shape as
 `@openmixer/omx-contract/scale`; anything the TypeScript reader throws on, this one refuses with `ValueError`. It is
 held to the same `data/scale-vectors.json`.

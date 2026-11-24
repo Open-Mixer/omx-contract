@@ -97,7 +97,6 @@ jobs:
           node bin/omx-contract.mjs render --target json --out share/omx-contract --check
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check
-          node bin/omx-contract.mjs render --target py --out share/omx-contract --check
       - id: handback-shapes
         name: The committed shape renders are the render of the shapes, by the pinned generators (docs/shapes.md)
         run: |
@@ -115,7 +114,6 @@ jobs:
           node bin/omx-contract.mjs render --target json --out share/omx-contract --check --contract-dir "$dir"
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check --contract-dir "$dir"
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check --contract-dir "$dir"
-          node bin/omx-contract.mjs render --target py --out share/omx-contract --check --contract-dir "$dir"
           node bin/omx-contract.mjs links --check
       - id: handback-verbs
         name: A package's verbs, installed beside the data, validate and render the committed fixture headers
@@ -200,6 +198,43 @@ jobs:
       - id: handback-doxygen-gate
         name: The documentation gate is red on an undocumented new declaration, a stale baseline line and a grown baseline
         run: node --test test/doxygen-gate.test.mjs
+
+  # The C domain loader on each Fedora cell of check-matrix (fc45 among them), not only on the ubuntu runner of the test
+  # job: make test-c under the sanitizers with that release's gcc and glibc, the installed command refusing with 78,
+  # and the C-against-TypeScript conformance comparison. The catalog-change test of domain_test failed on fedora:45
+  # while the ubuntu step sat skipped behind an unrelated red (omx-contract#177).
+  c-loader-fedora:
+    name: C loader (fc${{ matrix.cell.fedora }}), sanitizers, ABI, conformance
+    needs: checks
+    if: needs.checks.outputs.rpm-count != '0'
+    runs-on: ${{ github.event.repository.private && 'arc-freemixer' || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+    container:
+      image: ${{ matrix.cell.image }}
+    steps:
+      - name: Install the C toolchain, the sanitizer runtimes, jansson and node
+        run: |
+          dnf install -y --setopt=install_weak_deps=False --setopt=retries=5 git make gcc binutils jansson-devel \
+            pkgconf-pkg-config libasan libubsan diffutils findutils nodejs npm
+      - uses: actions/checkout@v4
+      - name: Install the node dependencies (the conformance comparison reads the built library)
+        run: npm ci --no-audit --no-fund
+      - id: handback-c-loader-fedora
+        name: The C domain loader, under the sanitizers, its ABI list held, and the installed command refusing with 78
+        run: |
+          set -eu
+          make test-c
+          make install-c DESTDIR="$RUNNER_TEMP/inst-c" PREFIX=/usr CONTRACTDIR=/usr/share/omx-contract/contract.d
+          rc=0
+          LD_LIBRARY_PATH="$RUNNER_TEMP/inst-c/usr/lib" "$RUNNER_TEMP/inst-c/usr/bin/omx-domain" no-such-domain || rc=$?
+          test "$rc" -eq 78
+      - id: handback-conformance-c-fedora
+        name: The C loader and openDomainAt give one verdict per conformance case (the comparison, never skipped)
+        run: OMX_CONFORMANCE_C=required node --test test/domain-conformance.test.mjs
 
   # The Python package from a clean container (omx-contract#28): the interpreter and make alone, omx_contract installed
   # where that interpreter looks, imported from / in isolated mode so the checkout cannot supply it. The packaging

@@ -14,7 +14,7 @@ import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mj
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { SCHEMA_VERSION, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-render-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -166,7 +166,8 @@ test('two files that declare one header are refused, naming both', () => {
 /** A contract directory: omx-contract's data/ as installed, and the package acme holding the fixture file. */
 function directory() {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   const dir = join(root, String(SCHEMA_MAJOR), 'acme');
   const doc = { ...acme(), $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` } };
   const text = `${JSON.stringify(doc, null, 2)}\n`;
@@ -244,7 +245,8 @@ const omxOwner = (edit) => {
 
 test('a package-scope limits header frames the OMX_* defines of every item of its package, as the whole read spells them', () => {
   const t = omxOwner();
-  const scales = JSON.stringify({ $schema: '../schema/omx-contract.schema.json', PARAM_SCALES: JSON.parse(readFileSync(join(DATA, 'primitives.json'), 'utf8')).PARAM_SCALES });
+  // the scales as a data file of the package, the set PARAM_SCALES of the param domain read as data (fixture: the item as data/primitives.json held it)
+  const scales = JSON.stringify({ $schema: '../schema/omx-contract.schema.json', PARAM_SCALES: JSON.parse(readFileSync(join(ROOT, 'test/fixtures/domain-set-units/primitives.json'), 'utf8')).PARAM_SCALES });
   const r = resolveData(loadData(null, { ...t, 'data/primitives.json': scales }));
   const [own] = renderC(r, { pkg: 'acme' });
   assert.equal(own.path, 'acme/acme_definitions.h');
@@ -267,7 +269,8 @@ test('a package-scope limits header frames the OMX_* defines of every item of it
 
 test('a package-scope header is cut to its package in a contract directory', () => {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'codes.json', '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  installParamDomain(root);
   const dir = join(root, String(SCHEMA_MAJOR), 'acme');
   const files = {};
   for (const [rel, text] of Object.entries(omxOwner())) {

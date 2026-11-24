@@ -12,7 +12,7 @@ import { classify } from '../lib/semver.mjs';
 import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
-import { DATA, resolvedOf, texts } from './helpers.mjs';
+import { DATA, contractCodesDoc, resolvedOf, texts } from './helpers.mjs';
 
 const FILE = 'data/hosting.json';
 const withText = (d, c = d[FILE].HOSTING_CODES.codes.noteInput) => {
@@ -85,10 +85,10 @@ test('semver: a text added to a code is MINOR, reworded PATCH, an arg changed MA
   assert.equal(lvl((c) => { c.args = ['dir']; c.text = { en: '{dir}' }; }), 'major');
 });
 
-test('this repo\'s own codes (data/codes.json, CONTRACT_CODES) all carry their source sentence and nothing else, validating against omx-contract >= 3.12.0', () => {
+test('this repo\'s own codes (the contract domain, CONTRACT_CODES) all carry their source sentence and nothing else, validating against omx-contract >= 3.12.0', () => {
   assert.ok(atLeast(SCHEMA_VERSION, '3.12.0'), `this schema is ${SCHEMA_VERSION}`);
-  const doc = JSON.parse(readFileSync(join(DATA, 'codes.json'), 'utf8'));
-  assert.deepEqual(fileProblems({ rel: 'data/codes.json', text: '', doc }), []);
+  const doc = contractCodesDoc();
+  assert.deepEqual(fileProblems({ rel: 'contract.d/contract/contract.json', text: '', doc }), []);
   const codes = doc.CONTRACT_CODES.codes;
   const missing = Object.entries(codes).filter(([, c]) => !c.text?.en || Object.keys(c.text).length !== 1).map(([k]) => k);
   assert.deepEqual(missing, [], `codes with no text: ${missing.join(', ')}`);

@@ -13,7 +13,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { ROOT, scratchDir } from './helpers.mjs';
+import { ROOT, contractCodesDoc, scratchDir } from './helpers.mjs';
 import * as cat from '../lib/catalog.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
 import { validate } from '../lib/schema-validate.mjs';
@@ -154,10 +154,11 @@ async function fakeEndpoint({ breakKey, breakOver, garbleOver, dropOver, router,
   return { url: `http://127.0.0.1:${server.address().port}`, seen, close: () => new Promise((r) => server.close(r)) };
 }
 
-/** A copy of this tree's data/ and catalogs/ to run translate over. */
+/** A copy of this tree's data/ and contract domain, and an empty catalogs/, to run translate over. */
 function ownerTree() {
   const dir = scratchDir('omx-translate-');
   cpSync(join(ROOT, 'data'), join(dir, 'data'), { recursive: true });
+  cpSync(join(ROOT, 'contract.d'), join(dir, 'contract.d'), { recursive: true });
   mkdirSync(join(dir, 'catalogs'));
   return dir;
 }
@@ -173,9 +174,9 @@ function run(args, env = {}) {
   });
 }
 
-/** The source sentence of `key` in the owner tree `dir`, as translate reads it (its data and data/codes.json). */
+/** The source sentence of `key` in the owner tree `dir`, as translate reads it (its data and its contract domain). */
 const sourceOf = (dir, key) => {
-  const extra = Object.entries(JSON.parse(readFileSync(join(dir, 'data', 'codes.json'), 'utf8'))).filter(([, v]) => v && typeof v === 'object' && v.kind);
+  const extra = Object.entries(contractCodesDoc()).filter(([, v]) => v && typeof v === 'object' && v.kind);
   return cat.catalogKeys(resolveData(loadData(join(dir, 'data'))), { extra }).get(key).en;
 };
 

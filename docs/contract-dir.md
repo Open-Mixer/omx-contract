@@ -41,7 +41,14 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   package's version, as omx-clap-core's does, writes that version) (#123). `omx-contract validate` refuses by name an item with no `x-since`, one that is not `MAJOR.MINOR.PATCH`, and one above its document's `info.version`; which version added which item stays the owner's to test.
   `omx-contract domain check <new.json> <committed.json>` compares a freshly generated document with the committed one and refuses by domain, item and word (one line each, exit 1): a word or item added or removed while `info.version` is unchanged, a word whose `x-code` moved at any version (new words are appended), and an `info.version` below the committed one; exit 0 prints one PASS line (omx-contract#124). `x-code` is the word's code, today its place in the order
   (the loader refuses another until a renderer carries a sparse code); translations stay in the catalogs, `x-text` is
-  the sentence they translate. An item C switches on carries `"x-c-codes": true`: the whole item becomes constants,
+  the sentence they translate. A word whose `x-text` names placeholders (`{path}`) stores them as `x-args`, the
+  ordered list of their names (`"x-args": ["file", "want", "found"]`, the data form's `args`): stored, never derived
+  from the sentence, because its order is the order a renderer (`<MACRO>_ARGS_INIT`) and a catalog read. The reader
+  refuses by item, word and `x-args` (`contract.file.invalid`) an `x-args` that is not exactly the placeholders of the
+  `x-text`, each once and no other name; one absent where the `x-text` names a placeholder; and one on a word with no
+  `x-text`. A word whose `x-text` names no placeholder, or that has no `x-text`, carries none. A domain's catalog
+  checks its placeholders against these args (`catalog-placeholders`); its keys are `<ITEM>.<word>` for every item,
+  a codes item's words included. An item C switches on carries `"x-c-codes": true`: the whole item becomes constants,
   its codes header (docs/render.md); one C also uses as struct fields or enum values carries `"x-c-xmacro": true` as
   well (ruling 5 of docs/runtime-data.md). `x-c-xmacro` without `x-c-codes` is invalid. An item's name starts with
   its domain's name in upper snake case (`PANEL_FAMILIES` in `panel`); a check refuses one that does not, naming the
@@ -64,13 +71,79 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     is the classic `from` string `LV2_CORE_TERMS#latency`. Until omx-contract's own data/ is migrated into domains, its
     items answer to the domain id `omx-contract`. A `$ref` to an item no installed file declares is refused by `validate`, rule `word-from`;
     a file path is never a reference.
+  - `x-from` may also name a WORD of a words item (format ruling (a), 2026-11-20): the `$ref` names the domain and the
+    words item, `x-term` the target word's `title` (not the word as written), so
+    `{ "$ref": "https://openmixer.org/contract/xa#/components/schemas/XA_COLORS", "x-term": "deepBlue" }` names the
+    word `deep-blue` titled `deepBlue` and is the classic `from` string `XA_COLORS#deepBlue`
+    (test/fixtures/domain-from-words). Any domain's words item may be named, the document's own
+    included. The word renders as it does with a terms reference: from its own `const`, `title` and `x-text`; a from
+    adds nothing to a codes header, a vocabulary header or a rebuilt word but its `from` entry (docs/render.md).
+  - The package or domain a `$ref` names is omx-contract, the document's own domain, its `info.x-owner`, or one
+    `info.x-requires` declares (below). The read of a contract directory (`validate`, `render`) refuses a word's
+    `x-from` naming any other (`contract.ref.undeclared`), for every domain it reads (of a domain rebuilt with
+    `--with-domain`, the words it rebuilds). When the package or domain named is in the read (a declared one always
+    is: its floor is held first), the read resolves the reference there and refuses by domain, item, word and
+    reference: an item that package does not declare, or declared by another one
+    (`contract.ref.unresolved`, `contract.ref.undeclared`); an item that is no words or terms item (a range, scalar,
+    sheet or codes item, `contract.ref.unresolved`); a term or title the item lacks (`contract.ref.unresolved`). A
+    declared package that is absent or below its floor is `contract.package.absent` or `contract.package.too-old`.
+    A word taken from a WORD (format ruling 2026-11-20, `word-from-differs`) is that word, and carries exact copies:
+    its `const`, its `x-code`, its `description` and its `x-text` are the target's, as written. Copies are required,
+    never inherited (owner ruling (b), 2026-11-20): a field the target carries and the word does not is a difference,
+    and a field neither carries is none. A word that differs, or lacks a copy, is refused by item, word and field: by `validate`, rule `word-from-differs` (the data form's `word`,
+    its place in the item, `doc` and `text.en` against the target's), and by the read of a contract directory
+    wherever the target is in the read (`contract.file.invalid`, naming `word-from-differs`). A term target is not
+    compared: a word is never its term. Because the word carries its own copies, the runtime readers (which open one
+    domain and never resolve `x-from`) serve the same description and text as a render, with no reader change. The
+    comparison is one function, lib/word-from.mjs, for both.
+    A reference to omx-contract or the owner when that package is not in the read (a domain rendered from its own
+    `contract.d`) is left to `validate`, rule `word-from`, as before, which refuses a word or term that does not
+    exist; but an item of the read is never taken for it: when another package of the read declares the item, the
+    reference is refused by name (`contract.ref.undeclared`, naming the package that declares it).
+    The runtime readers (libomx-domain, `openDomainAt`) open one domain and neither read nor resolve `x-from`; the
+    conformance suite holds both to opening such a word, and the build to each refusal.
 - A word's `description` is optional, as a word's `doc` is in the classic layout: a word with none renders no comment.
 - A domain that renders as its data form (docs/render.md, 3.21.0) carries three more optional words: `x-render` on
   the document root with `x-file` (the data file's `render` block and that file's path); on each item `x-file` (the
-  data path it came from), `x-kind` (`codes` or `sheet`) and `x-source` (its `source`); on each word of a codes item
-  `x-name` (the code's key, the macro stem); and on a sheet `x-value` and `x-docs` (verbatim). `x-text` keeps its
-  meaning above. They are read by `render --with-domain` (docs/render.md).
-  A domain with none of them reads and renders as before.
+  data path it came from), `x-kind` (`codes`, `words`, `set`, `verbs`, `terms`, `scalar` or `sheet`) and `x-source` (its `source`); on each
+  word of a codes item `x-name` (the code's key, the macro stem); on a sheet `x-value` and `x-docs` (verbatim); and on a
+  scalar `x-unit` and `x-value`. `x-text` and `x-args` keep their meaning above. They are read by `render
+  --with-domain` (docs/render.md). A domain with none of them reads and renders as before.
+  - `"x-kind": "codes"` (the default for a words item) rebuilds a data `codes` item, each word keyed by its `x-name`.
+  - `"x-kind": "words"` rebuilds a data `words` item, each word keyed by its `title` (a word of a words item carries
+    no `x-name`; the reader refuses one): `x-groups`, `x-group`, `x-from`, `description`, `x-text` and `x-args` as
+    above, and (3.21.0, a unit list) the item's `x-dimensions` (a words item of the document) with each word's
+    `x-symbol` (its symbol as written) and `x-dimension` (a word of that item), and any word's `x-uri` (3.21.0): the
+    absolute URI a format spells the word as, of any scheme (`urn:openmixer:unit#dBoct` as much as an http LV2 URI),
+    which a TTL writer reads; a value that is no absolute URI is refused, naming the word. A data words item's `units`, `bases`,
+    `axes` and `extension` and a word's `x`, `y`, `unit`, `scale`, `figureUnit` and `basis` have no domain words yet:
+    an item that needs them stays in `data/`.
+  - `"x-kind": "set"` (3.21.0) rebuilds a data `set` of named ids: its words are the ids in their order, and
+    `x-default`, one of its words, the default. Labels, values, a unit and a numeric id have no domain words yet. The
+    runtime readers serve it as a words item.
+  - `"x-kind": "verbs"` (3.21.0) rebuilds a data `verbs` item, each word a verb keyed by its `title`: `const` its
+    wire word, `description` its doc, and `x-format`, `x-reply`, `x-codes` (`[{ "ref": "<ITEM>.<name>" }]`),
+    `x-implemented-by` and `x-since` its `format`, `reply`, `codes`, `implementedBy` and `since`. `x-format`, `x-reply`
+    and `x-implemented-by` are required; a word of any other kind carrying one is refused.
+  - A code's `x-resp` and `x-transient` (3.21.0) are a reply code's `resp` and `transient`; a word of any other kind
+    carrying one is refused. A codes item whose words carry `x-resp` is read as the data form's codes item (the one a
+    verb's `x-codes` names), and each of its words needs its `x-name`.
+  - `"x-kind": "terms"` (3.21.0) is a format's terms item: `x-format`, `x-spec`, `x-version` and optional
+    `x-deprecated` the item's, and a `oneOf` of one word per term, `const` and `title` both the term's key (which may
+    hold `.`, `/`, `+` and `-`), `x-code` its place and `x-term` the term as the data form writes it (its `uri` or `id`,
+    `kind`, `status`, `by`, `issue`, `ruling`, ...). It rebuilds the data `terms` item; the build holds each term to the
+    schema's term, and the runtime readers serve the item as words, the words the term keys.
+  - `"x-kind": "scalar"` is an item of its own, with no `oneOf`: `description`, `x-since`, optional `x-why`,
+    `x-source` and `x-file`, `x-unit` (a string, `""` for none) and `x-value` (a number, or true or false); every
+    reader refuses another `x-value` and a missing `x-unit` by item. A scalar whose data value is a reference or a
+    derivation has no domain form yet. The runtime readers serve it (`omx_domain_scalar()` in C, `Domain.scalar()` in
+    TypeScript, [runtime-data.md](runtime-data.md)); with an `x-file`, `render --with-domain` also rebuilds it.
+  - An item with no `x-file` is read at run time only: `render --with-domain` does not rebuild it and does not refuse
+    it, so one domain may hold items rebuilt into data files and items that only the loaders read.
+  - What the runtime readers (the C loader and `openDomainAt`, held to each other by test/fixtures/conformance) serve:
+    words items (any `x-kind` of a words item, and a terms item, its words the term keys), range items and scalar items. A sheet is not served: it is rebuilt at
+    build time and read nowhere else. Both readers refuse a word whose `x-args` disagree with its `x-text`, as the
+    build does.
 - A domain's translations travel with it: `<contractdir>/<domain>/catalogs/<lang>.json`, the classic catalog of the owner
   (docs/data-layout.md, "Catalogs") whose `owner` is the domain's `info.x-owner`. `validate` reads them with the domain, a
   key is checked against the words of the domain, and the directory `catalogs/` is the only thing a domain directory holds
@@ -96,6 +169,19 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   that owns it now. Neither is read from the path.
 - `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
   refused (`contract.manifest.invalid`).
+- `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`) and whose
+  items its items refer to (a verb's `{ "ref": "HOST_REPLY_CODES.<code>" }` of another domain), each with
+  its floor in the form of a data file's `requires` (`{ "plugin-db": ">= 1.2.0" }`). It is the `requires` every data
+  file rebuilt from the domain carries (docs/render.md, `render --with-domain`), after the schema floor. A value that is
+  not a map, a key that is no package or domain name (`[a-z][a-z0-9-]*`, segments joined by `/`) and a floor that is
+  not `>= x.y.z` are refused by name (`contract.manifest.invalid`, naming `x-requires`) by the build reader, the
+  TypeScript runtime reader and the C loader alike. The floors are held by the read of a contract directory
+  (`contract.package.absent`, `contract.package.too-old`, naming the package), for an installed domain and for one
+  rebuilt with `--with-domain`; a runtime reader opens one domain and does not hold them.
+- Packaging: a domain whose `info.x-requires` names a package ships in a package that depends on that package's
+  contract package at the floor (a Debian `Depends:` and an RPM `Requires:`). The domain's owner holds it in its own
+  packaging test (its packaging arm), as it holds its other dependencies; omx-contract does not read the owners'
+  packaging.
 - `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
   the version it declares, so a domain evolves on its own line and a change in one domain touches no other domain's
   consumers, and needs no omx-contract release.
@@ -124,6 +210,13 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   { "package": "omx-dsp", "version": "0.25.0", "schemaMajor": 3, "tree": "data",
     "files": { "kernels/eq.json": "<sha256 hex of the installed bytes>" } }
   ```
+
+  A domain-only owner, a package whose contract is only domains (plugin-hostd-protocol's `plugin-hostd`, omx-clap's
+  `host` and `omx-clap`), installs no data file: `install-contract-dir.sh --owner <package> <version> <schema major>
+  <contractdir> <domain>...` writes its manifest with `"files": {}` and `"domains"`, the domains its contract is, each
+  installed by its own `--domain` call. The reader refuses a listed domain that is not installed
+  (`contract.manifest.mismatch`), and a manifest with no file and no `domains` (`contract.manifest.invalid`): a
+  plain install of a directory with no data file is still refused.
 
   `package` is the directory's name and `schemaMajor` the major above it. `version` is the package's own version,
   the one a `requires` floor is compared to. `tree` (optional) is the directory of the owner's source tree the
@@ -319,16 +412,18 @@ The files are merged in the order of their reported paths, so omx-contract's own
 
 ## The refusal codes
 
-Each refusal is a code of `CONTRACT_CODES` (`data/codes.json`), printed first on its line and as `code` in
-`--json`; the command exits 1. Exit 2 is usage or environment, never a pass. `data/codes.json` is the reader's
-own table: it is validated by the schema like any data file, and it is not a declaration, so the renders do not
-carry it and it is not installed in the directory.
+Each refusal is a code of `CONTRACT_CODES` (the `contract` domain, `contract.d/contract/contract.json`), printed first on its line and as `code` in
+`--json`; the command exits 1. Exit 2 is usage or environment, never a pass. The domain is
+the reader's own table and is read raw by the tool (`src/lib/codes.mts`: the reader cannot need itself to read its
+codes). A word's `x-name` is its key, its `const` the code and its place from 0 the code's value minus one
+(`omx_contract_codes.h`, rendered from it). It is installed in the directory as any domain is, and no whole-read render
+(`omx_vocabulary.h`, the json, ts, py and lv2 renders) carries it, from the installed tree or from `data/`: it is no declaration.
 
 | Code | When |
 |---|---|
 | `contract.dir.absent` | No directory found, or the one named does not exist. |
 | `contract.manifest.absent` | A package directory without `MANIFEST.json`. |
-| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner` or `info.x-stability` is wrong. |
+| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner`, `info.x-stability` or `info.x-requires` is wrong. |
 | `contract.manifest.mismatch` | A listed file missing, a file present but unlisted, or a hash that differs. |
 | `contract.schema.major` | A file's `$schema` major is not the reader's, or `$schema` is not the installed form. |
 | `contract.schema.too-old` | A file's `requires.omx-contract-schema` floor is above the reader's schema. |
@@ -393,7 +488,7 @@ lives with the package that owns it (omx-contract#81 lists the moves). The rule 
 now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and by `test/ownership.test.mjs`.
 
 - **Items.** The check reads `data/` through the loader (`src/lib/data.mts`, so a kernel file's items count as the
-  renders see them) plus the tool file `codes.json`, and it scans every `enum` of `schema/omx-contract.schema.json`
+  renders see them) plus the `contract` domain's CONTRACT_CODES, and it scans every `enum` of `schema/omx-contract.schema.json`
   and `shapes/travel.schema.json`, each named `<file>#<json pointer>`. A side file's fields (`scale-vectors.json`)
   and a file-level key (`$schema`, `render`) are not items.
 - **Lists.** `ownership/owned.txt` names the items omx-contract owns (`CONTRACT_CODES`, the parameter scales, the
@@ -407,6 +502,11 @@ now a check, `make ownership` (`tools/check-ownership.mjs`), run by ci.yml and b
 - **Only out, never back.** Against the base (`OWNERSHIP_BASE`, origin/main) a name added to `moving-out.txt`, a word
   added to a moving-out item in `words.json`, and a name that stood on `moving-out.txt` at the base and now stands on
   `owned.txt` are red.
+- **A ruled growth.** `ownership/grow-exceptions.txt` (`<item> | <word> <word>... | <ruling>`) lets a moving-out item
+  grow by the words a ruling names, and the gate holds the whole of what rulings allowed (`GROW_RULED`): today
+  OMX_PARAM_CONTRACT_UNITS by dbPerOct, dbPerS, dbtp and lu (coordinator 2026-11-21: V23d is not in this pass; the
+  vendor codes 260-263 so the clap layer compiles). A word or an item beyond it, an entry with no ruling text and an
+  entry for an item no longer on `moving-out.txt` are red: once the item has moved, the file is empty.
 - **The base.** `make ownership` fetches it first, and a base git cannot read (the fetch failed, the ref is absent)
   is a refusal by name, exit 2, never a pass. The one tolerated base is a commit that predates the gate (no
   `tools/check-ownership.mjs` in it): the gate's own first change. Once that change is the base, a base without the

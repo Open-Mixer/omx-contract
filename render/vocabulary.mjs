@@ -7,7 +7,7 @@
  * item) for a schema that references the words, and `<ITEM>_WORDS` in the ts module. `render --package` spells one
  * package's vocabulary the same way, by kind (docs/render.md).
  */
-import { packageItems } from '../lib/data.mjs';
+import { packageItems, sourceOf } from '../lib/data.mjs';
 import { codeTextDefines } from './c/owner-headers.mjs';
 import { cStringLiteral, described, documented, doxyLine } from './c/c-literals.mjs';
 
@@ -24,6 +24,13 @@ export const codeMacro = (code) => `OMX_${constCase(code)}`;
 
 /** A reply code's resp number as C: the code's macro and _RESP (reply.host.pin-absent is OMX_REPLY_HOST_PIN_ABSENT_RESP, -508). */
 export const respMacro = (code) => `${codeMacro(code)}_RESP`;
+
+/**
+ * The X-macro names a released sheet header defines, which a words item never takes: omx_param_units.h's
+ * OMX_PARAM_UNITS(X) (3.20.2). A fixed list, not read from the renders present, because the sheet and its header move
+ * to another package and `omx_vocabulary.h` installs beside that header all the same (omx-contract#151).
+ */
+const RELEASED_SHEET_TABLES = new Set(['OMX_PARAM_UNITS']);
 
 /** A word's C name: OMX_<ITEM>_<NAME>. */
 export const wordMacro = (item, name) => `OMX_${item}_${constCase(name)}`;
@@ -46,7 +53,7 @@ export function renderVocabularyHeader(resolved, pkg) {
   if (!items.length) return undefined;
   const guard = `${constCase(vocabularyStem(pkg ?? 'omx-contract'))}_VOCABULARY_H`;
   const blocks = items.map((r) => {
-    const lines = [`/* ${r.name} (${r.rel}) */`];
+    const lines = [`/* ${r.name} (${sourceOf(r)}) */`];
     if (r.kind === 'codes') {
       for (const c of Object.values(r.value)) {
         lines.push(documented(`#define ${codeMacro(c.code)} ${cStringLiteral(c.code)}`, c.doc && doxyLine(c.doc)));
@@ -65,8 +72,10 @@ export function renderVocabularyHeader(resolved, pkg) {
       const xs = Object.entries(r.value).map(([n, w], i) => `X(${i}u, ${cStringLiteral(w.word)}, ${constCase(n)})`);
       const rows = [];
       for (let i = 0; i < xs.length; i += 4) rows.push(`    ${xs.slice(i, i + 4).join(' ')}`);
+      // OMX_<ITEM>(X), or OMX_<ITEM>_WORDS(X) where a released sheet header defines that name
+      const xname = RELEASED_SHEET_TABLES.has(`OMX_${r.name}`) ? `OMX_${r.name}_WORDS` : `OMX_${r.name}`;
       const doc = `Expands \`X(code, "word", NAME)\` once per word of ${r.name}, in order, the code being its place in the order.${r.doc ? ` ${doxyLine(r.doc)}` : ''}`;
-      lines.push(`/** ${doc} */`, `#define OMX_${r.name}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
+      lines.push(`/** ${doc} */`, `#define ${xname}(X) \\`, ...rows.map((row, i) => (i < rows.length - 1 ? `${row} \\` : row)));
     }
     return lines.join('\n');
   });
@@ -125,7 +134,7 @@ export function renderVocabularySchema(resolved, version) {
 /** The ts module's `<ITEM>_WORDS`: each words item's words in order, `as const`. */
 export function wordsExports(resolved, tsType) {
   const items = vocabularyItems(resolved).filter((r) => r.kind === 'words');
-  const doc = (r) => `/**\n * The words of ${r.name}, in their declared order.\n * @see ${r.rel}\n */`;
+  const doc = (r) => `/**\n * The words of ${r.name}, in their declared order.\n * @see ${sourceOf(r)}\n */`;
   return {
     js: items.map((r) => `\n${doc(r)}\nexport const ${r.name}_WORDS = ${JSON.stringify(wordsOf(r), null, 2)};\n`).join(''),
     dts: items.map((r) => `\n${doc(r)}\nexport declare const ${r.name}_WORDS: ${tsType(wordsOf(r))};\n`).join(''),

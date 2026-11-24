@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.20.0",
+  "x-omx-schema-version": "3.21.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -24,8 +24,8 @@
       "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "%", "x", "", "dB/oct", "LUFS", "dB/s"]
     },
     "descriptorUnit": {
-      "description": "A descriptor's unit: a unit of the items, a unit only plugins use (frames, bpm, midiNote, LUFS, deg, ratio, dBTP, LU: LV2 units:frame, units:bpm, units:midiNote, units:degree; LUFS, ratio, n:1, dBTP (true peak) and LU (loudness range) have no LV2 unit), or unknown, the plugin states none (docs/descriptors.md).",
-      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["frames", "bpm", "midiNote", "LUFS", "deg", "ratio", "dBTP", "LU", "unknown"] }]
+      "description": "A descriptor's unit: a unit of the items ($defs.unit), a unit of PARAM_UNITS of scope descriptor, which only a descriptor's control states (rendered from the param domain by tools/unit-enum.mjs, docs/units.md), or unknown, the plugin states none (docs/descriptors.md).",
+      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
     },
     "meaning": {
       "description": "What a control does, the closed list seeded from the panel roles; the LV2 param: or lv2:designation name where LV2 has the term (docs/descriptors.md). unknown: the plugin states none.",
@@ -334,10 +334,20 @@
     },
     "latency": {
       "type": "object",
-      "description": "reports: the plugin reports its latency; frames: a constant the plugin or kernel defines, never a measured figure.",
+      "description": "reports: the plugin reports its latency; frames: a constant the plugin or kernel defines, never a measured figure; sweep: for a modulated delay, which has no single latency, the range its lag lies in, so a host checks a measured lag against it. A ref of frames or sweep names a scalar item whose unit is frames or ms; an ms value is read at the running rate, rounded to the nearest frame.",
       "properties": {
         "reports": { "type": "boolean" },
-        "frames": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] }
+        "frames": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] },
+        "sweep": {
+          "type": "object",
+          "description": "The range a modulated delay's lag lies in: min, the sweep's shortest read (the latency it reports), and max, its longest. Each is a non-negative integer of frames or a ref to a scalar item in frames or ms; min is never above max.",
+          "properties": {
+            "min": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] },
+            "max": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "$ref": "#/$defs/ref" }] }
+          },
+          "required": ["min", "max"],
+          "additionalProperties": false
+        }
       },
       "required": ["reports"],
       "additionalProperties": false
@@ -731,7 +741,7 @@
     },
     "set": {
       "type": "object",
-      "description": "Ordered ids with an optional default, labels and a value per id. The ids and their order are the contract: all strings of letters and digits (the id is the name, its position the value; an id may start with a digit, as 4x does) or all non-negative integers (the id is the value). Labels are face text and optional. The default may be a reference to the scalar that states it: a boolean names the second id of a two-id switch when true, the first when false.",
+      "description": "Ordered ids with an optional default, labels, a value per id and the standard unit each id stands for. The ids and their order are the contract: all strings of letters and digits (the id is the name, its position the value; an id may start with a digit, as 4x does) or all non-negative integers (the id is the value). Labels are face text and optional. The default may be a reference to the scalar that states it: a boolean names the second id of a two-id switch when true, the first when false.",
       "properties": {
         "kind": { "const": "set" },
         "since": { "$ref": "#/$defs/since" },
@@ -752,6 +762,12 @@
           "type": "array",
           "items": { "oneOf": [{ "$ref": "#/$defs/number" }, { "type": "null" }] },
           "minItems": 1
+        },
+        "standard": {
+          "description": "The standard unit each id stands for, one per id in id order: a const of PARAM_UNITS (contract.d/param), of any group (omx-dsp's CURVE_UNITS: hz is Hz, coef is coef). The ids stay the owner's words; this names the standard id each is.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
         }
       },
       "required": ["kind", "doc", "ids"],
@@ -759,7 +775,7 @@
       "additionalProperties": false
     },
     "word": { "type": "string", "pattern": "^[A-Za-z0-9<][A-Za-z0-9._+<-]*$", "description": "A word of a vocabulary as it is written on the wire: letters, digits, '-', '_', '.', '+' and a leading '<' (a band such as <1.5GHz)." },
-    "termRef": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$", "description": "<TERMS item>#<term>: one term of a format's vocabulary (data/formats/), the format word a word of ours borrows its name from." },
+    "termRef": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$", "description": "<TERMS item>#<term>: one term of a format's vocabulary (data/formats/), the format word a word of ours borrows its name from; or <WORDS item>#<word key>: a word of another words item (a domain word's title), the word it is taken from." },
     "words": {
       "type": "object",
       "description": "A closed vocabulary the qualification and its hosts speak (docs/data-layout.md): a lowerCamel name per word, the word as written, optionally the group it falls in (a word of the item `groups` names), its unit and basis (words of the items `units` and `bases` name), the axes it is drawn on (words of the item `axes` names) or, for an axis, its unit and scale, the format terms it is name-compatible with and one line of prose. The words and their order are the contract; a word is never reworded.",
@@ -773,6 +789,7 @@
         "axes": { "$ref": "#/$defs/name", "description": "The words item whose words are the axes this item's words are drawn on (docs/curves.md): every word then names its x and its y." },
         "units": { "$ref": "#/$defs/name" },
         "bases": { "$ref": "#/$defs/name" },
+        "dimensions": { "$ref": "#/$defs/name", "description": "The words item whose words are the dimensions of this item's words (since 3.21.0, PARAM_UNITS): every word may name its dimension, what the unit measures." },
         "extension": {
           "type": "object",
           "description": "The carriers of a words item that declares what a plugin states about itself (docs/resource-hints.md): clap, the id of the CLAP extension, and lv2, the prefix and the namespace of the properties.",
@@ -803,6 +820,8 @@
               "y": { "$ref": "#/$defs/word", "description": "The vertical axis: a word of the item `axes` names." },
               "unit": { "$ref": "#/$defs/unit", "description": "An axis word's unit, one of the items' units." },
               "symbol": { "type": "string", "description": "A unit word's symbol as written (`%`, `\"\"`, `dB/oct`), the one a wire word cannot spell (PARAM_UNITS, since 3.21.0)." },
+              "dimension": { "$ref": "#/$defs/word", "description": "A unit word's dimension, what it measures: a word of the item `dimensions` names (since 3.21.0)." },
+              "uri": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:[^\\s]+$", "description": "The absolute URI a format spells the word as, of any scheme (`urn:openmixer:unit#dBoct`; since 3.21.0)." },
               "scale": { "type": "string", "pattern": "^[a-z]+$", "description": "An axis word's scale, how a host draws it: an id of PARAM_SCALES." },
               "figureUnit": { "$ref": "#/$defs/word" },
               "basis": { "$ref": "#/$defs/word" },

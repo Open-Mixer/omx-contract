@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * CONTRACT_CODES, the refusal codes of the contract-directory reader and of the links check, read from
- * `data/codes.json` (docs/contract-dir.md). A refusal is raised by the code's name and carries the code; nothing
+ * CONTRACT_CODES, the refusal codes of the contract-directory reader and of the links check, read from the item
+ * CONTRACT_CODES of the `contract` domain (`contract.d/contract/contract.json`, docs/contract-dir.md). The document is
+ * read raw, not through readDomain: the reader refuses with these codes, so it cannot be needed to read them. A refusal is raised by the code's name and carries the code; nothing
  * classifies a refusal by its text.
  */
 import { readFileSync } from 'node:fs';
 import type { JsonObject } from './json.mjs';
 
-export const CODES_FILE = new URL('../data/codes.json', import.meta.url);
+/** The `contract` domain of this tool: the one place its codes are written. */
+export const CODES_FILE = new URL('../contract.d/contract/contract.json', import.meta.url);
 
-/** `{ <lowerCamel name>: <code> }`, in the file's order. */
+/** `{ <lowerCamel name>: <code> }`, in the domain's word order: a word's `x-name` is its name, its `const` the code. */
 export const CONTRACT_CODES: Readonly<Record<string, string>> = Object.fromEntries(
-  Object.entries(JSON.parse(readFileSync(CODES_FILE, 'utf8')).CONTRACT_CODES.codes as Record<string, JsonObject>).map(([k, c]) => [k, c['code'] as string]),
+  ((JSON.parse(readFileSync(CODES_FILE, 'utf8')).components.schemas.CONTRACT_CODES.oneOf) as JsonObject[]).map((w) => [w['x-name'] as string, w['const'] as string]),
 );
 
 /** A refusal: `code` is a CONTRACT_CODES code, `file` what it was found in, the message what was found. */

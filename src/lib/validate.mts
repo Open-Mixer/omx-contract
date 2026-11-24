@@ -6,13 +6,14 @@
  * is unique. Each failure names file, item and rule.
  */
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { posix } from 'node:path';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { placeholdersOf } from './placeholders.mjs';
 
 /** The class: the CommonJS module's export is the class itself, which TypeScript types as the module object. */
 type Ajv2020Class = typeof import('ajv/dist/2020.js').default;
-import { FILE_KEYS, KERNEL_KEYS, KERNEL_SECTIONS, controlGlobal, entriesOf, isDescriptor, isKernelFile, isUse, resolveData } from './data.mjs';
+import { FILE_KEYS, KERNEL_KEYS, KERNEL_SECTIONS, controlGlobal, entriesOf, isDescriptor, isKernelFile, isUse, loadData, resolveData } from './data.mjs';
 import { MEANING_SYNONYMS, descriptorProblems } from './descriptor.mjs';
 import { versionBelow } from './domain.mjs';
 import { HINT_UNITS, MAX_HINTS } from './hints.mjs';
@@ -21,6 +22,7 @@ import { roleProblems } from './role-meanings.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderTs } from '../render/ts.mjs';
 import type { Json } from './json.mjs';
+import { fromDifference, fromDifferences } from './word-from.mjs';
 
 const SCHEMA = JSON.parse(readFileSync(new URL('../schema/omx-contract.schema.json', import.meta.url), 'utf8'));
 /** The version of the schema's vocabulary (`x-omx-schema-version`), the one a file's `requires.omx-contract-schema` floor is read against. */
@@ -115,7 +117,7 @@ export function readoutValidator() {
 
 /**
  * The rules about the meaning of the numbers, not their shape (they live with the data they judge):
- * a set's default and labels; a travel's scale is a PARAM_SCALES id; a count; a sheet's default inside its min and
+ * a set's default, labels and standard ids; a travel's scale is a PARAM_SCALES id; a count; a sheet's default inside its min and
  * max; the checks the files declare. No rule names an item.
  */
 /**
@@ -132,12 +134,30 @@ function sentenceRules(r, k, entry, what, say) {
 }
 
 
+/**
+ * This package's own items, resolved once: the shared words (PARAM_SCALES, PARAM_UNITS, ...) a consumer's data names
+ * without declaring. The sorting pass moved them into the param domain (V21, V23a+b), out of every consumer's data, so
+ * a word is read from the data under validation first and from here second; no rule names a word to find it.
+ */
+let contractItems;
+function contractItem(name) {
+  contractItems ??= resolveData(loadData(fileURLToPath(new URL('../data', import.meta.url))));
+  return contractItems.get(name);
+}
+
 function semanticRules(resolved, say) {
-  const val = (name) => resolved.get(name)?.value;
+  const val = (name) => (resolved.get(name) ?? contractItem(name))?.value;
   for (const r of resolved.values()) {
     if (r.kind === 'set') {
       if (r.default !== undefined && !r.value.includes(r.default)) say(r.rel, r.name, 'set-default', `default ${JSON.stringify(r.default)} is not one of ${JSON.stringify(r.value)}`);
       if (r.labels !== undefined && r.labels.length !== r.value.length) say(r.rel, r.name, 'set-labels', `${r.labels.length} labels for ${r.value.length} ids`);
+      if (r.standard !== undefined) {
+        if (r.standard.length !== r.value.length) say(r.rel, r.name, 'set-standard', `${r.standard.length} standard ids for ${r.value.length} ids`);
+        const consts = new Set(Object.values((val('PARAM_UNITS') ?? {}) as Record<string, Json>).map((w) => w.word));
+        r.standard.forEach((s, i) => {
+          if (!consts.has(s)) say(r.rel, r.name, 'set-standard', `the standard id ${JSON.stringify(s)} of ${JSON.stringify(r.value[i])} is no const of PARAM_UNITS`);
+        });
+      }
       if (r.values !== undefined) {
         if (r.values.length !== r.value.length) say(r.rel, r.name, 'set-values', `${r.values.length} values for ${r.value.length} ids`);
         if (r.value.some((id) => typeof id !== 'string')) say(r.rel, r.name, 'set-values', 'a set of numeric ids carries no values: the id is its own value');
@@ -179,14 +199,14 @@ function semanticRules(resolved, say) {
       for (const [k, w] of Object.entries((r.value) as Record<string, Json>)) {
         if (w.group !== undefined && r.groups === undefined) say(r.rel, r.name, 'word-group', `${k} names the group ${w.group}, and the item names no groups`);
         else if (w.group !== undefined && groups?.kind === 'words' && !groupWords.has(w.group)) say(r.rel, r.name, 'word-group', `${k}: ${w.group} is no word of ${r.groups}`);
-        for (const [field, itemKey, rule] of [['figureUnit', 'units', 'word-unit'], ['basis', 'bases', 'word-basis']]) {
+        for (const [field, itemKey, rule] of [['figureUnit', 'units', 'word-unit'], ['basis', 'bases', 'word-basis'], ['dimension', 'dimensions', 'word-dimension']]) {
           if (w[field] === undefined) continue;
           const target = r[itemKey] === undefined ? undefined : resolved.get(r[itemKey]);
           if (r[itemKey] === undefined) say(r.rel, r.name, rule, `${k} names the ${field} ${w[field]}, and the item names no ${itemKey}`);
           else if (target?.kind !== 'words') say(r.rel, r.name, rule, `${itemKey} names ${r[itemKey]}, which is no words item`);
           else if (!Object.values((target.value) as Record<string, Json>).some((x) => x.word === w[field])) say(r.rel, r.name, rule, `${k}: ${w[field]} is no word of ${r[itemKey]}`);
         }
-        // A curve's axes (docs/curves.md): an item naming `axes` draws every word on an x and a y of that item.
+        // A curve's axes (omx-dsp's curve kinds, sorting pass V26): an item naming `axes` draws every word on an x and a y of that item.
         const axes = r.axes === undefined ? undefined : resolved.get(r.axes);
         for (const f of ['x', 'y']) {
           if (w[f] === undefined) { if (r.axes !== undefined) say(r.rel, r.name, 'word-axis', `${k} names no ${f}, and every word of an item that names axes is drawn on two`); continue; }
@@ -199,8 +219,16 @@ function semanticRules(resolved, say) {
         for (const ref of w.from ?? []) {
           const [item, term] = ref.split('#');
           const t = resolved.get(item);
-          if (t?.kind !== 'terms') say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} is no terms item`);
-          else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} has no term ${term}`);
+          // a term of a terms item, or a word of a words item by its key (a domain word's title)
+          if (t?.kind !== 'terms' && t?.kind !== 'words') say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} is no terms or words item`);
+          else if (!Object.hasOwn(t.value, term)) say(r.rel, r.name, 'word-from', `${k}: ${ref}: ${item} has no ${t.kind === 'terms' ? 'term' : 'word'} ${term}`);
+          // a word taken from a word is that word (word-from-differs); a term is not compared
+          else if (t.kind === 'words') {
+            const tw = t.value[term];
+            const mine = { word: w.word, code: Object.keys(r.value).indexOf(k), doc: w.doc, text: w.text?.en };
+            const theirs = { word: tw.word, code: Object.keys(t.value).indexOf(term), doc: tw.doc, text: tw.text?.en };
+            for (const d of fromDifferences(mine, theirs)) say(r.rel, r.name, 'word-from-differs', `${k}: ${ref}: ${fromDifference(d)}`);
+          }
         }
       }
     }
@@ -283,6 +311,7 @@ function semanticRules(resolved, say) {
   }
   for (const r of resolved.values()) {
     if (r.kind === 'words' && resolved.has(`${r.name}_WORDS`)) say(r.rel, `${r.name}_WORDS`, 'words-export', `${r.name}_WORDS is the ts render's export of ${r.name}'s words: no item may take the name`);
+    if (r.kind === 'set' && r.standard && resolved.has(`${r.name}_STANDARD`)) say(r.rel, `${r.name}_STANDARD`, 'set-standard', `${r.name}_STANDARD is the renders' table of ${r.name}'s standard ids: no item may take the name`);
     if (r.kind === 'set' && r.values && resolved.has(`${r.name}_VALUES`)) say(r.rel, `${r.name}_VALUES`, 'set-values', `${r.name}_VALUES is the ts render's export of ${r.name}'s values: no item may take the name`);
   }
   if (resolved.has('READOUTS') && Object.values((resolved.kernels ?? {}) as Record<string, Json>).some((k) => k.readouts)) {

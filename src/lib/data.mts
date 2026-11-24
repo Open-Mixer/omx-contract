@@ -4,16 +4,31 @@
  * The declaration as data: load every `data/**.json` file, then resolve each item's references
  * and derivations into plain values. The renderers are pure functions of the resolved items.
  */
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { readDomain } from './domain.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
 /**
- * The files at the top of a data directory that are the tool's own tables, not declarations: `codes.json` holds
- * CONTRACT_CODES, the reader's refusal codes (lib/codes.mjs). They are validated like a data file, and never loaded
- * as declarations, rendered or installed in a contract directory.
+ * omx-contract's own domains whose items join the read of a data directory: `<dir>/../contract.d/<name>/<name>.json`,
+ * read as the classic file of its items at `<name>/<name>.json`, the place a read of the installed contract directory
+ * gives it, so the renders of data/ and of the installed tree agree. `param` holds the standard parameter words
+ * (PARAM_SCALES, PARAM_UNITS, PARAM_UNIT_DIMENSIONS; sorting pass V21, V23a+b). A data directory with no such domain
+ * beside it reads as before.
  */
-export const TOOL_FILES = ['codes.json'];
+export const TREE_DOMAINS = ['param'];
+
+/** The files of the TREE_DOMAINS beside `dir`, `{ rel, text, doc, domain: true }`, each `doc` the classic file of its items. */
+export function treeDomainFiles(dir: string | null): Json[] {
+  if (!dir) return []; // texts handed in with no directory: their files are the whole read
+  return TREE_DOMAINS.flatMap((name) => {
+    const path = join(dir, '..', 'contract.d', name, `${name}.json`);
+    if (!existsSync(path)) return [];
+    // the classic file, its $schema the relative path a file one directory down names (its schema major is not read here)
+    const { doc } = readDomain(name, JSON.parse(readFileSync(path, 'utf8')), '../schema/omx-contract.schema.json', 0);
+    return [{ rel: `${name}/${name}.json`, text: `${JSON.stringify(doc, null, 2)}\n`, doc, domain: true, source: `contract.d/${name}/${name}.json` }];
+  });
+}
 
 /**
  * The files at the top of a data directory that are neither declarations nor items: `scale-vectors.json` holds the
@@ -22,14 +37,14 @@ export const TOOL_FILES = ['codes.json'];
  */
 export const SIDE_FILES = ['scale-vectors.json'];
 
-/** Every `.json` file under `dir`, sorted by its path relative to `dir`, the tool files at its top left out. */
+/** Every `.json` file under `dir`, sorted by its path relative to `dir`, the side files at its top left out. */
 export function dataFiles(dir) {
   const out: Json[] = [];
   const walk = (d) => {
     for (const f of readdirSync(d).sort()) {
       const p = join(d, f);
       if (statSync(p).isDirectory()) walk(p);
-      else if (f.endsWith('.json') && !(d === dir && (TOOL_FILES.includes(f) || SIDE_FILES.includes(f)))) out.push(p);
+      else if (f.endsWith('.json') && !(d === dir && SIDE_FILES.includes(f))) out.push(p);
     }
   };
   walk(dir);
@@ -44,14 +59,21 @@ export function dataFiles(dir) {
 export function loadData(dir: string, texts?: Readonly<Record<string, string>>): Json {
   const files: Json[] = [];
   const entries: [string, string][] = texts ? Object.entries((texts) as Record<string, Json>).sort(([a], [b]) => (a < b ? -1 : 1)) : dataFiles(dir).map((p) => [relative(join(dir, '..'), p), readFileSync(p, 'utf8')]);
+  // texts handed in (a tag's data, a test) take a tree domain only where they name its place: a tag before it has none
+  const domains = new Map(treeDomainFiles(dir).filter((f) => !texts || Object.hasOwn(texts, f.rel)).map((f) => [f.rel, f]));
+  for (const rel of domains.keys()) if (!entries.some(([r]) => r === rel)) entries.push([rel, '']);
+  entries.sort(([a], [b]) => (a < b ? -1 : 1));
   const items = new Map();
   for (const [rel, text] of entries) {
     let doc;
-    try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${(e as Error).message}`); }
-    files.push({ rel, text, doc });
+    const domain = domains.get(rel);
+    if (domain) { files.push(domain); doc = domain.doc; } else {
+      try { doc = JSON.parse(text); } catch (e) { throw new Error(`${rel}: not JSON: ${(e as Error).message}`); }
+      files.push({ rel, text, doc });
+    }
     for (const [name, item] of entriesOf(rel, doc)) {
       if (items.has(name)) throw new Error(`${rel}: ${name}: already declared by ${items.get(name).rel}`);
-      items.set(name, { name, rel, item });
+      items.set(name, { name, rel, item, ...(domain?.source === undefined ? {} : { source: domain.source }) });
     }
   }
   return { files, items };
@@ -298,8 +320,8 @@ export function lagrangeReadL1(order) {
 const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /**
- * Resolve every item: `{ name, rel, kind, doc, why?, since?, unit?, c?, shape?, default?, labels?, values?, groups?, axes?, format?, spec?, version?, value }`
- * (default, labels and values: a set's; groups and axes: a words item's; format, spec and version: a terms item's), where `value` has
+ * Resolve every item: `{ name, rel, kind, doc, why?, since?, unit?, c?, shape?, default?, labels?, values?, standard?, groups?, axes?, format?, spec?, version?, value }`
+ * (default, labels, values and standard: a set's; groups and axes: a words item's; format, spec and version: a terms item's), where `value` has
  * every `{ref}` and `{derive}` evaluated. The returned map also carries `kernels`, every kernel's ordered controls
  * (kernelControls) and, for a kernel that declares them, its ordered `readouts` `{ name, doc, unit, min, max, scale,
  * rateHz }` with every reference resolved, which the json render publishes beside the items; `packageOf`, each item's
@@ -311,6 +333,7 @@ const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
 export type Resolved = Map<string, JsonObject> & {
   kernels: JsonObject;
   packageOf: Map<string, string | undefined>;
+  ownerOf?: Map<string, string>;
   kernelPackageOf: Map<string, string | undefined>;
   renders: JsonObject[];
   checks?: JsonObject[];
@@ -345,15 +368,19 @@ export function resolveData(data: Json): Resolved {
     if (done.has(name)) return done.get(name)!;
     if (busy.has(name)) throw new Error(`${name}: reference cycle through ${[...busy].join(' -> ')} -> ${name}`);
     busy.add(name);
-    const { rel, item } = data.items.get(name);
+    const { rel, item, source } = data.items.get(name);
     const r: JsonObject = { name, rel, kind: item.kind, doc: item.doc };
+    // where a render's banner says the item comes from (sourceOf): a domain item's domain document,
+    // contract.d/<domain>/<leaf>.json, never the data/<x-file> a rebuild writes it to. Not enumerable: the json render
+    // publishes the item's own fields, and its rel stays the file the read took it from.
+    if (source !== undefined) Object.defineProperty(r, 'source', { value: source, enumerable: false });
     if (item.why !== undefined) r.why = item.why;
     if (item.since !== undefined) r.since = item.since;
     if (item.unit !== undefined) r.unit = item.unit;
     if (item.c !== undefined) r.c = item.c;
     if (item.docs !== undefined) r.docs = item.docs;
     if (item.kind === 'words') {
-      for (const k of ['groups', 'axes', 'units', 'bases', 'extension']) if (item[k] !== undefined) r[k] = item[k];
+      for (const k of ['groups', 'axes', 'units', 'bases', 'dimensions', 'extension']) if (item[k] !== undefined) r[k] = item[k];
     }
     if (item.kind === 'formatMap') r.format = item.format;
     if (item.kind === 'terms') {
@@ -366,6 +393,7 @@ export function resolveData(data: Json): Resolved {
       if (item.default !== undefined) r.default = setDefault(item, (v) => val(v, name), name);
       if (item.labels !== undefined) r.labels = item.labels;
       if (item.values !== undefined) r.values = val(item.values, name);
+      if (item.standard !== undefined) r.standard = item.standard;
     }
     if (item.kind === 'travels') r.shape = item.fields ? 'table' : 'travel';
     r.value = val(rawValue(item), name);
@@ -377,6 +405,9 @@ export function resolveData(data: Json): Resolved {
   for (const name of data.items.keys()) out.set(name, resolveItem(name));
   out.kernels = kernelControls(data);
   out.packageOf = new Map([...data.items.values()].map((it) => [it.name, it.pkg]));
+  // an installed domain's items are read at run time and never render into a package's files, except omx-contract's
+  // own TREE_DOMAINS, which its data read takes beside data/: those render into omx-contract's package (packageItems)
+  out.ownerOf = new Map([...((data.packages ?? new Map()) as Map<string, Json>)].filter(([n, p]) => TREE_DOMAINS.includes(n) && p.manifest?.owner === 'omx-contract').map(([n, p]) => [n, p.manifest.owner]));
   out.kernelPackageOf = new Map(data.files.filter((f) => isKernelFile(f.rel) && !isDescriptor(f.doc)).map((f) => [kernelName(f.rel), f.pkg]));
   out.renders = data.files.filter((f) => !isDescriptor(f.doc) && isObj(f.doc.render)).map((f) => ({
     rel: f.rel, pkg: f.pkg, render: f.doc.render, items: entriesOf(f.rel, f.doc).map(([n]) => n), kernel: isKernelFile(f.rel) ? kernelName(f.rel) : undefined,
@@ -392,13 +423,18 @@ export function resolveData(data: Json): Resolved {
   return out;
 }
 
+/** Where a render's banner says a resolved item comes from: its domain's document for a domain item, else its data file. */
+export const sourceOf = (r: JsonObject): string => (r.source ?? r.rel) as string;
+
 /**
  * The resolved items of one package of a contract directory, in their order, with its kernels, packageOf and renders
  * cut to it: what an owner renders of its own (`render --package`). Every reference stays resolved over the whole
  * read. A data directory (no package on any file) is the package named, whole.
  */
 export function packageItems(resolved: Resolved, pkg: string | undefined): Resolved {
-  const out = new Map([...resolved].filter(([n]) => resolved.packageOf.get(n) === undefined || resolved.packageOf.get(n) === pkg)) as Resolved;
+  // an item of one of omx-contract's TREE_DOMAINS is omx-contract's own (resolveData's ownerOf)
+  const own = (p: string | undefined) => p === undefined || p === pkg || (resolved.ownerOf?.get(p) ?? p) === pkg;
+  const out = new Map([...resolved].filter(([n]) => own(resolved.packageOf.get(n)))) as Resolved;
   const mine = (p: string | undefined) => p === undefined || p === pkg;
   out.kernels = Object.fromEntries(Object.entries((resolved.kernels ?? {}) as Record<string, Json>).filter(([k]) => mine(resolved.kernelPackageOf.get(k))));
   out.packageOf = new Map([...resolved.packageOf].filter(([n]) => out.has(n)));

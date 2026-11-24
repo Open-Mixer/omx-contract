@@ -35,7 +35,9 @@
  *
  * A word item is a `components.schemas` entry of `oneOf` words (`const`, `title`, `description`, `x-code`,
  * `x-text`); a range item is one whose `properties` are named parameters (`minimum`, `maximum`, `default`,
- * `x-unit`, `x-scale`). A translation is the catalog entry keyed `<ITEM>.<word>`.
+ * `x-unit`, `x-scale`); a scalar item (3.21.0) is one whose `x-kind` is `scalar`, a value (`x-value`, a number or true
+ * or false) in a unit (`x-unit`). A word whose `x-text` names `{placeholders}` lists them as `x-args`, each once; a
+ * document whose `x-args` disagree is refused. A translation is the catalog entry keyed `<ITEM>.<word>`.
  *
  * Every function returns 0, or the value of a code of CONTRACT_CODES (`OMX_CONTRACT_CODE_*`, omx_contract_codes.h) that
  * a program compares; omx_domain_code() gives the string of a value, for a message. A refused call returns no default value: its outputs are left as
@@ -79,6 +81,12 @@ typedef struct {
   const char *unit;         /**< `x-unit`; the empty string when none */
   const char *scale;        /**< `x-scale`; the empty string when none */
 } omx_domain_range_info;
+/** The value and unit of a scalar item (since 3.21.0). The string belongs to the handle. */
+typedef struct {
+  double value;             /**< `x-value`; 1 or 0 for true or false */
+  int is_bool;              /**< 1 when `x-value` is true or false */
+  const char *unit;         /**< `x-unit`; the empty string when the value has none */
+} omx_domain_scalar_info;
 
 /**
  * Open a domain from the installed contract directory, the one this library was built for, and check it.
@@ -179,6 +187,16 @@ int omx_domain_word_at(const omx_domain *d, const char *item, int index, omx_dom
  * @return 0; OMX_CONTRACT_CODE_ITEM_UNKNOWN; OMX_CONTRACT_CODE_WORD_UNKNOWN when the item has no such parameter (a word item has none)
  */
 int omx_domain_range(const omx_domain *d, const char *item, const char *name, omx_domain_range_info *out);
+
+/**
+ * The value and unit of a scalar item (since 3.21.0).
+ *
+ * @param d    the handle
+ * @param item the item's name, e.g. `DEMO_DIGEST_LEN`
+ * @param out  receives the value on success; untouched on failure
+ * @return 0; OMX_CONTRACT_CODE_ITEM_UNKNOWN; OMX_CONTRACT_CODE_WORD_UNKNOWN when the item is a word or range item (it has no value)
+ */
+int omx_domain_scalar(const omx_domain *d, const char *item, omx_domain_scalar_info *out);
 
 /**
  * A word's group: the `x-group` of its `oneOf` entry, the const of a word of the schema its item's `x-groups` names

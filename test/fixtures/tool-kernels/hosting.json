@@ -46,7 +46,7 @@
       }
     ],
     "ts": {
-      "module": "omx-clap-core-hosting"
+      "module": "omx-clap-hosting"
     }
   },
   "HOSTED_STAGE_LIMITS": {

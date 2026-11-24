@@ -5,15 +5,19 @@
 # install-contract-dir.sh — install definition files into the contract directory (docs/contract-dir.md), no node:
 #   install-contract-dir.sh [-x <rel>]... <package> <version> <schema major> <from dir> <contractdir> [<tree>]
 #   install-contract-dir.sh --domain <path>/contract.d/<domain> <contractdir>
+#   install-contract-dir.sh --owner <package> <version> <schema major> <contractdir> <domain>...
 # Package: copies every .json under <from dir> (less each -x <rel>) to <contractdir>/<schema major>/<package>/, writes a
 # relative "$schema" as that major's URL, and writes MANIFEST.json with each file's sha256 (<tree>: its "tree").
 # Domain: copies the directory as it is to <contractdir>/<domain>/ (its <leaf>.json and catalogs/<lang>.json, no
 # rewrite, no manifest); the domain is the path after the last contract.d/. A nested domain directory is skipped:
-# each domain is installed by its own call. Exit 0 installed; 1 a refusal (a file named); 2 usage.
+# each domain is installed by its own call.
+# Owner: a package whose contract is only domains (no data file): writes <contractdir>/<schema major>/<package>/
+# MANIFEST.json with no files and "domains", the domains named (each installed by its own --domain call; the reader
+# refuses a listed domain that is not installed). Exit 0 installed; 1 a refusal (a file named); 2 usage.
 set -eu
 
 if [ "$#" -gt 0 ] && [ "$1" = --domain ]; then
-  usage() { sed -n '6,7p' "$0" >&2; echo "install-contract-dir.sh: $1" >&2; exit 2; }
+  usage() { sed -n '6,8p' "$0" >&2; echo "install-contract-dir.sh: $1" >&2; exit 2; }
   [ "$#" -eq 3 ] || usage "--domain needs <path>/contract.d/<domain> and <contractdir>"
   from=${2%/}
   to=$3
@@ -61,6 +65,29 @@ if [ "$#" -gt 0 ] && [ "$1" = --domain ]; then
   exit 0
 fi
 
+if [ "$#" -gt 0 ] && [ "$1" = --owner ]; then
+  [ "$#" -ge 6 ] || { sed -n '6,8p' "$0" >&2; echo "install-contract-dir.sh: --owner needs <package> <version> <schema major> <contractdir> and at least one domain" >&2; exit 2; }
+  pkg=$2 version=$3 major=$4 to=$5
+  shift 5
+  case $pkg in *[!a-z0-9-]* | '' | -*) echo "install-contract-dir.sh: package $pkg is not a lower-case name" >&2; exit 2 ;; esac
+  case $major in *[!0-9]* | '') echo "install-contract-dir.sh: schema major $major is not a number" >&2; exit 2 ;; esac
+  echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' || { echo "install-contract-dir.sh: version $version is not x.y.z" >&2; exit 2; }
+  list='' seen=''
+  for d in "$@"; do
+    printf '%s\n' "$d" | grep -Eq '^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$' || { echo "install-contract-dir.sh: the domain name '$d' is not [a-z][a-z0-9-]* segments" >&2; exit 2; }
+    case " $seen " in *" $d "*) echo "install-contract-dir.sh: the domain $d is named twice" >&2; exit 2 ;; esac
+    seen="$seen $d"
+    list="$list${list:+, }\"$d\""
+  done
+  dest=$to/$major/$pkg
+  rm -rf "$dest"
+  install -d "$dest"
+  printf '{\n  "package": "%s",\n  "version": "%s",\n  "schemaMajor": %s,\n  "files": {},\n  "domains": [%s]\n}\n' "$pkg" "$version" "$major" "$list" > "$dest/MANIFEST.json"
+  chmod 0644 "$dest/MANIFEST.json"
+  echo "install-contract-dir.sh: $pkg $version: no data file, the domains$seen"
+  exit 0
+fi
+
 exclude=''
 while [ "$#" -gt 0 ] && [ "$1" = -x ]; do
   [ "$#" -ge 2 ] || { echo "install-contract-dir.sh: -x needs a value" >&2; exit 2; }
@@ -68,7 +95,7 @@ while [ "$#" -gt 0 ] && [ "$1" = -x ]; do
 $2"
   shift 2
 done
-[ "$#" -eq 5 ] || [ "$#" -eq 6 ] || { sed -n '6,7p' "$0" >&2; exit 2; }
+[ "$#" -eq 5 ] || [ "$#" -eq 6 ] || { sed -n '6,8p' "$0" >&2; exit 2; }
 pkg=$1 version=$2 major=$3 from=$4 to=$5 tree=${6-}
 case $pkg in *[!a-z0-9-]* | '' | -*) echo "install-contract-dir.sh: package $pkg is not a lower-case name" >&2; exit 2 ;; esac
 case $major in *[!0-9]* | '') echo "install-contract-dir.sh: schema major $major is not a number" >&2; exit 2 ;; esac

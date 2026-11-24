@@ -58,7 +58,7 @@ travels allow, read off the travel that bounds it:
 | comp    | `gainReductionDb` | `COMP_LIMITS.thresholdDb.min`     | at or below 0 dBFS, `(x - T)(1 - 1/R)` never exceeds `-T`  |
 | limiter | `gainReductionDb` | `LIMITER_LIMITS.ceilingDb.min`    | at or below 0 dBFS, the limiter pulls the peak to its ceiling at most |
 
-All four are `linear` and published at READOUT_RATE_HZ, 50 Hz: one value every 20 ms, the rate a host sends a
+All four are `linear` and published at READOUT_RATE_HZ (omx-dsp's `data/primitives/readout.json`, sorting pass V22), 50 Hz: one value every 20 ms, the rate a host sends a
 moving meter at.
 
 The graphic EQ declares one more, `designClamped`: 0 or 1, drawn `stepped`, published at READOUT_RATE_HZ. It is 1

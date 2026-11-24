@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // The Python readers are a package (omx-contract#28): python3-omx-contract, on rpm and deb from the same source,
-// installs omx_contract in site-packages / dist-packages with catalog, scale and clap as submodules, so a program
+// installs omx_contract in site-packages / dist-packages with catalog and scale as submodules (clap left with the CLAP terms, V27b), so a program
 // writes `import omx_contract.catalog` instead of loading a file by its path. The submodules are the files
 // /usr/share/omx-contract/ already ships, byte for byte (one source), and those stay installed for one release.
 // While here: the npm export ./catalog has its types and loadContractDir is exported.
@@ -16,7 +16,7 @@ import { ROOT } from './helpers.mjs';
 
 const hasPython = spawnSync('python3', ['--version']).status === 0;
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
-const SUBMODULES = { catalog: 'omx_contract_catalog.py', scale: 'omx_contract_scale.py', clap: 'omx_contract.py' };
+const SUBMODULES = { catalog: 'omx_contract_catalog.py', scale: 'omx_contract_scale.py' };
 
 /** `make <target>` into a fresh DESTDIR; the tree it installed, removed by the caller. */
 function install(target, vars = {}) {
@@ -27,20 +27,20 @@ function install(target, vars = {}) {
   return dest;
 }
 
-test('make install-python installs omx_contract with catalog, scale and clap, and each imports and answers', { skip: !hasPython && 'no python3' }, () => {
+test('make install-python installs omx_contract with catalog and scale, and each imports and answers', { skip: !hasPython && 'no python3' }, () => {
   const dest = install('install-python', { PYTHONDIR: '/py' });
   try {
     const pkg = join(dest, 'py', 'omx_contract');
-    for (const f of ['__init__.py', 'catalog.py', 'scale.py', 'clap.py', 'shapes/__init__.py', 'shapes/travel.py']) assert.ok(existsSync(join(pkg, f)), `omx_contract/${f} installed`);
+    for (const f of ['__init__.py', 'catalog.py', 'scale.py', 'shapes/__init__.py', 'shapes/travel.py']) assert.ok(existsSync(join(pkg, f)), `omx_contract/${f} installed`);
+    assert.ok(!existsSync(join(pkg, 'clap.py')), 'no omx_contract.clap: the CLAP identifiers are omx-clap\'s clap domain (V27b)');
     const r = spawnSync('python3', ['-I', '-c', `import sys
 sys.path.insert(0, ${JSON.stringify(join(dest, 'py'))})
-import omx_contract.catalog, omx_contract.scale, omx_contract.clap
+import omx_contract.catalog, omx_contract.scale
 print(omx_contract.catalog.code_key("contract.dir.absent"))
 print("%.4f" % omx_contract.scale.scale_position({"scale": "log", "min": 20, "max": 20000}, 1000))
-print(omx_contract.clap.CLAP_IDS["CLAP_EXT_AUDIO_PORTS_CONFIG"])
 `], { encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
-    assert.deepEqual(r.stdout.trim().split('\n').slice(1), ['0.5663', 'clap.audio-ports-config']);
+    assert.deepEqual(r.stdout.trim().split('\n').slice(1), ['0.5663']);
   } finally {
     rmSync(dest, { recursive: true, force: true });
   }

@@ -288,6 +288,7 @@ a floor, the lowest release whose functions it calls.
 %exclude %{_includedir}/omxcontract/omx_domain.h
 %exclude %{_includedir}/omxcontract/omx_contract_codes.h
 %{_datadir}/omx-contract/install-contract-dir.sh
+%{_datadir}/omx-contract/recipes/
 %{_datadir}/pkgconfig/omx-contract.pc
 %{_rpmmacrodir}/macros.omx-contract
 

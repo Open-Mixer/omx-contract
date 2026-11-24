@@ -141,7 +141,7 @@ test('packaging: omx-contract-data holds the run-time data, noarch in both forma
   assert.doesNotMatch(rpmDevel, /^%\{_datadir\}\/omx-contract\/$/m, 'the development package no longer ships the whole share/omx-contract');
   // the headers that need no compiler; the C loader's two (omx_domain.h, omx_contract_codes.h) are libomx-domain-dev's
   const headers = readdirSync(join(ROOT, 'include/omxcontract')).filter((f) => f.endsWith('.h') && !['omx_domain.h', 'omx_contract_codes.h'].includes(f)).sort().map((f) => `usr/include/omxcontract/${f}`);
-  assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n').filter((l) => !l.startsWith('#')), [...headers, 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/pkgconfig/omx-contract.pc']);
+  assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n').filter((l) => !l.startsWith('#')), [...headers, 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/omx-contract/recipes', 'usr/share/pkgconfig/omx-contract.pc']);
   const rpmNames = /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split('\n  rpm:\n')[1])[1].trim().split(/\s+/);
   const packs = JSON.parse(read('share/omx-contract/languages.json')).languages.map((l) => `omx-contract-langpack-${l}`);
   assert.deepEqual(rpmNames.sort(), ['libomx-domain', 'libomx-domain-devel', 'omx-contract', 'omx-contract-data', 'omx-contract-devel', 'python3-omx-contract', ...packs].sort(), 'the release builds every RPM the spec declares');

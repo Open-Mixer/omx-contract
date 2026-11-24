@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- ADDED: the -devel (-dev) package installs the kernel recipe under `<datadir>/omx-contract/recipes/`, named by the
+  .pc's `recipesdir`, and the CLI tree ships `tools/kernel-recipe.mjs`, which run from `<clidir>` reads that recipe
+  (#227): a consumer's contract tools (omx-dsp's completeness proof) need no source checkout or git tag for it.
 - CHANGED (development phase, every owner follows in the devel wave 2026-11-24): no hand-kept
   version floors. A data file's `requires` and a domain's `info.x-requires` are a list of package and domain names in
   ascending order, each once, no version (`["omx-clap"]`); a file that refers to nothing has none (absent, never `[]`).

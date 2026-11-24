@@ -5,4 +5,5 @@ usr/include/omxcontract/omx_resource_hints.h
 usr/include/omxcontract/omx_travel_shape.h
 usr/include/omxcontract/omx_vocabulary.h
 usr/share/omx-contract/install-contract-dir.sh
+usr/share/omx-contract/recipes
 usr/share/pkgconfig/omx-contract.pc

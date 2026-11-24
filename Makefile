@@ -82,6 +82,9 @@ install: all
 	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
 	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json schema/domain.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
+	# the kernel recipe a consumer's contract tools read (omx-contract#227): <datadir>/omx-contract/recipes/, the .pc's recipesdir
+	install -d $(DESTDIR)$(DATADIR)/omx-contract/recipes
+	install -m 0644 recipes/*.json $(DESTDIR)$(DATADIR)/omx-contract/recipes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
@@ -103,12 +106,14 @@ install-rpm-macros: all
 	chmod 0644 $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
 
 install-cli: all build-lib
-	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema \
+	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema $(DESTDIR)$(CLIDIR)/tools \
 	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(CLIDIR)/contract.d/contract $(DESTDIR)$(CLIDIR)/contract.d/param $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 bin/omx-contract.mjs $(DESTDIR)$(CLIDIR)/bin/
 	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
 	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
+	# the recipe reader a consumer's completeness proof imports (omx-contract#227); run from here it reads <recipesdir>
+	install -m 0644 tools/kernel-recipe.mjs $(DESTDIR)$(CLIDIR)/tools/
 	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
 	install -m 0644 contract.d/contract/contract.json $(DESTDIR)$(CLIDIR)/contract.d/contract/

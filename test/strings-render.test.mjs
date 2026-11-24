@@ -20,7 +20,7 @@ import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
-import { DATA, installParamDomain, ROOT } from './helpers.mjs';
+import { DATA, installParamDomain, ROOT, domainOwner } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/package-strings');
 const GOLDEN = join(ROOT, 'test/golden/strings/acme_unit_ids.h');
@@ -109,7 +109,7 @@ test('the root form: one domain, its root x-render declaring both headers (the i
     // a contract directory holding omx-contract as make install writes it (the param domain, PARAM_UNITS, with it)
     const root = join(dir, 'cd');
     execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
-    execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root], { stdio: 'ignore' });
+    execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
     installParamDomain(root);
     const dom = join(dir, 'contract.d', 'acme-param');
     mkdirSync(dom, { recursive: true });

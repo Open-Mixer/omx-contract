@@ -87,8 +87,8 @@ install: all
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
 	sh tools/install-contract-dir.sh -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
-	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR)
-	sh tools/install-contract-dir.sh --domain contract.d/param $(DESTDIR)$(CONTRACTDIR)
+	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR) omx-contract
+	sh tools/install-contract-dir.sh --domain contract.d/param $(DESTDIR)$(CONTRACTDIR) omx-contract
 	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' -e 's|@VERSION@|$(VERSION)|' \
 	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' -e 's|@CLIDIR@|$(CLIDIR)|' \
 	  omx-contract.pc.in > $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc

@@ -13,7 +13,7 @@ trap 'rm -rf "$tmp"' EXIT
 fail=0
 mkdir -p "$tmp/src/contract.d"
 cp -R "$fix/demo" "$tmp/src/contract.d/demo"
-sh "$script" --domain "$tmp/src/contract.d/demo" "$tmp/dir" >/dev/null || { echo "install_domain_test: the install failed" >&2; exit 1; }
+sh "$script" --domain "$tmp/src/contract.d/demo" "$tmp/dir" omx-fixture >/dev/null || { echo "install_domain_test: the install failed" >&2; exit 1; }
 diff -r "$fix/demo" "$tmp/dir/demo" >/dev/null || { echo "install_domain_test: the installed domain is not the source's bytes" >&2; fail=1; }
 out=$(OMX_CONTRACT_PATH=$tmp/dir "$bin" demo 1.0.0 DEMO_COLORS fbs-fixed 2>&1) || { echo "install_domain_test: omx-domain refused: $out" >&2; fail=1; }
 case $out in *fbsFixed*"A dashed word."*) ;; *) echo "install_domain_test: a word of the installed domain: unexpected output: $out" >&2; fail=1 ;; esac

@@ -64,9 +64,10 @@ test('every live kernel file is the one formatting, and its items declare it aga
 /**
  * A unit the contract declares ahead of its first user, with the issue that brings that user. Each must stay unused
  * by data/, the hosting file and the live owners: a unit that gains a user leaves the table (`dB/oct` did with the
- * comp's key filter slope, omx-dsp c208f5f, released in 0.27.0).
+ * comp's key filter slope, omx-dsp c208f5f, released in 0.27.0; `dBPerS` did with the leveler's and the balancer's
+ * speed, omx-dsp bd63d76, chain 5).
  */
-const AWAITING_USER = { LUFS: 'FreeMixer/omx-contract#145', dBPerS: 'FreeMixer/omx-contract#145' };
+const AWAITING_USER = { LUFS: 'FreeMixer/omx-contract#145' };
 
 /**
  * A unit whose one user declares it outside any contract data, with where. `min` is FBS_COOLDOWN_MINUTES_RANGE's, which

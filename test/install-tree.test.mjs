@@ -8,7 +8,7 @@
 // the Debian .install lists ship each path.
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
@@ -77,4 +77,25 @@ test('every file the CLI tree installs with a #! line is executable (lintian scr
   assert.ok(scripts.some((f) => f.endsWith('/tools/kernel-recipe.mjs')), 'positive control: the recipe reader is a #! file');
   const bad = scripts.filter((f) => (statSync(f).mode & 0o111) !== 0o111).map((f) => f.slice(root.length + 1));
   assert.deepEqual(bad, [], `installed #! files not executable: ${bad.join(', ')}`);
+});
+
+test('the staged CLI tree serves the example descriptors its package.json exports: a consumer resolves one', () => {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  assert.ok(pkg.exports['./examples/descriptors/*'], 'package.json exports no ./examples/descriptors/*');
+  const names = readdirSync(join(ROOT, 'examples/descriptors')).filter((f) => f.endsWith('.json')).sort();
+  assert.ok(names.length > 0, 'no example descriptor in the tree');
+  for (const n of names) {
+    const installed = at(`usr/lib/omx-contract/examples/descriptors/${n}`);
+    assert.ok(existsSync(installed), `no examples/descriptors/${n} under <clidir>`);
+    assert.equal(readFileSync(installed, 'utf8'), readFileSync(join(ROOT, 'examples/descriptors', n), 'utf8'));
+  }
+  // resolved as a consumer does, through the installed package.json's exports, from a node_modules link to <clidir>
+  const consumer = join(STAGE, 'consumer');
+  mkdirSync(join(consumer, 'node_modules/@openmixer'), { recursive: true });
+  rmSync(join(consumer, 'node_modules/@openmixer/omx-contract'), { force: true });
+  symlinkSync(at('usr/lib/omx-contract'), join(consumer, 'node_modules/@openmixer/omx-contract'));
+  const r = spawnSync(process.execPath, ['--input-type=module', '-e',
+    `import { createRequire } from 'node:module'; const q = createRequire(${JSON.stringify(join(consumer, 'x.mjs'))}); console.log(q.resolve('@openmixer/omx-contract/examples/descriptors/${names[0]}'))`], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.ok(existsSync(r.stdout.trim()), r.stdout);
 });

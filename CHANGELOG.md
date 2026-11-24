@@ -4,6 +4,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: the RPM and deb CLI tree (`<clidir>`) installs `examples/descriptors/`, which its package.json exports (#250):
+  a consumer resolving `@openmixer/omx-contract/examples/descriptors/<file>` against the installed package finds them.
 - FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
   <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
   do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in

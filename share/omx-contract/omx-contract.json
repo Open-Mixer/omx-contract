@@ -1622,6 +1622,77 @@
           }
         }
       }
+    },
+    "PARAM_FILTER_RESPONSES": {
+      "rel": "param/param.json",
+      "kind": "words",
+      "doc": "The response of the filter a descriptor control sets (docs/descriptors.md, \"Filter responses\"; omx-contract#208): optional on a control, a closed list, one word per shape. The words and their order are omx-dsp's BIQUAD_KINDS, the section kinds its EQ design builds (omx_eq_kind), so a word's code is the integer a kernel reads for it. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).",
+      "since": "3.22.0",
+      "value": {
+        "peaking": {
+          "word": "peaking",
+          "doc": "A peaking response, a bell: a boost or a cut around a centre frequency.",
+          "text": {
+            "en": "A peaking filter."
+          }
+        },
+        "lowShelf": {
+          "word": "lowShelf",
+          "doc": "A low shelf: a boost or a cut of everything below a corner frequency.",
+          "text": {
+            "en": "A low shelf."
+          }
+        },
+        "highShelf": {
+          "word": "highShelf",
+          "doc": "A high shelf: a boost or a cut of everything above a corner frequency.",
+          "text": {
+            "en": "A high shelf."
+          }
+        },
+        "highpass": {
+          "word": "highpass",
+          "doc": "A high-pass: passes what is above its cutoff and cuts what is below it, an EQ's low edge.",
+          "text": {
+            "en": "A high-pass filter."
+          }
+        },
+        "lowpass": {
+          "word": "lowpass",
+          "doc": "A low-pass: passes what is below its cutoff and cuts what is above it, an EQ's high edge.",
+          "text": {
+            "en": "A low-pass filter."
+          }
+        },
+        "notch": {
+          "word": "notch",
+          "doc": "A notch: a narrow null at its centre frequency.",
+          "text": {
+            "en": "A notch filter."
+          }
+        },
+        "bandpass": {
+          "word": "bandpass",
+          "doc": "A band-pass: passes a band around its centre frequency and cuts either side of it.",
+          "text": {
+            "en": "A band-pass filter."
+          }
+        },
+        "allpass1": {
+          "word": "allpass1",
+          "doc": "A first-order all-pass: every frequency at unity gain, its phase turned around a corner frequency.",
+          "text": {
+            "en": "A first-order all-pass filter."
+          }
+        },
+        "allpass2": {
+          "word": "allpass2",
+          "doc": "A second-order all-pass: every frequency at unity gain, its phase turned around a centre frequency.",
+          "text": {
+            "en": "A second-order all-pass filter."
+          }
+        }
+      }
     }
   },
   "kernels": {}

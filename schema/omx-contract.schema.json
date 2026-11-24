@@ -31,6 +31,10 @@
       "description": "A control's ROLE, what it does: a word of PARAM_MEANINGS (the param domain, contract.d/param/param.json), which renders this enum (tools/unit-enum.mjs); required on every control since 3.22.0, declared and never inferred (omx-contract#61, docs/descriptors.md). The LV2 param: or lv2:designation name where LV2 has the term. unknown: the plugin states none.",
       "enum": ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "amount", "number", "balance", "link", "solo", "order", "acceleration", "dispersion", "window", "unknown"]
     },
+    "filterResponse": {
+      "description": "The response of the filter a control sets: a word of PARAM_FILTER_RESPONSES (the param domain, contract.d/param/param.json), which renders this enum (tools/unit-enum.mjs); omx-dsp's BIQUAD_KINDS in its order. Optional on a control, never inferred from a name: a consumer finds an EQ's edges (highpass, lowpass) by this word in any language (omx-contract#208, docs/descriptors.md).",
+      "enum": ["peaking", "lowShelf", "highShelf", "highpass", "lowpass", "notch", "bandpass", "allpass1", "allpass2"]
+    },
     "handle": {
       "description": "A host's handle on a control or a port: a CLAP id (an integer) or an LV2 port symbol.",
       "oneOf": [{ "type": "integer", "minimum": 0 }, { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }]
@@ -225,6 +229,7 @@
         },
         "group": { "type": "array", "items": { "$ref": "#/$defs/text" }, "minItems": 1 },
         "meaning": { "$ref": "#/$defs/meaning" },
+        "response": { "$ref": "#/$defs/filterResponse" },
         "hidden": { "type": "boolean" },
         "readonly": { "type": "boolean" },
         "automatable": { "type": "boolean" },

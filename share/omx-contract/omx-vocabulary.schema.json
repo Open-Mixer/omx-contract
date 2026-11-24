@@ -1326,6 +1326,76 @@
           "args": []
         }
       }
+    },
+    "PARAM_FILTER_RESPONSES": {
+      "description": "The response of the filter a descriptor control sets (docs/descriptors.md, \"Filter responses\"; omx-contract#208): optional on a control, a closed list, one word per shape. The words and their order are omx-dsp's BIQUAD_KINDS, the section kinds its EQ design builds (omx_eq_kind), so a word's code is the integer a kernel reads for it. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).",
+      "enum": [
+        "peaking",
+        "lowShelf",
+        "highShelf",
+        "highpass",
+        "lowpass",
+        "notch",
+        "bandpass",
+        "allpass1",
+        "allpass2"
+      ],
+      "x-omx-texts": {
+        "peaking": {
+          "text": {
+            "en": "A peaking filter."
+          },
+          "args": []
+        },
+        "lowShelf": {
+          "text": {
+            "en": "A low shelf."
+          },
+          "args": []
+        },
+        "highShelf": {
+          "text": {
+            "en": "A high shelf."
+          },
+          "args": []
+        },
+        "highpass": {
+          "text": {
+            "en": "A high-pass filter."
+          },
+          "args": []
+        },
+        "lowpass": {
+          "text": {
+            "en": "A low-pass filter."
+          },
+          "args": []
+        },
+        "notch": {
+          "text": {
+            "en": "A notch filter."
+          },
+          "args": []
+        },
+        "bandpass": {
+          "text": {
+            "en": "A band-pass filter."
+          },
+          "args": []
+        },
+        "allpass1": {
+          "text": {
+            "en": "A first-order all-pass filter."
+          },
+          "args": []
+        },
+        "allpass2": {
+          "text": {
+            "en": "A second-order all-pass filter."
+          },
+          "args": []
+        }
+      }
     }
   }
 }

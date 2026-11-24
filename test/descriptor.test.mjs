@@ -24,6 +24,8 @@ const FIXTURES = join(ROOT, 'examples/descriptors');
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
 const fixture = (name) => JSON.parse(readFileSync(join(FIXTURES, `${name}.json`), 'utf8'));
 const AUTHORED = 'authored-omx-delay';
+/** The authored EQ: its edges state their filter response (#208). */
+const AUTHORED_EQ = 'authored-omx-eq8';
 /** A well-formed meter: a gain reduction read off a kernel readout. */
 const METER = () => ({ id: 0, symbol: 'gr', name: 'Gain reduction', kind: 'gain-reduction', channels: 1, unit: 'dB', min: -60, max: 0, scale: 'linear' });
 /** A full commit, as a release tag names one. */
@@ -75,15 +77,15 @@ function readerRefusal(doc) {
 /** Break one copy of fixture `name` with `fn` and return the copy. */
 const broken = (name, fn) => { const d = fixture(name); fn(d); return d; };
 
-test('the four example descriptors, one per origin and one stating unknown, are valid', () => {
-  assert.deepEqual(readdirSync(FIXTURES).sort(), [`${AUTHORED}.json`, `${BUILT}.json`, `${SCANNED_CLAP}.json`, `${SCANNED_LV2}.json`]);
-  for (const name of [AUTHORED, BUILT, SCANNED_LV2, SCANNED_CLAP]) {
+test('the five example descriptors, one per origin, one stating unknown and an EQ stating its responses, are valid', () => {
+  assert.deepEqual(readdirSync(FIXTURES).sort(), [`${AUTHORED}.json`, `${AUTHORED_EQ}.json`, `${BUILT}.json`, `${SCANNED_CLAP}.json`, `${SCANNED_LV2}.json`]);
+  for (const name of [AUTHORED, AUTHORED_EQ, BUILT, SCANNED_LV2, SCANNED_CLAP]) {
     const doc = fixture(name);
     assert.ok(isDescriptor(doc), name);
     assert.deepEqual(problemsOf(doc), [], name);
     assert.deepEqual(entriesOf(`descriptors/${name}.json`, doc), [], `${name}: a descriptor declares no item`);
   }
-  assert.deepEqual([AUTHORED, BUILT, SCANNED_LV2, SCANNED_CLAP].map((x) => fixture(x).origin), ['authored', 'built', 'scanned', 'scanned']);
+  assert.deepEqual([AUTHORED, AUTHORED_EQ, BUILT, SCANNED_LV2, SCANNED_CLAP].map((x) => fixture(x).origin), ['authored', 'authored', 'built', 'scanned', 'scanned']);
 });
 
 // The example states travels of its own: the delay kernel's values are omx-dsp's, held by its own tests.
@@ -157,7 +159,8 @@ test('the words are the closed lists of docs/descriptors.md', () => {
   assert.deepEqual(PARAM_SCALE_IDS, ['linear', 'log', 'stepped']);
   assert.deepEqual($.descriptorMeter.properties.kind.enum, ['gain-reduction', 'level']);
   const doc = readFileSync(join(ROOT, 'docs/descriptors.md'), 'utf8');
-  for (const w of [...$.meaning.enum, 'frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'midiMpe', 'midi2']) assert.ok(doc.includes(`\`${w}\``), `docs/descriptors.md names ${w}`);
+  assert.deepEqual($.filterResponse.enum, ['peaking', 'lowShelf', 'highShelf', 'highpass', 'lowpass', 'notch', 'bandpass', 'allpass1', 'allpass2']);
+  for (const w of [...$.meaning.enum, ...$.filterResponse.enum, 'frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'midiMpe', 'midi2']) assert.ok(doc.includes(`\`${w}\``), `docs/descriptors.md names ${w}`);
 });
 
 test('a word the schema does not have is contract.file.invalid, never skipped', () => {
@@ -165,6 +168,7 @@ test('a word the schema does not have is contract.file.invalid, never skipped', 
     ['a unit with no word', (d) => { d.controls[0].travel.unit = 'volts'; }],
     ['a kind with no word', (d) => { d.controls[0].kind = 'knob'; }],
     ['a meaning with no word (mix is wetDryRatio)', (d) => { d.controls[0].meaning = 'mix'; }],
+    ['a filter response with no word (hpf is highpass)', (d) => { d.controls[0].response = 'hpf'; }],
     ['an origin with no word', (d) => { d.origin = 'guessed'; }],
     ['a feature with no word', (d) => { d.plugin.features = ['delay']; }],
     ['a layout with no word', (d) => { d.ports[0].layout = 'quad'; }],

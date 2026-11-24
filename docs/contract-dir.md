@@ -304,6 +304,23 @@ A file may say how the owner's own C headers and TypeScript module spell its ite
 licence project, banner, brief and sections, and the module's name. `render --target c|ts --package <owner>` writes
 them; the tool names no item (docs/render.md).
 
+The `strings` section (built in 3.22.0; designed in docs/units.md, "The render shape") renders a sheet whose values are strings: a
+mapping from a level's own field to a standard word, the first being omx-clap's CLAP unit code to the standard unit
+id. In a domain it is declared in the root `x-render`, as every header of a domain is, with the existing key
+`"scope": "package"`, which gives it the package's string sheets; the sheet has its own `x-file` (no item carries an
+`x-render` and the root form gains no key: coordinator ruling 2026-11-22, docs/units.md, "Where the section is
+declared"):
+
+```json
+{ "header": "omx_param_unit_ids.h", "guard": "...", "project": "...", "banner": ["..."], "brief": "...",
+  "scope": "package",
+  "strings": { "comment": "...", "prefix": "OMX_CLAP_UNIT_", "table": "OMX_PARAM_UNIT_IDS" } }
+```
+
+The sheet is a flat sheet of strings (`$defs.sheetValue`: every field a non-empty string, none nested), as a domain
+sheet with its own `x-file`, so `render --with-domain` rebuilds it. `scope: package` takes every string sheet of the
+package.
+
 ### `checks`: a sum held under a bound
 
 ```json

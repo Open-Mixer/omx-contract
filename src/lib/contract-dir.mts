@@ -259,9 +259,13 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
-      if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || packages.has(name) || withDomains.some((w) => w.name === name)) continue;
+      // the first root that holds a domain wins, as for a package
+      if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || domains.has(name) || withDomains.some((w) => w.name === name)) continue;
       const path = join(ddir, `${domainLeaf(name)}.json`);
       const at = domainPath(name);
+      // a package-named directory is a domain only when it holds <name>/<name>.json; one of nested domains only
+      // (plugin-hostd's <contractdir>/plugin-hostd/) is read as before (ruling %4 2026-11-24)
+      if (!existsSync(path) && packages.has(name)) continue;
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
       const present = filesUnder(ddir).filter((f) => !(f.startsWith('catalogs/') && f.endsWith('.json')));
       if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
@@ -279,7 +283,12 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true, source: `contract.d/${at}` };
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-      packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
+      // a domain named like a package under <major>/ is that package's (ruling V16): read beside it, never skipped (#125),
+      // and the name stays the package's, so a floor on it is held to the package's manifest version (#190)
+      const pkg = packages.get(name);
+      if (pkg === undefined) packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
+      else if (d.manifest.owner !== name) refuse('manifestMismatch', at, `the domain ${name} is named like the package ${name} under ${major}/, and its info.x-owner is ${d.manifest.owner}: a domain named like a package is that package's`);
+      else if (!Object.keys(pkg.manifest.files).length) pkg.codes = d.codes;
       declared.push({ at, requires: domainRequires(raw) });
       domains.set(name, { doc: raw, pkg: name, rebuilt: false });
       domainFiles.push(file);
@@ -482,6 +491,8 @@ function rebuiltFiles({ name, doc, path }, packages, installed, major): Contract
 function checkPackage(packages, pkg, v, from) {
   const p = packages.get(pkg);
   if (!p) refuse('packageAbsent', from, `requires ${pkg} ${v}, which is not installed`);
+  // a domain named after its owner and installed alone (--domain only) is held at its info.version; its owner's
+  // manifest, when installed beside it, holds the package's version instead (#190, ruling %4 2026-11-23)
   if (!atLeast(p.manifest.version, floorOf(v))) refuse('packageTooOld', from, `requires ${pkg} ${v}, and ${p.manifest.version} is installed`);
 }
 

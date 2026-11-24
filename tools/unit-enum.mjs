@@ -3,9 +3,11 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 //
 // The schema's $defs.unit enum and $defs.descriptorUnit's own enum, rendered from PARAM_UNITS (the `param` domain,
-// contract.d/param/param.json): the symbols of its `param` units, and of its `descriptor` units then `unknown`, in
-// their declared order (docs/units.md: the scope split is kept, Q16). And $defs.meaning's enum, a control's role,
-// rendered from PARAM_MEANINGS of the same domain, its words in order (docs/descriptors.md, "Meanings", #61).
+// contract.d/param/param.json): the ids (each word's const) of its `param` units, and of its `descriptor` units then
+// `unknown`, in their declared order (docs/units.md: the scope split is kept, Q16). The id is the wire word; a word's
+// `x-symbol` is its display rendering and never enters the schema (C2, plugin-hostd#215 D1/D2).
+// And $defs.meaning's enum, a control's role, rendered from PARAM_MEANINGS of the same domain, its words in order
+// (docs/descriptors.md, "Meanings", #61).
 // `--write` rewrites schema/omx-contract.schema.json; `--check` exits 1 naming what differs. `--root <dir>` reads
 // another tree (the tests' scratch copies).
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -23,14 +25,14 @@ const unitList = (root) => paramWords(root, 'PARAM_UNITS');
 /** The words of PARAM_MEANINGS, a control's roles, in declared order: $defs.meaning's enum. */
 export const meaningWords = (root) => paramWords(root, 'PARAM_MEANINGS').map((w) => w.const);
 
-/** The symbols (each word's `x-symbol`) of the units of scope `param` (its `x-group`), in declared order: $defs.unit. */
+/** The ids (each word's const) of the units of scope `param` (its `x-group`), in declared order: $defs.unit. */
 export function unitWords(root) {
-  return unitList(root).filter((w) => w['x-group'] === 'param').map((w) => w['x-symbol']);
+  return unitList(root).filter((w) => w['x-group'] === 'param').map((w) => w.const);
 }
 
-/** The symbols of the units of scope `descriptor`, in declared order, then `unknown`: $defs.descriptorUnit's own enum. */
+/** The ids of the units of scope `descriptor`, in declared order, then `unknown`: $defs.descriptorUnit's own enum. */
 export function descriptorUnitWords(root) {
-  return [...unitList(root).filter((w) => w['x-group'] === 'descriptor').map((w) => w['x-symbol']), 'unknown'];
+  return [...unitList(root).filter((w) => w['x-group'] === 'descriptor').map((w) => w.const), 'unknown'];
 }
 
 const enumOf = (words) => `[${words.map((w) => JSON.stringify(w)).join(', ')}]`;

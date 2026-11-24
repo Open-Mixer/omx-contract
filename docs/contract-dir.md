@@ -141,7 +141,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     carried in the extension bag) or `x-dropped` (`{ ruling }`, dropped by the ruling it names); and exactly one cover:
     `x-term`, the term link `<TERMS item>#<term>` into a terms item of the map's format (an `x-kind` terms item, its
     `x-spec` the standard it mirrors), or `x-from`, the link or URL of a field no terms item holds. A lookup value of a
-    unit is a `PARAM_UNITS` id spelled as its standard symbol, and a plugin unit with no standard id is a dropped row
+    unit is a `PARAM_UNITS` id (its const; the `x-symbol` is display only), and a plugin unit with no standard id is a dropped row
     with its ruling, never a new spelling (plugin-hostd#215, decision 2). It rebuilds the data `formatMap` item
     (docs/descriptors.md, "The format maps"), each row `{ term, from, word, extension, dropped, doc }` keyed by its
     `const`, in the `oneOf`'s order. The reader refuses by item and row a row with no outcome or two (naming them), a
@@ -183,6 +183,16 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   never to a file path, so a move of files breaks no reference.
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
   that owns it now. Neither is read from the path.
+- A domain is named after the package that owns it, or shares no name with an installed package (ruling V16). A domain
+  named like a package under `<schema major>/` (a directory `<name>/` that holds `<name>/<name>.json`) is read whatever
+  its name, never skipped (#125); a directory of that name holding nested domains only, as plugin-hostd's
+  `<contractdir>/plugin-hostd/` holds `clap`, `grouping`, `history` and `lv2`, is no domain and is read as before
+  (ruling %4 2026-11-24). A package-named domain's `info.x-owner` must
+  be that package, or it is refused by name (`contract.manifest.mismatch`), and an item that the package's files and the
+  domain both declare is `contract.item.duplicate`, as for any two files. A floor on that name is held to the
+  domain's `info.version` when the domain is installed alone (`--domain` only, as plugin-db and plugin-hostd-protocol
+  install theirs; ruling %4 2026-11-23, #190), and to the owner's manifest `version` when that owner's manifest is
+  installed beside it (`--owner`, below): the manifest, where there is one, is the package's version.
 - `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
   refused (`contract.manifest.invalid`).
 - `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`) and whose

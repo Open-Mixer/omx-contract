@@ -24,7 +24,7 @@
     "kind": "scalar",
     "since": "1.1.0",
     "doc": "The characters of a SHA-256 digest written in hex, two a byte.",
-    "unit": "",
+    "unit": "none",
     "value": 64
   },
   "KINDS_RATE_HZ": {

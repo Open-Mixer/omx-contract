@@ -89,6 +89,8 @@ const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const REBUILT_SCHEMA_FLOOR = '>= 3.0.0';
 const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
 /** An absolute URI (RFC 3986): a scheme, a colon and the rest, no white space; any scheme, urn: as much as http:. */
+/** a unit id (docs/units.md, 2026-11-23): camelCase, letters and digits from a letter */
+const UNIT_ID = /^[A-Za-z][A-Za-z0-9]*$/;
 const ABSOLUTE_URI = /^[A-Za-z][A-Za-z0-9+.-]*:[^\s]+$/;
 
 const only = (o: JsonObject, keys: string[], at: string, what: string): void => {
@@ -332,6 +334,9 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
         if (!known.includes(e['x-group'])) refuse('fileInvalid', at, `${ew}.x-group ${JSON.stringify(e['x-group'])} is no word of the schema ${w}.x-groups names`);
       }
       if (e['x-symbol'] !== undefined && typeof e['x-symbol'] !== 'string') refuse('fileInvalid', at, `${ew}.x-symbol is not a string: a unit word's symbol as written`);
+      // a unit word's id is camelCase, "/" read "Per" (docs/units.md, 2026-11-23): dBPerOct, never dB-oct or dB/oct
+      if (e['x-symbol'] !== undefined && (typeof e.const !== 'string' || !UNIT_ID.test(e.const)))
+        refuse('fileInvalid', at, `${ew}: the unit id ${JSON.stringify(e.const)} is not camelCase: letters and digits from a letter, no "-", "/" or space, "/" read "Per" (dB/oct is dBPerOct; docs/units.md)`);
       // the URI a format spells the word as, of any scheme (urn:openmixer:unit#dBoct as much as an http LV2 URI)
       if (e['x-uri'] !== undefined && (typeof e['x-uri'] !== 'string' || !ABSOLUTE_URI.test(e['x-uri'])))
         refuse('fileInvalid', at, `${ew} (${JSON.stringify(e.title)}).x-uri ${JSON.stringify(e['x-uri'])} is no absolute URI: <scheme>:<rest>, of any scheme`);

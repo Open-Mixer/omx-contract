@@ -11,6 +11,7 @@
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
  *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
+ *   omx-contract units --check <path>...                       every unit an owner's JSON states is a PARAM_UNITS symbol
  *
  * <input> is `--data <dir>` (the bundled data/ by default), or a contract directory (docs/contract-dir.md):
  * `--contract-dir <dir>`, or `--installed` ($OMX_CONTRACT_PATH, else pkg-config), each with `--needs
@@ -32,6 +33,7 @@ import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
+import { lineFinder, unitGate, unitProblems } from '../lib/units.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
 import { placeholdersOf } from '../lib/placeholders.mjs';
@@ -430,6 +432,47 @@ function cmdSemver(argv) {
  * `links`: list every item's source links, or with `--check` check them against the owner's tree (lib/links.mjs).
  * A problem prints its CONTRACT_CODES code first; links that lie in a tree not named by `--at` are reported unchecked.
  */
+/**
+ * `units --check <path>...`: every unit the JSON files under each path state is a PARAM_UNITS standard id
+ * (lib/units.mjs; omx-contract#193). An owner runs it over its own files in its own CI, whatever their shape
+ * (docs/unit-gate.md). Exit 1 names file:line, the JSON pointer and the value; exit 2 is a path that is absent,
+ * a file that is no JSON, or files that state no unit at all (a wrong path is never a pass).
+ */
+function cmdUnits(argv) {
+  const paths = argv.slice(1).filter((a) => a !== '--check');
+  if (!argv.includes('--check')) throw new Usage('units: --check is the one mode');
+  if (!paths.length) throw new Usage('units --check needs at least one path');
+  const files = [];
+  const walk = (p) => {
+    const st = statSync(p);
+    if (st.isDirectory()) {
+      for (const f of readdirSync(p).sort()) if (f !== 'node_modules' && !f.startsWith('.')) walk(join(p, f));
+    } else if (p.endsWith('.json')) files.push(p);
+  };
+  for (const p of paths) {
+    if (!existsSync(p)) { console.error(`omx-contract units: ${p}: no such file or directory`); return 2; }
+    walk(p);
+  }
+  const gate = unitGate();
+  let checked = 0;
+  let refused = 0;
+  for (const f of files) {
+    const text = readFileSync(f, 'utf8');
+    let doc;
+    try { doc = JSON.parse(text); } catch (e) { console.error(`omx-contract units: ${f}: no JSON (${e.message})`); return 2; }
+    const found = unitProblems(doc, gate);
+    checked += found.checked;
+    const lineOf = lineFinder(text);
+    for (const p of found) {
+      console.error(`${f}:${lineOf(p.key, p.value)}: ${p.message}`);
+      refused++;
+    }
+  }
+  if (!checked) { console.error(`omx-contract units: ${files.length} file${files.length === 1 ? '' : 's'} under ${paths.join(' ')} state no unit: name the owner's data`); return 2; }
+  console.log(`omx-contract units: ${files.length} file${files.length === 1 ? '' : 's'}, ${checked} units, ${refused} refused`);
+  return refused ? 1 : 0;
+}
+
 function cmdLinks(argv) {
   const data = load(argv);
   const only = opt(argv, '--package');
@@ -772,10 +815,11 @@ const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
        omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]
+       omx-contract units --check <path>...
   <input>: --data <dir> | --contract-dir <dir> | --installed, a contract directory with [--needs <package>@'>= x.y.z']... [--json]`;
 
 export function main(argv) {
-  const cmds = { validate: cmdValidate, domain: cmdDomain, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate };
+  const cmds = { validate: cmdValidate, domain: cmdDomain, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate, units: cmdUnits };
   const fail = (e) => {
     if (e instanceof Usage) { console.error(`omx-contract: ${e.message}\n${USAGE}`); return 2; }
     if (e instanceof ContractRefusal) {

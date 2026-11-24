@@ -38,13 +38,13 @@
       "DEMO_DIGEST_LEN": {
         "description": "The characters of a digest in hex.",
         "x-kind": "scalar",
-        "x-unit": "",
+        "x-unit": "none",
         "x-value": "64"
       },
       "DEMO_STRICT": {
         "description": "Whether the fixture is strict.",
         "x-kind": "scalar",
-        "x-unit": "",
+        "x-unit": "none",
         "x-value": true
       },
       "DEMO_RATE_HZ": {

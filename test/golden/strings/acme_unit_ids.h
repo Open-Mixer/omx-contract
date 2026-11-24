@@ -35,6 +35,6 @@
     X(ACME_UNIT_PC, "pc", "percent") \
     X(ACME_UNIT_SEMITONE12_TET, "semitone12TET", "st") \
     X(ACME_UNIT_DEGREE, "degree", "deg") \
-    X(ACME_UNIT_DB_PER_OCT, "dbPerOct", "dB-oct")
+    X(ACME_UNIT_DB_PER_OCT, "dbPerOct", "dBPerOct")
 
 #endif /* ACME_UNIT_IDS_H */

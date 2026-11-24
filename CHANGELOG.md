@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- ADDED: a reply code's `x-leaves-no-mark` in the domain format is the data form's `leavesNoMark` (#248): a domain that
+  owns its reply codes (plugin-hostd-protocol's) states a refusal that leaves no mark on the plugin, as `x-transient`
+  states a transient one. Not a boolean, or on a word that is no code, is refused by name.
 - CHANGED: a v<version> tag PROMOTES and never builds (#230). release.yml's tag path calls Open-Mixer/.github
   promote-staged.yml, which copies the signed files the staged build of that commit left under staging/ (rpm and deb)
   to the channel root and creates the GitHub release; the tag's commit must be on main. The build is the dispatch

@@ -719,6 +719,10 @@ export const domainSchema = {
           "description": "A reply code that says nothing about the plugin or the request; the data form's transient. Only on a code.",
           "type": "boolean"
         },
+        "x-leaves-no-mark": {
+          "description": "A refusal that leaves no mark on the plugin, no verdict and no history; the data form's leavesNoMark. Only on a code.",
+          "type": "boolean"
+        },
         "x-name": {
           "description": "The code's key in the data item it rebuilds, the macro stem (docs/render.md).",
           "type": "string",

@@ -122,7 +122,7 @@ const WORDS_KINDS = ['codes', 'words', 'set', 'verbs'];
 const VERB_KEYS = [['x-format', 'format'], ['x-reply', 'reply'], ['x-codes', 'codes'], ['x-implemented-by', 'implementedBy'], ['x-since', 'since']];
 
 /** A reply code's own keys (a word of a codes item), each with the data form's key it rebuilds. */
-const REPLY_KEYS = [['x-resp', 'resp'], ['x-transient', 'transient']];
+const REPLY_KEYS = [['x-resp', 'resp'], ['x-transient', 'transient'], ['x-leaves-no-mark', 'leavesNoMark']];
 
 /** A verb's data form: the word its `const`, then its format, reply, codes, implementedBy and since, then its doc. */
 const verbOf = (e: JsonObject): JsonObject => ({ verb: e.const, ...Object.fromEntries(VERB_KEYS.filter(([k]) => e[k!] !== undefined).map(([k, d]) => [d, e[k!]])), ...(e.description === undefined ? {} : { doc: e.description }) });
@@ -329,6 +329,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       for (const [k] of REPLY_KEYS) if (e[k!] !== undefined && kind !== 'codes') refuse('fileInvalid', at, `${ew}.${k}: only a code (a word of an item of x-kind codes) carries ${k}`);
       if (e['x-resp'] !== undefined && (!Number.isInteger(e['x-resp']) || (e['x-resp'] as number) > -1)) refuse('fileInvalid', at, `${ew}.x-resp ${JSON.stringify(e['x-resp'])} is not a negative whole number, the n of resp <n>`);
       if (e['x-transient'] !== undefined && typeof e['x-transient'] !== 'boolean') refuse('fileInvalid', at, `${ew}.x-transient is not true or false`);
+      if (e['x-leaves-no-mark'] !== undefined && typeof e['x-leaves-no-mark'] !== 'boolean') refuse('fileInvalid', at, `${ew}.x-leaves-no-mark is not true or false`);
       if (typeof e.const !== 'string' || !e.const) refuse('fileInvalid', at, `${ew}.const is not a word`);
       if (typeof e.title !== 'string' || !/^[A-Za-z][A-Za-z0-9]*$/.test(e.title)) refuse('fileInvalid', at, `${ew}.title is not the word's key`);
       if (e.description !== undefined && typeof e.description !== 'string') refuse('fileInvalid', at, `${ew}.description is not the word's line`);

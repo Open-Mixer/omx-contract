@@ -127,7 +127,9 @@ and runs the data reader and the renders unchanged on that set. The files come o
 The files are those of the data form but for one line per item: a render's provenance of an item (the `/* ITEM (<path>) */`
 of a header, the `@see <path>` of a ts module, a verb's `(<path>)`) names a domain item's domain document,
 `contract.d/<domain>/<leaf>.json`, never the `data/<x-file>` the rebuild writes it to, a path that exists nowhere; a data
-item keeps its `data/<file>` (3.21.0).
+item keeps its `data/<file>` (3.21.0). The GENERATED line of a ts module that a domain's root `x-render` frames names
+the same domain document (`... from omx-clap's contract.d/hosting/hosting.json, do not edit.`), never the root's
+`data/<x-file>` (omx-contract#218); a C header's GENERATED comment is the owner's `banner` words and names no path.
 A `--with-domain` directory is named as `install-contract-dir.sh --domain` names it: by its path after the last
 `contract.d/` (`contract.d/plugin-hostd/grouping` is the domain `plugin-hostd/grouping`).
 The rebuild, and nothing else:

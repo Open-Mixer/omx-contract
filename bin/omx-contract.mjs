@@ -378,7 +378,8 @@ function dataAtTag(tag) {
   for (const name of TREE_DOMAINS) {
     const at = `contract.d/${name}/${name}.json`;
     if (!git('ls-tree', '--name-only', tag, '--', at).trim()) continue;
-    const { doc } = readDomain(name, JSON.parse(git('show', `${tag}:${at}`)), '../schema/omx-contract.schema.json', 0);
+    // a released tree, read as it was released: the id spelling rules added since are not held against it
+    const { doc } = readDomain(name, JSON.parse(git('show', `${tag}:${at}`)), '../schema/omx-contract.schema.json', 0, { released: true });
     texts[`${name}/${name}.json`] = JSON.stringify(doc);
   }
   return texts;

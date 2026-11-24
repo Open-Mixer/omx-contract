@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a
+  unit id is camelCase) is not held against it, so the bump check classifies a rename the wave makes on purpose
+  (v3.21.0's dB-oct, now dBPerOct) instead of refusing the old file. Every other rule holds, and a tree being built
+  or installed is still refused a non-camelCase unit id.
 - REMOVED: the live-owners leg (#234). omx-contract reads no level above it: tools/live-owner-data.sh,
   tools/live-owner.ref and test/live-owners.test.mjs are gone, and so are their steps in ci.yml, release.yml and
   publish.yml. Each owner proves its own data against the omx-contract it installs (omx-dsp: make contract-dir,

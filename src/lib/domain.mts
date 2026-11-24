@@ -258,7 +258,13 @@ const hintsOf = (s: JsonObject): JsonObject => ({ ...(s['x-units'] === undefined
 /** A resource hint's figureUnit and basis from its domain words (V28, #189), in the data form's order. */
 const hintOf = (e: JsonObject): JsonObject => ({ ...(e['x-figure-unit'] === undefined ? {} : { figureUnit: e['x-figure-unit'] }), ...(e['x-basis'] === undefined ? {} : { basis: e['x-basis'] }) });
 
-export function readDomain(name: string, doc: JsonObject, schemaUrl: string, schemaMajor: number): { doc: JsonObject; manifest: JsonObject; codes: DomainCodes; names: string[] } {
+/**
+ * `released`: the document is a RELEASED tree's, read back as data (`semver <previous tag>` compares it with this tree).
+ * A released tree passed its own release's rules; the spelling rules of ids this tree adds later (a unit id is
+ * camelCase, 2026-11-23) are not held against it, or a rename the tree makes on purpose would refuse the comparison
+ * that classifies it. Every other rule holds. A tree being built or installed is never read this way.
+ */
+export function readDomain(name: string, doc: JsonObject, schemaUrl: string, schemaMajor: number, { released = false }: { released?: boolean } = {}): { doc: JsonObject; manifest: JsonObject; codes: DomainCodes; names: string[] } {
   const at = domainPath(name);
   if (doc.$id !== domainId(name)) refuse('manifestInvalid', at, `$id ${JSON.stringify(doc.$id)} is not ${domainId(name)}, the id of the domain whose directory this is`);
   only(doc, ['$schema', '$id', 'info', 'components', 'x-render', 'x-file'], at, 'domain document');
@@ -338,7 +344,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
       }
       if (e['x-symbol'] !== undefined && typeof e['x-symbol'] !== 'string') refuse('fileInvalid', at, `${ew}.x-symbol is not a string: a unit word's symbol as written`);
       // a unit word's id is camelCase, "/" read "Per" (docs/units.md, 2026-11-23): dBPerOct, never dB-oct or dB/oct
-      if (e['x-symbol'] !== undefined && (typeof e.const !== 'string' || !UNIT_ID.test(e.const)))
+      if (e['x-symbol'] !== undefined && (typeof e.const !== 'string' || (!released && !UNIT_ID.test(e.const))))
         refuse('fileInvalid', at, `${ew}: the unit id ${JSON.stringify(e.const)} is not camelCase: letters and digits from a letter, no "-", "/" or space, "/" read "Per" (dB/oct is dBPerOct; docs/units.md)`);
       // the URI a format spells the word as, of any scheme (urn:openmixer:unit#dBoct as much as an http LV2 URI)
       if (e['x-uri'] !== undefined && (typeof e['x-uri'] !== 'string' || !ABSOLUTE_URI.test(e['x-uri'])))

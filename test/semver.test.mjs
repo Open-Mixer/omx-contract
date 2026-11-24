@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
+import { readDomain } from '../lib/domain.mjs';
 import { DEVELOPMENT_PHASE, bumpOf, classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { DATA, ROOT, dropDecl, editData, relOf, resolvedOf, scratchData, texts } from './helpers.mjs';
 
@@ -150,4 +151,29 @@ test('schema: an anyOf that gains a member, or whose enum member gains a value, 
   assert.equal(level([ref, units('a')], [ref]), 'major', 'a member removed');
   assert.equal(level([ref, units('a')], [{ $ref: '#/$defs/other' }, units('a')]), 'major', 'a member rewritten');
   assert.equal(level([ref, units('a')], [units('a'), ref]), 'major', 'members reordered into different ones');
+});
+
+// A released tree is read back as it was released: `semver <previous tag>` compares it with this tree, and an id spelling
+// rule added since (a unit id is camelCase, 2026-11-23) is not held against it, or the rename that rule asks for
+// refuses the comparison that classifies it (v3.21.0's dB-oct, renamed dBPerOct). The rule still holds for any tree
+// being built or installed.
+test('a released tree\'s unit id is read as released (dB-oct), a tree being read now is refused it', () => {
+  const doc = JSON.parse(readFileSync(join(ROOT, 'contract.d/param/param.json'), 'utf8'));
+  const word = doc.components.schemas.PARAM_UNITS.oneOf.find((w) => w.const === 'dBPerOct');
+  assert.ok(word, 'positive control: the unit dBPerOct');
+  word.const = 'dB-oct';
+  const read = (opts) => () => readDomain('param', structuredClone(doc), '../schema/omx-contract.schema.json', 0, opts);
+  assert.throws(read(), /the unit id "dB-oct" is not camelCase/);
+  assert.throws(read({ released: false }), /not camelCase/);
+  const { doc: data } = read({ released: true })();
+  assert.ok(JSON.stringify(data).includes('"dB-oct"'), 'the released id is read as it was released');
+});
+
+test('the CLI against v3.21.0 (unit ids before the camelCase rule) classifies the bump, never refuses the old tree', () => {
+  const git = spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', 'v3.21.0^{commit}']);
+  if (git.status !== 0) return;   // no tags in this checkout; release.yml's bump step reads the previous tag, always
+  const r = spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'semver', 'v3.21.0', '--report'], { encoding: 'utf8' });
+  assert.doesNotMatch(r.stderr, /contract\.file\.invalid/, 'the released tree is read, not refused');
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /"from":"3\.21\.0"/);
 });

@@ -28,15 +28,8 @@
       "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
     },
     "meaning": {
-      "description": "What a control does, the closed list seeded from the panel roles; the LV2 param: or lv2:designation name where LV2 has the term (docs/descriptors.md). unknown: the plugin states none.",
-      "enum": [
-        "gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass",
-        "wetDryRatio", "delay", "enabled",
-        "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "slope", "width", "drive", "tone", "rate",
-        "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen",
-        "shape", "model", "algorithm", "mode", "type", "pingpong",
-        "unknown"
-      ]
+      "description": "A control's ROLE, what it does: a word of PARAM_MEANINGS (the param domain, contract.d/param/param.json), which renders this enum (tools/unit-enum.mjs); required on every control since 3.22.0, declared and never inferred (omx-contract#61, docs/descriptors.md). The LV2 param: or lv2:designation name where LV2 has the term. unknown: the plugin states none.",
+      "enum": ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "unknown"]
     },
     "handle": {
       "description": "A host's handle on a control or a port: a CLAP id (an integer) or an LV2 port symbol.",
@@ -232,7 +225,7 @@
         "automatable": { "type": "boolean" },
         "source": { "$ref": "#/$defs/source" }
       },
-      "required": ["id", "name", "kind"],
+      "required": ["id", "name", "kind", "meaning"],
       "allOf": [
         {
           "if": { "properties": { "kind": { "const": "travel" } } },

@@ -52,6 +52,7 @@
       "id": 30,
       "name": "waveform",
       "kind": "choice",
+      "meaning": "shape",
       "ids": ["sine", "square", "saw"],
       "labels": ["Sine", "Square", "Saw"],
       "values": [0, 1, 2],
@@ -62,6 +63,7 @@
       "id": 31,
       "name": "pulseWidth",
       "kind": "travel",
+      "meaning": "unknown",
       "travel": { "min": 0.05, "max": 0.95, "unit": "", "default": 0.5, "scale": "linear" },
       "group": ["Oscillator"],
       "when": { "control": "waveform", "is": "square" }
@@ -70,12 +72,14 @@
       "id": 40,
       "name": "panic",
       "kind": "trigger",
+      "meaning": "unknown",
       "automatable": false
     },
     {
       "id": 41,
       "name": "voicesActive",
       "kind": "travel",
+      "meaning": "unknown",
       "travel": { "min": 0, "max": 16, "step": 1, "unit": "", "scale": "stepped" },
       "readonly": true,
       "hidden": true

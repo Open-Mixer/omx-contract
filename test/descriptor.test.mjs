@@ -91,7 +91,7 @@ test('the authored delay: its travels on a linear scale, a toggle, the meanings,
   const d = fixture(AUTHORED);
   for (const c of d.controls.filter((x) => x.kind === 'travel')) assert.equal(c.travel.scale, 'linear', c.name);
   assert.equal(d.controls.find((c) => c.name === 'pingpong').kind, 'toggle');
-  assert.deepEqual(d.controls.map((c) => c.meaning), ['delay', 'feedback', 'tone', 'wetDryRatio', undefined]);
+  assert.deepEqual(d.controls.map((c) => c.meaning), ['delay', 'feedback', 'tone', 'wetDryRatio', 'pingpong']);
   assert.deepEqual(d.controls.map((c) => c.id), [0, 1, 2, 3, 4]);
   assert.deepEqual(d.latency, { reports: true, frames: 0 });
 });
@@ -138,7 +138,7 @@ test('the words are the closed lists of docs/descriptors.md', () => {
   assert.deepEqual($.meaning.enum, [
     'gain', 'threshold', 'ratio', 'attack', 'release', 'hold', 'decay', 'frequency', 'cutoffFrequency', 'resonance', 'bypass',
     'wetDryRatio', 'delay', 'enabled',
-    'range', 'knee', 'hysteresis', 'makeup', 'lookahead', 'ceiling', 'output', 'q', 'slope', 'width', 'drive', 'tone', 'rate',
+    'range', 'knee', 'hysteresis', 'makeup', 'lookahead', 'ceiling', 'output', 'q', 'bandwidth', 'slope', 'width', 'drive', 'tone', 'rate',
     'depth', 'feedback', 'spread', 'predelay', 'size', 'damping', 'lowCut', 'highCut', 'shift', 'fine', 'sync', 'division', 'listen',
     'shape', 'model', 'algorithm', 'mode', 'type', 'pingpong',
     'unknown',

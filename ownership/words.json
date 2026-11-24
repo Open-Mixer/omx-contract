@@ -254,7 +254,6 @@
     "bpm",
     "bytes",
     "cm",
-    "count",
     "dBTP",
     "dBu",
     "deg",
@@ -267,7 +266,8 @@
     "midiNote",
     "mile",
     "mm",
-    "ns/sample",
+    "nsPerSample",
+    "plainCount",
     "ratio",
     "unknown",
     "us"
@@ -341,21 +341,6 @@
     "unknown",
     "wetDryRatio",
     "width"
-  ],
-  "schema/omx-contract.schema.json#/$defs/override/properties/family/enum": [
-    "deesser",
-    "delay",
-    "drive",
-    "dynamics",
-    "eq",
-    "filter",
-    "gate",
-    "limiter",
-    "modulation",
-    "none",
-    "pitch",
-    "reverb",
-    "utility"
   ],
   "schema/omx-contract.schema.json#/$defs/override/properties/plugin/properties/format/enum": [
     "clap",
@@ -457,19 +442,19 @@
     "desk"
   ],
   "schema/omx-contract.schema.json#/$defs/unit/enum": [
-    "",
-    "%",
     "Hz",
     "LUFS",
     "cents",
     "coef",
     "dB",
-    "dB/oct",
-    "dB/s",
+    "dBPerOct",
+    "dBPerS",
     "dBFS",
     "min",
     "ms",
+    "none",
     "oct",
+    "percent",
     "s",
     "st"
   ],

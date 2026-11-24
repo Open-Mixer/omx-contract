@@ -66,6 +66,9 @@ omx-contract \- validate, format and render the OpenMixer declarations
 .IR alias ]
 .RB [ \-\-batch
 .IR n ]
+.br
+.B omx-contract units \-\-check
+.IR path ...
 .SH DESCRIPTION
 .B omx-contract
 reads the OpenMixer declarations, the JSON data every knob, range and default
@@ -146,6 +149,17 @@ whole, with no stale entry. With
 .BR \-\-source ,
 the source sentences are a file mapping each key to its English sentence and
 its args, for strings that are no contract data (a surface's own).
+.TP
+.B units
+Check, with
+.BR \-\-check ,
+that every unit the JSON files under each
+.I path
+state is a standard symbol of PARAM_UNITS: each value of a unit key, each value
+of a map of units, and each lookup value of a map row whose word is a unit word.
+Which keys and words are unit-valued is read from the schema. An owner runs it
+over its own data in its own CI (docs/unit-gate.md). A path that
+is absent, a file that is no JSON, or files that state no unit exit 2.
 .SH EXIT STATUS
 0 is a pass, 1 a failure naming what failed, and 2 a usage or environment
 error, which is never a pass. A refusal of the contract directory reader

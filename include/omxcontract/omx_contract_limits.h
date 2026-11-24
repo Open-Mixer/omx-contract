@@ -19,7 +19,7 @@
 /* Every list rendered to C, sorted by list: OMX_<LIST>_COUNT and OMX_<LIST>_INIT { a, b, … }. */
 /** The number of values of STANDARD_QUANTA, the length of OMX_STANDARD_QUANTA_INIT. */
 #define OMX_STANDARD_QUANTA_COUNT 6u
-/** The quanta (buffer sizes, in frames, a count with no unit of its own) the console offers: the set a measurement grid or a probe takes its quanta from, beside the rates STANDARD_SAMPLE_RATES lists. A consumer that measures at fewer quanta takes a subset of this list and states it; it never keeps a list of its own. What the operator is OFFERED is still the engine's own choice, this is the ceiling a request is refused by. The values in declaration order, an initialiser. (unitless; since 3.5.0) */
+/** The quanta (buffer sizes, in frames, a count with no unit of its own) the console offers: the set a measurement grid or a probe takes its quanta from, beside the rates STANDARD_SAMPLE_RATES lists. A consumer that measures at fewer quanta takes a subset of this list and states it; it never keeps a list of its own. What the operator is OFFERED is still the engine's own choice, this is the ceiling a request is refused by. The values in declaration order, an initialiser. (none; since 3.5.0) */
 #define OMX_STANDARD_QUANTA_INIT { 32, 64, 128, 256, 512, 1024 }
 /** The number of values of STANDARD_SAMPLE_RATES, the length of OMX_STANDARD_SAMPLE_RATES_INIT. */
 #define OMX_STANDARD_SAMPLE_RATES_COUNT 6u

@@ -73,14 +73,14 @@ test('validate on a hand-written flat kernel file exits 1 and says to use the fo
 
 test('a key beside the four sections, a constant that is a travel, an undeclared table and an aggregate of nothing are refused', () => {
   const shape = (fn) => problems(texts(fn)).filter((x) => x.rule === 'shape').map((x) => x.message).join('\n');
-  assert.match(shape((d) => { d['data/kernels/swell.json'].SWELL_LIMITS = { kind: 'scalar', doc: 'x', unit: '', value: 1 }; }), /unknown top-level key SWELL_LIMITS: a kernel file holds controls, readouts, tables, aggregates, constants/);
+  assert.match(shape((d) => { d['data/kernels/swell.json'].SWELL_LIMITS = { kind: 'scalar', doc: 'x', unit: 'none', value: 1 }; }), /unknown top-level key SWELL_LIMITS: a kernel file holds controls, readouts, tables, aggregates, constants/);
   assert.match(shape((d) => { d['data/kernels/contour.json'].constants.CONTOUR_X_RANGE = { kind: 'travels', doc: 'x', travel: { min: 0, max: 1 } }; }), /constant CONTOUR_X_RANGE: kind "travels" is not scalar, list or sheet \(a travel or a set is a control\)/);
   assert.throws(() => loadData(null, texts((d) => { d['data/kernels/swell.json'].aggregates = { SWELL_ALL: { doc: 'x', fields: ['nothing'] } }; })), /aggregate SWELL_ALL names control nothing, which is not declared/);
   assert.throws(() => loadData(null, texts((d) => { d['data/kernels/swell.json'].controls[1].table = 'NO_TABLE'; })), /control thresholdDb names table NO_TABLE, which is not declared/);
 });
 
 test('kernelDocOf refuses a table that mixes references with travels, and an aggregate field not named by its control', () => {
-  const travel = { min: 0, max: 1, step: 0, unit: '', default: 0, defaultFrom: 'desk' };
+  const travel = { min: 0, max: 1, step: 0, unit: 'none', default: 0, defaultFrom: 'desk' };
   const one = ['WOB_RATE_RANGE', { kind: 'travels', doc: 'r', travel }];
   assert.throws(() => kernelDocOf('data/kernels/wob.json', [one, ['WOB_T', { kind: 'travels', doc: 't', fields: { rate: { ref: 'WOB_RATE_RANGE' }, depth: travel } }]]), /WOB_T mixes fields that refer to single travels/);
   const kept = kernelDocOf('data/kernels/wob.json', [one]);
@@ -101,7 +101,7 @@ test('a travels table with fields of its own lives in an item file beside the ke
   const table = { kind: 'travels', doc: 'a host\'s continuous travels', fields: { thresholdDb: { min: -80, max: 0, unit: 'dB', default: -40 } } };
   const valid = (t) => validateData(loadData(null, t)).map((p) => `${p.file}:${p.rule}`);
   assert.deepEqual(valid({ 'data/primitives/x-continuous-travels.json': JSON.stringify({ $schema: '../../schema/omx-contract.schema.json', X_CONTINUOUS_TRAVELS: table }) }), []);
-  const k = { $schema: '../../schema/omx-contract.schema.json', controls: [{ name: 'a', kind: 'travel', doc: 'a', travel: { min: 0, max: 1, unit: '' } }], constants: { X_CONTINUOUS_TRAVELS: table } };
+  const k = { $schema: '../../schema/omx-contract.schema.json', controls: [{ name: 'a', kind: 'travel', doc: 'a', travel: { min: 0, max: 1, unit: 'none' } }], constants: { X_CONTINUOUS_TRAVELS: table } };
   assert.ok(valid({ 'data/kernels/x.json': JSON.stringify(k) }).includes('data/kernels/x.json:shape'), 'a kernel\'s constant is a scalar, a list or a sheet');
 });
 

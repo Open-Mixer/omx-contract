@@ -179,7 +179,7 @@ test('refused by name: a scalar whose x-value is no number or boolean, and a sca
 
 test('the runtime reader serves a scalar: its value and unit; a words item and an unknown item are refused', () => {
   const d = openDomainAt(FIX, 'kinds');
-  assert.deepEqual(d.scalar('KINDS_DIGEST_HEX_LEN'), { value: 64, unit: '' });
+  assert.deepEqual(d.scalar('KINDS_DIGEST_HEX_LEN'), { value: 64, unit: 'none' });
   assert.deepEqual(d.scalar('KINDS_RATE_HZ'), { value: 50, unit: 'Hz' });
   assert.throws(() => d.scalar('KINDS_CODES'), /contract\.word\.unknown|KINDS_CODES/);
   assert.throws(() => d.scalar('KINDS_NOPE'), /KINDS_NOPE/);

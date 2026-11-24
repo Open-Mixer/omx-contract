@@ -221,7 +221,8 @@ omx-contract. MOVES OUT: a level's particular leaves omx-contract for its level.
 | V8 | `PROBE_OUTCOMES`, `_REASONS`, `_STEPS` (the probe wire words) | plugin-hostd `probe` | CHANGED: plugin-hostd-protocol owns the wire words and plugin-hostd reads them: no build cycle, no hand table (Ruled (coordinator, 2026-11-20)) | 4 |
 | V12, V11, V13 | pin verdicts and pools; the plugin-db items | plugin-hostd; plugin-db | KEPT; V12 lands BEFORE V11 and V13 (Ruled (coordinator, 2026-11-20)) | as before |
 | V5 to V18 (others) | qualification, machine, scan, hosting, host, protocol, grouping, history words | their hosts and storers | KEPT: host and storer words | as before |
-| V30, V32, Z1 | omx-dsp kernels; the console's own words; the panel family enum | omx-dsp; the console; omx-panel | KEPT | as before |
+| V30, V32 | omx-dsp kernels; the console's own words | omx-dsp; the console | KEPT | as before |
+| Z1 | the panel family enum (`$defs.override.properties.family.enum`) | omx-panel | MOVED OUT: the override's `family` is an identifier (`^[a-z][A-Za-z0-9]*$`), and the check that it is a word of `PANEL_FAMILIES` is omx-panel's `describe` (Ruled (coordinator, 2026-11-23), omx-contract#161) | done |
 
 **V23d, the code sheet, in three PRs:**
 

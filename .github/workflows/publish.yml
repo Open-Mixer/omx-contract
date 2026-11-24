@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           registry-url: 'https://registry.npmjs.org'
       - name: npm 11 (trusted publishing needs >= 11.5.1)
         run: |
@@ -57,7 +57,7 @@ jobs:
           node bin/omx-contract.mjs render --target lv2 --out share/omx-contract --check
           node bin/omx-contract.mjs render --target ts --out test/golden/ts --check
           npm ci
-          python3 -m pip install --user -r tools/shapes-requirements.txt
+          python3 -m pip install --user -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt
           npm test
       - name: The tag is the package version
         if: github.ref_type == 'tag'

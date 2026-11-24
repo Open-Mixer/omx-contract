@@ -120,7 +120,7 @@ test('a formatMap row\'s term is a term of a terms item of the map\'s format (ru
 test('a descriptor declares choiceUnits once: a choice control name to a descriptor unit, and an unknown unit is refused', () => {
   const doc = authored();
   doc.controls.push({ id: 5, name: 'slope', kind: 'choice', ids: ['s12', 's24'], labels: ['12', '24'], default: 's12' });
-  doc.choiceUnits = { slope: 'dB/oct' };
+  doc.choiceUnits = { slope: 'dBPerOct' };
   assert.deepEqual(problemsOf(doc), []);
   const bad = (edit, want) => {
     const d = structuredClone(doc);

@@ -222,7 +222,7 @@
           "omx-plugins:plugins/omx-rotary/generated/omx-rotary.lv2/omx-rotary.ttl",
           "omx-contract:schema/omx-contract.schema.json#/$defs/descriptorUnit"
         ],
-        "word": "%"
+        "word": "percent"
       },
       "prefixConversion": {
         "uri": "http://lv2plug.in/ns/extensions/units#prefixConversion",

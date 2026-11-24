@@ -50,7 +50,7 @@ test('the strings section renders the golden header byte for byte, each row nami
   const h = header(texts());
   assert.equal(h, readFileSync(GOLDEN, 'utf8'));
   assert.equal(header(texts(), 'acme_units.h'), readFileSync(UNITS_GOLDEN, 'utf8'), 'the units header holds its own numbers rows only');
-  assert.match(h, /^ {4}X\(ACME_UNIT_DB_PER_OCT, "dbPerOct", "dB-oct"\)$/m, 'constCase: dbPerOct is DB_PER_OCT');
+  assert.match(h, /^ {4}X\(ACME_UNIT_DB_PER_OCT, "dbPerOct", "dBPerOct"\)$/m, 'constCase: dbPerOct is DB_PER_OCT');
   assert.match(h, /^ {4}X\(ACME_UNIT_SEMITONE12_TET, "semitone12TET", "st"\) \\$/m);
   const units = header(texts(), 'acme_units.h');
   for (const [, name] of h.matchAll(/X\((ACME_UNIT_\w+),/g)) assert.match(units, new RegExp(`^#define ${name} \\d+u `, 'm'), `${name} is a define of acme_units.h`);
@@ -58,7 +58,7 @@ test('the strings section renders the golden header byte for byte, each row nami
 
 test('the string sheet is valid in its data form, and the numbers render does not take it', () => {
   assert.deepEqual(problems(texts()), []);
-  assert.doesNotMatch(header(texts(), 'acme_units.h'), /dB-oct/);
+  assert.doesNotMatch(header(texts(), 'acme_units.h'), /dBPerOct/);
 });
 
 test('a C reader joins the two headers through the row (the code define is the first argument)', { skip: spawnSync('cc', ['--version']).status !== 0 && 'no C compiler' }, () => {
@@ -74,7 +74,7 @@ static const char *unit_id(unsigned code)
 #undef X
     return 0;
 }
-int main(void) { const char *a = unit_id(260u), *b = unit_id(14u); return a && b && a[0] == 'd' && a[2] == '-' && b[0] == 'p' && !unit_id(999u) ? 0 : 1; }
+int main(void) { const char *a = unit_id(260u), *b = unit_id(14u); return a && b && a[0] == 'd' && a[2] == 'P' && b[0] == 'p' && !unit_id(999u) ? 0 : 1; }
 `);
     const cc = spawnSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', '-nostdinc', join(dir, 'reader.c'), '-o', join(dir, 'reader')], { encoding: 'utf8' });
     assert.equal(cc.status, 0, cc.stderr);
@@ -162,7 +162,7 @@ test('sabotage: a numbers sheet whose fields are refs into the string sheet is n
     d.ACME_UNITS.value = Object.fromEntries(Object.keys(ids).map((f) => [f, { ref: `ACME_UNIT_IDS.${f}` }])); } });
   assert.equal(refusal(refs), 'acme_units.h: ACME_UNITS.none is not a finite number');
   const out = problems(refs);
-  assert.ok(out.includes('ACME_UNITS:finite:ACME_UNITS.db resolves to "dB"') && out.includes('ACME_UNITS:finite:ACME_UNITS.dbPerOct resolves to "dB-oct"'), out.join('\n'));
+  assert.ok(out.includes('ACME_UNITS:finite:ACME_UNITS.db resolves to "dB"') && out.includes('ACME_UNITS:finite:ACME_UNITS.dbPerOct resolves to "dBPerOct"'), out.join('\n'));
   // the declared string sheet itself is still a string sheet, and the strings render does not take the refs sheet
   assert.ok(!out.some((p) => p.startsWith('ACME_UNIT_IDS:finite:')), out.join('\n'));
 });

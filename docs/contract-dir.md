@@ -240,7 +240,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   A domain-only owner, a package whose contract is only domains (plugin-hostd-protocol's `plugin-hostd`, omx-clap's
   `host` and `omx-clap`), installs no data file: `install-contract-dir.sh --owner <package> <version> <schema major>
   <contractdir> <domain>...` writes its manifest with `"files": {}` and `"domains"`, the domains its contract is, each
-  installed by its own `--domain` call. The reader refuses a listed domain that is not installed
+  installed by its own `--domain` call, which names the same package. The reader refuses a listed domain that is not installed
   (`contract.manifest.mismatch`), and a manifest with no file and no `domains` (`contract.manifest.invalid`): a
   plain install of a directory with no data file is still refused.
 
@@ -253,9 +253,13 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   under `<from>` to `<to>/<package>/`, writes `$schema` in its installed form (below) and writes the manifest. It
   is plain shell and coreutils, so a release build runs no node. `make install` installs omx-contract's own
   `data/` as the package `omx-contract` with it.
-- `tools/install-contract-dir.sh --domain <path>/contract.d/<domain> <contractdir>` installs one domain: it copies the
-  directory as it is, byte for byte, to `<contractdir>/<domain>/`: its document `<leaf>.json` and `catalogs/<lang>.json`,
-  with no `$schema` rewrite and no manifest. The domain is the path after the last `contract.d/` component; a name whose
+- `tools/install-contract-dir.sh --domain <path>/contract.d/<domain> <contractdir> <package>` installs one domain: it
+  copies the directory as it is, byte for byte, to `<contractdir>/<domain>/`: its document `<leaf>.json` and
+  `catalogs/<lang>.json`, with no `$schema` rewrite and no manifest. `<package>` is the package whose build installs
+  it (the rpm/deb that will own the path), and the document's `info.x-owner` must be that package: a domain shipped by
+  a package that does not own it is refused, the file and both names given (exit 1; omx-contract#88). The install is
+  where the binding is checked, because only the installing build knows which package will own the path; the reader
+  reads a contract directory whatever installed it. The domain is the path after the last `contract.d/` component; a name whose
   segments are not `[a-z][a-z0-9-]*` is a usage error (exit 2). What the reader would refuse is refused (exit 1, the
   file named): no `<leaf>.json`, any other file, a symlink. A subdirectory that holds its own `<its name>.json` is a
   nested domain: it is skipped, and installed by its own call (`formats/clap` beside `formats`); a reinstall replaces

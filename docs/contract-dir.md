@@ -115,9 +115,13 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     above, and (3.21.0, a unit list) the item's `x-dimensions` (a words item of the document) with each word's
     `x-symbol` (its symbol as written) and `x-dimension` (a word of that item), and any word's `x-uri` (3.21.0): the
     absolute URI a format spells the word as, of any scheme (`urn:openmixer:unit#dBoct` as much as an http LV2 URI),
-    which a TTL writer reads; a value that is no absolute URI is refused, naming the word. A data words item's `units`, `bases`,
-    `axes` and `extension` and a word's `x`, `y`, `unit`, `scale`, `figureUnit` and `basis` have no domain words yet:
-    an item that needs them stays in `data/`.
+    which a TTL writer reads; a value that is no absolute URI is refused, naming the word. A resource-hint item (V28, omx-contract#189,
+    3.22.0) spells the data item's `units` and `bases` as `x-units` and `x-bases`, each the name of a words item of
+    the same document (as `x-groups` is), its `extension` as `x-extension`, the object verbatim, and each word's
+    `figureUnit` and `basis` as `x-figure-unit` and `x-basis`, each a `const` of the words item `x-units` or
+    `x-bases` names; one without the item it names, or naming no word of it, is refused by item and word. They read
+    and rebuild as the data form's keys, value for value. A data words item's `axes` and a word's `x`, `y`, `unit` and
+    `scale` have no domain words yet: an item that needs them stays in `data/`.
   - `"x-kind": "set"` (3.21.0) rebuilds a data `set` of named ids: its words are the ids in their order, and
     `x-default`, one of its words, the default. Labels, values, a unit and a numeric id have no domain words yet. The
     runtime readers serve it as a words item.

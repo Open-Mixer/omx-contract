@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: `render --target c --package <owner>` names an owner's unit set by the PARAM_UNITS titles, as the whole read
+  does: `dB` is `_DB`, never `_D_B` (#228). The owner's header holds its own items, which carry no PARAM_UNITS; the titles
+  now come from the whole read.
 - ADDED: the -devel (-dev) package installs the kernel recipe under `<datadir>/omx-contract/recipes/`, named by the
   .pc's `recipesdir`, and the CLI tree ships `tools/kernel-recipe.mjs`, which run from `<clidir>` reads that recipe
   (#227): a consumer's contract tools (omx-dsp's completeness proof) need no source checkout or git tag for it.

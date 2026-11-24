@@ -6,13 +6,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { ROOT } from './helpers.mjs';
+import { ROOT, scratchDir } from './helpers.mjs';
 
 const cli = (...a) => spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), ...a], { encoding: 'utf8' });
-const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-fmt-domain-'));
+const SCRATCH = scratchDir('omx-fmt-domain-');
 
 const DOC = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',

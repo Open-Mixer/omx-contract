@@ -12,7 +12,7 @@ omx-contract \- validate, format and render the OpenMixer declarations
 .RI [ input ]
 .br
 .B omx-contract render \-\-target
-.BR c | ts | json | lv2
+.BR c | ts | json | lv2 | md
 .B \-\-out
 .I dir
 .RB [ \-\-check ]
@@ -111,13 +111,16 @@ Rewrite the input in the one formatting, or with
 only report the files that differ.
 .TP
 .B render
-Write the C, TypeScript, JSON or LV2 (Turtle) render of the input into
+Write the C, TypeScript, JSON, LV2 (Turtle) or Markdown render of the input into
 .IR dir ,
 or with
 .B \-\-check
 compare it with what
 .I dir
 already holds.
+.B \-\-target md
+writes one reference page per domain and per package, and refuses an item, a
+word or a code with no doc, naming each.
 .TP
 .B semver
 Report whether the version bump covers every change since a previous release.

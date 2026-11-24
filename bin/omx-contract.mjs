@@ -7,7 +7,7 @@
  *   omx-contract validate [<input>]                            schema + semantic checks
  *   omx-contract domain check <new.json> <committed.json>      a generated domain document against the committed one
  *   omx-contract fmt [--check] [<input>]                       the one formatting
- *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
+ *   omx-contract render --target c|ts|json|lv2|md|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
  *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
@@ -40,6 +40,7 @@ import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC } from '../render/c.mjs';
 import { domainCodesC } from '../render/codes.mjs';
 import { renderLv2 } from '../render/hints.mjs';
+import { renderMd } from '../render/md.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderOwnerTs, renderTs } from '../render/ts.mjs';
 import { renderShapes, shapePaths } from '../render/shapes.mjs';
@@ -254,6 +255,8 @@ export function renderTarget(target, argv) {
     // An owner renders its own, framed by its files' render words: from a contract directory that package's files,
     // from a data directory (the owner's tree) every file.
     if (data.packages && !data.packages.has(pkg)) throw new Usage(`no package ${pkg} is installed`);
+    // the reference pages of the package's items (docs/render.md, #202)
+    if (target === 'md') { resolved.delete(TOOL_TABLE); return renderMd(resolved, { pkg, fallback: pkg }); }
     const files = data.files.filter((f) => (f.pkg ?? pkg) === pkg);
     // A domain is read at run time: its one render is its codes header (docs/render.md)
     const marked = data.packages?.get(pkg)?.codes;
@@ -275,16 +278,17 @@ export function renderTarget(target, argv) {
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));
   if (target === 'lv2') return renderLv2(resolved);
+  if (target === 'md') return renderMd(resolved);
   // the declarations have no Python render since the format terms left (V27b): py renders the shapes only
   if (target === 'py') throw new Usage('render --target py renders the shapes only: add --shapes');
-  throw new Usage(`unknown target ${target} (c, ts, json, lv2, py --shapes)`);
+  throw new Usage(`unknown target ${target} (c, ts, json, lv2, md, py --shapes)`);
 }
 
 /** The target and --out of a render, checked. */
 function renderArgs(argv) {
   const target = opt(argv, '--target');
   const out = opt(argv, '--out');
-  if (!target || !out) throw new Usage('render needs --target <c|ts|json|lv2|py> and --out <dir>');
+  if (!target || !out) throw new Usage('render needs --target <c|ts|json|lv2|md|py> and --out <dir>');
   return { target, out };
 }
 
@@ -811,7 +815,7 @@ async function cmdTranslate(argv) {
 const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract domain check <new.json> <committed.json>
        omx-contract fmt [--check] [<input>]
-       omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
+       omx-contract render --target c|ts|json|lv2|md|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
        omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]

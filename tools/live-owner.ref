@@ -1,7 +1,6 @@
 # The omx-dsp commit tools/live-owner-data.sh proves this tree against, until the release named (omx-contract#195).
-# 3.21.0 removes READOUT_RATE_HZ (V22) and 3.22.0 publishes in the same chain as the omx-dsp that holds its new home
-# (data/primitives/readout.json, omx-dsp#123); that omx-dsp build-requires this omx-contract, so omx-contract publishes
-# first and omx-dsp's latest release still reads the old items. 804cbc9 is the omx-dsp chain-3 head (omx-dsp#135, stacked
-# on #123: ROTARY_ACCEL_RANGE travels in coef). From omx-dsp v0.34.0 on the script reads the latest release; the
-# release after that removes this file.
-804cbc915f8ea870ea0283197a2c5801fe2b3998 until v0.34.0
+# dBPerS, the unit 3.22.0 declares ahead of its first user, gains that user in omx-dsp bd63d76 (the chain-5 head of
+# omx-dsp#143: the leveler's and the balancer's speedDbPerS travel in dBPerS, not dB), so the live proof must read it;
+# omx-dsp's latest release, v0.34.0, still states dB. From omx-dsp v0.34.1 on the script reads the latest release;
+# the release after that removes this file.
+bd63d762e88d8bb3f567b0757a70bd8f12212270 until v0.34.1

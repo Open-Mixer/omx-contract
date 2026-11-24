@@ -2,20 +2,25 @@
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 name: release
 
-# A version tag v<package.json version> proves the data (tests, the semver
-# class against the previous tag), builds omx-contract, omx-contract-data, omx-contract-devel, python3-omx-contract and a language pack per
-# language of share/omx-contract/languages.json (RPM) and omx-contract, omx-contract-data, libomx-contract-dev, python3-omx-contract and the
-# packs (DEB)
-# through Open-Mixer/.github's shared workflows, attaches them and the `npm pack` tarball to the
-# GitHub release. The npm package is published by publish.yml (npmjs.com trusts that file by name, with the
-# npm-publish environment), on the same tag.
-
-# A manual run with staged on (never a tag) builds fc45 x86_64 and trixie amd64 only and publishes them, signed, to the
-# staging channel (staging/rpm and staging/deb of the channel repository), where the next layer of the release chain
-# finds them by adding the staging channel beside the real one. Nothing reaches the real channel, and the real release
-# still publishes once from the v<version> tag (Open-Mixer/.github build-rpm.yml and build-deb.yml).
+# Two paths, one build. A manual run with staged on BUILDS: omx-contract, omx-contract-data, omx-contract-devel,
+# python3-omx-contract and a language pack per language of share/omx-contract/languages.json (RPM), and omx-contract,
+# omx-contract-data, libomx-contract-dev, python3-omx-contract and the packs (DEB), through Open-Mixer/.github's
+# build-rpm.yml and build-deb.yml, signed, into the staging channel (staging/rpm and staging/deb of the channel
+# repository), where the next layer of the release chain builds against them. The whole matrix by default (matrix:
+# full), since only a full staged tree can be promoted; matrix: quick builds the quick set for a layer test.
 # omx-contract is the first layer of a wave, so its staged run passes staging-bootstrap: the staging channel may not
 # exist yet when its build starts. staged-deps is still declared and handed on; the shared workflows ignore it.
+#
+# A version tag v<package.json version> PROMOTES and never builds: on the commit the staged build recorded, and that
+# commit on main (fast-forward main to it first), it proves the data (tests, the semver class against the previous
+# tag), then Open-Mixer/.github promote-staged.yml copies the identical signed files that commit left under staging/
+# to the channel root, rpm and deb, re-signs the repository metadata, checks the channel serves the same bytes and
+# that they install, and creates the GitHub release; the `npm pack` tarball is attached to it. What the layers above
+# were built against is what ships. The npm package is published by publish.yml on the same tag (npmjs.com trusts
+# that file by name), so npm's latest moves at the promotion.
+#
+# A manual run with version (and commit) set is a dry run of the promotion: it finds and checks the staged build and
+# publishes nothing.
 
 on:
   push:
@@ -23,9 +28,22 @@ on:
   workflow_dispatch:
     inputs:
       staged:
-        description: 'Build fc45 x86_64 and trixie amd64 only and publish them to the staging channel for the next layer; publishes nothing to the real channel'
+        description: 'Build and publish to the staging channel for the next layer (the matrix below); publishes nothing to the real channel'
         type: boolean
         default: false
+      matrix:
+        description: 'full (every release and architecture: what a tag can promote) or quick (fc45 x86_64, trixie arm64: a layer test only)'
+        type: choice
+        options: [full, quick]
+        default: full
+      version:
+        description: 'A dry run of the promotion: the staged version to find (no v). Set, nothing is built'
+        type: string
+        default: ''
+      commit:
+        description: 'A dry run of the promotion: the commit of the staged build, short or full'
+        type: string
+        default: ''
       staged-deps:
         description: 'Ignored by the shared workflows, kept for this wave only'
         type: string
@@ -64,6 +82,13 @@ jobs:
         run: |
           want="v$(node -p 'require("./package.json").version')"
           [ "$TAG" = "$want" ] || { echo "::error::tag $TAG is not $want (package.json)"; exit 1; }
+      # a tag promotes the staged build of a commit on main: devel -> testing -> main by fast-forward, then the tag
+      - name: The tag is on main
+        if: github.ref_type == 'tag'
+        run: |
+          git fetch -q origin main
+          main=$(git rev-parse -q --verify origin/main) || { echo "::error::no origin/main to hold the tag to"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" "$main" || { echo "::error::the tag's commit $GITHUB_SHA is not on main ($main): fast-forward main to it first"; exit 1; }
       - name: The live owner's data, so the live-owner check runs here too (tools/live-owner-data.sh)
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -78,35 +103,54 @@ jobs:
           if [ -n "$prev" ]; then node bin/omx-contract.mjs semver "$prev"; else echo "first release: no previous tag"; fi
 
   rpm:
+    # the build path: a dispatch, never a tag (a tag promotes what this staged)
+    if: github.event_name == 'workflow_dispatch' && inputs.version == ''
     needs: check
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
       staged: ${{ inputs.staged == true }}
+      matrix: ${{ inputs.matrix }}
       # the first layer of a wave: its staged build runs before anything is in the staging channel
       staging-bootstrap: ${{ inputs.staged == true }}
       staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
       binary-names: libomx-domain libomx-domain-devel omx-contract omx-contract-data omx-contract-devel omx-contract-langpack-ca omx-contract-langpack-es omx-contract-langpack-fr omx-contract-langpack-de omx-contract-langpack-it omx-contract-langpack-pt python3-omx-contract
-      publish: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+      publish: false
       needs-mod-host: false
       channel-deps: false
     secrets: inherit
 
   # beside the RPMs: the two publish jobs share one concurrency group, so their pushes never race
   deb:
+    # the build path: a dispatch, never a tag (a tag promotes what this staged)
+    if: github.event_name == 'workflow_dispatch' && inputs.version == ''
     needs: check
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
       staged: ${{ inputs.staged == true }}
+      matrix: ${{ inputs.matrix }}
       # the first layer of a wave: its staged build runs before anything is in the staging channel
       staging-bootstrap: ${{ inputs.staged == true }}
       staged-deps: ${{ inputs.staged-deps || '' }}
       package-name: omx-contract
       binary-names: libomx-contract-dev libomx-domain-dev libomx-domain0 omx-contract omx-contract-data omx-contract-l10n-ca omx-contract-l10n-es omx-contract-l10n-fr omx-contract-l10n-de omx-contract-l10n-it omx-contract-l10n-pt python3-omx-contract
-      publish: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+      publish: false
       dependencies: ''
       requires: ''
       channel-deps: false
+    secrets: inherit
+
+  # The tag path: the staged build becomes the release, byte for byte (no rebuild, no re-sign). The names are the
+  # packages both kinds build, which every release and architecture must hold; every file of the commit goes along.
+  promote:
+    if: github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && inputs.version != '')
+    needs: check
+    uses: Open-Mixer/.github/.github/workflows/promote-staged.yml@openmixer-v1
+    with:
+      package-name: omx-contract
+      binary-names: omx-contract omx-contract-data python3-omx-contract
+      version: ${{ inputs.version }}
+      commit: ${{ inputs.commit }}
     secrets: inherit
 
   pack:
@@ -134,8 +178,8 @@ jobs:
 
   attach:
     name: Attach the npm tarball to the GitHub release
-    needs: [pack, deb]
-    if: ${{ !cancelled() && github.ref_type == 'tag' && needs.pack.result == 'success' }}
+    needs: [pack, promote]
+    if: ${{ !cancelled() && github.ref_type == 'tag' && needs.pack.result == 'success' && needs.promote.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

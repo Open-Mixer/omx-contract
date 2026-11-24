@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # The packages run only on workflow_dispatch: a pull request or a push runs the tests alone. release.yml builds on a
-  # v* tag; fast-release dispatches this workflow on a release head. The private copy runs on its own runners, as test does.
+  # The packages run only on workflow_dispatch: a pull request or a push runs the tests alone. release.yml builds staged on a
+  # dispatch and promotes that build on a v* tag; fast-release dispatches this workflow on a release head. The private copy runs on its own runners, as test does.
   # no Fedora release written into a job: the cells come from check-matrix (rule 11-10, ruling D25)
   fedora-cells:
     runs-on: ${{ github.event.repository.private && 'arc-freemixer' || 'ubuntu-latest' }}
@@ -64,7 +64,7 @@ jobs:
       packages: ${{ steps.diff.outputs.packages }}
     steps:
       # Packaging runs only on workflow_dispatch (the release dry run fast-release dispatches on a release head);
-      # a pull request or a push runs the tests alone. release.yml builds and publishes on a v* tag.
+      # a pull request or a push runs the tests alone. release.yml builds staged on a dispatch, a v* tag promotes it.
       - id: diff
         env:
           EVENT: ${{ github.event_name }}

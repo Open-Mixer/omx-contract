@@ -50,8 +50,18 @@ static inline int omx_declared_rates_multiple_of(unsigned base, int *out, int ca
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
-/** The enumerator names of one set, in order: `OMX_<SET>_<ID>`. */
-export const setEnumerators = (set) => set.ids.map((id) => `OMX_${set.name}_${constCase(id)}`);
+/** Each PARAM_UNITS const by its title (`dB` -> `db`), or an empty map when the read holds no PARAM_UNITS. */
+export const unitTitles = (resolved) => new Map(Object.entries(resolved.get('PARAM_UNITS')?.value ?? {}).map(([title, w]) => [w.word, title]));
+
+/**
+ * The enumerator names of one set, in order: `OMX_<SET>_<ID>`. In a set whose ids are all PARAM_UNITS consts (a unit
+ * set) each takes the id's PARAM_UNITS title, as OMX_PARAM_UNITS_<TITLE> does: `dB` is `_DB`, never `_D_B`
+ * (docs/render.md, omx-contract#206).
+ */
+export const setEnumerators = (set, titles = new Map()) => {
+  const unitSet = set.ids.every((id) => titles.has(id));
+  return set.ids.map((id) => `OMX_${set.name}_${constCase(unitSet ? titles.get(id) : id)}`);
+};
 
 /**
  * Every set as a C enum: the id's position is its value for named ids, the number itself for numeric
@@ -82,9 +92,9 @@ function genSetValues(set, names) {
   ];
 }
 
-function genDeclaredSetsEnums(sets) {
+function genDeclaredSetsEnums(sets, titles) {
   return sets.map((set) => {
-    const names = setEnumerators(set);
+    const names = setEnumerators(set, titles);
     const numeric = typeof set.ids[0] === 'number';
     const members = set.ids.map((id, i) => documented(`  ${names[i]} = ${numeric ? id : i},`, set.labels?.[i] !== undefined ? doxyLine(set.labels[i]) : `The id \`${doxyLine(id)}\`.`));
     const lines = [
@@ -164,7 +174,7 @@ export function limitsSections(resolved) {
   const above = defined(tables);
   const scalars = d.DECLARED_SCALARS.length ? genDeclaredScalarsBlock(d.DECLARED_SCALARS, above) : '';
   const lists = d.DECLARED_LISTS.length ? genDeclaredListsBlock(d.DECLARED_LISTS, defined([tables, scalars].join('\n'))) : '';
-  const sets = d.DECLARED_SET_ITEMS.length ? genDeclaredSetsEnums(d.DECLARED_SET_ITEMS) : '';
+  const sets = d.DECLARED_SET_ITEMS.length ? genDeclaredSetsEnums(d.DECLARED_SET_ITEMS, unitTitles(resolved)) : '';
   const readouts = genReadouts(resolved.kernels);
   const sections = [
     [tables, `/* Per-parameter numeric travel, one block per \`travels\` table named <PREFIX>_LIMITS:

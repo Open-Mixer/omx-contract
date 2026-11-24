@@ -590,7 +590,9 @@ async function answersOf(ask, batch, accepts = () => true) {
 /**
  * An owner's source sentences from a file (`--source`, #24), for strings that are no contract data (a surface's own):
  * `{ "<key>": { "text": "<English sentence>", "args": [...] } }`, the same `Map<key, { args, en }>` the data gives. A
- * string value is a generated file's banner, no sentence; `args` absent are the sentence's own placeholders.
+ * `_`-prefixed key (`_generated`) is the file's metadata, no sentence; any other key is a sentence or the file is
+ * refused by name, so no source key is ever left out of the key set a catalog is checked against. `args` absent are
+ * the sentence's own placeholders.
  */
 function sourceKeys(file) {
   if (!existsSync(file)) throw new Usage(`no source file ${file}`);
@@ -598,8 +600,8 @@ function sourceKeys(file) {
   if (!doc || typeof doc !== 'object' || Array.isArray(doc)) throw new Usage(`${file} is no object of key -> { text, args }`);
   const keys = new Map();
   for (const [key, v] of Object.entries(doc)) {
-    if (typeof v === 'string') continue;
-    if (!v || typeof v !== 'object' || typeof v.text !== 'string' || v.text === '') throw new Usage(`${file}: ${key} is neither a sentence { text, args } nor a banner`);
+    if (key.startsWith('_')) continue;
+    if (!v || typeof v !== 'object' || typeof v.text !== 'string' || v.text === '') throw new Usage(`${file}: ${key} is no sentence { text, args } (only a key starting with _ is file metadata)`);
     keys.set(key, { args: Array.isArray(v.args) ? v.args : placeholdersOf(v.text), en: v.text });
   }
   return keys;

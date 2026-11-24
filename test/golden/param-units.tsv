@@ -17,7 +17,7 @@ dbu	dBu	dBu	level	descriptor
 lu	LU	LU	loudness	descriptor
 khz	kHz	kHz	frequency	descriptor
 mhz	MHz	MHz	frequency	descriptor
-frames	frames	frames	count	descriptor
+frames	frames	frames	count	param
 bpm	bpm	bpm	tempo	descriptor
 bar	bar	bar	musical-time	descriptor
 beat	beat	beat	musical-time	descriptor

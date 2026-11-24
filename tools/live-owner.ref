@@ -1,6 +1,7 @@
 # The omx-dsp commit tools/live-owner-data.sh proves this tree against, until the release named (omx-contract#195).
-# dBPerS, the unit 3.22.0 declares ahead of its first user, gains that user in omx-dsp bd63d76 (the chain-5 head of
-# omx-dsp#143: the leveler's and the balancer's speedDbPerS travel in dBPerS, not dB), so the live proof must read it;
-# omx-dsp's latest release, v0.34.0, still states dB. From omx-dsp v0.34.1 on the script reads the latest release;
-# the release after that removes this file.
-bd63d762e88d8bb3f567b0757a70bd8f12212270 until v0.34.1
+# The devel wave 2026-11-24 changes the data both sides read: requires is a list of names (no floor map), and the
+# units are the PARAM_UNITS ids (dBPerS, dBPerOct, coef). omx-contract's staged build is proven against the omx-dsp the
+# same wave ships: b5ab0dfcd6, the head of omx-dsp#166 (its devel wave branch, which carries bd63d76, the chain-5 head
+# of omx-dsp#143 this pin named before). omx-dsp's latest release, v0.34.0, still states requires as a floor map, which
+# this tree refuses. From omx-dsp v0.34.1 on the script reads the latest release; the release after that removes this file.
+b5ab0dfcd6c0debd5fcf702bdc802e59068561e9 until v0.34.1

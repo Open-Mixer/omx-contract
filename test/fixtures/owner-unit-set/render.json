@@ -1,0 +1,21 @@
+{
+  "$schema": "../schema/omx-contract.schema.json",
+  "render": {
+    "c": [
+      {
+        "header": "acme/acme_definitions.h",
+        "guard": "ACME_DEFINITIONS_H",
+        "project": "acme",
+        "banner": [
+          "An owner's definitions header over every item of its package, the shape omx-dsp's omxdsp_definitions.h has."
+        ],
+        "brief": "The definitions of the package acme.",
+        "includes": [
+          "omxcontract/omx_contract_limits.h"
+        ],
+        "scope": "package",
+        "limits": {}
+      }
+    ]
+  }
+}

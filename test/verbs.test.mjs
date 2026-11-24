@@ -16,7 +16,7 @@ import { SCHEMA_MAJOR, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { packageVocabularyC } from '../render/vocabulary.mjs';
 import { classify, refusal } from '../lib/semver.mjs';
-import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
+import { fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
@@ -103,10 +103,8 @@ test('the fixture installs into a contract directory and reads back: four verbs,
   assert.equal(quiet(() => main(['fmt', '--check', '--contract-dir', root])), 0);
 });
 
-test('the fixture states the schema floor this reader reads (a release that moves the schema moves the floor with it)', () => {
-  for (const f of readdirSync(FIXTURE)) {
-    assert.equal(JSON.parse(readFileSync(join(FIXTURE, f), 'utf8')).requires['omx-contract-schema'], `>= ${SCHEMA_VERSION}`, f);
-  }
+test('the fixture states no schema floor: a file is read by the installed schema (the devel wave 2026-11-24)', () => {
+  for (const f of readdirSync(FIXTURE)) assert.equal(JSON.parse(readFileSync(join(FIXTURE, f), 'utf8')).requires, undefined, f);
 });
 
 test('rendered from the installed directory: the C header, the package header (committed under test/golden/verbs), ts and json', async () => {

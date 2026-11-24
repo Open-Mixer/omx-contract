@@ -54,14 +54,11 @@ const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUppe
 export const unitTitles = (resolved) => new Map(Object.entries(resolved.get('PARAM_UNITS')?.value ?? {}).map(([title, w]) => [w.word, title]));
 
 /**
- * The enumerator names of one set, in order: `OMX_<SET>_<ID>`. In a set whose ids are all PARAM_UNITS consts (a unit
- * set) each takes the id's PARAM_UNITS title, as OMX_PARAM_UNITS_<TITLE> does: `dB` is `_DB`, never `_D_B`
- * (docs/render.md, omx-contract#206).
+ * The enumerator names of one set, in order: `OMX_<SET>_<ID>`. An id that is a PARAM_UNITS const takes its PARAM_UNITS
+ * title, as OMX_PARAM_UNITS_<TITLE> does, in any set: `dB` is `_DB`, `dBFS` `_DBFS`, `dBu` `_DBU`, never `_D_B`
+ * (docs/render.md, omx-contract#206); any other id is its upper snake case.
  */
-export const setEnumerators = (set, titles = new Map()) => {
-  const unitSet = set.ids.every((id) => titles.has(id));
-  return set.ids.map((id) => `OMX_${set.name}_${constCase(unitSet ? titles.get(id) : id)}`);
-};
+export const setEnumerators = (set, titles = new Map()) => set.ids.map((id) => `OMX_${set.name}_${constCase(titles.has(id) ? titles.get(id) : id)}`);
 
 /**
  * Every set as a C enum: the id's position is its value for named ids, the number itself for numeric

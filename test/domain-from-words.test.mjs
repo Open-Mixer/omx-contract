@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A word's x-from may name a word of another domain's words item, not only a term of a terms item (docs/contract-dir.md,
 // "Domains"): { "$ref": "<domain id>#/components/schemas/<ITEM>", "x-term": "<the target word's title>" }. The target
-// domain is declared in info.x-requires with its floor, as for terms. The fixture test/fixtures/domain-from-words holds
+// domain is declared in info.x-requires by name (no version, the devel wave 2026-11-24), as for terms. The fixture test/fixtures/domain-from-words holds
 // two domains: xa (owner pkg-a) with the words item XA_COLORS and the scalar XA_SIZE, and xb (owner pkg-b), whose
 // XB_PAINTS words are taken from XA_COLORS. A from renders nothing of its own, as a terms reference renders nothing in
 // a header today: xb's codes header is byte for byte the one of xb without its x-from (golden/xb_codes.h, written by
@@ -16,7 +16,6 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
-import { SCHEMA_VERSION } from '../lib/validate.mjs';
 import { ROOT } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/domain-from-words');
@@ -73,7 +72,7 @@ test('render --installed --with-domain: xb rebuilt into pkg-b takes its words fr
   const root = contractDir({ xa: xa() });
   const pkg = join(root, String(SCHEMA_MAJOR), 'pkg-b');
   mkdirSync(pkg, { recursive: true });
-  const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, PKG_B_EXTRA: { kind: 'codes', since: '1.0.0', doc: 'A code pkg-b installs itself.', codes: { extraOne: { code: 'pkg.b.extra.one' } } } }, null, 2)}\n`;
+  const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), PKG_B_EXTRA: { kind: 'codes', since: '1.0.0', doc: 'A code pkg-b installs itself.', codes: { extraOne: { code: 'pkg.b.extra.one' } } } }, null, 2)}\n`;
   writeFileSync(join(pkg, 'extra.json'), text);
   writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'pkg-b', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: { 'extra.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
   const wd = join(SCRATCH, `wd-${n++}`, 'xb');
@@ -131,13 +130,13 @@ test('refused by name: the target domain not declared in info.x-requires', () =>
   assert.match(r.stderr, /"red".*xa.*x-requires/);
 });
 
-test('refused by name: the target domain below the floor, and absent', () => {
-  const below = xb();
-  below.info['x-requires'] = { xa: '>= 2.0.0' };
-  const b = render(contractDir({ xa: xa(), xb: below }));
+test('refused by name: the target domain declared as a map of floors (the devel wave 2026-11-24), and absent', () => {
+  const floors = xb();
+  floors.info['x-requires'] = { xa: '>= 1.0.0' };
+  const b = render(contractDir({ xa: xa(), xb: floors }));
   assert.notEqual(b.status, 0);
-  assert.match(b.stderr, /contract\.package\.too-old/);
-  assert.match(b.stderr, /xa >= 2\.0\.0.*1\.2\.0/);
+  assert.match(b.stderr, /contract\.manifest\.invalid/);
+  assert.match(b.stderr, /x-requires.*map of version floors/);
   const a = render(contractDir({ xa: null, xb: xb() }));
   assert.notEqual(a.status, 0);
   assert.match(a.stderr, /contract\.package\.absent/);

@@ -32,9 +32,8 @@ const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !
 const str = (o: unknown, k: string): string | undefined => (isObj(o) && typeof o[k] === 'string' ? (o[k] as string) : undefined);
 
 const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-// info.x-requires: a package or domain name, and its floor (docs/contract-dir.md, "Domains")
+// info.x-requires: a list of package or domain names, no version (docs/contract-dir.md, "Domains"; the devel wave 2026-11-24)
 const REQUIRED = /^[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*$/;
-const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 const NAME = /^[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*$/;
 const LANG = /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/;
 const ID_PREFIX = 'https://openmixer.org/contract/';
@@ -227,10 +226,15 @@ export function openDomainAt(dirs: string | readonly string[], domain: string, n
   if (stability !== 'experimental' && stability !== 'stable') refuse('manifestInvalid', rel, `${lead}: info.x-stability is ${stability === undefined ? '(absent)' : `"${stability}"`}, and must be "experimental" or "stable".`);
   const req = isObj(info) ? info['x-requires'] : undefined;
   if (req !== undefined) {
-    if (!isObj(req)) refuse('manifestInvalid', rel, `${lead}: info.x-requires is not a map of package to floor ">= x.y.z".`);
-    for (const [k, v] of Object.entries(req as Obj)) {
-      if (!REQUIRED.test(k)) refuse('manifestInvalid', rel, `${lead}: info.x-requires names "${k}", which is no package or domain name.`);
-      if (typeof v !== 'string' || !FLOOR.test(v)) refuse('manifestInvalid', rel, `${lead}: info.x-requires of "${k}" is not a floor ">= x.y.z".`);
+    if (isObj(req)) refuse('manifestInvalid', rel, `${lead}: info.x-requires is a map of version floors; it lists package or domain names, no version (the devel wave 2026-11-24).`);
+    if (!Array.isArray(req)) refuse('manifestInvalid', rel, `${lead}: info.x-requires is not a list of package or domain names.`);
+    if (!(req as unknown[]).length) refuse('manifestInvalid', rel, `${lead}: info.x-requires is an empty list; a domain that refers to nothing has no info.x-requires.`);
+    let prev: string | undefined;
+    for (const k of req as unknown[]) {
+      if (typeof k !== 'string') refuse('manifestInvalid', rel, `${lead}: info.x-requires names a non-string, which is no package or domain name.`);
+      if (!REQUIRED.test(k as string)) refuse('manifestInvalid', rel, `${lead}: info.x-requires names "${k as string}", which is no package or domain name.`);
+      if (prev !== undefined && !(prev < (k as string))) refuse('manifestInvalid', rel, `${lead}: info.x-requires is not in ascending order, each name once ("${prev}" before "${k as string}").`);
+      prev = k as string;
     }
   }
   if (needs !== null && below(triple(version!), triple(needs))) refuse('packageTooOld', rel, `${lead} is version ${version}, below the floor ${needs} the program needs.`);

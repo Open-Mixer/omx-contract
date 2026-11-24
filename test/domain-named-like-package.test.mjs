@@ -49,7 +49,7 @@ function contractDir(doc) {
 function classic(root, version, item) {
   const data = join(SCRATCH, `data-${n++}`);
   mkdirSync(data);
-  writeFileSync(join(data, 'owned.json'), `${JSON.stringify({ $schema: '../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': '>= 3.0.0' }, [item]: { kind: 'words', since: '1.0.0', doc: 'The words.', words: { two: { word: 'two', doc: 'Two.' } } } }, null, 2)}\n`);
+  writeFileSync(join(data, 'owned.json'), `${JSON.stringify({ $schema: '../schema/omx-contract.schema.json', [item]: { kind: 'words', since: '1.0.0', doc: 'The words.', words: { two: { word: 'two', doc: 'Two.' } } } }, null, 2)}\n`);
   execFileSync('sh', [SH, 'owned', version, MAJOR, data, root, 'data'], { stdio: 'ignore' });
 }
 

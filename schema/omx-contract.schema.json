@@ -441,14 +441,12 @@
     },
     "since": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "The release that first carried an item declared outside the kernels (rates.json, primitives.json); a kernel's items record it in recipes/answers/." },
     "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
-    "floor": { "type": "string", "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$", "description": "A version floor, never a ceiling." },
     "requires": {
-      "type": "object",
-      "description": "What a file needs to be read: omx-contract-schema, the lowest schema its words need; any other key a package whose items it refers to. Each a floor.",
-      "properties": { "omx-contract-schema": { "$ref": "#/$defs/floor" } },
-      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
-      "additionalProperties": { "$ref": "#/$defs/floor" },
-      "minProperties": 1
+      "type": "array",
+      "description": "The packages and domains whose items a file refers to, by name, in ascending order and each once; no version, never a map of floors, never empty: a file that refers to nothing has no requires (the devel wave 2026-11-24: a file is read by the installed schema, and the packages it names are the ones installed beside it).",
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$" },
+      "uniqueItems": true,
+      "minItems": 1
     },
     "link": {
       "type": "string",

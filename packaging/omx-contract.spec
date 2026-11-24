@@ -183,8 +183,8 @@ Everything you need to build against omx-contract: the C render of
 omx-contract under include/omxcontract (the limits header), omx-contract.pc
 (version, datadir, contractdir) and install-contract-dir.sh, which an owner's
 build installs its definitions with. The data it builds against is
-omx-contract-data, which it requires. A consumer requires it at a floor, the
-lowest release whose declarations it builds against.
+omx-contract-data, which it requires. A consumer names it with no version: it
+builds against the release installed beside it.
 Its documentation is on openmixer.org.
 
 %package -n libomx-domain

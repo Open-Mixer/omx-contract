@@ -1009,23 +1009,23 @@ static void test_word_args(void) {
   doc_is(INFO_OK, ARGW(",\"x-text\":\"{file}\"", ",\"x-args\":[1]"), bad, "x-args");                              /* not a list of strings */
 }
 
-/* info.x-requires (docs/contract-dir.md, "Domains"): a map of package to floor ">= x.y.z", as the TypeScript reader
- * reads it; anything else is refused as MANIFEST_INVALID, naming x-requires. The floors themselves are the build's to
- * check: a loader opens one domain. */
+/* info.x-requires (docs/contract-dir.md, "Domains"): a list of package or domain names in ascending order, each once,
+ * no version (the devel wave 2026-11-24), as the TypeScript reader reads it; anything else is refused as MANIFEST_INVALID, naming
+ * x-requires. A map of version floors (the form before the devel wave 2026-11-24) and an empty list are refused by name. */
 #define INFO_REQ(r) "{\"version\":\"1.0.0\",\"x-owner\":\"o\",\"x-stability\":\"experimental\",\"x-requires\":" r "}"
 static void test_requires(void) {
   int bad = OMX_CONTRACT_CODE_MANIFEST_INVALID;
   const char *one = "{\"DOM_W\":{\"oneOf\":[" WORD("a", "0") "]}}";
-  doc_is(INFO_REQ("{\"plugin-db\":\">= 1.2.0\",\"dsp/kernels\":\">= 0.25.0\"}"), one, 0, NULL);
-  doc_is(INFO_REQ("{}"), one, 0, NULL);
-  doc_is(INFO_REQ("\"plugin-db\""), one, bad, "x-requires");                      /* not a map */
-  doc_is(INFO_REQ("[\"plugin-db\"]"), one, bad, "x-requires");                    /* a list */
-  doc_is(INFO_REQ("{\"plugin-db\":\"1.2.0\"}"), one, bad, "x-requires");          /* no >= */
-  doc_is(INFO_REQ("{\"plugin-db\":\">= 1.2\"}"), one, bad, "x-requires");         /* not x.y.z */
-  doc_is(INFO_REQ("{\"plugin-db\":\">= 01.2.0\"}"), one, bad, "x-requires");      /* a leading zero */
-  doc_is(INFO_REQ("{\"plugin-db\":1}"), one, bad, "x-requires");                  /* not a string */
-  doc_is(INFO_REQ("{\"Plugin DB\":\">= 1.2.0\"}"), one, bad, "Plugin DB");        /* not a package name, named */
-  doc_is(INFO_REQ("{\"plugin-db/\":\">= 1.2.0\"}"), one, bad, "x-requires");      /* an empty segment */
+  doc_is(INFO_REQ("[\"dsp/kernels\",\"plugin-db\"]"), one, 0, NULL);
+  doc_is(INFO_REQ("{\"plugin-db\":\">= 1.2.0\"}"), one, bad, "map of version floors"); /* the old form, by name */
+  doc_is(INFO_REQ("{}"), one, bad, "map of version floors");                          /* an empty map too */
+  doc_is(INFO_REQ("[]"), one, bad, "empty list");                                     /* absent is the one form */
+  doc_is(INFO_REQ("\"plugin-db\""), one, bad, "x-requires");                          /* not a list */
+  doc_is(INFO_REQ("[\"plugin-db\",\"dsp/kernels\"]"), one, bad, "ascending order");   /* out of order */
+  doc_is(INFO_REQ("[\"plugin-db\",\"plugin-db\"]"), one, bad, "ascending order");     /* twice */
+  doc_is(INFO_REQ("[1]"), one, bad, "x-requires");                                    /* not a string */
+  doc_is(INFO_REQ("[\"Plugin DB\"]"), one, bad, "Plugin DB");                         /* not a package name, named */
+  doc_is(INFO_REQ("[\"plugin-db/\"]"), one, bad, "x-requires");                       /* an empty segment */
 }
 
 #define RUN(fn) do { const char *only_ = getenv("DOMAIN_TEST_ONLY"); if (!only_ || strcmp(only_, #fn) == 0) fn(); } while (0)

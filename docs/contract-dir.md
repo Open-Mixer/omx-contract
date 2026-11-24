@@ -82,11 +82,11 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     `info.x-requires` declares (below). The read of a contract directory (`validate`, `render`) refuses a word's
     `x-from` naming any other (`contract.ref.undeclared`), for every domain it reads (of a domain rebuilt with
     `--with-domain`, the words it rebuilds). When the package or domain named is in the read (a declared one always
-    is: its floor is held first), the read resolves the reference there and refuses by domain, item, word and
+    is: it is held to be installed first), the read resolves the reference there and refuses by domain, item, word and
     reference: an item that package does not declare, or declared by another one
     (`contract.ref.unresolved`, `contract.ref.undeclared`); an item that is no words or terms item (a range, scalar,
     sheet or codes item, `contract.ref.unresolved`); a term or title the item lacks (`contract.ref.unresolved`). A
-    declared package that is absent or below its floor is `contract.package.absent` or `contract.package.too-old`.
+    declared package that is absent is `contract.package.absent`; no version is held (the devel wave 2026-11-24).
     A word taken from a WORD (format ruling 2026-11-20, `word-from-differs`) is that word, and carries exact copies:
     its `const`, its `x-code`, its `description` and its `x-text` are the target's, as written. Copies are required,
     never inherited (owner ruling (b), 2026-11-20): a field the target carries and the word does not is a difference,
@@ -229,16 +229,17 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - `info.x-stability` is `experimental` or `stable` and every document carries it; there is no default, a document without it is
   refused (`contract.manifest.invalid`).
 - `info.x-requires` (optional) names the packages (or domains) the domain's words take terms from (`x-from`) and whose
-  items its items refer to (a verb's `{ "ref": "HOST_REPLY_CODES.<code>" }` of another domain), each with
-  its floor in the form of a data file's `requires` (`{ "plugin-db": ">= 1.2.0" }`). It is the `requires` every data
-  file rebuilt from the domain carries (docs/render.md, `render --with-domain`), after the schema floor. A value that is
-  not a map, a key that is no package or domain name (`[a-z][a-z0-9-]*`, segments joined by `/`) and a floor that is
-  not `>= x.y.z` are refused by name (`contract.manifest.invalid`, naming `x-requires`) by the build reader, the
-  TypeScript runtime reader and the C loader alike. The floors are held by the read of a contract directory
-  (`contract.package.absent`, `contract.package.too-old`, naming the package), for an installed domain and for one
-  rebuilt with `--with-domain`; a runtime reader opens one domain and does not hold them.
+  items its items refer to (a verb's `{ "ref": "HOST_REPLY_CODES.<code>" }` of another domain), as a data file's
+  `requires` names them: a list of names in ascending order, each once, no version (`["plugin-db"]`; the devel wave 2026-11-24, no
+  hand-kept floors). It is the `requires` every data file rebuilt from the domain carries (docs/render.md,
+  `render --with-domain`). A domain that refers to nothing has no `info.x-requires`. A map (the floors of before
+  the devel wave 2026-11-24, refused by name), an empty list, a name that is no package or domain name (`[a-z][a-z0-9-]*`, segments
+  joined by `/`) and names out of order or twice are refused (`contract.manifest.invalid`, naming `x-requires`) by
+  the build reader, the TypeScript runtime reader and the C loader alike. The names are held by the read of a
+  contract directory (`contract.package.absent`, naming the package), for an installed domain and for one rebuilt
+  with `--with-domain`; a runtime reader opens one domain and does not hold them.
 - Packaging: a domain whose `info.x-requires` names a package ships in a package that depends on that package's
-  contract package at the floor (a Debian `Depends:` and an RPM `Requires:`). The domain's owner holds it in its own
+  contract package, with no typed version (a Debian `Depends:` and an RPM `Requires:`). The domain's owner holds it in its own
   packaging test (its packaging arm), as it holds its other dependencies; omx-contract does not read the owners'
   packaging.
 - `components.schemas` holds the domain's shapes (JSON Schema 2020-12); the loader validates a domain document against
@@ -307,20 +308,19 @@ one package, the first one wins.
 
 ## The words of the schema
 
-### `requires`: a schema floor, and the packages a file refers to
+### `requires`: the packages a file refers to
 
 ```json
 { "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 3.0.0", "omx-dsp": ">= 0.25.0" } }
+  "requires": ["omx-dsp"] }
 ```
 
 - The schema states the version of its vocabulary: `"x-omx-schema-version"`, the omx-contract release that last
   changed it. A new kind, unit, scale or field is a minor; removing or narrowing one is a major.
-- `requires.omx-contract-schema` is the lowest schema the file's words need. A floor, never a ceiling: every
-  entry is written `>= <x.y.z>`.
-- Any other key of `requires` names a package whose items the file refers to, with that package's floor.
-- Every installed file of a package other than `omx-contract` carries `requires.omx-contract-schema`. omx-contract's
-  own files are read by the schema they ship with and may leave it out.
+- `requires` names the packages (and domains) whose items the file refers to: a list in ascending order, each name
+  once, no version. There are no hand-kept floors (the devel wave 2026-11-24): every file is read by the schema installed with the
+  reader, beside the packages installed with it. A file that refers to nothing has no `requires`; an empty list and a
+  map of floors (the form before the devel wave 2026-11-24, refused by name) are `contract.file.invalid`.
 - An installed file's `$schema` is the URL above, whose `v<major>` is the schema major. omx-contract's own files
   in `data/` keep their relative `$schema`; the install writes the URL in their place.
 
@@ -399,7 +399,6 @@ and installing it; omx-contract changes for none of it.
 
 ```json
 { "$schema": "../schema/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 3.3.0" },
   "OMX_CLAP_CORE_VERBS": { "kind": "verbs", "since": "0.20.0", "doc": "The verbs omx-clap-host answers by instance.",
     "verbs": {
       "paramInfo": {
@@ -446,7 +445,6 @@ it, and declares no role.
 
 ```json
 { "$schema": "../schema/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 3.13.0" },
   "OMX_PLUGINS_ROLE_MEANINGS": { "kind": "roleMeanings", "since": "0.19.3",
     "doc": "The meaning each role of our panels plays.",
     "roles": {
@@ -483,8 +481,7 @@ refusal stops the whole read and nothing is returned, so there is never a partia
    A catalog is not rewritten by `fmt`.
 2. Read every `<package>/MANIFEST.json`, then every file it lists, checking each hash. A file on disk that the
    manifest does not list is refused too.
-3. Check each file's `$schema` major and its `requires.omx-contract-schema` floor against the reader's schema,
-   then validate the file against the schema and the kernel-file shape. A plugin descriptor
+3. Check each file's `$schema` major and that its `requires` is a list of names (never a map of floors), then validate the file against the schema and the kernel-file shape. A plugin descriptor
    ([descriptors.md](descriptors.md)) of origin `scanned` is refused here; any other is held to the schema and then
    to its own rules, each refused by its own code. A descriptor declares no item.
 4. Merge into one namespace: one name, one declaration. A reference names an item of the same package, of
@@ -512,8 +509,8 @@ codes). A word's `x-name` is its key, its `const` the code and its place from 0 
 | `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner`, `info.x-stability` or `info.x-requires` is wrong. |
 | `contract.manifest.mismatch` | A listed file missing, a file present but unlisted, or a hash that differs. |
 | `contract.schema.major` | A file's `$schema` major is not the reader's, or `$schema` is not the installed form. |
-| `contract.schema.too-old` | A file's `requires.omx-contract-schema` floor is above the reader's schema. |
-| `contract.schema.floor-absent` | An installed file of another package than omx-contract with no schema floor. |
+| `contract.schema.too-old` | Not raised since the devel wave 2026-11-24 (no schema floor is read); kept so no later code moves. |
+| `contract.schema.floor-absent` | Not raised since the devel wave 2026-11-24 (a file states no schema floor); kept so no later code moves. |
 | `contract.file.not-json` | A file that does not parse. |
 | `contract.file.invalid` | A schema or shape violation, an unknown key or word included. |
 | `contract.item.duplicate` | Two files declare one name. |
@@ -527,7 +524,7 @@ codes). A word's `x-name` is its key, its `const` the code and its place from 0 
 | `contract.verb.code-unknown` | A verb's code names an item that is no codes item, or a name that item does not carry. |
 | `contract.role.duplicate` | Two roleMeanings items, of one package or two, declare one role. |
 | `contract.package.absent` | A package the consumer or a file requires is not installed. |
-| `contract.package.too-old` | It is installed below the floor. |
+| `contract.package.too-old` | It is installed below the floor a consumer asks (`--needs`, `needs`); a file's `requires` holds no version. |
 | `contract.requires.unresolved` | `translate --owner` of a tree whose files name a package in `requires` that neither `$OMX_CONTRACT_PATH` nor the installed directory holds (or holds below the floor): it names the requirement, the places looked and the `--installed` form (data-layout.md). |
 | `contract.owner.codes-unlocated` | `translate --owner` of a tree whose catalogs hold keys and whose declared code locations (`data/`, `schema/codes.json`) hold no code or word. |
 | `contract.origin.misplaced` | A `scanned` plugin descriptor ([descriptors.md](descriptors.md)): a scan is never read as a declaration. |

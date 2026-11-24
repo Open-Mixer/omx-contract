@@ -52,11 +52,11 @@ function itemOf(it, file) {
 /** The data file `doc` (its `$schema` and `requires` aside) as the domain `name`, rebuilt into `file`. */
 function domainOf(name, doc, file) {
   const { $schema: _s, requires, ...items } = doc;
-  const extra = Object.fromEntries(Object.entries(requires ?? {}).filter(([k]) => k !== 'omx-contract-schema'));
+  const extra = requires ?? [];
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
     $id: `https://openmixer.org/contract/${name}`,
-    info: { title: `The ${name} sample`, version: '1.0.0', 'x-owner': name, 'x-stability': 'experimental', ...(Object.keys(extra).length ? { 'x-requires': extra } : {}) },
+    info: { title: `The ${name} sample`, version: '1.0.0', 'x-owner': name, 'x-stability': 'experimental', ...(extra.length ? { 'x-requires': extra } : {}) },
     components: { schemas: Object.fromEntries(Object.entries(items).map(([k, it]) => [k, itemOf(it, file)])) },
   };
 }

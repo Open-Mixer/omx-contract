@@ -339,8 +339,7 @@ export function refusal(level, from, to, { developmentPhase = DEVELOPMENT_PHASE 
 /**
  * What is wrong with the version a schema states, against the schema at the last tag: `x-omx-schema-version` is the
  * omx-contract release that last changed the vocabulary (docs/contract-dir.md), so a changed schema states a newer one, by
- * what its changes need, in the commit that changes it. A consumer's `requires.omx-contract-schema` floor is read against
- * this number, from a wave branch as from a release. null when it is right.
+ * what its changes need, in the commit that changes it. null when it is right.
  */
 export function schemaVersionProblem(prev, next) {
   const key = 'x-omx-schema-version';

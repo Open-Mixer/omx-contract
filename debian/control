@@ -67,8 +67,8 @@ Description: one shared source of truth for every OpenMixer knob, range, default
  This package holds the c render under /usr/include/omxcontract,
  omx-contract.pc and install-contract-dir.sh, which an owner's build
  installs its definitions with. The data it builds against is
- omx-contract-data, which it depends on. A consumer requires it at a floor,
- the lowest release whose declarations it builds against.
+ omx-contract-data, which it depends on. A consumer names it with no
+ version: it builds against the release installed beside it.
  .
  Its documentation is on openmixer.org.
 

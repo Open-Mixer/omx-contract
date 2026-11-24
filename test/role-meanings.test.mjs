@@ -16,7 +16,7 @@ import { SCHEMA_MAJOR, loadContractDir } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion } from '../lib/data.mjs';
 import { meaningOfRoles } from '../lib/role-meanings.mjs';
 import { classify } from '../lib/semver.mjs';
-import { SCHEMA_VERSION, validateData } from '../lib/validate.mjs';
+import { validateData } from '../lib/validate.mjs';
 import { DATA, installParamDomain, ROOT, texts } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-roles-'));
@@ -77,9 +77,9 @@ test('every meaning the fixture names is a word of the contract\'s closed list',
   for (const r of Object.values(doc.ROLE_FIXTURE_ROLE_MEANINGS.roles)) assert.ok(list.includes(r.meaning), `${r.role}: ${r.meaning}`);
 });
 
-test('the fixture states the schema floor this reader reads', () => {
+test('the fixture states no schema floor: a file is read by the installed schema (the devel wave 2026-11-24)', () => {
   const doc = JSON.parse(readFileSync(join(FIXTURE, 'role-meanings.json'), 'utf8'));
-  assert.equal(doc.requires['omx-contract-schema'], `>= ${SCHEMA_VERSION}`);
+  assert.equal(doc.requires, undefined);
 });
 
 test('a meaning off the contract\'s list is refused, and so is a row that states none', () => {

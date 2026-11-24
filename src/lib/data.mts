@@ -90,7 +90,7 @@ export const KERNEL_KEYS = ['controls', 'readouts', 'tables', 'aggregates', 'con
 
 /**
  * The keys a data file of any shape may carry beside its items (docs/contract-dir.md): `$schema`, `requires` (the
- * schema floor and the packages it refers to), `source` (the file's provenance and connector), `render` (how the
+ * names of the packages and domains it refers to, no version: the devel wave 2026-11-24), `source` (the file's provenance and connector), `render` (how the
  * owner's own header spells the file's items, docs/render.md) and `checks` (sums held under a bound). They declare no
  * item.
  */

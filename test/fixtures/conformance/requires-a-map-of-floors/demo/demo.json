@@ -7,7 +7,7 @@
     "x-owner": "omx-fixture",
     "x-stability": "experimental",
     "x-requires": {
-      "aux": ">= 2.0.0"
+      "aux": ">= 1.0.0"
     }
   },
   "components": {

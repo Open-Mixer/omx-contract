@@ -56,15 +56,14 @@ export const domainSchema = {
           ]
         },
         "x-requires": {
-          "description": "The packages (or domains) the domain's words take terms from, each with its floor: the requires every data file rebuilt from the domain carries, after the schema floor (docs/contract-dir.md, \"Domains\").",
-          "type": "object",
-          "propertyNames": {
+          "description": "The packages (or domains) the domain's words take terms from, by name, in ascending order and each once, no version: the requires every data file rebuilt from the domain carries (docs/contract-dir.md, \"Domains\"). A map of floors and an empty list are refused (the devel wave 2026-11-24): a domain that refers to nothing has none.",
+          "type": "array",
+          "items": {
+            "type": "string",
             "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$"
           },
-          "additionalProperties": {
-            "type": "string",
-            "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
-          }
+          "uniqueItems": true,
+          "minItems": 1
         }
       }
     },

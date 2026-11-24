@@ -12,7 +12,7 @@ import { after, test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
 import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
-import { SCHEMA_VERSION, validateData } from '../lib/validate.mjs';
+import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
@@ -169,7 +169,7 @@ function directory() {
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   const dir = join(root, String(SCHEMA_MAJOR), 'acme');
-  const doc = { ...acme(), $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` } };
+  const doc = { ...acme(), $schema: installedSchemaUrl(SCHEMA_MAJOR) };
   const text = `${JSON.stringify(doc, null, 2)}\n`;
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'acme.json'), text);
@@ -274,7 +274,7 @@ test('a package-scope header is cut to its package in a contract directory', () 
   const dir = join(root, String(SCHEMA_MAJOR), 'acme');
   const files = {};
   for (const [rel, text] of Object.entries(omxOwner())) {
-    const doc = { ...JSON.parse(text), $schema: installedSchemaUrl(SCHEMA_MAJOR), requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` } };
+    const doc = { ...JSON.parse(text), $schema: installedSchemaUrl(SCHEMA_MAJOR) };
     const body = `${JSON.stringify(doc, null, 2)}\n`;
     const r = rel.slice('data/'.length);
     mkdirSync(dirname(join(dir, r)), { recursive: true });

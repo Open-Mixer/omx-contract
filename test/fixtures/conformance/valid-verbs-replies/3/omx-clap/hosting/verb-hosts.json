@@ -1,8 +1,5 @@
 {
   "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": {
-    "omx-contract-schema": ">= 3.12.0"
-  },
   "HOSTING_VERB_HOSTS": {
     "kind": "words",
     "since": "3.3.0",

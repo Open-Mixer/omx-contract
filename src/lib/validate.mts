@@ -26,7 +26,7 @@ import type { Json } from './json.mjs';
 import { fromDifference, fromDifferences } from './word-from.mjs';
 
 const SCHEMA = JSON.parse(readFileSync(new URL('../schema/omx-contract.schema.json', import.meta.url), 'utf8'));
-/** The version of the schema's vocabulary (`x-omx-schema-version`), the one a file's `requires.omx-contract-schema` floor is read against. */
+/** The version of the schema's vocabulary (`x-omx-schema-version`), the version of the installed schema every file is read by. */
 export const SCHEMA_VERSION = SCHEMA['x-omx-schema-version'];
 let compiled;
 /**

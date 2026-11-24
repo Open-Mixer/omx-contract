@@ -25,10 +25,10 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
+import { SCHEMA_MAJOR, contractVersion, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
 import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData, TREE_DOMAINS } from '../lib/data.mjs';
 import { domainCheckReport } from '../lib/domain-check.mjs';
-import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
+import { domainDataFiles, domainLeaf, readDomain, requiresNames } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
@@ -691,13 +691,13 @@ function ownerData(owner, name, argv) {
   }
   const needs = new Map();
   for (const f of data.files) {
-    for (const [pkg, v] of Object.entries(f.doc?.requires ?? {})) {
-      if (pkg !== 'omx-contract-schema' && !needs.has(pkg)) needs.set(pkg, { floor: v, rel: f.rel });
+    for (const pkg of requiresNames(f.doc?.requires, (m) => refuse('fileInvalid', f.rel, `requires ${m}`))) {
+      if (!needs.has(pkg)) needs.set(pkg, { rel: f.rel });
     }
   }
   if (!needs.size) return { data, resolved: false };
   const { roots, text } = requirementPlaces();
-  const unresolved = (pkg, why) => refuse('requiresUnresolved', 'requires', `${pkg} ${needs.get(pkg).floor} (required by ${needs.get(pkg).rel}) ${why}; looked in ${text}. Use the --installed form instead: OMX_CONTRACT_PATH=<contract directory holding ${pkg}> omx-contract translate --installed --catalogs ${join(tree, 'catalogs')} --package ${name}${argv.includes('--check') ? ' --check' : ''}`);
+  const unresolved = (pkg, why) => refuse('requiresUnresolved', 'requires', `${pkg} (required by ${needs.get(pkg).rel}) ${why}; looked in ${text}. Use the --installed form instead: OMX_CONTRACT_PATH=<contract directory holding ${pkg}> omx-contract translate --installed --catalogs ${join(tree, 'catalogs')} --package ${name}${argv.includes('--check') ? ' --check' : ''}`);
   const [first] = needs.keys();
   if (!roots.length) unresolved(first, 'was not found: no contract directory exists there');
   let installed;
@@ -705,11 +705,7 @@ function ownerData(owner, name, argv) {
     if (e instanceof ContractRefusal && e.code === CONTRACT_CODES.dirAbsent) unresolved(first, 'was not found');
     throw e;
   }
-  for (const [pkg, { floor }] of needs) {
-    const p = installed.packages.get(pkg);
-    if (!p) unresolved(pkg, 'is not installed');
-    if (!atLeast(p.manifest.version, floorOf(floor))) unresolved(pkg, `is installed as ${p.manifest.version}, below its floor`);
-  }
+  for (const pkg of needs.keys()) if (!installed.packages.has(pkg)) unresolved(pkg, 'is not installed');
   for (const [n, it] of installed.items) if (!data.items.has(n)) data.items.set(n, it);
   return { data, resolved: true };
 }

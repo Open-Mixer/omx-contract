@@ -44,7 +44,7 @@ const OWNED = domain('owned', 'The verbs of the owner', {
     description: 'The verbs.', 'x-since': '1.0.0', 'x-kind': 'verbs', 'x-file': 'verbs.json',
     oneOf: [{ const: 'owned_ping', title: 'ownedPing', description: 'Ping the host.', 'x-code': 0, 'x-format': 'owned_ping %i', 'x-reply': 'resp 0', 'x-codes': [{ ref: 'OWNED_HOST_REPLY_CODES.busy' }], 'x-implemented-by': { 'plugin-hostd': 'required' }, 'x-since': '1.0.0' }],
   },
-}, { 'owned-host': '>= 1.0.0' });
+}, ['owned-host']);
 
 /** A tree holding contract.d/owned-host and contract.d/owned; its root. */
 function tree() {
@@ -119,7 +119,7 @@ test('an installed domain\'s run-time items are absent from its owner\'s package
   const root = contractDir();
   const data = join(SCRATCH, `owned-data-${n++}`);
   mkdirSync(data);
-  writeFileSync(join(data, 'owned.json'), `${JSON.stringify({ $schema: '../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': '>= 3.0.0' }, OWNED_MODES: { kind: 'words', since: '1.0.0', doc: 'The modes.', words: { one: { word: 'one', doc: 'One.' } } } }, null, 2)}\n`);
+  writeFileSync(join(data, 'owned.json'), `${JSON.stringify({ $schema: '../schema/omx-contract.schema.json', OWNED_MODES: { kind: 'words', since: '1.0.0', doc: 'The modes.', words: { one: { word: 'one', doc: 'One.' } } } }, null, 2)}\n`);
   execFileSync('sh', [SH, 'omx-owned', '1.0.0', String(SCHEMA_MAJOR), data, root, 'data'], { stdio: 'ignore' });
   const run = structuredClone(HOST);
   run.components.schemas = { OWNED_HOST_RUN_WORDS: { description: 'Words read at run time.', 'x-since': '1.0.0', 'x-kind': 'words', oneOf: [{ const: 'live', title: 'live', description: 'Live.', 'x-code': 0 }] } };

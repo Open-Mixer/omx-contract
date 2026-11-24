@@ -84,9 +84,6 @@ const ITEM = /^[A-Z][A-Z0-9_]*$/;
 const ARG = /^[a-z][A-Za-z0-9]*$/;
 /** A package or domain a domain's `info.x-requires` names: a package name, or a domain name with its `/` segments. */
 const REQUIRED = /^[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*$/;
-const FLOOR = /^>= (0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
-/** The schema floor of a file rebuilt from a domain, and of the classic file readDomain() returns. */
-const REBUILT_SCHEMA_FLOOR = '>= 3.0.0';
 const REF = /^https:\/\/openmixer\.org\/contract\/[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)*#\/components\/schemas\/([A-Z][A-Z0-9_]*)$/;
 /** An absolute URI (RFC 3986): a scheme, a colon and the rest, no white space; any scheme, urn: as much as http:. */
 /** a unit id (docs/units.md, 2026-11-23): camelCase, letters and digits from a letter */
@@ -273,14 +270,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
   if (typeof info.version !== 'string' || !VERSION.test(info.version)) refuse('manifestInvalid', at, `info.version ${JSON.stringify(info.version)} is not x.y.z`);
   if (typeof info['x-owner'] !== 'string' || !PACKAGE.test(info['x-owner'])) refuse('manifestInvalid', at, `info.x-owner ${JSON.stringify(info['x-owner'])} is not a package name`);
   if (info['x-stability'] !== 'experimental' && info['x-stability'] !== 'stable') refuse('manifestInvalid', at, `info.x-stability ${JSON.stringify(info['x-stability'])} is not experimental or stable`);
-  const req = info['x-requires'];
-  if (req !== undefined) {
-    if (typeof req !== 'object' || req === null || Array.isArray(req)) refuse('manifestInvalid', at, `info.x-requires ${JSON.stringify(req)} is not a map of package to floor ">= x.y.z"`);
-    for (const [k, v] of Object.entries(req as JsonObject)) {
-      if (!REQUIRED.test(k)) refuse('manifestInvalid', at, `info.x-requires names ${JSON.stringify(k)}, which is no package or domain name`);
-      if (typeof v !== 'string' || !FLOOR.test(v)) refuse('manifestInvalid', at, `info.x-requires.${k} ${JSON.stringify(v)} is not a floor ">= x.y.z"`);
-    }
-  }
+  requiresNames(info['x-requires'], (m) => refuse('manifestInvalid', at, `info.x-requires ${m}`));
   const comp = doc.components as JsonObject | undefined;
   if (typeof comp !== 'object' || comp === null || Array.isArray(comp)) refuse('fileInvalid', at, 'components is not an object');
   only(comp, ['schemas'], at, 'components');
@@ -288,7 +278,7 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
   if (typeof schemas !== 'object' || schemas === null || Array.isArray(schemas) || !Object.keys(schemas).length) refuse('fileInvalid', at, 'components.schemas is not a map of at least one schema');
   const codes = new Map<string, { xmacro: boolean }>();
   const names: string[] = [];
-  const out: JsonObject = { $schema: schemaUrl, requires: { 'omx-contract-schema': REBUILT_SCHEMA_FLOOR } };
+  const out: JsonObject = { $schema: schemaUrl };
   for (const [item, s] of Object.entries(schemas)) {
     const w = `components.schemas.${item}`;
     if (!ITEM.test(item)) refuse('fileInvalid', at, `${w}: the name of a schema is the item's, upper snake case`);
@@ -402,9 +392,29 @@ export function readDomain(name: string, doc: JsonObject, schemaUrl: string, sch
   return { doc: out, codes, names, manifest: { package: name, owner: info['x-owner'], version: info.version, schemaMajor, title: info.title } };
 }
 
-/** A domain's `info.x-requires`, `{ <package>: '>= x.y.z' }` ({} when it declares none). Read the document with readDomain() first. */
-export function domainRequires(doc: JsonObject): Record<string, string> {
-  return ((doc.info as JsonObject)['x-requires'] ?? {}) as Record<string, string>;
+/**
+ * The names a `requires` (a data file's) or an `info.x-requires` (a domain's) lists: the packages and domains whose
+ * items or terms the file refers to, in ascending order and each once, no version (the devel wave 2026-11-24, no hand-kept floors: a file
+ * is read by the installed schema, beside the packages installed with it). `bad` is called with what is wrong, and
+ * must throw: a map of version floors, the form before the devel wave 2026-11-24, is refused by name, and so is an empty list: absent
+ * is the one way to refer to nothing.
+ */
+export function requiresNames(v: unknown, bad: (message: string) => never): string[] {
+  if (v === undefined) return [];
+  if (typeof v === 'object' && v !== null && !Array.isArray(v))
+    bad(`is a map of version floors (${JSON.stringify(v)}): there are no hand-kept floors (the devel wave 2026-11-24); list the package and domain names the file refers to, in ascending order, no version`);
+  if (!Array.isArray(v)) bad(`${JSON.stringify(v)} is not a list of package or domain names`);
+  if (!v.length) bad('is an empty list: a file that refers to nothing has no requires (one form, the devel wave 2026-11-24)');
+  for (const [i, k] of v.entries()) {
+    if (typeof k !== 'string' || !REQUIRED.test(k)) bad(`names ${JSON.stringify(k)}, which is no package or domain name`);
+    if (i > 0 && !((v[i - 1] as string) < k)) bad(`is not in ascending order, each name once: ${JSON.stringify(v[i - 1])} before ${JSON.stringify(k)}`);
+  }
+  return v as string[];
+}
+
+/** A domain's `info.x-requires`, the package and domain names it takes from ([] when it declares none). Read the document with readDomain() first. */
+export function domainRequires(doc: JsonObject): string[] {
+  return ((doc.info as JsonObject)['x-requires'] ?? []) as string[];
 }
 
 /** A word's term taken from a domain: where it is written, the word, the domain or package `to` and the `item` and `term` there. */
@@ -445,8 +455,8 @@ export function domainFroms(doc: JsonObject, { rebuilt = true }: { rebuilt?: boo
  * its group, `x-from` its terms, `description`, `x-text` and `x-args` as for a code), `x-kind` scalar with `unit` and
  * `value`, `x-kind` map as a formatMap with `format` and `rows` (each row `{ term, from, word, extension, dropped, doc }`),
  * and `x-kind` sheet with `value` and `docs`; the root's `x-render` goes to the file the root's `x-file`
- * names. A domain that declares `info.x-requires` gives every file it rebuilds `requires`, first: the schema floor,
- * then the declared packages in name order; a word whose `x-from` reaches a package beyond those, omx-contract, the
+ * names. A domain that declares `info.x-requires` gives every file it rebuilds `requires`, the declared package and
+ * domain names in ascending order; a word whose `x-from` reaches a package beyond those, omx-contract, the
  * domain and its owner is refused by name. Read the document with readDomain() first. An item with no `x-file` is read
  * at run time only: it is not rebuilt, and not refused (a domain may hold both).
  */
@@ -454,14 +464,14 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
   const at = domainPath(name);
   const files: Record<string, JsonObject> = {};
   const declared = domainRequires(doc);
-  // what a rebuilt file needs: the schema floor, then the declared packages in name order; none when none is declared
-  const requires = Object.keys(declared).length ? { 'omx-contract-schema': REBUILT_SCHEMA_FLOOR, ...Object.fromEntries(Object.entries(declared).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) } : undefined;
+  // what a rebuilt file refers to: the declared names, in ascending order; none when none is declared
+  const requires = declared.length ? [...declared] : undefined;
   const fileOf = (rel: unknown, w: string): JsonObject => {
     if (typeof rel !== 'string' || !rel.endsWith('.json')) refuse('fileInvalid', at, `${w}.x-file is not the data path the item came from`);
     // a path inside the data directory only: relative, forward slashes, no empty, . or .. segment
     if (rel.startsWith('/') || rel.includes('\\') || rel.split('/').some((g) => g === '' || g === '.' || g === '..'))
       refuse('fileInvalid', at, `${w}.x-file ${JSON.stringify(rel)} leaves the data directory: a relative path with no empty, . or .. segment and no backslash`);
-    return (files[rel as string] ??= requires === undefined ? {} : { requires: { ...requires } });
+    return (files[rel as string] ??= requires === undefined ? {} : { requires: [...requires] });
   };
   if (doc['x-render'] !== undefined) fileOf(doc['x-file'], 'the root').render = doc['x-render'];
   for (const [item, s] of Object.entries((doc.components as JsonObject).schemas as Record<string, JsonObject>)) {
@@ -482,8 +492,8 @@ export function domainDataFiles(name: string, doc: JsonObject): Record<string, s
     // a rebuilt file requires what the domain declares: a from reaches omx-contract, the domain, its owner or a declared package
     const owner = (doc.info as JsonObject)['x-owner'] as string;
     for (const f of fromsOf(item, s)) {
-      if (f.to !== name && f.to !== owner && f.to !== 'omx-contract' && !Object.hasOwn(declared, f.to))
-        refuse('fileInvalid', at, `${f.where} of the word ${JSON.stringify(f.word)} names a term of ${f.to}, a package the domain does not declare: info.x-requires names the packages a rebuilt file requires (${Object.keys(declared).join(', ') || 'none'}), and render --with-domain refuses a from beyond them, omx-contract, the domain ${name} and its owner ${owner}`);
+      if (f.to !== name && f.to !== owner && f.to !== 'omx-contract' && !declared.includes(f.to))
+        refuse('fileInvalid', at, `${f.where} of the word ${JSON.stringify(f.word)} names a term of ${f.to}, a package the domain does not declare: info.x-requires names the packages a rebuilt file requires (${declared.join(', ') || 'none'}), and render --with-domain refuses a from beyond them, omx-contract, the domain ${name} and its owner ${owner}`);
     }
     if (s['x-kind'] === 'words') {
       const words: JsonObject = {};

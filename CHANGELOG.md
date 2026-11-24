@@ -4,6 +4,16 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- CHANGED (development phase, every owner follows in the devel wave 2026-11-24): no hand-kept
+  version floors. A data file's `requires` and a domain's `info.x-requires` are a list of package and domain names in
+  ascending order, each once, no version (`["omx-clap"]`); a file that refers to nothing has none (absent, never `[]`).
+  The `omx-contract-schema` entry is gone: every file is read by the installed schema. The map of floors is refused by
+  name (`contract.file.invalid`, `contract.manifest.invalid` naming `x-requires`) by the build reader, the TypeScript
+  runtime reader and the C loader alike, and so is an empty list. `contract.schema.too-old` and
+  `contract.schema.floor-absent` are no longer raised (their codes stay so no later code moves); a consumer's own
+  `needs` / `--needs` / `needs_version` floor is unchanged (callers pass none).
+- CHANGED: an id of a C set that is a PARAM_UNITS const takes its PARAM_UNITS title in ANY set, a mixed one too
+  (`dB` `_DB`, `dBFS` `_DBFS`, `dBu` `_DBU`; never `_D_B`), as #206 did for sets of units only.
 - ADDED: a domain item carries its per-entry doc (each word's or code's `description`, never its `x-text`) and its
   `source` links (`x-source`, the classic `source` shape, `$defs/source` of the domain schema) into every read, the
   installed one included: `links` lists and `links --check` checks a domain's links (`--package <domain>`), `render

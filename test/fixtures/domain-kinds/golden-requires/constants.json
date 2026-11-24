@@ -1,8 +1,7 @@
 {
-  "requires": {
-    "omx-contract-schema": ">= 3.0.0",
-    "kinds-terms": ">= 1.0.0"
-  },
+  "requires": [
+    "kinds-terms"
+  ],
   "render": {
     "c": [
       {

@@ -6,9 +6,9 @@
     "version": "1.0.0",
     "x-owner": "pkg-b",
     "x-stability": "experimental",
-    "x-requires": {
-      "xa": ">= 1.0.0"
-    }
+    "x-requires": [
+      "xa"
+    ]
   },
   "components": {
     "schemas": {

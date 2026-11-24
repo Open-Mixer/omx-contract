@@ -12,7 +12,6 @@ ruled and a domain moves, this page describes how that domain is rendered.
 
 ```json
 { "$schema": "../schema/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 2.15.0" },
   "render": {
     "c": [
       { "header": "clap_host_limits.h", "guard": "CLAP_HOST_LIMITS_H", "project": "omx-clap-host",
@@ -92,10 +91,11 @@ json render carries `standard` on the item, the ts render exports `<SET>_STANDAR
 render `static const char *const OMX_<SET>_STANDARD[OMX_<SET>_COUNT]`, read by enumerator
 (`OMX_CURVE_UNITS_STANDARD[OMX_CURVE_UNITS_HZ]` is `"Hz"`).
 
-A set's C enumerator is `OMX_<SET>_<ID>`, the id in upper snake case, except in a set whose ids are all PARAM_UNITS
-consts (a unit set, such as omx-dsp's METER_UNITS): there each enumerator is named from the id's PARAM_UNITS title,
-the name `OMX_PARAM_UNITS_<TITLE>` already uses, so `dB` is `OMX_<SET>_DB`, `kHz` `_KHZ`, `dBFS` `_DBFS`, `dBTP`
-`_DBTP` and `dBPerOct` `_DB_PER_OCT`, never `_D_B` (ruling of 2026-11-23, omx-contract#206). The id stays the wire word.
+A set's C enumerator is `OMX_<SET>_<ID>`, the id in upper snake case, except an id that is a PARAM_UNITS const, in
+any set (a unit set such as omx-dsp's METER_UNITS, or a mixed one): its enumerator is named from the id's PARAM_UNITS
+title, the name `OMX_PARAM_UNITS_<TITLE>` already uses, so `dB` is `OMX_<SET>_DB`, `kHz` `_KHZ`, `dBFS` `_DBFS`, `dBu`
+`_DBU`, `dBTP` `_DBTP` and `dBPerOct` `_DB_PER_OCT`, never `_D_B` (ruling of 2026-11-23, omx-contract#206; any dB id,
+the devel wave 2026-11-24). The id stays the wire word.
 
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
 its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
@@ -176,9 +176,9 @@ The rebuild, and nothing else:
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
   "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
 
-A domain that declares `info.x-requires` gives every file it rebuilds a `requires`, its first key: the schema floor
-`"omx-contract-schema": ">= 3.0.0"`, then the declared packages in name order with their floors. A domain that declares
-none rebuilds its files with no `requires`, as before.
+A domain that declares `info.x-requires` gives every file it rebuilds a `requires`, its first key: the declared
+package and domain names in ascending order, no version (the devel wave 2026-11-24). A domain that declares none rebuilds its files with
+no `requires`, as before.
 
 A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file.
 
@@ -188,13 +188,13 @@ package its `info.x-owner` names, each at the place that package's own file woul
 manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
 also read as a domain. `--with-domain` repeats: several domains of one owner (an item of one naming an item of the
 other, the omx-clap `host` and `omx-clap` domains) rebuild into that one package in one read, and a file of one requires
-the other by its domain name (`info.x-requires`), held to its `info.version`. An owner whose contract is only domains
+the other by its domain name (`info.x-requires`), held to be in the read. An owner whose contract is only domains
 (a domain-only owner, below) need not be installed: the render builds the package `info.x-owner` names from its domains
 alone, at the domain's `info.version`. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
 `plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is an
 installed domain, no package (`contract.package.absent`), a file the package both installs and rebuilds
-(`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed or is below its floor
-(`contract.package.absent`, `contract.package.too-old`), and a rebuilt word's term that the package or domain its
+(`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed
+(`contract.package.absent`), and a rebuilt word's term that the package or domain its
 `x-from` names does not declare (`contract.ref.unresolved`, `contract.ref.undeclared`, naming the word, the item and
 both packages). A
 domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.

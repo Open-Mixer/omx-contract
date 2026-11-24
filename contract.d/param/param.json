@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/param",
   "info": {
     "title": "The standard parameter words: the units, what each measures, and the scales",
-    "version": "3.22.0",
+    "version": "3.23.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -1417,7 +1417,7 @@
       },
       "PARAM_FILTER_RESPONSES": {
         "description": "The response of the filter a descriptor control sets (docs/descriptors.md, \"Filter responses\"; omx-contract#208): optional on a control, a closed list, one word per shape. omx-dsp's EQ design reads these words' codes for the section kinds it builds (omx_eq_kind, through this item's render), so a word's code is the integer a kernel reads for it and is never moved. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).",
-        "x-since": "3.22.0",
+        "x-since": "3.23.0",
         "oneOf": [
           {
             "const": "peaking",

@@ -187,6 +187,18 @@ export const domainSchema = {
           "description": "The name of the words item of this document whose words are the dimensions of this item's words (a unit list's: what each unit measures); the data form's dimensions.",
           "type": "string"
         },
+        "x-units": {
+          "description": "V28 (#189): the name of the words item of this document whose words are the units its words' x-figure-unit names; the data form's units.",
+          "type": "string"
+        },
+        "x-bases": {
+          "description": "V28 (#189): the name of the words item of this document whose words are the bases its words' x-basis names; the data form's bases.",
+          "type": "string"
+        },
+        "x-extension": {
+          "description": "V28 (#189): the data form's extension, verbatim: the carriers (CLAP extension id, LV2 prefix and namespace) of a resource-hint item.",
+          "type": "object"
+        },
         "x-default": {
           "description": "A set's default: one of its words; the data form's default. Only on x-kind set.",
           "type": "string"
@@ -651,6 +663,14 @@ export const domainSchema = {
         },
         "x-dimension": {
           "description": "A word of the item x-dimensions names: what the unit measures; the data form's dimension.",
+          "type": "string"
+        },
+        "x-figure-unit": {
+          "description": "V28 (#189): a word of the item x-units names, the unit the hint's figure is in; the data form's figureUnit.",
+          "type": "string"
+        },
+        "x-basis": {
+          "description": "V28 (#189): a word of the item x-bases names, how the hint's figure is known; the data form's basis.",
           "type": "string"
         },
         "x-format": {

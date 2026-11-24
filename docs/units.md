@@ -31,6 +31,9 @@ its
 conversion: a `base` unit and a `scale` (a value in the unit times `scale` is a value in `base`). A base has no base of
 its own. A logarithmic unit (`dB`, `dBFS`, `dBu`, `dBTP`, `LUFS`, `LU`) has no conversion: its offset depends on a
 reference. The list holds no code, no LV2 term and no token: those are the format levels' (below).
+A word's `x-code` is its position in the list, not a wire number: readers take the words, and a unit removed
+shifts the codes after it. `x` was removed (omx-contract#167, coordinator ruling 2026-11-21): `coef`, scope `param`, is
+the one plain multiplier, and a reader that stated `x` states `coef`, with no alias.
 
 | Id | Symbol | Dimension | Conversion (base, scale) | Scope |
 |---|---|---|---|---|
@@ -40,7 +43,7 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
 | `min` | `min` | time | `s`, 60 | param |
 | `bar` | `bar` | musical-time | none (a base unit) | descriptor |
 | `beat` | `beat` | musical-time | none (a base unit) | descriptor |
-| `frames` | `frames` | count | none (a base unit) | descriptor |
+| `frames` | `frames` | count | none (a base unit) | param |
 | `m` | `m` | length | none (a base unit) | descriptor |
 | `cm` | `cm` | length | `m`, 0.01 | descriptor |
 | `mm` | `mm` | length | `m`, 0.001 | descriptor |
@@ -48,8 +51,7 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
 | `inch` | `inch` | length | `m`, 0.0254 | descriptor |
 | `mile` | `mile` | length | `m`, 1609.344 | descriptor |
 | `dB` | `dB` | gain | none (logarithmic) | param |
-| `percent` | `%` | none | `x`, 0.01 | param |
-| `x` | `x` | none | none (a base unit) | param |
+| `percent` | `%` | none | `coef`, 0.01 | param |
 | `Hz` | `Hz` | frequency | none (a base unit) | param |
 | `kHz` | `kHz` | frequency | `Hz`, 1000 | descriptor |
 | `MHz` | `MHz` | frequency | `Hz`, 1000000 | descriptor |
@@ -62,9 +64,10 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
 | `dBFS` | `dBFS` | level | none (logarithmic) | param |
 | `dBu` | `dBu` | level | none (logarithmic) | descriptor |
 | `ratio` | `ratio` | ratio | none (a base unit) | descriptor |
+| `coef` | `coef` | none | none (a base unit) | param |
 | `LUFS` | `LUFS` | loudness | none (logarithmic) | param |
-| `dB-oct` | `dB/oct` | slope | none (a base unit) | param |
-| `dB-s` | `dB/s` | rate | none (a base unit) | param |
+| `dBPerOct` | `dB/oct` | slope | none (a base unit) | param |
+| `dBPerS` | `dB/s` | rate | none (a base unit) | param |
 | `dBTP` | `dBTP` | level | none (logarithmic) | descriptor |
 | `LU` | `LU` | loudness | none (logarithmic) | descriptor |
 | `us` | `us` | time | `s`, 0.000001 | descriptor |
@@ -79,13 +82,24 @@ reference. The list holds no code, no LV2 term and no token: those are the forma
   `travel.unit` takes either scope, or `unknown`, which stays the descriptor format's "states no unit" word, not a
   unit. `LUFS` is in both lists in 3.20.2; here it is `param`, and a descriptor still takes it. The split is kept (Q16,
   ruled).
+- `frames` is `param` (omx-contract#164): a descriptor's latency refs (`latency.frames`, `latency.sweep.min` and `.max`)
+  name a scalar item in `frames` or `ms`, and a scalar item's unit is a word of `$defs.unit`, so a constant count of
+  frames can be a scalar only with `frames` in that list. It widens the item enum by one word (minor); a descriptor's
+  `travel.unit` takes it as before. Its code (its position) does not move.
 - `bar` and `beat` are counts of a musical length (a delay's bar fraction and note denominator). Their length depends
   on the meter, so neither is derived from the other. A transport position (a bar number, a beat in a bar) is a
   position, not a unit.
 - `dBu` is decibels relative to 0.7746 V RMS, an analogue level. `dBV` is not added: nothing uses it.
-- `$defs.unit` is the symbols of the `param` words and `$defs.descriptorUnit` those of the `descriptor` words and
-  `unknown`, rendered from the list, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
+- `$defs.unit` is the ids (consts) of the `param` words and `$defs.descriptorUnit` those of the `descriptor` words and
+  `unknown`, rendered from the list (C2, coordinator 2026-11-23, plugin-hostd#215 D1/D2): the id is the word a
+  descriptor, an item and a reply carry (`percent`, `none`, `dBPerOct`), and a word's `x-symbol` (`%`, `""`, `dB/oct`)
+  is how a surface displays it, never a wire word, as `$defs.unit` is today from `PARAM_UNITS` (`render --check` holds the committed
   schema to it). A unit is added in one place.
+- **A unit id is camelCase, and `/` reads `Per`** (coordinator and owner, 2026-11-23): letters and digits only,
+  starting with a letter, never `-`, `/` or a space: `dBPerOct` for dB/oct, `dBPerS` for dB/s, `nsPerSample` for
+  ns/sample, as `midiNote` and `plainCount`. The case of a standard symbol is kept (`dB`, `Hz`, `kHz`, `LUFS`). The
+  symbol as written stays the word's `x-symbol`, the display. The domain reader refuses, naming it, a unit word (a word
+  carrying `x-symbol`) whose id breaks this. `dB-oct` and `dB-s` were renamed under it, with no alias.
 
 - The resource units `us`, `bytes`, `nsPerSample`, `plainCount` and `flag` join the list (coordinator ruling Q6,
   2026-11-20). They are host resource units, not parameter units, so they have `descriptor` scope: they widen no
@@ -113,9 +127,9 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
   `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
   render go to omx-clap-core; each reader (omx-plugins, omx-panel, the console, omx-clap-core's own code) switches its
-  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed last. The PRs
-  are those of the map amendment (the amendment of omx-contract#142, being written). Until then the 3.20.2 sheet is
-  what the readers read.
+  read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed in the same
+  chain-3 run, before any reader renders (B1, below). The PRs are those of the map amendment (the amendment of
+  omx-contract#142, being written). Until then the 3.20.2 sheet is what the readers read.
 - **The scale codes, omx-clap-core.** Ruled (coordinator, 2026-11-20): the param-contract SCALE codes are a CLAP
   particular like the unit codes. They go to omx-clap-core, each code mapped to a word of `PARAM_SCALES`, which stays
   standard in omx-contract (owner answer Q1). This is map row V21b, beside the unit codes.
@@ -136,13 +150,13 @@ The token-to-id map of the code table, where they differ:
 | `m` `cm` `mm` `km` `inch` `mile` | 7 to 12 | the same ids |
 | `db` | 13 | `dB` |
 | `pc` | 14 | `percent` |
-| `coef` | 15 | `x` |
+| `coef` | 15 | `coef` |
 | `hz` `khz` `mhz` | 16 17 18 | `Hz` `kHz` `MHz` |
 | `bpm` | 19 | `bpm` |
 | `oct` `cent` `semitone12TET` | 20 21 22 | `oct` `cents` `st` |
 | `degree` `midiNote` | 23 24 | `deg` `midiNote` |
 | `dbfs` `dbu` `ratio` `lufs` | 0x100 (256) 0x101 (257) 0x102 (258) 0x103 (259) | `dBFS` `dBu` `ratio` `LUFS` |
-| `dboct` `dbs` `dbtp` `lu` | 0x104 (260) 0x105 (261) 0x106 (262) 0x107 (263) | `dB-oct` `dB-s` `dBTP` `LU` |
+| `dboct` `dbs` `dbtp` `lu` | 0x104 (260) 0x105 (261) 0x106 (262) 0x107 (263) | `dBPerOct` `dBPerS` `dBTP` `LU` |
 
 The last row is new (owner ruling Q15, 2026-11-20): `dB/oct`, `dB/s`, `dBTP` and `LU` take the next omx-clap-core
 codes, 0x104 (260) up, append-only, because our plugins use them. Its tokens are my proposal, spelled as the vendor
@@ -153,10 +167,10 @@ code.
 ## Panels
 
 omx-panel's display rules are behaviour over the units above, not units: it declares no unit id. A rule shows a
-value in a larger unit of the same dimension: `Hz` as `kHz` from 1000 Hz up; `ms` as `s` and a 0 to 1 `x` as `%`,
+value in a larger unit of the same dimension: `Hz` as `kHz` from 1000 Hz up; `ms` as `s` and a 0 to 1 `coef` as `%`,
 with thresholds that are the panel's to state. The rules read the ids, bases and scales of the list (`ms` to `s` is
 0.001,
-`percent` to `x` is 0.01: the panel holds no scale of its own); the panel keeps no
+`percent` to `coef` is 0.01: the panel holds no scale of its own); the panel keeps no
 unit table of its own.
 
 omx-panel defines only the general panel vocabulary, scales and laws, never a per-plugin or per-format mapping. The
@@ -235,11 +249,238 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
 - Q6 (coordinator): the five resource units join the list, in the units table above, with `descriptor` scope.
 - Q2 (coordinator): the param-contract scale codes are omx-clap-core's, mapped to `PARAM_SCALES` (map row V21b).
 
+## The standard unit id, its display spelling and the code-to-id render
+
+**Status: DESIGN. Ruled: Q-a, Q-b, the render shape, questions 17 to 22 (the mapping-table kind and S0) and the V23d
+move (B1, B2, (c)) with question 23; nothing is open.** It answers the two questions of the V23d readers
+(Open-Mixer/omx-clap-core#158): which spelling a reader writes for a standard unit, and how a C reader gets from a
+CLAP unit code to that spelling. It describes the list as the sorting pass releases it, `PARAM_UNITS` of the `param`
+domain (`contract.d/param/param.json`), whose words carry a `title` (the item's key, a macro stem) and a `const` (the
+word).
+
+### Q-a: a standard unit id is the word's `const`
+
+- **Ruling (coordinator, 2026-11-22):** a standard unit id is the `const` of a `PARAM_UNITS` word, as released:
+  `dB`, `dBFS`, `Hz`, `kHz`, `deg`, `percent`, `dB-oct`, `dB-s`, `nsPerSample`, `plainCount` and the rest of the list.
+  It is ASCII, stable and never re-spelled. **Why:** the `const` is the word the domain format defines as the word
+  (the `title` is only the key a macro is spelled from), the table of this page names the ids by it, and the readers
+  that name a standard unit read it already: omx-panel's `unitIdOf` returns the `const`, and plugin-db's
+  `LV2_UNIT_IDS` maps a term to it. None takes a key as an id.
+- **Ruling (coordinator, 2026-11-22):** the display spelling of an id is its word's `x-symbol`: `%` for `percent`,
+  `dB/oct` for `dB-oct`, `dB/s` for `dB-s`, `ns/sample` for `nsPerSample`, `count` for `plainCount`, `""` for `none`,
+  and the id itself for every other word. **Why:** a symbol carries `/`, `%` and the empty string, which an id must
+  not, so the two are kept apart: the id is what is stored and sent, the symbol is what is shown.
+- **Ruling (coordinator, 2026-11-22):** a format level's own spellings are that level's, mapped onto the id at that
+  level, and never ids: omx-clap's tokens (`db`, `hz`, `degree`, `dbPerOct` in its `OMX_PARAM_CONTRACT_UNIT_IDS`
+  keys, Open-Mixer/omx-clap-core#171), plugin-db's LV2 terms (`units:db`). **Why:** this is the one-place rule of
+  this page (the standard words here, the particulars at their level). A lowercase key that happens to name a word
+  (`db`) is a key: the two spellings agree only where key and word are equal (`ms`, `st`, `cents`, `percent`), so a
+  reader that took the key would be right by accident on those and wrong on twelve.
+
+The keys and words that differ, as the sorting pass releases them, so a mapping that holds keys can be checked by
+eye:
+
+| Key (`title`) | Id (`const`) |
+|---|---|
+| `db` `dbfs` `dbu` `dbtp` | `dB` `dBFS` `dBu` `dBTP` |
+| `hz` `khz` `mhz` | `Hz` `kHz` `MHz` |
+| `lufs` `lu` | `LUFS` `LU` |
+| `dbPerOct` `dbPerS` | `dB-oct` `dB-s` |
+| `degree` | `deg` |
+
+So the values of omx-clap's `OMX_PARAM_CONTRACT_UNIT_IDS` are ids: `db` maps to `dB`, `degree` to `deg`,
+`dbPerOct` to `dB-oct`, and its check holds each value to a `const` of `PARAM_UNITS`, not to a key. Arm (c) of
+omx-clap's map check uses `coef`, never `x`: it runs against #181 merged with #170 (`x` removed, `coef` the one plain
+multiplier), with no fallback to `x`: #170 lands before or with #181 as one chain-3 omx-contract layer, and if
+#170 slips, #171 waits with it.
+
+### Q-b: the code-to-id lookup is a rendered X-macro
+
+- **Ruling (coordinator, 2026-11-22):** the lookup from a CLAP unit code to a standard id is RENDERED from the
+  domain, by the producer (omx-clap renders it, from the one source, as `host_verbs.h` is rendered), as an X-macro a
+  C reader expands. It is never a hand-written decoder. **Why:** a decoder typed in C is a second copy of the
+  mapping that nothing holds to the domain; a rendered table is held to it by `render --check`, so a code added to the
+  sheet reaches every C reader at the next render.
+- **Ruling (coordinator, 2026-11-22):** the protocol's `param_info` text does not change in this pass. **Why:** the
+  pass moves words and does not change a wire; if a reader truly needs the id in `param_info`, that is a named
+  post-pass issue, not part of this design.
+
+### The render shape
+
+Chosen by the coordinator (2026-11-22) and sent to the reader's owner; the interface is fixed, and
+Open-Mixer/omx-clap-core#171 builds against it.
+
+- **The codes keep one owner.** A code is a number of `OMX_PARAM_CONTRACT_UNITS`, the numeric wire sheet, and of
+  nothing else: there is no second numeric sheet keyed to code. The new render spells a code by the name of its
+  define in `omx_param_units.h`, never by its number.
+- **A string section.** The render is a `strings` section of an owner's header (docs/render.md): one row per field
+  of a string sheet, `X(<prefix><FIELD>, "<field>", "<value>")`, in the sheet's order. The rule for the first
+  argument: it is `<prefix>` followed by the `numbers` section's `constCase` of the field (an underscore before each
+  capital that follows a lower-case letter or a digit, then upper case: `dbPerOct` is `DB_PER_OCT`,
+  `semitone12TET` is `SEMITONE12_TET`), so it is the very name the units header defines for that field. The value
+  is quoted because an id carries `-` (and a symbol `/`), which no C identifier can.
+- **The header.** `omx_param_unit_ids.h`, macro `OMX_PARAM_UNIT_IDS(X)`:
+
+  ```c
+  #define OMX_PARAM_UNIT_IDS(X) \
+      X(OMX_CLAP_UNIT_NONE, "none", "none") X(OMX_CLAP_UNIT_S, "s", "s") ... \
+      X(OMX_CLAP_UNIT_DB, "db", "dB") X(OMX_CLAP_UNIT_PC, "pc", "percent") ... \
+      X(OMX_CLAP_UNIT_DB_PER_OCT, "dbPerOct", "dB-oct") X(OMX_CLAP_UNIT_DB_PER_S, "dbPerS", "dB-s") ...
+  ```
+
+- **The prefix is the units header's.** `strings.prefix` equals `numbers.prefix` of the header that renders
+  `OMX_PARAM_CONTRACT_UNITS` (`OMX_CLAP_UNIT_`), so the first argument of a row is the code define that header
+  already renders. The ids header does not include `omx_param_units.h`; a C reader includes both, and its join is the
+  row itself:
+
+  ```c
+  #include <omx-clap-host/omx_param_units.h>
+  #include <omx-clap-host/omx_param_unit_ids.h>
+
+  static const char *unit_id(uint32_t code)
+  {
+  #define X(code_define, token, id) if (code == (code_define)) return id;
+      OMX_PARAM_UNIT_IDS(X)
+  #undef X
+      return NULL; /* a code with no row: the reader's own refusal */
+  }
+  ```
+
+- **Where the section is declared. Ruling (coordinator, 2026-11-22, final; measured: package-scope entry, headers
+  byte-equal, 102 items valid):** the root form, with no item-level `x-render` and no new reader key. One domain
+  document holds the units sheet and the ids sheet, each with its own `x-file` (`param-contract.json`,
+  `param-unit-ids.json`). Its ROOT `x-render` lists two headers: `omx_param_units.h` (`numbers`, the default scope,
+  `file`) and `omx_param_unit_ids.h` (`strings`, with the existing key `"scope": "package"`, which takes the
+  package's string sheets, that is `OMX_PARAM_CONTRACT_UNIT_IDS`). **Why:** no item carries an `x-render` and the
+  root form gains no key, so a pass changes no format. **Caveat:** `scope: package` takes every string sheet of the
+  package, so any later omx-clap string sheet would join `OMX_PARAM_UNIT_IDS`. omx-contract's render behaves as today
+  (every string sheet of the package joins; #181 adds no refusal). The refusal is omx-clap's: its map check (arm (r)
+  of Open-Mixer/omx-clap-core#171) reads the root only and refuses a second string sheet in the omx-clap package by
+  name, with a sabotage arm.
+
+  ```json
+  "x-render": { "c": [
+    { "header": "omx_param_units.h", "...": "...",
+      "numbers": { "comment": "...", "prefix": "OMX_CLAP_UNIT_", "table": "OMX_PARAM_UNITS" } },
+    { "header": "omx_param_unit_ids.h", "...": "...", "scope": "package",
+      "strings": { "comment": "...", "prefix": "OMX_CLAP_UNIT_", "table": "OMX_PARAM_UNIT_IDS" } } ] }
+  ```
+- **The refusals, by name.** The render refuses, naming the header, the item and the field:
+  - a field that the sibling numbers sheet (`OMX_PARAM_CONTRACT_UNITS`, the sheet of the header whose
+    `numbers.prefix` is this section's prefix) does not name: a row whose first argument would be no define;
+  - a value that is not a `const` of `PARAM_UNITS`: a key (`db`), a symbol (`%`) or a word the list does not hold.
+
+  A read that lacks the sibling sheet or `PARAM_UNITS` is refused by name too, never rendered without the check.
+
+The code is a follow-up of this page (below, "Where the code lands").
+
+### The mapping table of plugin-hostd (V19, M5, D1, D2)
+
+Open-Mixer/plugin-hostd#215 asks for two things: a domain kind for a mapping table, and the unit format of
+`$defs.unit`. The string section above is NOT that mapping table. It is the C form of one mapping, omx-clap's code
+to id, which #215's rows D1 and D2 read in C (`param_info`'s unit and the scan descriptor's unit), and M5 names as
+the source of a lookup. What #215 needs beyond it:
+
+- **The maps are `formatMap` items** (`PLUGIN_HOSTD_CLAP_MAP`, `PLUGIN_HOSTD_LV2_MAP` of plugin-hostd's
+  `data/formats/{clap,lv2}.json`): rows keyed by a source field, each with a term link (`term`, or `from`), exactly
+  one class (a descriptor `word` with its `transform` and its `values` or `factor`, `extension`, or `dropped` with a
+  `ruling`) and a `doc`. A string sheet is one flat lookup; a row of a map holds a lookup, among other words. The
+  domain format has no kind that rebuilds a `formatMap` item (docs/contract-dir.md).
+- **A row that names a mapping instead of carrying it** (M5): the CLAP unit row today carries its own lookup, token
+  to symbol (`pc` to `%`, `coef` to `x`, `degree` to `deg`), a copy of omx-clap's mapping in other spellings. M5 has
+  it name `OMX_PARAM_CONTRACT_UNIT_IDS` (and the LV2 rows plugin-db's `LV2_UNIT_IDS`, `LV2_DESIGNATION_MEANINGS`)
+  instead. That is a new word of a map row, a reference where `values` stands.
+
+The kind, as ruled (coordinator, 2026-11-22, questions 17 to 20 below):
+
+- **`"x-kind": "formatMap"`**, after the `terms` kind: `x-format` (`clap` or `lv2`) the item's, and a `oneOf` of one
+  word per row, `const` and `title` both the source field (which may hold `.`, `:` and `_`) and `x-code` its place.
+  Each field of a row is a word of its own, typed by the domain schema (question 17): `x-term-ref` (the data `term`)
+  or `x-link` (the data `from`; `x-from` already names a words item's term source), then one class, `x-word` with
+  `x-transform` and one of `x-values`, `x-factor` or `x-values-from`, or `x-extension: true`, or `x-dropped` (its
+  `ruling`), and `description` the row's `doc`. A word of any other kind carrying one is refused, as for `verbs`.
+  `render --with-domain` rebuilds the data `formatMap` item from it, and the runtime readers serve the item as words,
+  the words its source fields.
+
+  ```json
+  "PLUGIN_HOSTD_CLAP_MAP": {
+    "description": "...", "x-since": "...", "x-kind": "formatMap", "x-file": "formats/clap.json", "x-format": "clap",
+    "oneOf": [
+      { "const": "omx_clap_param_contract_entry.unit", "title": "omx_clap_param_contract_entry.unit", "x-code": 0,
+        "x-link": "omx_clap_ext.h#omx_clap_param_contract_entry.unit",
+        "x-word": "controls[].travel.unit", "x-transform": "lookup",
+        "x-values-from": { "ref": "OMX_PARAM_CONTRACT_UNIT_IDS" } } ] }
+  ```
+
+- **`x-values-from`** `{ "ref": "<ITEM>" }`: a sheet of strings of a package the document's `info.x-requires` names.
+  The build refuses, by row, a ref that resolves to no item, to an item that is no string sheet, or to a package with
+  no floor. The reference lives in the domain source only: the rebuilt `data/formats/clap.json` carries the values
+  expanded from the named sheet, so the rebuild is byte for byte today's file (question 18).
+- **At run time** plugin-hostd's probe resolves the CLAP unit lookup through the rendered `OMX_PARAM_UNIT_IDS(X)` in
+  C (question 19, as Q-b says); the runtime readers still serve no sheet.
+- **LV2** (question 20): plugin-db's `LV2_UNIT_IDS` is its own item, owned by plugin-db, and data only: no C header
+  and no `strings` section. The LV2 rows name it with `x-values-from`.
+
+### S0: the unit format of `$defs.unit`
+
+#215 asks that the lookup values become standard unit ids, with "the ruled id spelling and the dimension word".
+
+- **The spelling is answered by Q-a:** a value is the `const` of a `PARAM_UNITS` word.
+- **The dimension word is answered by the list:** a map carries no dimension. A reader that needs one reads the id's
+  `x-dimension` in `PARAM_UNITS`; a dimension copied into a map would be a second place for it.
+- **The enum of the descriptor keeps the symbols in this pass** (question 22). `$defs.unit` and
+  `$defs.descriptorUnit` are the SYMBOLS of the list (`tools/unit-enum.mjs` renders each word's `x-symbol`), so a
+  descriptor's `travel.unit` states `%`, `dB/oct`, `""`. The ids and symbols differ on six words: `percent` (`%`),
+  `none` (`""`), `dB-oct` (`dB/oct`), `dB-s` (`dB/s`), `nsPerSample` (`ns/sample`), `plainCount` (`count`). Making
+  the enums the ids is a descriptor schema change, filed post-pass as #176 ("Descriptor unit enums become the standard
+  ids").
+
+### V23d: the move of the code sheet
+
+- **B1. Ruling (coordinator, 2026-11-22):** omx-contract's removal of `OMX_PARAM_CONTRACT_UNITS` (and of its render,
+  `omx_param_units.h`), whose sheet moves to omx-clap, lands in the SAME chain-3 run, in the omx-contract layer,
+  before any reader renders. There is no takeover window, and no rename. The render's `contract.item.duplicate`
+  refusal stays. **Why:** a move is one step: the source is removed and the importers are updated together. A window
+  in which both packages declare the item would be compat machinery, and a rename would give one item a second name.
+  `contract.item.duplicate` then never fires on a correct chain, and still catches a chain that forgot the removal.
+  This replaces "removed last" for this sheet, here and in row V23 of [ownership-map.md](ownership-map.md).
+- **B2. Ruling (coordinator, 2026-11-22):** the set of units the extension serves (the ids that have a code) comes
+  from omx-contract, the innermost layer: `PARAM_UNITS_CLAP_ENCODED`, an item of the `param` domain, the ids
+  `org.openmixer.param-contract/1` encodes. omx-clap's map check holds its mapping onto that item. **Why:** omx-panel,
+  which needs to know whether a unit can be served, keeps reading omx-contract only, so no build-dep cycle appears and
+  nothing reads outward to omx-clap. The item is code of the chain-3 omx-contract PR, beside the `strings` section,
+  not of this docs PR.
+  - Its form (question 23, ruled): an `"x-kind": "words"` item copying `PARAM_UNITS` words by `x-from`. It is not a
+    second group of `PARAM_UNITS`: a word carries ONE `x-group`, and `PARAM_UNITS` uses it for its scope
+    (docs/contract-dir.md). No group word is added: the item's name says which encoding serves the unit.
+- **(c). Ruling (coordinator, 2026-11-22):** the floor the readers of Open-Mixer/omx-clap-core#171 take on omx-clap
+  is the first omx-clap release that carries it, the one chain 3 cuts; the chain tool names its version, and no page
+  writes a number for it. **Why:** the version exists only when chain 3 cuts it, and a number written here would be a
+  guess that the chain tool would then have to match.
+
+### Where the code lands
+
+The code is not small, so it is a follow-up PR, after chain 1 tags, on the tagged main: a sheet of strings in the
+schema (`sheetValue` holds numbers only today) and in the domain reader (a sheet's `x-value` of strings), the
+`strings` section and its refusals in `render/c/owner-headers.mjs`, which need two items outside the header's own
+file (the sibling sheet and `PARAM_UNITS`), and their tests, red first: a golden `omx_param_unit_ids.h`, and a
+sabotage arm per refusal (a field the units sheet lacks, a value `db`, a read without `PARAM_UNITS`). omx-clap then
+gives `OMX_PARAM_CONTRACT_UNIT_IDS` its own `x-file`, declares the second header in its domain's root `x-render`
+and renders it (Open-Mixer/omx-clap-core#171). #171's own arms, in its map check: (r) a second string sheet in the
+omx-clap package, refused by name (the check reads the root only), with a sabotage arm; and the units header holds
+only its own numbers rows, against the golden.
+
+`PARAM_UNITS_CLAP_ENCODED` (B2, question 23) is code of the same chain-3 omx-contract PR: the `"x-kind": "words"`
+item in the `param` domain, red first: the words copy holds `dB-oct` (and `dB-s`), each word's `x-from` naming its
+`PARAM_UNITS` word, before the item exists. Its refusals, each a sabotage arm: a word that is no member of
+`PARAM_UNITS` (`word-from`), a copied word whose `x-code` differs from its `PARAM_UNITS` word's
+(`word-from-differs`), and a served set that is not a prefix of `PARAM_UNITS`, refused by name.
+
 ## Open questions for the owner
 
 15. **Codes for `dB/oct`, `dB/s`, `dBTP` and `LU`.** They have no code, so a plugin that states one reports 0
     (`none`), as today. Do they take the next codes (0x104 (260) up, append-only), or stay without?
-    - **Ruled (coordinator, 2026-11-20):** they take 0x104 (260) `dB-oct`, 0x105 (261) `dB-s`, 0x106 (262) `dBTP`, 0x107
+    - **Ruled (coordinator, 2026-11-20):** they take 0x104 (260) `dBPerOct`, 0x105 (261) `dBPerS` (spelled `dB-oct` and `dB-s` until the camelCase rule below), 0x106 (262) `dBTP`, 0x107
       (263) `LU`, the next omx-clap-core codes, because our plugins use them.
 16. **Keep the split of `$defs.unit` and `$defs.descriptorUnit`?** The list's `scope` (`param` or `descriptor`) defines
     it for now. The split is a 3.20.2 fact: a descriptor takes both lists anyway, so one list of units would do. Keep
@@ -248,3 +489,48 @@ files and the goldens. `PARAM_UNITS` stays, and its enum render stays with it. #
     have
       `descriptor` scope, so the released item enum does not widen.
 
+
+From the mapping-table kind and S0 above (Open-Mixer/plugin-hostd#215), all ruled; nothing is open:
+
+17. **The kind's name and shape.** Is it `"x-kind": "formatMap"` with each row verbatim in `x-row`, as the `terms`
+    kind keeps a term in `x-term`, or does each field of a row get its own `x-` word?
+    - **Ruling (coordinator, 2026-11-22):** one `x-` word per field. **Why:** each field is then typed by the domain
+      schema and refused by name, with no opaque copy of a row that only the data schema could check.
+18. **What the rebuild writes for `x-values-from`.** The reference, or the values expanded from the named sheet?
+    - **Ruling (coordinator, 2026-11-22):** the expanded values, in the rebuilt `data/formats/clap.json`. **Why:** V19
+      is a pure move, so its output stays byte for byte; the reference lives in the domain source only.
+19. **How the run time reads the named sheet.** Through the rendered `OMX_PARAM_UNIT_IDS(X)`, or do the C loader and
+    `openDomainAt` start serving string sheets?
+    - **Ruling (coordinator, 2026-11-22):** plugin-hostd's probe resolves it through the rendered C
+      `OMX_PARAM_UNIT_IDS(X)`. **Why:** that is Q-b: the lookup is the rendered X-macro, and the loaders gain no new
+      kind for it.
+20. **The LV2 side.** plugin-db's `LV2_UNIT_IDS` keys are terms (`units:db`), which no `<prefix><FIELD>` define
+    spells. Data only, or a section of its own?
+    - **Ruling (coordinator, 2026-11-22):** `LV2_UNIT_IDS` is its own item, owned by plugin-db, and data only.
+      **Why:** the producer owns its mapping; no C reader needs it, so nothing is rendered for it.
+21. **A code with no id.** Should the `strings` section also refuse a field of the units sheet that has no row?
+    - **Ruling (coordinator, 2026-11-22):** no; it stays in omx-clap's map check (`param-units-map-check.py`, beside
+      "no two codes on one id"). **Why:** one owner for that rule; the render does not hold it a second time.
+22. **S0: the descriptor's unit enum.** Do `$defs.unit` and `$defs.descriptorUnit` become the ids, or does the
+    descriptor keep the symbol?
+    - **Ruling (coordinator, 2026-11-22):** keep the symbols in this pass; the change to the ids is the post-pass
+      issue #176 ("Descriptor unit enums become the standard ids"), naming the six words that differ (`percent` `%`,
+      `none` `""`, `dB-oct` `dB/oct`, `dB-s` `dB/s`, `nsPerSample` `ns/sample`, `plainCount` `count`). **Why:** a
+      schema change is not a move, and this pass only moves.
+
+From B2 above:
+
+23. **The form of the served set, `PARAM_UNITS_CLAP_ENCODED`.** The facts: `"x-kind": "set"` is a domain kind at
+    the chain-1 base (`WORDS_KINDS` of `src/lib/domain.mts`; `PARAM_SCALES` uses it), not at main. Both set forms
+    refuse an id with `-`: the data set kind (`schema/omx-contract.schema.json:742-756`, `$defs.set`, ids
+    `^[A-Za-z0-9]+$`) and the domain `set`, which rebuilds into it. So `dB-oct` and `dB-s`, the mapped ids of codes
+    260 and 261, fail in either.
+    - **Ruling (coordinator, 2026-11-22):** `PARAM_UNITS_CLAP_ENCODED` is an existing `"x-kind": "words"` item
+      copying `PARAM_UNITS` words by `x-from`, each keeping its own `x-code`; no format change. **Limit:** a
+      non-prefix of `PARAM_UNITS` is refused by name, and is a new question then. **Why:** a move changes no format,
+      and a set cannot hold the served ids. The copy holds because the served ids are `PARAM_UNITS` codes 0 to 32, a
+      prefix of the list (against #181 merged with #170, the `coef` token on `coef`, no fallback to `x`), and a
+      words item's codes are its places, so a copied word's place and code agree; `validate`'s `word-from` and
+      `word-from-differs` check every member.
+    - Considered and not taken: widening the set id pattern to allow `-` (a format change), and no omx-contract form
+      in this pass (the served set staying omx-clap's until a post-pass issue).

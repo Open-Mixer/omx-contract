@@ -60,7 +60,7 @@ plugin-hostd-protocol, the console and zynthian-ui at their heads of that day.
 | The scale position law | `docs/scale-position.md` and `data/scale-vectors.json` (six rows per law, 60-digit arithmetic) | — | `src/lib/scale.mts` (TS) and `share/omx-contract/omx_contract_scale.py` (Python), both held to the vectors within one ulp; no C (the renderer is handed positions) | the vectors |
 | A panel description, a skin package | `omx-panel/schema/panel.schema.json`, `skin-package.schema.json` (JSON Schema 2020-12) | nothing: ajv validates (`lib/validate.mjs`); no TS, Python or C type | every reader types the document for itself (the renderer with cJSON, Zynthian with dicts, the console with its own interfaces) | none |
 | The gesture vocabulary, its timings and table; the look roles; the codes | `omx-panel/schema/gestures.json`, `look-roles.json`, `codes.json` (data with `"schema": 1`, no JSON Schema of their own) | `renderer/src/look_roles.h` from look-roles | Python restates the words as string literals (omx-panel#52) | `omx-panel look --check` for roles; none for gestures |
-| plugin-hostd's protocol (verbs, replies, codes, events) | the C headers `include/plugin-hostd/protocol.h` and siblings | `protocol/plugin-hostd.json`, `plugin-hostd-protocol.json`, `mod-host.json` by `tools/protocol-gen.c` compiled against the header; `plugin-hostd.schema.json` | the verbs are declared a second time in omx-contract `data/verbs.json` (`PLUGIN_HOSTD_PROTOCOL_VERBS`, 3.3.0, rendered to `omx_host_verbs.h`); each protocol row names its `declared` item | `make check-generated` |
+| plugin-hostd's protocol (verbs, replies, codes, events) | the C headers `include/plugin-hostd/protocol.h` and siblings | `protocol/plugin-hostd.json`, `plugin-hostd-protocol.json`, `mod-host.json` by `tools/protocol-gen.c` compiled against the header; `plugin-hostd.schema.json` | the verbs are declared a second time, in plugin-hostd-protocol's domain `plugin-hostd` (`contract.d/plugin-hostd/plugin-hostd.json`, `PLUGIN_HOSTD_PROTOCOL_VERBS`, V16), rendered to `omx_host_verbs.h`; each protocol row names its `declared` item | `make check-generated` |
 | The console's declarations package | the installed plugin-hostd headers and mod-host.json, the installed omx-contract | a generated protocol module by the console's own C macro-table reader (537 lines, with a trap of its own on record: a table argument that calls a macro), a generated mod-host module (116 lines), a re-render of omx-contract (121) | the three generators are consumer-side twins of the producers' renders | each generated file checked against its source at build |
 
 What the table says: the one place where shapes are typed once and rendered everywhere is omx-contract, and it renders
@@ -222,7 +222,7 @@ The rule in one line: native where a native door exists, wasm where only a JavaS
 ### 4.3 The wasm build
 
 - **Toolchain:** `clang --target=wasm32-wasi` with wasi-libc and `lld`, all three distribution packages
-  (Fedora 44: `clang` 22.1, `lld`, `wasi-libc-devel` 34, read from the repository metadata on 2026-11-17; Debian
+  (Fedora 45: `clang` 23.1, `lld`, `wasi-libc-devel` 34, read from the repository metadata on 2026-11-22; Debian
   bookworm and trixie: `clang`, `lld`, `wasi-libc`, to be confirmed by the lane's first build); no Emscripten SDK
   and no download, because a release builds on a stage box from the distribution's packages alone
   (the staged inside-out release cadence). Emscripten is rejected for its JavaScript glue and its own pinned toolchain.

@@ -1,8 +1,5 @@
 {
   "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": {
-    "omx-contract-schema": ">= 2.15.0"
-  },
   "origin": "authored",
   "plugin": {
     "id": "org.openmixer.delay",
@@ -31,7 +28,7 @@
       "name": "fxDelayFeedback",
       "label": "Feedback",
       "kind": "travel",
-      "travel": { "min": 0, "max": 0.99, "step": 0, "unit": "", "default": 0.3, "defaultFrom": "desk", "scale": "linear" },
+      "travel": { "min": 0, "max": 0.99, "step": 0, "unit": "none", "default": 0.3, "defaultFrom": "desk", "scale": "linear" },
       "group": ["Delay"],
       "meaning": "feedback",
       "automatable": true
@@ -42,7 +39,7 @@
       "name": "tone",
       "label": "Tone",
       "kind": "travel",
-      "travel": { "min": 0, "max": 1, "step": 0, "unit": "", "default": 0.3, "defaultFrom": "desk", "scale": "linear" },
+      "travel": { "min": 0, "max": 1, "step": 0, "unit": "none", "default": 0.3, "defaultFrom": "desk", "scale": "linear" },
       "group": ["Delay"],
       "meaning": "tone",
       "automatable": true
@@ -53,7 +50,7 @@
       "name": "mix",
       "label": "Mix",
       "kind": "travel",
-      "travel": { "min": 0, "max": 1, "step": 0, "unit": "", "default": 0.3, "defaultFrom": "desk", "scale": "linear" },
+      "travel": { "min": 0, "max": 1, "step": 0, "unit": "none", "default": 0.3, "defaultFrom": "desk", "scale": "linear" },
       "group": ["Output"],
       "meaning": "wetDryRatio",
       "automatable": true
@@ -66,6 +63,7 @@
       "kind": "toggle",
       "default": false,
       "group": ["Delay"],
+      "meaning": "pingpong",
       "automatable": true
     }
   ],

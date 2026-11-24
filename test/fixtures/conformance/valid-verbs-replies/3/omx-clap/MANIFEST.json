@@ -1,0 +1,9 @@
+{
+  "package": "omx-clap",
+  "version": "0.34.0",
+  "schemaMajor": 3,
+  "tree": "data",
+  "files": {
+    "hosting/verb-hosts.json": "80e5980bd0ad0d9fa01a13652e98f93af5373d21e8112e88f6a3a6020c69c690"
+  }
+}

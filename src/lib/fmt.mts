@@ -28,7 +28,7 @@ const ORDER = {
   c: ['render'],
   number: ['ref', 'derive', 'of', 'order'],
   source: ['from', 'impl', 'at'],
-  renderHeader: ['header', 'guard', 'project', 'banner', 'brief', 'includes', 'scope', 'numbers', 'codes', 'scalars', 'limits'],
+  renderHeader: ['header', 'guard', 'project', 'banner', 'brief', 'includes', 'scope', 'numbers', 'codes', 'strings', 'scalars', 'limits'],
   renderSection: ['comment', 'prefix', 'omit', 'levels', 'table'],
 };
 
@@ -62,7 +62,7 @@ function item(it) {
   const o = ordered(it, ORDER.item);
   if (isObj(o.source)) o.source = ordered(o.source, ORDER.source);
   if ('value' in o) o.value = o.kind === 'sheet' ? sheet(o.value) : number(o.value);
-  if (isObj(o.codes)) o.codes = Object.fromEntries(Object.entries(o.codes).map(([k, c]) => [k, ordered(c, ['code', 'resp', 'transient', 'doc'])]));
+  if (isObj(o.codes)) o.codes = Object.fromEntries(Object.entries(o.codes).map(([k, c]) => [k, ordered(c, ['code', 'resp', 'transient', 'leavesNoMark', 'doc'])]));
   // a package's verbs keep the order it declares them in, each verb's keys in schema order
   if (o.kind === 'verbs' && isObj(o.verbs)) o.verbs = Object.fromEntries(Object.entries(o.verbs).map(([k, v]) => [k, isObj(v) ? ordered(v, ORDER.verb) : v]));
   // a vocabulary's words keep their declared order, which is part of the contract (a rating's severity, a band's
@@ -106,7 +106,7 @@ function render(r) {
     out.c = out.c.map((h) => {
       if (!isObj(h)) return h;
       const o = ordered(h, ORDER.renderHeader);
-      for (const k of ['numbers', 'codes', 'scalars', 'limits']) if (isObj(o[k])) o[k] = ordered(o[k], ORDER.renderSection);
+      for (const k of ['numbers', 'codes', 'strings', 'scalars', 'limits']) if (isObj(o[k])) o[k] = ordered(o[k], ORDER.renderSection);
       return o;
     });
   }
@@ -136,8 +136,8 @@ export function formatDoc(doc) {
 const DOMAIN_ORDER = {
   file: ['$schema', '$id', 'info', 'components'],
   info: ['title', 'version', 'x-owner', 'x-stability'],
-  schema: ['description', 'x-since', 'x-why', 'x-groups', 'x-c-codes', 'x-c-xmacro', 'oneOf'],
-  word: ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-from'],
+  schema: ['description', 'x-since', 'x-why', 'x-groups', 'x-units', 'x-bases', 'x-extension', 'x-c-codes', 'x-c-xmacro', 'oneOf'],
+  word: ['const', 'title', 'description', 'x-code', 'x-text', 'x-group', 'x-figure-unit', 'x-basis', 'x-from'],
   from: ['$ref', 'x-term'],
 };
 

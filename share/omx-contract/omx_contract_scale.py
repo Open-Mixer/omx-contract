@@ -2,7 +2,7 @@
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 """The position law of PARAM_SCALES as a position `p` (0 at a travel's min, 1 at its max), the Python twin of
 lib/scale.mjs (docs/scale-position.md, omx-contract#20): a Python surface such as Zynthian
-(zyngine/zynthian_position_law.py) calls LAWS, effective_law, scale_position and scale_value instead of restating
+(zyngine/zynthian_position_law.py) calls LAWS, Law, effective_law, scale_position and scale_value instead of restating
 the law; both readers are held to the same data/scale-vectors.json.
 
 - linear: p = (v - min) / (max - min).
@@ -16,9 +16,14 @@ the law; both readers are held to the same data/scale-vectors.json.
 A word's law is not overridable per control. Nothing is clamped: a value outside the travel has a position outside
 0..1, and the ends are exact.
 """
+import enum
 import math
 
 LAWS = ("linear", "log", "stepped", "map")
+
+# One named member per word of LAWS, made from LAWS and never listed beside it (omx-contract#46): a surface that
+# branches on one law writes Law.LOG, not "log". A member is the word itself (a str), so Law.LOG == "log".
+Law = enum.StrEnum("Law", {word.upper(): word for word in LAWS})
 
 
 def _is_num(x):

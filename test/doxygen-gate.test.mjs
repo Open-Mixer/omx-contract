@@ -38,10 +38,31 @@ const addBeforeGuardEnd = (file, text) => {
   writeFileSync(file, `${s.slice(0, at)}${text}\n${s.slice(at)}`);
 };
 
+/** The committed baseline's lines; an empty file is no line. */
+const baselineLines = () => {
+  const text = readFileSync(BASELINE, 'utf8');
+  return text === '' ? [] : text.trimEnd().split('\n');
+};
+
+/**
+ * A scratch copy whose headers carry two undocumented macros its baseline lists, so the set and shrink rules are
+ * exercised on lines that exist whatever the committed baseline holds (it is empty once every header is documented).
+ */
+function scratchWithBaselined() {
+  const s = scratch();
+  addBeforeGuardEnd(join(s.headers, 'omx_json_write.h'), '#define OMX_FIXTURE_BASELINED_A 1\n#define OMX_FIXTURE_BASELINED_B 1');
+  const lines = [...baselineLines(), ...['A', 'B'].map((x) => `omx_json_write.h: warning: Member OMX_FIXTURE_BASELINED_${x} (macro definition) of file omx_json_write.h is not documented.`)]
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  writeFileSync(s.baseline, `${lines.join('\n')}\n`);
+  const at = gate('--input', s.headers, '--baseline', s.baseline);
+  assert.equal(at.status, 0, `the fixture is at its baseline: ${at.out}`);
+  return { ...s, lines };
+}
+
 test('the committed headers are at the baseline, and the baseline is sorted with no duplicate', { skip: noDoxygen }, () => {
   const r = gate();
   assert.equal(r.status, 0, r.out);
-  const lines = readFileSync(BASELINE, 'utf8').trimEnd().split('\n');
+  const lines = baselineLines();
   assert.deepEqual(lines, [...new Set(lines)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)), 'sorted, unique');
   for (const l of lines) assert.match(l, /^omx_\w+\.h: warning: /, l);
 });
@@ -83,8 +104,8 @@ test('red: a baseline line whose declaration is documented now must be struck', 
 });
 
 test('red: the baseline is a set: one line swapped for a stray one is red by both names, a dropped trailing newline is no change', { skip: noDoxygen }, () => {
-  const s = scratch();
-  const lines = readFileSync(BASELINE, 'utf8').trimEnd().split('\n');
+  const s = scratchWithBaselined();
+  const { lines } = s;
   const stray = 'omx_formats.h: warning: Member OMX_FIXTURE_SWAPPED_IN (macro definition) of file omx_formats.h is not documented.';
   writeFileSync(s.baseline, `${[stray, ...lines.slice(1)].join('\n')}\n`);
   const swapped = gate('--input', s.headers, '--baseline', s.baseline);
@@ -163,8 +184,8 @@ test('red: a header with no @file block is refused before doxygen, since doxygen
 });
 
 test('the baseline only shrinks: a line added against the base is refused, a struck line is not', { skip: noDoxygen }, () => {
-  const s = scratch();
-  const lines = readFileSync(BASELINE, 'utf8').trimEnd().split('\n');
+  const s = scratchWithBaselined();
+  const { lines } = s;
   // the base's list lacks one of today's lines: today's change added it
   const smaller = join(s.dir, 'base-smaller.txt');
   writeFileSync(smaller, `${lines.slice(1).join('\n')}\n`);
@@ -173,7 +194,7 @@ test('the baseline only shrinks: a line added against the base is refused, a str
   assert.match(grown.out, /only shrinks/);
   assert.ok(grown.out.includes(lines[0]), lines[0]);
   // the base's list is today's: nothing added
-  const same = gate('--input', s.headers, '--baseline', s.baseline, '--base-baseline', BASELINE);
+  const same = gate('--input', s.headers, '--baseline', s.baseline, '--base-baseline', s.baseline);
   assert.equal(same.status, 0, same.out);
   // the base's list carries a line today's struck (documented since): a shrink, allowed
   const bigger = join(s.dir, 'base-bigger.txt');

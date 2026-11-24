@@ -13,6 +13,9 @@ import type { Json } from './json.mjs';
 /** The ids of PARAM_SCALES, the scales a travel may name, read from omx-contract's own `param` domain (contract.d/param/param.json): its words in order. */
 export const PARAM_SCALE_IDS: readonly string[] = (JSON.parse(readFileSync(new URL('../contract.d/param/param.json', import.meta.url), 'utf8')).components.schemas.PARAM_SCALES.oneOf as { const: string }[]).map((w) => w.const);
 
+/** The PARAM_UNITS words of omx-contract's own `param` domain, each `{ id, symbol }`: what a descriptor's own unit may not repeat (N1). */
+const PARAM_UNIT_WORDS: readonly { id: string; symbol: string }[] = (JSON.parse(readFileSync(new URL('../contract.d/param/param.json', import.meta.url), 'utf8')).components.schemas.PARAM_UNITS.oneOf as { const: string; 'x-symbol': string }[]).map((w) => ({ id: w.const, symbol: w['x-symbol'] }));
+
 /** The value a descriptor writes for a unit, a scale or a meaning the plugin does not state. */
 export const UNKNOWN = 'unknown' as const;
 
@@ -100,6 +103,18 @@ export function descriptorProblems(rel: string, doc: Json, { scales = PARAM_SCAL
     if (!c) say('descriptorChoice', 'choiceUnits', `${JSON.stringify(key)} names no control`);
     else if (c.kind !== 'choice') say('descriptorChoice', 'choiceUnits', `${JSON.stringify(key)} is not a choice`);
   }
+
+  // A unit of its own is its own (N1, docs/units.md "Plugin particulars"): its id and its symbol are no standard
+  // unit's, and no other own unit's.
+  const unitIds = new Map(PARAM_UNIT_WORDS.map((u) => [u.id, `the standard unit ${u.id}`]));
+  const unitSymbols = new Map(PARAM_UNIT_WORDS.map((u) => [u.symbol, `the standard unit ${u.id}`]));
+  (Array.isArray(doc.units) ? doc.units : []).forEach((u, i) => {
+    const where = `units[${i}] (${u.id})`;
+    if (unitIds.has(u.id)) say('descriptorUnitDuplicate', where, `id ${JSON.stringify(u.id)} repeats the id of ${unitIds.get(u.id)}`);
+    else unitIds.set(u.id, `units[${i}]`);
+    if (unitSymbols.has(u.symbol)) say('descriptorUnitDuplicate', where, `symbol ${JSON.stringify(u.symbol)} repeats the symbol of ${unitSymbols.get(u.symbol)}`);
+    else unitSymbols.set(u.symbol, `units[${i}]`);
+  });
 
   const ids = new Map();
   const names = new Map();

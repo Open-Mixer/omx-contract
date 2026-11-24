@@ -461,18 +461,23 @@ static int required_name(const char *k) {
   }
 }
 
-/* info.x-requires (docs/contract-dir.md, "Domains"), when present: a map of package or domain name to a floor
- * ">= x.y.z", as the TypeScript reader reads it. The floors are the build's to hold: a loader opens one domain. */
+/* info.x-requires (docs/contract-dir.md, "Domains"), when present: a list of package or domain names in ascending
+ * order, each once, no version (the devel wave 2026-11-24), as the TypeScript reader reads it. A map of version floors, the form before
+ * the devel wave 2026-11-24, is refused by name. Which names are in the read is the build's to hold: a loader opens one domain. */
 static int check_requires(json_t *req, const char *domain, const char *path, omx_domain_error *err) {
   if (!req) return 0;
-  if (!json_is_object(req)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires is not a map of package to floor \">= x.y.z\".", domain, path);
-  const char *k;
+  if (json_is_object(req)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires is a map of version floors; it lists package or domain names, no version (the devel wave 2026-11-24).", domain, path);
+  if (!json_is_array(req)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires is not a list of package or domain names.", domain, path);
+  if (json_array_size(req) == 0) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires is an empty list; a domain that refers to nothing has no info.x-requires.", domain, path);
+  const char *prev = NULL;
+  size_t i;
   json_t *v;
-  unsigned long floor_[3];
-  json_object_foreach(req, k, v) {
+  json_array_foreach(req, i, v) {
+    const char *k = json_string_value(v);
+    if (!k) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires names a non-string, which is no package or domain name.", domain, path);
     if (!required_name(k)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires names \"%s\", which is no package or domain name.", domain, path, k);
-    const char *f = json_string_value(v);
-    if (!f || strncmp(f, ">= ", 3) != 0 || !parse_version(f + 3, floor_)) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires of \"%s\" is not a floor \">= x.y.z\".", domain, path, k);
+    if (prev && strcmp(prev, k) >= 0) return refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-requires is not in ascending order, each name once (\"%s\" before \"%s\").", domain, path, prev, k);
+    prev = k;
   }
   return 0;
 }

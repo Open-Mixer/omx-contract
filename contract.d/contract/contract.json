@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/contract",
   "info": {
     "title": "The refusal codes of the contract directory",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -71,9 +71,9 @@
           {
             "const": "contract.schema.too-old",
             "title": "schemaTooOld",
-            "description": "a file's requires.omx-contract-schema floor is above the reader's schema",
+            "description": "retired, never raised since the devel wave 2026-11-24: requires names packages with no version, so no schema floor is read",
             "x-code": 5,
-            "x-text": "The file at {path} needs a newer omx-contract schema than this reader has. Upgrade omx-contract, or lower the file's floor.",
+            "x-text": "Retired code, never raised: {path} was read against an omx-contract schema floor, and since the devel wave 2026-11-24 requires names packages with no version.",
             "x-args": [
               "path"
             ],
@@ -82,9 +82,9 @@
           {
             "const": "contract.schema.floor-absent",
             "title": "schemaFloorAbsent",
-            "description": "an installed file of a package other than omx-contract states no schema floor",
+            "description": "retired, never raised since the devel wave 2026-11-24: a file states no schema floor, and requires names packages with no version",
             "x-code": 6,
-            "x-text": "The file at {path} states no omx-contract schema floor. Add a requires.omx-contract-schema entry.",
+            "x-text": "Retired code, never raised: {path} states no omx-contract schema floor, and since the devel wave 2026-11-24 none is needed; requires names packages with no version.",
             "x-args": [
               "path"
             ],
@@ -181,9 +181,9 @@
           {
             "const": "contract.verb.host-unknown",
             "title": "verbHostUnknown",
-            "description": "a verb's implementedBy names a host that is no word of VERB_HOSTS",
+            "description": "a verb's implementedBy names a host that is no word of HOSTING_VERB_HOSTS",
             "x-code": 15,
-            "x-text": "Verb {verb} names a host that is not a word of VERB_HOSTS. Add the host there, or fix the verb’s implementedBy.",
+            "x-text": "Verb {verb} names a host that is not a word of HOSTING_VERB_HOSTS. Add the host there, or fix the verb’s implementedBy.",
             "x-args": [
               "verb"
             ],
@@ -656,6 +656,17 @@
               "descriptor"
             ],
             "x-name": "descriptorLatency"
+          },
+          {
+            "const": "contract.descriptor.unit-duplicate",
+            "title": "descriptorUnitDuplicate",
+            "description": "a unit of the descriptor's own units whose id or symbol is that of a PARAM_UNITS unit, or of another of its own units",
+            "x-code": 58,
+            "x-text": "{descriptor} declares a unit of its own whose id or symbol is that of a standard unit, or of another of its own units. Give the unit an id and a symbol of its own, or state the standard unit.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorUnitDuplicate"
           }
         ],
         "x-file": "codes.json",

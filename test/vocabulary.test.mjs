@@ -60,7 +60,7 @@ test('a term of the wrong format\'s shape, or without the citation its status as
 });
 
 test('an item named as a words item\'s ts export is refused', () => {
-  assert.ok(problems(texts((d) => { d[R].RESOURCE_BASES_WORDS = { kind: 'scalar', doc: 'x', unit: '', value: 1 }; })).some((p) => p.rule === 'words-export'));
+  assert.ok(problems(texts((d) => { d[R].RESOURCE_BASES_WORDS = { kind: 'scalar', doc: 'x', unit: 'none', value: 1 }; })).some((p) => p.rule === 'words-export'));
 });
 
 test('a word whose C name meets a words item\'s _COUNT is refused', () => {
@@ -104,7 +104,7 @@ test('every words item renders an X-macro, X(code, "word", NAME), in its declare
   const h = renderC(withCodes).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
   assert.match(h, /^#define OMX_QUALIFICATION_MEASUREMENT_VOICE_BASES\(X\) \\\n {4}X\(0u, "declared", DECLARED\) X\(1u, "probe", PROBE\)$/m);
   for (const r of [...withCodes.values()].filter((x) => x.kind === 'words')) {
-    // the code sheet of omx_param_units.h owns OMX_PARAM_UNITS(X), released: the words item's is _WORDS (omx-contract#151)
+    // omx-clap's code sheet header omx_param_units.h owns OMX_PARAM_UNITS(X): the words item's is _WORDS (omx-contract#151)
     const x = r.name === 'PARAM_UNITS' ? 'PARAM_UNITS_WORDS' : r.name;
     const m = h.match(new RegExp(`^#define OMX_${x}\\(X\\) \\\\\\n((?: {4}.*\\n?)+)`, 'm'));
     assert.ok(m, `${r.name} renders an X-macro`);
@@ -147,15 +147,13 @@ test('an owner\'s codes item, in a file with its own render word, stays out of t
 });
 
 // The macro name of the PARAM_UNITS words item does not depend on which other render is present (omx-contract#151): the
-// code sheet and omx_param_units.h move to omx-clap-core, and omx_vocabulary.h installs beside that header. With the
-// sheet's render removed from the tree, the item's X-macro is still OMX_PARAM_UNITS_WORDS, never OMX_PARAM_UNITS.
-test('the PARAM_UNITS X-macro is OMX_PARAM_UNITS_WORDS with the code sheet present or removed', () => {
-  const vocab = (d) => renderC(resolveData(loadData(null, texts(d)))).find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
-  const withSheet = vocab();
-  const noSheet = vocab((d) => { delete d['data/param-contract.json'].render; });
-  assert.ok(!renderC(resolveData(loadData(null, texts((d) => { delete d['data/param-contract.json'].render; })))).some((f) => f.path === 'omxcontract/omx_param_units.h'), 'positive control: the sheet header is not rendered');
-  for (const h of [withSheet, noSheet]) {
-    assert.match(h, /^#define OMX_PARAM_UNITS_WORDS\(X\) \\$/m);
-    assert.doesNotMatch(h, /^#define OMX_PARAM_UNITS\(X\)/m);
-  }
+// code sheet and omx_param_units.h moved to omx-clap (V23d), whose header still defines OMX_PARAM_UNITS(X), and
+// omx_vocabulary.h installs beside that header. With the sheet gone from this tree, the item's X-macro is still
+// OMX_PARAM_UNITS_WORDS, never OMX_PARAM_UNITS.
+test('the PARAM_UNITS X-macro is OMX_PARAM_UNITS_WORDS with the code sheet moved out', () => {
+  const files = renderC(resolveData(loadData(null, texts())));
+  assert.ok(!files.some((f) => f.path === 'omxcontract/omx_param_units.h'), 'positive control: no sheet header is rendered here');
+  const h = files.find((f) => f.path === 'omxcontract/omx_vocabulary.h').text;
+  assert.match(h, /^#define OMX_PARAM_UNITS_WORDS\(X\) \\$/m);
+  assert.doesNotMatch(h, /^#define OMX_PARAM_UNITS\(X\)/m);
 });

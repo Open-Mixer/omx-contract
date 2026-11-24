@@ -27,25 +27,24 @@ test('versions: what the schema may state against the package', () => {
     ['3.10.0', '3.8.0', true], ['3.9.1', '3.8.0', false], ['4.0.0', '3.8.0', false]]) assert.equal(schemaFits(schema, v), want, `${schema} against ${v}`);
 });
 
-test('versions: the schema is no newer than the next release, and nothing shipped needs a newer schema than it is', () => {
+test('versions: the schema is no newer than the next release, and nothing shipped states a schema floor (the devel wave 2026-11-24)', () => {
   const v = packageVersion(ROOT);
   const schema = JSON.parse(read('schema/omx-contract.schema.json'))['x-omx-schema-version'];
-  const n = (x) => x.split('.').map(Number).reduce((a, b) => a * 1000 + b, 0);
   assert.ok(schemaFits(schema, v), `x-omx-schema-version ${schema} is past the next release of the package ${v}`);
-  const floors = [];
+  const seen = [];
   const walk = (d) => {
     for (const f of readdirSync(join(ROOT, d), { withFileTypes: true })) {
       if (f.isDirectory()) walk(join(d, f.name));
       else if (f.name.endsWith('.json')) {
-        const floor = JSON.parse(read(join(d, f.name))).requires?.['omx-contract-schema'];
-        if (floor) floors.push([join(d, f.name), floor.replace(/^>= /, '')]);
+        seen.push(join(d, f.name));
+        const req = JSON.parse(read(join(d, f.name))).requires;
+        assert.ok(req === undefined || Array.isArray(req), `${join(d, f.name)} states requires as a map of floors`);
       }
     }
   };
   walk('data');
   walk('examples/descriptors');
-  assert.ok(floors.length > 0, 'positive control: the descriptor fixtures state a floor');
-  for (const [f, floor] of floors) assert.ok(n(floor) <= n(schema), `${f} requires schema ${floor}, newer than ${schema}`);
+  assert.ok(seen.length > 0, 'positive control: the walk reads files');
 });
 
 test('versions: package.json, the RPM spec and the debian changelog name one version', () => {
@@ -79,14 +78,15 @@ test('versions: npm publishes from publish.yml, by OIDC with no token', () => {
   assert.doesNotMatch(read('.github/workflows/release.yml'), /npm publish/);
 });
 
-// Every consumer requires the contract at a floor (`>= x.y.z`, omx-contract-schema and the owners' BuildRequires
-// alike); a package description that says it pins an exact version describes a rule no consumer keeps
-// (FreeMixer/omx-contract#108).
-test('packaging: the -devel and -dev descriptions say a consumer requires a floor, never an exact version', () => {
+// A consumer names the contract with no version and builds against the release installed beside it (the devel wave 2026-11-24: no
+// hand-kept floor); a package description that says it pins an exact version, or a floor, describes a rule no
+// consumer keeps (FreeMixer/omx-contract#108).
+test('packaging: the -devel and -dev descriptions say a consumer names it with no version, never an exact one or a floor', () => {
   for (const f of ['packaging/omx-contract.spec', 'debian/control']) {
     const text = read(f).split('%changelog')[0];
     assert.doesNotMatch(text, /exactly the version/, `${f} says a consumer pins an exact version`);
-    assert.match(text.replace(/\n \.?/g, ' ').replace(/\s+/g, ' '), /requires it at a floor/, `${f} says a consumer requires a floor`);
+    assert.doesNotMatch(text, /requires it at a floor/, `${f} says a consumer requires a floor`);
+    assert.match(text.replace(/\n \.?/g, ' ').replace(/\s+/g, ' '), /names it with no version/, `${f} says a consumer names it with no version`);
   }
 });
 
@@ -141,7 +141,7 @@ test('packaging: omx-contract-data holds the run-time data, noarch in both forma
   assert.doesNotMatch(rpmDevel, /^%\{_datadir\}\/omx-contract\/$/m, 'the development package no longer ships the whole share/omx-contract');
   // the headers that need no compiler; the C loader's two (omx_domain.h, omx_contract_codes.h) are libomx-domain-dev's
   const headers = readdirSync(join(ROOT, 'include/omxcontract')).filter((f) => f.endsWith('.h') && !['omx_domain.h', 'omx_contract_codes.h'].includes(f)).sort().map((f) => `usr/include/omxcontract/${f}`);
-  assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n').filter((l) => !l.startsWith('#')), [...headers, 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/pkgconfig/omx-contract.pc']);
+  assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n').filter((l) => !l.startsWith('#')), [...headers, 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/omx-contract/recipes', 'usr/share/pkgconfig/omx-contract.pc']);
   const rpmNames = /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split('\n  rpm:\n')[1])[1].trim().split(/\s+/);
   const packs = JSON.parse(read('share/omx-contract/languages.json')).languages.map((l) => `omx-contract-langpack-${l}`);
   assert.deepEqual(rpmNames.sort(), ['libomx-domain', 'libomx-domain-devel', 'omx-contract', 'omx-contract-data', 'omx-contract-devel', 'python3-omx-contract', ...packs].sort(), 'the release builds every RPM the spec declares');

@@ -3,10 +3,12 @@
 /**
  * The C headers an owner declares in its own file's `render.c` (docs/render.md, schema $defs/renderHeader): each
  * framed by the words the file states (header, guard, project, banner, brief, includes) and spelled by its sections:
- * numbers (every sheet, `<prefix><FIELD>`), codes (every codes item, `<prefix><NAME>`), scalars (the numbers spelled
- * OMX_<macro>, as omx_contract_limits.h spells them) and limits (every section of omx_contract_limits.h). A header
- * reads the items of its own file, or with `scope: package` every item of its package. The tool names no item and no
- * project here.
+ * numbers (every sheet, `<prefix><FIELD>`), codes (every codes item, `<prefix><NAME>`), strings (every sheet of
+ * strings, the X-macro `<table>(X)` over the defines a sibling header's numbers section renders), scalars (the numbers
+ * spelled OMX_<macro>, as omx_contract_limits.h spells them) and limits (every section of omx_contract_limits.h). A
+ * header reads the items of its own file, or with `scope: package` every item of its package; a strings section also
+ * reads, never changes, the sibling sheet and the standard unit list (docs/units.md, the render shape). The tool names
+ * no project here, and no item but that list.
  */
 
 import { documented, doxyLine } from './c-literals.mjs';
@@ -103,6 +105,39 @@ function tableOf(spec, items, header) {
   return `/** every field of the sheet as X(value, "field"), in its declared order, for a table a consumer builds at run time */\n#define ${spec.table}(X) \\\n${body.join(' \\\n')}`;
 }
 
+/** The words item a string sheet's values are `const`s of: the standard unit ids (docs/units.md, Q-a). */
+export const STRINGS_WORDS = 'PARAM_UNITS';
+
+/** Whether a sheet is a sheet of strings by what it declares (every field a plain string, none nested: schema $defs.sheetValue), never by what refs resolve to (data.mts sets r.strings). */
+export const isStringSheet = (r) => r.kind === 'sheet' && r.strings === true;
+
+/**
+ * strings: every sheet of strings as the X-macro `<table>(X)`, one `X(<prefix><F>, "<f>", "<value>")` per field in the
+ * sheet's order, `<prefix><F>` the very define the sibling header renders for the field (its numbers section's
+ * constCase, so `dbPerOct` is `DB_PER_OCT`), the value quoted. `read.sibling(prefix)` is the header of the package whose
+ * numbers.prefix is this prefix, with its sheets; `read.item(name)` an item of the read. Refused by name, the header,
+ * the item and the field: a field the sibling sheet does not name, a value that is no `const` of PARAM_UNITS, a read
+ * that lacks the sibling or PARAM_UNITS. A field of the sibling with no row is not refused here (docs/units.md, question
+ * 21: that is the owner's map check).
+ */
+function stringsSection(spec, items, header, read) {
+  const sheets = items.filter(isStringSheet);
+  if (!sheets.length) throw new Error(`${header}: a strings section with no sheet of strings to render`);
+  const sibling = read?.sibling(spec.prefix);
+  if (!sibling) throw new Error(`${header}: a strings section, and no other header of its package has numbers.prefix ${spec.prefix}: no sibling sheet whose defines the rows name`);
+  const named = new Map(sibling.sheets.flatMap((r) => ownerNames({ numbers: sibling.numbers }, r).map(([name, field]) => [field, [name, r.name]])));
+  const words = read.item(STRINGS_WORDS);
+  if (words?.kind !== 'words') throw new Error(`${header}: a strings section, and the read holds no ${STRINGS_WORDS}, the words item its values are consts of`);
+  const ids = new Set(Object.values(words.value).map((w) => w.word));
+  const siblingNames = sibling.sheets.map((r) => r.name).join(', ');
+  const rows = sheets.flatMap((r) => Object.entries(r.value).map(([field, v]) => {
+    if (!named.has(field)) throw new Error(`${header}: ${r.name}.${field}: no field of ${siblingNames}, the sheet of ${sibling.header} (numbers.prefix ${spec.prefix}): the row would name no define`);
+    if (!ids.has(v)) throw new Error(`${header}: ${r.name}.${field}: ${JSON.stringify(v)} is no const of ${STRINGS_WORDS}, a standard unit id`);
+    return `X(${named.get(field)[0]}, ${JSON.stringify(field)}, ${JSON.stringify(v)})`;
+  }));
+  return `/** ${spec.comment} */\n#define ${spec.table}(X) \\\n${rows.map((x) => `    ${x}`).join(' \\\n')}`;
+}
+
 /** codes: every codes item, a code per define. */
 function codesSection(spec, items, header) {
   const lines = items.filter((x) => x.kind === 'codes').flatMap((r) =>
@@ -113,13 +148,15 @@ function codesSection(spec, items, header) {
 
 /**
  * One header over `items` (a Map of resolved items, with its kernels). `blocks` renders the OMX_ spellings:
- * `scalars(items)` the declared-scalars block, `limits(items)` every section of omx_contract_limits.h.
+ * `scalars(items)` the declared-scalars block, `limits(items)` every section of omx_contract_limits.h. `read` is what a
+ * strings section reads beyond its own items, read-only: `sibling(prefix)` and `item(name)` (stringsSection).
  */
-export function renderOwnerHeader(spec, items, blocks) {
+export function renderOwnerHeader(spec, items, blocks, read) {
   const list = [...items.values()];
   const sections = [];
   if (spec.numbers) sections.push(numbersSection(spec.numbers, list, spec.header));
   if (spec.codes) sections.push(codesSection(spec.codes, list, spec.header));
+  if (spec.strings) sections.push(stringsSection(spec.strings, list, spec.header, read));
   if (spec.scalars) sections.push(`/** ${spec.scalars.comment} */\n${blocks.scalars(items)}`);
   if (spec.limits) sections.push(`${spec.limits.comment ? `/** ${spec.limits.comment} */\n` : ''}${blocks.limits(items)}`);
   const includes = (spec.includes ?? []).map((h) => `#include <${h}>\n`).join('');

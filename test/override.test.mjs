@@ -38,7 +38,9 @@ test('the schema: the override words, one major, a closed list of keys', () => {
   const arms = [
     (d) => { d.verdict = 'good'; },
     (d) => { delete d.plugin; },
-    (d) => { d.family = 'synth'; },
+    (d) => { d.family = 'Synth'; },
+    (d) => { d.family = 'fake_family'; },
+    (d) => { d.family = ''; },
     (d) => { d.controls['5'].meaning = 'unknown'; },
     (d) => { d.controls['5'].meaning = 'on'; },
     (d) => { d.controls['5'].travel.unit = 'unknown'; },
@@ -56,7 +58,15 @@ test('the schema: the override words, one major, a closed list of keys', () => {
     arm(d);
     assert.ok(overrideSchemaProblems(d).length > 0, `arm ${i}`);
   }
-  assert.deepEqual(read('schema/omx-contract.schema.json').$defs.override.properties.family.enum, ['none', 'gate', 'dynamics', 'limiter', 'deesser', 'eq', 'filter', 'drive', 'modulation', 'delay', 'reverb', 'pitch', 'utility'].map((w) => w), 'the families are PANEL_FAMILIES');
+  // Z1 (#161): which families exist is omx-panel's (its describe); here a family is an identifier, any one
+  const family = read('schema/omx-contract.schema.json').$defs.override.properties.family;
+  assert.equal(family.enum, undefined, 'no copy of PANEL_FAMILIES');
+  assert.equal(family.pattern, '^[a-z][A-Za-z0-9]*$');
+  for (const f of ['synth', 'eq', 'stereoTools']) {
+    const d = override('good');
+    d.family = f;
+    assert.deepEqual(overrideSchemaProblems(d), [], f);
+  }
   assert.deepEqual(read('schema/omx-contract.schema.json').$defs.overrideTravel.properties.scale.enum, PARAM_SCALE_IDS);
 });
 
@@ -159,8 +169,9 @@ test('a map covers the plugin\'s ends, strictly monotonic; a measured entry carr
 });
 
 test('the codes are registered, each with its name, and the override never touches the scan\'s fingerprint', () => {
-  for (const [name] of ARMS.slice(0, 8)) assert.match(CONTRACT_CODES[name], /^contract\.override\./);
-  assert.equal(Object.keys(CONTRACT_CODES).filter((k) => k.startsWith('override')).length, 8);
+  for (const [name] of ARMS.filter(([n]) => n.startsWith('override'))) assert.match(CONTRACT_CODES[name], /^contract\.override\./);
+  // every override code has its arm, read from CONTRACT_CODES and never counted by hand (test audit row 11)
+  assert.deepEqual(Object.keys(CONTRACT_CODES).filter((k) => k.startsWith('override') && !ARMS.some(([n]) => n === k)), []);
   assert.equal(apply([override('good')]).descriptor.paramsFingerprint, undefined);
 });
 

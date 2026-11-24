@@ -15,7 +15,6 @@ import { after, test } from 'node:test';
 import { CONTRACT_CODES } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
-import { SCHEMA_VERSION } from '../lib/validate.mjs';
 import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
 const CLI = join(ROOT, 'bin', 'omx-contract.mjs');
@@ -38,7 +37,6 @@ function contractDir({ clapCore = true } = {}) {
   const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
-    requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` },
     HOST_REPLY_CODES: {
       kind: 'codes', since: '0.22.0', doc: 'The refusals the verbs of this package answer.',
       codes: {
@@ -60,7 +58,7 @@ function hostdTree() {
   const tree = fresh('hostd');
   write(tree, 'data/verbs.json', {
     $schema: '../schema/omx-contract.schema.json',
-    requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}`, 'omx-clap': '>= 0.30.5' },
+    requires: ['omx-clap'],
     FIXTURE_REPLY_CODES: { kind: 'codes', since: '0.1.0', doc: 'the fixture codes', codes: { placementInvalid: placement } },
     FIXTURE_VERBS: {
       kind: 'verbs', since: '0.1.0', doc: 'the fixture verbs',
@@ -81,7 +79,7 @@ function hostdTree() {
 function qualifyTree({ codes = true } = {}) {
   const tree = fresh('qualify');
   write(tree, 'package.json', { name: '@openmixer/fixture-qualify' });
-  write(tree, 'data/formats/x.json', { $schema: '../../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, FIXTURE_SCALAR: { kind: 'scalar', doc: 'a scalar', unit: '', value: 1 } });
+  write(tree, 'data/formats/x.json', { $schema: '../../schema/omx-contract.schema.json', FIXTURE_SCALAR: { kind: 'scalar', doc: 'a scalar', unit: 'none', value: 1 } });
   if (codes) write(tree, 'schema/codes.json', { kind: 'codes', doc: 'the fixture codes', codes: { descriptorDuplicateSymbol: { code: 'qualify.descriptor.duplicate-symbol', doc: 'a symbol twice', text: { en: 'The plugin declares a symbol twice.' }, args: [] } } });
   write(tree, 'catalogs/ca.json', { $schema: '../schema/omx-contract.schema.json#/$defs/catalog', kind: 'catalog', lang: 'ca', owner: 'fixture-qualify', messages: { 'qualify.descriptor.duplicate-symbol': { text: 'El plugin declara un símbol dues vegades.', by: 'human' } } });
   return tree;
@@ -106,7 +104,6 @@ test('the host\'s installed contract directory never reaches these tests', () =>
   const pdir = join(host, String(SCHEMA_MAJOR), 'host-package');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
-    requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` },
     HOST_PACKAGE_VERBS: {
       kind: 'verbs', since: '0.1.0', doc: 'a host package whose verb names a code no fixture carries',
       verbs: { hostOnly: { verb: 'host_only', format: 'host_only', reply: 'resp 0', codes: [{ ref: 'HOST_REPLY_CODES.nowhere' }], implementedBy: { 'plugin-hostd': 'required' }, doc: 'a host verb' } },
@@ -143,26 +140,24 @@ test('a requirement found nowhere is refused by name: the requirement, every pla
   const r = run(hostdTree(), { OMX_CONTRACT_PATH: dir, PATH: process.env.PATH });
   assert.equal(r.status, 1, r.stderr);
   assert.ok(r.stderr.startsWith(`${CONTRACT_CODES.requiresUnresolved} `), r.stderr);
-  assert.match(r.stderr, /omx-clap >= 0\.30\.5/);
+  assert.match(r.stderr, /omx-clap \(required by data\/verbs\.json\)/);
   assert.ok(r.stderr.includes(dir), 'OMX_CONTRACT_PATH is named as a place looked');
   assert.match(r.stderr, /pkg-config/);
   assert.match(r.stderr, /--installed/);
   assert.doesNotMatch(r.stderr, /no item|undeclared/, 'never the false report');
 });
 
-test('a requirement installed below its floor is refused the same way', () => {
+test('a requirement is a name: any installed version of it is read, no floor (the devel wave 2026-11-24)', () => {
   const dir = contractDir();
   const m = join(dir, String(SCHEMA_MAJOR), 'omx-clap/MANIFEST.json');
   const doc = JSON.parse(readFileSync(m, 'utf8'));
   doc.version = '0.30.4';
   writeFileSync(m, JSON.stringify(doc));
   const r = run(hostdTree(), { OMX_CONTRACT_PATH: dir });
-  assert.equal(r.status, 1);
-  assert.ok(r.stderr.startsWith(`${CONTRACT_CODES.requiresUnresolved} `), r.stderr);
-  assert.match(r.stderr, /0\.30\.4/);
+  assert.equal(r.status, 0, r.stderr + r.stdout);
 });
 
-test('a tree with no requires beside the schema is read as before', () => {
+test('a tree with no requires is read as before', () => {
   const r = run(qualifyTree());
   assert.equal(r.status, 0, r.stderr + r.stdout);
 });

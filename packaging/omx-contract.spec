@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.21.0
+Version: 3.22.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -183,8 +183,8 @@ Everything you need to build against omx-contract: the C render of
 omx-contract under include/omxcontract (the limits header), omx-contract.pc
 (version, datadir, contractdir) and install-contract-dir.sh, which an owner's
 build installs its definitions with. The data it builds against is
-omx-contract-data, which it requires. A consumer requires it at a floor, the
-lowest release whose declarations it builds against.
+omx-contract-data, which it requires. A consumer names it with no version: it
+builds against the release installed beside it.
 Its documentation is on openmixer.org.
 
 %package -n libomx-domain
@@ -288,6 +288,7 @@ a floor, the lowest release whose functions it calls.
 %exclude %{_includedir}/omxcontract/omx_domain.h
 %exclude %{_includedir}/omxcontract/omx_contract_codes.h
 %{_datadir}/omx-contract/install-contract-dir.sh
+%{_datadir}/omx-contract/recipes/
 %{_datadir}/pkgconfig/omx-contract.pc
 %{_rpmmacrodir}/macros.omx-contract
 
@@ -306,6 +307,20 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Mon Nov 23 2026 Pau Aliagas <linuxnow@gmail.com> - 3.22.0-1
+- The unit codes of org.openmixer.param-contract/1 (OMX_PARAM_CONTRACT_UNITS,
+  data/param-contract.json) and their header omxcontract/omx_param_units.h move
+  to omx-clap in one step (V23d); a consumer that includes the header here
+  fails to build, naming it.
+- PARAM_UNITS_CLAP_ENCODED, a words item of the param domain: the standard unit
+  ids the CLAP extension encodes, each a copy of its PARAM_UNITS word.
+- A sheet of strings, and a header's strings section: the X-macro of a
+  code-to-id map over the defines a sibling header renders.
+- VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts a
+  verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the verbs
+  validator and render read them from the read only, refusing by name a read
+  that declares verbs and no HOSTING_VERB_HOSTS.
+
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 3.21.0-1
 - The vocabulary sorting pass (S0): each item lives with its owner.
 - The domain format carries verbs, reply codes, terms, sets and unit lists, a

@@ -15,7 +15,6 @@ The engine, plugin-hostd and a session never see an override. An override never 
 ```json
 {
   "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 3.7.0" },
   "override": 1,
   "plugin": { "id": "com.example.vintage-eq", "format": "clap" },
   "against": { "version": "1.4.2", "paramsFingerprint": "5f0c" },
@@ -30,7 +29,7 @@ The engine, plugin-hostd and a session never see an override. An override never 
 ```
 
 `$defs.override` holds the words and no other key stands: `override` (the major, `1`), `plugin` (`id`, `format`),
-`against` (`version`, `paramsFingerprint`), `family` (a word of `PANEL_FAMILIES`), `controls` and `made`. A control is
+`against` (`version`, `paramsFingerprint`), `family` (an identifier, `^[a-z][A-Za-z0-9]*$`: which families exist is omx-panel's, whose `describe` refuses one that is not a word of its `PANEL_FAMILIES`; ruling Z1, omx-contract#161), `controls` and `made`. A control is
 keyed by the descriptor control's `id` (a CLAP `clap_id` as a decimal string, an LV2 port symbol) and carries `label`,
 `group`, `meaning` (never `unknown`: absence means unknown), `band`, `hidden`, `travel` (`unit`, `scale`, `min`,
 `max`, `default`), `map` (`points`, `unit`, `scale`), `basis` (`person`, `measured`, `starter`; required) and `evidence`

@@ -16,11 +16,11 @@ import { renderTs } from '../render/ts.mjs';
 import { scratchDir, texts, undocumented } from './helpers.mjs';
 
 // the swell's kinds (soft, hard) planted with values: hard carries 4, soft none
-const planted = () => resolveData(loadData(null, texts((d, at) => { const s = at('data/kernels/swell.json', 'SWELL_KINDS'); s.values = [null, 4]; s.unit = 'x'; })));
+const planted = () => resolveData(loadData(null, texts((d, at) => { const s = at('data/kernels/swell.json', 'SWELL_KINDS'); s.values = [null, 4]; s.unit = 'coef'; })));
 
 test('json: the set carries its values and unit', () => {
   const it = JSON.parse(renderJson(planted(), '0.0.0')[0].text).items.SWELL_KINDS;
-  assert.deepEqual([it.value, it.values, it.unit], [['soft', 'hard'], [null, 4], 'x']);
+  assert.deepEqual([it.value, it.values, it.unit], [['soft', 'hard'], [null, 4], 'coef']);
 });
 
 test('ts: <SET>_VALUES maps each id to its value, null for none', () => {
@@ -32,7 +32,7 @@ test('ts: <SET>_VALUES maps each id to its value, null for none', () => {
 
 test('c: the value of each id that carries one, and no define for an id that carries none', () => {
   const h = undocumented(renderC(planted())[0].text);
-  assert.match(h, /^#define OMX_SWELL_KINDS_UNIT "x"\n#define OMX_SWELL_KINDS_HARD_VALUE 4\.0f\nstatic inline int omx_swell_kinds_value\(int id, float \*out\) \{$/m);
+  assert.match(h, /^#define OMX_SWELL_KINDS_UNIT "coef"\n#define OMX_SWELL_KINDS_HARD_VALUE 4\.0f\nstatic inline int omx_swell_kinds_value\(int id, float \*out\) \{$/m);
   assert.doesNotMatch(h, /OMX_SWELL_KINDS_SOFT_VALUE/);
 });
 
@@ -60,8 +60,8 @@ test('validate: no item may take the name of a set\'s values export', () => {
   const problems = validateData(loadData(null, texts((d, at) => {
     const s = at('data/kernels/swell.json', 'SWELL_KINDS');
     s.values = [null, 4];
-    s.unit = 'x';
-    d['data/rates.json'].SWELL_KINDS_VALUES = { kind: 'scalar', doc: 'a clash', unit: '', value: 1 };
+    s.unit = 'coef';
+    d['data/rates.json'].SWELL_KINDS_VALUES = { kind: 'scalar', doc: 'a clash', unit: 'none', value: 1 };
   })));
   assert.ok(problems.some((p) => p.rule === 'set-values' && /SWELL_KINDS_VALUES is the ts render's export/.test(p.message)));
 });

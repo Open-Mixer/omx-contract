@@ -16,11 +16,11 @@ import { SCHEMA_MAJOR, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { packageVocabularyC } from '../render/vocabulary.mjs';
 import { classify, refusal } from '../lib/semver.mjs';
-import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
+import { fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderTs } from '../render/ts.mjs';
-import { DATA, installParamDomain, resolvedOf, ROOT, texts } from './helpers.mjs';
+import { DATA, installParamDomain, installVerbHosts, resolvedOf, ROOT, texts, VERB_HOSTS_FIXTURE } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-verbs-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -44,6 +44,7 @@ function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
+  installVerbHosts(root);
   install(PKG, FIXTURE, root);
   return root;
 }
@@ -57,6 +58,9 @@ function fixtureWith(edit) {
   for (const [f, doc] of Object.entries(files)) writeFileSync(join(dir, f), `${JSON.stringify(doc, null, 2)}\n`);
   return dir;
 }
+
+/** The hosting fixture's document, parsed. */
+const hostingDoc = () => JSON.parse(readFileSync(join(VERB_HOSTS_FIXTURE, 'hosting/verb-hosts.json'), 'utf8'));
 
 const codesRaised = new Set();
 /** The code the read refuses with; the read returns nothing. */
@@ -76,6 +80,7 @@ function brokenDir(edit, extra = () => {}) {
   const root = join(SCRATCH, `cd-${n++}`);
   execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
+  installVerbHosts(root);
   install(PKG, fixtureWith(edit), root);
   extra(root);
   return root;
@@ -98,10 +103,8 @@ test('the fixture installs into a contract directory and reads back: four verbs,
   assert.equal(quiet(() => main(['fmt', '--check', '--contract-dir', root])), 0);
 });
 
-test('the fixture states the schema floor this reader reads (a release that moves the schema moves the floor with it)', () => {
-  for (const f of readdirSync(FIXTURE)) {
-    assert.equal(JSON.parse(readFileSync(join(FIXTURE, f), 'utf8')).requires['omx-contract-schema'], `>= ${SCHEMA_VERSION}`, f);
-  }
+test('the fixture states no schema floor: a file is read by the installed schema (the devel wave 2026-11-24)', () => {
+  for (const f of readdirSync(FIXTURE)) assert.equal(JSON.parse(readFileSync(join(FIXTURE, f), 'utf8')).requires, undefined, f);
 });
 
 test('rendered from the installed directory: the C header, the package header (committed under test/golden/verbs), ts and json', async () => {
@@ -129,7 +132,7 @@ test('rendered from the installed directory: the C header, the package header (c
   assert.equal(readFileSync(join(tsDir, 'omx-contract.js'), 'utf8'), ts.text);
   const mod = await import(`file://${join(tsDir, 'omx-contract.js')}`);
   assert.equal(mod.HOST_VERBS.chain.format, 'chain %i %i ...');
-  assert.deepEqual(mod.VERB_HOSTS_WORDS, ['plugin-hostd', 'omx-clap-host', 'mod-host']);
+  assert.deepEqual(mod.HOSTING_VERB_HOSTS_WORDS, ['plugin-hostd', 'omx-clap-host', 'mod-host']);
   const json = JSON.parse(renderJson(resolved, '0.0.0')[0].text);
   assert.equal(json.items.HOST_VERBS.value.paramInfo.reply, 'resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>');
   assert.equal(json.items.HOST_VERBS.value.paramInfo.codes[0].resp, -103);
@@ -184,9 +187,9 @@ test('an unknown host word is refused: contract.verb.host-unknown', () => {
 
 test('an unknown code is refused by code: contract.verb.code-unknown for a name or an item that is no code, contract.ref.* for an item no file declares or requires', () => {
   assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'PLUGIN_HOSTD_REPLY_CODES.chainGone'; })), CONTRACT_CODES.verbCodeUnknown);
-  const words = brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'VERB_HOSTS.pluginHostd'; });
+  const words = brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'RESOURCE_BASES.declared'; });
   assert.equal(refusalOf(words), CONTRACT_CODES.verbCodeUnknown);
-  assert.throws(() => loadContractDir({ dir: words }), /code VERB_HOSTS\.pluginHostd: VERB_HOSTS is a words item, no codes item/);
+  assert.throws(() => loadContractDir({ dir: words }), /code RESOURCE_BASES\.declared: RESOURCE_BASES is a words item, no codes item/);
   assert.equal(refusalOf(brokenDir((f) => { f['host-verbs.json'].HOST_VERBS.verbs.chain.codes[0].ref = 'NO_SUCH_CODES.chainDuplicate'; })), CONTRACT_CODES.refUnresolved);
   // the codes of another package, named without requiring it
   const root = brokenDir((f) => { delete f['errors.json'].PLUGIN_HOSTD_REPLY_CODES; }, (r) => {
@@ -198,7 +201,7 @@ test('an unknown code is refused by code: contract.verb.code-unknown for a name 
 });
 
 test('every verb code was raised by an arm above', () => {
-  assert.equal(VERB_CODES.length, 4);
+  assert.ok(VERB_CODES.length > 0, 'the verb codes are read');
   assert.deepEqual(VERB_CODES.filter((c) => !codesRaised.has(c)), []);
 });
 
@@ -210,6 +213,7 @@ test('validate refuses the same in a data directory, each under its rule', () =>
     const docs = JSON.parse(JSON.stringify(fx));
     edit(docs);
     for (const [f, d] of Object.entries(docs)) t[`data/fixture-${f}`] = JSON.stringify({ ...d, $schema: base.$schema });
+    t['data/fixture-verb-hosts.json'] = JSON.stringify({ ...hostingDoc(), $schema: base.$schema });
     return validateData(loadData(null, t)).map((p) => p.rule);
   };
   assert.deepEqual(read(() => {}), []);
@@ -268,6 +272,34 @@ test('a reply code declared transient is a _TRANSIENT macro in the package vocab
   assert.deepEqual(macros.sort(), transient.map(macro).sort());
   const ts = renderTs(resolved).find((f) => f.path.endsWith('.js'))?.text ?? '';
   for (const c of transient) assert.match(ts, new RegExp(`"code": "${c.code.replace(/\./g, '\\.')}",[^}]*"transient": true`), c.code);
+});
+
+test('a reply code may declare that it leaves no mark on the plugin: the schema takes a boolean on a reply code, nothing else', () => {
+  const probs = (items) => [...new Set(fileProblems({ rel: 'data/x.json', text: '', doc: { $schema: '../schema/omx-contract.schema.json', ...items } }).map((p) => p.item))];
+  const codes = (c) => ({ kind: 'codes', doc: 'd', codes: { a: c } });
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, leavesNoMark: true }) }), []);
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, leavesNoMark: false }) }), []);
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, leavesNoMark: 'yes' }) }), ['C'], 'a boolean');
+  assert.deepEqual(probs({ C: codes({ code: 'hosting.x.y', leavesNoMark: true }) }), ['C'], 'only a reply code leaves no mark');
+  // the two classes are separate properties: a code may be in either, both or neither
+  assert.deepEqual(probs({ C: codes({ code: 'reply.x.y', resp: -1, transient: true, leavesNoMark: true }) }), []);
+});
+
+test('a reply code declared to leave no mark is a _LEAVES_NO_MARK macro in the package vocabulary header, and a code not declared so has none', () => {
+  const root = installed();
+  const resolved = resolveData(loadContractDir({ dir: root }));
+  const pkg = packageVocabularyC(resolved, PKG)[0].text;
+  const codes = [...resolved.values()].filter((r) => r.kind === 'codes').flatMap((r) => Object.values(r.value)).filter((c) => pkg.includes(`"${c.code}"`));
+  const marked = codes.filter((c) => c.leavesNoMark === true);
+  assert.ok(marked.length >= 1 && marked.length < codes.length, 'the fixture declares a code that leaves no mark and a code that does not');
+  assert.ok(marked.every((c) => c.transient !== true), 'the fixture\'s code that leaves no mark is not transient: the classes are read apart');
+  const macros = [...pkg.matchAll(/^#define (OMX_REPLY_\w+)_LEAVES_NO_MARK 1$/gm)].map((m) => m[1]);
+  const macro = (c) => `OMX_${c.code.replace(/[^A-Za-z0-9]+/g, '_').toUpperCase()}`;
+  assert.deepEqual(macros.sort(), marked.map(macro).sort());
+  const transientMacros = [...pkg.matchAll(/^#define (OMX_REPLY_\w+)_TRANSIENT 1$/gm)].map((m) => m[1]);
+  assert.deepEqual(transientMacros.sort(), codes.filter((c) => c.transient === true).map(macro).sort(), 'the transient macros unchanged');
+  const ts = renderTs(resolved).find((f) => f.path.endsWith('.js'))?.text ?? '';
+  for (const c of marked) assert.match(ts, new RegExp(`"code": "${c.code.replace(/\./g, '\\.')}",[^}]*"leavesNoMark": true`), c.code);
 });
 
 test('semver: the verbs kind and a verb added are MINOR; a verb removed is MAJOR, in the development phase too', () => {

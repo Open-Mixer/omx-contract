@@ -364,6 +364,45 @@ test('--source --check is red for a stale or missing entry, with no endpoint; --
   assert.match(both.stderr, /two inputs/);
 });
 
+// ---- --source --check holds every catalog to the SOURCE's keys (omx-contract#48) -------------------------------------
+
+/** A source and one whole catalog per shipped language, each holding exactly `have` of the source's keys. */
+function checkedTree(source, have) {
+  const dir = scratchDir('omx-translate-keys-');
+  writeFileSync(join(dir, 'source.json'), JSON.stringify(source));
+  mkdirSync(join(dir, 'catalogs'));
+  for (const l of listed()) {
+    const messages = Object.fromEntries(have.map((k) => [k, { text: `[${l}] ${source[k].text}`, by: 'machine', model: 'm', source: sha(source[k].text) }]));
+    writeFileSync(join(dir, 'catalogs', `${l}.json`), JSON.stringify({ kind: 'catalog', lang: l, owner: 'web-ui', messages }));
+  }
+  return dir;
+}
+
+test('--source --check counts the source\'s keys, whole when every language holds all of them', async () => {
+  const dir = checkedTree(SOURCE, ['WEB_UI.common.action.save', 'WEB_UI.mixer.strip.name']);
+  const r = await run(sourceArgs(dir, '--check'));
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /6 languages \(ca, es, fr, de, it, pt\), 2 keys, whole and none stale/);
+});
+
+test('--source --check is red for a source key no catalog holds, naming it in every language', async () => {
+  const dir = checkedTree(SOURCE, ['WEB_UI.common.action.save']);
+  const r = await run(sourceArgs(dir, '--check'));
+  assert.equal(r.status, 1);
+  for (const l of listed()) assert.match(r.stderr, new RegExp(`${l}\\.json: WEB_UI\\.mixer\\.strip\\.name: missing`), l);
+  assert.doesNotMatch(r.stdout, /whole/);
+});
+
+test('--source never drops a source key by its shape: a plain string beside a sentence is refused by name, not skipped as a banner', async () => {
+  const source = { ...SOURCE, 'WEB_UI.new.key': 'A sentence written as a bare string' };
+  const dir = checkedTree(SOURCE, ['WEB_UI.common.action.save', 'WEB_UI.mixer.strip.name']);
+  writeFileSync(join(dir, 'source.json'), JSON.stringify(source));
+  const r = await run(sourceArgs(dir, '--check'));
+  assert.notEqual(r.status, 0, 'a source key left out of the count is no whole set');
+  assert.match(r.stderr, /WEB_UI\.new\.key/);
+  assert.doesNotMatch(r.stdout, /whole/);
+});
+
 // ---- no paid credit: a router alias whose fallback reaches a paid provider is refused ------------------------------
 
 const ROUTER = {

@@ -36,11 +36,10 @@ test('make install-python installs omx_contract with catalog and scale, and each
     const r = spawnSync('python3', ['-I', '-c', `import sys
 sys.path.insert(0, ${JSON.stringify(join(dest, 'py'))})
 import omx_contract.catalog, omx_contract.scale
-print(omx_contract.catalog.code_key("contract.dir.absent"))
 print("%.4f" % omx_contract.scale.scale_position({"scale": "log", "min": 20, "max": 20000}, 1000))
 `], { encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
-    assert.deepEqual(r.stdout.trim().split('\n').slice(1), ['0.5663']);
+    assert.deepEqual(r.stdout.trim().split('\n'), ['0.5663'], 'the installed reader answers: what the package jobs do not check');
   } finally {
     rmSync(dest, { recursive: true, force: true });
   }

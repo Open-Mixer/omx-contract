@@ -5,6 +5,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
 import { controlGlobal, isKernelFile, isUse, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { renderC } from '../render/c.mjs';
@@ -170,7 +171,24 @@ export function packedFiles() {
   return JSON.parse(out)[0].files.map((f) => f.path);
 }
 
+/**
+ * The package a domain directory names as its owner, its document's info.x-owner: the package install-contract-dir.sh
+ * --domain installs it for (#88). Test plumbing for installs whose subject is not the binding itself.
+ */
+export const domainOwner = (dir) => JSON.parse(readFileSync(join(dir, `${dir.replace(/\/+$/, '').split('/').pop()}.json`), 'utf8')).info['x-owner'];
+
 /** The `param` domain (the standard parameter words) installed into the contract directory `root`, as `make install` does beside data/. */
 export function installParamDomain(root) {
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '--domain', join(ROOT, 'contract.d/param'), root], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '--domain', join(ROOT, 'contract.d/param'), root, 'omx-contract'], { stdio: 'ignore' });
+}
+
+/**
+ * omx-clap's hosting/verb-hosts.json byte for byte (V29): HOSTING_VERB_HOSTS, the hosts a verb's implementedBy names.
+ * A fixture, so omx-contract neither builds nor tests against omx-clap: a read with verbs needs it, and has no fallback.
+ */
+export const VERB_HOSTS_FIXTURE = join(ROOT, 'test/fixtures/hosting-verb-hosts');
+
+/** Installs the verb hosts fixture into the contract directory `root` as omx-clap's, at 3/omx-clap/hosting/verb-hosts.json. */
+export function installVerbHosts(root) {
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), 'omx-clap', '0.34.0', String(SCHEMA_MAJOR), VERB_HOSTS_FIXTURE, root, 'data'], { stdio: 'ignore' });
 }

@@ -30,8 +30,10 @@ per control; an override may change the word (`travel.scale`) or give points (`m
 
 A Python surface (Zynthian, `zyngine/zynthian_position_law.py`) reads the same law from
 `share/omx-contract/omx_contract_scale.py`, hand-written and installed in `share/omx-contract/`:
-`LAWS`, `effective_law(travel)`, `scale_position(travel, value)` and `scale_value(travel, p)`, the same shape as
-`@openmixer/omx-contract/scale`; anything the TypeScript reader throws on, this one refuses with `ValueError`. It is
+`LAWS`, `Law`, `effective_law(travel)`, `scale_position(travel, value)` and `scale_value(travel, p)`, the same shape as
+`@openmixer/omx-contract/scale`. `Law` (and `Law` of the JS reader) has one named member per word of `LAWS`
+(`POSITION_LAWS`), made from it and never listed beside it: a surface that branches on one law writes `Law.LOG`, and
+a member is the word itself (`Law.LOG == "log"`, a `StrEnum` in Python, omx-contract#46); anything the TypeScript reader throws on, this one refuses with `ValueError`. It is
 held to the same `data/scale-vectors.json`.
 
 The library is JS and Python only: the C header and the TypeScript render hold data, none of the contract's

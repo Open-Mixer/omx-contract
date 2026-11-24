@@ -12,7 +12,6 @@ ruled and a domain moves, this page describes how that domain is rendered.
 
 ```json
 { "$schema": "../schema/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 2.15.0" },
   "render": {
     "c": [
       { "header": "clap_host_limits.h", "guard": "CLAP_HOST_LIMITS_H", "project": "omx-clap-host",
@@ -47,10 +46,11 @@ and one section or more, in this order:
 |---|---|
 | `numbers` `{ comment, prefix, omit?, levels?, table? }` | Every sheet: field `f` as `<prefix><F>`, `F` in upper snake case; a field matching `levels` (a glob) is a level, a float literal, every other a non-negative integer, an unsigned literal; fields matching `omit` are left out. Each define carries the field's `docs` line as a trailing `///<` comment. With `table`, the same fields once more as the X-macro `<table>(X)`, one `X(<value>, "<field>")` per field in the sheet's order: a consumer that names a value at run time (omx-clap-core's unit words) expands it instead of typing the table again. |
 | `codes` `{ comment, prefix }` | Every codes item: code `n` as `<prefix><N>`, a string literal, with its `doc`. |
+| `strings` `{ comment, prefix, table }` | Every sheet of strings (every field a string, none nested: the schema's `$defs.sheetValue`), as the X-macro `<table>(X)`, one `X(<prefix><F>, "<f>", "<value>")` per field in the sheet's order, `<prefix><F>` the very name the `numbers` section defines for the field (`F` its `constCase`: `dbPerOct` is `DB_PER_OCT`) and the value quoted (a standard unit id carries `-`). `prefix` is the `numbers.prefix` of a sibling header of the package, so the first argument is a define that header renders; this header does not include it. It refuses by name, naming the header, the item and the field, a field the sibling sheet does not name (a field its `omit` leaves out included) and a value that is no `const` of `PARAM_UNITS` (a key such as `db`, a symbol such as `%`), and a read that lacks the sibling header or `PARAM_UNITS`. A field of the sibling with no row is not refused here: that is the owner's map check ([units.md](units.md), question 21). The section reads those two items read-only, beside its own file's ([units.md](units.md), the render shape). omx-clap's `omx_param_unit_ids.h` (`OMX_PARAM_UNIT_IDS(X)`, the CLAP unit code to the standard id) is its first header; test/fixtures/package-strings is the fixture, test/golden/strings its golden. In a domain, whose one root `x-render` is the render block of the root's `x-file` (the units sheet's), the strings header takes `scope: package` to reach the string sheet in its own `x-file`; the units header keeps the default scope and meets no string. The scope names no item: every string sheet of the package joins the table, so a package that ships a strings header this way holds one string sheet (omx-clap's map check holds it to that). |
 | `scalars` `{ comment }` | Every number spelled `OMX_<macro>` as `omx_contract_limits.h` spells it, sorted by macro. |
 | `limits` `{ comment? }` | Every section of `omx_contract_limits.h`, the same defines under the same comments: the tables, scalars, lists, sets and readouts. With `scope: package` this is an owner's whole header (omx-dsp's `omxdsp/omxdsp_definitions.h`). |
 
-A words item's X-macro in `omx_vocabulary.h` is `OMX_<ITEM>(X)`, except for a name a released sheet header defines: the renderer holds that list (`RELEASED_SHEET_TABLES`, today `OMX_PARAM_UNITS`, the code sheet's table in `omx_param_units.h`), and such an item's X-macro is `OMX_<ITEM>_WORDS(X)`, so `PARAM_UNITS` is `OMX_PARAM_UNITS_WORDS(X)`. The list is fixed, not read from the renders present: the sheet and its header move to omx-clap-core, and the name stays the same there (omx-contract#151). A words item has no slot to name its macro; the list is the rule.
+A words item's X-macro in `omx_vocabulary.h` is `OMX_<ITEM>(X)`, except for a name a released sheet header defines: the renderer holds that list (`RELEASED_SHEET_TABLES`, today `OMX_PARAM_UNITS`, the code sheet's table in omx-clap's `omx_param_units.h`), and such an item's X-macro is `OMX_<ITEM>_WORDS(X)`, so `PARAM_UNITS` is `OMX_PARAM_UNITS_WORDS(X)`. The list is fixed, not read from the renders present: the sheet and its header moved to omx-clap (V23d), and the name stays the same there (omx-contract#151). A words item has no slot to name its macro; the list is the rule.
 
 A glob is a name, its start (`worker*`), its end (`*Dbfs`) or a part (`*Ring*`). `validate` refuses (rule `render-c`)
 a section with nothing to render, a number that is neither a level nor a non-negative integer, a prose of more than one
@@ -90,6 +90,12 @@ const PARAM_UNITS lacks are refused by name (rule `set-standard`), and the field
 json render carries `standard` on the item, the ts render exports `<SET>_STANDARD` (`{ <id>: <const> }`), and the c
 render `static const char *const OMX_<SET>_STANDARD[OMX_<SET>_COUNT]`, read by enumerator
 (`OMX_CURVE_UNITS_STANDARD[OMX_CURVE_UNITS_HZ]` is `"Hz"`).
+
+A set's C enumerator is `OMX_<SET>_<ID>`, the id in upper snake case, except an id that is a PARAM_UNITS const, in
+any set (a unit set such as omx-dsp's METER_UNITS, or a mixed one): its enumerator is named from the id's PARAM_UNITS
+title, the name `OMX_PARAM_UNITS_<TITLE>` already uses, so `dB` is `OMX_<SET>_DB`, `kHz` `_KHZ`, `dBFS` `_DBFS`, `dBu`
+`_DBU`, `dBTP` `_DBTP` and `dBPerOct` `_DB_PER_OCT`, never `_D_B` (ruling of 2026-11-23, omx-contract#206; any dB id,
+the devel wave 2026-11-24). The id stays the wire word.
 
 A domain (docs/contract-dir.md, "Domains") renders ONE file, its codes header, and nothing else (docs/runtime-data.md:
 its data is read at run time). `render --target c --package <domain>` writes `<domain>_codes.h`, guard
@@ -160,14 +166,19 @@ The rebuild, and nothing else:
   `x-transient` are its `resp` and `transient`, written after `code` (3.21.0, plugin-hostd-protocol's verbs);
 - an item with `"x-kind": "terms"` is the data item `{ "kind": "terms", ..., "format", "spec", "version",
   "deprecated", "terms" }`, each term keyed by its `const` as its `x-term` (3.21.0, the LV2 and CLAP terms);
+- an item with `"x-kind": "map"` is the data item `{ "kind": "formatMap", ..., "format", "rows" }`, each row keyed by
+  its `const` as `{ "term": <x-term>, "from": <x-from>, "word": <x-word>, "extension": <x-extension>, "dropped":
+  <x-dropped>, "doc": <description> }`, each key only when the row has it (omx-contract#191, plugin-hostd's
+  `PLUGIN_HOSTD_CLAP_MAP` and `PLUGIN_HOSTD_LV2_MAP`; test/domain-map.test.mjs rebuilds both byte for byte those of
+  plugin-hostd's data/formats at fac7531, its `$schema` and `requires` lines aside);
 - an item with `"x-kind": "scalar"` is the data item `{ "kind": "scalar", ..., "unit": <x-unit>, "value": <x-value> }`
   (plugin-db's `PLUGIN_DB_PIN_SHA256_HEX_LEN`); it has no `oneOf`;
 - an item with `"x-kind": "sheet"` is the data item `{ "kind": "sheet", ..., "value": <x-value>,
   "docs": <x-docs> }`, verbatim; it has no `oneOf`, so the loader's word lookups do not see it.
 
-A domain that declares `info.x-requires` gives every file it rebuilds a `requires`, its first key: the schema floor
-`"omx-contract-schema": ">= 3.0.0"`, then the declared packages in name order with their floors. A domain that declares
-none rebuilds its files with no `requires`, as before.
+A domain that declares `info.x-requires` gives every file it rebuilds a `requires`, its first key: the declared
+package and domain names in ascending order, no version (the devel wave 2026-11-24). A domain that declares none rebuilds its files with
+no `requires`, as before.
 
 A file both in `data/` and rebuilt from the domain (one `x-file` path) is refused by name: one source per file.
 
@@ -177,13 +188,13 @@ package its `info.x-owner` names, each at the place that package's own file woul
 manifest's `tree`), and reads them with the package's installed files; the domain directory of that name is then not
 also read as a domain. `--with-domain` repeats: several domains of one owner (an item of one naming an item of the
 other, the omx-clap `host` and `omx-clap` domains) rebuild into that one package in one read, and a file of one requires
-the other by its domain name (`info.x-requires`), held to its `info.version`. An owner whose contract is only domains
+the other by its domain name (`info.x-requires`), held to be in the read. An owner whose contract is only domains
 (a domain-only owner, below) need not be installed: the render builds the package `info.x-owner` names from its domains
 alone, at the domain's `info.version`. A consumer that renders another owner's vocabulary from the installed directory (the protocol's
 `plugin_db_vocabulary.h`) gets the bytes the owner's data form gave. Refused by name: an `info.x-owner` that is an
 installed domain, no package (`contract.package.absent`), a file the package both installs and rebuilds
-(`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed or is below its floor
-(`contract.package.absent`, `contract.package.too-old`), and a rebuilt word's term that the package or domain its
+(`contract.manifest.mismatch`), a package `info.x-requires` declares that is not installed
+(`contract.package.absent`), and a rebuilt word's term that the package or domain its
 `x-from` names does not declare (`contract.ref.unresolved`, `contract.ref.undeclared`, naming the word, the item and
 both packages). A
 domain without these words renders as above (index macros and `_COUNT`): `scan` and every domain today are unchanged.
@@ -242,3 +253,20 @@ outside a doc comment, and a `Doxyfile` that suppresses what it counts (`EXCLUDE
 limit: a declaration under a preprocessor condition false with only `CLAP_ABI` predefined is not read, as a compiler
 would not read it; the headers carry none. The script exits 0 at the baseline, 1 on a finding, 2 when it cannot run;
 `make` exits 2 on either.
+
+### The domains as a reference: `render --target md`
+
+`omx-contract render --target md --out <dir>` (omx-contract#202, the lane's ruling of 2026-11-24) writes the read's
+vocabularies as human-readable pages, a target of the one `render` command and no second generator: one page per
+domain, `<dir>/<domain>.md` (a nested domain's `/` read `-`: `dsp-kernels.md`), and one per package for the items of
+its classic data files, `<dir>/<package>.md`. It reads the same resolved items the json target reads, from `--data`,
+`--installed` or `--contract-dir` (`--package <p>` keeps that package's pages). A page gives each item, in name order,
+its name, kind, `since` and `doc`, then its `source` links when it has any (one line, `Source: impl ...; from ...`,
+each link with its own `at` where it has one; a domain item's `x-source`, omx-contract#215); a words item a table of its words (the word, its key, its group, unit symbol or
+dimension where it has one, and its `doc`), a codes item a table of its codes and their `doc`, a set its ids and
+default, a list its values and unit, a scalar its value and unit, and a sheet a table of its fields and values.
+
+It is also the doc check: an item with no `doc`, and a word or a code with none, is refused by page, item and word,
+one line each, and nothing is written (exit 1). `--check` holds `<dir>` to a fresh render byte for byte, as every
+target does. `make docs-site` writes omx-contract's pages under `$(DOCS_OUT)/domains/`; each owner publishes its own
+domains' pages the same way, so a domain is published once, by the repository that owns it.

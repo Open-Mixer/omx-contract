@@ -21,7 +21,6 @@ changes.
 ```json
 {
   "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": { "omx-contract-schema": ">= 3.0.0" },
   "origin": "authored",
   "plugin": { "id": "org.example.delay", "format": "clap", "name": "Delay", "features": ["audio-effect"] },
   "controls": [
@@ -61,7 +60,7 @@ Any other key or word is `contract.file.invalid`, never skipped.
 | control | `symbol` | The stable name a session keys the control by, beside a CLAP `clap_id`: our authored plugins' parameter-contract symbol, so a restore finds the control when ids move. Optional; an LV2 control's `id` is its symbol already | new |
 | control | `label` | The display name, when it differs from `name` | new |
 | control | `group` | A path, outer first: `["Filter", "Envelope"]`. CLAP `module`, LV2 `pg:group`, our panel section | new |
-| control | `meaning` | What the control does, from the closed list below. A skin binds by meaning, never by id | new |
+| control | `meaning` | The control's role: what it does, a word of PARAM_MEANINGS (below). REQUIRED on every control since 3.22.0 (omx-contract#61); a skin and a panel bind by meaning, never by id, and never infer a role from a name or a unit | new; required 3.22.0 |
 | control | `hidden`, `readonly`, `automatable` | CLAP `IS_HIDDEN`, `IS_READONLY`, `IS_AUTOMATABLE`; LV2 `pprops:notOnGUI`, an output control | new |
 | control | `source` | The control's own links, in the place of the file's | existing |
 | `travel` | units `frames`, `bpm`, `midiNote`, `LUFS`, `deg`, `ratio`, `dBTP`, `LU` | Units a plugin uses that no item does (below) | new; `ratio` 3.0.0; `dBTP` and `LU` for the loudness meters |
@@ -74,6 +73,7 @@ Any other key or word is `contract.file.invalid`, never skipped.
 | `latency` | `reports`, `frames`, `sweep` | `reports: true` when the plugin reports its latency; `frames` only for a constant the plugin defines, never a measured figure. `sweep: { min, max }` for a modulated delay (a rotary speaker), which has no single latency: its lag moves inside the sweep, for example 5 to 47 frames at 48 kHz, so a host checks a measured lag against the declared range, not one figure; the reported latency is the sweep's shortest read. `min` and `max` are each a non-negative integer of frames or a `{ ref }` to a scalar item whose unit is `frames` or `ms`; a consumer reads an ms value at the running rate, rounded to the nearest frame. The unit of a latency ref is honoured, for `sweep` and for `frames`. A sweep with `min` above `max` (both integers, or both refs to scalars in one unit), a sweep whose ends are in two units (an integer is frames, so an integer with an ms ref is mixed), or a latency ref to an item that is no scalar in frames or ms, is refused (`contract.descriptor.latency`). A plugin with no sweep declares none | new (minor) |
 | file | `easy` | The controls of the plugin's Easy face, in order, at most eight, each by its `symbol`, else its `id`: what a host opens the plugin on, with every control one click away. Optional; never in a `scanned` descriptor, whose scan has nothing to read it from. With none, a host's panel layout picks them from the roles (omx-panel `docs/panel-layout.md`) | new (minor) |
 | file | `choiceUnits` | The unit of a choice's values, declared once by the plugin: an object from a choice control's `name` to a unit, one of the descriptor units (`dB/oct` for a filter slope, `ratio`, `Hz`, ...), never `unknown`. Readers (the MOD GUI generator, the renderer, a host) read the unit here and keep no map of their own. Optional; a choice with no entry carries no unit | new (minor) |
+| file | `units` | The plugin's own units, which no unit of PARAM_UNITS is (docs/units.md, "Plugin particulars"): an array of `{ id, symbol, dimension, base, scale, text }`, `id` camelCase, `dimension` a word of PARAM_UNIT_DIMENSIONS, `base` and `scale` its conversion onto a unit, `text` its name by language. A custom unit has no wire code: the extension reports it as `none`. One whose `id` or `symbol` is the id or the symbol of a PARAM_UNITS unit (`dBu`, `%`), or of another of its own units, is refused (`contract.descriptor.unit-duplicate`). Optional | new (minor) |
 | `meters[]` | `id`, `symbol`, `name`, `doc`, `kind` (`gain-reduction`, `level`), `channels`, `unit`, `min`, `max`, `scale`, `measurement`, `held`, `clip`, `group`, `source` | A value the plugin publishes while it runs, which a host draws and never writes: CLAP `clap.meters/1` (`id` the meter id, `symbol` its `clap_meter_info.name`), LV2 output control ports. `symbol` is what a host reads it by: the LV2 port's symbol and the output symbol omx-clap-core derives from the CLAP name; a meter of more than one channel has one per channel, `<symbol>_<channel>` from 0. `min`, `max` and `scale` are the display range and scale, a kernel readout's ([readouts.md](readouts.md)) when `source.from` links one. Optional, in the plugin's order; no two meters share an id or a symbol, and no meter answers to a control's symbol. The kinds are what is measured: `level` in `dBFS`, `dBTP`, `LUFS` or `LU`, `gain-reduction` in `dB`; `rms`, `vu` and `ppm` are not words. `measurement`: what is measured, `peak` (dBFS), `true-peak` (dBTP), `lufs-m`, `lufs-s`, `lufs-i` (LUFS) or `lra` (LU) for a level, `gain-reduction` for a gain reduction; optional. `held`: the plugin keeps the block value until the host reads it (a foreign plugin that holds nothing is `false`, its meter unheld). `clip`: a level meter carries a sticky clip word latched by the reader, `false` declares it absent; only a level in `dBFS` or `dBTP` says `true`, and a gain reduction has none. Both are optional booleans | new (minor); `held`, `clip` new (minor) |
 | `integrity` | `version`, `commit` | The source the descriptor was generated from: `version` the plugin's own (`plugin.version`), `commit` the full 40-hex commit its release tag names, stamped at build. A host that links the plugin's table matches the build it links by `commit`, as it matches the plugin's RT verdicts. It names no binary: a descriptor package serves every architecture, the shipped binary is the stripped one, and a host that links the table never runs the binary. Optional; both keys required when it stands | new (minor), 3.14.0 |
 | `extensions` | `clap`, `lv2`: each `{ <source field>: <value> }` | The extension bag: a format's facts no word of ours carries, carried verbatim (below) | new (3.0.0) |
@@ -116,13 +116,13 @@ installed in the contract directory.
 
 ### Units
 
-The unit list is a words item (3.21.0, behaviour-core decision 3): `PARAM_UNITS` in `data/param-contract.json`,
+The unit list is a words item (3.21.0, behaviour-core decision 3): `PARAM_UNITS` of the `param` domain (`contract.d/param/param.json`),
 one word per unit, each its symbol as written (`dB`, `ms`, `""`, `dB/oct`), in the order the schema lists them. The
 schema's `$defs.unit` enum is rendered from it (`render --check` holds the committed schema to it), so a unit is added
 in one place. `descriptorUnit` keeps its plugin-only units beside it.
 
-A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st % x`, `""` and, since
-3.1.0, `dB/oct`, a slope such as a key filter's tilt, for which LV2 has no unit, and since 3.7.0 `LUFS`, a loudness, and `dB/s`, a gain change per second), one of the six below, or `unknown`.
+A descriptor's `travel.unit` is a unit of the item list (`dB dBFS ms s min Hz oct cents st %`, `""` and, since
+3.1.0, `dB/oct`, a slope such as a key filter's tilt, for which LV2 has no unit, since 3.7.0 `LUFS`, a loudness, and `dB/s`, a gain change per second, and since 3.21.0 `coef`, a coefficient, the plain multiplier, which replaces `x` (omx-contract#167)), one of the six below, or `unknown`.
 
 | Unit | Taken from |
 |---|---|
@@ -142,8 +142,22 @@ The item list is the units the items use; these seven are for descriptors, `LUFS
 
 ### Meanings
 
-The closed list, seeded from the roles our plugin panels bind. Where LV2's `param:` vocabulary or `lv2:designation`
-has the term, the meaning carries its name.
+A control's `meaning` is its ROLE, and it is declared, never inferred (ruling R1 of 2026-11-24 on omx-contract#61:
+declare, don't infer). Two controls can look alike to a consumer (a band's bandwidth in octaves and its Q, both
+plain numbers on one EQ band), and a consumer that guessed a role from a word in a name or from a unit guessed wrong
+(omx-panel's band grouping took the bandwidth as the Q). So:
+
+- `meaning` is REQUIRED on every control of every descriptor (schema 3.22.0). An `authored` descriptor states a word
+  of the list (never `unknown`, `contract.descriptor.unknown-authored`); a `built` or `scanned` one writes the word
+  the plugin states, or `unknown`.
+- The words are a closed words item of omx-contract's `param` domain, `PARAM_MEANINGS`
+  (`contract.d/param/param.json`), in the order below; the schema's `$defs.meaning` enum is its render
+  (`tools/unit-enum.mjs`, held by its `--check`), so a meaning is added in one place, a schema minor.
+- A consumer reads the declared word. A control whose meaning is `unknown` has no role: it is shown by its `group`
+  and `name` and bound to nothing. No consumer falls back to a name, a unit or a position to find a role.
+
+The list was seeded from the roles our plugin panels bind. Where LV2's `param:` vocabulary or `lv2:designation` has
+the term, the meaning carries its name.
 
 | Meaning | LV2 term |
 |---|---|
@@ -151,13 +165,15 @@ has the term, the meaning carries its name.
 | `wetDryRatio` (the mix of a wet and a dry signal) | `param:wetDryRatio` |
 | `delay` (a delay time) | `param:delay` |
 | `enabled` (on when the control is on; the inverse of `bypass`) | `lv2:enabled` |
-| `range`, `knee`, `hysteresis`, `makeup`, `lookahead`, `ceiling`, `output`, `q`, `slope`, `width`, `drive`, `tone`, `rate`, `depth`, `feedback`, `spread`, `predelay`, `size`, `damping`, `lowCut`, `highCut`, `shift`, `fine`, `sync`, `division`, `listen`, `shape`, `model`, `algorithm`, `mode`, `type`, `pingpong` | none |
+| `range`, `knee`, `hysteresis`, `makeup`, `lookahead`, `ceiling`, `output`, `q`, `bandwidth` (a band's width, in octaves; `q` is its quality factor, since 3.22.0), `slope`, `width`, `drive`, `tone`, `rate`, `depth`, `feedback`, `spread`, `predelay`, `size`, `damping`, `lowCut`, `highCut`, `shift`, `fine`, `sync`, `division`, `listen`, `shape`, `model`, `algorithm`, `mode`, `type`, `pingpong` | none |
+| `amount` (how strongly a process acts), `number` (voices, taps, bands or stages), `balance` (a pan, or one part's level against another's), `link` (a channel link), `solo` (one part heard alone; `listen` is the side signal), `order` (a chain's stage order), `acceleration` (how fast a moving part changes speed), `dispersion` (how far frequencies spread apart in time, a spring's chirp), `window` (how long a stretch of signal is read or turned at once) | none |
 | `unknown` | The plugin states no meaning |
 
-A control with no meaning in the list leaves `meaning` out and is shown by its `group` and `name`. A new meaning is
-a schema minor. One word per meaning, no synonyms: `on` is `enabled` and `speed` is `rate`, so neither is a
+An authored control whose role has no word in the list waits for its word (a new meaning is a schema minor); it
+never leaves `meaning` out. One word per meaning, no synonyms: `on` is `enabled` and `speed` is `rate`, so neither is a
 meaning, and the validator names the word to use when a file writes one. `shape`, `model`, `algorithm`, `mode` and
-`type` (a choice of which one) and `pingpong` (a delay's bounce) came with 3.7.0.
+`type` (a choice of which one) and `pingpong` (a delay's bounce) came with 3.7.0. The nine words of the row above `unknown`
+were added in 3.22.0 for roles omx-plugins' authored controls play and no word named (#221).
 
 ### Plugin features
 
@@ -202,6 +218,9 @@ CLAP struct fields, `rdfs:comment`, `doap:name`). `validate` refuses (rule `map-
 terms item, or a term of another format. The coverage test of the package that installs the map holds every field
 mapped once; the tool names no field.
 
+In a domain, a map is an item of `"x-kind": "map"` (docs/contract-dir.md, "Domains"): one row per source field, its
+class and its cover under their `x-` names, rebuilt by `render --with-domain` as this item.
+
 ## The three origins
 
 | Origin | What | Made by | Lives in | Its links |
@@ -230,6 +249,7 @@ file, the control or port, and the code; the reader refuses the whole read on th
 | `contract.descriptor.port-duplicate` | Two ports of one kind and direction with one `id` (CLAP numbers audio and note ports, inputs and outputs, apart). |
 | `contract.descriptor.range` | A travel whose `min` is above its `max`, whose `step` is negative, or whose `default` lies outside it. |
 | `contract.descriptor.latency` | A latency `sweep` whose `min` is above its `max` (both integers, or both refs to scalars in one unit), whose ends are in two units (an integer is frames), or a latency ref (`frames`, `sweep.min`, `sweep.max`) to an item that is no scalar in frames or ms. |
+| `contract.descriptor.unit-duplicate` | A unit of the descriptor's own `units` whose `id` or `symbol` is that of a PARAM_UNITS unit, or of another of its own units; the detail names the descriptor's unit and the unit it repeats. |
 | `contract.descriptor.choice` | A choice whose `default` is not one of its ids, or whose `labels` or `values` are not one per id. |
 | `contract.descriptor.scale-undeclared` | A scale that is neither an id of `PARAM_SCALES` nor `unknown`. |
 | `contract.descriptor.port-words` | `role`, `channels` or `layout` on a port that is not audio; `dialects` on a port that is not a note port, or a note port without them; a `layout` its `channels` contradict (`mono` 1, `stereo` 2, `surround` more than 2). |

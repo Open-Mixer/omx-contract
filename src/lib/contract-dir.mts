@@ -17,7 +17,7 @@ import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
 import { readCatalogs } from './domain-reader.mjs';
 import { parseStrict } from './json-strict.mjs';
-import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain, requiresNames } from './domain.mjs';
 import type { DomainCodes, DomainItems } from './domain.mjs';
 import { fromDifference, fromDifferences } from './word-from.mjs';
 import type { Json, JsonObject } from './json.mjs';
@@ -229,7 +229,7 @@ function referencesOf(rel, doc) {
  * Read the contract directory: `{ files, items, packages, roots }`, `files` and `items` in loadData's shape (each
  * file with `pkg`, `path` and `installed: true`, each item with `pkg`), files in the order of their reported path
  * (`<manifest tree>/<file>`, else `<package>/<file>`), `packages` a Map of package name to its manifest and dir.
- * `needs` is what the consumer requires, `{ <package>: '>= x.y.z' }`.
+ * `needs` is what the consumer requires, `{ <package>: '>= x.y.z' }`. A file's `requires` names packages, no version (the devel wave 2026-11-24).
  * @throws ContractRefusal, the first refusal met; see docs/contract-dir.md for the order.
  */
 export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEMA_MAJOR, withDomains = [] }: LoadContractDirOptions = {}): {
@@ -252,16 +252,20 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   // a domain (docs/contract-dir.md): <root>/<domain>/<domain>.json, read as the classic file of its items
   const domainFiles: Json[] = [];
   const domainItems: DomainItems[] = [];
-  // the packages each domain read declares in info.x-requires, held to their floors once every package is known
-  const declared: { at: string; requires: Record<string, string> }[] = [];
+  // the packages each domain read declares in info.x-requires, held to be in the read once every package is known
+  const declared: { at: string; requires: string[] }[] = [];
   // each domain of the read: its document, the package its items are read as, and whether it is rebuilt (--with-domain)
   const domains = new Map<string, { doc: Json; pkg: string; rebuilt: boolean }>();
   for (const root of roots) {
     for (const name of readdirSync(root).sort()) {
       const ddir = join(root, name);
-      if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || packages.has(name) || withDomains.some((w) => w.name === name)) continue;
+      // the first root that holds a domain wins, as for a package
+      if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || domains.has(name) || withDomains.some((w) => w.name === name)) continue;
       const path = join(ddir, `${domainLeaf(name)}.json`);
       const at = domainPath(name);
+      // a package-named directory is a domain only when it holds <name>/<name>.json; one of nested domains only
+      // (plugin-hostd's <contractdir>/plugin-hostd/) is read as before (ruling %4 2026-11-24)
+      if (!existsSync(path) && packages.has(name)) continue;
       if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
       const present = filesUnder(ddir).filter((f) => !(f.startsWith('catalogs/') && f.endsWith('.json')));
       if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
@@ -279,7 +283,12 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true, source: `contract.d/${at}` };
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-      packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
+      // a domain named like a package under <major>/ is that package's (ruling V16): read beside it, never skipped (#125),
+      // and the name stays the package's (#190)
+      const pkg = packages.get(name);
+      if (pkg === undefined) packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
+      else if (d.manifest.owner !== name) refuse('manifestMismatch', at, `the domain ${name} is named like the package ${name} under ${major}/, and its info.x-owner is ${d.manifest.owner}: a domain named like a package is that package's`);
+      else if (!Object.keys(pkg.manifest.files).length) pkg.codes = d.codes;
       declared.push({ at, requires: domainRequires(raw) });
       domains.set(name, { doc: raw, pkg: name, rebuilt: false });
       domainFiles.push(file);
@@ -308,12 +317,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (!m) refuse('schemaMajor', at, `$schema ${JSON.stringify(doc.$schema)} is not ${installedSchemaUrl(major)}`);
       const named = m[1];
       if (Number(named) !== major) refuse('schemaMajor', at, `$schema names schema major ${named}; this reader reads ${major}`);
-      if (doc.requires !== undefined && (typeof doc.requires !== 'object' || doc.requires === null || Array.isArray(doc.requires))) refuse('fileInvalid', at, 'requires is not a map');
-      const req = doc.requires ?? {};
-      for (const [k, v] of Object.entries(req)) if (!floorOf(v)) refuse('fileInvalid', at, `requires.${k} ${JSON.stringify(v)} is not a floor ">= x.y.z"`);
-      const floor = floorOf(req['omx-contract-schema']);
-      if (floor === undefined && name !== SCHEMA_PACKAGE) refuse('schemaFloorAbsent', at, 'requires.omx-contract-schema states no schema floor');
-      if (floor !== undefined && !atLeast(SCHEMA_VERSION, floor)) refuse('schemaTooOld', at, `requires omx-contract-schema >= ${floor}; this reader's schema is ${SCHEMA_VERSION}`);
+      requiresNames(doc.requires, (m) => refuse('fileInvalid', at, `requires ${m}`));
       if (isDescriptor(doc) && doc.origin === 'scanned') refuse('originMisplaced', at, 'a scanned plugin descriptor: what a machine found about itself is no declaration, and is never installed');
       const rel = `${manifest.tree ?? name}/${f}`;
       const file = { rel, text, doc, pkg: name, path: join(pdir, f), installed: true };
@@ -356,30 +360,21 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
 
   // the package that owns `pkg`: a domain's info.x-owner, a package itself
   const ownerOf = (pkg) => packages.get(pkg)?.manifest.owner ?? pkg;
-  // the domains rebuilt into a package: a file of it requires one by the domain's name, held to its info.version
+  // the domains rebuilt into a package: a file of it may name one in its requires, and it is in the read
   const rebuiltDomain = (pkg) => { const d = domains.get(pkg); return d?.rebuilt ? d : undefined; };
   for (const f of files) {
     // an installed domain's file requires what its info.x-requires names: packages and domains
     const own = domains.get(f.pkg);
-    const req = { ...(f.doc.requires ?? {}), ...(own && !own.rebuilt ? domainRequires(own.doc) : {}) };
+    const req = new Set<string>([...(f.doc.requires ?? []), ...(own && !own.rebuilt ? domainRequires(own.doc) : [])]);
     for (const [name, where] of referencesOf(f.rel, f.doc)) {
       const target = items.get(name);
       if (!target) refuse('refUnresolved', f.rel, `${where}: refers to ${name}, which no installed file declares`);
       // omx-contract's items, its data's or a domain's it owns, are every package's to name
-      if (target.pkg !== f.pkg && target.pkg !== SCHEMA_PACKAGE && ownerOf(target.pkg) !== SCHEMA_PACKAGE && !(target.pkg in req)) {
+      if (target.pkg !== f.pkg && target.pkg !== SCHEMA_PACKAGE && ownerOf(target.pkg) !== SCHEMA_PACKAGE && !req.has(target.pkg)) {
         refuse('refUndeclared', f.rel, `${where}: refers to ${name} of ${target.pkg}, which its requires does not name`);
       }
     }
-    for (const [pkg, v] of Object.entries(req)) {
-      if (pkg === 'omx-contract-schema') continue;
-      const rd = rebuiltDomain(pkg);
-      if (rd !== undefined) {
-        const have = (rd.doc.info as Json).version;
-        if (!atLeast(have, floorOf(v))) refuse('packageTooOld', f.rel, `requires ${pkg} ${v}, and the domain ${pkg} rebuilt here is ${have}`);
-        continue;
-      }
-      checkPackage(packages, pkg, v, f.rel);
-    }
+    for (const pkg of req) if (rebuiltDomain(pkg) === undefined) checkPackage(packages, pkg, f.rel);
     if (isDescriptor(f.doc)) latencyRefs(f.rel, f.doc, items);
   }
   // A domain-only owner's domains (its manifest's `domains`): each in the read, installed or rebuilt.
@@ -388,23 +383,17 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (!domains.has(d)) refuse('manifestMismatch', `${name}/MANIFEST.json`, `lists the domain ${d}, which is not installed`);
     }
   }
-  // A domain's declared packages (info.x-requires): installed, at or above the floor; the schema floor is this reader's.
+  // A domain's declared packages (info.x-requires): in the read, installed or rebuilt; no version is held (the devel wave 2026-11-24).
   for (const { at, requires } of declared) {
-    for (const [pkg, v] of Object.entries(requires)) {
-      const rd = rebuiltDomain(pkg);
-      if (rd !== undefined) {
-        if (!atLeast((rd.doc.info as Json).version, floorOf(v))) refuse('packageTooOld', at, `info.x-requires ${pkg} ${v}, and the domain ${pkg} rebuilt here is ${(rd.doc.info as Json).version}`);
-      } else if (pkg !== 'omx-contract-schema') checkPackage(packages, pkg, v, at);
-      else if (!atLeast(SCHEMA_VERSION, floorOf(v))) refuse('schemaTooOld', at, `info.x-requires omx-contract-schema ${v}; this reader's schema is ${SCHEMA_VERSION}`);
-    }
+    for (const pkg of requires) if (rebuiltDomain(pkg) === undefined) checkPackage(packages, pkg, at);
   }
   // A word's x-from (docs/contract-dir.md, "Domains"): a term of a terms item or a word of a words item (by its title),
   // of the package or domain its $ref names, which is omx-contract, the domain, its owner or one info.x-requires
-  // declares (held to its floor above), resolved here when that package or domain is in the read. A rebuilt domain's
+  // declares (held to be in the read above), resolved here when that package or domain is in the read. A rebuilt domain's
   // own words are its owner's; of a rebuilt domain only the words it rebuilds are in the read.
   for (const [name, { doc, pkg, rebuilt }] of domains) {
     const owner = (doc.info as Json)['x-owner'];
-    const allowed = new Set([name, owner, SCHEMA_PACKAGE, ...Object.keys(domainRequires(doc))]);
+    const allowed = new Set([name, owner, SCHEMA_PACKAGE, ...domainRequires(doc)]);
     for (const f of domainFroms(doc, { rebuilt })) {
       const where = `${domainPath(name)}: ${f.where} of the word ${JSON.stringify(f.word)}`;
       const ref = `${f.item}#${f.term}`;
@@ -412,7 +401,7 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const want = f.to === name ? pkg : domains.get(f.to)?.pkg ?? f.to;
       const target = items.get(f.item);
       // a package outside the read (omx-contract's data, an owner not installed beside its domain) is validate's to
-      // look for (rule word-from), as it always was; a declared one is in the read, its floor held above. An item of
+      // look for (rule word-from), as it always was; a declared one is in the read, held above. An item of
       // the read is never taken for it: that item is the package's that declares it.
       if (!packages.has(want)) {
         if (target) refuse('refUndeclared', where, `takes ${ref} from ${f.to}, which is not in the read, and ${f.item} is declared by ${target.pkg}, not by ${want}`);
@@ -448,7 +437,9 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
   if (role) refuse(role.name, role.rel, `${role.item}: ${role.message}`);
   for (const [pkg, v] of Object.entries(needs)) {
     if (!floorOf(v)) refuse('fileInvalid', 'needs', `${pkg} ${JSON.stringify(v)} is not a floor ">= x.y.z"`);
-    checkPackage(packages, pkg, v, 'needs');
+    checkPackage(packages, pkg, 'needs');
+    const have = packages.get(pkg).manifest.version;
+    if (!atLeast(have, floorOf(v))) refuse('packageTooOld', 'needs', `requires ${pkg} ${v}, and ${have} is installed`);
   }
   return { files, items, packages, roots };
 }
@@ -479,10 +470,8 @@ function rebuiltFiles({ name, doc, path }, packages, installed, major): Contract
   return out;
 }
 
-function checkPackage(packages, pkg, v, from) {
-  const p = packages.get(pkg);
-  if (!p) refuse('packageAbsent', from, `requires ${pkg} ${v}, which is not installed`);
-  if (!atLeast(p.manifest.version, floorOf(v))) refuse('packageTooOld', from, `requires ${pkg} ${v}, and ${p.manifest.version} is installed`);
+function checkPackage(packages, pkg, from) {
+  if (!packages.has(pkg)) refuse('packageAbsent', from, `requires ${pkg}, which is not installed`);
 }
 
 /** The version a read of the directory renders under: omx-contract's own manifest version, else `fallback`. */

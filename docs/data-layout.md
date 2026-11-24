@@ -16,15 +16,12 @@ data/
                                rates are omx-dsp's, sorting pass V22 and V25)
   resource-profile.json        RESOURCE_*: what a host plans a plugin for, the host profile's budget shape and the
                                hints a plugin declares about itself (docs/resource-hints.md)
-  param-contract.json          OMX_PARAM_CONTRACT_*: the unit codes of org.openmixer.param-contract/1, rendered to
-                               omx_param_units.h, read as data by omx-panel and plugin-hostd
-  verbs.json                   VERB_HOSTS: the hosts a package's verbs name in implementedBy (docs/contract-dir.md)
   (the format terms are their owners' domains: the LV2 terms plugin-db's `lv2` domain, sorting pass V27a, plugin-db#66;
    the CLAP terms omx-clap's `clap` domain, V27b, clap#163, with their inventories and coverage checks)
 ```
 
 The verbs are not here either: each package declares its own, in an item of kind `verbs` (docs/contract-dir.md "A
-package's verbs"); `verbs.json` holds only the hosts they name. The hosting codes are not here. Since 3.0.0 they are omx-clap-core's, one file per dimension in its own
+package's verbs"); the hosts they name are omx-clap's `HOSTING_VERB_HOSTS` (its `data/hosting/verb-hosts.json`, sorting pass V29). The hosting codes are not here. Since 3.0.0 they are omx-clap-core's, one file per dimension in its own
 `data/hosting/`, installed as `contract.d/3/omx-clap/hosting/` (docs/hosting.md).
 
 ## Where a new word goes
@@ -32,8 +29,7 @@ package's verbs"); `verbs.json` holds only the hosts they name. The hosting code
 | A word that is | Goes in | Its item |
 |---|---|---|
 | a resource a host plans for, its unit, its basis, a budget's scope | `resource-profile.json` | `RESOURCE_<LIST>`, kind `words` |
-| a unit code of the parameter contract extension | `param-contract.json` | `OMX_PARAM_CONTRACT_UNITS`, kind `sheet`, append-only |
-| a host a verb's `implementedBy` names | `verbs.json` | `VERB_HOSTS`, kind `words` |
+| a host a verb's `implementedBy` names | omx-clap's `data/hosting/verb-hosts.json` (V29) | `HOSTING_VERB_HOSTS`, kind `words` |
 | an LV2 term `<spec URI>#<name>` | plugin-db's `lv2` domain (V27a), with its mapping to the standard words | `LV2_<SPEC>_TERMS`, kind `terms` |
 | a CLAP identifier declared in `clap/<header>.h` | omx-clap's `clap` domain (V27b), with its mapping to the standard words | `CLAP_<HEADER>_TERMS`, kind `terms` |
 
@@ -54,7 +50,10 @@ not the one its path gives.
   code is never reworded. A reply code may carry `transient: true` (since 3.18.0, reply codes only): the refusal says
   nothing about the plugin or the request, and the same request may be taken later; the C vocabulary header has
   `<CODE>_TRANSIENT 1` for it and the TS render the property, so a client asks the property and keeps no list of codes
-  (plugin-hostd-protocol#23). A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
+  (plugin-hostd-protocol#23). A reply code may carry `leavesNoMark: true` (since 3.22.0, reply codes only): the
+  refusal leaves no mark on the plugin, no verdict and no history written for it, whether or not the same request may
+  pass later (a refused pin); the C header has `<CODE>_LEAVES_NO_MARK 1` and the TS render the property. It is a
+  property apart from `transient`. A changed code, or a reply code's changed `resp`, is a MAJOR change, an added one MINOR, a removed one MAJOR outside the
   development phase and MINOR in it (`semver`, as an item's removal). A code its writers stop writing is removed in the next release, never carried as retired (operator ruling 2026-10-20,
   omx-contract#64: no backwards compatibility before the first public release); the release's changelog names the
   code that takes its place, if any, and every consumer that still read the key moves in its own pin bump.
@@ -99,7 +98,9 @@ not the one its path gives.
   group the router answered with (its `x-litellm-model-group` header), else the model the answer names. Each answer
   passes the placeholder gate (exactly the source sentence's placeholders, each one of the key's
   `args`) or is refused, left out, and the run is red. A person's entry is never made again. `--source <file>` reads the source sentences from a file
-  instead of contract data (#24): `{ "<key>": { "text", "args" } }`, a string value being a generated file's banner,
+  instead of contract data (#24): `{ "<key>": { "text", "args" } }`, a key starting with `_` (`_generated`) being the file's
+  metadata and any other key that is no sentence refusing the file by name, so `--check` compares every catalog with the
+  file's whole key set,
   for strings that are no contract data (a surface's own, keyed `WEB_UI.<domain>.<path>`), with `--catalogs` and
   `--package`; everything else, `--check` included, is the same. `--owner <tree>` reads the tree's declared code
   locations: its `data/` and, for an owner whose codes are one bare item file, `schema/codes.json` (kind `codes` at

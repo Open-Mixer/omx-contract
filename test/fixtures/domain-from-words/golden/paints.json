@@ -1,8 +1,7 @@
 {
-  "requires": {
-    "omx-contract-schema": ">= 3.0.0",
-    "xa": ">= 1.0.0"
-  },
+  "requires": [
+    "xa"
+  ],
   "XB_PAINTS": {
     "kind": "words",
     "since": "1.0.0",

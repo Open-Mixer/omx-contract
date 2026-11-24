@@ -63,9 +63,9 @@ function addPackage(root, pkg, files, version = '1.0.0') {
   rehash(root, pkg, (m) => { m.version = version; });
 }
 
-/** A file of a package other than omx-contract: the installed $schema, a schema floor, and its items. */
-const owned = (items, requires = {}) => ({ $schema: URL3, requires: { 'omx-contract-schema': `>= ${SCHEMA_VERSION}`, ...requires }, ...items });
-const scalar = (value, extra = {}) => ({ kind: 'scalar', doc: 'a test scalar', unit: '', value, ...extra });
+/** A file of a package other than omx-contract: the installed $schema, the names it refers to (none: no requires), and its items. */
+const owned = (items, requires = []) => ({ $schema: URL3, ...(requires.length ? { requires } : {}), ...items });
+const scalar = (value, extra = {}) => ({ kind: 'scalar', doc: 'a test scalar', unit: 'none', value, ...extra });
 
 const codesRaised = new Set();
 /** The code the read of `root` refuses with; the read returns nothing. */
@@ -92,7 +92,8 @@ test('the install writes omx-contract\'s data/ with its manifest: every file, it
   assert.deepEqual(Object.keys(m.files).sort(), want);
   assert.ok(!want.includes('codes.json'), 'no codes file is in data/ any more');
   assert.equal(want.length, dataFiles(DATA).length);
-  assert.ok(want.includes('rates.json') && want.includes('verbs.json'), 'the shared facts and the vocabulary files');
+  assert.ok(want.includes('rates.json') && want.includes('resource-profile.json'), 'the shared facts and the vocabulary files');
+  assert.ok(!want.includes('verbs.json'), 'no host list: the verb hosts are omx-clap\'s HOSTING_VERB_HOSTS (V29)');
   assert.ok(!want.some((r) => r.startsWith('formats/')), 'no format terms: their owners\' domains hold them (V27a/V27b)');
   assert.ok(!want.some((r) => r.startsWith('hosting/')), 'the hosting codes are omx-clap-core\'s (docs/hosting.md)');
   for (const rel of want) {
@@ -197,7 +198,7 @@ test('contract.manifest.mismatch: an unlisted file, a listed file missing, a has
   writeFileSync(join(pkgDir(root, 'omx-contract'), 'stray.json'), '{}\n');
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch);
   root = installed();
-  rmSync(join(pkgDir(root, 'omx-contract'), 'param-contract.json'));
+  rmSync(join(pkgDir(root, 'omx-contract'), 'resource-profile.json'));
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch);
   root = installed();
   const p = join(pkgDir(root, 'omx-contract'), 'rates.json');
@@ -207,7 +208,7 @@ test('contract.manifest.mismatch: an unlisted file, a listed file missing, a has
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch, 'an edit after install is caught by its hash');
 });
 
-test('contract.schema.major, contract.schema.too-old and contract.schema.floor-absent', () => {
+test('contract.schema.major, and requires: a sorted list of names, never a map of floors, never empty (the devel wave 2026-11-24)', () => {
   let root = installed();
   addPackage(root, 'omx-dsp', { 'x.json': { ...owned({ TEST_A: scalar(1) }), $schema: installedSchemaUrl(2) } });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.schemaMajor);
@@ -215,27 +216,17 @@ test('contract.schema.major, contract.schema.too-old and contract.schema.floor-a
   addPackage(root, 'omx-dsp', { 'x.json': { ...owned({ TEST_A: scalar(1) }), $schema: '../schema/omx-contract.schema.json' } });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.schemaMajor, 'the relative $schema of data/ is not an installed form');
   root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1) }, { 'omx-contract-schema': '>= 3.99.0' }) });
-  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.schemaTooOld);
-  root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1) }, { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }) });
-  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'the floor at the reader\'s own schema is read');
-  root = installed();
   addPackage(root, 'omx-dsp', { 'x.json': { $schema: URL3, TEST_A: scalar(1) } });
-  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.schemaFloorAbsent);
-  root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1) }, { 'omx-contract-schema': '2.15.0' }) });
-  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.fileInvalid, 'a floor is written >= x.y.z');
-});
-
-test('the reader keeps no schema history: a floor older than the installed contract is not re-validated', () => {
-  // "dB/oct" is a unit schema 3.3.0 added; the file states a floor of 3.0.0. Nothing older than the installed schema
-  // is read in development, so there is no schema/history to look in and no floor-understated refusal.
-  assert.ok(!existsSync(join(ROOT, 'schema/history')), 'schema/history does not exist');
-  assert.ok(!/schema\/history|floor-understated/.test(readFileSync(join(ROOT, 'src/lib/contract-dir.mts'), 'utf8')), 'the reader names no history');
-  const root = installed();
-  addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(1, { unit: 'dB/oct' }) }, { 'omx-contract-schema': '>= 3.0.0' }) });
-  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'an older floor loads with no history lookup');
+  assert.equal(loadContractDir({ dir: root }).items.get('TEST_A').pkg, 'omx-dsp', 'a file with no requires refers to nothing and is read: no schema floor');
+  // red-first arm of the devel wave 2026-11-24: the map of floors, the form before it, is refused by name, as is an empty list
+  for (const [what, requires, says] of [['a map of floors', { 'omx-contract-schema': `>= ${SCHEMA_VERSION}` }, /map of version floors/], ['an empty map', {}, /map of version floors/], ['an empty list', [], /empty list/], ['a list out of order', ['omx-dsp', 'omx-clap'], /ascending order/], ['a name twice', ['omx-dsp', 'omx-dsp'], /ascending order/]]) {
+    root = installed();
+    addPackage(root, 'omx-dsp', { 'x.json': { $schema: URL3, requires, TEST_A: scalar(1) } });
+    let e;
+    try { loadContractDir({ dir: root }); } catch (x) { e = x; }
+    assert.equal(e?.code, CONTRACT_CODES.fileInvalid, what);
+    assert.match(e.message, says, what);
+  }
 });
 
 test('contract.file.not-json and contract.file.invalid', () => {
@@ -248,7 +239,7 @@ test('contract.file.not-json and contract.file.invalid', () => {
     assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.fileInvalid, JSON.stringify(items));
   }
   root = installed();
-  addPackage(root, 'omx-dsp', { 'kernels/k.json': { ...owned({}), controls: [{ name: 'a', kind: 'travel', doc: 'a', travel: { min: 0, max: 1, unit: '' } }], extra: {} } });
+  addPackage(root, 'omx-dsp', { 'kernels/k.json': { ...owned({}), controls: [{ name: 'a', kind: 'travel', doc: 'a', travel: { min: 0, max: 1, unit: 'none' } }], extra: {} } });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.fileInvalid, 'an unknown top-level key of a kernel file');
 });
 
@@ -268,11 +259,11 @@ test('contract.item.prefix: an item of a domain that does not start with its dom
 
 test('contract.kernel.duplicate: two packages each install a file of one kernel, even with names of their own', () => {
   const root = installed();
-  addPackage(root, 'omx-dsp', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'amount', kind: 'travel', doc: 'the kernel\'s row', travel: { min: 0, max: 1, unit: '' } }] } });
-  addPackage(root, 'openmixer', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: '' } }] } });
+  addPackage(root, 'omx-dsp', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'amount', kind: 'travel', doc: 'the kernel\'s row', travel: { min: 0, max: 1, unit: 'none' } }] } });
+  addPackage(root, 'openmixer', { 'kernels/hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: 'none' } }] } });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.kernelDuplicate);
   const other = installed();
-  addPackage(other, 'openmixer', { 'kernels/console_hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: '' } }] } });
+  addPackage(other, 'openmixer', { 'kernels/console_hrp.json': { ...owned({}), controls: [{ name: 'consoleOnly', kind: 'travel', doc: 'a console row', travel: { min: 0, max: 1, unit: 'none' } }] } });
   assert.ok(loadContractDir({ dir: other }).items.has('CONSOLE_HRP_CONSOLE_ONLY_RANGE'), 'a kernel of its own is read');
 });
 
@@ -287,20 +278,20 @@ test('contract.ref.unresolved and contract.ref.undeclared, and a reference its r
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.refUndeclared);
   root = installed();
   addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(3) }) }, '0.21.0');
-  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar({ ref: 'TEST_A' }), TEST_C: scalar({ ref: 'OMX_PARAM_CONTRACT_UNITS.ms' }) }, { 'omx-dsp': '>= 0.21.0' }) });
+  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar({ ref: 'TEST_A' }), TEST_C: scalar({ ref: 'STANDARD_QUANTA' }) }, ['omx-dsp']) });
   const r = resolveData(loadContractDir({ dir: root }));
   assert.equal(r.get('TEST_B').value, 3);
-  assert.equal(r.get('TEST_C').value, 2, 'an item of omx-contract needs no requires');
+  assert.deepEqual(r.get('TEST_C').value, r.get('STANDARD_QUANTA').value, 'an item of omx-contract needs no requires');
 });
 
-test('contract.package.absent and contract.package.too-old, from a file\'s requires and from the consumer\'s needs', () => {
+test('contract.package.absent from a file\'s requires (a name, no version: any installed omx-dsp is read), and from the consumer\'s needs', () => {
   let root = installed();
-  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar(1) }, { 'omx-dsp': '>= 0.21.0' }) });
+  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar(1) }, ['omx-dsp']) });
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.packageAbsent);
   root = installed();
   addPackage(root, 'omx-dsp', { 'x.json': owned({ TEST_A: scalar(3) }) }, '0.20.9');
-  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar(1) }, { 'omx-dsp': '>= 0.21.0' }) });
-  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.packageTooOld);
+  addPackage(root, 'omx-plugins', { 'y.json': owned({ TEST_B: scalar(1) }, ['omx-dsp']) });
+  assert.equal(loadContractDir({ dir: root }).items.get('TEST_B').pkg, 'omx-plugins', 'no floor is held: the installed omx-dsp is the one read');
   root = installed();
   assert.equal(refusalOf({ dir: root, needs: { 'omx-dsp': '>= 0.21.0' } }), CONTRACT_CODES.packageAbsent);
   assert.equal(refusalOf({ dir: root, needs: { 'omx-contract': '>= 99.0.0' } }), CONTRACT_CODES.packageTooOld);
@@ -320,27 +311,28 @@ test('a refusal stops the whole read: the CLI prints the code first, as JSON wit
   assert.equal(u.status, 2, 'fmt never writes an installed directory');
 });
 
-test('the schema words: requires is a map of floors, source a closed object of links; both validate in data/ too', () => {
+test('the schema words: requires is a sorted list of names, source a closed object of links; both validate in data/ too', () => {
   const probs = (doc, rel = 'data/x.json') => [...new Set(fileProblems({ rel, text: '', doc }).map((p) => `${p.item}:${p.rule}`))];
   const base = { $schema: '../schema/omx-contract.schema.json' };
   const link = 'include/omxdsp/omx_eq_design.h#OMX_EQ_LOWPASS_HANDOVER_Q_PEAK';
-  assert.deepEqual(probs({ ...base, requires: { 'omx-contract-schema': '>= 2.15.0', 'omx-dsp': '>= 0.21.0' }, source: { impl: link }, A: scalar(1, { source: { from: link, impl: [link, 'src/a.c#omx_a_plan'] } }) }), []);
+  assert.deepEqual(probs({ ...base, requires: ['omx-dsp'], source: { impl: link }, A: scalar(1, { source: { from: link, impl: [link, 'src/a.c#omx_a_plan'] } }) }), []);
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { from: { max: link }, impl: link, at: 'openmixer@6ee8a9b' } }) }), []);
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { impl: 'include/omxdsp/omx_eq_design.h#enum omx_eq_kind' } }) }), []);
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { impl: 'src/x.h#omx_hrp_family_search[guitar].maxVoices' } }) }), []);
-  assert.deepEqual(probs({ ...base, requires: { 'omx-contract-schema': '<= 2.15.0' } }), ['requires:schema']);
-  assert.deepEqual(probs({ ...base, requires: {} }), ['requires:schema']);
+  assert.deepEqual(probs({ ...base, requires: { 'omx-dsp': '>= 0.21.0' } }), ['requires:schema'], 'a map of floors');
+  assert.deepEqual(probs({ ...base, requires: [] }), ['requires:schema'], 'an empty list: absent is the one form');
+  assert.deepEqual(probs({ ...base, requires: ['omx-dsp', 'omx-dsp'] }), ['requires:schema'], 'a name twice');
   assert.deepEqual(probs({ ...base, source: { impl: 'no-hash-here' } }), ['source:schema']);
   assert.deepEqual(probs({ ...base, source: { impl: link, extra: 1 } }), ['source:schema']);
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { from: link } }) }).length > 0, false, 'from alone is a source');
   assert.deepEqual(probs({ ...base, A: scalar(1, { source: { at: 'not a package' } }) }), ['A:schema']);
-  const kernel = { $schema: '../../schema/omx-contract.schema.json', requires: { 'omx-contract-schema': '>= 2.15.0' }, source: { impl: link },
-    controls: [{ name: 'a', kind: 'travel', source: { impl: link }, doc: 'a', travel: { min: 0, max: 1, unit: '' } },
-      { name: 'b', kind: 'travel', table: 'K_T', source: { impl: link }, travel: { min: 0, max: 1, unit: '' } }], tables: { K_T: { doc: 't' } } };
+  const kernel = { $schema: '../../schema/omx-contract.schema.json', source: { impl: link },
+    controls: [{ name: 'a', kind: 'travel', source: { impl: link }, doc: 'a', travel: { min: 0, max: 1, unit: 'none' } },
+      { name: 'b', kind: 'travel', table: 'K_T', source: { impl: link }, travel: { min: 0, max: 1, unit: 'none' } }], tables: { K_T: { doc: 't' } } };
   assert.deepEqual(probs(kernel, 'data/kernels/k.json'), ['-:shape'], 'a table field carries no source of its own');
   delete kernel.controls[1].source;
   assert.deepEqual(probs(kernel, 'data/kernels/k.json'), []);
-  assert.equal(loadData(null, { 'data/x.json': JSON.stringify({ ...base, requires: { 'omx-contract-schema': '>= 2.15.0' }, source: { impl: link }, A: scalar(1) }) }).items.size, 1, 'requires and source declare no item');
+  assert.equal(loadData(null, { 'data/x.json': JSON.stringify({ ...base, requires: ['omx-dsp'], source: { impl: link }, A: scalar(1) }) }).items.size, 1, 'requires and source declare no item');
 });
 
 test('the schema states its version; its major is the package\'s and the directory\'s', () => {
@@ -374,6 +366,10 @@ test('a scanned plugin descriptor is no declaration: contract.origin.misplaced, 
 test('every reader refusal code was raised by an arm above (a code with no arm is a column with no reader)', () => {
   const reader = Object.entries(CONTRACT_CODES).filter(([k]) => !k.startsWith('source') && !k.startsWith('descriptor') && !k.startsWith('override') && !k.startsWith('verb') && !k.startsWith('role') && !k.startsWith('requires') && !k.startsWith('owner')).map(([, c]) => c);
   const elsewhere = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised-elsewhere.json'), 'utf8')).codes;
-  assert.deepEqual(reader.filter((c) => !codesRaised.has(c) && !(c in elsewhere)), []);
+  // retired by the devel wave 2026-11-24 (no schema floor is read): never raised, kept so no later code moves; the
+  // reader names neither, which the second assertion holds
+  const retired = [CONTRACT_CODES.schemaTooOld, CONTRACT_CODES.schemaFloorAbsent];
+  assert.deepEqual(reader.filter((c) => !codesRaised.has(c) && !(c in elsewhere) && !retired.includes(c)), []);
+  for (const f of ['src/lib/contract-dir.mts', 'bin/omx-contract.mjs', 'src/c/omx_domain.c']) assert.doesNotMatch(readFileSync(join(ROOT, f), 'utf8'), /schemaTooOld|schemaFloorAbsent|SCHEMA_TOO_OLD|SCHEMA_FLOOR_ABSENT/, `${f} raises a retired code`);
   assert.ok(codesRaised.size >= 14);
 });

@@ -6,7 +6,7 @@ export const domainSchema = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
   "title": "omx-contract domain document",
-  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets and scalars under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; x-dimensions and x-dimension likewise; a set's x-default being one of its words; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); and x-since and x-why, which the reader does not type.",
+  "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets, scalars, terms items and map items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; x-dimensions and x-dimension likewise; a set's x-default being one of its words; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); a map row's const being its title and the outcome and cover rules a schema states again by name; a map row's term link resolving to a term of a terms item of the map's format, which the read of all the data checks (validate, rule map-term); and x-since and x-why, which the reader does not type.",
   "type": "object",
   "required": [
     "$schema",
@@ -56,15 +56,14 @@ export const domainSchema = {
           ]
         },
         "x-requires": {
-          "description": "The packages (or domains) the domain's words take terms from, each with its floor: the requires every data file rebuilt from the domain carries, after the schema floor (docs/contract-dir.md, \"Domains\").",
-          "type": "object",
-          "propertyNames": {
+          "description": "The packages (or domains) the domain's words take terms from, by name, in ascending order and each once, no version: the requires every data file rebuilt from the domain carries (docs/contract-dir.md, \"Domains\"). A map of floors and an empty list are refused (the devel wave 2026-11-24): a domain that refers to nothing has none.",
+          "type": "array",
+          "items": {
+            "type": "string",
             "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$"
           },
-          "additionalProperties": {
-            "type": "string",
-            "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
-          }
+          "uniqueItems": true,
+          "minItems": 1
         }
       }
     },
@@ -85,7 +84,7 @@ export const domainSchema = {
       "additionalProperties": false,
       "properties": {
         "schemas": {
-          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet, a scalar or a terms item.",
+          "description": "The items of the domain, each named in upper snake case: a words item, a range item, a sheet, a scalar, a terms item or a map item.",
           "type": "object",
           "minProperties": 1,
           "propertyNames": {
@@ -107,6 +106,9 @@ export const domainSchema = {
               },
               {
                 "$ref": "#/$defs/terms"
+              },
+              {
+                "$ref": "#/$defs/map"
               }
             ]
           }
@@ -184,6 +186,18 @@ export const domainSchema = {
           "description": "The name of the words item of this document whose words are the dimensions of this item's words (a unit list's: what each unit measures); the data form's dimensions.",
           "type": "string"
         },
+        "x-units": {
+          "description": "V28 (#189): the name of the words item of this document whose words are the units its words' x-figure-unit names; the data form's units.",
+          "type": "string"
+        },
+        "x-bases": {
+          "description": "V28 (#189): the name of the words item of this document whose words are the bases its words' x-basis names; the data form's bases.",
+          "type": "string"
+        },
+        "x-extension": {
+          "description": "V28 (#189): the data form's extension, verbatim: the carriers (CLAP extension id, LV2 prefix and namespace) of a resource-hint item.",
+          "type": "object"
+        },
         "x-default": {
           "description": "A set's default: one of its words; the data form's default. Only on x-kind set.",
           "type": "string"
@@ -211,8 +225,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "description": "The data item's source, verbatim.",
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "oneOf": {
           "type": "array",
@@ -267,7 +280,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-value": {
           "description": "The data sheet's value, verbatim.",
@@ -303,7 +316,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-unit": {
           "description": "The scalar's unit, the data form's unit.",
@@ -348,7 +361,7 @@ export const domainSchema = {
           "pattern": "\\.json$"
         },
         "x-source": {
-          "type": "object"
+          "$ref": "#/$defs/source"
         },
         "x-format": {
           "description": "The format, the data form's format (lv2, clap).",
@@ -373,6 +386,197 @@ export const domainSchema = {
           }
         }
       }
+    },
+    "map": {
+      "description": "A map item (omx-contract#191, owner ruling 2026-11-23): one format's mapping table, every field a scan of the format reads, each a row keyed by its source field; rebuilt as the data form's formatMap item (docs/descriptors.md), whose rows validate checks. The runtime readers serve it as words, the words the source keys.",
+      "type": "object",
+      "required": [
+        "description",
+        "x-kind",
+        "x-format",
+        "oneOf"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "x-since": {},
+        "x-why": {},
+        "x-kind": {
+          "const": "map"
+        },
+        "x-file": {
+          "type": "string",
+          "pattern": "\\.json$"
+        },
+        "x-source": {
+          "$ref": "#/$defs/source"
+        },
+        "x-format": {
+          "description": "The format whose fields the rows map (lv2, clap), the data form's format.",
+          "type": "string"
+        },
+        "oneOf": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/mapRow"
+          }
+        }
+      }
+    },
+    "mapRow": {
+      "description": "One row of a map: const and title its source key, the field as the format names it (units:unit, clap_param_info.min_value, omx_clap_panel_display.meter_ids[0]); x-code its place; exactly one outcome, x-word, x-extension or x-dropped; exactly one cover, x-term or x-from; description its doc. The data form's row is { term, from, word, extension, dropped, doc }.",
+      "type": "object",
+      "required": [
+        "const",
+        "title",
+        "x-code"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "const": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\[[0-9]+\\])?([.:#/][A-Za-z0-9_][A-Za-z0-9_-]*(\\[[0-9]+\\])?)*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "x-code": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "x-term": {
+          "description": "The term link, <TERMS item>#<term>: the term of a terms item of the map's format (an x-kind terms item, its x-spec the standard) the field is; the data form's term.",
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*#[A-Za-z0-9][A-Za-z0-9._/+-]*$"
+        },
+        "x-from": {
+          "description": "For a field no terms item holds: where it is defined, a link <path>#<symbol>[.<field>] or an http(s) URL; the data form's from.",
+          "type": "string",
+          "minLength": 1
+        },
+        "x-word": {
+          "description": "The outcome descriptor word: the word the field becomes, the transform that converts it and that transform's data, the lookup sub-table values (a code token or unit IRI to its value; a unit's value is a PARAM_UNITS id spelled as its standard symbol, plugin-hostd#215 decision 2) or factor. Never code. The data form's word, verbatim.",
+          "type": "object",
+          "required": [
+            "word",
+            "transform"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "word": {
+              "type": "string",
+              "pattern": "^[a-z][A-Za-z0-9]*(\\[\\])?(\\.[a-z][A-Za-z0-9]*(\\[\\])?)*$"
+            },
+            "transform": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+            },
+            "values": {
+              "type": "object",
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "minProperties": 1
+            },
+            "factor": {
+              "type": "number"
+            }
+          },
+          "not": {
+            "required": [
+              "values",
+              "factor"
+            ],
+            "properties": {
+              "values": true,
+              "factor": true
+            }
+          }
+        },
+        "x-extension": {
+          "description": "The outcome extension passthrough: the field is carried in the descriptor's extension bag; the data form's extension.",
+          "const": true
+        },
+        "x-dropped": {
+          "description": "The outcome dropped-with-ruling: the field is read and dropped, by the ruling named (a plugin unit with no standard id is such a row, plugin-hostd#215 decision 2); the data form's dropped.",
+          "type": "object",
+          "required": [
+            "ruling"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ruling": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "x-word"
+          ],
+          "properties": {
+            "x-word": true
+          }
+        },
+        {
+          "required": [
+            "x-extension"
+          ],
+          "properties": {
+            "x-extension": true
+          }
+        },
+        {
+          "required": [
+            "x-dropped"
+          ],
+          "properties": {
+            "x-dropped": true
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "required": [
+                "x-term"
+              ],
+              "properties": {
+                "x-term": true
+              }
+            },
+            {
+              "required": [
+                "x-from"
+              ],
+              "properties": {
+                "x-from": true
+              }
+            }
+          ]
+        }
+      ]
     },
     "term": {
       "description": "One term: const and title its key (the data form's key, which may hold . / + -), x-code its place, x-term the term as the data form writes it.",
@@ -459,6 +663,14 @@ export const domainSchema = {
           "description": "A word of the item x-dimensions names: what the unit measures; the data form's dimension.",
           "type": "string"
         },
+        "x-figure-unit": {
+          "description": "V28 (#189): a word of the item x-units names, the unit the hint's figure is in; the data form's figureUnit.",
+          "type": "string"
+        },
+        "x-basis": {
+          "description": "V28 (#189): a word of the item x-bases names, how the hint's figure is known; the data form's basis.",
+          "type": "string"
+        },
         "x-format": {
           "description": "A verb's format, the line as mod-host's protocol_add_command takes it; the data form's format. Only on a verb.",
           "type": "string"
@@ -537,6 +749,88 @@ export const domainSchema = {
           }
         }
       }
+    },
+    "source": {
+      "type": "object",
+      "description": "Where a definition comes from and where it is implemented (docs/contract-dir.md): from, the provenance, a link compared to the whole value or a map from a field path of the value to a link; impl, the connector; at, <package>@<version> of links outside the owner's tree. A link may carry its own at ({ link, at }), which stands for it in place of the source's.",
+      "properties": {
+        "from": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/oneLink"
+            },
+            {
+              "type": "object",
+              "propertyNames": {
+                "pattern": "^[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)*$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/oneLink"
+              },
+              "minProperties": 1
+            }
+          ]
+        },
+        "impl": {
+          "$ref": "#/$defs/links"
+        },
+        "at": {
+          "$ref": "#/$defs/at"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "links": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/oneLink"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/oneLink"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      ]
+    },
+    "oneLink": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/link"
+        },
+        {
+          "$ref": "#/$defs/linkAt"
+        }
+      ]
+    },
+    "linkAt": {
+      "type": "object",
+      "description": "One link with its own at: <package>@<version> of the tree it lies in, in place of the source's (an impl in the owner's tree beside a from in the console's, at the commit it was imported from).",
+      "properties": {
+        "link": {
+          "$ref": "#/$defs/link"
+        },
+        "at": {
+          "$ref": "#/$defs/at"
+        }
+      },
+      "required": [
+        "link",
+        "at"
+      ],
+      "additionalProperties": false
+    },
+    "link": {
+      "type": "string",
+      "description": "<path>#<symbol>[.<field>|[<key>]]...: a path relative to the owner's root, a symbol defined there (enum X and struct X name a tag), and selectors into its value.",
+      "pattern": "^[A-Za-z0-9_+.-]+(/[A-Za-z0-9_+.-]+)*#((enum|struct|union) )?[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*|\\[[A-Za-z0-9_.-]+\\])*$"
+    },
+    "at": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*@[A-Za-z0-9._+-]+$"
     }
   }
 } as const;

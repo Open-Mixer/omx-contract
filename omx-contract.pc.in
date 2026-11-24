@@ -3,6 +3,8 @@
 prefix=@PREFIX@
 includedir=@INCLUDEDIR@
 datadir=@DATADIR@/omx-contract
+# the kernel recipe (recipes/kernel.recipe.json) a consumer's contract tools read, omx-contract#227
+recipesdir=${datadir}/recipes
 # the contract directory (docs/contract-dir.md): <contractdir>/<schema major>/<package>/
 contractdir=@CONTRACTDIR@
 # the schema major the contract directory is read under: <contractdir>/<schema_major>/<package>/

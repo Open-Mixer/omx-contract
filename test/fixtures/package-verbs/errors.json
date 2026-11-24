@@ -1,8 +1,5 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
-  "requires": {
-    "omx-contract-schema": ">= 3.21.0"
-  },
   "MOD_HOST_REPLY_CODES": {
     "kind": "codes",
     "since": "3.3.0",
@@ -34,6 +31,7 @@
       "chainUnknownInstance": {
         "code": "reply.plugin-hostd.chain-unknown-instance",
         "resp": -518,
+        "leavesNoMark": true,
         "doc": "PHD_ERR_CHAIN_UNKNOWN_INSTANCE: a member is an instance no add made"
       },
       "chainDuplicate": {

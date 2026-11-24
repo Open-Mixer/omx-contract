@@ -12,7 +12,7 @@ import { after, test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
 import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
-import { DATA, ROOT } from './helpers.mjs';
+import { DATA, ROOT, domainOwner } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-vocabulary-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
@@ -31,7 +31,7 @@ const defines = (text) => text.split('\n').filter((l) => l.startsWith('#define O
 test('render --package omx-contract is omx_vocabulary.h byte for byte, and its ts module exports every vocabulary item', async () => {
   const out = join(SCRATCH, `c-${n++}`);
   assert.equal(quiet(() => main(['render', '--target', 'c', '--package', 'omx-contract', '--out', out])), 0);
-  assert.deepEqual(readdirSync(out), ['omx_param_units.h', 'omx_vocabulary.h']);
+  assert.deepEqual(readdirSync(out), ['omx_vocabulary.h']);
   assert.equal(readFileSync(join(out, 'omx_vocabulary.h'), 'utf8'), COMMITTED);
   assert.equal(quiet(() => main(['render', '--target', 'c', '--package', 'omx-contract', '--out', join(ROOT, 'include/omxcontract'), '--check'])), 0);
   const ts = join(SCRATCH, `ts-${n++}`);
@@ -55,7 +55,7 @@ function withPackage(pkg, dir) {
   const root = join(SCRATCH, `cd-${n++}`);
   const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), ...a], { stdio: 'ignore' });
   sh('-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data');
-  sh('--domain', join(ROOT, 'contract.d/param'), root);
+  sh('--domain', join(ROOT, 'contract.d/param'), root, domainOwner(join(ROOT, 'contract.d/param')));
   sh(pkg, '0.13.0', String(SCHEMA_MAJOR), dir, root, 'data');
   return root;
 }

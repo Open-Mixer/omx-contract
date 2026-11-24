@@ -1,0 +1,26 @@
+# The whole dependency tree of the pinned datamodel-code-generator (tools/shapes-requirements.txt), each at the
+# version of a known-good install whose render is the committed one: pip install -r tools/shapes-requirements.txt
+# -c tools/shapes-constraints.txt. Resolved alike for Python 3.11, 3.12 and 3.15 (#71).
+annotated-types==0.8.0
+argcomplete==3.8.0
+black==26.10.1
+click==8.5.1
+datamodel-code-generator==0.97.0
+genson==1.4.0
+inflect==7.6.0
+isort==8.0.1
+jaraco-functools==4.6.0
+jinja2==3.1.6
+markupsafe==3.0.4
+more-itertools==11.2.1
+mypy-extensions==1.2.0
+packaging==26.4
+pathspec==1.1.1
+platformdirs==4.14.8
+pydantic==2.14.4
+pydantic-core==2.50.5
+pytokens==0.4.1
+pyyaml==6.0.4
+typeguard==4.6.1
+typing-extensions==4.16.0
+typing-inspection==0.4.5

@@ -6,9 +6,9 @@
     "version": "1.2.0",
     "x-owner": "omx-fixture",
     "x-stability": "experimental",
-    "x-requires": {
-      "aux": ">= 1.0.0"
-    }
+    "x-requires": [
+      "aux"
+    ]
   },
   "components": {
     "schemas": {

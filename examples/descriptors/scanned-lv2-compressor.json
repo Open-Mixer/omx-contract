@@ -1,8 +1,5 @@
 {
   "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
-  "requires": {
-    "omx-contract-schema": ">= 2.15.0"
-  },
   "origin": "scanned",
   "plugin": {
     "id": "urn:example:compressor",
@@ -27,7 +24,7 @@
       "id": "ratio",
       "name": "Ratio",
       "kind": "travel",
-      "travel": { "min": 1, "max": 20, "unit": "", "default": 4, "scale": "log" },
+      "travel": { "min": 1, "max": 20, "unit": "none", "default": 4, "scale": "log" },
       "group": ["Detector"],
       "meaning": "ratio",
       "source": { "from": "compressor.lv2/compressor.ttl#ratio" }

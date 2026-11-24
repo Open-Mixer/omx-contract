@@ -91,7 +91,7 @@ test('the authored delay: its travels on a linear scale, a toggle, the meanings,
   const d = fixture(AUTHORED);
   for (const c of d.controls.filter((x) => x.kind === 'travel')) assert.equal(c.travel.scale, 'linear', c.name);
   assert.equal(d.controls.find((c) => c.name === 'pingpong').kind, 'toggle');
-  assert.deepEqual(d.controls.map((c) => c.meaning), ['delay', 'feedback', 'tone', 'wetDryRatio', undefined]);
+  assert.deepEqual(d.controls.map((c) => c.meaning), ['delay', 'feedback', 'tone', 'wetDryRatio', 'pingpong']);
   assert.deepEqual(d.controls.map((c) => c.id), [0, 1, 2, 3, 4]);
   assert.deepEqual(d.latency, { reports: true, frames: 0 });
 });
@@ -123,24 +123,25 @@ test('the scanned CLAP plugin: every unit and scale unknown, its module path as 
 
 test('the scanned LV2 plugin: its units, a unit with no word as unknown, a side-chain input', () => {
   const d = fixture(SCANNED_LV2);
-  assert.deepEqual(d.controls.map((c) => c.travel?.unit ?? null), ['dB', '', 'unknown', 'dB', null, 'dB']);
+  assert.deepEqual(d.controls.map((c) => c.travel?.unit ?? null), ['dB', 'none', 'unknown', 'dB', null, 'dB']);
   assert.deepEqual(d.ports.map((p) => [p.role, p.channels, p.layout]), [['main', 2, 'stereo'], ['sidechain', 1, 'mono'], ['main', 2, 'stereo']]);
   assert.ok(d.controls.every((c) => c.source.from.startsWith('compressor.lv2/compressor.ttl#')));
 });
 
 test('the words are the closed lists of docs/descriptors.md', () => {
   const $ = SCHEMA.$defs;
-  // the descriptor units of PARAM_UNITS (the param domain, docs/units.md), then unknown; every unit a descriptor took before still taken
-  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'frames', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'coef', 'us', 'bytes', 'ns/sample', 'count', 'flag', 'unknown'] }]);
+  // the descriptor units of PARAM_UNITS (the param domain, docs/units.md), then unknown; every unit a descriptor took before still taken, but x, removed for coef (omx-contract#167)
+  assert.deepEqual($.descriptorUnit.anyOf, [{ $ref: '#/$defs/unit' }, { enum: ['dBTP', 'dBu', 'LU', 'kHz', 'MHz', 'bpm', 'bar', 'beat', 'm', 'cm', 'mm', 'km', 'inch', 'mile', 'deg', 'midiNote', 'ratio', 'us', 'bytes', 'nsPerSample', 'plainCount', 'flag', 'unknown'] }]);
   for (const u of ['frames', 'bpm', 'midiNote', 'LUFS', 'deg', 'ratio', 'dBTP', 'LU', 'unknown']) assert.ok([...$.unit.enum, ...$.descriptorUnit.anyOf[1].enum].includes(u), `${u} is still a descriptor's unit`);
-  for (const u of ['frames', 'bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
-  assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', '%', 'x', '', 'dB/oct', 'LUFS', 'dB/s'], 'the items\' units are as they were, dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0');
+  for (const u of ['bpm', 'midiNote', 'deg', 'ratio', 'unknown']) assert.ok(!$.unit.enum.includes(u), `${u} is no unit of the items`);
+  assert.deepEqual($.unit.enum, ['dB', 'dBFS', 'ms', 's', 'min', 'Hz', 'oct', 'cents', 'st', 'percent', 'none', 'dBPerOct', 'LUFS', 'dBPerS', 'frames', 'coef'], 'the items\' units: dB/oct appended in 3.1.0, LUFS and dB/s in 3.7.0, x removed for coef in 3.21.0 (omx-contract#167), frames a param unit (omx-contract#164)');
   assert.deepEqual($.meaning.enum, [
     'gain', 'threshold', 'ratio', 'attack', 'release', 'hold', 'decay', 'frequency', 'cutoffFrequency', 'resonance', 'bypass',
     'wetDryRatio', 'delay', 'enabled',
-    'range', 'knee', 'hysteresis', 'makeup', 'lookahead', 'ceiling', 'output', 'q', 'slope', 'width', 'drive', 'tone', 'rate',
+    'range', 'knee', 'hysteresis', 'makeup', 'lookahead', 'ceiling', 'output', 'q', 'bandwidth', 'slope', 'width', 'drive', 'tone', 'rate',
     'depth', 'feedback', 'spread', 'predelay', 'size', 'damping', 'lowCut', 'highCut', 'shift', 'fine', 'sync', 'division', 'listen',
     'shape', 'model', 'algorithm', 'mode', 'type', 'pingpong',
+    'amount', 'number', 'balance', 'link', 'solo', 'order', 'acceleration', 'dispersion', 'window',
     'unknown',
   ]);
   assert.deepEqual($.descriptor.properties.origin.enum, ['authored', 'built', 'scanned']);
@@ -150,7 +151,7 @@ test('the words are the closed lists of docs/descriptors.md', () => {
   assert.deepEqual($.port.properties.layout.enum, ['mono', 'stereo', 'surround']);
   assert.deepEqual($.port.properties.dialects.items.enum, ['clap', 'midi', 'midiMpe', 'midi2']);
   assert.deepEqual($.plugin.properties.features.items.enum, ['audio-effect', 'instrument', 'note-effect', 'analyzer']);
-  assert.deepEqual(Object.keys($.descriptor.properties), ['$schema', 'requires', 'origin', 'plugin', 'controls', 'ports', 'instrument', 'needs', 'latency', 'easy', 'meters', 'choiceUnits', 'integrity', 'extensions', 'source']);
+  assert.deepEqual(Object.keys($.descriptor.properties), ['$schema', 'requires', 'origin', 'plugin', 'controls', 'ports', 'instrument', 'needs', 'latency', 'easy', 'meters', 'choiceUnits', 'units', 'integrity', 'extensions', 'source']);
   assert.deepEqual($.descriptorIntegrity.required, ['version', 'commit']);
   assert.deepEqual(Object.keys($.descriptorIntegrity.properties), ['version', 'commit']);
   assert.deepEqual(PARAM_SCALE_IDS, ['linear', 'log', 'stepped']);
@@ -168,8 +169,8 @@ test('a word the schema does not have is contract.file.invalid, never skipped', 
     ['a feature with no word', (d) => { d.plugin.features = ['delay']; }],
     ['a layout with no word', (d) => { d.ports[0].layout = 'quad'; }],
     ['a key no descriptor has', (d) => { d.verdict = 'good'; }],
-    ['an item beside the words', (d) => { d.TEST_A = { kind: 'scalar', doc: 'x', unit: '', value: 1 }; }],
-    ['a toggle with a travel', (d) => { d.controls[4].travel = { min: 0, max: 1, unit: '', scale: 'linear' }; }],
+    ['an item beside the words', (d) => { d.TEST_A = { kind: 'scalar', doc: 'x', unit: 'none', value: 1 }; }],
+    ['a toggle with a travel', (d) => { d.controls[4].travel = { min: 0, max: 1, unit: 'none', scale: 'linear' }; }],
     ['a trigger with a default', (d) => { d.controls[4].kind = 'trigger'; }],
     ['a travel without its unit', (d) => { delete d.controls[0].travel.unit; }],
     ['a travel without its scale', (d) => { delete d.controls[0].travel.scale; }],
@@ -316,12 +317,48 @@ test('latency.sweep: a latency ref to an item that is no scalar in frames or ms 
   assert.equal(sweepRead({ reports: true, sweep: { min: { ref: 'ROT_NO_SUCH' }, max: 5 } }), CONTRACT_CODES.refUnresolved, 'an unknown ref is still the existing refusal');
 });
 
+// omx-contract#164: a scalar item may be in frames ($defs.unit holds frames), so a latency ref to a constant count of
+// frames can occur: frames and sweep refs to scalars in frames are read, and a frames pair out of order is refused.
+test('latency: a scalar item in frames is valid, and latency refs to it are read and held in order', () => {
+  const items = { ROT_LAG_FRAMES: { kind: 'scalar', doc: 'The shortest lag, in frames.', unit: 'frames', value: 5 }, ROT_LONG_FRAMES: { kind: 'scalar', doc: 'The longest lag, in frames.', unit: 'frames', value: 47 } };
+  const read = (latency) => {
+    const root = directory({ 'plugins/omx-delay.json': fixture(AUTHORED), 'plugins/x.json': withLatency(latency), 'plugins/frame-items.json': { $schema: fixture(AUTHORED).$schema, requires: fixture(AUTHORED).requires, ...items } });
+    try { loadContractDir({ dir: root }); } catch (e) { assert.ok(e instanceof ContractRefusal, e.message); return `${e.code}: ${e.message}`; }
+    return undefined;
+  };
+  assert.equal(read({ reports: true, frames: { ref: 'ROT_LAG_FRAMES' } }), undefined, 'frames: a scalar in frames');
+  assert.equal(read({ reports: true, sweep: { min: { ref: 'ROT_LAG_FRAMES' }, max: { ref: 'ROT_LONG_FRAMES' } } }), undefined, 'a frames pair in order');
+  assert.equal(read({ reports: true, sweep: { min: 3, max: { ref: 'ROT_LONG_FRAMES' } } }), undefined, 'an integer and a frames ref are one unit');
+  assert.match(read({ reports: true, sweep: { min: { ref: 'ROT_LONG_FRAMES' }, max: { ref: 'ROT_LAG_FRAMES' } } }) ?? '', new RegExp(`^${CONTRACT_CODES.descriptorLatency.replace(/\./g, '\\.')}`), 'a frames pair out of order');
+});
+
+// N1 (omx-contract#162, docs/units.md "Plugin particulars"): a descriptor's own units are its own. One whose id or symbol
+// is that of a PARAM_UNITS unit, or of another of its own, is contract.descriptor.unit-duplicate, by validation and by
+// the reader; a distinct own unit passes.
+test('units: a descriptor\'s own unit that repeats a standard unit, or another own unit, is contract.descriptor.unit-duplicate', () => {
+  const withUnits = (units) => { const d = fixture(AUTHORED); d.units = units; return d; };
+  const STONE = { id: 'stone', symbol: 'st.', dimension: 'count', text: { en: 'Stones in the sling' } };
+  assert.deepEqual(problemsOf(withUnits([STONE])), [], 'positive control: a unit of its own passes');
+  const code = 'contract.descriptor.unit-duplicate';
+  assert.equal(CONTRACT_CODES.descriptorUnitDuplicate, code, 'the code is in the contract domain');
+  for (const [what, units] of [
+    ['the id of a standard unit (dBu)', [{ id: 'dBu', symbol: 'dBu (mine)', dimension: 'level' }]],
+    ['the symbol of a standard unit (%)', [{ id: 'myPercent', symbol: '%', dimension: 'none' }]],
+    ['the id of another of its own', [STONE, { ...STONE, symbol: 'stones' }]],
+  ]) {
+    const d = withUnits(units);
+    assert.deepEqual(codesOf(d), [code], what);
+    assert.match(problemsOf(d)[0].message, /repeats|is also/, `${what}: the message names what it repeats`);
+    assert.equal(readerRefusal(d), code, `${what}: the reader refuses it too`);
+  }
+});
+
 // The codes another package raises, each with the code that raises it (test/fixtures/codes-raised-elsewhere.json).
 const ELSEWHERE = JSON.parse(readFileSync(join(ROOT, 'test/fixtures/codes-raised-elsewhere.json'), 'utf8')).codes;
 
 test('every descriptor code was raised by an arm above, through validation and through the reader', () => {
   const descriptor = Object.entries(CONTRACT_CODES).filter(([k]) => k.startsWith('descriptor')).map(([, c]) => c).filter((c) => !(c in ELSEWHERE));
-  assert.equal(descriptor.length, 14);
+  assert.equal(descriptor.length, 15);
   assert.deepEqual(descriptor.filter((c) => !raised.has(c)), []);
   assert.ok(raised.has(CONTRACT_CODES.originMisplaced));
 });

@@ -27,10 +27,10 @@ import { isMain } from '../lib/entry.mjs';
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SCHEMAS = ['schema/omx-contract.schema.json', 'shapes/travel.schema.json'];
 /**
- * The growth the coordinator ruled for a moving-out item (2026-11-21: V23d is not in this pass; vendor codes 260-263 so
- * the clap layer compiles). Nothing else may grow a moving-out item.
+ * The growth the coordinator ruled for a moving-out item. Empty: the one ruled growth (OMX_PARAM_CONTRACT_UNITS,
+ * 2026-11-21) went with the item, which moved to omx-clap (V23d). Nothing may grow a moving-out item.
  */
-export const GROW_RULED = new Map([['OMX_PARAM_CONTRACT_UNITS', new Set(['dbPerOct', 'dbPerS', 'dbtp', 'lu'])]]);
+export const GROW_RULED = new Map();
 const NAME = /^([A-Z][A-Za-z0-9_]*|[a-z][a-z0-9/.-]*\.json#(\/[^\s#]*)?)$/;
 
 /** The words of an item: the keys of what it enumerates, or the members of its list. */

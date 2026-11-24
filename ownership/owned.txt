@@ -3,6 +3,8 @@ PARAM_SCALES
 PARAM_UNITS
 PARAM_UNIT_DIMENSIONS
 PARAM_UNIT_SCOPES
+PARAM_UNITS_CLAP_ENCODED
+PARAM_MEANINGS
 CONTRACT_CODES
 schema/omx-contract.schema.json#/else/propertyNames/anyOf/0/enum
 schema/omx-contract.schema.json#/$defs/unit/enum

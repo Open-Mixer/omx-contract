@@ -112,7 +112,7 @@
     "RESOURCE_UNITS": {
       "description": "The units a resource figure is given in; an LV2 unit's name where LV2 has one.",
       "enum": [
-        "ns-per-sample",
+        "nsPerSample",
         "frames",
         "ms",
         "us",
@@ -123,7 +123,7 @@
         "flag"
       ],
       "x-omx-texts": {
-        "ns-per-sample": {
+        "nsPerSample": {
           "text": {
             "en": "Nanoseconds per sample."
           },
@@ -263,36 +263,8 @@
         }
       }
     },
-    "VERB_HOSTS": {
-      "description": "The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing.",
-      "enum": [
-        "plugin-hostd",
-        "omx-clap-host",
-        "mod-host"
-      ],
-      "x-omx-texts": {
-        "plugin-hostd": {
-          "text": {
-            "en": "The daemon that places plugins in workers and answers the verbs it adds itself."
-          },
-          "args": []
-        },
-        "omx-clap-host": {
-          "text": {
-            "en": "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
-          },
-          "args": []
-        },
-        "mod-host": {
-          "text": {
-            "en": "mod-host, the LV2 host whose protocol the others speak."
-          },
-          "args": []
-        }
-      }
-    },
     "PARAM_UNITS": {
-      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the symbols of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs). The list only grows: a unit is appended, never moved or removed. A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
+      "description": "The one list of standard units (the owner's ruling of 2026-11-20, standard vocabulary in one place; docs/units.md): each word's `x-symbol` is its symbol as written (`%`, `\"\"`, `dB/oct`), the word a name the wire can carry, its `x-dimension` what it measures (a word of PARAM_UNIT_DIMENSIONS) and its group its scope (a word of PARAM_UNIT_SCOPES). The schema's $defs.unit enum is the ids (consts) of the `param` units and $defs.descriptorUnit those of the `descriptor` units and `unknown`, in this order (tools/unit-enum.mjs): the id is the wire word, the `x-symbol` its display rendering only (C2, plugin-hostd#215 D1/D2). A word's code is its position in the list, not a wire number (the wire codes are omx-clap's, the unit codes of org.openmixer.param-contract/1): a reader takes the words, so a unit removed shifts the codes after it (omx-contract#167: `x` went, `coef` is the plain multiplier). A level's own spellings (an LV2 unit, a CLAP unit code) map onto these ids at that level.",
       "enum": [
         "dB",
         "dBFS",
@@ -304,11 +276,10 @@
         "cents",
         "st",
         "percent",
-        "x",
         "none",
-        "dB-oct",
+        "dBPerOct",
         "LUFS",
-        "dB-s",
+        "dBPerS",
         "dBTP",
         "dBu",
         "LU",
@@ -395,19 +366,13 @@
           },
           "args": []
         },
-        "x": {
-          "text": {
-            "en": "A multiplier."
-          },
-          "args": []
-        },
         "none": {
           "text": {
             "en": "No unit: a ratio or a fraction."
           },
           "args": []
         },
-        "dB-oct": {
+        "dBPerOct": {
           "text": {
             "en": "A slope in dB per octave (a tilt)."
           },
@@ -419,7 +384,7 @@
           },
           "args": []
         },
-        "dB-s": {
+        "dBPerS": {
           "text": {
             "en": "A gain change per second."
           },
@@ -713,6 +678,650 @@
         "descriptor": {
           "text": {
             "en": "A unit only a descriptor's control states."
+          },
+          "args": []
+        }
+      }
+    },
+    "PARAM_UNITS_CLAP_ENCODED": {
+      "description": "The standard units the CLAP extension org.openmixer.param-contract/1 encodes (docs/units.md, V23d B2): the ids that have a unit code at the CLAP level, each a word of PARAM_UNITS taken from it, in its order. omx-panel reads it to know whether a unit can be served; omx-clap's map check holds its code-to-id mapping onto it. The codes are omx-clap's; this item names none.",
+      "enum": [
+        "dB",
+        "dBFS",
+        "ms",
+        "s",
+        "min",
+        "Hz",
+        "oct",
+        "cents",
+        "st",
+        "percent",
+        "none",
+        "dBPerOct",
+        "LUFS",
+        "dBPerS",
+        "dBTP",
+        "dBu",
+        "LU",
+        "kHz",
+        "MHz",
+        "frames",
+        "bpm",
+        "bar",
+        "beat",
+        "m",
+        "cm",
+        "mm",
+        "km",
+        "inch",
+        "mile",
+        "deg",
+        "midiNote",
+        "ratio",
+        "coef"
+      ],
+      "x-omx-texts": {
+        "dB": {
+          "text": {
+            "en": "Decibels, a gain or a level relative to unity."
+          },
+          "args": []
+        },
+        "dBFS": {
+          "text": {
+            "en": "Decibels relative to digital full scale."
+          },
+          "args": []
+        },
+        "ms": {
+          "text": {
+            "en": "Milliseconds."
+          },
+          "args": []
+        },
+        "s": {
+          "text": {
+            "en": "Seconds."
+          },
+          "args": []
+        },
+        "min": {
+          "text": {
+            "en": "Minutes."
+          },
+          "args": []
+        },
+        "Hz": {
+          "text": {
+            "en": "Hertz, a frequency."
+          },
+          "args": []
+        },
+        "oct": {
+          "text": {
+            "en": "Octaves, a bandwidth or an interval."
+          },
+          "args": []
+        },
+        "cents": {
+          "text": {
+            "en": "Cents, a hundredth of a semitone."
+          },
+          "args": []
+        },
+        "st": {
+          "text": {
+            "en": "Semitones."
+          },
+          "args": []
+        },
+        "percent": {
+          "text": {
+            "en": "Percent."
+          },
+          "args": []
+        },
+        "none": {
+          "text": {
+            "en": "No unit: a ratio or a fraction."
+          },
+          "args": []
+        },
+        "dBPerOct": {
+          "text": {
+            "en": "A slope in dB per octave (a tilt)."
+          },
+          "args": []
+        },
+        "LUFS": {
+          "text": {
+            "en": "A loudness (ITU-R BS.1770)."
+          },
+          "args": []
+        },
+        "dBPerS": {
+          "text": {
+            "en": "A gain change per second."
+          },
+          "args": []
+        },
+        "dBTP": {
+          "text": {
+            "en": "Decibels true peak, a level measured between the samples (ITU-R BS.1770)."
+          },
+          "args": []
+        },
+        "dBu": {
+          "text": {
+            "en": "Decibels relative to 0.7746 volts RMS, an analogue level."
+          },
+          "args": []
+        },
+        "LU": {
+          "text": {
+            "en": "Loudness units, a loudness difference or range (EBU R 128)."
+          },
+          "args": []
+        },
+        "kHz": {
+          "text": {
+            "en": "Kilohertz, a frequency."
+          },
+          "args": []
+        },
+        "MHz": {
+          "text": {
+            "en": "Megahertz, a frequency."
+          },
+          "args": []
+        },
+        "frames": {
+          "text": {
+            "en": "Audio frames, one sample on each channel."
+          },
+          "args": []
+        },
+        "bpm": {
+          "text": {
+            "en": "Beats per minute, a tempo."
+          },
+          "args": []
+        },
+        "bar": {
+          "text": {
+            "en": "Bars, a musical length."
+          },
+          "args": []
+        },
+        "beat": {
+          "text": {
+            "en": "Beats, a musical length."
+          },
+          "args": []
+        },
+        "m": {
+          "text": {
+            "en": "Metres, a length."
+          },
+          "args": []
+        },
+        "cm": {
+          "text": {
+            "en": "Centimetres, a length."
+          },
+          "args": []
+        },
+        "mm": {
+          "text": {
+            "en": "Millimetres, a length."
+          },
+          "args": []
+        },
+        "km": {
+          "text": {
+            "en": "Kilometres, a length."
+          },
+          "args": []
+        },
+        "inch": {
+          "text": {
+            "en": "Inches, a length."
+          },
+          "args": []
+        },
+        "mile": {
+          "text": {
+            "en": "Miles, a length."
+          },
+          "args": []
+        },
+        "deg": {
+          "text": {
+            "en": "Degrees, an angle."
+          },
+          "args": []
+        },
+        "midiNote": {
+          "text": {
+            "en": "A MIDI note number."
+          },
+          "args": []
+        },
+        "ratio": {
+          "text": {
+            "en": "A ratio n:1, a compressor's or an expander's."
+          },
+          "args": []
+        },
+        "coef": {
+          "text": {
+            "en": "A coefficient, a plain multiplier with no unit of its own."
+          },
+          "args": []
+        }
+      }
+    },
+    "PARAM_MEANINGS": {
+      "description": "What a descriptor control does, its ROLE (docs/descriptors.md, \"Meanings\"; ruling R1 of 2026-11-24 on omx-contract#61: declare, don't infer): required on every control, a closed list, one word per meaning. Where LV2's param: vocabulary or lv2:designation has the term the word carries its name. The schema's $defs.meaning enum is these words in this order (tools/unit-enum.mjs). `unknown`: the plugin states none, and a consumer binds nothing to it.",
+      "enum": [
+        "gain",
+        "threshold",
+        "ratio",
+        "attack",
+        "release",
+        "hold",
+        "decay",
+        "frequency",
+        "cutoffFrequency",
+        "resonance",
+        "bypass",
+        "wetDryRatio",
+        "delay",
+        "enabled",
+        "range",
+        "knee",
+        "hysteresis",
+        "makeup",
+        "lookahead",
+        "ceiling",
+        "output",
+        "q",
+        "bandwidth",
+        "slope",
+        "width",
+        "drive",
+        "tone",
+        "rate",
+        "depth",
+        "feedback",
+        "spread",
+        "predelay",
+        "size",
+        "damping",
+        "lowCut",
+        "highCut",
+        "shift",
+        "fine",
+        "sync",
+        "division",
+        "listen",
+        "shape",
+        "model",
+        "algorithm",
+        "mode",
+        "type",
+        "pingpong",
+        "amount",
+        "number",
+        "balance",
+        "link",
+        "solo",
+        "order",
+        "acceleration",
+        "dispersion",
+        "window",
+        "unknown"
+      ],
+      "x-omx-texts": {
+        "gain": {
+          "text": {
+            "en": "A gain."
+          },
+          "args": []
+        },
+        "threshold": {
+          "text": {
+            "en": "A threshold."
+          },
+          "args": []
+        },
+        "ratio": {
+          "text": {
+            "en": "A dynamics ratio."
+          },
+          "args": []
+        },
+        "attack": {
+          "text": {
+            "en": "An attack time."
+          },
+          "args": []
+        },
+        "release": {
+          "text": {
+            "en": "A release time."
+          },
+          "args": []
+        },
+        "hold": {
+          "text": {
+            "en": "A hold time."
+          },
+          "args": []
+        },
+        "decay": {
+          "text": {
+            "en": "A decay time."
+          },
+          "args": []
+        },
+        "frequency": {
+          "text": {
+            "en": "A frequency."
+          },
+          "args": []
+        },
+        "cutoffFrequency": {
+          "text": {
+            "en": "A filter's cutoff frequency."
+          },
+          "args": []
+        },
+        "resonance": {
+          "text": {
+            "en": "A filter's resonance."
+          },
+          "args": []
+        },
+        "bypass": {
+          "text": {
+            "en": "On when the process is bypassed."
+          },
+          "args": []
+        },
+        "wetDryRatio": {
+          "text": {
+            "en": "The mix of a wet and a dry signal."
+          },
+          "args": []
+        },
+        "delay": {
+          "text": {
+            "en": "A delay time."
+          },
+          "args": []
+        },
+        "enabled": {
+          "text": {
+            "en": "On when the process is on."
+          },
+          "args": []
+        },
+        "range": {
+          "text": {
+            "en": "A gate's or an expander's range."
+          },
+          "args": []
+        },
+        "knee": {
+          "text": {
+            "en": "A dynamics knee."
+          },
+          "args": []
+        },
+        "hysteresis": {
+          "text": {
+            "en": "A gate's hysteresis."
+          },
+          "args": []
+        },
+        "makeup": {
+          "text": {
+            "en": "A makeup gain."
+          },
+          "args": []
+        },
+        "lookahead": {
+          "text": {
+            "en": "A lookahead time."
+          },
+          "args": []
+        },
+        "ceiling": {
+          "text": {
+            "en": "A limiter's ceiling."
+          },
+          "args": []
+        },
+        "output": {
+          "text": {
+            "en": "An output level."
+          },
+          "args": []
+        },
+        "q": {
+          "text": {
+            "en": "A quality factor, Q."
+          },
+          "args": []
+        },
+        "bandwidth": {
+          "text": {
+            "en": "A bandwidth, in octaves."
+          },
+          "args": []
+        },
+        "slope": {
+          "text": {
+            "en": "A filter's slope."
+          },
+          "args": []
+        },
+        "width": {
+          "text": {
+            "en": "A stereo width."
+          },
+          "args": []
+        },
+        "drive": {
+          "text": {
+            "en": "A drive amount."
+          },
+          "args": []
+        },
+        "tone": {
+          "text": {
+            "en": "A tone control."
+          },
+          "args": []
+        },
+        "rate": {
+          "text": {
+            "en": "A modulation rate."
+          },
+          "args": []
+        },
+        "depth": {
+          "text": {
+            "en": "A modulation depth."
+          },
+          "args": []
+        },
+        "feedback": {
+          "text": {
+            "en": "A feedback amount."
+          },
+          "args": []
+        },
+        "spread": {
+          "text": {
+            "en": "A spread."
+          },
+          "args": []
+        },
+        "predelay": {
+          "text": {
+            "en": "A reverb's predelay."
+          },
+          "args": []
+        },
+        "size": {
+          "text": {
+            "en": "A room size."
+          },
+          "args": []
+        },
+        "damping": {
+          "text": {
+            "en": "A reverb's damping."
+          },
+          "args": []
+        },
+        "lowCut": {
+          "text": {
+            "en": "A low cut."
+          },
+          "args": []
+        },
+        "highCut": {
+          "text": {
+            "en": "A high cut."
+          },
+          "args": []
+        },
+        "shift": {
+          "text": {
+            "en": "A pitch or frequency shift."
+          },
+          "args": []
+        },
+        "fine": {
+          "text": {
+            "en": "A fine adjustment."
+          },
+          "args": []
+        },
+        "sync": {
+          "text": {
+            "en": "On when a time follows the tempo."
+          },
+          "args": []
+        },
+        "division": {
+          "text": {
+            "en": "A note division."
+          },
+          "args": []
+        },
+        "listen": {
+          "text": {
+            "en": "On when the side signal is heard alone."
+          },
+          "args": []
+        },
+        "shape": {
+          "text": {
+            "en": "A choice of shape."
+          },
+          "args": []
+        },
+        "model": {
+          "text": {
+            "en": "A choice of model."
+          },
+          "args": []
+        },
+        "algorithm": {
+          "text": {
+            "en": "A choice of algorithm."
+          },
+          "args": []
+        },
+        "mode": {
+          "text": {
+            "en": "A choice of mode."
+          },
+          "args": []
+        },
+        "type": {
+          "text": {
+            "en": "A choice of type."
+          },
+          "args": []
+        },
+        "pingpong": {
+          "text": {
+            "en": "On when a delay bounces between the channels."
+          },
+          "args": []
+        },
+        "amount": {
+          "text": {
+            "en": "How strongly a process acts."
+          },
+          "args": []
+        },
+        "number": {
+          "text": {
+            "en": "A number of voices, taps, bands or stages."
+          },
+          "args": []
+        },
+        "balance": {
+          "text": {
+            "en": "A pan or a balance between two sides."
+          },
+          "args": []
+        },
+        "link": {
+          "text": {
+            "en": "A channel link."
+          },
+          "args": []
+        },
+        "solo": {
+          "text": {
+            "en": "On when one part is heard alone."
+          },
+          "args": []
+        },
+        "order": {
+          "text": {
+            "en": "A stage order."
+          },
+          "args": []
+        },
+        "acceleration": {
+          "text": {
+            "en": "An acceleration."
+          },
+          "args": []
+        },
+        "dispersion": {
+          "text": {
+            "en": "A dispersion."
+          },
+          "args": []
+        },
+        "window": {
+          "text": {
+            "en": "A window length."
+          },
+          "args": []
+        },
+        "unknown": {
+          "text": {
+            "en": "The plugin states no meaning."
           },
           "args": []
         }

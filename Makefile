@@ -54,7 +54,7 @@ lib/codes.mjs: $(wildcard src/lib/*.mts) tsconfig.lib.json
 
 # The headers compile on their own, warnings as errors: the committed renders and the verbs fixture's (test/golden/verbs/).
 check: all
-	printf '#include <omxcontract/omx_contract_limits.h>\n#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_resource_hints.h>\n#include <omxcontract/omx_param_units.h>\n#include <omxcontract/omx_json_write.h>\nint main(void) { return OMX_STANDARD_SAMPLE_RATES_COUNT > 0u && OMX_DECLARED_RATE_COUNT > 0 && OMX_PARAM_SCALES_LINEAR < OMX_PARAM_SCALES_COUNT && OMX_RESOURCE_HINT_COUNT > 0u && OMX_CLAP_UNIT_DBFS == 256u && omx_json_string(0, 0, "a") == 3 ? 0 : 1; }\n' > check-headers.c
+	printf '#include <omxcontract/omx_contract_limits.h>\n#include <omxcontract/omx_vocabulary.h>\n#include <omxcontract/omx_resource_hints.h>\n#include <omxcontract/omx_json_write.h>\nint main(void) { return OMX_STANDARD_SAMPLE_RATES_COUNT > 0u && OMX_DECLARED_RATE_COUNT > 0 && OMX_PARAM_SCALES_LINEAR < OMX_PARAM_SCALES_COUNT && OMX_RESOURCE_HINT_COUNT > 0u && omx_json_string(0, 0, "a") == 3 ? 0 : 1; }\n' > check-headers.c
 	$(CC) -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Iinclude -Isrc check-headers.c -o check-headers
 	./check-headers
 	printf '#include "omx_host_verbs.h"\n#include "c/verbs_fixture_host_verbs.h"\n#include "c/verbs_fixture_vocabulary.h"\nint main(void) { return omx_host_verb_level(OMX_VERB_CHAIN, OMX_HOST_VERB_HOST_PLUGIN_HOSTD) == OMX_HOST_VERB_REQUIRED && verbs_fixture_host_verb_find(OMX_VERB_PARAM_INFO) != NULL ? 0 : 1; }\n' > check-headers.c
@@ -82,13 +82,16 @@ install: all
 	install -m 0644 $(filter-out $(DOMAIN_HEADERS),$(wildcard include/omxcontract/*.h)) $(DESTDIR)$(INCLUDEDIR)/omxcontract/
 	install -m 0644 share/omx-contract/omx-contract.json share/omx-contract/omx-vocabulary.schema.json share/omx-contract/omx-resource-hints.ttl share/omx-contract/omx_contract_catalog.py share/omx-contract/omx_contract_scale.py share/omx-contract/languages.json share/omx-contract/clap-kind-vectors.json schema/omx-contract.schema.json schema/domain.schema.json data/scale-vectors.json $(DESTDIR)$(DATADIR)/omx-contract/
 	install -m 0755 tools/install-contract-dir.sh $(DESTDIR)$(DATADIR)/omx-contract/
+	# the kernel recipe a consumer's contract tools read (omx-contract#227): <datadir>/omx-contract/recipes/, the .pc's recipesdir
+	install -d $(DESTDIR)$(DATADIR)/omx-contract/recipes
+	install -m 0644 recipes/*.json $(DESTDIR)$(DATADIR)/omx-contract/recipes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/shapes
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
 	sh tools/install-contract-dir.sh -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
-	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR)
-	sh tools/install-contract-dir.sh --domain contract.d/param $(DESTDIR)$(CONTRACTDIR)
+	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR) omx-contract
+	sh tools/install-contract-dir.sh --domain contract.d/param $(DESTDIR)$(CONTRACTDIR) omx-contract
 	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' -e 's|@VERSION@|$(VERSION)|' \
 	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' -e 's|@CLIDIR@|$(CLIDIR)|' \
 	  omx-contract.pc.in > $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
@@ -103,12 +106,14 @@ install-rpm-macros: all
 	chmod 0644 $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
 
 install-cli: all build-lib
-	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema \
+	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema $(DESTDIR)$(CLIDIR)/tools \
 	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(CLIDIR)/contract.d/contract $(DESTDIR)$(CLIDIR)/contract.d/param $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 bin/omx-contract.mjs $(DESTDIR)$(CLIDIR)/bin/
 	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
 	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
+	# the recipe reader a consumer's completeness proof imports (omx-contract#227); run from here it reads <recipesdir>
+	install -m 0644 tools/kernel-recipe.mjs $(DESTDIR)$(CLIDIR)/tools/
 	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/
 	cd data && find . -name '*.json' | LC_ALL=C sort | while read -r f; do install -D -m 0644 "$$f" "$(DESTDIR)$(CLIDIR)/data/$$f" || exit 1; done
 	install -m 0644 contract.d/contract/contract.json $(DESTDIR)$(CLIDIR)/contract.d/contract/
@@ -220,6 +225,26 @@ fuzz:
 # make exits 2 on any failure, as it does for every recipe; the script's own exit tells a finding (1) from a gate that
 # could not run (2).
 DOXYGEN_BASE ?= origin/main
+# The published reference: Open-Mixer/.github's docs-publish.yml runs this with DOCS_OUT, an empty absolute directory,
+# then renders the Markdown and the man pages and, at a release tag, publishes the tree under
+# https://www.openmixer.org/reference/omx-contract/<version>/. The base-free half of the documentation gate runs first
+# (tools/doxygen-gate.sh: every declaration of the installed headers documented or in docs/doxygen-baseline.txt; the
+# shrink against a base is doxygen-check's, in ci.yml), then only what the tree generates or keeps: the C API reference
+# (api/), the contract's pages of docs/ (the gate's baseline left out), the man pages, README, BUILDING and LICENSE.
+.PHONY: docs-site
+docs-site:
+	@case "$(DOCS_OUT)" in /*) ;; *) echo "docs-site: FAIL - DOCS_OUT '$(DOCS_OUT)' is not an absolute directory: name the directory the reference is written to" >&2; exit 1;; esac
+	sh tools/doxygen-gate.sh
+	rm -rf build/doxygen && mkdir -p build/doxygen
+	doxygen Doxyfile >/dev/null
+	@test -f build/doxygen/html/index.html || { echo "docs-site: FAIL - doxygen wrote no build/doxygen/html/index.html" >&2; exit 1; }
+	mkdir -p $(DOCS_OUT)/api $(DOCS_OUT)/docs $(DOCS_OUT)/man
+	cp -a build/doxygen/html/. $(DOCS_OUT)/api/
+	cp README.md BUILDING.md LICENSE $(DOCS_OUT)/
+	cp docs/*.md $(DOCS_OUT)/docs/
+	cp man/*.1 $(DOCS_OUT)/man/
+	node bin/omx-contract.mjs render --target md --out $(DOCS_OUT)/domains
+
 doxygen-check:
 	@if [ -z "$(DOXYGEN_BASE)" ]; then echo "doxygen-check: set DOXYGEN_BASE to the ref the baseline is held to (origin/main)" >&2; exit 2; \
 	elif git cat-file -e "$(DOXYGEN_BASE):docs/doxygen-baseline.txt" 2>/dev/null; then \

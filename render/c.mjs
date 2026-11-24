@@ -50,8 +50,15 @@ static inline int omx_declared_rates_multiple_of(unsigned base, int *out, int ca
 
 const constCase = (s) => String(s).replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 
-/** The enumerator names of one set, in order: `OMX_<SET>_<ID>`. */
-export const setEnumerators = (set) => set.ids.map((id) => `OMX_${set.name}_${constCase(id)}`);
+/** Each PARAM_UNITS const by its title (`dB` -> `db`), or an empty map when the read holds no PARAM_UNITS. */
+export const unitTitles = (resolved) => new Map(Object.entries(resolved.get('PARAM_UNITS')?.value ?? {}).map(([title, w]) => [w.word, title]));
+
+/**
+ * The enumerator names of one set, in order: `OMX_<SET>_<ID>`. An id that is a PARAM_UNITS const takes its PARAM_UNITS
+ * title, as OMX_PARAM_UNITS_<TITLE> does, in any set: `dB` is `_DB`, `dBFS` `_DBFS`, `dBu` `_DBU`, never `_D_B`
+ * (docs/render.md, omx-contract#206); any other id is its upper snake case.
+ */
+export const setEnumerators = (set, titles = new Map()) => set.ids.map((id) => `OMX_${set.name}_${constCase(titles.has(id) ? titles.get(id) : id)}`);
 
 /**
  * Every set as a C enum: the id's position is its value for named ids, the number itself for numeric
@@ -82,9 +89,9 @@ function genSetValues(set, names) {
   ];
 }
 
-function genDeclaredSetsEnums(sets) {
+function genDeclaredSetsEnums(sets, titles) {
   return sets.map((set) => {
-    const names = setEnumerators(set);
+    const names = setEnumerators(set, titles);
     const numeric = typeof set.ids[0] === 'number';
     const members = set.ids.map((id, i) => documented(`  ${names[i]} = ${numeric ? id : i},`, set.labels?.[i] !== undefined ? doxyLine(set.labels[i]) : `The id \`${doxyLine(id)}\`.`));
     const lines = [
@@ -164,7 +171,7 @@ export function limitsSections(resolved) {
   const above = defined(tables);
   const scalars = d.DECLARED_SCALARS.length ? genDeclaredScalarsBlock(d.DECLARED_SCALARS, above) : '';
   const lists = d.DECLARED_LISTS.length ? genDeclaredListsBlock(d.DECLARED_LISTS, defined([tables, scalars].join('\n'))) : '';
-  const sets = d.DECLARED_SET_ITEMS.length ? genDeclaredSetsEnums(d.DECLARED_SET_ITEMS) : '';
+  const sets = d.DECLARED_SET_ITEMS.length ? genDeclaredSetsEnums(d.DECLARED_SET_ITEMS, unitTitles(resolved)) : '';
   const readouts = genReadouts(resolved.kernels);
   const sections = [
     [tables, `/* Per-parameter numeric travel, one block per \`travels\` table named <PREFIX>_LIMITS:
@@ -212,6 +219,26 @@ ${d.STANDARD_SAMPLE_RATES ? ratesTail(d.STANDARD_SAMPLE_RATES) : ''}`;
 const scalarsBlock = (resolved) => genDeclaredScalarsBlock(doors(resolved).DECLARED_SCALARS, new Set());
 
 /**
+ * What a strings section reads beyond its own file (render/c/owner-headers.mjs), read-only: `sibling(prefix)`, the one
+ * header of package `pkg` whose numbers.prefix is `prefix`, with the sheets of its file (`{ header, numbers, sheets }`,
+ * undefined when none), and `item(name)`, an item of the whole read (the standard unit list, which omx-contract
+ * declares).
+ */
+function stringsRead(resolved, pkg) {
+  return Object.freeze({
+    sibling(prefix) {
+      for (const f of resolved.renders ?? []) {
+        if (f.pkg !== pkg || !Array.isArray(f.render.c)) continue;
+        const h = f.render.c.find((x) => x.numbers?.prefix === prefix);
+        if (h) return { header: h.header, numbers: h.numbers, sheets: f.items.map((n) => resolved.get(n)).filter((r) => r?.kind === 'sheet') };
+      }
+      return undefined;
+    },
+    item: (name) => resolved.get(name),
+  });
+}
+
+/**
  * The headers the `render.c` words of the data declare, `[{ path, text, pkg, omx }]`, `path` the word's `header`;
  * `omx` when a section spells OMX_ names (scalars, limits), which omx_contract_limits.h of a whole read holds already.
  * A header reads the items of the file that declares it, or with `scope: package` every item of its package. Those of
@@ -232,7 +259,7 @@ export function ownerHeaders(resolved, { pkg, all = false } = {}) {
         items = new Map(f.items.map((n) => [n, resolved.get(n)]));
         items.kernels = f.kernel !== undefined && resolved.kernels?.[f.kernel] ? { [f.kernel]: resolved.kernels[f.kernel] } : {};
       }
-      const text = renderOwnerHeader(h, items, { scalars: scalarsBlock, limits: limitsSections });
+      const text = renderOwnerHeader(h, items, { scalars: scalarsBlock, limits: limitsSections }, h.strings ? stringsRead(resolved, f.pkg) : undefined);
       out.push({ path: h.header, text, pkg: f.pkg, omx: Boolean(h.scalars || h.limits) });
     }
   }

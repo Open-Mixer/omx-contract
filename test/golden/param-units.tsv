@@ -8,17 +8,16 @@ oct	oct	oct	pitch	param
 cents	cents	cents	pitch	param
 st	st	st	pitch	param
 percent	percent	%	none	param
-x	x	x	none	param
 none	none		none	param
-dbPerOct	dB-oct	dB/oct	slope	param
+dbPerOct	dBPerOct	dB/oct	slope	param
 lufs	LUFS	LUFS	loudness	param
-dbPerS	dB-s	dB/s	rate	param
+dbPerS	dBPerS	dB/s	rate	param
 dbtp	dBTP	dBTP	level	descriptor
 dbu	dBu	dBu	level	descriptor
 lu	LU	LU	loudness	descriptor
 khz	kHz	kHz	frequency	descriptor
 mhz	MHz	MHz	frequency	descriptor
-frames	frames	frames	count	descriptor
+frames	frames	frames	count	param
 bpm	bpm	bpm	tempo	descriptor
 bar	bar	bar	musical-time	descriptor
 beat	beat	beat	musical-time	descriptor
@@ -31,7 +30,7 @@ mile	mile	mile	length	descriptor
 degree	deg	deg	angle	descriptor
 midiNote	midiNote	midiNote	pitch	descriptor
 ratio	ratio	ratio	ratio	descriptor
-coef	coef	coef	none	descriptor
+coef	coef	coef	none	param
 us	us	us	time	descriptor
 bytes	bytes	bytes	information	descriptor
 nsPerSample	nsPerSample	ns/sample	time-per-sample	descriptor

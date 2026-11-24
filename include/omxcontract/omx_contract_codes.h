@@ -23,8 +23,8 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_MANIFEST_INVALID = 3, ///< `contract.manifest.invalid`: a manifest is not JSON, lacks a field, or names another package or schema major than its place
   OMX_CONTRACT_CODE_MANIFEST_MISMATCH = 4, ///< `contract.manifest.mismatch`: a listed file is missing, a file is present but not listed, or its hash differs
   OMX_CONTRACT_CODE_SCHEMA_MAJOR = 5, ///< `contract.schema.major`: a file's $schema is not the installed form of the reader's schema major
-  OMX_CONTRACT_CODE_SCHEMA_TOO_OLD = 6, ///< `contract.schema.too-old`: a file's requires.omx-contract-schema floor is above the reader's schema
-  OMX_CONTRACT_CODE_SCHEMA_FLOOR_ABSENT = 7, ///< `contract.schema.floor-absent`: an installed file of a package other than omx-contract states no schema floor
+  OMX_CONTRACT_CODE_SCHEMA_TOO_OLD = 6, ///< `contract.schema.too-old`: retired, never raised since the devel wave 2026-11-24: requires names packages with no version, so no schema floor is read
+  OMX_CONTRACT_CODE_SCHEMA_FLOOR_ABSENT = 7, ///< `contract.schema.floor-absent`: retired, never raised since the devel wave 2026-11-24: a file states no schema floor, and requires names packages with no version
   OMX_CONTRACT_CODE_FILE_NOT_JSON = 8, ///< `contract.file.not-json`: a file does not parse
   OMX_CONTRACT_CODE_FILE_INVALID = 9, ///< `contract.file.invalid`: a file breaks the schema or the kernel-file shape, an unknown key or word included
   OMX_CONTRACT_CODE_ITEM_DUPLICATE = 10, ///< `contract.item.duplicate`: two files declare one name
@@ -33,7 +33,7 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_REF_UNDECLARED = 13, ///< `contract.ref.undeclared`: a reference names an item of a package the file does not require
   OMX_CONTRACT_CODE_VERB_DUPLICATE = 14, ///< `contract.verb.duplicate`: two verbs items, of one package or two, declare one verb: a verb has one owner
   OMX_CONTRACT_CODE_VERB_FORMAT = 15, ///< `contract.verb.format`: a verb's format does not start with the verb it declares
-  OMX_CONTRACT_CODE_VERB_HOST_UNKNOWN = 16, ///< `contract.verb.host-unknown`: a verb's implementedBy names a host that is no word of VERB_HOSTS
+  OMX_CONTRACT_CODE_VERB_HOST_UNKNOWN = 16, ///< `contract.verb.host-unknown`: a verb's implementedBy names a host that is no word of HOSTING_VERB_HOSTS
   OMX_CONTRACT_CODE_VERB_CODE_UNKNOWN = 17, ///< `contract.verb.code-unknown`: a verb's code names an item that is no codes item, or a name that item does not carry
   OMX_CONTRACT_CODE_ROLE_DUPLICATE = 18, ///< `contract.role.duplicate`: two roleMeanings items, of one package or two, declare one role: a role has one owner
   OMX_CONTRACT_CODE_PACKAGE_ABSENT = 19, ///< `contract.package.absent`: a package the consumer or a file requires is not installed
@@ -76,7 +76,8 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_ITEM_PREFIX = 56, ///< `contract.item.prefix`: an item of a domain does not start with its domain's name, or starts with the name of a longer domain
   OMX_CONTRACT_CODE_CATALOG_INVALID = 57, ///< `contract.catalog.invalid`: a domain's catalog is not a regular file named by a language tag, or is not an object of {text, by} entries
   OMX_CONTRACT_CODE_DESCRIPTOR_LATENCY = 58, ///< `contract.descriptor.latency`: a latency sweep whose min is above its max, or a latency ref to an item that is no scalar in frames or ms
-  OMX_CONTRACT_CODE_LAST = 58 ///< the last value: every value from 1 to this one is a code
+  OMX_CONTRACT_CODE_DESCRIPTOR_UNIT_DUPLICATE = 59, ///< `contract.descriptor.unit-duplicate`: a unit of the descriptor's own units whose id or symbol is that of a PARAM_UNITS unit, or of another of its own units
+  OMX_CONTRACT_CODE_LAST = 59 ///< the last value: every value from 1 to this one is a code
 };
 
 /** The table as an X-macro: `X(NAME, value, "code string")` once per code, in value order. */
@@ -138,7 +139,8 @@ enum omx_contract_code {
   X(INDEX_RANGE, 55, "contract.index.range") \
   X(ITEM_PREFIX, 56, "contract.item.prefix") \
   X(CATALOG_INVALID, 57, "contract.catalog.invalid") \
-  X(DESCRIPTOR_LATENCY, 58, "contract.descriptor.latency")
+  X(DESCRIPTOR_LATENCY, 58, "contract.descriptor.latency") \
+  X(DESCRIPTOR_UNIT_DUPLICATE, 59, "contract.descriptor.unit-duplicate")
 
 #ifdef __cplusplus
 }

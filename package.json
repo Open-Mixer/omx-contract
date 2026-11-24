@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/omx-contract",
-  "version": "3.21.0",
+  "version": "3.22.0",
   "description": "The OpenMixer declarations as data: a JSON Schema, the data, and one CLI that renders them into C, TypeScript and JSON",
   "type": "module",
   "license": "GPL-3.0-or-later",
@@ -79,7 +79,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.lib.json && tsc -p tsconfig.strict.json",
     "prepare": "npm run build",
-    "test": "npm run build && node --test test/*.test.mjs && sh tools/tree-clean.sh",
+    "test": "npm run build && sh tools/tmp-clean.sh node --test test/*.test.mjs && sh tools/tree-clean.sh",
     "prepack": "npm run build && node bin/omx-contract.mjs render --target ts --out dist/ts && node bin/omx-contract.mjs render --target ts --shapes --out dist/ts"
   },
   "dependencies": {

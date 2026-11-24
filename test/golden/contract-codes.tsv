@@ -56,3 +56,4 @@
 56	itemPrefix	contract.item.prefix
 57	catalogInvalid	contract.catalog.invalid
 58	descriptorLatency	contract.descriptor.latency
+59	descriptorUnitDuplicate	contract.descriptor.unit-duplicate

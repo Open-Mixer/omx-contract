@@ -1,3 +1,20 @@
+omx-contract (3.22.0) unstable; urgency=medium
+
+  * The unit codes of org.openmixer.param-contract/1 (OMX_PARAM_CONTRACT_UNITS,
+    data/param-contract.json) and their header omxcontract/omx_param_units.h
+    move to omx-clap in one step (V23d); a consumer that includes the header
+    here fails to build, naming it.
+  * PARAM_UNITS_CLAP_ENCODED, a words item of the param domain: the standard
+    unit ids the CLAP extension encodes, each a copy of its PARAM_UNITS word.
+  * A sheet of strings, and a header's strings section: the X-macro of a
+    code-to-id map over the defines a sibling header renders.
+  * VERB_HOSTS and data/verbs.json are removed (sorting pass V29): the hosts
+    a verb's implementedBy names are omx-clap's HOSTING_VERB_HOSTS, and the
+    verbs validator and render read them from the read only, refusing by
+    name a read that declares verbs and no HOSTING_VERB_HOSTS.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Mon, 23 Nov 2026 12:00:00 +0000
+
 omx-contract (3.21.0) unstable; urgency=medium
 
   * The vocabulary sorting pass (S0): each item lives with its owner.

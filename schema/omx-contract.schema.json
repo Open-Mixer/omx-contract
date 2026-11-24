@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "3.21.0",
+  "x-omx-schema-version": "3.22.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -20,23 +20,16 @@
   },
   "$defs": {
     "unit": {
-      "description": "The closed list of units the items use; \"s\" is seconds and \"min\" minutes, \"x\" is a multiplier, \"\" is a ratio or a fraction, \"dB/oct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770) and \"dB/s\" a gain change per second.",
-      "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "%", "x", "", "dB/oct", "LUFS", "dB/s"]
+      "description": "The closed list of units the items use, each a PARAM_UNITS id (rendered by tools/unit-enum.mjs; the symbol is the display rendering, never this word): \"s\" is seconds and \"min\" minutes, \"none\" a ratio or a fraction, \"percent\" a percentage, \"dBPerOct\" a slope in dB per octave (a tilt), \"LUFS\" a loudness (ITU-R BS.1770), \"dBPerS\" a gain change per second and \"coef\" a coefficient, a plain multiplier (omx-contract#167: it replaces \"x\").",
+      "enum": ["dB", "dBFS", "ms", "s", "min", "Hz", "oct", "cents", "st", "percent", "none", "dBPerOct", "LUFS", "dBPerS", "frames", "coef"]
     },
     "descriptorUnit": {
       "description": "A descriptor's unit: a unit of the items ($defs.unit), a unit of PARAM_UNITS of scope descriptor, which only a descriptor's control states (rendered from the param domain by tools/unit-enum.mjs, docs/units.md), or unknown, the plugin states none (docs/descriptors.md).",
-      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "frames", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "coef", "us", "bytes", "ns/sample", "count", "flag", "unknown"] }]
+      "anyOf": [{ "$ref": "#/$defs/unit" }, { "enum": ["dBTP", "dBu", "LU", "kHz", "MHz", "bpm", "bar", "beat", "m", "cm", "mm", "km", "inch", "mile", "deg", "midiNote", "ratio", "us", "bytes", "nsPerSample", "plainCount", "flag", "unknown"] }]
     },
     "meaning": {
-      "description": "What a control does, the closed list seeded from the panel roles; the LV2 param: or lv2:designation name where LV2 has the term (docs/descriptors.md). unknown: the plugin states none.",
-      "enum": [
-        "gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass",
-        "wetDryRatio", "delay", "enabled",
-        "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "slope", "width", "drive", "tone", "rate",
-        "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen",
-        "shape", "model", "algorithm", "mode", "type", "pingpong",
-        "unknown"
-      ]
+      "description": "A control's ROLE, what it does: a word of PARAM_MEANINGS (the param domain, contract.d/param/param.json), which renders this enum (tools/unit-enum.mjs); required on every control since 3.22.0, declared and never inferred (omx-contract#61, docs/descriptors.md). The LV2 param: or lv2:designation name where LV2 has the term. unknown: the plugin states none.",
+      "enum": ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "amount", "number", "balance", "link", "solo", "order", "acceleration", "dispersion", "window", "unknown"]
     },
     "handle": {
       "description": "A host's handle on a control or a port: a CLAP id (an integer) or an LV2 port symbol.",
@@ -67,6 +60,11 @@
           "type": "object", "minProperties": 1,
           "description": "The unit of a choice's values, declared once by the plugin (docs/descriptors.md): a choice control's name to one of the descriptor units, never unknown. A reader takes the unit from here and keeps no map of its own. Optional; a choice with no entry carries no unit.",
           "additionalProperties": { "allOf": [{ "$ref": "#/$defs/descriptorUnit" }, { "not": { "const": "unknown" } }] }
+        },
+        "units": {
+          "type": "array", "minItems": 1,
+          "description": "The plugin's own units, which no unit of PARAM_UNITS is (docs/units.md, Plugin particulars): each with its camelCase id, its symbol, its dimension, its conversion onto a unit and its name by language. A custom unit has no wire code. One whose id or symbol is that of a PARAM_UNITS unit, or of another of its own, is refused (contract.descriptor.unit-duplicate).",
+          "items": { "$ref": "#/$defs/descriptorOwnUnit" }
         },
         "integrity": { "$ref": "#/$defs/descriptorIntegrity" },
         "extensions": { "$ref": "#/$defs/extensions" },
@@ -153,7 +151,7 @@
           "required": ["paramsFingerprint"],
           "additionalProperties": false
         },
-        "family": { "enum": ["none", "gate", "dynamics", "limiter", "deesser", "eq", "filter", "drive", "modulation", "delay", "reverb", "pitch", "utility"], "description": "One word of PANEL_FAMILIES." },
+        "family": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$", "description": "The plugin's family, an identifier: which families exist is omx-panel's PANEL_FAMILIES, checked by its describe (ruling Z1, omx-contract#161)." },
         "controls": { "type": "object", "propertyNames": { "pattern": "^[A-Za-z0-9_]+$" }, "additionalProperties": { "$ref": "#/$defs/overrideControl" } },
         "made": {
           "type": "object",
@@ -232,7 +230,7 @@
         "automatable": { "type": "boolean" },
         "source": { "$ref": "#/$defs/source" }
       },
-      "required": ["id", "name", "kind"],
+      "required": ["id", "name", "kind", "meaning"],
       "allOf": [
         {
           "if": { "properties": { "kind": { "const": "travel" } } },
@@ -251,6 +249,21 @@
           "then": { "properties": { "travel": false, "ids": false, "labels": false, "values": false, "default": false } }
         }
       ],
+      "additionalProperties": false
+    },
+    "descriptorOwnUnit": {
+      "type": "object",
+      "description": "A unit of the plugin's own (docs/descriptors.md, units): id, camelCase as a standard unit id is; symbol, as a surface displays it; dimension, a word of PARAM_UNIT_DIMENSIONS; base and scale, a value in the unit times scale is a value in base, stated together; text, its name by language.",
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
+        "symbol": { "type": "string", "minLength": 1 },
+        "dimension": { "type": "string", "pattern": "^[a-z][a-z-]*$" },
+        "base": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
+        "scale": { "type": "number", "exclusiveMinimum": 0 },
+        "text": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/text" } }
+      },
+      "required": ["id", "symbol", "dimension"],
+      "dependentRequired": { "base": ["scale"], "scale": ["base"] },
       "additionalProperties": false
     },
     "descriptorIntegrity": {
@@ -428,14 +441,12 @@
     },
     "since": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$", "description": "The release that first carried an item declared outside the kernels (rates.json, primitives.json); a kernel's items record it in recipes/answers/." },
     "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
-    "floor": { "type": "string", "pattern": "^>= (0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$", "description": "A version floor, never a ceiling." },
     "requires": {
-      "type": "object",
-      "description": "What a file needs to be read: omx-contract-schema, the lowest schema its words need; any other key a package whose items it refers to. Each a floor.",
-      "properties": { "omx-contract-schema": { "$ref": "#/$defs/floor" } },
-      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
-      "additionalProperties": { "$ref": "#/$defs/floor" },
-      "minProperties": 1
+      "type": "array",
+      "description": "The packages and domains whose items a file refers to, by name, in ascending order and each once; no version, never a map of floors, never empty: a file that refers to nothing has no requires (the devel wave 2026-11-24: a file is read by the installed schema, and the packages it names are the ones installed beside it).",
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$" },
+      "uniqueItems": true,
+      "minItems": 1
     },
     "link": {
       "type": "string",
@@ -504,7 +515,7 @@
     "renderGlob": { "type": "string", "pattern": "^\\*?[A-Za-z][A-Za-z0-9]*\\*?$", "description": "A field name, its start (`worker*`), its end (`*Dbfs`) or a part of it (`*Ring*`)." },
     "renderHeader": {
       "type": "object",
-      "description": "One C header: its path, include guard, the project its licence block names, the banner under GENERATED, the @file brief, the system headers it includes, which items it reads (scope: the file's, the default, or the package's) and its sections. numbers: every sheet, each field <prefix><FIELD> with a u literal, a level field (levels) a float one, the omitted fields left out, each with its docs line; with table, the same fields once more as the X-macro table <table>(X), X(<value>, \"<field>\") each. codes: every codes item, <prefix><NAME> its code string. scalars: every number spelled OMX_<macro> as omx_contract_limits.h spells it, sorted by macro. limits: every section of omx_contract_limits.h, the same defines.",
+      "description": "One C header: its path, include guard, the project its licence block names, the banner under GENERATED, the @file brief, the system headers it includes, which items it reads (scope: the file's, the default, or the package's) and its sections. numbers: every sheet, each field <prefix><FIELD> with a u literal, a level field (levels) a float one, the omitted fields left out, each with its docs line; with table, the same fields once more as the X-macro table <table>(X), X(<value>, \"<field>\") each. codes: every codes item, <prefix><NAME> its code string. strings: every sheet of strings as the X-macro <table>(X), X(<prefix><FIELD>, \"<field>\", \"<value>\") each, <prefix> the numbers.prefix of a sibling header of the package, every field one of its sheet's and every value a PARAM_UNITS const. scalars: every number spelled OMX_<macro> as omx_contract_limits.h spells it, sorted by macro. limits: every section of omx_contract_limits.h, the same defines.",
       "properties": {
         "header": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(/[a-z][a-z0-9_]*)*\\.h$" },
         "guard": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*_H$" },
@@ -541,10 +552,20 @@
           "type": "object",
           "properties": { "comment": { "$ref": "#/$defs/renderLine" } },
           "additionalProperties": false
+        },
+        "strings": {
+          "type": "object",
+          "properties": {
+            "comment": { "$ref": "#/$defs/renderLine" },
+            "prefix": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*_$" },
+            "table": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+          },
+          "required": ["comment", "prefix", "table"],
+          "additionalProperties": false
         }
       },
       "required": ["header", "guard", "project", "banner", "brief"],
-      "anyOf": [{ "required": ["numbers"] }, { "required": ["codes"] }, { "required": ["scalars"] }, { "required": ["limits"] }],
+      "anyOf": [{ "required": ["numbers"] }, { "required": ["codes"] }, { "required": ["scalars"] }, { "required": ["limits"] }, { "required": ["strings"] }],
       "additionalProperties": false
     },
     "ref": {
@@ -627,10 +648,21 @@
       "additionalProperties": false
     },
     "sheetValue": {
-      "type": "object",
-      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
-      "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/number" }, { "$ref": "#/$defs/sheetValue" }] },
-      "minProperties": 1
+      "description": "A sheet's value: a sheet of numbers (every leaf a number, a ref or a derivation; a field may nest one), or a sheet of strings, every field a non-empty string and none nested (docs/render.md, the strings section: an owner's code-to-id map).",
+      "oneOf": [
+        {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "additionalProperties": { "oneOf": [{ "$ref": "#/$defs/number" }, { "$ref": "#/$defs/sheetValue/oneOf/0" }] },
+          "minProperties": 1
+        },
+        {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "additionalProperties": { "type": "string", "minLength": 1 },
+          "minProperties": 1
+        }
+      ]
     },
     "scalar": {
       "type": "object",
@@ -723,6 +755,7 @@
               "code": { "type": "string", "anyOf": [{ "pattern": "^(hosting(\\.[a-z0-9]+(-[a-z0-9]+)*){1,}|(contract|reply)(\\.[a-z0-9]+(-[a-z0-9]+)*){2,})$" }, { "pattern": "^panel(\\.[a-z0-9]+(-[a-z0-9]+)*){2,}$" }, { "pattern": "^[A-Z][A-Z0-9_]*$", "description": "A console refusal code (owner openmixer), as the console spells it: UPPER_SNAKE." }, { "pattern": "^(?!(hosting|contract|reply|panel)\\.)[a-z][a-z0-9-]*(\\.[a-z0-9]+(-[a-z0-9]+)*)+$", "description": "A console message code (owner openmixer), as the console spells it: dotted kebab, never in another family (hosting, contract, reply, panel keep their own rules)." }] },
               "resp": { "type": "integer", "maximum": -1, "description": "The number a host's reply carries for this refusal, the n of `resp <n>`: a reply code only." },
               "transient": { "type": "boolean", "description": "Since 3.18.0, a reply code only: true when the refusal says nothing about the plugin or the request and the same request may be taken later (a worker not up, a storm bound spent); absent or false, it says something the request must change. A client asks this property, never a list of codes (plugin-hostd-protocol#23)." },
+              "leavesNoMark": { "type": "boolean", "description": "Since 3.22.0, a reply code only: true when the refusal leaves no mark on the plugin (no verdict and no history is written for it), whether or not the same request may pass later (a refused pin); absent or false, the refusal may mark it. A property apart from transient: a code may carry either, both or neither. The package vocabulary header has <CODE>_LEAVES_NO_MARK 1 for it." },
               "doc": { "$ref": "#/$defs/text" },
               "text": { "$ref": "#/$defs/sentence" },
               "args": { "$ref": "#/$defs/sentenceArgs" }
@@ -730,7 +763,7 @@
             "required": ["code"],
             "if": { "properties": { "code": { "type": "string", "pattern": "^reply\\." } } },
             "then": { "required": ["resp"] },
-            "else": { "properties": { "resp": false, "transient": false } },
+            "else": { "properties": { "resp": false, "transient": false, "leavesNoMark": false } },
             "additionalProperties": false
           },
           "minProperties": 1
@@ -967,7 +1000,7 @@
         },
         "implementedBy": {
           "type": "object",
-          "description": "What each host owes the verb, by a word of VERB_HOSTS: required, answered as its grammar says; optional, answered or refused, never misread; unsupported, refused on purpose. A host the map leaves out owes it nothing, as unsupported.",
+          "description": "What each host owes the verb, by a word of HOSTING_VERB_HOSTS (omx-clap's hosting words): required, answered as its grammar says; optional, answered or refused, never misread; unsupported, refused on purpose. A host the map leaves out owes it nothing, as unsupported.",
           "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
           "additionalProperties": { "enum": ["required", "optional", "unsupported"] },
           "minProperties": 1

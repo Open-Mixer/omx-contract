@@ -24,6 +24,10 @@ const SPDX = ['SPDX-License-Identifier: GPL-3.0-or-later', 'Copyright (C) 2026 P
 /** A C identifier: what a key, a word and a title's macro stem must be, so an X-macro argument is one token and no two collide. */
 const C_IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TITLE = /^[A-Z][A-Za-z0-9]*$/;
+/** A shape's $id: https://openmixer.org/schema/<owner>/<path>.schema.json, the owner the package that publishes it. */
+const SHAPE_ID = /^https:\/\/openmixer\.org\/schema\/([a-z][a-z0-9-]*)\/(?:[^/]+\/)*[^/]+\.schema\.json$/;
+/** The repository a render names as the source of a shape: its $id's owner (#78), never the generator's. */
+const sourceOf = (schema) => `Open-Mixer/${SHAPE_ID.exec(schema.$id)[1]}`;
 
 /** The shapes of a tree: every shapes/<name>.schema.json, parsed, in name order. */
 export function shapesOf(root, dir = join(root, 'shapes')) {
@@ -42,6 +46,7 @@ function* nodes(s, path = '') {
   for (const [k, v] of Object.entries(s)) {
     if (k === 'properties' || k === '$defs') for (const [n, sub] of Object.entries(v)) yield* nodes(sub, `${path}/${k}/${n}`);
     else if (k === 'items' && typeof v === 'object') yield* nodes(v, `${path}/items`);
+    else if (k === 'additionalProperties' && typeof v === 'object' && v !== null) yield* nodes(v, `${path}/additionalProperties`);
     else if (k === 'oneOf' || k === 'anyOf' || k === 'allOf') for (let i = 0; i < v.length; i++) yield* nodes(v[i], `${path}/${k}/${i}`);
   }
 }
@@ -49,12 +54,27 @@ function* nodes(s, path = '') {
 /** The object nodes of a shape, each `[path, node]`: the root when it is one, every $defs entry and every nested one. */
 const objects = (s) => [...nodes(s)].filter(([, n]) => n.type === 'object');
 
-/** The enum or const words of a property node, its oneOf and anyOf branches' included, or undefined when it has none. */
+/** A map (#75): an object with no `properties` whose `additionalProperties` is its values' schema; its keys are data. */
+const isMap = (n) => n.type === 'object' && !('properties' in n) && typeof n.additionalProperties === 'object' && n.additionalProperties !== null;
+
+/** The X-macro identifier of a key: the property's `x-name` when it states one (#75), else the key itself. */
+const keyId = (k, p) => (p && typeof p === 'object' && p['x-name'] !== undefined ? p['x-name'] : k);
+
+/** The object nodes the C render names keys for: every object but a map. */
+const keyed = (s) => objects(s).filter(([, n]) => !isMap(n));
+
+/**
+ * The enum or const words of a property node, its oneOf and anyOf branches' included, each `{ word, id, named }`, or
+ * undefined when it has none: `id` the word's X-macro identifier, the const's `x-name` when it states one (#76), else
+ * the word itself; `named` whether it came from `x-name`. A word is listed once.
+ */
 const wordsOf = (p) => {
-  const own = p.enum ?? (p.const !== undefined ? [p.const] : undefined);
+  const own = p.enum !== undefined ? p.enum.map((word) => ({ word, id: word, named: false }))
+    : p.const !== undefined ? [{ word: p.const, id: p['x-name'] ?? p.const, named: p['x-name'] !== undefined }] : undefined;
   const branches = [...(p.oneOf ?? []), ...(p.anyOf ?? [])].map(wordsOf).filter(Boolean).flat();
   if (!own && !branches.length) return undefined;
-  return [...new Set([...(own ?? []), ...branches])];
+  const seen = new Set();
+  return [...(own ?? []), ...branches].filter((w) => !seen.has(w.word) && seen.add(w.word));
 };
 
 const upper = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
@@ -62,7 +82,7 @@ const upper = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
 /** The rules a shape is held to, each with its check; a problem is `{ rule, path, message }`. The sabotage arm of test/shapes.test.mjs breaks each. */
 export const SHAPE_RULES = [
   { rule: '$schema', check: (s) => (s.$schema === SCHEMA_2020 ? [] : [{ path: '/', message: `"$schema" is ${JSON.stringify(s.$schema)}, not ${SCHEMA_2020}` }]) },
-  { rule: '$id', check: (s) => (typeof s.$id === 'string' && s.$id.endsWith('.schema.json') ? [] : [{ path: '/', message: 'no "$id" ending in .schema.json' }]) },
+  { rule: '$id', check: (s) => (typeof s.$id === 'string' && SHAPE_ID.test(s.$id) ? [] : [{ path: '/', message: 'no "$id" of the form https://openmixer.org/schema/<owner>/<path>.schema.json: the renders name <owner> as the source' }]) },
   {
     rule: 'title',
     check: (s) => [
@@ -91,12 +111,33 @@ export const SHAPE_RULES = [
   },
   {
     rule: 'additionalProperties',
-    check: (s) => objects(s).filter(([, n]) => n.additionalProperties !== false).map(([path]) => ({ path, message: 'an object without "additionalProperties": false: a closed shape names every key' })),
+    check: (s) => objects(s).flatMap(([path, n]) => {
+      if (n.additionalProperties === false) return [];
+      if (!isMap(n)) return [{ path, message: 'an object without "additionalProperties": false: a closed shape names every key (a map names no keys under "properties" and its value\'s schema in "additionalProperties")' }];
+      if (path === '/') return [{ path, message: 'a map at the root: a map is a property\'s value, so the document itself names its keys' }];
+      const v = n.additionalProperties;
+      const titled = typeof v.$ref === 'string' || (v.type === 'object' && TITLE.test(v.title ?? ''));
+      return titled ? [] : [{ path, message: 'a map whose value is no titled object nor a $ref to one: the renders name the value\'s type' }];
+    }),
   },
   {
     // a key is an X-macro argument and a word an identifier: one C token each, so no two spell the same one
     rule: 'identifiers',
-    check: (s) => objects(s).flatMap(([path, n]) => Object.keys(n.properties ?? {}).filter((k) => !C_IDENT.test(k)).map((k) => ({ path: `${path}/properties/${k}`, message: `the key ${JSON.stringify(k)} is not a C identifier` }))),
+    check: (s) => objects(s).flatMap(([path, n]) => {
+      const out = [];
+      const ids = new Map();
+      for (const [k, p] of Object.entries(n.properties ?? {})) {
+        const at = `${path}/properties/${k}`;
+        const named = p && typeof p === 'object' && p['x-name'] !== undefined;
+        if (!C_IDENT.test(k) && !named) out.push({ path: at, message: `the key ${JSON.stringify(k)} is not a C identifier: name its identifier in "x-name"` });
+        if (named && C_IDENT.test(k)) out.push({ path: at, message: `the key ${JSON.stringify(k)} is its own identifier: an "x-name" beside it is refused` });
+        if (named && (typeof p['x-name'] !== 'string' || !C_IDENT.test(p['x-name']))) out.push({ path: at, message: `the x-name ${JSON.stringify(p['x-name'])} of ${JSON.stringify(k)} is not a C identifier` });
+        const id = keyId(k, p);
+        if (ids.has(id)) out.push({ path: at, message: `the keys ${JSON.stringify(ids.get(id))} and ${JSON.stringify(k)} have one identifier, ${id}` });
+        else ids.set(id, k);
+      }
+      return out;
+    }),
   },
   {
     // an object keyed by a pattern has no key to name: the C macros would drop it silently
@@ -108,11 +149,51 @@ export const SHAPE_RULES = [
     check: (s) => objects(s).flatMap(([path, n]) => Object.entries(n.properties ?? {}).flatMap(([k, p]) => {
       const words = wordsOf(p);
       if (!words) return [];
-      const bad = words.filter((w) => typeof w !== 'string' || !C_IDENT.test(w));
-      return bad.length ? [{ path: `${path}/properties/${k}`, message: `the words ${JSON.stringify(bad)} are not C identifiers: an enum or const of ${k} is strings, each one identifier` }] : [];
+      const at = `${path}/properties/${k}`;
+      const out = [];
+      const notString = words.filter((w) => typeof w.word !== 'string').map((w) => w.word);
+      if (notString.length) out.push({ path: at, message: `the words ${JSON.stringify(notString)} are not strings: an enum or const of ${k} is strings` });
+      const unnamed = words.filter((w) => typeof w.word === 'string' && !w.named && !C_IDENT.test(w.word)).map((w) => w.word);
+      if (unnamed.length) out.push({ path: at, message: `the words ${JSON.stringify(unnamed)} of ${k} are not C identifiers: state each as a oneOf const naming its identifier in "x-name"` });
+      const badName = words.filter((w) => w.named && (typeof w.id !== 'string' || !C_IDENT.test(w.id))).map((w) => w.id);
+      if (badName.length) out.push({ path: at, message: `the x-name ${JSON.stringify(badName)} of ${k} is not a C identifier` });
+      const ids = new Map();
+      for (const w of words) {
+        if (ids.has(w.id)) out.push({ path: at, message: `the words ${JSON.stringify(ids.get(w.id))} and ${JSON.stringify(w.word)} of ${k} have one identifier, ${w.id}` });
+        else ids.set(w.id, w.word);
+      }
+      return out;
     })),
   },
+  {
+    // two keys (fooBar and foo_bar), or a title and a key, that spell one macro: the header would define it twice
+    rule: 'macros',
+    check: (s) => {
+      const seen = new Map();
+      const out = [];
+      for (const m of macrosOf(s)) {
+        const first = seen.get(m.macro);
+        if (first) out.push({ path: m.path, message: `${m.what} renders ${m.macro}, as ${first.what} (${first.path}) does: every macro is defined once` });
+        else seen.set(m.macro, m);
+      }
+      return out;
+    },
+  },
 ];
+
+/** Every macro the C render of a shape defines, each `{ macro, path, what }`, in render order (renderShapeC). */
+function macrosOf(s) {
+  const P = `OMX_SHAPE_${macroStem(s.title ?? '')}`;
+  const out = [{ macro: `${P}_SCHEMA`, path: '/', what: `the schema of ${s.title}` }, { macro: `${P}_ID`, path: '/', what: `the $id of ${s.title}` }];
+  for (const [path, obj] of keyed(s)) {
+    const O = `OMX_SHAPE_${macroStem(obj.title ?? '')}`;
+    out.push({ macro: `${O}_KEYS`, path, what: `the keys of ${obj.title}` }, { macro: `${O}_REQUIRED`, path, what: `the required keys of ${obj.title}` });
+    for (const [k, p] of Object.entries(obj.properties ?? {})) {
+      if (wordsOf(p)) out.push({ macro: `${O}_${macroStem(keyId(k, p))}_WORDS`, path: `${path}/properties/${k}`, what: `the words of ${obj.title}.${k}` });
+    }
+  }
+  return out;
+}
 
 /** The problems of one shape, by rule; empty when it may be rendered. */
 export function shapeProblems({ schema }) {
@@ -165,7 +246,7 @@ function renderShapeC({ name, rel, schema }) {
   const lines = [
     `/* ${SPDX[0]} */`,
     `/* ${SPDX[1]} */`,
-    `/* GENERATED by \`omx-contract render --target c --shapes\` from ${rel} of Open-Mixer/omx-contract, do not edit. */`,
+    `/* GENERATED by \`omx-contract render --target c --shapes\` from ${rel} of ${sourceOf(schema)}, do not edit. */`,
     `#ifndef ${guard}`,
     `#define ${guard}`,
     '',
@@ -179,21 +260,23 @@ function renderShapeC({ name, rel, schema }) {
     doxy(`The \`$id\` of the schema of ${schema.title}.`),
     `#define ${P}_ID ${cStringLiteral(schema.$id)}`,
   ];
-  for (const [, obj] of objects(schema)) {
+  for (const [, obj] of keyed(schema)) {
     const title = obj.title;
     const O = `OMX_SHAPE_${macroStem(title)}`;
-    const keys = Object.keys(obj.properties ?? {});
+    const props = obj.properties ?? {};
+    const keys = Object.keys(props);
     const required = obj.required ?? [];
+    const x = (k) => `X(${keyId(k, props[k])}, ${cStringLiteral(k)})`;
     lines.push('', `/* ${title}: ${inComment(obj.description)} */`);
     lines.push(doxy(`The keys of ${title}, each as X(identifier, "key"): ${keys.join(', ')}.`));
-    lines.push(`#define ${O}_KEYS(X) ${keys.map((k) => `X(${k}, ${cStringLiteral(k)})`).join(' ')}`);
+    lines.push(`#define ${O}_KEYS(X) ${keys.map(x).join(' ')}`);
     lines.push(doxy(`The keys ${title} requires${required.length ? '' : ' (none)'}, each as X(identifier, "key").`));
-    lines.push(`#define ${O}_REQUIRED(X) ${required.map((k) => `X(${k}, ${cStringLiteral(k)})`).join(' ')}`.trimEnd());
-    for (const [k, p] of Object.entries(obj.properties ?? {})) {
+    lines.push(`#define ${O}_REQUIRED(X) ${required.map(x).join(' ')}`.trimEnd());
+    for (const [k, p] of Object.entries(props)) {
       const words = wordsOf(p);
       if (!words) continue;
       lines.push(doxy(`The words of ${title}.${k}, each as X(identifier, "word"): ${p.description}`));
-      lines.push(`#define ${O}_${macroStem(k)}_WORDS(X) ${words.map((w) => `X(${w}, ${cStringLiteral(w)})`).join(' ')}`);
+      lines.push(`#define ${O}_${macroStem(keyId(k, p))}_WORDS(X) ${words.map((w) => `X(${w.id}, ${cStringLiteral(w.word)})`).join(' ')}`);
     }
   }
   lines.push('', `#endif /* ${guard} */`, '');
@@ -235,7 +318,7 @@ export async function renderShapesTs(root, dir) {
   const { compile } = await import('json-schema-to-typescript');
   const out = [];
   for (const s of shapes) {
-    const bannerComment = `// ${SPDX[0]}\n// ${SPDX[1]}\n// GENERATED by \`omx-contract render --target ts --shapes\` from ${s.rel} of Open-Mixer/omx-contract, do not edit.`;
+    const bannerComment = `// ${SPDX[0]}\n// ${SPDX[1]}\n// GENERATED by \`omx-contract render --target ts --shapes\` from ${s.rel} of ${sourceOf(s.schema)}, do not edit.`;
     const text = await compile(structuredClone(s.schema), s.schema.title, { bannerComment, additionalProperties: false, cwd: dir ?? join(root, 'shapes'), style: { printWidth: 120, singleQuote: false } });
     out.push({ path: shapePath('ts', s.name), text });
   }
@@ -257,7 +340,7 @@ export function pyGeneratorVersion(root = join(import.meta.dirname, '..')) {
   const pin = pyGeneratorPin(root);
   const r = spawnSync(pyGeneratorCommand(), ['--version'], { encoding: 'utf8' });
   const got = r.status === 0 ? (r.stdout.trim().split(/\s+/).pop() ?? '') : '';
-  if (r.status !== 0) return { ok: false, why: `datamodel-codegen is not installed (tools/shapes-requirements.txt pins ${pin}; pip install -r tools/shapes-requirements.txt, or set OMX_DATAMODEL_CODEGEN)` };
+  if (r.status !== 0) return { ok: false, why: `datamodel-codegen is not installed (tools/shapes-requirements.txt pins ${pin}; pip install -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt, or set OMX_DATAMODEL_CODEGEN)` };
   if (got !== pin) return { ok: false, why: `datamodel-codegen ${got} is not the pinned ${pin} of tools/shapes-requirements.txt: its output would differ` };
   return { ok: true, why: '' };
 }

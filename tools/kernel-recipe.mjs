@@ -14,6 +14,7 @@
  * Exit 0 every kernel is complete; 1 a gap, each named with its kernel, its artifact and the wizard
  * step that writes it; 2 usage.
  */
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,19 @@ import { isMain } from '../lib/entry.mjs';
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const RECIPE = 'recipes/kernel.recipe.json';
 
-export const loadRecipe = (root = ROOT) => JSON.parse(readFileSync(join(root, RECIPE), 'utf8'));
+/**
+ * The kernel recipe of `root`: `<root>/recipes/kernel.recipe.json`. Run from the installed CLI tree (`<clidir>`, which
+ * holds no recipes/), the default root's recipe is the installed one, `pkg-config --variable=recipesdir omx-contract`
+ * (omx-contract#227); a checkout reads its own, as before.
+ */
+export const loadRecipe = (root = ROOT) => {
+  const own = join(root, RECIPE);
+  if (root !== ROOT || existsSync(own)) return JSON.parse(readFileSync(own, 'utf8'));
+  let dir = '';
+  try { dir = execFileSync('pkg-config', ['--variable=recipesdir', 'omx-contract'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { /* not installed */ }
+  if (!dir) throw new Error(`kernel-recipe: no ${RECIPE} under ${root}, and pkg-config names no recipesdir of omx-contract`);
+  return JSON.parse(readFileSync(join(dir, 'kernel.recipe.json'), 'utf8'));
+};
 
 /** `{kernel}`-style placeholders filled from `facts`; an unknown one stays as written. */
 export const fill = (s, facts) => s.replace(/\{(\w+)\}/g, (m, k) => (facts[k] !== undefined ? String(facts[k]) : m));

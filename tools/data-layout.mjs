@@ -24,8 +24,7 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 /** The files at the top of data/ outside the domain directories, and the prefix their items carry. */
 export const TOP = {
   'rates.json': null,
-  'resource-profile.json': 'RESOURCE_', 'verbs.json': 'VERB_',
-  'param-contract.json': 'OMX_PARAM_CONTRACT_',
+  'resource-profile.json': 'RESOURCE_',
 };
 
 const itemsOf = (doc) => Object.entries(doc).filter(([k]) => !k.startsWith('$') && !['requires', 'source', 'render', 'checks'].includes(k));

@@ -1,9 +1,9 @@
 # the headers that need no compiler; omx_domain.h and omx_contract_codes.h are libomx-domain-dev's
 usr/include/omxcontract/omx_contract_limits.h
 usr/include/omxcontract/omx_json_write.h
-usr/include/omxcontract/omx_param_units.h
 usr/include/omxcontract/omx_resource_hints.h
 usr/include/omxcontract/omx_travel_shape.h
 usr/include/omxcontract/omx_vocabulary.h
 usr/share/omx-contract/install-contract-dir.sh
+usr/share/omx-contract/recipes
 usr/share/pkgconfig/omx-contract.pc

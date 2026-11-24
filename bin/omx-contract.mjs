@@ -7,10 +7,11 @@
  *   omx-contract validate [<input>]                            schema + semantic checks
  *   omx-contract domain check <new.json> <committed.json>      a generated domain document against the committed one
  *   omx-contract fmt [--check] [<input>]                       the one formatting
- *   omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
+ *   omx-contract render --target c|ts|json|lv2|md|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
  *   omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z>
  *   omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl]
  *   omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>]
+ *   omx-contract units --check <path>...                       every unit an owner's JSON states is a PARAM_UNITS symbol
  *
  * <input> is `--data <dir>` (the bundled data/ by default), or a contract directory (docs/contract-dir.md):
  * `--contract-dir <dir>`, or `--installed` ($OMX_CONTRACT_PATH, else pkg-config), each with `--needs
@@ -24,20 +25,22 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, atLeast, contractVersion, floorOf, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
+import { SCHEMA_MAJOR, contractVersion, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
 import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData, TREE_DOMAINS } from '../lib/data.mjs';
-import { domainCheck } from '../lib/domain-check.mjs';
-import { domainDataFiles, domainLeaf, readDomain } from '../lib/domain.mjs';
+import { domainCheckReport } from '../lib/domain-check.mjs';
+import { domainDataFiles, domainLeaf, readDomain, requiresNames } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
+import { lineFinder, unitGate, unitProblems } from '../lib/units.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
 import { admit, catalogText, releaseProblems, toMake } from '../lib/translate.mjs';
 import { placeholdersOf } from '../lib/placeholders.mjs';
 import { renderC } from '../render/c.mjs';
 import { domainCodesC } from '../render/codes.mjs';
 import { renderLv2 } from '../render/hints.mjs';
+import { renderMd } from '../render/md.mjs';
 import { renderJson } from '../render/json.mjs';
 import { renderOwnerTs, renderTs } from '../render/ts.mjs';
 import { renderShapes, shapePaths } from '../render/shapes.mjs';
@@ -212,9 +215,10 @@ function cmdDomain(argv) {
   const read = (f) => {
     try { return JSON.parse(readFileSync(f, 'utf8')); } catch (e) { throw new Usage(`${f}: ${e.message}`); }
   };
-  const problems = domainCheck(read(next), read(committed));
+  const { problems, shifts } = domainCheckReport(read(next), read(committed));
   for (const p of problems) console.error(p);
   if (problems.length) return 1;
+  for (const s of shifts) console.log(s);
   console.log(`omx-contract domain check: PASS ${next} against ${committed}`);
   return 0;
 }
@@ -243,6 +247,9 @@ const TOOL_TABLE = 'CONTRACT_CODES';
 /** The data file the tool reads raw for its own table (toolFiles). */
 const TOOL_TABLE_FILE = 'codes.json';
 
+/** Each item's effective source (its own, else its file's; a domain item's x-source), as `links` reads it, for the md pages. */
+const mdSources = (data) => new Map(sourcesOf(data).map((s) => [s.name, s.source]));
+
 export function renderTarget(target, argv) {
   const data = load(argv);
   const resolved = resolveData(data);
@@ -251,6 +258,8 @@ export function renderTarget(target, argv) {
     // An owner renders its own, framed by its files' render words: from a contract directory that package's files,
     // from a data directory (the owner's tree) every file.
     if (data.packages && !data.packages.has(pkg)) throw new Usage(`no package ${pkg} is installed`);
+    // the reference pages of the package's items (docs/render.md, #202)
+    if (target === 'md') { resolved.delete(TOOL_TABLE); return renderMd(resolved, { pkg, fallback: pkg, sources: mdSources(data) }); }
     const files = data.files.filter((f) => (f.pkg ?? pkg) === pkg);
     // A domain is read at run time: its one render is its codes header (docs/render.md)
     const marked = data.packages?.get(pkg)?.codes;
@@ -272,16 +281,17 @@ export function renderTarget(target, argv) {
   if (target === 'ts') return renderTs(resolved);
   if (target === 'json') return renderJson(resolved, contractVersion(data, packageVersion(ROOT)));
   if (target === 'lv2') return renderLv2(resolved);
+  if (target === 'md') return renderMd(resolved, { sources: mdSources(data) });
   // the declarations have no Python render since the format terms left (V27b): py renders the shapes only
   if (target === 'py') throw new Usage('render --target py renders the shapes only: add --shapes');
-  throw new Usage(`unknown target ${target} (c, ts, json, lv2, py --shapes)`);
+  throw new Usage(`unknown target ${target} (c, ts, json, lv2, md, py --shapes)`);
 }
 
 /** The target and --out of a render, checked. */
 function renderArgs(argv) {
   const target = opt(argv, '--target');
   const out = opt(argv, '--out');
-  if (!target || !out) throw new Usage('render needs --target <c|ts|json|lv2|py> and --out <dir>');
+  if (!target || !out) throw new Usage('render needs --target <c|ts|json|lv2|md|py> and --out <dir>');
   return { target, out };
 }
 
@@ -429,6 +439,47 @@ function cmdSemver(argv) {
  * `links`: list every item's source links, or with `--check` check them against the owner's tree (lib/links.mjs).
  * A problem prints its CONTRACT_CODES code first; links that lie in a tree not named by `--at` are reported unchecked.
  */
+/**
+ * `units --check <path>...`: every unit the JSON files under each path state is a PARAM_UNITS standard id
+ * (lib/units.mjs; omx-contract#193). An owner runs it over its own files in its own CI, whatever their shape
+ * (docs/unit-gate.md). Exit 1 names file:line, the JSON pointer and the value; exit 2 is a path that is absent,
+ * a file that is no JSON, or files that state no unit at all (a wrong path is never a pass).
+ */
+function cmdUnits(argv) {
+  const paths = argv.slice(1).filter((a) => a !== '--check');
+  if (!argv.includes('--check')) throw new Usage('units: --check is the one mode');
+  if (!paths.length) throw new Usage('units --check needs at least one path');
+  const files = [];
+  const walk = (p) => {
+    const st = statSync(p);
+    if (st.isDirectory()) {
+      for (const f of readdirSync(p).sort()) if (f !== 'node_modules' && !f.startsWith('.')) walk(join(p, f));
+    } else if (p.endsWith('.json')) files.push(p);
+  };
+  for (const p of paths) {
+    if (!existsSync(p)) { console.error(`omx-contract units: ${p}: no such file or directory`); return 2; }
+    walk(p);
+  }
+  const gate = unitGate();
+  let checked = 0;
+  let refused = 0;
+  for (const f of files) {
+    const text = readFileSync(f, 'utf8');
+    let doc;
+    try { doc = JSON.parse(text); } catch (e) { console.error(`omx-contract units: ${f}: no JSON (${e.message})`); return 2; }
+    const found = unitProblems(doc, gate);
+    checked += found.checked;
+    const lineOf = lineFinder(text);
+    for (const p of found) {
+      console.error(`${f}:${lineOf(p.key, p.value)}: ${p.message}`);
+      refused++;
+    }
+  }
+  if (!checked) { console.error(`omx-contract units: ${files.length} file${files.length === 1 ? '' : 's'} under ${paths.join(' ')} state no unit: name the owner's data`); return 2; }
+  console.log(`omx-contract units: ${files.length} file${files.length === 1 ? '' : 's'}, ${checked} units, ${refused} refused`);
+  return refused ? 1 : 0;
+}
+
 function cmdLinks(argv) {
   const data = load(argv);
   const only = opt(argv, '--package');
@@ -589,7 +640,9 @@ async function answersOf(ask, batch, accepts = () => true) {
 /**
  * An owner's source sentences from a file (`--source`, #24), for strings that are no contract data (a surface's own):
  * `{ "<key>": { "text": "<English sentence>", "args": [...] } }`, the same `Map<key, { args, en }>` the data gives. A
- * string value is a generated file's banner, no sentence; `args` absent are the sentence's own placeholders.
+ * `_`-prefixed key (`_generated`) is the file's metadata, no sentence; any other key is a sentence or the file is
+ * refused by name, so no source key is ever left out of the key set a catalog is checked against. `args` absent are
+ * the sentence's own placeholders.
  */
 function sourceKeys(file) {
   if (!existsSync(file)) throw new Usage(`no source file ${file}`);
@@ -597,8 +650,8 @@ function sourceKeys(file) {
   if (!doc || typeof doc !== 'object' || Array.isArray(doc)) throw new Usage(`${file} is no object of key -> { text, args }`);
   const keys = new Map();
   for (const [key, v] of Object.entries(doc)) {
-    if (typeof v === 'string') continue;
-    if (!v || typeof v !== 'object' || typeof v.text !== 'string' || v.text === '') throw new Usage(`${file}: ${key} is neither a sentence { text, args } nor a banner`);
+    if (key.startsWith('_')) continue;
+    if (!v || typeof v !== 'object' || typeof v.text !== 'string' || v.text === '') throw new Usage(`${file}: ${key} is no sentence { text, args } (only a key starting with _ is file metadata)`);
     keys.set(key, { args: Array.isArray(v.args) ? v.args : placeholdersOf(v.text), en: v.text });
   }
   return keys;
@@ -638,13 +691,13 @@ function ownerData(owner, name, argv) {
   }
   const needs = new Map();
   for (const f of data.files) {
-    for (const [pkg, v] of Object.entries(f.doc?.requires ?? {})) {
-      if (pkg !== 'omx-contract-schema' && !needs.has(pkg)) needs.set(pkg, { floor: v, rel: f.rel });
+    for (const pkg of requiresNames(f.doc?.requires, (m) => refuse('fileInvalid', f.rel, `requires ${m}`))) {
+      if (!needs.has(pkg)) needs.set(pkg, { rel: f.rel });
     }
   }
   if (!needs.size) return { data, resolved: false };
   const { roots, text } = requirementPlaces();
-  const unresolved = (pkg, why) => refuse('requiresUnresolved', 'requires', `${pkg} ${needs.get(pkg).floor} (required by ${needs.get(pkg).rel}) ${why}; looked in ${text}. Use the --installed form instead: OMX_CONTRACT_PATH=<contract directory holding ${pkg}> omx-contract translate --installed --catalogs ${join(tree, 'catalogs')} --package ${name}${argv.includes('--check') ? ' --check' : ''}`);
+  const unresolved = (pkg, why) => refuse('requiresUnresolved', 'requires', `${pkg} (required by ${needs.get(pkg).rel}) ${why}; looked in ${text}. Use the --installed form instead: OMX_CONTRACT_PATH=<contract directory holding ${pkg}> omx-contract translate --installed --catalogs ${join(tree, 'catalogs')} --package ${name}${argv.includes('--check') ? ' --check' : ''}`);
   const [first] = needs.keys();
   if (!roots.length) unresolved(first, 'was not found: no contract directory exists there');
   let installed;
@@ -652,11 +705,7 @@ function ownerData(owner, name, argv) {
     if (e instanceof ContractRefusal && e.code === CONTRACT_CODES.dirAbsent) unresolved(first, 'was not found');
     throw e;
   }
-  for (const [pkg, { floor }] of needs) {
-    const p = installed.packages.get(pkg);
-    if (!p) unresolved(pkg, 'is not installed');
-    if (!atLeast(p.manifest.version, floorOf(floor))) unresolved(pkg, `is installed as ${p.manifest.version}, below its floor`);
-  }
+  for (const pkg of needs.keys()) if (!installed.packages.has(pkg)) unresolved(pkg, 'is not installed');
   for (const [n, it] of installed.items) if (!data.items.has(n)) data.items.set(n, it);
   return { data, resolved: true };
 }
@@ -765,14 +814,15 @@ async function cmdTranslate(argv) {
 const USAGE = `usage: omx-contract validate [<input>] [--catalogs <dir>]
        omx-contract domain check <new.json> <committed.json>
        omx-contract fmt [--check] [<input>]
-       omx-contract render --target c|ts|json|lv2|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
+       omx-contract render --target c|ts|json|lv2|md|py --out <dir> [--check] [--shapes [--shapes-dir <dir>]] [<input> [--package <name>]]
        omx-contract semver <previous tag> [--report] | --from-dir <data dir> --from-version <x.y.z> [--version <x.y.z>]
        omx-contract links [--check] [--root <tree>] [<input>] [--package <name>] [--at <package>=<tree>]... [--require-impl] [--json]
        omx-contract translate [--check] [--lang <xx>] [--owner <tree> | <input> --catalogs <dir> | --source <file> --catalogs <dir>] [--package <name>] [--model <alias>] [--batch <n>]
+       omx-contract units --check <path>...
   <input>: --data <dir> | --contract-dir <dir> | --installed, a contract directory with [--needs <package>@'>= x.y.z']... [--json]`;
 
 export function main(argv) {
-  const cmds = { validate: cmdValidate, domain: cmdDomain, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate };
+  const cmds = { validate: cmdValidate, domain: cmdDomain, fmt: cmdFmt, render: cmdRender, semver: cmdSemver, links: cmdLinks, translate: cmdTranslate, units: cmdUnits };
   const fail = (e) => {
     if (e instanceof Usage) { console.error(`omx-contract: ${e.message}\n${USAGE}`); return 2; }
     if (e instanceof ContractRefusal) {

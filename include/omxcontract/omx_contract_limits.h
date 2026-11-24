@@ -16,85 +16,10 @@
  * @brief The numbers of the contract: every declared limit, scalar, list and set as an OMX_ define or enum, and the
  * declared sample rates. */
 
-/* Every scalar, sheet leaf and single travel's numbers, one block sorted by macro. An integer value
- * is an integer literal, any other a float literal AND its OMX_<macro>_DOUBLE spelling. */
-/**
- * @name OMX_PARAM_CONTRACT_UNITS
- * The units of org.openmixer.param-contract/1, the code its get() reports for a parameter's plain value, by token: the LV2 unit a face writes for a descriptor unit (units:db is db), 0..24 the LV2 units one to one, 0x100 and up the vendor block of units LV2 has none for, append-only. A token is served when it has a code here; none is 0. (since 3.6.0)
- */
-/// @{
-/** bars of the transport */
-#define OMX_PARAM_CONTRACT_UNITS_BAR 4
-/** beats of the transport */
-#define OMX_PARAM_CONTRACT_UNITS_BEAT 5
-/** beats per minute */
-#define OMX_PARAM_CONTRACT_UNITS_BPM 19
-/** cents, hundredths of a semitone */
-#define OMX_PARAM_CONTRACT_UNITS_CENT 21
-/** centimetres */
-#define OMX_PARAM_CONTRACT_UNITS_CM 8
-/** a coefficient, a plain multiplier (1 is unity) */
-#define OMX_PARAM_CONTRACT_UNITS_COEF 15
-/** decibels, a relative level or a gain */
-#define OMX_PARAM_CONTRACT_UNITS_DB 13
-/** decibels relative to full scale, 0 the largest sample, a level (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_DBFS 256
-/** decibels relative to full scale, true peak, ITU-R BS.1770 (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_DBTP 262
-/** decibels relative to 0.775 V RMS, an analogue level (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_DBU 257
-/** decibels per octave, a filter slope (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_DB_PER_OCT 260
-/** decibels per second, a rate of level change (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_DB_PER_S 261
-/** degrees of arc or of phase */
-#define OMX_PARAM_CONTRACT_UNITS_DEGREE 23
-/** audio frames (samples) at the running rate */
-#define OMX_PARAM_CONTRACT_UNITS_FRAME 6
-/** hertz */
-#define OMX_PARAM_CONTRACT_UNITS_HZ 16
-/** inches */
-#define OMX_PARAM_CONTRACT_UNITS_INCH 11
-/** kilohertz */
-#define OMX_PARAM_CONTRACT_UNITS_KHZ 17
-/** kilometres */
-#define OMX_PARAM_CONTRACT_UNITS_KM 10
-/** loudness units, a loudness difference, ITU-R BS.1770 (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_LU 263
-/** loudness units relative to full scale, ITU-R BS.1770 (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_LUFS 259
-/** metres */
-#define OMX_PARAM_CONTRACT_UNITS_M 7
-/** megahertz */
-#define OMX_PARAM_CONTRACT_UNITS_MHZ 18
-/** a MIDI note number, 0 to 127 */
-#define OMX_PARAM_CONTRACT_UNITS_MIDI_NOTE 24
-/** miles */
-#define OMX_PARAM_CONTRACT_UNITS_MILE 12
-/** minutes */
-#define OMX_PARAM_CONTRACT_UNITS_MIN 3
-/** millimetres */
-#define OMX_PARAM_CONTRACT_UNITS_MM 9
-/** milliseconds */
-#define OMX_PARAM_CONTRACT_UNITS_MS 2
-/** no unit: a plain number, a switch, an index */
-#define OMX_PARAM_CONTRACT_UNITS_NONE 0
-/** octaves */
-#define OMX_PARAM_CONTRACT_UNITS_OCT 20
-/** percent */
-#define OMX_PARAM_CONTRACT_UNITS_PC 14
-/** a ratio, n to 1, as a compressor states it (vendor block) */
-#define OMX_PARAM_CONTRACT_UNITS_RATIO 258
-/** seconds */
-#define OMX_PARAM_CONTRACT_UNITS_S 1
-/** semitones of twelve-tone equal temperament */
-#define OMX_PARAM_CONTRACT_UNITS_SEMITONE12_TET 22
-/// @}
-
 /* Every list rendered to C, sorted by list: OMX_<LIST>_COUNT and OMX_<LIST>_INIT { a, b, … }. */
 /** The number of values of STANDARD_QUANTA, the length of OMX_STANDARD_QUANTA_INIT. */
 #define OMX_STANDARD_QUANTA_COUNT 6u
-/** The quanta (buffer sizes, in frames, a count with no unit of its own) the console offers: the set a measurement grid or a probe takes its quanta from, beside the rates STANDARD_SAMPLE_RATES lists. A consumer that measures at fewer quanta takes a subset of this list and states it; it never keeps a list of its own. What the operator is OFFERED is still the engine's own choice, this is the ceiling a request is refused by. The values in declaration order, an initialiser. (unitless; since 3.5.0) */
+/** The quanta (buffer sizes, in frames, a count with no unit of its own) the console offers: the set a measurement grid or a probe takes its quanta from, beside the rates STANDARD_SAMPLE_RATES lists. A consumer that measures at fewer quanta takes a subset of this list and states it; it never keeps a list of its own. What the operator is OFFERED is still the engine's own choice, this is the ceiling a request is refused by. The values in declaration order, an initialiser. (none; since 3.5.0) */
 #define OMX_STANDARD_QUANTA_INIT { 32, 64, 128, 256, 512, 1024 }
 /** The number of values of STANDARD_SAMPLE_RATES, the length of OMX_STANDARD_SAMPLE_RATES_INIT. */
 #define OMX_STANDARD_SAMPLE_RATES_COUNT 6u

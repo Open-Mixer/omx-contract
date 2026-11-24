@@ -34,7 +34,7 @@ test('readouts are valid beside the controls, and refused by shape, schema and m
   assert.match(problems(withReadouts([readout({ min: 0 })])), /swell\.readouts\.gainReductionDb:readout-range:.*min 0 is not below max 0/);
   assert.match(problems(withReadouts([readout({ rateHz: 0 })])), /swell\.readouts\.gainReductionDb:readout-rate:.*rateHz 0 is not positive/);
   assert.match(problems(withReadouts([readout({ max: { ref: 'SWELL_LIMITS.nothing' } })])), /reference SWELL_LIMITS\.nothing: SWELL_LIMITS has no nothing/);
-  assert.match(problems(withReadouts([readout()], (d) => { d['data/rates.json'].READOUTS = { kind: 'scalar', doc: 'x', unit: '', value: 1 }; })), /READOUTS:readouts-name/);
+  assert.match(problems(withReadouts([readout()], (d) => { d['data/rates.json'].READOUTS = { kind: 'scalar', doc: 'x', unit: 'none', value: 1 }; })), /READOUTS:readouts-name/);
 });
 
 test('a readout declares no item, and fmt spells it in its one key order after the controls', () => {

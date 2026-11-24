@@ -187,7 +187,7 @@ test('an x-from $ref names a nested domain, dsp/kernels: read as its item, and h
   const undeclared = refusalError(dirWith(doc, 'grouped'));
   assert.equal(undeclared.code, CONTRACT_CODES.refUndeclared);
   assert.match(undeclared.message, /dsp\/kernels/);
-  doc.info['x-requires'] = { 'dsp/kernels': '>= 1.0.0' };
+  doc.info['x-requires'] = ['dsp/kernels'];
   const absent = refusalError(dirWith(doc, 'grouped'));
   assert.equal(absent.code, CONTRACT_CODES.packageAbsent);
   assert.match(absent.message, /dsp\/kernels/);

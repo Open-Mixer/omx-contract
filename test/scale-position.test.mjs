@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { applyOverride } from '../lib/descriptor.mjs';
-import { scalePosition, scaleValue } from '../lib/scale.mjs';
+import { Law, POSITION_LAWS, scalePosition, scaleValue } from '../lib/scale.mjs';
 import { ROOT } from './helpers.mjs';
 
 const VECTORS = JSON.parse(readFileSync(join(ROOT, 'data/scale-vectors.json'), 'utf8'));
@@ -139,4 +139,10 @@ test('the library is exported and the vectors are installed beside omx-contract.
     assert.deepEqual(JSON.parse(readFileSync(join(dest, 'usr/share/omx-contract/scale-vectors.json'), 'utf8')), VECTORS);
     assert.ok(!existsSync(join(dest, 'usr/share/omx-contract/contract.d/3/omx-contract/scale-vectors.json')), 'not a declaration');
   } finally { rmSync(dest, { recursive: true, force: true }); }
+});
+
+test('Law: one named member per word of POSITION_LAWS, in its order, each the word itself (#46)', () => {
+  assert.deepEqual(Object.entries(Law), [['LINEAR', 'linear'], ['LOG', 'log'], ['STEPPED', 'stepped'], ['MAP', 'map']]);
+  assert.deepEqual(Object.values(Law), [...POSITION_LAWS]);
+  assert.ok(Object.isFrozen(Law));
 });

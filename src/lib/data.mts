@@ -90,7 +90,7 @@ export const KERNEL_KEYS = ['controls', 'readouts', 'tables', 'aggregates', 'con
 
 /**
  * The keys a data file of any shape may carry beside its items (docs/contract-dir.md): `$schema`, `requires` (the
- * schema floor and the packages it refers to), `source` (the file's provenance and connector), `render` (how the
+ * names of the packages and domains it refers to, no version: the devel wave 2026-11-24), `source` (the file's provenance and connector), `render` (how the
  * owner's own header spells the file's items, docs/render.md) and `checks` (sums held under a bound). They declare no
  * item.
  */
@@ -396,7 +396,12 @@ export function resolveData(data: Json): Resolved {
       if (item.standard !== undefined) r.standard = item.standard;
     }
     if (item.kind === 'travels') r.shape = item.fields ? 'table' : 'travel';
-    r.value = val(rawValue(item), name);
+    const raw = rawValue(item);
+    // a sheet of strings by what it DECLARES (every field a plain string, schema $defs.sheetValue), never by what its
+    // references resolve to: a numbers sheet whose refs reach a string stays a numbers sheet, and the finite check
+    // names it. Not enumerable: no render publishes it.
+    if (item.kind === 'sheet') Object.defineProperty(r, 'strings', { value: isObj(raw) && Object.values(raw).every((v) => typeof v === 'string'), enumerable: false });
+    r.value = val(raw, name);
     busy.delete(name);
     done.set(name, r);
     return r;

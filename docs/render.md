@@ -253,3 +253,19 @@ outside a doc comment, and a `Doxyfile` that suppresses what it counts (`EXCLUDE
 limit: a declaration under a preprocessor condition false with only `CLAP_ABI` predefined is not read, as a compiler
 would not read it; the headers carry none. The script exits 0 at the baseline, 1 on a finding, 2 when it cannot run;
 `make` exits 2 on either.
+
+### The domains as a reference: `render --target md`
+
+`omx-contract render --target md --out <dir>` (omx-contract#202, the lane's ruling of 2026-11-24) writes the read's
+vocabularies as human-readable pages, a target of the one `render` command and no second generator: one page per
+domain, `<dir>/<domain>.md` (a nested domain's `/` read `-`: `dsp-kernels.md`), and one per package for the items of
+its classic data files, `<dir>/<package>.md`. It reads the same resolved items the json target reads, from `--data`,
+`--installed` or `--contract-dir` (`--package <p>` keeps that package's pages). A page gives each item, in name order,
+its name, kind, `since` and `doc`; a words item a table of its words (the word, its key, its group, unit symbol or
+dimension where it has one, and its `doc`), a codes item a table of its codes and their `doc`, a set its ids and
+default, a list its values and unit, a scalar its value and unit, and a sheet a table of its fields and values.
+
+It is also the doc check: an item with no `doc`, and a word or a code with none, is refused by page, item and word,
+one line each, and nothing is written (exit 1). `--check` holds `<dir>` to a fresh render byte for byte, as every
+target does. `make docs-site` writes omx-contract's pages under `$(DOCS_OUT)/domains/`; each owner publishes its own
+domains' pages the same way, so a domain is published once, by the repository that owns it.

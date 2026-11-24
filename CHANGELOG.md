@@ -4,6 +4,11 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- REMOVED: the live-owners leg (#234). omx-contract reads no level above it: tools/live-owner-data.sh,
+  tools/live-owner.ref and test/live-owners.test.mjs are gone, and so are their steps in ci.yml, release.yml and
+  publish.yml. Each owner proves its own data against the omx-contract it installs (omx-dsp: make contract-dir,
+  definitions-check, units-check; the "tool names no owner item" check moves up with omx-dsp#167).
+  test/no-upward-read.test.mjs refuses an upward read.
 - FIXED: `render --target c --package <owner>` names an owner's unit set by the PARAM_UNITS titles, as the whole read
   does: `dB` is `_DB`, never `_D_B` (#228). The owner's header holds its own items, which carry no PARAM_UNITS; the titles
   now come from the whole read.

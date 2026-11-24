@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-// #5: no item keeps a placeholder doc (the unit list is held in test/live-owners.test.mjs).
+// #5: no item keeps a placeholder doc.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -12,7 +12,7 @@ import { DATA, ROOT, UNION, texts } from './helpers.mjs';
 
 const json = () => JSON.parse(renderJson(resolveData(loadData(UNION)), '0.0.0')[0].text);
 
-// The unit list against the units in use is held against the live owners' data: test/live-owners.test.mjs.
+// A unit in use is a PARAM_UNITS id: each owner's units-check holds it against the installed omx-contract.
 
 test('no item carries a placeholder doc that only names where it came from', () => {
   const items = json().items;

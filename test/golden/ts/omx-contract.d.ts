@@ -126,48 +126,56 @@ export declare const RESOURCE_KINDS: {
 export declare const RESOURCE_UNITS: {
   readonly nsPerSample: {
     readonly word: "ns-per-sample";
+    readonly doc: "Nanoseconds per sample.";
     readonly text: {
       readonly en: "Nanoseconds per sample.";
     };
   };
   readonly frames: {
     readonly word: "frames";
+    readonly doc: "A count of audio frames.";
     readonly text: {
       readonly en: "A count of audio frames.";
     };
   };
   readonly ms: {
     readonly word: "ms";
+    readonly doc: "Milliseconds.";
     readonly text: {
       readonly en: "Milliseconds.";
     };
   };
   readonly us: {
     readonly word: "us";
+    readonly doc: "Microseconds.";
     readonly text: {
       readonly en: "Microseconds.";
     };
   };
   readonly s: {
     readonly word: "s";
+    readonly doc: "Seconds.";
     readonly text: {
       readonly en: "Seconds.";
     };
   };
   readonly bytes: {
     readonly word: "bytes";
+    readonly doc: "Bytes.";
     readonly text: {
       readonly en: "Bytes.";
     };
   };
   readonly plainCount: {
     readonly word: "count";
+    readonly doc: "A plain count, with no unit.";
     readonly text: {
       readonly en: "A plain count, with no unit.";
     };
   };
   readonly ratio: {
     readonly word: "ratio";
+    readonly doc: "A ratio, with no unit.";
     readonly text: {
       readonly en: "A ratio, with no unit.";
     };
@@ -188,18 +196,21 @@ export declare const RESOURCE_UNITS: {
 export declare const RESOURCE_BASES: {
   readonly declared: {
     readonly word: "declared";
+    readonly doc: "What the plugin declares about itself.";
     readonly text: {
       readonly en: "What the plugin declares about itself.";
     };
   };
   readonly measured: {
     readonly word: "measured";
+    readonly doc: "What a run measured.";
     readonly text: {
       readonly en: "What a run measured.";
     };
   };
   readonly probe: {
     readonly word: "probe";
+    readonly doc: "A count the caller gave the probe.";
     readonly text: {
       readonly en: "A count the caller gave the probe.";
     };

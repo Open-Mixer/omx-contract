@@ -140,48 +140,56 @@ export const RESOURCE_KINDS = {
 export const RESOURCE_UNITS = {
   "nsPerSample": {
     "word": "ns-per-sample",
+    "doc": "Nanoseconds per sample.",
     "text": {
       "en": "Nanoseconds per sample."
     }
   },
   "frames": {
     "word": "frames",
+    "doc": "A count of audio frames.",
     "text": {
       "en": "A count of audio frames."
     }
   },
   "ms": {
     "word": "ms",
+    "doc": "Milliseconds.",
     "text": {
       "en": "Milliseconds."
     }
   },
   "us": {
     "word": "us",
+    "doc": "Microseconds.",
     "text": {
       "en": "Microseconds."
     }
   },
   "s": {
     "word": "s",
+    "doc": "Seconds.",
     "text": {
       "en": "Seconds."
     }
   },
   "bytes": {
     "word": "bytes",
+    "doc": "Bytes.",
     "text": {
       "en": "Bytes."
     }
   },
   "plainCount": {
     "word": "count",
+    "doc": "A plain count, with no unit.",
     "text": {
       "en": "A plain count, with no unit."
     }
   },
   "ratio": {
     "word": "ratio",
+    "doc": "A ratio, with no unit.",
     "text": {
       "en": "A ratio, with no unit."
     }
@@ -202,18 +210,21 @@ export const RESOURCE_UNITS = {
 export const RESOURCE_BASES = {
   "declared": {
     "word": "declared",
+    "doc": "What the plugin declares about itself.",
     "text": {
       "en": "What the plugin declares about itself."
     }
   },
   "measured": {
     "word": "measured",
+    "doc": "What a run measured.",
     "text": {
       "en": "What a run measured."
     }
   },
   "probe": {
     "word": "probe",
+    "doc": "A count the caller gave the probe.",
     "text": {
       "en": "A count the caller gave the probe."
     }

@@ -69,28 +69,28 @@
     X(12u, "network", NETWORK) X(13u, "state", STATE)
 
 /* RESOURCE_UNITS (data/resource-profile.json) */
-#define OMX_RESOURCE_UNITS_NS_PER_SAMPLE "ns-per-sample"
+#define OMX_RESOURCE_UNITS_NS_PER_SAMPLE "ns-per-sample" ///< Nanoseconds per sample.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_NS_PER_SAMPLE. */
 #define OMX_RESOURCE_UNITS_NS_PER_SAMPLE_TEXT_EN "Nanoseconds per sample."
-#define OMX_RESOURCE_UNITS_FRAMES "frames"
+#define OMX_RESOURCE_UNITS_FRAMES "frames" ///< A count of audio frames.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_FRAMES. */
 #define OMX_RESOURCE_UNITS_FRAMES_TEXT_EN "A count of audio frames."
-#define OMX_RESOURCE_UNITS_MS "ms"
+#define OMX_RESOURCE_UNITS_MS "ms" ///< Milliseconds.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_MS. */
 #define OMX_RESOURCE_UNITS_MS_TEXT_EN "Milliseconds."
-#define OMX_RESOURCE_UNITS_US "us"
+#define OMX_RESOURCE_UNITS_US "us" ///< Microseconds.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_US. */
 #define OMX_RESOURCE_UNITS_US_TEXT_EN "Microseconds."
-#define OMX_RESOURCE_UNITS_S "s"
+#define OMX_RESOURCE_UNITS_S "s" ///< Seconds.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_S. */
 #define OMX_RESOURCE_UNITS_S_TEXT_EN "Seconds."
-#define OMX_RESOURCE_UNITS_BYTES "bytes"
+#define OMX_RESOURCE_UNITS_BYTES "bytes" ///< Bytes.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_BYTES. */
 #define OMX_RESOURCE_UNITS_BYTES_TEXT_EN "Bytes."
-#define OMX_RESOURCE_UNITS_PLAIN_COUNT "count"
+#define OMX_RESOURCE_UNITS_PLAIN_COUNT "count" ///< A plain count, with no unit.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_PLAIN_COUNT. */
 #define OMX_RESOURCE_UNITS_PLAIN_COUNT_TEXT_EN "A plain count, with no unit."
-#define OMX_RESOURCE_UNITS_RATIO "ratio"
+#define OMX_RESOURCE_UNITS_RATIO "ratio" ///< A ratio, with no unit.
 /** The source sentence (English) of OMX_RESOURCE_UNITS_RATIO. */
 #define OMX_RESOURCE_UNITS_RATIO_TEXT_EN "A ratio, with no unit."
 #define OMX_RESOURCE_UNITS_FLAG "flag" ///< A yes or a no: one when the plugin does the thing, zero when it does not.
@@ -107,13 +107,13 @@
     X(8u, "flag", FLAG)
 
 /* RESOURCE_BASES (data/resource-profile.json) */
-#define OMX_RESOURCE_BASES_DECLARED "declared"
+#define OMX_RESOURCE_BASES_DECLARED "declared" ///< What the plugin declares about itself.
 /** The source sentence (English) of OMX_RESOURCE_BASES_DECLARED. */
 #define OMX_RESOURCE_BASES_DECLARED_TEXT_EN "What the plugin declares about itself."
-#define OMX_RESOURCE_BASES_MEASURED "measured"
+#define OMX_RESOURCE_BASES_MEASURED "measured" ///< What a run measured.
 /** The source sentence (English) of OMX_RESOURCE_BASES_MEASURED. */
 #define OMX_RESOURCE_BASES_MEASURED_TEXT_EN "What a run measured."
-#define OMX_RESOURCE_BASES_PROBE "probe"
+#define OMX_RESOURCE_BASES_PROBE "probe" ///< A count the caller gave the probe.
 /** The source sentence (English) of OMX_RESOURCE_BASES_PROBE. */
 #define OMX_RESOURCE_BASES_PROBE_TEXT_EN "A count the caller gave the probe."
 /** The number of words of RESOURCE_BASES. */

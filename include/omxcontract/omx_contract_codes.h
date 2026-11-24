@@ -23,8 +23,8 @@ enum omx_contract_code {
   OMX_CONTRACT_CODE_MANIFEST_INVALID = 3, ///< `contract.manifest.invalid`: a manifest is not JSON, lacks a field, or names another package or schema major than its place
   OMX_CONTRACT_CODE_MANIFEST_MISMATCH = 4, ///< `contract.manifest.mismatch`: a listed file is missing, a file is present but not listed, or its hash differs
   OMX_CONTRACT_CODE_SCHEMA_MAJOR = 5, ///< `contract.schema.major`: a file's $schema is not the installed form of the reader's schema major
-  OMX_CONTRACT_CODE_SCHEMA_TOO_OLD = 6, ///< `contract.schema.too-old`: a file's requires.omx-contract-schema floor is above the reader's schema
-  OMX_CONTRACT_CODE_SCHEMA_FLOOR_ABSENT = 7, ///< `contract.schema.floor-absent`: an installed file of a package other than omx-contract states no schema floor
+  OMX_CONTRACT_CODE_SCHEMA_TOO_OLD = 6, ///< `contract.schema.too-old`: retired, never raised since the devel wave 2026-11-24: requires names packages with no version, so no schema floor is read
+  OMX_CONTRACT_CODE_SCHEMA_FLOOR_ABSENT = 7, ///< `contract.schema.floor-absent`: retired, never raised since the devel wave 2026-11-24: a file states no schema floor, and requires names packages with no version
   OMX_CONTRACT_CODE_FILE_NOT_JSON = 8, ///< `contract.file.not-json`: a file does not parse
   OMX_CONTRACT_CODE_FILE_INVALID = 9, ///< `contract.file.invalid`: a file breaks the schema or the kernel-file shape, an unknown key or word included
   OMX_CONTRACT_CODE_ITEM_DUPLICATE = 10, ///< `contract.item.duplicate`: two files declare one name

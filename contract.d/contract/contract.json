@@ -71,9 +71,9 @@
           {
             "const": "contract.schema.too-old",
             "title": "schemaTooOld",
-            "description": "a file's requires.omx-contract-schema floor is above the reader's schema",
+            "description": "retired, never raised since the devel wave 2026-11-24: requires names packages with no version, so no schema floor is read",
             "x-code": 5,
-            "x-text": "The file at {path} needs a newer omx-contract schema than this reader has. Upgrade omx-contract, or lower the file's floor.",
+            "x-text": "Retired code, never raised: {path} was read against an omx-contract schema floor, and since the devel wave 2026-11-24 requires names packages with no version.",
             "x-args": [
               "path"
             ],
@@ -82,9 +82,9 @@
           {
             "const": "contract.schema.floor-absent",
             "title": "schemaFloorAbsent",
-            "description": "an installed file of a package other than omx-contract states no schema floor",
+            "description": "retired, never raised since the devel wave 2026-11-24: a file states no schema floor, and requires names packages with no version",
             "x-code": 6,
-            "x-text": "The file at {path} states no omx-contract schema floor. Add a requires.omx-contract-schema entry.",
+            "x-text": "Retired code, never raised: {path} states no omx-contract schema floor, and since the devel wave 2026-11-24 none is needed; requires names packages with no version.",
             "x-args": [
               "path"
             ],

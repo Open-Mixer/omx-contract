@@ -247,3 +247,46 @@ test('a word that is no C identifier renders under its x-name, and is refused in
   assert.equal(refused((o) => { o[2]['x-name'] = 'fbs-fixed'; }).length, 1, 'an x-name that is no identifier');
   assert.equal(refused((o) => { o[1]['x-name'] = 'log'; }).length, 1, 'two words of one property with one identifier');
 });
+
+test('a key that is no C identifier renders under its x-name, and is refused without one or with a needless one (#75)', async () => {
+  const s = travel();
+  s.$defs.ScaleTravel.properties['--font-ui'] = { type: 'string', 'x-name': 'fontUi', description: 'A CSS custom property, as the document spells it.' };
+  s.$defs.ScaleTravel.properties.$comment = { type: 'string', 'x-name': 'comment', description: 'A note.' };
+  s.$defs.ScaleTravel.required = ['--font-ui'];
+  const dir = treeWith(s);
+  assert.deepEqual(shapeProblems(shapesOf(dir)[0]), [], 'positive: keys named by x-name pass');
+  const [{ text }] = renderShapesC(dir, join(dir, 'shapes'));
+  assert.match(text, /#define OMX_SHAPE_SCALE_TRAVEL_KEYS\(X\) X\(scale, "scale"\) X\(min, "min"\) X\(max, "max"\) X\(step, "step"\) X\(fontUi, "--font-ui"\) X\(comment, "\$comment"\)/);
+  assert.match(text, /#define OMX_SHAPE_SCALE_TRAVEL_REQUIRED\(X\) X\(fontUi, "--font-ui"\)/);
+  const [{ text: ts }] = await renderShapesTs(ROOT, join(dir, 'shapes'));
+  assert.match(ts, /"--font-ui": string;/, 'the TypeScript type keeps the document\'s key');
+  const refused = (mutate) => { const t = structuredClone(s); mutate(t.$defs.ScaleTravel.properties); return shapeProblems(shapesOf(treeWith(t))[0]).filter((p) => p.rule === 'identifiers'); };
+  assert.equal(refused((p) => { delete p['--font-ui']['x-name']; }).length, 1, 'a key that is no identifier, with no x-name');
+  assert.equal(refused((p) => { p['--font-ui']['x-name'] = 'font-ui'; }).length, 1, 'an x-name that is no identifier');
+  assert.equal(refused((p) => { p.min['x-name'] = 'least'; }).length, 1, 'an x-name on a key that is its own identifier');
+  assert.equal(refused((p) => { p.$comment['x-name'] = 'scale'; }).length, 1, 'two keys of one object with one identifier');
+});
+
+/** The travel shape with a `codes` map on ScaleTravel: every value a Code, keyed by code name. */
+const withMap = () => {
+  const s = travel();
+  s.$defs.Code = { type: 'object', title: 'Code', description: 'One code.', properties: { text: { type: 'string', description: 'Its sentence.' } }, required: ['text'], additionalProperties: false };
+  s.$defs.ScaleTravel.properties.codes = { type: 'object', title: 'Codes', description: 'The codes, keyed by code name.', propertyNames: { pattern: '^[a-z][a-z.-]*$' }, additionalProperties: { $ref: '#/$defs/Code' } };
+  return s;
+};
+
+test('a map keyed by data is a shape: an index signature in ts, its value\'s macros alone in C (#75)', async () => {
+  const dir = treeWith(withMap());
+  assert.deepEqual(shapeProblems(shapesOf(dir)[0]), [], 'positive: a map of a titled value passes');
+  const [{ text }] = renderShapesC(dir, join(dir, 'shapes'));
+  assert.match(text, /#define OMX_SHAPE_CODE_KEYS\(X\) X\(text, "text"\)/, 'the value\'s keys are named');
+  assert.doesNotMatch(text, /OMX_SHAPE_CODES_KEYS/, 'a map has no keys to name');
+  assert.match(text, /OMX_SHAPE_SCALE_TRAVEL_KEYS\(X\) .*X\(codes, "codes"\)/, 'the property holding the map is a key');
+  const [{ text: ts }] = await renderShapesTs(ROOT, join(dir, 'shapes'));
+  assert.match(ts, /\[k: string\]: Code;/, 'the TypeScript type is an index signature of Code');
+  const refused = (mutate, rule = 'additionalProperties') => { const t = withMap(); mutate(t); return shapeProblems(shapesOf(treeWith(t))[0]).filter((p) => p.rule === rule); };
+  assert.equal(refused((t) => { t.$defs.ScaleTravel.properties.codes.properties = { x: { type: 'string', description: 'x' } }; }).length, 1, 'a map that also names keys');
+  assert.equal(refused((t) => { t.$defs.ScaleTravel.properties.codes.additionalProperties = true; }).length, 1, 'an open object is no map');
+  assert.equal(refused((t) => { t.$defs.ScaleTravel.properties.codes.additionalProperties = { type: 'string', description: 'A bare value.' }; }).length, 1, 'a map of an untitled value');
+  assert.equal(refused((t) => { delete t.oneOf; Object.assign(t, { type: 'object', additionalProperties: { $ref: '#/$defs/Code' } }); }).length, 1, 'a map at the root');
+});

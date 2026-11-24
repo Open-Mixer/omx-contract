@@ -46,12 +46,22 @@ function* nodes(s, path = '') {
   for (const [k, v] of Object.entries(s)) {
     if (k === 'properties' || k === '$defs') for (const [n, sub] of Object.entries(v)) yield* nodes(sub, `${path}/${k}/${n}`);
     else if (k === 'items' && typeof v === 'object') yield* nodes(v, `${path}/items`);
+    else if (k === 'additionalProperties' && typeof v === 'object' && v !== null) yield* nodes(v, `${path}/additionalProperties`);
     else if (k === 'oneOf' || k === 'anyOf' || k === 'allOf') for (let i = 0; i < v.length; i++) yield* nodes(v[i], `${path}/${k}/${i}`);
   }
 }
 
 /** The object nodes of a shape, each `[path, node]`: the root when it is one, every $defs entry and every nested one. */
 const objects = (s) => [...nodes(s)].filter(([, n]) => n.type === 'object');
+
+/** A map (#75): an object with no `properties` whose `additionalProperties` is its values' schema; its keys are data. */
+const isMap = (n) => n.type === 'object' && !('properties' in n) && typeof n.additionalProperties === 'object' && n.additionalProperties !== null;
+
+/** The X-macro identifier of a key: the property's `x-name` when it states one (#75), else the key itself. */
+const keyId = (k, p) => (p && typeof p === 'object' && p['x-name'] !== undefined ? p['x-name'] : k);
+
+/** The object nodes the C render names keys for: every object but a map. */
+const keyed = (s) => objects(s).filter(([, n]) => !isMap(n));
 
 /**
  * The enum or const words of a property node, its oneOf and anyOf branches' included, each `{ word, id, named }`, or
@@ -101,12 +111,33 @@ export const SHAPE_RULES = [
   },
   {
     rule: 'additionalProperties',
-    check: (s) => objects(s).filter(([, n]) => n.additionalProperties !== false).map(([path]) => ({ path, message: 'an object without "additionalProperties": false: a closed shape names every key' })),
+    check: (s) => objects(s).flatMap(([path, n]) => {
+      if (n.additionalProperties === false) return [];
+      if (!isMap(n)) return [{ path, message: 'an object without "additionalProperties": false: a closed shape names every key (a map names no keys under "properties" and its value\'s schema in "additionalProperties")' }];
+      if (path === '/') return [{ path, message: 'a map at the root: a map is a property\'s value, so the document itself names its keys' }];
+      const v = n.additionalProperties;
+      const titled = typeof v.$ref === 'string' || (v.type === 'object' && TITLE.test(v.title ?? ''));
+      return titled ? [] : [{ path, message: 'a map whose value is no titled object nor a $ref to one: the renders name the value\'s type' }];
+    }),
   },
   {
     // a key is an X-macro argument and a word an identifier: one C token each, so no two spell the same one
     rule: 'identifiers',
-    check: (s) => objects(s).flatMap(([path, n]) => Object.keys(n.properties ?? {}).filter((k) => !C_IDENT.test(k)).map((k) => ({ path: `${path}/properties/${k}`, message: `the key ${JSON.stringify(k)} is not a C identifier` }))),
+    check: (s) => objects(s).flatMap(([path, n]) => {
+      const out = [];
+      const ids = new Map();
+      for (const [k, p] of Object.entries(n.properties ?? {})) {
+        const at = `${path}/properties/${k}`;
+        const named = p && typeof p === 'object' && p['x-name'] !== undefined;
+        if (!C_IDENT.test(k) && !named) out.push({ path: at, message: `the key ${JSON.stringify(k)} is not a C identifier: name its identifier in "x-name"` });
+        if (named && C_IDENT.test(k)) out.push({ path: at, message: `the key ${JSON.stringify(k)} is its own identifier: an "x-name" beside it is refused` });
+        if (named && (typeof p['x-name'] !== 'string' || !C_IDENT.test(p['x-name']))) out.push({ path: at, message: `the x-name ${JSON.stringify(p['x-name'])} of ${JSON.stringify(k)} is not a C identifier` });
+        const id = keyId(k, p);
+        if (ids.has(id)) out.push({ path: at, message: `the keys ${JSON.stringify(ids.get(id))} and ${JSON.stringify(k)} have one identifier, ${id}` });
+        else ids.set(id, k);
+      }
+      return out;
+    }),
   },
   {
     // an object keyed by a pattern has no key to name: the C macros would drop it silently
@@ -154,11 +185,11 @@ export const SHAPE_RULES = [
 function macrosOf(s) {
   const P = `OMX_SHAPE_${macroStem(s.title ?? '')}`;
   const out = [{ macro: `${P}_SCHEMA`, path: '/', what: `the schema of ${s.title}` }, { macro: `${P}_ID`, path: '/', what: `the $id of ${s.title}` }];
-  for (const [path, obj] of objects(s)) {
+  for (const [path, obj] of keyed(s)) {
     const O = `OMX_SHAPE_${macroStem(obj.title ?? '')}`;
     out.push({ macro: `${O}_KEYS`, path, what: `the keys of ${obj.title}` }, { macro: `${O}_REQUIRED`, path, what: `the required keys of ${obj.title}` });
     for (const [k, p] of Object.entries(obj.properties ?? {})) {
-      if (wordsOf(p)) out.push({ macro: `${O}_${macroStem(k)}_WORDS`, path: `${path}/properties/${k}`, what: `the words of ${obj.title}.${k}` });
+      if (wordsOf(p)) out.push({ macro: `${O}_${macroStem(keyId(k, p))}_WORDS`, path: `${path}/properties/${k}`, what: `the words of ${obj.title}.${k}` });
     }
   }
   return out;
@@ -229,21 +260,23 @@ function renderShapeC({ name, rel, schema }) {
     doxy(`The \`$id\` of the schema of ${schema.title}.`),
     `#define ${P}_ID ${cStringLiteral(schema.$id)}`,
   ];
-  for (const [, obj] of objects(schema)) {
+  for (const [, obj] of keyed(schema)) {
     const title = obj.title;
     const O = `OMX_SHAPE_${macroStem(title)}`;
-    const keys = Object.keys(obj.properties ?? {});
+    const props = obj.properties ?? {};
+    const keys = Object.keys(props);
     const required = obj.required ?? [];
+    const x = (k) => `X(${keyId(k, props[k])}, ${cStringLiteral(k)})`;
     lines.push('', `/* ${title}: ${inComment(obj.description)} */`);
     lines.push(doxy(`The keys of ${title}, each as X(identifier, "key"): ${keys.join(', ')}.`));
-    lines.push(`#define ${O}_KEYS(X) ${keys.map((k) => `X(${k}, ${cStringLiteral(k)})`).join(' ')}`);
+    lines.push(`#define ${O}_KEYS(X) ${keys.map(x).join(' ')}`);
     lines.push(doxy(`The keys ${title} requires${required.length ? '' : ' (none)'}, each as X(identifier, "key").`));
-    lines.push(`#define ${O}_REQUIRED(X) ${required.map((k) => `X(${k}, ${cStringLiteral(k)})`).join(' ')}`.trimEnd());
-    for (const [k, p] of Object.entries(obj.properties ?? {})) {
+    lines.push(`#define ${O}_REQUIRED(X) ${required.map(x).join(' ')}`.trimEnd());
+    for (const [k, p] of Object.entries(props)) {
       const words = wordsOf(p);
       if (!words) continue;
       lines.push(doxy(`The words of ${title}.${k}, each as X(identifier, "word"): ${p.description}`));
-      lines.push(`#define ${O}_${macroStem(k)}_WORDS(X) ${words.map((w) => `X(${w.id}, ${cStringLiteral(w.word)})`).join(' ')}`);
+      lines.push(`#define ${O}_${macroStem(keyId(k, p))}_WORDS(X) ${words.map((w) => `X(${w.id}, ${cStringLiteral(w.word)})`).join(' ')}`);
     }
   }
   lines.push('', `#endif /* ${guard} */`, '');

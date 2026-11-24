@@ -4,6 +4,16 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: `translate --source` no longer skips a source key by its shape (omx-contract#48, #186): only a key starting
+  with `_` is file metadata; any other key that is not a sentence `{ text, args }` (a bare string) refuses the file by
+  name, so `--check` never counts fewer keys than the source holds and calls the catalogs whole.
+- ADDED: a reply code may carry `leavesNoMark: true` (#185, ruled 2026-11-15): the refusal leaves no mark on the
+  plugin; the package vocabulary header has `<CODE>_LEAVES_NO_MARK 1` for it.
+- CHANGED: in a set whose ids are all PARAM_UNITS consts, each C enumerator is named from the id's PARAM_UNITS title
+  (`OMX_METER_UNITS_DB`, `_DBFS`, `_DBTP`; was `_D_B`, `_D_BFS`, `_D_BTP`) (#206, ruling 2026-11-23). omx-dsp renames
+  its uses in the release that takes this one.
+- ADDED: `Law`, one named member per position law, in the Python (`omx_contract.scale.Law`, a `StrEnum`) and JS
+  (`@openmixer/omx-contract/scale`) readers, made from `LAWS` / `POSITION_LAWS` (#46).
 - CHANGED: the eight RESOURCE_UNITS words and the three RESOURCE_BASES words carry a `doc`, their sentence, so every define of `omx_vocabulary.h` is documented and `docs/doxygen-baseline.txt` is empty (omx-contract#156): every public declaration of the installed headers is documented, and the gate is red on the first that is not.
 - ADDED: the domain kind for a mapping table, `x-kind` `map` (omx-contract#191, owner ruling 2026-11-23, decision 1 of plugin-hostd#215): `x-format` and a `oneOf` of one row per source field, `const` and `title` the field, `x-code` its place, `description` its doc, exactly one outcome (`x-word` with its transform and its lookup sub-table `values`, `x-extension`, or `x-dropped` with its ruling) and exactly one cover (`x-term`, the term link `<TERMS item>#<term>`, or `x-from`). `render --with-domain` rebuilds it as the data form's `formatMap` item: plugin-hostd 58b7145's `PLUGIN_HOSTD_CLAP_MAP` (373 rows) and `PLUGIN_HOSTD_LV2_MAP` (458 rows), written as map items, rebuild `formats/<f>.json` byte for byte plugin-hostd fac7531's data/formats files less their `$schema` and `requires` lines (test/domain-map.test.mjs). The reader and the domain schema refuse by row a row with no outcome or two, a dropped row without a ruling and a row covering nothing or twice; `validate` refuses a dangling term link (rule `map-term`). The runtime readers serve it as words, the source keys (conformance case valid-map). A unit's lookup value is a PARAM_UNITS id spelled as its standard symbol, and a unit with no standard id is a dropped row with its ruling (decision 2), as the docs and the schema state; validate does not check the lookup values against PARAM_UNITS.
 - REMOVED: `data/panel.json` and the six PANEL_* items (PANEL_FAMILIES, PANEL_STANDARD_WIDGETS, PANEL_WIDGETS, PANEL_DISPLAY_KINDS, PANEL_DISPLAY_SOURCES, PANEL_PLACEMENTS) with their `ownership/words.json`, `moving-out.txt` and catalog entries: omx-panel 0.16.0 owns them as its `panel` domain (sorting pass V1, the old-holder step SZ; the stage wave f45l stopped at `contract.item.duplicate` over them).

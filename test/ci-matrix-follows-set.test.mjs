@@ -30,7 +30,7 @@ test('no workflow names bookworm outside the OMX_RELEASE_MATRIX switch (D25)', {
 
 test('the check is red on a hand bookworm cell and green on the switch', () => {
   assert.equal(handBookworm('x', "      matrix:\n        suite: [bookworm, trixie]\n").length, 1);
-  assert.equal(handBookworm('x', "        image: ['fedora:44', 'debian:bookworm']\n").length, 1);
+  assert.equal(handBookworm('x', "        image: ['fedora:45', 'debian:bookworm']\n").length, 1);
   assert.equal(handBookworm('x', "        # bookworm is a full cell\n").length, 0);
   assert.equal(handBookworm('x', "        suite: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '[\"bookworm\", \"trixie\"]' || '[\"trixie\"]') }}\n").length, 0);
 });

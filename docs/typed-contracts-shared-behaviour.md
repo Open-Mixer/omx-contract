@@ -222,7 +222,7 @@ The rule in one line: native where a native door exists, wasm where only a JavaS
 ### 4.3 The wasm build
 
 - **Toolchain:** `clang --target=wasm32-wasi` with wasi-libc and `lld`, all three distribution packages
-  (Fedora 44: `clang` 22.1, `lld`, `wasi-libc-devel` 34, read from the repository metadata on 2026-11-17; Debian
+  (Fedora 45: `clang` 23.1, `lld`, `wasi-libc-devel` 34, read from the repository metadata on 2026-11-22; Debian
   bookworm and trixie: `clang`, `lld`, `wasi-libc`, to be confirmed by the lane's first build); no Emscripten SDK
   and no download, because a release builds on a stage box from the distribution's packages alone
   (the staged inside-out release cadence). Emscripten is rejected for its JavaScript glue and its own pinned toolchain.

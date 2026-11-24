@@ -14,8 +14,8 @@ const header = (ids) => renderC(resolveData(loadData(null, texts((d) => {
 }))))[0].text;
 const enumerators = (h) => [...h.matchAll(/^ {2}(OMX_DEMO_UNITS_\w+) = \d+,/gm)].map((m) => m[1]);
 
-test('a unit set: dB is _DB, kHz _KHZ, dBFS _DBFS, dBu _DBU, dBTP _DBTP, dB-oct _DB_PER_OCT', () => {
-  assert.deepEqual(enumerators(header(['dB', 'kHz', 'dBFS', 'dBu', 'dBTP', 'dB-oct', 'Hz', 'percent'])), [
+test('a unit set: dB is _DB, kHz _KHZ, dBFS _DBFS, dBu _DBU, dBTP _DBTP, dBPerOct _DB_PER_OCT', () => {
+  assert.deepEqual(enumerators(header(['dB', 'kHz', 'dBFS', 'dBu', 'dBTP', 'dBPerOct', 'Hz', 'percent'])), [
     'OMX_DEMO_UNITS_DB', 'OMX_DEMO_UNITS_KHZ', 'OMX_DEMO_UNITS_DBFS', 'OMX_DEMO_UNITS_DBU', 'OMX_DEMO_UNITS_DBTP',
     'OMX_DEMO_UNITS_DB_PER_OCT', 'OMX_DEMO_UNITS_HZ', 'OMX_DEMO_UNITS_PERCENT',
   ]);

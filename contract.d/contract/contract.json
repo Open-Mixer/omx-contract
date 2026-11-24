@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/contract",
   "info": {
     "title": "The refusal codes of the contract directory",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -656,6 +656,17 @@
               "descriptor"
             ],
             "x-name": "descriptorLatency"
+          },
+          {
+            "const": "contract.descriptor.unit-duplicate",
+            "title": "descriptorUnitDuplicate",
+            "description": "a unit of the descriptor's own units whose id or symbol is that of a PARAM_UNITS unit, or of another of its own units",
+            "x-code": 58,
+            "x-text": "{descriptor} declares a unit of its own whose id or symbol is that of a standard unit, or of another of its own units. Give the unit an id and a symbol of its own, or state the standard unit.",
+            "x-args": [
+              "descriptor"
+            ],
+            "x-name": "descriptorUnitDuplicate"
           }
         ],
         "x-file": "codes.json",

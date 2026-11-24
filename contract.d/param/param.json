@@ -237,7 +237,7 @@
             "description": "Audio frames, one sample on each channel.",
             "x-code": 19,
             "x-text": "Audio frames, one sample on each channel.",
-            "x-group": "descriptor",
+            "x-group": "param",
             "x-symbol": "frames",
             "x-dimension": "count"
           },

@@ -10,6 +10,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   BIQUAD_KINDS copy goes, omx-dsp#170). Optional; the schema's `$defs.filterResponse` is its
   render (tools/unit-enum.mjs). A consumer finds an EQ's edges by `highpass` and `lowpass` in any language, never by a
   name word. `examples/descriptors/authored-omx-eq8.json` states them on omx-eq8's HPF and LPF controls.
+- CHANGED: a v<version> tag PROMOTES and never builds (#230). release.yml's tag path calls Open-Mixer/.github
+  promote-staged.yml, which copies the signed files the staged build of that commit left under staging/ (rpm and deb)
+  to the channel root and creates the GitHub release; the tag's commit must be on main. The build is the dispatch
+  with staged on: the quick set by default, matrix: full for a promotion candidate (Open-Mixer/.github#274 lets a
+  staged run build full). npm follows the promotion, never the bare tag: publish.yml runs when release completes and
+  publishes only when its promote jobs all succeeded, from the tag's commit.
 - FIXED: tools/kernel-recipe.mjs is installed 0755: the deb build's lintian refused it as script-not-executable
   (a #! file shipped 0644). Every #! file under tools/ is 100755 in git, and two tests hold both.
 - FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a

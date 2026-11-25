@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openmixer.org/schema/omx-contract/v3/shapes/travel.schema.json",
+  "$id": "https://openmixer.org/schema/omx-contract/v0/shapes/travel.schema.json",
   "title": "Travel",
   "description": "A travel as the scale position law reads it (docs/scale-position.md): a scale word with its ends and, for a stepped one, its step; or the override module's map, linear between its points. The document @openmixer/omx-contract/scale and omx_contract.scale take; the shape every surface that nudges or draws a control reads.",
   "oneOf": [

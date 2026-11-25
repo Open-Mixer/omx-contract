@@ -20,7 +20,7 @@ changes.
 
 ```json
 {
-  "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
+  "$schema": "https://openmixer.org/schema/omx-contract/v0/omx-contract.schema.json",
   "origin": "authored",
   "plugin": { "id": "org.example.delay", "format": "clap", "name": "Delay", "features": ["audio-effect"] },
   "controls": [

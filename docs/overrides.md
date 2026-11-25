@@ -14,7 +14,7 @@ The engine, plugin-hostd and a session never see an override. An override never 
 
 ```json
 {
-  "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
+  "$schema": "https://openmixer.org/schema/omx-contract/v0/omx-contract.schema.json",
   "override": 1,
   "plugin": { "id": "com.example.vintage-eq", "format": "clap" },
   "against": { "version": "1.4.2", "paramsFingerprint": "5f0c" },

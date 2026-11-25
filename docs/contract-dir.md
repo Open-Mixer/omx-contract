@@ -25,7 +25,7 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   "components": { "schemas": { "PANEL_FAMILIES": { "...": "JSON Schema 2020-12 shape of the item" } } } }
 ```
 
-- The schema of a domain document is `schema/domain.schema.json` (`https://openmixer.org/schema/omx-contract/v3/domain.schema.json`),
+- The schema of a domain document is `schema/domain.schema.json` (`https://openmixer.org/schema/omx-contract/v0/domain.schema.json`),
   exported as `@openmixer/omx-contract/domain.schema.json` and as the typed constant `domainSchema` of
   `@openmixer/omx-contract/domain-schema` (for `FromSchema`), installed beside `omx-contract.schema.json`. It says the
   shape; the rules a schema cannot say (the prefix rule, the `x-code` order, the groups, a title used twice) stay in the
@@ -356,7 +356,7 @@ one package, the first one wins.
 ### `requires`: the packages a file refers to
 
 ```json
-{ "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
+{ "$schema": "https://openmixer.org/schema/omx-contract/v0/omx-contract.schema.json",
   "requires": ["omx-dsp"] }
 ```
 

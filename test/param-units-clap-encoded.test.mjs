@@ -86,12 +86,12 @@ test('sabotage: a served set that is no prefix of PARAM_UNITS is refused by name
   assert.doesNotThrow(() => encodedItem(servedIds({ db: 'dB', dbfs: 'dBFS' }, all), all));
 });
 
-test('the item first ships in 0.23.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
-  // the item first ships in 0.23.0, the first release of the 0.M.m line (the owner's ruling of 2026-11-25: every version
-  // is 0.M.m until 1.0); the domain's info.version is that or a later minor
-  assert.equal(doc().components.schemas[ITEM]['x-since'], '0.23.0');
-  const [maj, min] = doc().info.version.split('.').map(Number);
-  assert.ok(maj === 0 && min >= 23, `info.version ${doc().info.version} is not 0.23.0 or a later 0.x`);
+test('the item first ships in 0.1.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
+  // the item first ships in 0.1.0, the param domain's first version: a domain's info.version is the vocabulary's own,
+  // starting at 0.1.0 (the owner's ruling of 2026-11-25), never the package's
+  assert.equal(doc().components.schemas[ITEM]['x-since'], '0.1.0');
+  const [maj] = doc().info.version.split('.').map(Number);
+  assert.ok(maj === 0, `info.version ${doc().info.version} is not a 0.x domain version`);
   // the installed domain is where validate reads x-since: a contract directory holding the param domain, as installed
   const dir = mkdtempSync(join(tmpdir(), 'omx-clap-encoded-since-'));
   try {

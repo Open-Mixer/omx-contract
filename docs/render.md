@@ -121,13 +121,15 @@ A domain may instead render as its data form does (3.21.0, omx-contract#139): th
 renders its package as it does today, with the domain beside its data: `render --target c|ts --package <pkg> --data
 data --with-domain contract.d/<domain>` rebuilds the data files the domain came from, adds the files still in `data/`,
 and runs the data reader and the renders unchanged on that set. The files come out byte for byte those of the data form
-(omx-clap's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-hosting.{js,d.ts}`,
+but for their provenance lines, below (omx-clap's `clap_host_limits.h`, `hosted_stage_limits.h`, `omx-clap-hosting.{js,d.ts}`,
 `omx_clap_vocabulary.h` and `omx-clap-vocabulary.{js,d.ts}`, the last two also rendering its verbs, from
 `contract.d/omx-clap/omx-clap.json`).
 The files are those of the data form but for one line per item: a render's provenance of an item (the `/* ITEM (<path>) */`
 of a header, the `@see <path>` of a ts module, a verb's `(<path>)`) names a domain item's domain document,
 `contract.d/<domain>/<leaf>.json`, never the `data/<x-file>` the rebuild writes it to, a path that exists nowhere; a data
-item keeps its `data/<file>` (3.21.0). The GENERATED line of a ts module that a domain's root `x-render` frames names
+item keeps its `data/<file>` (3.21.0). This holds for every form that rebuilds a domain: `--installed` and
+`--contract-dir` read the document's path off the domain they install, and `--data data --with-domain` off the
+`--with-domain` directory (before omx-contract#241 that form named the `data/<x-file>` in every provenance line). The GENERATED line of a ts module that a domain's root `x-render` frames names
 the same domain document (`... from omx-clap's contract.d/hosting/hosting.json, do not edit.`), never the root's
 `data/<x-file>` (omx-contract#218); a C header's GENERATED comment is the owner's `banner` words and names no path.
 A `--with-domain` directory is named as `install-contract-dir.sh --domain` names it: by its path after the last
@@ -203,10 +205,12 @@ domain without these words renders as above (index macros and `_COUNT`): `scan` 
 The data form stays what it is.
 
 Byte identity is held by three checks. omx-contract's own test converts omx-clap-core's `data/hosting*.json` into a
-domain and `cmp`s the five outputs of the combined read against the pure data render (a changed `x-text`, `x-value`
+domain and `cmp`s the five outputs of the combined read against the pure data render, every provenance line of a
+rebuilt file read with the domain document for its `data/<x-file>` and held to name it (a changed `x-text`, `x-value`
 or `x-file` is red). test/domain-kinds.test.mjs holds one item of each kind (codes with `x-args`, words with groups,
 `from`, args and a catalog in a second language, scalars, codes without args and a sheet) to golden data files byte for
-byte, and the c and ts renders of `--with-domain` to those of the golden data. The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
+byte, and the c and ts renders of `--with-domain` to those of the golden data, the provenance lines held to the domain
+document the same way. The owner commits the rendered files and runs `render --check` with `--with-domain` at its own
 build and in its CI (omx-clap-core: `make check-domain`), so a domain edit that is not re-rendered is red there. The owner commits its codes header and runs `render --check` on it at its own build, so a code
 added to a domain needs no omx-contract release.
 

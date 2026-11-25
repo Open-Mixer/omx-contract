@@ -2,14 +2,15 @@
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 // A domain renders as its data form does (docs/render.md, omx-contract#139): omx-clap-core's hosting data, converted
 // into a domain, rendered through `render --with-domain` beside the files still in data/ (verbs.json, and the hosts its
-// verbs name, hosting/verb-hosts.json), gives the five files of the pure data render byte for byte.
+// verbs name, hosting/verb-hosts.json), gives the five files of the pure data render byte for byte but for the
+// provenance of a rebuilt file's items, which names the domain document, never the data/<x-file> (omx-contract#241).
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import test from 'node:test';
-import { ROOT, VERB_HOSTS_FIXTURE } from './helpers.mjs';
+import { ROOT, VERB_HOSTS_FIXTURE, provenanceNaming, provenanceTo } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/hosting-data');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
@@ -52,25 +53,40 @@ function scratch() {
 
 const render = (target, args, out) => spawnSync(process.execPath, [CLI, 'render', '--target', target, '--package', 'omx-clap', ...args, '--out', out], { encoding: 'utf8' });
 
+/** The domain document a rebuilt file's provenance names: the domain directory is `hosting`, under no contract.d/. */
+const DOC = 'contract.d/hosting/hosting.json';
+
 function compare(domain) {
+  // the files the domain rebuilds, as the data form names them
+  const rebuilt = [...new Set([domain['x-file'], ...Object.values(domain.components.schemas).map((x) => x['x-file'])])].map((f) => `data/${f}`);
   const s = scratch();
   try {
     writeFileSync(join(s.dom, 'hosting.json'), JSON.stringify(domain, null, 2));
     const diffs = [];
+    let named = 0;
     for (const [target, files] of Object.entries(OUTPUTS)) {
       const pure = render(target, ['--data', join(s.dir, 'pure', 'data')], join(s.dir, `pure-${target}`));
       assert.equal(pure.status, 0, pure.stderr);
       const both = render(target, ['--data', s.data, '--with-domain', s.dom], join(s.dir, `both-${target}`));
       if (both.status !== 0) return [`${target}: ${both.stderr.trim()}`];
-      for (const f of files) if (readFileSync(join(s.dir, `pure-${target}`, f), 'utf8') !== readFileSync(join(s.dir, `both-${target}`, f), 'utf8')) diffs.push(f);
+      for (const f of files) {
+        const got = readFileSync(join(s.dir, `both-${target}`, f), 'utf8');
+        // a rebuilt file's provenance lines name the domain document, never the data/<x-file> the rebuild writes
+        // (omx-contract#241); every other line, the owner's own words among them, is the data form's, byte for byte
+        if (provenanceTo(readFileSync(join(s.dir, `pure-${target}`, f), 'utf8'), rebuilt, DOC) !== got) diffs.push(f);
+        else if (provenanceNaming(got, rebuilt).length) diffs.push(`${f}: names a data/<x-file> rebuilt from the domain`);
+        named += provenanceNaming(got, [DOC]).length;
+      }
     }
+    // the positive control: the provenance lines are there to be read, and name the domain document
+    if (!named) diffs.push(`no provenance line names ${DOC}`);
     return diffs;
   } finally {
     rmSync(s.dir, { recursive: true, force: true });
   }
 }
 
-test('the hosting domain beside data/verbs.json renders the five files of the data form, byte for byte', () => {
+test('the hosting domain beside data/verbs.json renders the five files of the data form, byte for byte but for the provenance, which names the domain document (omx-contract#241)', () => {
   assert.deepEqual(compare(toDomain(FIX)), []);
 });
 

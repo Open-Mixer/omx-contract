@@ -20,7 +20,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
-import { ROOT } from './helpers.mjs';
+import { ROOT, provenanceNaming, provenanceTo } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/domain-kinds');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
@@ -87,11 +87,15 @@ test('the whole domain rebuilds the four golden files and nothing else', () => {
   for (const [f, text] of Object.entries(files)) assert.equal(text, golden(f), f);
 });
 
-test('render --with-domain gives the files the golden data gives, byte for byte (c and ts)', () => {
+test('render --data --with-domain gives the files the golden data gives, byte for byte but for the provenance, which names the domain document (c and ts, omx-contract#241)', () => {
   const pure = join(SCRATCH, `pure-${n++}`);
   cpSync(join(FIX, 'data'), join(pure, 'data'), { recursive: true });
   cpSync(join(FIX, 'golden'), join(pure, 'data'), { recursive: true });
   const both = withDomain(domain());
+  // the files the domain rebuilds, as the golden data names them, and the document they come from
+  const rebuilt = readdirSync(join(FIX, 'golden')).map((f) => `data/${f}`);
+  const doc = 'contract.d/kinds/kinds.json';
+  let named = 0;
   for (const target of ['c', 'ts']) {
     const a = cli('render', '--target', target, '--package', 'kinds-owner', '--data', join(pure, 'data'), '--out', join(pure, `out-${target}`));
     assert.equal(a.status, 0, a.stderr);
@@ -100,8 +104,14 @@ test('render --with-domain gives the files the golden data gives, byte for byte 
     const files = walk(join(pure, `out-${target}`)).map((p) => relative(join(pure, `out-${target}`), p)).sort();
     assert.ok(files.length > 0, `${target}: the golden data renders nothing`);
     assert.deepEqual(walk(join(both, `out-${target}`)).map((p) => relative(join(both, `out-${target}`), p)).sort(), files);
-    for (const f of files) assert.equal(readFileSync(join(both, `out-${target}`, f), 'utf8'), readFileSync(join(pure, `out-${target}`, f), 'utf8'), `${target}: ${f}`);
+    for (const f of files) {
+      const got = readFileSync(join(both, `out-${target}`, f), 'utf8');
+      assert.equal(got, provenanceTo(readFileSync(join(pure, `out-${target}`, f), 'utf8'), rebuilt, doc), `${target}: ${f}`);
+      assert.deepEqual(provenanceNaming(got, rebuilt), [], `${target}: ${f} names a data/<x-file>, a path that exists nowhere`);
+      named += provenanceNaming(got, [doc]).length;
+    }
   }
+  assert.ok(named > 0, `no provenance line names ${doc}`);
 });
 
 test('the golden data files are valid data, with the catalog in a second language', () => {

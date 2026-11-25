@@ -158,7 +158,8 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
     wire word, `description` its doc, and `x-format`, `x-reply`, `x-codes` (`[{ "ref": "<ITEM>.<name>" }]`),
     `x-implemented-by` and `x-since` its `format`, `reply`, `codes`, `implementedBy` and `since`. `x-format`, `x-reply`
     and `x-implemented-by` are required; a word of any other kind carrying one is refused.
-  - A code's `x-resp` and `x-transient` (3.21.0) are a reply code's `resp` and `transient`; a word of any other kind
+  - A code's `x-resp` and `x-transient` (3.21.0) are a reply code's `resp` and `transient`, and its `x-leaves-no-mark`
+    (3.23.0) its `leavesNoMark`; a word of any other kind
     carrying one is refused. A codes item whose words carry `x-resp` is read as the data form's codes item (the one a
     verb's `x-codes` names), and each of its words needs its `x-name`.
   - `"x-kind": "terms"` (3.21.0) is a format's terms item: `x-format`, `x-spec`, `x-version` and optional

@@ -403,6 +403,11 @@ function cmdSemver(argv) {
   } else {
     const tag = argv[1];
     if (!tag || tag.startsWith('--')) throw new Usage('semver needs the previous tag');
+    // one major line (the owner ruling of 2026-11-25): a tag of another major is no previous release of this tree, and
+    // its documents are of another format; the release gate picks the tag with tools/previous-tag.sh
+    const mine = opt(argv, '--version') ?? packageVersion(ROOT);
+    const tagMajor = /^v?(\d+)\./.exec(tag)?.[1];
+    if (tagMajor !== undefined && tagMajor !== mine.split('.')[0]) throw new Usage(`semver ${tag}: a tag of the major ${tagMajor}, and this tree is ${mine}, of the major ${mine.split('.')[0]}: semver compares within one major (tools/previous-tag.sh names the previous release)`);
     from = tag;
     prev = loadData(null, dataAtTag(tag));
     try {

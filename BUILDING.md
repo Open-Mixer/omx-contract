@@ -39,7 +39,7 @@ npm ci
 node bin/omx-contract.mjs validate                       # schema + semantic checks
 node bin/omx-contract.mjs fmt [--check]                  # the one formatting
 node bin/omx-contract.mjs render --target c|ts|json|lv2 --out <dir> [--check]
-node bin/omx-contract.mjs semver <previous tag>          # exit 1 if the version bump is short
+node bin/omx-contract.mjs semver <previous tag>          # exit 1 if the version bump is short; a tag of another major is exit 2
 ```
 
 Exit 0 is a pass, 1 a failure naming file, item and rule, 2 a usage or environment error. A change to

@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
+import { packageVersion } from '../lib/data.mjs';
 import { readDomain } from '../lib/domain.mjs';
 import { DEVELOPMENT_PHASE, bumpOf, classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
 import { DATA, ROOT, dropDecl, editData, relOf, resolvedOf, scratchData, texts } from './helpers.mjs';
@@ -123,11 +124,16 @@ test('the version a schema states moves with the schema, by what its changes nee
   assert.match(schemaVersionProblem(was, { ...structuredClone(was), 'x-omx-schema-version': '3.9.0' }), /is what 3\.7\.0 was/, 'the version moved alone');
 });
 
-test('--schema-version holds the tree to its last tag, and is red when the schema is not what it states', () => {
-  const git = spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', 'v3.5.0^{commit}']);
-  if (git.status !== 0) return;   // no tags in this checkout; CI's semver step runs it against the last tag, always
-  // 3.5.0 to this tree, whose schema has grown since and states so
-  assert.equal(main(['semver', 'v3.5.0', '--schema-version']), 0);
+/** The previous release of this tree's major (tools/previous-tag.sh, the release gate's pick), or undefined: none yet. */
+const previousTag = () => {
+  const r = spawnSync('sh', [join(ROOT, 'tools/previous-tag.sh'), packageVersion(ROOT)], { cwd: ROOT, encoding: 'utf8' });
+  return r.status === 0 && r.stdout.trim() ? r.stdout.trim() : undefined;
+};
+
+test('--schema-version holds the tree to the previous release of its major', () => {
+  const prev = previousTag();
+  if (prev === undefined) { process.stderr.write(`skipping: no previous tag of the major of ${packageVersion(ROOT)} in this checkout (its first release)\n`); return; }
+  assert.equal(main(['semver', prev, '--schema-version']), 0);
 });
 
 test('the CLI against a tag reads the schema too, and --report names the level without refusing the bump', () => {
@@ -169,11 +175,15 @@ test('a released tree\'s unit id is read as released (dB-oct), a tree being read
   assert.ok(JSON.stringify(data).includes('"dB-oct"'), 'the released id is read as it was released');
 });
 
-test('the CLI against v3.21.0 (unit ids before the camelCase rule) classifies the bump, never refuses the old tree', () => {
-  const git = spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', 'v3.21.0^{commit}']);
-  if (git.status !== 0) return;   // no tags in this checkout; release.yml's bump step reads the previous tag, always
-  const r = spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'semver', 'v3.21.0', '--report'], { encoding: 'utf8' });
-  assert.doesNotMatch(r.stderr, /contract\.file\.invalid/, 'the released tree is read, not refused');
-  assert.equal(r.status, 0, r.stderr);
-  assert.match(r.stdout, /"from":"3\.21\.0"/);
+test('the CLI refuses a tag of another major by name, exit 2: it is no previous release of this line (2026-11-25)', () => {
+  const v = packageVersion(ROOT);
+  const other = `v${Number(v.split('.')[0]) + 3}.21.0`;
+  const cli = (...a) => spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'semver', ...a], { encoding: 'utf8' });
+  for (const args of [[other, '--report'], [other, '--schema-version'], [other]]) {
+    const r = cli(...args);
+    assert.equal(r.status, 2, `${args.join(' ')}: ${r.stderr}`);
+    assert.match(r.stderr, new RegExp(`semver ${other}: a tag of the major ${Number(v.split('.')[0]) + 3}, and this tree is ${v.replace(/\./g, '\\.')}, of the major ${v.split('.')[0]}: semver compares within one major`));
+  }
+  // positive control: --version of that major lifts the refusal, so the check reads the tree's major and nothing else
+  assert.doesNotMatch(cli(other, '--report', '--version', `${Number(v.split('.')[0]) + 3}.22.0`).stderr, /semver compares within one major/);
 });

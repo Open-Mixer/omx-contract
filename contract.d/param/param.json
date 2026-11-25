@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/param",
   "info": {
     "title": "The standard parameter words: the units, what each measures, and the scales",
-    "version": "3.22.0",
+    "version": "3.23.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -1411,6 +1411,76 @@
             "description": "The plugin states no meaning: the control has no role and is bound to nothing.",
             "x-code": 56,
             "x-text": "The plugin states no meaning."
+          }
+        ],
+        "x-kind": "words"
+      },
+      "PARAM_FILTER_RESPONSES": {
+        "description": "The response of the filter a descriptor control sets (docs/descriptors.md, \"Filter responses\"; omx-contract#208): optional on a control, a closed list, one word per shape. omx-dsp's EQ design reads these words' codes for the section kinds it builds (omx_eq_kind, through this item's render), so a word's code is the integer a kernel reads for it and is never moved. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).",
+        "x-since": "3.23.0",
+        "oneOf": [
+          {
+            "const": "peaking",
+            "title": "peaking",
+            "description": "A peaking response, a bell: a boost or a cut around a centre frequency.",
+            "x-code": 0,
+            "x-text": "A peaking filter."
+          },
+          {
+            "const": "lowShelf",
+            "title": "lowShelf",
+            "description": "A low shelf: a boost or a cut of everything below a corner frequency.",
+            "x-code": 1,
+            "x-text": "A low shelf."
+          },
+          {
+            "const": "highShelf",
+            "title": "highShelf",
+            "description": "A high shelf: a boost or a cut of everything above a corner frequency.",
+            "x-code": 2,
+            "x-text": "A high shelf."
+          },
+          {
+            "const": "highpass",
+            "title": "highpass",
+            "description": "A high-pass: passes what is above its cutoff and cuts what is below it, an EQ's low edge.",
+            "x-code": 3,
+            "x-text": "A high-pass filter."
+          },
+          {
+            "const": "lowpass",
+            "title": "lowpass",
+            "description": "A low-pass: passes what is below its cutoff and cuts what is above it, an EQ's high edge.",
+            "x-code": 4,
+            "x-text": "A low-pass filter."
+          },
+          {
+            "const": "notch",
+            "title": "notch",
+            "description": "A notch: a narrow null at its centre frequency.",
+            "x-code": 5,
+            "x-text": "A notch filter."
+          },
+          {
+            "const": "bandpass",
+            "title": "bandpass",
+            "description": "A band-pass: passes a band around its centre frequency and cuts either side of it.",
+            "x-code": 6,
+            "x-text": "A band-pass filter."
+          },
+          {
+            "const": "allpass1",
+            "title": "allpass1",
+            "description": "A first-order all-pass: every frequency at unity gain, its phase turned around a corner frequency.",
+            "x-code": 7,
+            "x-text": "A first-order all-pass filter."
+          },
+          {
+            "const": "allpass2",
+            "title": "allpass2",
+            "description": "A second-order all-pass: every frequency at unity gain, its phase turned around a centre frequency.",
+            "x-code": 8,
+            "x-text": "A second-order all-pass filter."
           }
         ],
         "x-kind": "words"

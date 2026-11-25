@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- ADDED: a descriptor control may state its filter's `response` (#208), a word of `PARAM_FILTER_RESPONSES`, a new
+  words item of the `param` domain: `peaking`, `lowShelf`, `highShelf`, `highpass`, `lowpass`, `notch`, `bandpass`,
+  `allpass1`, `allpass2`, the section kinds omx-dsp's EQ design builds, which reads their codes from this item (its
+  BIQUAD_KINDS copy goes, omx-dsp#170). Optional; the schema's `$defs.filterResponse` is its
+  render (tools/unit-enum.mjs). A consumer finds an EQ's edges by `highpass` and `lowpass` in any language, never by a
+  name word. `examples/descriptors/authored-omx-eq8.json` states them on omx-eq8's HPF and LPF controls.
 - FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
   <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
   do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in

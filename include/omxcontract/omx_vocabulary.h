@@ -676,4 +676,42 @@
     X(52u, "order", ORDER) X(53u, "acceleration", ACCELERATION) X(54u, "dispersion", DISPERSION) X(55u, "window", WINDOW) \
     X(56u, "unknown", UNKNOWN)
 
+/* PARAM_FILTER_RESPONSES (contract.d/param/param.json) */
+#define OMX_PARAM_FILTER_RESPONSES_PEAKING "peaking" ///< A peaking response, a bell: a boost or a cut around a centre frequency.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_PEAKING. */
+#define OMX_PARAM_FILTER_RESPONSES_PEAKING_TEXT_EN "A peaking filter."
+#define OMX_PARAM_FILTER_RESPONSES_LOW_SHELF "lowShelf" ///< A low shelf: a boost or a cut of everything below a corner frequency.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_LOW_SHELF. */
+#define OMX_PARAM_FILTER_RESPONSES_LOW_SHELF_TEXT_EN "A low shelf."
+#define OMX_PARAM_FILTER_RESPONSES_HIGH_SHELF "highShelf" ///< A high shelf: a boost or a cut of everything above a corner frequency.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_HIGH_SHELF. */
+#define OMX_PARAM_FILTER_RESPONSES_HIGH_SHELF_TEXT_EN "A high shelf."
+#define OMX_PARAM_FILTER_RESPONSES_HIGHPASS "highpass" ///< A high-pass: passes what is above its cutoff and cuts what is below it, an EQ's low edge.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_HIGHPASS. */
+#define OMX_PARAM_FILTER_RESPONSES_HIGHPASS_TEXT_EN "A high-pass filter."
+#define OMX_PARAM_FILTER_RESPONSES_LOWPASS "lowpass" ///< A low-pass: passes what is below its cutoff and cuts what is above it, an EQ's high edge.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_LOWPASS. */
+#define OMX_PARAM_FILTER_RESPONSES_LOWPASS_TEXT_EN "A low-pass filter."
+#define OMX_PARAM_FILTER_RESPONSES_NOTCH "notch" ///< A notch: a narrow null at its centre frequency.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_NOTCH. */
+#define OMX_PARAM_FILTER_RESPONSES_NOTCH_TEXT_EN "A notch filter."
+#define OMX_PARAM_FILTER_RESPONSES_BANDPASS "bandpass" ///< A band-pass: passes a band around its centre frequency and cuts either side of it.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_BANDPASS. */
+#define OMX_PARAM_FILTER_RESPONSES_BANDPASS_TEXT_EN "A band-pass filter."
+#define OMX_PARAM_FILTER_RESPONSES_ALLPASS1 "allpass1" ///< A first-order all-pass: every frequency at unity gain, its phase turned around a corner frequency.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_ALLPASS1. */
+#define OMX_PARAM_FILTER_RESPONSES_ALLPASS1_TEXT_EN "A first-order all-pass filter."
+#define OMX_PARAM_FILTER_RESPONSES_ALLPASS2 "allpass2" ///< A second-order all-pass: every frequency at unity gain, its phase turned around a centre frequency.
+/** The source sentence (English) of OMX_PARAM_FILTER_RESPONSES_ALLPASS2. */
+#define OMX_PARAM_FILTER_RESPONSES_ALLPASS2_TEXT_EN "A second-order all-pass filter."
+/** The number of words of PARAM_FILTER_RESPONSES. */
+#define OMX_PARAM_FILTER_RESPONSES_COUNT 9u
+/** The words of PARAM_FILTER_RESPONSES in their declared order, as a C initializer list. */
+#define OMX_PARAM_FILTER_RESPONSES_INIT { "peaking", "lowShelf", "highShelf", "highpass", "lowpass", "notch", "bandpass", "allpass1", "allpass2" }
+/** Expands `X(code, "word", NAME)` once per word of PARAM_FILTER_RESPONSES, in order, the code being its place in the order. The response of the filter a descriptor control sets (docs/descriptors.md, "Filter responses"; omx-contract#208): optional on a control, a closed list, one word per shape. omx-dsp's EQ design reads these words' codes for the section kinds it builds (omx_eq_kind, through this item's render), so a word's code is the integer a kernel reads for it and is never moved. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs). */
+#define OMX_PARAM_FILTER_RESPONSES(X) \
+    X(0u, "peaking", PEAKING) X(1u, "lowShelf", LOW_SHELF) X(2u, "highShelf", HIGH_SHELF) X(3u, "highpass", HIGHPASS) \
+    X(4u, "lowpass", LOWPASS) X(5u, "notch", NOTCH) X(6u, "bandpass", BANDPASS) X(7u, "allpass1", ALLPASS1) \
+    X(8u, "allpass2", ALLPASS2)
+
 #endif /* OMX_VOCABULARY_H */

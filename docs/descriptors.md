@@ -61,6 +61,7 @@ Any other key or word is `contract.file.invalid`, never skipped.
 | control | `label` | The display name, when it differs from `name` | new |
 | control | `group` | A path, outer first: `["Filter", "Envelope"]`. CLAP `module`, LV2 `pg:group`, our panel section | new |
 | control | `meaning` | The control's role: what it does, a word of PARAM_MEANINGS (below). REQUIRED on every control since 3.22.0 (omx-contract#61); a skin and a panel bind by meaning, never by id, and never infer a role from a name or a unit | new; required 3.22.0 |
+| control | `response` | The response of the filter the control sets, a word of PARAM_FILTER_RESPONSES (below): `highpass` on an EQ's low edge, `lowpass` on its high edge. Optional; declared, never inferred from a name, so a consumer finds the edges in any language (omx-contract#208) | new (minor) |
 | control | `hidden`, `readonly`, `automatable` | CLAP `IS_HIDDEN`, `IS_READONLY`, `IS_AUTOMATABLE`; LV2 `pprops:notOnGUI`, an output control | new |
 | control | `source` | The control's own links, in the place of the file's | existing |
 | `travel` | units `frames`, `bpm`, `midiNote`, `LUFS`, `deg`, `ratio`, `dBTP`, `LU` | Units a plugin uses that no item does (below) | new; `ratio` 3.0.0; `dBTP` and `LU` for the loudness meters |
@@ -174,6 +175,39 @@ never leaves `meaning` out. One word per meaning, no synonyms: `on` is `enabled`
 meaning, and the validator names the word to use when a file writes one. `shape`, `model`, `algorithm`, `mode` and
 `type` (a choice of which one) and `pingpong` (a delay's bounce) came with 3.7.0. The nine words of the row above `unknown`
 were added in 3.22.0 for roles omx-plugins' authored controls play and no word named (#221).
+
+### Filter responses
+
+A control's `response` states the response of the filter it sets: what shape the filter has, where a `meaning` says
+what the control does. It is how a consumer finds an EQ's edges: omx-panel opens an EQ's matrix with its high-pass and
+closes it with its low-pass, and a plugin that names its edges in another language, or by a word no list holds, is
+found by the word it states here, never by a word in a control's name (omx-contract#208, omx-panel#97).
+
+- `response` is optional, on a control of any kind. An `authored` descriptor states it on every control of a filter
+  whose response is fixed (an edge's on switch, frequency and slope all state its response); a `built` or `scanned`
+  one states it only where its format says it, and leaves it out otherwise. There is no `unknown`: a control that
+  states none has none.
+- A control whose shape a choice picks (an EQ band's type) states none: its response is the choice's value.
+- The words are a closed words item of omx-contract's `param` domain, `PARAM_FILTER_RESPONSES`
+  (`contract.d/param/param.json`), in the order below; the schema's `$defs.filterResponse` enum is its render
+  (`tools/unit-enum.mjs`, held by its `--check`), so a word is added in one place, a schema minor.
+- The words are the section kinds omx-dsp's EQ design builds: its `omx_eq_kind` reads each word's code from this item's
+  render (`OMX_PARAM_FILTER_RESPONSES(X)`), so a code is the integer a kernel reads and is never moved. The list lives
+  here only; omx-dsp types it nowhere and its own check refuses a copy. A word outside the list (`hpf`, `bell`, `highPass`) is
+  `contract.file.invalid`, and the refusal names the field and the words.
+
+| Response | Shape |
+|---|---|
+| `peaking` | A bell: a boost or a cut around a centre frequency |
+| `lowShelf`, `highShelf` | A boost or a cut of everything below, or above, a corner frequency |
+| `highpass` | Passes what is above its cutoff: an EQ's low edge |
+| `lowpass` | Passes what is below its cutoff: an EQ's high edge |
+| `notch` | A narrow null at its centre frequency |
+| `bandpass` | Passes a band around its centre frequency |
+| `allpass1`, `allpass2` | A first- and a second-order all-pass: unity gain, the phase turned |
+
+`examples/descriptors/authored-omx-eq8.json` states `highpass` on the controls of omx-eq8's `HPF` group and `lowpass`
+on those of its `LPF` group, and none on its bands.
 
 ### Plugin features
 

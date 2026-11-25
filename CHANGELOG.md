@@ -7,6 +7,16 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 - ADDED: a reply code's `x-leaves-no-mark` in the domain format is the data form's `leavesNoMark` (#248): a domain that
   owns its reply codes (plugin-hostd-protocol's) states a refusal that leaves no mark on the plugin, as `x-transient`
   states a transient one. Not a boolean, or on a word that is no code, is refused by name.
+- ADDED: a descriptor control may state its filter's `response` (#208), a word of `PARAM_FILTER_RESPONSES`, a new
+  words item of the `param` domain: `peaking`, `lowShelf`, `highShelf`, `highpass`, `lowpass`, `notch`, `bandpass`,
+  `allpass1`, `allpass2`, the section kinds omx-dsp's EQ design builds, which reads their codes from this item (its
+  BIQUAD_KINDS copy goes, omx-dsp#170). Optional; the schema's `$defs.filterResponse` is its
+  render (tools/unit-enum.mjs). A consumer finds an EQ's edges by `highpass` and `lowpass` in any language, never by a
+  name word. `examples/descriptors/authored-omx-eq8.json` states them on omx-eq8's HPF and LPF controls.
+- FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
+  <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
+  do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in
+  its GENERATED comment (the owner's `banner` words) and is unchanged. omx-clap re-renders its hosting codes module.
 - CHANGED: a v<version> tag PROMOTES and never builds (#230). release.yml's tag path calls Open-Mixer/.github
   promote-staged.yml, which copies the signed files the staged build of that commit left under staging/ (rpm and deb)
   to the channel root and creates the GitHub release; the tag's commit must be on main. The build is the dispatch

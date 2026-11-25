@@ -7,7 +7,8 @@
 // `unknown`, in their declared order (docs/units.md: the scope split is kept, Q16). The id is the wire word; a word's
 // `x-symbol` is its display rendering and never enters the schema (C2, plugin-hostd#215 D1/D2).
 // And $defs.meaning's enum, a control's role, rendered from PARAM_MEANINGS of the same domain, its words in order
-// (docs/descriptors.md, "Meanings", #61).
+// (docs/descriptors.md, "Meanings", #61), and $defs.filterResponse's enum, a filter control's response, rendered from
+// PARAM_FILTER_RESPONSES of the same domain, its words in order (docs/descriptors.md, "Filter responses", #208).
 // `--write` rewrites schema/omx-contract.schema.json; `--check` exits 1 naming what differs. `--root <dir>` reads
 // another tree (the tests' scratch copies).
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -25,6 +26,9 @@ const unitList = (root) => paramWords(root, 'PARAM_UNITS');
 /** The words of PARAM_MEANINGS, a control's roles, in declared order: $defs.meaning's enum. */
 export const meaningWords = (root) => paramWords(root, 'PARAM_MEANINGS').map((w) => w.const);
 
+/** The words of PARAM_FILTER_RESPONSES, a filter control's responses, in declared order: $defs.filterResponse's enum. */
+export const filterResponseWords = (root) => paramWords(root, 'PARAM_FILTER_RESPONSES').map((w) => w.const);
+
 /** The ids (each word's const) of the units of scope `param` (its `x-group`), in declared order: $defs.unit. */
 export function unitWords(root) {
   return unitList(root).filter((w) => w['x-group'] === 'param').map((w) => w.const);
@@ -38,10 +42,10 @@ export function descriptorUnitWords(root) {
 const enumOf = (words) => `[${words.map((w) => JSON.stringify(w)).join(', ')}]`;
 
 /**
- * The schema text with $defs.unit.enum set to `words`, $defs.descriptorUnit's own enum to `own` and $defs.meaning's
- * enum to `meanings`, every other byte as it was.
+ * The schema text with $defs.unit.enum set to `words`, $defs.descriptorUnit's own enum to `own`, $defs.meaning's
+ * enum to `meanings` and $defs.filterResponse's enum to `responses`, every other byte as it was.
  */
-export function renderSchema(text, words, own, meanings) {
+export function renderSchema(text, words, own, meanings, responses) {
   const re = /("unit": \{\n\s+"description": [^\n]*\n\s+"enum": )\[[^\]\n]*\]/;
   if (!re.test(text)) throw new Error('schema/omx-contract.schema.json has no $defs.unit enum line');
   const out = text.replace(re, (_, head) => `${head}${enumOf(words)}`);
@@ -52,7 +56,11 @@ export function renderSchema(text, words, own, meanings) {
   if (meanings === undefined) return withOwn;
   const rm = /("meaning": \{\n\s+"description": [^\n]*\n\s+"enum": )\[[^\]\n]*\]/;
   if (!rm.test(withOwn)) throw new Error('schema/omx-contract.schema.json has no $defs.meaning enum line');
-  return withOwn.replace(rm, (_, head) => `${head}${enumOf(meanings)}`);
+  const withMeanings = withOwn.replace(rm, (_, head) => `${head}${enumOf(meanings)}`);
+  if (responses === undefined) return withMeanings;
+  const rr = /("filterResponse": \{\n\s+"description": [^\n]*\n\s+"enum": )\[[^\]\n]*\]/;
+  if (!rr.test(withMeanings)) throw new Error('schema/omx-contract.schema.json has no $defs.filterResponse enum line');
+  return withMeanings.replace(rr, (_, head) => `${head}${enumOf(responses)}`);
 }
 
 if (isMain(import.meta.url)) {
@@ -64,13 +72,14 @@ if (isMain(import.meta.url)) {
   const words = unitWords(root);
   const own = descriptorUnitWords(root);
   const meanings = meaningWords(root);
-  const next = renderSchema(text, words, own, meanings);
+  const responses = filterResponseWords(root);
+  const next = renderSchema(text, words, own, meanings, responses);
   if (argv.includes('--write')) {
     if (next !== text) writeFileSync(file, next);
   } else if (argv.includes('--check')) {
     if (next !== text) {
       const defs = JSON.parse(text).$defs;
-      console.error(`unit-enum: schema/omx-contract.schema.json $defs.unit is ${JSON.stringify(defs.unit.enum)} and $defs.descriptorUnit's own ${JSON.stringify(defs.descriptorUnit.anyOf[1]?.enum)}, $defs.meaning ${JSON.stringify(defs.meaning.enum)}; PARAM_UNITS renders ${JSON.stringify(words)} and ${JSON.stringify(own)}, PARAM_MEANINGS ${JSON.stringify(meanings)}: run tools/unit-enum.mjs --write`);
+      console.error(`unit-enum: schema/omx-contract.schema.json $defs.unit is ${JSON.stringify(defs.unit.enum)} and $defs.descriptorUnit's own ${JSON.stringify(defs.descriptorUnit.anyOf[1]?.enum)}, $defs.meaning ${JSON.stringify(defs.meaning.enum)}, $defs.filterResponse ${JSON.stringify(defs.filterResponse?.enum)}; PARAM_UNITS renders ${JSON.stringify(words)} and ${JSON.stringify(own)}, PARAM_MEANINGS ${JSON.stringify(meanings)}, PARAM_FILTER_RESPONSES ${JSON.stringify(responses)}: run tools/unit-enum.mjs --write`);
       process.exit(1);
     }
   } else {

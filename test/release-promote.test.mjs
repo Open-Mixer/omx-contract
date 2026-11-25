@@ -146,6 +146,8 @@ test('a refused promotion leaves npm untouched: the gate stops on a failed, skip
   assert.equal(gate(ok.replace('promote / Promote the DEBs\tsuccess', 'promote / Promote the DEBs\tskipped')), 1, 'a promotion that never published the DEBs');
   assert.equal(gate(ok.replace('promote / GitHub release\tsuccess\n', '')), 1, 'a promotion with no GitHub release job');
   assert.equal(gate(ok.replace('promote / Install check (fc45, x86_64)\tsuccess', 'promote / Install check (fc45, x86_64)\tcancelled')), 1, 'a cancelled install check');
+  assert.equal(gate(ok.replace('promote / Install check (fc45, x86_64)\tsuccess', 'promote / Install check (fc45, x86_64)\tskipped')), 1, 'a skipped install check');
+  assert.equal(gate(ok.replace('promote / Release gate\tsuccess', 'promote / Release gate\tskipped')), 1, 'a skipped release gate');
   assert.equal(gate('check\tfailure\npack\tsuccess\n'), 1, 'no promote job ran (the tag not on main stops check)');
 });
 

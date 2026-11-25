@@ -1,13 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 #
-# omx-contract's contract directory (docs/contract-dir.md) for the spec of an owner that installs its own package of
-# it: the schema major as this omx-contract reads it, and the directory a -contract subpackage's %files names,
-#   %{omx_contract_dir}/<owner>/
-# so no spec types the major a second time. Installed by omx-contract-devel; the same number is pkg-config's
-# schema_major variable of omx-contract.pc. A domain (install-contract-dir.sh --domain) sits in the contract directory
-# itself, with no major: a -contract subpackage that ships one names
-#   %{omx_contract_domain_dir}/<domain>/
-%omx_contract_schema_major @SCHEMA_MAJOR@
-%omx_contract_domain_dir %{_datadir}/omx-contract/contract.d
-%omx_contract_dir %{omx_contract_domain_dir}/%{omx_contract_schema_major}
+# omx-contract's contract directory (docs/contract-dir.md) for the spec of a package that installs into it: the one
+# directory an owner package and a domain sit in, with no schema-major level (owner ruling 2026-11-25), so a
+# -contract subpackage's %files names
+#   %{omx_contract_dir}/<owner>/      a package (install-contract-dir.sh <package> ... or --owner)
+#   %{omx_contract_dir}/<domain>/     a domain (install-contract-dir.sh --domain)
+# and a package and the domain of its name share one line. Installed by omx-contract-devel; the same directory is
+# pkg-config's contractdir variable of omx-contract.pc.
+%omx_contract_dir %{_datadir}/omx-contract/contract.d

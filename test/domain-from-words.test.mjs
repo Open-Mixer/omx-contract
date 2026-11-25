@@ -70,7 +70,7 @@ test('the data file xb rebuilds carries the from as <ITEM>#<title> and the decla
 
 test('render --installed --with-domain: xb rebuilt into pkg-b takes its words from the installed domain xa', () => {
   const root = contractDir({ xa: xa() });
-  const pkg = join(root, String(SCHEMA_MAJOR), 'pkg-b');
+  const pkg = join(root, 'pkg-b');
   mkdirSync(pkg, { recursive: true });
   const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), PKG_B_EXTRA: { kind: 'codes', since: '1.0.0', doc: 'A code pkg-b installs itself.', codes: { extraOne: { code: 'pkg.b.extra.one' } } } }, null, 2)}\n`;
   writeFileSync(join(pkg, 'extra.json'), text);

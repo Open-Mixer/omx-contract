@@ -47,7 +47,7 @@ function contractDir(doc) {
   mkdirSync(join(root, 'kinds', 'catalogs'), { recursive: true });
   writeFileSync(join(root, 'kinds', 'kinds.json'), `${JSON.stringify(doc, null, 2)}\n`);
   cpSync(join(FIX, 'kinds/catalogs/ca.json'), join(root, 'kinds', 'catalogs', 'ca.json'));
-  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-owner');
+  const pkg = join(root, 'kinds-owner');
   mkdirSync(pkg, { recursive: true });
   const terms = JSON.parse(readFileSync(join(FIX, 'data/terms.json'), 'utf8'));
   const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), ...terms }, null, 2)}\n`;
@@ -213,7 +213,7 @@ test('an item with no x-file is not rebuilt and not refused; given an x-file, it
 /** A contract directory holding the package kinds-owner (`files`, each `{ rel: doc }`, given the installed $schema and a floor) and, when `doc` is given, the domain kinds. */
 function installed(files, doc) {
   const root = join(SCRATCH, `in-${n++}`);
-  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-owner');
+  const pkg = join(root, 'kinds-owner');
   mkdirSync(pkg, { recursive: true });
   const hashes = {};
   for (const [rel, d] of Object.entries(files)) {
@@ -261,7 +261,7 @@ test('render --installed --with-domain: a ts module framed by the root x-render 
   doc['x-render'] = { ...doc['x-render'], ts: { module: 'kinds-constants' } };
   const root = installed(terms(), doc);
   // the owner's tree is data/, as omx-clap's is: the rebuild writes the root's x-file to data/constants.json
-  const manifest = join(root, String(SCHEMA_MAJOR), 'kinds-owner', 'MANIFEST.json');
+  const manifest = join(root, 'kinds-owner', 'MANIFEST.json');
   writeFileSync(manifest, `${JSON.stringify({ ...JSON.parse(readFileSync(manifest, 'utf8')), tree: 'data' }, null, 2)}\n`);
   const r = installedRender(root, 'ts', `${root}-out`, '--with-domain', join(root, 'kinds'));
   assert.equal(r.status, 0, r.stderr);
@@ -367,7 +367,7 @@ const extra = (item) => ({ 'extra.json': { [item]: { kind: 'codes', since: '1.0.
 function twoPackages(owner, termsVersion, doc, termFiles = terms()) {
   const root = installed({ ...extra('KINDS_OWNER_EXTRA'), ...owner }, doc);
   if (termsVersion === null) return root;
-  const pkg = join(root, String(SCHEMA_MAJOR), 'kinds-terms');
+  const pkg = join(root, 'kinds-terms');
   mkdirSync(pkg, { recursive: true });
   const hashes = {};
   for (const [rel, d] of Object.entries({ ...extra('KINDS_TERMS_EXTRA'), ...termFiles })) {

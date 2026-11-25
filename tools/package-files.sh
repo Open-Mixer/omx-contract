@@ -8,7 +8,7 @@
 #   package-files.sh rpm <dir of the RPMs>
 #   package-files.sh deb <dir of the debs>
 #
-# omx-contract-data holds data/ installed as contract.d/<schema major>/omx-contract/ (less scale-vectors.json, with its
+# omx-contract-data holds data/ installed as contract.d/omx-contract/ (less scale-vectors.json, with its
 # MANIFEST.json), the contract and param domains (contract.d/contract/contract.json, contract.d/param/param.json), the schema, the committed renders and languages.json under share/omx-contract; each language pack its one catalog
 # (share/omx-contract/catalogs/<lang>.json, a pack per language of languages.json); the development package the C
 # render, the hand-written C beside it (less omx_domain.h and omx_contract_codes.h), omx-contract.pc, install-contract-dir.sh, the kernel recipe (recipes/, #227) and (RPM) the rpm macros; the command package the command, its tree under
@@ -21,8 +21,7 @@ set -eu
 
 kind=${1-} dir=${2-}
 { [ "$kind" = rpm ] || [ "$kind" = deb ]; } && [ -d "$dir" ] || { sed -n '7,9p' "$0" >&2; exit 2; }
-major=$(sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$/\1/p' schema/omx-contract.schema.json)
-[ -n "$major" ] || { echo "package-files.sh: run it from the tree the packages were built from" >&2; exit 2; }
+[ -f schema/omx-contract.schema.json ] || { echo "package-files.sh: run it from the tree the packages were built from" >&2; exit 2; }
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
@@ -66,8 +65,8 @@ packs=
 for l in $langs; do packs="$packs $pack$l"; echo "/usr/share/omx-contract/catalogs/$l.json" > "$tmp/want-$pack$l"; done
 
 # what the tree says each package holds
-(cd data && find . -name '*.json' ! -path ./scale-vectors.json | sed "s|^\./|/usr/share/omx-contract/contract.d/$major/omx-contract/|"
-  echo "/usr/share/omx-contract/contract.d/$major/omx-contract/MANIFEST.json"
+(cd data && find . -name '*.json' ! -path ./scale-vectors.json | sed "s|^\./|/usr/share/omx-contract/contract.d/omx-contract/|"
+  echo "/usr/share/omx-contract/contract.d/omx-contract/MANIFEST.json"
   echo /usr/share/omx-contract/contract.d/contract/contract.json
   echo /usr/share/omx-contract/contract.d/param/param.json
   for f in omx-contract.json omx-vocabulary.schema.json omx-resource-hints.ttl omx_contract_catalog.py omx_contract_scale.py scale-vectors.json clap-kind-vectors.json; do echo "/usr/share/omx-contract/$f"; done

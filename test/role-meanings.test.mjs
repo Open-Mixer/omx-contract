@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, loadContractDir } from '../lib/contract-dir.mjs';
+import { loadContractDir } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion } from '../lib/data.mjs';
 import { meaningOfRoles } from '../lib/role-meanings.mjs';
 import { classify } from '../lib/semver.mjs';
@@ -26,12 +26,12 @@ const FIXTURE = join(ROOT, 'test/fixtures/package-role-meanings');
 const PKG = 'roles-fixture';
 const SCHEMA = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'));
 
-const install = (pkg, from, root) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), pkg, '1.0.0', String(SCHEMA_MAJOR), from, root, 'data'], { stdio: 'ignore' });
+const install = (pkg, from, root) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), pkg, '1.0.0', from, root, 'data'], { stdio: 'ignore' });
 
 /** omx-contract's own directory and the packages `pkgs` ({ name: dir }) installed beside it. */
 function dirWith(pkgs) {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   for (const [pkg, from] of Object.entries(pkgs)) install(pkg, from, root);
   return root;

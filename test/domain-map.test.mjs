@@ -88,7 +88,7 @@ function termsDomain(dir, name, owner) {
 const CONTRACT_DIR = join(SCRATCH, 'contract-dir');
 {
   const sh = join(ROOT, 'tools/install-contract-dir.sh');
-  execFileSync('sh', [sh, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, CONTRACT_DIR, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [sh, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, CONTRACT_DIR, 'data'], { stdio: 'ignore' });
   execFileSync('sh', [sh, '--domain', join(ROOT, 'contract.d/contract'), CONTRACT_DIR, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
   installParamDomain(CONTRACT_DIR);
   for (const d of [termsDomain(LV2_TERMS, 'lv2', 'plugin-db'), termsDomain(CLAP_TERMS, 'clap', 'omx-clap')]) execFileSync('sh', [sh, '--domain', d, CONTRACT_DIR, domainOwner(d)], { stdio: 'ignore' });

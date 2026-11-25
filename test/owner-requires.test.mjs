@@ -31,10 +31,10 @@ const write = (root, rel, doc) => {
 /** A contract directory holding omx-contract's data and `omx-clap` 0.30.5 with HOST_REPLY_CODES, as an install writes them. */
 function contractDir({ clapCore = true } = {}) {
   const root = fresh('contract');
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   if (!clapCore) return root;
-  const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap');
+  const pdir = join(root, 'omx-clap');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
     HOST_REPLY_CODES: {
@@ -101,7 +101,7 @@ const run = (tree, env = {}) => {
 // that host and green in CI. A host directory that breaks the read stands in for it here.
 test('the host\'s installed contract directory never reaches these tests', () => {
   const host = fresh('host');
-  const pdir = join(host, String(SCHEMA_MAJOR), 'host-package');
+  const pdir = join(host, 'host-package');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
     HOST_PACKAGE_VERBS: {
@@ -149,7 +149,7 @@ test('a requirement found nowhere is refused by name: the requirement, every pla
 
 test('a requirement is a name: any installed version of it is read, no floor (the devel wave 2026-11-24)', () => {
   const dir = contractDir();
-  const m = join(dir, String(SCHEMA_MAJOR), 'omx-clap/MANIFEST.json');
+  const m = join(dir, 'omx-clap/MANIFEST.json');
   const doc = JSON.parse(readFileSync(m, 'utf8'));
   doc.version = '0.30.4';
   writeFileSync(m, JSON.stringify(doc));

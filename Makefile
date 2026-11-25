@@ -4,7 +4,7 @@
 # Installs the committed renders (include/omxcontract/, share/omx-contract/omx-contract.json), the hand-written C of
 # include/omxcontract/omx_json_write.h (hand-written, the one JSON string writer) beside them, the
 # schema, omx-contract.pc, and data/ as the package omx-contract of the contract directory
-# (CONTRACTDIR/<schema major>/omx-contract/, docs/contract-dir.md) with tools/install-contract-dir.sh, which is
+# (CONTRACTDIR/omx-contract/, docs/contract-dir.md: no schema-major level) with tools/install-contract-dir.sh, which is
 # installed beside the schema for the packages that install their own definitions. No node runs here: a release build (RPM, deb) installs what
 # `omx-contract render --check` already holds equal to the data (R-056). `make test` is the node suite.
 #
@@ -22,7 +22,6 @@ BINDIR ?= $(PREFIX)/bin
 CLIDIR ?= $(PREFIX)/lib/omx-contract
 MANDIR ?= $(DATADIR)/man
 RPMMACRODIR ?= $(PREFIX)/lib/rpm/macros.d
-SCHEMA_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$/\1/p' schema/omx-contract.schema.json)
 CC ?= cc
 VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
@@ -30,7 +29,6 @@ VERSION := $(shell sed -n 's/^  "version": "\(.*\)",$$/\1/p' package.json)
 
 all:
 	@test -n "$(VERSION)" || { echo "no version in package.json" >&2; exit 1; }
-	@test -n "$(SCHEMA_MAJOR)" || { echo "no x-omx-schema-version in schema/omx-contract.schema.json" >&2; exit 1; }
 
 # The library modules (#15): src/lib/*.mts, built by tsc into lib/*.mjs with their .d.mts, a build product the CLI,
 # the npm package and every checkout caller load from lib/. TSC is the checkout's (npm ci), else the system's
@@ -89,21 +87,20 @@ install: all
 	install -m 0644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/omx-contract/shapes/
 	install -d $(DESTDIR)$(DATADIR)/omx-contract/catalogs
 	install -m 0644 catalogs/*.json $(DESTDIR)$(DATADIR)/omx-contract/catalogs/
-	sh tools/install-contract-dir.sh -x scale-vectors.json omx-contract $(VERSION) $(SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
+	sh tools/install-contract-dir.sh -x scale-vectors.json omx-contract $(VERSION) data $(DESTDIR)$(CONTRACTDIR) data
 	sh tools/install-contract-dir.sh --domain contract.d/contract $(DESTDIR)$(CONTRACTDIR) omx-contract
 	sh tools/install-contract-dir.sh --domain contract.d/param $(DESTDIR)$(CONTRACTDIR) omx-contract
 	sed -e 's|@PREFIX@|$(PREFIX)|' -e 's|@INCLUDEDIR@|$(INCLUDEDIR)|' -e 's|@DATADIR@|$(DATADIR)|' -e 's|@VERSION@|$(VERSION)|' \
-	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' -e 's|@CLIDIR@|$(CLIDIR)|' \
+	  -e 's|@CONTRACTDIR@|$(CONTRACTDIR)|' -e 's|@CLIDIR@|$(CLIDIR)|' \
 	  omx-contract.pc.in > $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
 	chmod 0644 $(DESTDIR)$(PKGCONFIGDIR)/omx-contract.pc
 
-# The RPM macros of the contract directory (packaging/macros.omx-contract.in): an owner's spec says
-# %{omx_contract_dir}/<owner>/ and never types the schema major, and %{omx_contract_domain_dir}/<domain>/ for a domain.
+# The RPM macro of the contract directory (packaging/macros.omx-contract.in): an owner's spec says
+# %{omx_contract_dir}/<owner>/ for its package and %{omx_contract_dir}/<domain>/ for a domain: one directory, no major.
 # The RPM build installs them into the devel package.
 install-rpm-macros: all
 	install -d $(DESTDIR)$(RPMMACRODIR)
-	sed -e 's|@SCHEMA_MAJOR@|$(SCHEMA_MAJOR)|' packaging/macros.omx-contract.in > $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
-	chmod 0644 $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
+	install -m 0644 packaging/macros.omx-contract.in $(DESTDIR)$(RPMMACRODIR)/macros.omx-contract
 
 install-cli: all build-lib
 	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema $(DESTDIR)$(CLIDIR)/tools \

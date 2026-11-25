@@ -45,9 +45,9 @@ let n = 0;
 /** A contract directory holding omx-contract's data/ as the install writes it and the package `pkg` holding `files`. */
 function directory(files, pkg = 'omx-plugins') {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
-  const dir = join(root, String(SCHEMA_MAJOR), pkg);
+  const dir = join(root, pkg);
   const listed = {};
   for (const [rel, doc] of Object.entries(files)) {
     const p = join(dir, rel);

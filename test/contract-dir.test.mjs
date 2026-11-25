@@ -23,17 +23,17 @@ const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-contract-dir-'));
 after(() => rmSync(SCRATCH, { recursive: true, force: true }));
 let n = 0;
 const VERSION = packageVersion(ROOT);
-const URL3 = installedSchemaUrl(3);
+const URL3 = installedSchemaUrl(SCHEMA_MAJOR);
 
 /** A fresh contract directory holding omx-contract's data/ as the install writes it; returns its root. */
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', VERSION, String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', VERSION, DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   return root;
 }
 
-const pkgDir = (root, pkg) => join(root, String(SCHEMA_MAJOR), pkg);
+const pkgDir = (root, pkg) => join(root, pkg);
 
 /** Rewrite a package's manifest from what is on disk, as the install would. `edit(m)` may change it after. */
 function rehash(root, pkg, edit) {
@@ -86,7 +86,7 @@ test('the install writes omx-contract\'s data/ with its manifest: every file, it
   const m = JSON.parse(readFileSync(join(dir, 'MANIFEST.json'), 'utf8'));
   assert.equal(m.package, 'omx-contract');
   assert.equal(m.version, VERSION);
-  assert.equal(m.schemaMajor, 3);
+  assert.equal(m.schemaMajor, SCHEMA_MAJOR);
   assert.equal(m.tree, 'data');
   const want = dataFiles(DATA).map((p) => p.slice(DATA.length + 1)).sort();
   assert.deepEqual(Object.keys(m.files).sort(), want);
@@ -164,11 +164,17 @@ test('discovery: --contract-dir, else OMX_CONTRACT_PATH (first directory wins a 
 test('contract.dir.absent: nothing names a directory, the one named is missing, or it holds no package of this major', () => {
   assert.equal(refusalOf({ env: {}, pkgConfig: join(SCRATCH, 'no-such-pkg-config') }), CONTRACT_CODES.dirAbsent);
   assert.equal(refusalOf({ dir: join(SCRATCH, 'missing') }), CONTRACT_CODES.dirAbsent);
-  const root = join(SCRATCH, 'other-major');
-  // an owner of schema 2 under 2/, as the releases before 3.0.0 installed it, is never read, nor a later major's
-  mkdirSync(join(root, '2', 'omx-contract'), { recursive: true });
-  mkdirSync(join(root, '4', 'omx-contract'), { recursive: true });
-  assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.dirAbsent);
+  // the schema-major level of before 2026-11-25 (<contractdir>/3/<owner>/) is refused by name, never read nor skipped
+  for (const major of ['2', '3', String(SCHEMA_MAJOR)]) {
+    const root = installed();
+    mkdirSync(join(root, major, 'omx-dsp'), { recursive: true });
+    let e;
+    try { loadContractDir({ dir: root }); } catch (x) { e = x; }
+    assert.equal(e?.code, CONTRACT_CODES.schemaMajor, major);
+    assert.match(e.message, /is a schema-major directory, the layout before 2026-11-25: the contract directory has no major level/, major);
+  }
+  // positive control: the same tree without it is read
+  assert.ok(loadContractDir({ dir: installed() }).packages.has('omx-contract'));
 });
 
 test('contract.manifest.absent and contract.manifest.invalid', () => {
@@ -177,7 +183,8 @@ test('contract.manifest.absent and contract.manifest.invalid', () => {
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestAbsent);
   for (const edit of [
     (m) => { m.package = 'omx-dsp'; },
-    (m) => { m.schemaMajor = 2; },
+    (m) => { m.schemaMajor = 'x'; },
+    (m) => { delete m.schemaMajor; },
     (m) => { m.version = '2.14'; },
     (m) => { m.extra = true; },
     (m) => { m.tree = '../data'; },
@@ -206,6 +213,21 @@ test('contract.manifest.mismatch: an unlisted file, a listed file missing, a has
   assert.ok(text.includes('192000'));
   writeFileSync(p, text.replace('192000', '176400'));
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch, 'an edit after install is caught by its hash');
+});
+
+test('contract.schema.major: a manifest of another schema major is refused by name, the major read from the document, never a path', () => {
+  for (const other of [SCHEMA_MAJOR + 1, SCHEMA_MAJOR === 0 ? 3 : SCHEMA_MAJOR - 1]) {
+    const root = installed();
+    rehash(root, 'omx-contract', (m) => { m.schemaMajor = other; });
+    let e;
+    try { loadContractDir({ dir: root }); } catch (x) { e = x; }
+    assert.equal(e?.code, CONTRACT_CODES.schemaMajor, String(other));
+    assert.equal(e.message, `the manifest states schema major ${other}; this reader reads ${SCHEMA_MAJOR}`);
+    assert.equal(e.file, 'omx-contract/MANIFEST.json', 'named by the manifest that states it');
+  }
+  const root = installed();
+  rehash(root, 'omx-contract', () => {});
+  assert.ok(loadContractDir({ dir: root }).packages.has('omx-contract'), 'positive control: the rehashed manifest of the reader\'s major is read');
 });
 
 test('contract.schema.major, and requires: a sorted list of names, never a map of floors, never empty (the devel wave 2026-11-24)', () => {
@@ -335,13 +357,16 @@ test('the schema words: requires is a sorted list of names, source a closed obje
   assert.equal(loadData(null, { 'data/x.json': JSON.stringify({ ...base, requires: ['omx-dsp'], source: { impl: link }, A: scalar(1) }) }).items.size, 1, 'requires and source declare no item');
 });
 
-test('the schema states its version; its major is the package\'s and the directory\'s', () => {
+test('the schema states its version, its major is the package\'s', () => {
   assert.match(SCHEMA_VERSION, /^\d+\.\d+\.\d+$/);
   assert.equal(SCHEMA_MAJOR, Number(VERSION.split('.')[0]));
-  assert.equal(SCHEMA_MAJOR, 3);
-  const makefile = spawnSync('make', ['-s', '-C', ROOT, '-pn', 'all'], { encoding: 'utf8' }).stdout;
-  assert.match(makefile, /^SCHEMA_MAJOR := 3$/m, 'the Makefile installs under the schema\'s major');
-  assert.match(readFileSync(join(ROOT, 'omx-contract.pc.in'), 'utf8'), /^contractdir=@CONTRACTDIR@$/m);
+  // no directory carries it (owner ruling 2026-11-25): the install has no major, the .pc only the contract directory
+  const makefile = spawnSync('make', ['-s', '-C', ROOT, '-pn', 'install'], { encoding: 'utf8' }).stdout;
+  assert.match(makefile, /install-contract-dir\.sh -x scale-vectors\.json omx-contract \S+ data \S+ data$/m, 'the install of data/ names no major');
+  assert.doesNotMatch(makefile, /^SCHEMA_MAJOR :?=/m, 'the Makefile holds no schema major');
+  const pc = readFileSync(join(ROOT, 'omx-contract.pc.in'), 'utf8');
+  assert.match(pc, /^contractdir=@CONTRACTDIR@$/m);
+  assert.doesNotMatch(pc, /schema_major|@SCHEMA_MAJOR@/, 'no schema_major variable');
 });
 
 test('the codes are the contract domain\'s: its item holds every code once, valid, and no render carries them', () => {

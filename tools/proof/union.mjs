@@ -22,7 +22,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, sta
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SCHEMA_MAJOR, loadContractDir } from '../../lib/contract-dir.mjs';
+import { loadContractDir } from '../../lib/contract-dir.mjs';
 import { resolveData } from '../../lib/data.mjs';
 import { renderC } from '../../render/c.mjs';
 import { renderJson } from '../../render/json.mjs';
@@ -59,8 +59,8 @@ function filesUnder(dir) {
 /** A contract directory of this tree's data/ (as omx-contract at `version`) and every owner. */
 function install(root, version, owners) {
   const sh = (...a) => execFileSync('sh', [INSTALL, ...a], { stdio: ['ignore', 'ignore', 'inherit'] });
-  sh('omx-contract', version, String(SCHEMA_MAJOR), join(ROOT, 'data'), root, 'data');
-  for (const o of owners) sh(o.pkg, o.version, String(SCHEMA_MAJOR), o.dir, root, 'data');
+  sh('omx-contract', version, join(ROOT, 'data'), root, 'data');
+  for (const o of owners) sh(o.pkg, o.version, o.dir, root, 'data');
 }
 
 /** The three renders of a contract directory, `{ <target>: Map<path, text> }`. */

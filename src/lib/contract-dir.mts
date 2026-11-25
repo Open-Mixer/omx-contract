@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The contract directory (docs/contract-dir.md): `<contractdir>/<schema major>/<package>/`, each package's files
- * listed with their hashes in its MANIFEST.json. loadContractDir() reads it whole or refuses: any refusal is a
+ * The contract directory (docs/contract-dir.md): `<contractdir>/<package>/` beside `<contractdir>/<domain>/`, with no
+ * schema-major level (owner ruling 2026-11-25), each package's files listed with their hashes in its MANIFEST.json and
+ * the schema major read from the documents. loadContractDir() reads it whole or refuses: any refusal is a
  * ContractRefusal carrying a CONTRACT_CODES code, and nothing is returned, so a reader never holds a partial set.
  * What it returns has the shape of loadData(), so validate, fmt and every render read it as they read `data/`.
  */
@@ -22,7 +23,7 @@ import type { DomainCodes, DomainItems } from './domain.mjs';
 import { fromDifference, fromDifferences } from './word-from.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
-/** The schema major this reader reads, and the only directory under a contractdir it looks in. */
+/** The schema major this reader reads: a manifest's `schemaMajor` and a file's `$schema` must state it. */
 export const SCHEMA_MAJOR = Number(SCHEMA_VERSION.split('.')[0]);
 
 /** The package whose files are read by the schema they ship with, and whose items every file may refer to. */
@@ -134,6 +135,36 @@ function filesUnder(dir) {
   return out.sort();
 }
 
+/**
+ * The files of a package's directory that are its own, the manifest's to list (docs/contract-dir.md, "One name, one
+ * directory"): every file under it less MANIFEST.json, the domain of its name (`<name>.json` and `catalogs/`) and each
+ * nested domain (a subdirectory `<d>/` holding its `<last segment>.json`, which the manifest does not list).
+ * @throws contract.manifest.mismatch for an owner file in a domain's place: named `<name>.json`, under `catalogs/`
+ * beside the domain's document, or inside a nested domain.
+ */
+function packageFiles(pdir: string, name: string, listed: string[]): string[] {
+  if (listed.includes(`${name}.json`)) refuse('manifestMismatch', `${name}/${name}.json`, `an owner data file named ${name}.json: that is the place of the domain ${name}'s document, and a package never lists it`);
+  const domain = existsSync(join(pdir, `${name}.json`));
+  for (const f of listed) if (domain && f.startsWith('catalogs/')) refuse('manifestMismatch', `${name}/${f}`, `an owner data file under catalogs/, beside the domain ${name}'s document: catalogs/ is the domain's`);
+  const nested: string[] = [];
+  const walk = (rel: string) => {
+    for (const f of readdirSync(join(pdir, rel)).sort()) {
+      const r = rel ? `${rel}/${f}` : f;
+      if (!statSync(join(pdir, r)).isDirectory()) continue;
+      if (existsSync(join(pdir, r, `${f}.json`)) && !listed.includes(`${r}/${f}.json`)) nested.push(r);
+      else walk(r);
+    }
+  };
+  walk('');
+  for (const f of listed) {
+    const n = nested.find((d) => f.startsWith(`${d}/`));
+    if (n !== undefined) refuse('manifestMismatch', `${name}/${f}`, `an owner data file inside the nested domain ${name}/${n}: a nested domain's directory is the domain's`);
+  }
+  return filesUnder(pdir).filter((f) => f !== 'MANIFEST.json'
+    && !(domain && (f === `${name}.json` || (f.startsWith('catalogs/') && f.endsWith('.json'))))
+    && !nested.some((d) => f.startsWith(`${d}/`)));
+}
+
 /** One package's manifest, checked against its place. */
 function readManifest(pdir, name, major) {
   const at = `${name}/MANIFEST.json`;
@@ -146,7 +177,8 @@ function readManifest(pdir, name, major) {
   for (const k of Object.keys(m)) if (!known.includes(k)) refuse('manifestInvalid', at, `unknown key ${k}: a manifest holds ${known.join(', ')}`);
   if (m.package !== name) refuse('manifestInvalid', at, `names the package ${JSON.stringify(m.package)}, and sits in ${name}/`);
   if (typeof m.version !== 'string' || !VERSION.test(m.version)) refuse('manifestInvalid', at, `version ${JSON.stringify(m.version)} is not x.y.z`);
-  if (m.schemaMajor !== major) refuse('manifestInvalid', at, `schemaMajor ${JSON.stringify(m.schemaMajor)}, and sits under ${major}/`);
+  if (!Number.isInteger(m.schemaMajor) || m.schemaMajor < 0) refuse('manifestInvalid', at, `schemaMajor ${JSON.stringify(m.schemaMajor)} is not a schema major`);
+  if (m.schemaMajor !== major) refuse('schemaMajor', at, `the manifest states schema major ${m.schemaMajor}; this reader reads ${major}`);
   if (m.tree !== undefined && (typeof m.tree !== 'string' || !/^[A-Za-z0-9_+.-]+(\/[A-Za-z0-9_+.-]+)*$/.test(m.tree) || m.tree.split('/').includes('..'))) {
     refuse('manifestInvalid', at, `tree ${JSON.stringify(m.tree)} is not a relative directory`);
   }
@@ -240,13 +272,19 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
 } {
   const roots = contractRoots({ dir, env, pkgConfig });
   const packages = new Map();
+  // a package is <root>/<name>/MANIFEST.json, one level down, beside the domains (no schema-major level, 2026-11-25)
   for (const root of roots) {
-    const mdir = join(root, String(major));
-    if (!existsSync(mdir) || !statSync(mdir).isDirectory()) continue;
-    for (const name of readdirSync(mdir).sort()) {
-      const pdir = join(mdir, name);
-      if (packages.has(name) || !statSync(pdir).isDirectory()) continue;
-      packages.set(name, { name, dir: pdir, manifest: readManifest(pdir, name, major) });
+    for (const name of readdirSync(root).sort()) {
+      const pdir = join(root, name);
+      if (!statSync(pdir).isDirectory()) continue;
+      if (/^\d+$/.test(name)) refuse('schemaMajor', `${name}/`, `${pdir} is a schema-major directory, the layout before 2026-11-25: the contract directory has no major level, and nothing under it is read`);
+      if (packages.has(name) || !DOMAIN_NAME.test(name) || !existsSync(join(pdir, 'MANIFEST.json'))) continue;
+      const manifest = readManifest(pdir, name, major);
+      // before the domain read, which would take it for the domain's document (docs/contract-dir.md, "One name, one directory")
+      if (Object.keys(manifest.files).includes(`${name}.json`)) refuse('manifestMismatch', `${name}/${name}.json`, `an owner data file named ${name}.json: that is the place of the domain ${name}'s document, and a package never lists it`);
+      const owned = Object.keys(manifest.files).find((f) => f.startsWith('catalogs/'));
+      if (owned !== undefined && existsSync(join(pdir, `${name}.json`))) refuse('manifestMismatch', `${name}/${owned}`, `an owner data file under catalogs/, beside the domain ${name}'s document: catalogs/ is the domain's`);
+      packages.set(name, { name, dir: pdir, manifest });
     }
   }
   // a domain (docs/contract-dir.md): <root>/<domain>/<domain>.json, read as the classic file of its items
@@ -263,12 +301,16 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       if (!DOMAIN_NAME.test(name) || !statSync(ddir).isDirectory() || domains.has(name) || withDomains.some((w) => w.name === name)) continue;
       const path = join(ddir, `${domainLeaf(name)}.json`);
       const at = domainPath(name);
-      // a package-named directory is a domain only when it holds <name>/<name>.json; one of nested domains only
-      // (plugin-hostd's <contractdir>/plugin-hostd/) is read as before (ruling %4 2026-11-24)
-      if (!existsSync(path) && packages.has(name)) continue;
-      if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no ${domainLeaf(name)}.json`);
-      const present = filesUnder(ddir).filter((f) => !(f.startsWith('catalogs/') && f.endsWith('.json')));
-      if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
+      // one name, one directory: MANIFEST.json marks the package, <name>.json the domain; a package directory with no
+      // <name>.json (plugin-hostd's, of nested domains) holds no domain of its own name (ruling %4 2026-11-24)
+      const shared = existsSync(join(ddir, 'MANIFEST.json'));
+      if (!existsSync(path) && shared) continue;
+      if (!existsSync(path)) refuse('manifestAbsent', name, `${ddir} holds no MANIFEST.json and no ${domainLeaf(name)}.json`);
+      // beside a package, the package's own files are its manifest's check; alone, the document and catalogs are all
+      if (!shared) {
+        const present = filesUnder(ddir).filter((f) => !(f.startsWith('catalogs/') && f.endsWith('.json')));
+        if (present.length !== 1) refuse('manifestMismatch', at, `a domain directory holds its one document, and ${present.filter((f) => f !== `${domainLeaf(name)}.json`).join(', ')} is beside it`);
+      }
       // the catalogs are read as the runtime readers read them (lib/domain-reader.mjs), and each is also a classic catalog
       for (const c of readCatalogs(ddir, name)) {
         const f = `${name}/catalogs/${c.lang}.json`;
@@ -283,11 +325,11 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
       const file = { rel: at, text, doc: d.doc, pkg: name, path, installed: true, source: `contract.d/${at}` };
       const problems = fileProblems(file);
       if (problems.length) refuse('fileInvalid', at, problems.map((p) => `${p.item}: ${p.rule}: ${p.message}`).join('; '));
-      // a domain named like a package under <major>/ is that package's (ruling V16): read beside it, never skipped (#125),
-      // and the name stays the package's (#190)
+      // a domain named like a package shares its directory and is that package's (ruling V16): read beside it, never
+      // skipped (#125), and the name stays the package's (#190)
       const pkg = packages.get(name);
       if (pkg === undefined) packages.set(name, { name, dir: ddir, manifest: d.manifest, codes: d.codes });
-      else if (d.manifest.owner !== name) refuse('manifestMismatch', at, `the domain ${name} is named like the package ${name} under ${major}/, and its info.x-owner is ${d.manifest.owner}: a domain named like a package is that package's`);
+      else if (d.manifest.owner !== name) refuse('manifestMismatch', at, `the domain ${name} shares ${name}/ with the package ${name}, and its info.x-owner is ${d.manifest.owner}: two owners in one directory, and a domain named like a package is that package's`);
       else if (!Object.keys(pkg.manifest.files).length) pkg.codes = d.codes;
       declared.push({ at, requires: domainRequires(raw) });
       domains.set(name, { doc: raw, pkg: name, rebuilt: false });
@@ -296,13 +338,13 @@ export function loadContractDir({ dir, env, pkgConfig, needs = {}, major = SCHEM
     }
   }
   checkItemPrefixes(domainItems);
-  if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package is installed under ${major}/ of ${roots.join(':')}`);
+  if (!packages.size) refuse('dirAbsent', roots.join(':'), `no package and no domain is installed in ${roots.join(':')}`);
 
   const files: Json[] = [];
   for (const { name, dir: pdir, manifest } of packages.values()) {
     if (manifest.files === undefined) continue; // a domain: its one document is read above
     const listed = Object.keys(manifest.files);
-    const present = filesUnder(pdir).filter((f) => f !== 'MANIFEST.json');
+    const present = packageFiles(pdir, name, listed);
     for (const f of present) if (!listed.includes(f)) refuse('manifestMismatch', `${name}/${f}`, 'present in the package directory, and its manifest does not list it');
     for (const f of listed.sort()) {
       const at = `${name}/${f}`;

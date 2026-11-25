@@ -3,19 +3,55 @@
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 #
 # install-contract-dir.sh — install definition files into the contract directory (docs/contract-dir.md), no node:
-#   install-contract-dir.sh [-x <rel>]... <package> <version> <schema major> <from dir> <contractdir> [<tree>]
+#   install-contract-dir.sh [-x <rel>]... <package> <version> <from dir> <contractdir> [<tree>]
 #   install-contract-dir.sh --domain <path>/contract.d/<domain> <contractdir> <package>
-#   install-contract-dir.sh --owner <package> <version> <schema major> <contractdir> <domain>...
-# Package: copies every .json under <from dir> (less each -x <rel>) to <contractdir>/<schema major>/<package>/, writes a
-# relative "$schema" as that major's URL, and writes MANIFEST.json with each file's sha256 (<tree>: its "tree").
+#   install-contract-dir.sh --owner <package> <version> <contractdir> <domain>...
+# The contract directory has no schema-major level (owner ruling 2026-11-25): a package is <contractdir>/<package>/,
+# beside the domains, and shares <contractdir>/<name>/ with the domain of its name (docs/contract-dir.md, "One name, one
+# directory"). The schema major a manifest and an installed "$schema" state is read from the omx-contract.schema.json
+# beside this script (installed: the same directory; a checkout: ../schema/), never passed.
+# Package: copies every .json under <from dir> (less each -x <rel>) to <contractdir>/<package>/, writes a relative
+# "$schema" as the schema major's URL, and writes MANIFEST.json with each file's sha256 (<tree>: its "tree"). A
+# reinstall removes the files its previous manifest listed, never a domain sharing the directory.
 # Domain: copies the directory as it is to <contractdir>/<domain>/ (its <leaf>.json and catalogs/<lang>.json, no
 # rewrite, no manifest); the domain is the path after the last contract.d/. <package> is the package whose build
 # installs it, and the document's info.x-owner must name it (#88). A nested domain directory is skipped: each domain
 # is installed by its own call.
-# Owner: a package whose contract is only domains (no data file): writes <contractdir>/<schema major>/<package>/
-# MANIFEST.json with no files and "domains", the domains named (each installed by its own --domain call; the reader
+# Owner: a package whose contract is only domains (no data file): writes <contractdir>/<package>/MANIFEST.json with no files and "domains", the domains named (each installed by its own --domain call; the reader
 # refuses a listed domain that is not installed). Exit 0 installed; 1 a refusal (a file named); 2 usage.
 set -eu
+
+# the schema major: the x-omx-schema-version of the schema installed beside this script, or of a checkout's schema/
+schema_major() {
+  here=$(cd "$(dirname "$0")" && pwd)
+  for s in "$here/omx-contract.schema.json" "$here/../schema/omx-contract.schema.json"; do
+    [ -f "$s" ] || continue
+    m=$(sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$/\1/p' "$s")
+    [ -n "$m" ] || { echo "install-contract-dir.sh: $s states no x-omx-schema-version" >&2; exit 2; }
+    echo "$m"
+    return 0
+  done
+  echo "install-contract-dir.sh: no omx-contract.schema.json beside $0 (nor ../schema/): the schema major is read from it" >&2
+  exit 2
+}
+# a schema major where the signature of before took one: refused, never read as a directory
+no_major_argument() {
+  case $1 in *[!0-9]* | '') ;; *) echo "install-contract-dir.sh: '$1' is a schema major; the contract directory has no major level (docs/contract-dir.md, 2026-11-25), and no argument names one" >&2; exit 2 ;; esac
+}
+# the one owner of <dir>/<name>/: a domain document <name>.json there names it in info.x-owner (#88, two owners in one directory)
+same_owner() {
+  doc=$1/$2.json
+  [ -f "$doc" ] || return 0
+  o=$(grep -o '"x-owner"[[:space:]]*:[[:space:]]*"[^"]*"' "$doc" | sed 's/.*"\([^"]*\)"$/\1/')
+  [ "$o" = "$2" ] || { echo "install-contract-dir.sh: $doc: the domain $2 is owned by ${o:-nobody}, and $1 would hold the package $2: two owners in one directory" >&2; exit 1; }
+}
+# a reinstall of a package: the files its previous manifest listed and the manifest go, a domain sharing the directory stays
+remove_previous() {
+  [ -f "$1/MANIFEST.json" ] || return 0
+  sed -n 's/^    "\([^"]*\)": "[0-9a-f]\{64\}",*$/\1/p' "$1/MANIFEST.json" | while read -r f; do rm -f "$1/$f"; done
+  rm -f "$1/MANIFEST.json"
+  find "$1" -mindepth 1 -depth -type d -empty -exec rmdir {} + 2>/dev/null || true
+}
 
 if [ "$#" -gt 0 ] && [ "$1" = --domain ]; then
   usage() { sed -n '6,8p' "$0" >&2; echo "install-contract-dir.sh: $1" >&2; exit 2; }
@@ -57,6 +93,13 @@ if [ "$#" -gt 0 ] && [ "$1" = --domain ]; then
     refuse "$e: a domain holds only $leaf.json, catalogs/<lang>.json and nested domains"
   done
   dest=$to/$name
+  # one name, one directory: a manifest beside the domain is the package of that name, which must be the domain's owner
+  if [ -f "$dest/MANIFEST.json" ] && [ "$owners" != "$name" ]; then
+    refuse "$dest/MANIFEST.json: $dest holds the package $name, and the domain $name is owned by $owners: two owners in one directory"
+  fi
+  if [ -f "$dest/MANIFEST.json" ] && grep -Eq '^    "catalogs/' "$dest/MANIFEST.json"; then
+    refuse "$dest/MANIFEST.json: the package $name lists files under catalogs/, the place of the domain $name's catalogs"
+  fi
   install -d "$dest"
   rm -rf "$dest/$leaf.json" "$dest/catalogs"
   install -m 0644 "$from/$leaf.json" "$dest/$leaf.json"
@@ -74,11 +117,12 @@ if [ "$#" -gt 0 ] && [ "$1" = --domain ]; then
 fi
 
 if [ "$#" -gt 0 ] && [ "$1" = --owner ]; then
-  [ "$#" -ge 6 ] || { sed -n '6,8p' "$0" >&2; echo "install-contract-dir.sh: --owner needs <package> <version> <schema major> <contractdir> and at least one domain" >&2; exit 2; }
-  pkg=$2 version=$3 major=$4 to=$5
-  shift 5
+  [ "$#" -ge 5 ] || { sed -n '6,8p' "$0" >&2; echo "install-contract-dir.sh: --owner needs <package> <version> <contractdir> and at least one domain" >&2; exit 2; }
+  pkg=$2 version=$3 to=$4
+  no_major_argument "$to"
+  shift 4
   case $pkg in *[!a-z0-9-]* | '' | -*) echo "install-contract-dir.sh: package $pkg is not a lower-case name" >&2; exit 2 ;; esac
-  case $major in *[!0-9]* | '') echo "install-contract-dir.sh: schema major $major is not a number" >&2; exit 2 ;; esac
+  major=$(schema_major)
   echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' || { echo "install-contract-dir.sh: version $version is not x.y.z" >&2; exit 2; }
   list='' seen=''
   for d in "$@"; do
@@ -87,8 +131,9 @@ if [ "$#" -gt 0 ] && [ "$1" = --owner ]; then
     seen="$seen $d"
     list="$list${list:+, }\"$d\""
   done
-  dest=$to/$major/$pkg
-  rm -rf "$dest"
+  dest=$to/$pkg
+  same_owner "$to/$pkg" "$pkg"
+  remove_previous "$dest"
   install -d "$dest"
   printf '{\n  "package": "%s",\n  "version": "%s",\n  "schemaMajor": %s,\n  "files": {},\n  "domains": [%s]\n}\n' "$pkg" "$version" "$major" "$list" > "$dest/MANIFEST.json"
   chmod 0644 "$dest/MANIFEST.json"
@@ -103,18 +148,34 @@ while [ "$#" -gt 0 ] && [ "$1" = -x ]; do
 $2"
   shift 2
 done
-[ "$#" -eq 5 ] || [ "$#" -eq 6 ] || { sed -n '6,8p' "$0" >&2; exit 2; }
-pkg=$1 version=$2 major=$3 from=$4 to=$5 tree=${6-}
+[ "$#" -eq 4 ] || [ "$#" -eq 5 ] || { sed -n '6,8p' "$0" >&2; exit 2; }
+pkg=$1 version=$2 from=$3 to=$4 tree=${5-}
+no_major_argument "$from"
 case $pkg in *[!a-z0-9-]* | '' | -*) echo "install-contract-dir.sh: package $pkg is not a lower-case name" >&2; exit 2 ;; esac
-case $major in *[!0-9]* | '') echo "install-contract-dir.sh: schema major $major is not a number" >&2; exit 2 ;; esac
 echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' || { echo "install-contract-dir.sh: version $version is not x.y.z" >&2; exit 2; }
 [ -d "$from" ] || { echo "install-contract-dir.sh: no directory $from" >&2; exit 2; }
 
-dest=$to/$major/$pkg
+major=$(schema_major)
+dest=$to/$pkg
 url="https://openmixer.org/schema/omx-contract/v$major/omx-contract.schema.json"
-rm -rf "$dest"
-install -d "$dest"
+same_owner "$to/$pkg" "$pkg"
 list=$(cd "$from" && find . -type f -name '*.json' | sed 's|^\./||' | LC_ALL=C sort)
+# a file the previous manifest lists is the package's own, never a domain's (it goes at the reinstall)
+listed_before() { [ -f "$dest/MANIFEST.json" ] && grep -Fq "    \"$1\": \"" "$dest/MANIFEST.json"; }
+# one name, one directory: no file of the package in the place of a domain sharing it (docs/contract-dir.md)
+for rel in $list; do
+  if printf '%s\n' "$exclude" | grep -Fxq "$rel"; then continue; fi
+  [ "$rel" != "$pkg.json" ] || { echo "install-contract-dir.sh: $from/$rel: $pkg.json is the place of the domain $pkg's document; a data file of the package $pkg is never named so" >&2; exit 1; }
+  case $rel in catalogs/*) [ ! -f "$dest/$pkg.json" ] || { echo "install-contract-dir.sh: $from/$rel: catalogs/ of $dest is the domain $pkg's" >&2; exit 1; } ;; esac
+  d='' rest=$rel
+  while :; do
+    case $rest in */*) seg=${rest%%/*} rest=${rest#*/} ;; *) break ;; esac
+    d=$d${d:+/}$seg
+    [ ! -f "$dest/$d/$seg.json" ] || listed_before "$d/$seg.json" || { echo "install-contract-dir.sh: $from/$rel: $dest/$d/ is the nested domain $pkg/$d" >&2; exit 1; }
+  done
+done
+remove_previous "$dest"
+install -d "$dest"
 manifest="$dest/MANIFEST.json"
 {
   printf '{\n  "package": "%s",\n  "version": "%s",\n  "schemaMajor": %s,\n' "$pkg" "$version" "$major"

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 0.23.1
+Version: 0.23.2
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -307,6 +307,13 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.2-1
+- tools/consumer-drift.mjs: every consumer's use of the install interface
+  (the installer's arguments, the rpm macros, the pkg-config variables) read
+  at its devel head and held to this tree; ci.yml's consumer-drift job is red
+  on the drift a change makes (#262). No change to the installed files;
+  0.23.2 because the staging channel already serves 0.23.1.
+
 * Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.1-1
 - Test audit rows 9 and 16: the FreeMixer issue references are kept as
   records, and the packaging facts are held on the built packages

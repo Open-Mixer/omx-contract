@@ -1,0 +1,11 @@
+# the consumers of omx-contract's install interface (installer, rpm macros, pkg-config variables), each read at its
+# development head by tools/consumer-drift.mjs: <owner/repo> <branch>. A consumer that is not public is checked by hand
+# with a checkout named on the command line.
+Open-Mixer/omx-dsp devel
+Open-Mixer/omx-clap-core devel
+Open-Mixer/plugin-hostd devel
+Open-Mixer/plugin-hostd-protocol devel
+Open-Mixer/omx-plugins devel
+Open-Mixer/plugin-db devel
+Open-Mixer/omx-panel devel
+Open-Mixer/plugin-qualify devel

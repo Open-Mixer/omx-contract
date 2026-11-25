@@ -28,6 +28,8 @@ name: release
 on:
   push:
     tags: ['v*']
+    # a merge to devel builds the real package and publishes it to staging (Open-Mixer/.github#289)
+    branches: [devel]
   workflow_dispatch:
     inputs:
       staged:
@@ -99,8 +101,8 @@ jobs:
           if [ -n "$prev" ]; then node bin/omx-contract.mjs semver "$prev"; else echo "first release: no previous tag"; fi
 
   rpm:
-    # the build path: a dispatch, never a tag (a tag promotes what this staged)
-    if: github.event_name == 'workflow_dispatch' && inputs.version == ''
+    # the build path: a dispatch or a merge to devel (staged by the shared workflow), never a tag (a tag promotes what this staged)
+    if: (github.event_name == 'workflow_dispatch' && inputs.version == '') || (github.event_name == 'push' && github.ref == 'refs/heads/devel')
     needs: check
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
@@ -118,8 +120,8 @@ jobs:
 
   # beside the RPMs: the two publish jobs share one concurrency group, so their pushes never race
   deb:
-    # the build path: a dispatch, never a tag (a tag promotes what this staged)
-    if: github.event_name == 'workflow_dispatch' && inputs.version == ''
+    # the build path: a dispatch or a merge to devel (staged by the shared workflow), never a tag (a tag promotes what this staged)
+    if: (github.event_name == 'workflow_dispatch' && inputs.version == '') || (github.event_name == 'push' && github.ref == 'refs/heads/devel')
     needs: check
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:

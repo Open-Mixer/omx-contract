@@ -9,7 +9,7 @@ stays the default input of every command; the directory is read only when it is 
 
 ## Domains (owner ruling 2026-11-17, supersedes the layout below for every new definition)
 
-The contract directory is keyed by DOMAIN, never by owner and never by schema major: a domain is a vocabulary with one
+The contract directory is keyed by DOMAIN, never by schema major (owner ruling 2026-11-25, below): a domain is a vocabulary with one
 name for as long as it is used (`panel`, `gestures`, `look`), and the package that owns it today is metadata, so a
 domain changes owner without a path, an include or a consumer's reference moving. Each domain is modelled as an
 OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes, docs/shapes.md):
@@ -218,10 +218,10 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
 - `info.version` is the DOMAIN's own semver, the one a consumer's floor is compared to; `info.x-owner` is the package
   that owns it now. Neither is read from the path.
 - A domain is named after the package that owns it, or shares no name with an installed package (ruling V16). A domain
-  named like a package under `<schema major>/` (a directory `<name>/` that holds `<name>/<name>.json`) is read whatever
-  its name, never skipped (#125); a directory of that name holding nested domains only, as plugin-hostd's
-  `<contractdir>/plugin-hostd/` holds `clap`, `grouping`, `history` and `lv2`, is no domain and is read as before
-  (ruling %4 2026-11-24). A package-named domain's `info.x-owner` must
+  named like a package shares the package's directory `<contractdir>/<name>/` ("The layout", one name, one directory)
+  and is read whatever its name, never skipped (#125); a package directory holding nested domains and no `<name>.json`,
+  as plugin-hostd's `<contractdir>/plugin-hostd/` holds `clap`, `grouping`, `history` and `lv2`, holds no domain of its
+  own name (ruling %4 2026-11-24). A package-named domain's `info.x-owner` must
   be that package, or it is refused by name (`contract.manifest.mismatch`), and an item that the package's files and the
   domain both declare is `contract.item.duplicate`, as for any two files. A floor on that name is held to the
   domain's `info.version` when the domain is installed alone (`--domain` only, as plugin-db and plugin-hostd-protocol
@@ -248,46 +248,87 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   consumers, and needs no omx-contract release.
 - omx-contract holds the document kind, the loader check and the renderers, and no domain it does not own; the renders
   of a domain are produced at its owner's build time (`render --package <domain>`, docs/render.md).
-- There is no compatibility with the `<major>/<owner>/` layout below: it is migrated domain by domain (omx-contract's
+- There is no compatibility with the classic `<owner>/` layout below: it is migrated domain by domain (omx-contract's
   own `data/` into domains is a series of follow-up lanes) and then removed from this page. Until a domain is
   migrated, the sections below describe how its files are read.
 
 ## The layout
 
+Owner ruling 2026-11-25 ("the contract directory has NO schema-major level"; package and schema both 0.M.m until
+1.0): every owner package installs at `<contractdir>/<owner>/`, beside the domains at
+`<contractdir>/<domain>/`. The `<contractdir>/<schema major>/<owner>/` level of before is gone: no reader looks for it,
+no install writes it, and nothing reads both (no fallback, no alias, no dual install). The schema version is read
+from the documents (a manifest's `schemaMajor`, a data file's `$schema`), never from a path.
+
 ```
-<contractdir>/<schema major>/<package>/
+<contractdir>/<package>/
     MANIFEST.json
     <file>.json ...            any depth; a kernel file sits under kernels/
 ```
 
-- `contractdir` is a variable of `omx-contract.pc`: `pkg-config --variable=contractdir omx-contract`. It names
-  the directory above the majors; a reader appends its own schema major (`3`) and reads nothing else (an owner of schema 2 under `2/` is never read), so a future
-  major installs beside this one and is never half-read.
+- `contractdir` is a variable of `omx-contract.pc`: `pkg-config --variable=contractdir omx-contract`. It names the
+  directory every owner package and every domain sits in, one level each; it has no `schema_major` beside it and a
+  reader appends nothing to it.
 - One directory per package. The owner is the path, two packages never ship one file, and a package's files leave
   with it.
+- **One name, one directory.** An owner package and the domain of the same name (omx-clap's package and its `omx-clap`
+  domain, plugin-db and plugin-db, plugin-hostd-protocol and plugin-hostd-protocol; and a package-named directory of
+  nested domains, plugin-hostd's, #199) share `<contractdir>/<name>/`:
+
+  ```
+  <contractdir>/<name>/
+      MANIFEST.json              the owner package: its manifest, the only file that marks a package
+      <name>.json                the domain <name>: its document, the only file that marks a domain
+      catalogs/<lang>.json       the domain's catalogs
+      <file>.json ...            the owner's data files, each listed by MANIFEST.json
+      <nested>/<nested>.json     a nested domain <name>/<nested>, with its own catalogs/
+  ```
+
+  The reader tells them apart by those two names alone: a directory holding `MANIFEST.json` is the package `<name>`,
+  one holding `<name>.json` the domain `<name>`, one holding both is both, and a subdirectory holding its own
+  `<sub>/<sub>.json` that the manifest does not list is a nested domain, no file of the package. The package's
+  present files are checked against its manifest less those: the domain's document and catalogs and each nested
+  domain's tree. Refused by name, nothing returned:
+  - an owner data file named `<name>.json` (the manifest lists it): it would be the domain document's place
+    (`contract.manifest.mismatch`, naming the file and the domain);
+  - an owner data file under `catalogs/` beside a domain document: that is the domain's (`contract.manifest.mismatch`);
+  - an owner data file under a nested domain's directory (`contract.manifest.mismatch`, naming the nested domain);
+  - two owners in one directory: a manifest whose `package` is not the directory's name (`contract.manifest.invalid`),
+    or a domain document beside a manifest whose `info.x-owner` is not that package (`contract.manifest.mismatch`):
+    a domain named like a package is that package's;
+  - a directory with neither `MANIFEST.json` nor `<name>.json` (`contract.manifest.absent`);
+  - a directory named by a number (`3/`), the schema-major level of before: `contract.schema.major`, naming it; it is
+    not read.
 - `MANIFEST.json`, written at install, is the list of the package's files and their hashes:
 
   ```json
-  { "package": "omx-dsp", "version": "0.25.0", "schemaMajor": 3, "tree": "data",
+  { "package": "omx-dsp", "version": "0.25.0", "schemaMajor": 0, "tree": "data",
     "files": { "kernels/eq.json": "<sha256 hex of the installed bytes>" } }
   ```
 
   A domain-only owner, a package whose contract is only domains (plugin-hostd-protocol's `plugin-hostd`, omx-clap's
-  `host` and `omx-clap`), installs no data file: `install-contract-dir.sh --owner <package> <version> <schema major>
-  <contractdir> <domain>...` writes its manifest with `"files": {}` and `"domains"`, the domains its contract is, each
+  `host` and `omx-clap`), installs no data file: `install-contract-dir.sh --owner <package> <version> <contractdir>
+  <domain>...` writes its manifest with `"files": {}` and `"domains"`, the domains its contract is, each
   installed by its own `--domain` call, which names the same package. The reader refuses a listed domain that is not installed
   (`contract.manifest.mismatch`), and a manifest with no file and no `domains` (`contract.manifest.invalid`): a
   plain install of a directory with no data file is still refused.
 
-  `package` is the directory's name and `schemaMajor` the major above it. `version` is the package's own version,
+  `package` is the directory's name and `schemaMajor` the major of the schema its files were installed for: a
+  manifest of another major than the reader's is refused by name (`contract.schema.major`, the manifest, its major and
+  the reader's), as a file whose `$schema` names another major is. `version` is the package's own version,
   the one a `requires` floor is compared to. `tree` (optional) is the directory of the owner's source tree the
   files were installed from: a file's reported path is `<tree>/<file>`, the path in the tree that owns it, so the
   renders cite the same file whether they read the tree or the installed copy.
 - A file name carries no version.
-- `tools/install-contract-dir.sh <package> <version> <from> <to>` installs one package: it copies every `.json`
-  under `<from>` to `<to>/<package>/`, writes `$schema` in its installed form (below) and writes the manifest. It
-  is plain shell and coreutils, so a release build runs no node. `make install` installs omx-contract's own
-  `data/` as the package `omx-contract` with it.
+- `tools/install-contract-dir.sh [-x <rel>]... <package> <version> <from> <contractdir> [<tree>]` installs one package:
+  it copies every `.json` under `<from>` to `<contractdir>/<package>/`, writes `$schema` in its installed form (below)
+  and writes the manifest, `schemaMajor` the major of the `omx-contract.schema.json` installed beside the script (in a
+  checkout, `schema/`). There is no schema-major argument: a third argument that is a number is refused as the
+  signature of before (exit 2). A reinstall removes the files its previous manifest listed and the manifest, never a
+  domain or a nested domain sharing the directory; it refuses (exit 1) a file it would install as `<package>.json`,
+  under `catalogs/` beside a domain document, or into a nested domain's directory, and a directory whose domain
+  document names another owner. It is plain shell and coreutils, so a release build runs no node. `make install`
+  installs omx-contract's own `data/` as the package `omx-contract` with it.
 - `tools/install-contract-dir.sh --domain <path>/contract.d/<domain> <contractdir> <package>` installs one domain: it
   copies the directory as it is, byte for byte, to `<contractdir>/<domain>/`: its document `<leaf>.json` and
   `catalogs/<lang>.json`, with no `$schema` rewrite and no manifest. `<package>` is the package whose build installs
@@ -296,12 +337,15 @@ OpenAPI 3.1 document is (which is JSON Schema 2020-12, the format of our shapes,
   where the binding is checked, because only the installing build knows which package will own the path; the reader
   reads a contract directory whatever installed it. The domain is the path after the last `contract.d/` component; a name whose
   segments are not `[a-z][a-z0-9-]*` is a usage error (exit 2). What the reader would refuse is refused (exit 1, the
-  file named): no `<leaf>.json`, any other file, a symlink. A subdirectory that holds its own `<its name>.json` is a
+  file named): no `<leaf>.json`, any other file, a symlink, and a directory already holding the `MANIFEST.json` of
+  another package than the document's owner. A subdirectory that holds its own `<its name>.json` is a
   nested domain: it is skipped, and installed by its own call (`formats/clap` beside `formats`); a reinstall replaces
-  the domain's own document and catalogs and never a nested domain beside them.
+  the domain's own document and catalogs and never a nested domain or an owner package's files beside them.
   A domain ships in its owner's `<pkg>-contract` subpackage (noarch rpm, deb `<pkg>-contract`); the spec's `%files`
-  names `%{omx_contract_domain_dir}/<domain>/`, the contract directory with no schema major (packaging/
-  macros.omx-contract.in, installed by omx-contract-devel beside `%{omx_contract_dir}`).
+  names `%{omx_contract_dir}/<domain>/`, and an owner package's `%{omx_contract_dir}/<owner>/`: one macro, the
+  contract directory itself (packaging/macros.omx-contract.in, installed by omx-contract-devel); there is no
+  `%{omx_contract_domain_dir}` and no `%{omx_contract_schema_major}` beside it, as `omx-contract.pc` has no
+  `schema_major`. A package and a domain sharing a name share that `%files` line.
 
 `$OMX_CONTRACT_PATH`, a `:` list of directories each standing where `contractdir` stands, replaces the pkg-config
 lookup for a developer's checkout and for a test. A release build never sets it. When two of its directories hold
@@ -322,7 +366,8 @@ one package, the first one wins.
   once, no version. There are no hand-kept floors (the devel wave 2026-11-24): every file is read by the schema installed with the
   reader, beside the packages installed with it. A file that refers to nothing has no `requires`; an empty list and a
   map of floors (the form before the devel wave 2026-11-24, refused by name) are `contract.file.invalid`.
-- An installed file's `$schema` is the URL above, whose `v<major>` is the schema major. omx-contract's own files
+- An installed file's `$schema` is the URL above, whose `v<major>` is the schema major; it is the one place a data
+  file states its major, and the reader refuses another major than its own by name (`contract.schema.major`). omx-contract's own files
   in `data/` keep their relative `$schema`; the install writes the URL in their place.
 
 ### `source`: provenance and connector
@@ -389,7 +434,7 @@ package that owns the relation declares it; the tool names none.
 
 A host's verbs (the lines of mod-host's protocol a controller sends, the replies and refusals they answer, and what
 each host owes them) are declared by the package that owns them: in an item of kind `verbs` in a file of its own
-directory, `<contractdir>/3/<package>/`, as below, or in a words item of `x-kind` `verbs` of a domain it owns. The
+directory, `<contractdir>/<package>/`, as below, or in a words item of `x-kind` `verbs` of a domain it owns. The
 protocol's verbs are the domain `plugin-hostd-protocol`, named after the package that owns it,
 `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (sorting pass V16, ruled 2026-11-23, plugin-hostd-protocol#138):
 PLUGIN_HOSTD_PROTOCOL_REPLY_CODES, PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS, PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS and
@@ -480,8 +525,10 @@ refusal stops the whole read and nothing is returned, so there is never a partia
    words of a `oneOf` (their order is their `x-code`) and the entries of an `x-from` keep the order the author gave them (the classic sort of a `terms` item's terms has no counterpart: a domain document
    has no `terms` item).
    A catalog is not rewritten by `fmt`.
-2. Read every `<package>/MANIFEST.json`, then every file it lists, checking each hash. A file on disk that the
-   manifest does not list is refused too.
+2. Read every `<package>/MANIFEST.json` directly under the directory (a manifest of another `schemaMajor` than the
+   reader's is refused), then every file it lists, checking each hash. A file on disk that the manifest does not list
+   is refused too, less the domain document, catalogs and nested domains sharing the directory ("One name, one
+   directory").
 3. Check each file's `$schema` major and that its `requires` is a list of names (never a map of floors), then validate the file against the schema and the kernel-file shape. A plugin descriptor
    ([descriptors.md](descriptors.md)) of origin `scanned` is refused here; any other is held to the schema and then
    to its own rules, each refused by its own code. A descriptor declares no item.
@@ -507,9 +554,9 @@ codes). A word's `x-name` is its key, its `const` the code and its place from 0 
 |---|---|
 | `contract.dir.absent` | No directory found, or the one named does not exist. |
 | `contract.manifest.absent` | A package directory without `MANIFEST.json`. |
-| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package or major than its place; a domain document whose `$id`, `info.version`, `info.x-owner`, `info.x-stability` or `info.x-requires` is wrong. |
-| `contract.manifest.mismatch` | A listed file missing, a file present but unlisted, or a hash that differs. |
-| `contract.schema.major` | A file's `$schema` major is not the reader's, or `$schema` is not the installed form. |
+| `contract.manifest.invalid` | A manifest that is not JSON, lacks a field, or names another package than its directory; a domain document whose `$id`, `info.version`, `info.x-owner`, `info.x-stability` or `info.x-requires` is wrong. |
+| `contract.manifest.mismatch` | A listed file missing, a file present but unlisted, or a hash that differs; an owner file in a domain's place (`<name>.json`, `catalogs/`, a nested domain), or a domain beside a manifest of another owner. |
+| `contract.schema.major` | A file's `$schema` major or a manifest's `schemaMajor` is not the reader's, `$schema` is not the installed form, or a directory is named by a number (the schema-major level of before 2026-11-25). |
 | `contract.schema.too-old` | Not raised since the devel wave 2026-11-24 (no schema floor is read); kept so no later code moves. |
 | `contract.schema.floor-absent` | Not raised since the devel wave 2026-11-24 (a file states no schema floor); kept so no later code moves. |
 | `contract.file.not-json` | A file that does not parse. |

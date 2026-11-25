@@ -69,9 +69,10 @@ test('versions: the newest debian/changelog entry is dated strictly after the on
 test('versions: npm publishes from publish.yml, by OIDC with no token', () => {
   // npmjs.com's trusted publisher names exactly these: Open-Mixer/omx-contract, publish.yml, no environment
   const y = read('.github/workflows/publish.yml');
-  assert.match(y, /\n {2}publish:\n {4}if: github\.repository == '[A-Za-z0-9-]+\/omx-contract'\n/);
+  // the repository guard first (a copy of this tree never reaches npm), then the promotion's conditions (release-promote.test.mjs)
+  assert.match(y, /\n {2}publish:\n(?: {4}#.*\n)* {4}if: >-\n {6}github\.repository == '[A-Za-z0-9-]+\/omx-contract' && /);
   assert.doesNotMatch(y, /\n {4}environment:/);  // npm's entry names none: a named one would not match it
-  assert.match(y, /\n {4}permissions:\n {6}contents: read\n {6}id-token: write\n/);  // job-level, not workflow-level
+  assert.match(y, /\n {4}permissions:\n {6}contents: read\n {6}actions: read\n {6}id-token: write\n/);  // job-level, not workflow-level; actions: read for the promotion gate
   assert.match(y, /npm publish --provenance --access public/);
   assert.doesNotMatch(y, /NPM_TOKEN|NODE_AUTH_TOKEN/);
   // release.yml no longer publishes to npm: one publisher, the one npmjs.com trusts

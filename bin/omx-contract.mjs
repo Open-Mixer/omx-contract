@@ -28,7 +28,7 @@ import { CONTRACT_CODES, ContractRefusal, refuse } from '../lib/codes.mjs';
 import { SCHEMA_MAJOR, contractVersion, installedSchemaUrl, loadContractDir } from '../lib/contract-dir.mjs';
 import { FILE_KEYS, KERNEL_SECTIONS, entriesOf, SIDE_FILES, isKernelFile, kernelDocOf, loadData, packageVersion, resolveData, TREE_DOMAINS } from '../lib/data.mjs';
 import { domainCheckReport } from '../lib/domain-check.mjs';
-import { domainDataFiles, domainLeaf, readDomain, requiresNames } from '../lib/domain.mjs';
+import { domainDataFiles, domainLeaf, domainPath, readDomain, requiresNames } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
 import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
@@ -123,15 +123,18 @@ function load(argv) {
   // the data files the domains were made from, beside the files still in data/ (docs/render.md): one read, unchanged
   // renders; --with-domain repeats, so two domains of one owner (an item of one naming an item of the other) read as one
   const texts = Object.fromEntries(loadData(dir).files.map((f) => [f.rel, f.text]));
+  // a rebuilt file's provenance is its domain's document, as the --installed form names it (omx-contract#241)
+  const sources = {};
   for (const { name, doc: raw } of withDomains.map(domainArg)) {
     readDomain(name, raw, installedSchemaUrl(SCHEMA_MAJOR), SCHEMA_MAJOR);
     for (const [file, text] of Object.entries(domainDataFiles(name, raw))) {
       const rel = `${basename(dir)}/${file}`; // the place the file had in the data directory, as loadData names it
       if (rel in texts) throw new Usage(`${rel} is in ${dir} and rebuilt from the domain ${name}: one source per file`);
       texts[rel] = text;
+      sources[rel] = `contract.d/${domainPath(name)}`;
     }
   }
-  return loadData(dir, texts);
+  return loadData(dir, texts, sources);
 }
 
 /**

@@ -5,12 +5,17 @@ name: Publish to npm
 # Publishes @openmixer/omx-contract to npmjs.org by npm trusted publishing (OIDC, no token anywhere). npmjs.com
 # trusts the CALLER of the publish by repository + workflow filename (+ environment when one is set there; none is), so:
 #   Repository: Open-Mixer/omx-contract    Workflow filename: publish.yml    Environment: (none)
-# A version tag publishes; a manual dispatch is a dry run unless asked otherwise. Only the public repository
-# publishes: a tag on any other copy of this tree stops before npm.
+# npm follows the promotion, never the bare tag (owner ruling 2026-11-24: npm latest at the promotion). A v* tag runs
+# release.yml, whose promote job makes the staged build the release; this workflow runs when that run completes and
+# publishes only when it was a tag push of this repository, concluded success, and every job of its promote call read
+# success: a refused promotion (a tag not on main, an incomplete staged tree) publishes nothing. It checks out the
+# tag's commit, never the default branch the run event starts on. A manual dispatch is a dry run unless asked
+# otherwise. Only the public repository publishes.
 
 on:
-  push:
-    tags: ['v*']
+  workflow_run:
+    workflows: [release]
+    types: [completed]
   workflow_dispatch:
     inputs:
       dry-run:
@@ -23,15 +28,47 @@ permissions:
 
 jobs:
   publish:
-    if: github.repository == 'Open-Mixer/omx-contract'
+    # a dispatch (dry run by default), or a release run of a v* tag push here that concluded success
+    if: >-
+      github.repository == 'Open-Mixer/omx-contract' && (github.event_name == 'workflow_dispatch' || (
+        github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+        && startsWith(github.event.workflow_run.head_branch, 'v')
+        && github.event.workflow_run.head_repository.full_name == github.repository))
     runs-on: ubuntu-latest
     # job-level: a workflow-level id-token grant does not reliably reach the job, and without the token npm never
     # attempts the OIDC exchange and fails with ENEEDAUTH
     permissions:
       contents: read
+      actions: read
       id-token: write
+    env:
+      # the tag and its commit: the release run's for a promotion, the dispatched ref's for a dry run
+      TAG: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref_name }}
+      SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
     steps:
+      # read before anything is checked out: the promotion itself, job by job, not only the run's conclusion
+      - name: The release run promoted the tag
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$RUN/jobs" --jq '.jobs[] | [.name, (.conclusion // "none")] | @tsv' > jobs.tsv
+          cat jobs.tsv
+          promote=$(grep -c '^promote / ' jobs.tsv || true)
+          [ "$promote" -gt 0 ] || { echo "::error::release run $RUN of $TAG has no promote job: nothing was promoted, npm is not published"; exit 1; }
+          # only a dry-run-only job of the promotion ("..., nothing is published": the unsigned trees) may be skipped on a
+          # tag; every other promote job must succeed, a skipped install check or release gate included
+          bad=$(grep '^promote / ' jobs.tsv | awk -F'\t' '$2 != "success" && !($2 == "skipped" && $1 ~ /, nothing is published$/)' || true)
+          [ -z "$bad" ] || { echo "::error::the promotion of $TAG did not succeed, npm is not published:"; echo "$bad"; exit 1; }
+          # the jobs that put the release in the channel each succeeded: none of them skipped
+          for job in 'Promote the RPMs' 'Promote the DEBs' 'The channel serves the same bytes' 'GitHub release'; do
+            grep -qxF "promote / $job"$'\t'success jobs.tsv || { echo "::error::the promotion of $TAG has no successful '$job', npm is not published"; exit 1; }
+          done
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SHA }}
       - uses: actions/setup-node@v4
         with:
           node-version: 26
@@ -53,10 +90,10 @@ jobs:
           python3 -m pip install --user -r tools/shapes-requirements.txt -c tools/shapes-constraints.txt
           npm test
       - name: The tag is the package version
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'workflow_run'
         run: |
           v=$(node -p "require('./package.json').version")
-          [ "${GITHUB_REF_NAME}" = "v$v" ] || { echo "tag ${GITHUB_REF_NAME} is not v$v"; exit 1; }
+          [ "$TAG" = "v$v" ] || { echo "::error::tag $TAG is not v$v"; exit 1; }
       - name: Publish @openmixer/omx-contract
         env:
           DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run && '--dry-run' || '' }}

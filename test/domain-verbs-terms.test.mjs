@@ -35,7 +35,7 @@ const drop = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !==
 function itemOf(it, file) {
   const head = { description: it.doc, 'x-since': it.since, 'x-why': it.why, 'x-kind': it.kind, 'x-file': file };
   if (it.kind === 'codes') {
-    return drop({ ...head, oneOf: Object.entries(it.codes).map(([k, c], i) => drop({ const: c.code, title: k, description: c.doc, 'x-code': i, 'x-text': c.text?.en, 'x-args': c.args, 'x-name': k, 'x-resp': c.resp, 'x-transient': c.transient })) });
+    return drop({ ...head, oneOf: Object.entries(it.codes).map(([k, c], i) => drop({ const: c.code, title: k, description: c.doc, 'x-code': i, 'x-text': c.text?.en, 'x-args': c.args, 'x-name': k, 'x-resp': c.resp, 'x-transient': c.transient, 'x-leaves-no-mark': c.leavesNoMark })) });
   }
   if (it.kind === 'verbs') {
     return drop({ ...head, oneOf: Object.entries(it.verbs).map(([k, v], i) => drop({ const: v.verb, title: k, description: v.doc, 'x-code': i, 'x-format': v.format, 'x-reply': v.reply, 'x-codes': v.codes, 'x-implemented-by': v.implementedBy, 'x-since': v.since })) });
@@ -110,6 +110,24 @@ test('a verb reads as the data form\'s verb; a reply code keeps its resp and tra
   const rebuilt = JSON.parse(domainDataFiles('plugin-hostd', doc)['verbs.json']);
   assert.deepEqual(rebuilt.PLUGIN_HOSTD_REPLY_CODES.codes.workerSpawn, src.PLUGIN_HOSTD_REPLY_CODES.codes.workerSpawn);
   assert.equal(rebuilt.PLUGIN_HOSTD_REPLY_CODES.codes.workerSpawn.transient, true);
+});
+
+test('a reply code keeps its leavesNoMark: x-leaves-no-mark (3.23.0) is the data form\'s leavesNoMark', () => {
+  const src = data('verbs.json');
+  const codes = src.PLUGIN_HOSTD_REPLY_CODES.codes;
+  const [key] = Object.keys(codes).filter((k) => codes[k].resp !== undefined && !codes[k].transient);
+  const marked = { ...src, PLUGIN_HOSTD_REPLY_CODES: { ...src.PLUGIN_HOSTD_REPLY_CODES, codes: { ...codes, [key]: { ...codes[key], leavesNoMark: true } } } };
+  const doc = domainOf('plugin-hostd', marked, 'verbs.json');
+  const word = doc.components.schemas.PLUGIN_HOSTD_REPLY_CODES.oneOf.find((w) => w.title === key);
+  assert.equal(word['x-leaves-no-mark'], true);
+  const rebuilt = JSON.parse(domainDataFiles('plugin-hostd', doc)['verbs.json']);
+  assert.equal(rebuilt.PLUGIN_HOSTD_REPLY_CODES.codes[key].leavesNoMark, true);
+  assert.deepEqual(rebuilt.PLUGIN_HOSTD_REPLY_CODES.codes[key], marked.PLUGIN_HOSTD_REPLY_CODES.codes[key]);
+  const { doc: classic } = read('plugin-hostd', doc);
+  assert.equal(classic.PLUGIN_HOSTD_REPLY_CODES.codes[key].leavesNoMark, true);
+  // refused by name: not a boolean, and on a word that is no code
+  assert.match(refusal('plugin-hostd', 'verbs.json', 'verbs.json', (s) => { s.PLUGIN_HOSTD_REPLY_CODES.oneOf[0]['x-leaves-no-mark'] = 'yes'; }), /x-leaves-no-mark is not true or false/);
+  assert.match(refusal('plugin-hostd', 'verbs.json', 'verbs.json', (s) => { s.PLUGIN_HOSTD_PROTOCOL_EXTENSIONS.oneOf[0]['x-leaves-no-mark'] = true; }), /x-leaves-no-mark.*only a code/);
 });
 
 test('a terms item reads as the data form\'s terms item', () => {

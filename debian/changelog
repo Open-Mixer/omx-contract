@@ -1,3 +1,11 @@
+omx-contract (3.23.0) unstable; urgency=medium
+
+  * 3.23.0 (#252): a descriptor control may state its filter's response, a
+    word of PARAM_FILTER_RESPONSES, a new words item of the param domain
+    (#208); omx-dsp's EQ design reads its section kinds from it.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Wed, 25 Nov 2026 12:00:00 +0000
+
 omx-contract (3.22.0) unstable; urgency=medium
 
   * The unit codes of org.openmixer.param-contract/1 (OMX_PARAM_CONTRACT_UNITS,

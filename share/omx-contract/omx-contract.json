@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/omx-contract",
-  "version": "3.22.0",
+  "version": "3.23.0",
   "items": {
     "STANDARD_SAMPLE_RATES": {
       "rel": "data/rates.json",

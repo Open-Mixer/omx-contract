@@ -16,7 +16,8 @@
 # share/omx-contract readers under their module names) in the interpreter's site-packages (RPM) or dist-packages (deb),
 # shown as /SITE with the bytecode left out; the C loader's two arch-dependent packages (libomx-domain, libomx-domain-devel; deb libomx-domain0, libomx-domain-dev) the library, and
 # its two headers, libomx-domain.pc, the ABI list and the omx-domain command. No file is in two packages, and the command, the development package and
-# each pack require omx-contract-data at their own version. Prints each package's list; exit 0 equal, 1 a difference, 2 usage.
+# each pack require omx-contract-data at their own version; the command requires node with no version and recommends
+# pkg-config; the build gave exactly these packages. Prints each package's list; exit 0 equal, 1 a difference, 2 usage.
 set -eu
 
 kind=${1-} dir=${2-}
@@ -138,5 +139,27 @@ for pkg in "$cli" "$devel" $packs; do
     dpkg-deb -f "$f" Depends | tr ',' '\n' | sed 's/^ *//' | grep -qx "$data (= $v)" || { echo "$pkg: does not depend on $data (= $v)"; bad=1; }
   fi
 done
-[ "$bad" -eq 0 ] && echo "package-files.sh: every file in its package; $cli and $devel require $data"
+# the command runs on node with no version (the code runs on every node the releases carry, bookworm's 18 included; a
+# floor above a release's node makes the package uninstallable there), and recommends pkg-config, which --installed
+# reads the contract directory through
+f=$(pkgfile "$cli")
+if [ "$kind" = rpm ]; then
+  rpm -qp --requires "$f" | grep -qx nodejs || { echo "$cli: does not require nodejs, with no version"; bad=1; }
+  ! rpm -qp --requires "$f" | grep -q '^nodejs ' || { echo "$cli: requires nodejs at a version"; bad=1; }
+  rpm -qp --recommends "$f" | grep -qx /usr/bin/pkg-config || { echo "$cli: does not recommend /usr/bin/pkg-config"; bad=1; }
+else
+  dpkg-deb -f "$f" Depends | tr ',' '\n' | sed 's/^ *//' | grep -qx nodejs || { echo "$cli: does not depend on nodejs, with no version"; bad=1; }
+  dpkg-deb -f "$f" Recommends | grep -Eq '(^|[ ,|])pkg-?conf' || { echo "$cli: does not recommend pkg-config"; bad=1; }
+fi
+# the build gave these packages and no other (the debug packages of the arch-dependent ones aside): a package added to
+# the spec or the control and never checked here is named
+for f in "$dir"/*."$kind"; do
+  case $f in *.src.rpm) continue ;; esac
+  if [ "$kind" = rpm ]; then n=$(rpm -qp --qf '%{NAME}' "$f"); else n=$(dpkg-deb -f "$f" Package); fi
+  case $n in *-debuginfo|*-debugsource|*-dbgsym) continue ;; esac
+  echo "$n"
+done | LC_ALL=C sort > "$tmp/built"
+for pkg in "$data" "$devel" "$cli" "$py" "$dlib" "$ddev" $packs; do echo "$pkg"; done | LC_ALL=C sort > "$tmp/checked"
+diff -u "$tmp/checked" "$tmp/built" || { echo "the packages built are not the ones this check holds (- checked, + built)"; bad=1; }
+[ "$bad" -eq 0 ] && echo "package-files.sh: every file in its package; $cli and $devel require $data; the command needs node with no version"
 exit "$bad"

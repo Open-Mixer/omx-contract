@@ -82,70 +82,18 @@ test('versions: npm publishes from publish.yml, by OIDC with no token', () => {
 // A consumer names the contract with no version and builds against the release installed beside it (the devel wave 2026-11-24: no
 // hand-kept floor); a package description that says it pins an exact version, or a floor, describes a rule no
 // consumer keeps (FreeMixer/omx-contract#108).
-test('packaging: the -devel and -dev descriptions say a consumer names it with no version, never an exact one or a floor', () => {
-  for (const f of ['packaging/omx-contract.spec', 'debian/control']) {
-    const text = read(f).split('%changelog')[0];
-    assert.doesNotMatch(text, /exactly the version/, `${f} says a consumer pins an exact version`);
-    assert.doesNotMatch(text, /requires it at a floor/, `${f} says a consumer requires a floor`);
-    assert.match(text.replace(/\n \.?/g, ' ').replace(/\s+/g, ' '), /names it with no version/, `${f} says a consumer names it with no version`);
-  }
-});
-
-// The omx-contract command ships in a package of its own in both formats: the RPM omx-contract and the DEB
-// omx-contract, each with the command, its CLI tree and its man page, beside the -devel / -dev package of headers and
-// data. A packaged consumer names it as a build dependency to read the union of the contract directory
-// (FreeMixer/omx-contract#99).
-test('packaging: the DEB ships the omx-contract command in its own package, as the RPM does', () => {
+// Which file lands in which package, the architecture of each, what the command needs (node, with no version) and
+// recommends (pkg-config), and that the build gave exactly the declared packages are held on the BUILT packages by
+// tools/package-files.sh in CI (test audit omx-contract row 16: the spec and control were read here as text a second
+// time). What a built package cannot show stays here: release.yml builds every package the spec and control declare.
+test('release: release.yml builds every RPM the spec declares and every DEB the control declares', () => {
   const control = read('debian/control');
-  const packages = [...control.matchAll(/^Package: (\S+)$/gm)].map((m) => m[1]);
-  const langs = JSON.parse(read('share/omx-contract/languages.json')).languages;
-  assert.deepEqual(packages.sort(), ['libomx-contract-dev', 'libomx-domain-dev', 'libomx-domain0', 'omx-contract', 'omx-contract-data', 'python3-omx-contract', ...langs.map((l) => `omx-contract-l10n-${l}`)].sort());
-  const cli = control.slice(control.indexOf('Package: omx-contract\n')).split('\n\n')[0];
-  assert.match(cli, /^Architecture: all$/m);
-  // node as the RPM requires it, with no version: the command's own code runs on every node the DEB releases carry
-  // (bookworm's 18 included), and a floor above a release's node makes the package uninstallable there
-  assert.match(cli, /^Depends: .*\bnodejs(,|$)/m, 'the command runs on node, with no version');
-  assert.match(read('packaging/omx-contract.spec'), /^Requires: nodejs$/m, 'positive control: the RPM requires node, with no version');
-  // `--installed` finds the contract directory through pkg-config: both command packages recommend it
-  assert.match(cli, /^Recommends: .*\bpkg-?conf/m, 'the DEB command recommends pkg-config');
-  assert.match(read('packaging/omx-contract.spec').split('%package devel')[0], /^Recommends: \/usr\/bin\/pkg-config$/m, 'the RPM command recommends pkg-config');
-  const rpmFiles = read('packaging/omx-contract.spec').split('%files\n')[1].split('\n\n')[0];
-  for (const p of ['%{_bindir}/omx-contract', '%{_prefix}/lib/omx-contract/', '%{_mandir}/man1/omx-contract.1*']) assert.ok(rpmFiles.includes(p), `positive control: the RPM ships ${p}`);
-  assert.deepEqual(read('debian/omx-contract.install').trim().split('\n'), ['usr/bin/omx-contract', 'usr/lib/omx-contract', 'usr/share/man/man1/omx-contract.1']);
-  assert.match(read('debian/rules'), /\$\(MAKE\) install-cli DESTDIR=\$\(CURDIR\)\/debian\/tmp /, 'the rules install the command');
-  const names = /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split('\n  deb:\n')[1])[1].trim().split(/\s+/);
-  assert.deepEqual(names.sort(), packages.sort(), 'the release builds every DEB the control declares');
-});
-
-// The files a reader reads at run time ship in omx-contract-data, a package of their own with no architecture, at the
-// paths every release installed them at; the command and the development package require it at their own version, so
-// every install pulls it in (FreeMixer/omx-contract#150). tools/package-files.sh holds the built packages to it in CI.
-test('packaging: omx-contract-data holds the run-time data, noarch in both formats, and the command and the development package require it', () => {
-  const spec = read('packaging/omx-contract.spec');
-  const control = read('debian/control');
-  const stanza = (name) => control.slice(control.indexOf(`Package: ${name}\n`)).split('\n\n')[0];
-  assert.match(spec.split('%package data')[1].split('%description')[0], /^BuildArch: noarch$/m, 'the RPM data package is noarch');
-  assert.match(spec.split('%package -n libomx-domain\n')[1].split('%description')[0], /^License:/m, 'positive control: the C loader package is read');
-  assert.doesNotMatch(spec.split('%package -n libomx-domain\n')[1].split('%description')[0], /^BuildArch:/m, 'the C loader RPM is built for its arch');
-  assert.match(stanza('libomx-domain0'), /^Architecture: any$/m);
-  assert.match(stanza('libomx-domain-dev'), /^Architecture: any$/m);
-  assert.match(stanza('omx-contract-data'), /^Architecture: all$/m);
-  // the command and the development package, at their own version, in both formats
-  assert.match(spec.split('%package')[0], /^Requires: %\{name\}-data = %\{version\}-%\{release\}$/m, 'the RPM command requires the data');
-  assert.match(spec.split('%package devel')[1].split('%description')[0], /^Requires: %\{name\}-data = %\{version\}-%\{release\}$/m, 'the RPM devel requires the data');
-  for (const p of ['omx-contract', 'libomx-contract-dev']) assert.match(stanza(p), /^Depends: .*\bomx-contract-data \(= \$\{source:Version\}\)/m, `${p} depends on the data`);
-  // one list of the run-time files, the same in both formats
-  const rpmData = spec.split('%files data\n')[1].split('\n\n')[0].split('\n').filter((l) => l.startsWith('%{_datadir}/omx-contract/')).map((l) => l.replace('%{_datadir}', 'usr/share').replace(/\/$/, ''));
-  assert.deepEqual(rpmData.sort(), read('debian/omx-contract-data.install').trim().split('\n').sort());
-  assert.ok(rpmData.includes('usr/share/omx-contract/contract.d') && rpmData.includes('usr/share/omx-contract/omx-contract.json'), 'positive control: the directory and the json render');
-  const rpmDevel = spec.split('%files devel\n')[1].split('\n\n')[0];
-  assert.doesNotMatch(rpmDevel, /^%\{_datadir\}\/omx-contract\/$/m, 'the development package no longer ships the whole share/omx-contract');
-  // the headers that need no compiler; the C loader's two (omx_domain.h, omx_contract_codes.h) are libomx-domain-dev's
-  const headers = readdirSync(join(ROOT, 'include/omxcontract')).filter((f) => f.endsWith('.h') && !['omx_domain.h', 'omx_contract_codes.h'].includes(f)).sort().map((f) => `usr/include/omxcontract/${f}`);
-  assert.deepEqual(read('debian/libomx-contract-dev.install').trim().split('\n').filter((l) => !l.startsWith('#')), [...headers, 'usr/share/omx-contract/install-contract-dir.sh', 'usr/share/omx-contract/recipes', 'usr/share/pkgconfig/omx-contract.pc']);
-  const rpmNames = /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split('\n  rpm:\n')[1])[1].trim().split(/\s+/);
+  const debs = [...control.matchAll(/^Package: (\S+)$/gm)].map((m) => m[1]);
+  assert.ok(debs.includes('omx-contract') && debs.includes('omx-contract-data'), 'positive control: the control is read');
+  const names = (job) => /binary-names: (.+)$/m.exec(read('.github/workflows/release.yml').split(`\n  ${job}:\n`)[1])[1].trim().split(/\s+/).sort();
+  assert.deepEqual(names('deb'), debs.sort(), 'the release builds every DEB the control declares');
   const packs = JSON.parse(read('share/omx-contract/languages.json')).languages.map((l) => `omx-contract-langpack-${l}`);
-  assert.deepEqual(rpmNames.sort(), ['libomx-domain', 'libomx-domain-devel', 'omx-contract', 'omx-contract-data', 'omx-contract-devel', 'python3-omx-contract', ...packs].sort(), 'the release builds every RPM the spec declares');
+  assert.deepEqual(names('rpm'), ['libomx-domain', 'libomx-domain-devel', 'omx-contract', 'omx-contract-data', 'omx-contract-devel', 'python3-omx-contract', ...packs].sort(), 'the release builds every RPM the spec declares');
 });
 
 // What the packages list, `make install` must put there: the deb's *.install is read against the staged tree (a file

@@ -1,3 +1,13 @@
+omx-contract (0.23.1) unstable; urgency=medium
+
+  * Test audit rows 9 and 16: the FreeMixer issue references are kept as
+    records, and the packaging facts are held on the built packages
+    (tools/package-files.sh). No change to the format, the schema's words
+    or the installed files; 0.23.1 because the staging channel already
+    serves 0.23.0.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Wed, 25 Nov 2026 23:30:00 +0000
+
 omx-contract (0.23.0) unstable; urgency=medium
 
   * 3.23.0 (#252): a descriptor control may state its filter's response, a

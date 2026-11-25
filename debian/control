@@ -26,7 +26,7 @@ Description: OpenMixer declarations read at run time: contract directory, schema
  .
  This package holds the files a program reads at run time: omx-contract's
  own package of the contract directory
- (/usr/share/omx-contract/contract.d/3/omx-contract/, where every owner
+ (/usr/share/omx-contract/contract.d/omx-contract/, where every owner
  installs its definitions beside it), the JSON Schema, the resolved json
  render, the vocabulary's schema fragment and the resource hints' Turtle,
  under /usr/share/omx-contract. A package that reads them at run time

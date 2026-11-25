@@ -7,7 +7,7 @@ a C compiler to check the header, and jansson (`jansson-devel`, `libjansson-dev`
 
 | RPM | deb | Holds | Needs at run time |
 |---|---|---|---|
-| omx-contract-data (noarch) | omx-contract-data (Architecture: all) | what a reader reads at run time: `/usr/share/omx-contract/contract.d/3/omx-contract/`, the JSON Schema, the resolved json render, the vocabulary's schema fragment and the resource hints' Turtle | nothing |
+| omx-contract-data (noarch) | omx-contract-data (Architecture: all) | what a reader reads at run time: `/usr/share/omx-contract/contract.d/omx-contract/`, the JSON Schema, the resolved json render, the vocabulary's schema fragment and the resource hints' Turtle | nothing |
 | omx-contract-devel | libomx-contract-dev | what a build reads: the C render under `/usr/include/omxcontract`, `omx-contract.pc`, `install-contract-dir.sh` | omx-contract-data |
 | omx-contract | omx-contract | the command, its vendored npm packages and its man page | node, omx-contract-data |
 | libomx-domain (arch) | libomx-domain0 (Architecture: any) | the C loader of a contract domain, `libomx-domain.so.0` | jansson |

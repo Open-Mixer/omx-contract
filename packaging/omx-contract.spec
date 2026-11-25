@@ -61,7 +61,7 @@ Summary: The OpenMixer declarations a reader reads at run time: contract directo
 %description data
 The files a program reads at run time to know the OpenMixer declarations:
 omx-contract's own package of the contract directory
-(share/omx-contract/contract.d/3/omx-contract/, where every owner installs its
+(share/omx-contract/contract.d/omx-contract/, where every owner installs its
 definitions beside it), the JSON Schema, the resolved json render, the
 vocabulary's schema fragment and the resource hints' Turtle, under
 share/omx-contract. A package that reads them at run time requires this one,

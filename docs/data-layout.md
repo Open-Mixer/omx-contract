@@ -22,7 +22,7 @@ data/
 
 The verbs are not here either: each package declares its own, in an item of kind `verbs` (docs/contract-dir.md "A
 package's verbs"); the hosts they name are omx-clap's `HOSTING_VERB_HOSTS` (its `data/hosting/verb-hosts.json`, sorting pass V29). The hosting codes are not here. Since 3.0.0 they are omx-clap-core's, one file per dimension in its own
-`data/hosting/`, installed as `contract.d/3/omx-clap/hosting/` (docs/hosting.md).
+`data/hosting/`, installed as `contract.d/omx-clap/hosting/` (docs/hosting.md).
 
 ## Where a new word goes
 

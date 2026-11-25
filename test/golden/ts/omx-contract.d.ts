@@ -1516,6 +1516,76 @@ export declare const PARAM_MEANINGS: {
 };
 
 /**
+ * The response of the filter a descriptor control sets (docs/descriptors.md, "Filter responses"; omx-contract#208): optional on a control, a closed list, one word per shape. omx-dsp's EQ design reads these words' codes for the section kinds it builds (omx_eq_kind, through this item's render), so a word's code is the integer a kernel reads for it and is never moved. A consumer finds an EQ's edges by these words (highpass, lowpass), never by a word in a control's name. The schema's $defs.filterResponse enum is these words in this order (tools/unit-enum.mjs).
+ * @see contract.d/param/param.json
+ */
+export declare const PARAM_FILTER_RESPONSES: {
+  readonly peaking: {
+    readonly word: "peaking";
+    readonly doc: "A peaking response, a bell: a boost or a cut around a centre frequency.";
+    readonly text: {
+      readonly en: "A peaking filter.";
+    };
+  };
+  readonly lowShelf: {
+    readonly word: "lowShelf";
+    readonly doc: "A low shelf: a boost or a cut of everything below a corner frequency.";
+    readonly text: {
+      readonly en: "A low shelf.";
+    };
+  };
+  readonly highShelf: {
+    readonly word: "highShelf";
+    readonly doc: "A high shelf: a boost or a cut of everything above a corner frequency.";
+    readonly text: {
+      readonly en: "A high shelf.";
+    };
+  };
+  readonly highpass: {
+    readonly word: "highpass";
+    readonly doc: "A high-pass: passes what is above its cutoff and cuts what is below it, an EQ's low edge.";
+    readonly text: {
+      readonly en: "A high-pass filter.";
+    };
+  };
+  readonly lowpass: {
+    readonly word: "lowpass";
+    readonly doc: "A low-pass: passes what is below its cutoff and cuts what is above it, an EQ's high edge.";
+    readonly text: {
+      readonly en: "A low-pass filter.";
+    };
+  };
+  readonly notch: {
+    readonly word: "notch";
+    readonly doc: "A notch: a narrow null at its centre frequency.";
+    readonly text: {
+      readonly en: "A notch filter.";
+    };
+  };
+  readonly bandpass: {
+    readonly word: "bandpass";
+    readonly doc: "A band-pass: passes a band around its centre frequency and cuts either side of it.";
+    readonly text: {
+      readonly en: "A band-pass filter.";
+    };
+  };
+  readonly allpass1: {
+    readonly word: "allpass1";
+    readonly doc: "A first-order all-pass: every frequency at unity gain, its phase turned around a corner frequency.";
+    readonly text: {
+      readonly en: "A first-order all-pass filter.";
+    };
+  };
+  readonly allpass2: {
+    readonly word: "allpass2";
+    readonly doc: "A second-order all-pass: every frequency at unity gain, its phase turned around a centre frequency.";
+    readonly text: {
+      readonly en: "A second-order all-pass filter.";
+    };
+  };
+};
+
+/**
  * The words of RESOURCE_KINDS, in their declared order.
  * @see data/resource-profile.json
  */
@@ -1568,3 +1638,9 @@ export declare const PARAM_UNITS_CLAP_ENCODED_WORDS: readonly ["dB", "dBFS", "ms
  * @see contract.d/param/param.json
  */
 export declare const PARAM_MEANINGS_WORDS: readonly ["gain", "threshold", "ratio", "attack", "release", "hold", "decay", "frequency", "cutoffFrequency", "resonance", "bypass", "wetDryRatio", "delay", "enabled", "range", "knee", "hysteresis", "makeup", "lookahead", "ceiling", "output", "q", "bandwidth", "slope", "width", "drive", "tone", "rate", "depth", "feedback", "spread", "predelay", "size", "damping", "lowCut", "highCut", "shift", "fine", "sync", "division", "listen", "shape", "model", "algorithm", "mode", "type", "pingpong", "amount", "number", "balance", "link", "solo", "order", "acceleration", "dispersion", "window", "unknown"];
+
+/**
+ * The words of PARAM_FILTER_RESPONSES, in their declared order.
+ * @see contract.d/param/param.json
+ */
+export declare const PARAM_FILTER_RESPONSES_WORDS: readonly ["peaking", "lowShelf", "highShelf", "highpass", "lowpass", "notch", "bandpass", "allpass1", "allpass2"];

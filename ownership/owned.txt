@@ -5,11 +5,13 @@ PARAM_UNIT_DIMENSIONS
 PARAM_UNIT_SCOPES
 PARAM_UNITS_CLAP_ENCODED
 PARAM_MEANINGS
+PARAM_FILTER_RESPONSES
 CONTRACT_CODES
 schema/omx-contract.schema.json#/else/propertyNames/anyOf/0/enum
 schema/omx-contract.schema.json#/$defs/unit/enum
 schema/omx-contract.schema.json#/$defs/descriptorUnit/anyOf/1/enum
 schema/omx-contract.schema.json#/$defs/meaning/enum
+schema/omx-contract.schema.json#/$defs/filterResponse/enum
 schema/omx-contract.schema.json#/$defs/descriptor/properties/origin/enum
 schema/omx-contract.schema.json#/$defs/extensions/propertyNames/enum
 schema/omx-contract.schema.json#/$defs/overrideTravel/properties/scale/enum

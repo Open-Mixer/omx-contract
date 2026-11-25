@@ -1,0 +1,147 @@
+{
+  "$schema": "https://openmixer.org/schema/omx-contract/v3/omx-contract.schema.json",
+  "origin": "authored",
+  "plugin": {
+    "id": "org.openmixer.eq8",
+    "format": "clap",
+    "uri": "urn:openmixer:eq8",
+    "name": "omx eq8",
+    "vendor": "openmixer",
+    "version": "0.20.0",
+    "doc": "The OpenMixer console's channel EQ, 8-band form: 8 parametric bands (bell, shelves, notch, all-pass) and a high-pass and a low-pass filter at 12 or 24 dB/oct, stereo, zero latency; every band ships off, so a racked instance is a wire.",
+    "features": ["audio-effect"]
+  },
+  "controls": [
+    {
+      "id": 0,
+      "symbol": "hpf_on",
+      "name": "HPF On",
+      "kind": "toggle",
+      "default": false,
+      "group": ["HPF"],
+      "meaning": "enabled",
+      "response": "highpass",
+      "automatable": true
+    },
+    {
+      "id": 1,
+      "symbol": "hpf_freq",
+      "name": "HPF Frequency",
+      "kind": "travel",
+      "travel": { "min": 20, "max": 1000, "step": 1, "unit": "Hz", "default": 80, "scale": "log" },
+      "group": ["HPF"],
+      "meaning": "lowCut",
+      "response": "highpass",
+      "automatable": true
+    },
+    {
+      "id": 2,
+      "symbol": "hpf_slope",
+      "name": "HPF Slope",
+      "kind": "choice",
+      "ids": ["12", "24"],
+      "labels": ["12 dB/oct", "24 dB/oct"],
+      "values": [12, 24],
+      "default": "12",
+      "group": ["HPF"],
+      "meaning": "slope",
+      "response": "highpass",
+      "automatable": true
+    },
+    {
+      "id": 3,
+      "symbol": "lpf_on",
+      "name": "LPF On",
+      "kind": "toggle",
+      "default": false,
+      "group": ["LPF"],
+      "meaning": "enabled",
+      "response": "lowpass",
+      "automatable": true
+    },
+    {
+      "id": 4,
+      "symbol": "lpf_freq",
+      "name": "LPF Frequency",
+      "kind": "travel",
+      "travel": { "min": 1000, "max": 20000, "step": 1, "unit": "Hz", "default": 18000, "scale": "log" },
+      "group": ["LPF"],
+      "meaning": "highCut",
+      "response": "lowpass",
+      "automatable": true
+    },
+    {
+      "id": 5,
+      "symbol": "lpf_slope",
+      "name": "LPF Slope",
+      "kind": "choice",
+      "ids": ["12", "24"],
+      "labels": ["12 dB/oct", "24 dB/oct"],
+      "values": [12, 24],
+      "default": "12",
+      "group": ["LPF"],
+      "meaning": "slope",
+      "response": "lowpass",
+      "automatable": true
+    },
+    {
+      "id": 6,
+      "symbol": "b1_type",
+      "name": "Band 1 Type",
+      "kind": "choice",
+      "ids": ["0", "1", "2", "3", "4", "5"],
+      "labels": ["Bell", "Low Shelf", "High Shelf", "Notch", "All-pass 1st", "All-pass 2nd"],
+      "values": [0, 1, 2, 3, 4, 5],
+      "default": "1",
+      "group": ["Bands", "Band 1"],
+      "meaning": "type",
+      "automatable": true
+    },
+    {
+      "id": 7,
+      "symbol": "b1_freq",
+      "name": "Band 1 Frequency",
+      "kind": "travel",
+      "travel": { "min": 20, "max": 20000, "step": 1, "unit": "Hz", "default": 31.5, "scale": "log" },
+      "group": ["Bands", "Band 1"],
+      "meaning": "frequency",
+      "automatable": true
+    },
+    {
+      "id": 8,
+      "symbol": "b1_gain",
+      "name": "Band 1 Gain",
+      "kind": "travel",
+      "travel": { "min": -15, "max": 15, "step": 0, "unit": "dB", "default": 0, "scale": "linear" },
+      "group": ["Bands", "Band 1"],
+      "meaning": "gain",
+      "automatable": true
+    },
+    {
+      "id": 9,
+      "symbol": "b1_q",
+      "name": "Band 1 Q",
+      "kind": "travel",
+      "travel": { "min": 0.3, "max": 116, "step": 0, "unit": "none", "default": 1, "scale": "linear" },
+      "group": ["Bands", "Band 1"],
+      "meaning": "q",
+      "automatable": true
+    },
+    {
+      "id": 10,
+      "symbol": "b1_on",
+      "name": "Band 1 On",
+      "kind": "toggle",
+      "default": false,
+      "group": ["Bands", "Band 1"],
+      "meaning": "enabled",
+      "automatable": true
+    }
+  ],
+  "ports": [
+    { "id": 0, "name": "in", "kind": "audio", "direction": "in", "role": "main", "channels": 2, "layout": "stereo" },
+    { "id": 0, "name": "out", "kind": "audio", "direction": "out", "role": "main", "channels": 2, "layout": "stereo" }
+  ],
+  "latency": { "reports": true, "frames": 0 },
+  "source": { "impl": "plugins/omx-eq8/omx_eq8_clap.c#clap_entry" }
+}

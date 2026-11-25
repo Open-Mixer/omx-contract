@@ -4,6 +4,12 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- ADDED: a descriptor control may state its filter's `response` (#208), a word of `PARAM_FILTER_RESPONSES`, a new
+  words item of the `param` domain: `peaking`, `lowShelf`, `highShelf`, `highpass`, `lowpass`, `notch`, `bandpass`,
+  `allpass1`, `allpass2`, the section kinds omx-dsp's EQ design builds, which reads their codes from this item (its
+  BIQUAD_KINDS copy goes, omx-dsp#170). Optional; the schema's `$defs.filterResponse` is its
+  render (tools/unit-enum.mjs). A consumer finds an EQ's edges by `highpass` and `lowpass` in any language, never by a
+  name word. `examples/descriptors/authored-omx-eq8.json` states them on omx-eq8's HPF and LPF controls.
 - FIXED: the RPM and deb CLI tree (`<clidir>`) installs `examples/descriptors/`, which its package.json exports (#250):
   a consumer resolving `@openmixer/omx-contract/examples/descriptors/<file>` against the installed package finds them.
 - FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package

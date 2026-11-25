@@ -60,6 +60,17 @@
     "verbHostUnknown",
     "wordUnknown"
   ],
+  "PARAM_FILTER_RESPONSES": [
+    "allpass1",
+    "allpass2",
+    "bandpass",
+    "highShelf",
+    "highpass",
+    "lowShelf",
+    "lowpass",
+    "notch",
+    "peaking"
+  ],
   "PARAM_MEANINGS": [
     "acceleration",
     "algorithm",
@@ -334,6 +345,17 @@
   "schema/omx-contract.schema.json#/$defs/extensions/propertyNames/enum": [
     "clap",
     "lv2"
+  ],
+  "schema/omx-contract.schema.json#/$defs/filterResponse/enum": [
+    "allpass1",
+    "allpass2",
+    "bandpass",
+    "highShelf",
+    "highpass",
+    "lowShelf",
+    "lowpass",
+    "notch",
+    "peaking"
   ],
   "schema/omx-contract.schema.json#/$defs/formatMap/properties/format/enum": [
     "clap",

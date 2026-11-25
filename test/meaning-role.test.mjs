@@ -30,7 +30,7 @@ test('bandwidth is a role apart from q, and unknown is the last word', () => {
 });
 
 test('every example descriptor states a meaning on every control', () => {
-  for (const name of ['authored-omx-delay.json', 'built-wrapped-synth.json', 'scanned-clap-unknown.json', 'scanned-lv2-compressor.json']) {
+  for (const name of ['authored-omx-delay.json', 'authored-omx-eq8.json', 'built-wrapped-synth.json', 'scanned-clap-unknown.json', 'scanned-lv2-compressor.json']) {
     const doc = example(name);
     assert.deepEqual(problemsOf(doc), [], name);
     for (const c of doc.controls) assert.ok(typeof c.meaning === 'string', `${name}: control ${c.id} has no meaning`);

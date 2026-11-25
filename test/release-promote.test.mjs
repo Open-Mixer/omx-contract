@@ -76,7 +76,7 @@ test('release.yml: a dispatch builds staged (the quick set by default, full on r
 
 // each arm is a release.yml a careless edit could leave; each must be named
 const ARMS = [
-  ['the rpm build back on the tag', (t) => t.replace("  rpm:\n    # the build path: a dispatch, never a tag (a tag promotes what this staged)\n    if: github.event_name == 'workflow_dispatch' && inputs.version == ''\n", "  rpm:\n    if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'\n"), /rpm: builds on a tag/],
+  ['the rpm build back on the tag', (t) => t.replace(/( {2}rpm:\n {4}# the build path:[^\n]*\n) {4}if: [^\n]*\n/, "$1    if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'\n"), /rpm: builds on a tag/],
   ['the deb build publishing on the tag', (t) => t.replace(/(\n {2}deb:\n[\s\S]*?) {6}publish: false\n/, "$1      publish: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}\n"), /deb: publish is not false/],
   ['the promote job gone', (t) => t.replace(/\n {2}promote:\n[\s\S]*?\n {2}pack:\n/, '\n  pack:\n'), /promote: no job calls promote-staged/],
   ['full by default', (t) => t.replace('        default: quick\n', '        default: full\n'), /does not default to quick/],

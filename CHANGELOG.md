@@ -7,6 +7,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 - ADDED: a reply code's `x-leaves-no-mark` in the domain format is the data form's `leavesNoMark` (#248): a domain that
   owns its reply codes (plugin-hostd-protocol's) states a refusal that leaves no mark on the plugin, as `x-transient`
   states a transient one. Not a boolean, or on a word that is no code, is refused by name.
+- CHANGED: the package is 3.23.0 (#252): the changes since 3.22.0 are MINOR (#208), and the semver gate refuses
+  3.22.0 -> 3.22.0 as a none bump. x-since stays 3.22.0 on what v3.22.0 shipped.
 - ADDED: a descriptor control may state its filter's `response` (#208), a word of `PARAM_FILTER_RESPONSES`, a new
   words item of the `param` domain: `peaking`, `lowShelf`, `highShelf`, `highpass`, `lowpass`, `notch`, `bandpass`,
   `allpass1`, `allpass2`, the section kinds omx-dsp's EQ design builds, which reads their codes from this item (its

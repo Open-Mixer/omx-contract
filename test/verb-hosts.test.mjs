@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, loadContractDir } from '../lib/contract-dir.mjs';
+import { loadContractDir } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
@@ -38,10 +38,10 @@ const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.
 /** A contract directory: omx-contract's data/ and param domain, the verbs fixture, and with `hosting` omx-clap's hosting files. */
 function dir(hosting) {
   const root = join(SCRATCH, `cd-${n++}`);
-  sh('-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data');
+  sh('-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data');
   installParamDomain(root);
-  sh('verbs-fixture', '1.0.0', String(SCHEMA_MAJOR), VERBS, root, 'data');
-  if (hosting) sh('omx-clap', '0.34.0', String(SCHEMA_MAJOR), hosting, root, 'data');
+  sh('verbs-fixture', '1.0.0', VERBS, root, 'data');
+  if (hosting) sh('omx-clap', '0.34.0', hosting, root, 'data');
   return root;
 }
 
@@ -97,7 +97,7 @@ test('the verbs render refuses by name a read with verbs and no HOSTING_VERB_HOS
 
 test('the fixture read takes the hosts from omx-clap\'s item and renders the committed omx_host_verbs.h', () => {
   const root = dir(HOSTING);
-  assert.ok(existsSync(join(root, String(SCHEMA_MAJOR), 'omx-clap/hosting/verb-hosts.json')), 'installed as 3/omx-clap/hosting/verb-hosts.json');
+  assert.ok(existsSync(join(root, 'omx-clap/hosting/verb-hosts.json')), 'installed as 3/omx-clap/hosting/verb-hosts.json');
   const data = loadContractDir({ dir: root });
   assert.equal(data.items.get(ITEM).pkg, 'omx-clap');
   const whole = renderC(resolveData(data)).find((f) => f.path === 'omxcontract/omx_host_verbs.h');

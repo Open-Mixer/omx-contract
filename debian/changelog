@@ -1,4 +1,4 @@
-omx-contract (3.23.0) unstable; urgency=medium
+omx-contract (0.23.0) unstable; urgency=medium
 
   * 3.23.0 (#252): a descriptor control may state its filter's response, a
     word of PARAM_FILTER_RESPONSES, a new words item of the param domain

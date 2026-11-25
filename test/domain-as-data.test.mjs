@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import test from 'node:test';
 import { ROOT, VERB_HOSTS_FIXTURE, provenanceNaming, provenanceTo } from './helpers.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/hosting-data');
 const CLI = join(ROOT, 'bin/omx-contract.mjs');
@@ -34,7 +35,7 @@ function toDomain(dir) {
       schemas[name] = s;
     }
   }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', info: { title: 'The hosting codes', version: '0.33.1', 'x-owner': 'omx-clap', 'x-stability': 'experimental' }, 'x-render': render, 'x-file': renderFile, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', 'x-omx-contract': CONTRACT_FORMAT, info: { title: 'The hosting codes', version: '0.33.1', 'x-owner': 'omx-clap', 'x-stability': 'experimental' }, 'x-render': render, 'x-file': renderFile, components: { schemas } };
 }
 
 function scratch() {

@@ -22,7 +22,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
 import { domainDataFiles, readDomain } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
 import { packageVersion } from '../lib/data.mjs';
@@ -77,7 +77,7 @@ function termsDomain(dir, name, owner) {
   }
   const at = join(SCRATCH, 'terms/contract.d', name);
   mkdirSync(at, { recursive: true });
-  writeFileSync(join(at, `${name}.json`), JSON.stringify({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://openmixer.org/contract/${name}`, info: { title: `The ${name} terms`, version: '1.0.0', 'x-owner': owner, 'x-stability': 'experimental' }, components: { schemas } }));
+  writeFileSync(join(at, `${name}.json`), JSON.stringify({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT, info: { title: `The ${name} terms`, version: '1.0.0', 'x-owner': owner, 'x-stability': 'experimental' }, components: { schemas } }));
   return at;
 }
 
@@ -88,7 +88,7 @@ function termsDomain(dir, name, owner) {
 const CONTRACT_DIR = join(SCRATCH, 'contract-dir');
 {
   const sh = join(ROOT, 'tools/install-contract-dir.sh');
-  execFileSync('sh', [sh, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, CONTRACT_DIR, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [sh, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, CONTRACT_DIR, 'data'], { stdio: 'ignore' });
   execFileSync('sh', [sh, '--domain', join(ROOT, 'contract.d/contract'), CONTRACT_DIR, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
   installParamDomain(CONTRACT_DIR);
   for (const d of [termsDomain(LV2_TERMS, 'lv2', 'plugin-db'), termsDomain(CLAP_TERMS, 'clap', 'omx-clap')]) execFileSync('sh', [sh, '--domain', d, CONTRACT_DIR, domainOwner(d)], { stdio: 'ignore' });

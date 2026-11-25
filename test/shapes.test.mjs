@@ -175,7 +175,7 @@ test('a oneOf of enum words renders its words, and a bad word inside a oneOf is 
 
 test('two shapes that share a title are refused by both files, since their macros would be defined twice', () => {
   const dir = treeWith(travel());
-  writeFileSync(join(dir, 'shapes/other.schema.json'), JSON.stringify({ ...travel(), $id: 'https://openmixer.org/schema/omx-contract/v3/shapes/other.schema.json', title: 'Other' }, null, 2));
+  writeFileSync(join(dir, 'shapes/other.schema.json'), JSON.stringify({ ...travel(), $id: 'https://openmixer.org/schema/omx-contract/v0/shapes/other.schema.json', title: 'Other' }, null, 2));
   const r = cli(['render', '--target', 'c', '--shapes', '--out', join(dir, 'include'), '--shapes-dir', join(dir, 'shapes')]);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /travel\.schema\.json: titles at \/\$defs\/ScaleMap: the title ScaleMap renders the same macros as ScaleMap of shapes\/other\.schema\.json/);

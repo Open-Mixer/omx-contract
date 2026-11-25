@@ -19,7 +19,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
 import { domainDataFiles, readDomain } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
 import { fileProblems } from '../lib/validate.mjs';
@@ -55,7 +55,7 @@ function domainOf(name, doc, file) {
   const extra = requires ?? [];
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: `https://openmixer.org/contract/${name}`,
+    $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT,
     info: { title: `The ${name} sample`, version: '1.0.0', 'x-owner': name, 'x-stability': 'experimental', ...(extra.length ? { 'x-requires': extra } : {}) },
     components: { schemas: Object.fromEntries(Object.entries(items).map(([k, it]) => [k, itemOf(it, file)])) },
   };

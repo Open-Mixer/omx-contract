@@ -33,7 +33,7 @@ More than one package writes or reads a hosting code (the qualifier in its verdi
 adapter in their refusals, the console when it renders them), so every one of them is declared once, by the CLAP
 core: omx-clap-core's own `data/hosting/`, one file per dimension (`HOSTING_STABILITY_CODES`,
 `HOSTING_RT_SAFETY_CODES`, `HOSTING_TOPOLOGY_CODES` and the rest, with `HOSTING_REALISED_CODES` for what the console
-did with a verdict), installed as `contract.d/3/omx-clap/hosting/`. omx-contract declared them in its own
+did with a verdict), installed as `contract.d/omx-clap/hosting/`. omx-contract declared them in its own
 `data/hosting/` until 2.20.0; 3.0.0 moved the 16 files to omx-clap-core byte for byte and holds no hosting code. Each
 code's name is the operator-facing key a consumer reads it by, unique across the files. omx-clap-core renders them
 with `omx-contract render --target c|ts --package omx-clap` (docs/render.md), as `omx_clap_vocabulary.h`

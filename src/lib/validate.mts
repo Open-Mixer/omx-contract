@@ -27,7 +27,7 @@ import { fromDifference, fromDifferences } from './word-from.mjs';
 
 const SCHEMA = JSON.parse(readFileSync(new URL('../schema/omx-contract.schema.json', import.meta.url), 'utf8'));
 /** The version of the schema's vocabulary (`x-omx-schema-version`), the version of the installed schema every file is read by. */
-export const SCHEMA_VERSION = SCHEMA['x-omx-schema-version'];
+export { SCHEMA_VERSION } from './format.mjs';
 let compiled;
 /**
  * The kernel-file shape (2.0.0), which the item schema cannot see: only the four sections at the top; every control

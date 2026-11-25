@@ -328,7 +328,7 @@ static void make_domain(const char *name, const char *id, const char *version) {
   }
   mkdir(path, 0700);
   const char *stem = strrchr(name, '/') ? strrchr(name, '/') + 1 : name;
-  snprintf(doc, sizeof doc, "{\"$id\":\"%s\",\"info\":{\"version\":\"%s\",\"x-owner\":\"o\",\"x-stability\":\"experimental\"},\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", id, version);
+  snprintf(doc, sizeof doc, "{\"$id\":\"%s\",\"x-omx-contract\":\"0.23\",\"info\":{\"version\":\"%s\",\"x-owner\":\"o\",\"x-stability\":\"experimental\"},\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", id, version);
   snprintf(path, sizeof path, "%s/%s/%s.json", scratch, name, stem);
   put_file(path, doc);
 }
@@ -338,7 +338,7 @@ static void make_domain_info(const char *name, const char *info) {
   char path[4096], doc[1024];
   snprintf(path, sizeof path, "%s/%s", scratch, name);
   mkdir(path, 0700);
-  snprintf(doc, sizeof doc, "{\"$id\":\"https://openmixer.org/contract/%s\",\"info\":%s,\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", name, info);
+  snprintf(doc, sizeof doc, "{\"$id\":\"https://openmixer.org/contract/%s\",\"x-omx-contract\":\"0.23\",\"info\":%s,\"components\":{\"schemas\":{\"DOM_W\":{\"oneOf\":[{\"const\":\"a\",\"title\":\"A\",\"description\":\"d\",\"x-code\":0}]}}}}", name, info);
   snprintf(path, sizeof path, "%s/%s/%s.json", scratch, name, name);
   put_file(path, doc);
 }
@@ -474,7 +474,7 @@ static void make_doc(const char *info, const char *schemas) {
   char path[600], doc[4096];
   snprintf(path, sizeof path, "%s/dom", scratch);
   mkdir(path, 0700);
-  snprintf(doc, sizeof doc, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":%s,\"components\":{\"schemas\":%s}}", info, schemas);
+  snprintf(doc, sizeof doc, "{\"$id\":\"https://openmixer.org/contract/dom\",\"x-omx-contract\":\"0.23\",\"info\":%s,\"components\":{\"schemas\":%s}}", info, schemas);
   snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
   put_file(path, doc);
 }
@@ -769,7 +769,7 @@ static void test_document_shape_refused(void) {
   make_domain("dom", "https://openmixer.org/contract/dom", "1.0.0");
   char path[600];
   snprintf(path, sizeof path, "%s/dom/dom.json", scratch);
-  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"components\":{\"schemas\":{}}}");
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"x-omx-contract\":\"0.23\",\"components\":{\"schemas\":{}}}");
   CHECK(open_scratch("dom", NULL, &d, &err) == MAN);
   CHECK(strstr(err.message, "info.version") != NULL);
   put_file(path, "{\"info\":" INFO_OK ",\"components\":{\"schemas\":{}}}");
@@ -777,12 +777,12 @@ static void test_document_shape_refused(void) {
   CHECK(strstr(err.message, "(absent)") != NULL);
   put_file(path, "{\"$id\":7,\"info\":" INFO_OK ",\"components\":{\"schemas\":{}}}");
   CHECK(open_scratch("dom", NULL, &d, &err) == OMX_CONTRACT_CODE_MANIFEST_INVALID);
-  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":" INFO_OK "}"); /* no components */
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"x-omx-contract\":\"0.23\",\"info\":" INFO_OK "}"); /* no components */
   CHECK(open_scratch("dom", NULL, &d, &err) == bad);
   CHECK(strstr(err.message, "schemas") != NULL);
-  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":" INFO_OK ",\"components\":{\"schemas\":[]}}");
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"x-omx-contract\":\"0.23\",\"info\":" INFO_OK ",\"components\":{\"schemas\":[]}}");
   CHECK(open_scratch("dom", NULL, &d, &err) == bad);
-  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"info\":" INFO_OK ",\"components\":[]}");
+  put_file(path, "{\"$id\":\"https://openmixer.org/contract/dom\",\"x-omx-contract\":\"0.23\",\"info\":" INFO_OK ",\"components\":[]}");
   CHECK(open_scratch("dom", NULL, &d, &err) == bad);
   drop_scratch();
 }

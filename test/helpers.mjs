@@ -5,7 +5,6 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
 import { controlGlobal, isKernelFile, isUse, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { renderC } from '../render/c.mjs';
@@ -190,7 +189,7 @@ export const VERB_HOSTS_FIXTURE = join(ROOT, 'test/fixtures/hosting-verb-hosts')
 
 /** Installs the verb hosts fixture into the contract directory `root` as omx-clap's, at 3/omx-clap/hosting/verb-hosts.json. */
 export function installVerbHosts(root) {
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), 'omx-clap', '0.34.0', String(SCHEMA_MAJOR), VERB_HOSTS_FIXTURE, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), 'omx-clap', '0.34.0', VERB_HOSTS_FIXTURE, root, 'data'], { stdio: 'ignore' });
 }
 
 /**

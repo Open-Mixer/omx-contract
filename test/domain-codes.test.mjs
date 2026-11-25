@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
-import { loadContractDir } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, loadContractDir } from '../lib/contract-dir.mjs';
 import { ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-codes-'));
@@ -23,7 +23,7 @@ const words = (list) => list.map(([title, c], i) => ({ const: c, title, 'x-code'
 function domain(name, schemas) {
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: `https://openmixer.org/contract/${name}`,
+    $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT,
     info: { title: `The ${name} vocabulary`, version: '1.0.0', 'x-owner': 'some-owner', 'x-stability': 'experimental' },
     components: { schemas: Object.fromEntries(Object.entries(schemas).map(([item, s]) => [item, { description: `The ${item}.`, ...(s.mark ?? {}), oneOf: words(s.words) }])) },
   };

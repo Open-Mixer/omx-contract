@@ -97,8 +97,10 @@ jobs:
       - run: npm test
       - name: The bump covers every change since the previous tag
         run: |
-          prev=$(git tag --list 'v*' --sort=-v:refname --merged HEAD | grep -vx "v$(node -p 'require("./package.json").version')" | head -1)
-          if [ -n "$prev" ]; then node bin/omx-contract.mjs semver "$prev"; else echo "first release: no previous tag"; fi
+          # the newest tag of package.json's major (tools/previous-tag.sh): a tag of another major is never the previous release
+          version=$(node -p 'require("./package.json").version')
+          prev=$(sh tools/previous-tag.sh "$version") || exit 1
+          if [ -n "$prev" ]; then node bin/omx-contract.mjs semver "$prev"; else echo "first release of v${version%%.*}: no previous tag of its major"; fi
 
   rpm:
     # the build path: a dispatch or a merge to devel (staged by the shared workflow), never a tag (a tag promotes what this staged)

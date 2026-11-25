@@ -13,7 +13,7 @@ import { dirname, join, relative } from 'node:path';
 import { test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { ContractRefusal } from '../lib/codes.mjs';
-import { loadContractDir } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, loadContractDir } from '../lib/contract-dir.mjs';
 import { ROOT, scratchDir } from './helpers.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/hosting-data');
@@ -34,7 +34,7 @@ function hostingDomain(keep = () => true) {
     description: it.doc, 'x-since': '1.0.0', ...(it.source === undefined ? {} : { 'x-source': it.source }),
     oneOf: Object.entries(it.codes).map(([key, c], i) => ({ const: c.code, title: key, ...(c.doc === undefined ? {} : { description: c.doc }), 'x-code': i, ...(c.text?.en === undefined ? {} : { 'x-text': c.text.en }), 'x-name': key })),
   }]));
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', info: { title: 'The hosting codes', version: '1.0.0', 'x-owner': 'omx-clap', 'x-stability': 'experimental' }, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/hosting', 'x-omx-contract': CONTRACT_FORMAT, info: { title: 'The hosting codes', version: '1.0.0', 'x-owner': 'omx-clap', 'x-stability': 'experimental' }, components: { schemas } };
 }
 
 /** `doc` installed as omx-clap installs its domain (install-contract-dir.sh --domain); the contract directory. */

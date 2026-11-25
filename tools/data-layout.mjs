@@ -38,7 +38,7 @@ export function layoutProblems(files) {
     const codesItems = items.filter(([, it]) => it.kind === 'codes');
     if (items.some(([, it]) => it.kind === 'terms')) say('a terms item in data/ (the format terms are their owners\' domains: plugin-db\'s lv2, omx-clap\'s clap)');
     if (rel.startsWith('hosting/')) {
-      say('the hosting codes are omx-clap-core\'s (contract.d/3/omx-clap/hosting/), never omx-contract\'s');
+      say('the hosting codes are omx-clap-core\'s (contract.d/omx-clap/hosting/), never omx-contract\'s');
     } else if (rel.startsWith('formats/')) {
       say('the format terms are plugin-db\'s lv2 domain and omx-clap\'s clap domain (sorting pass V27a/V27b), never omx-contract\'s');
     } else if (Object.hasOwn(TOP, rel)) {

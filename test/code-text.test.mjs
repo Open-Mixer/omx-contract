@@ -6,10 +6,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { atLeast } from '../lib/contract-dir.mjs';
 import { loadData } from '../lib/data.mjs';
 import { classify } from '../lib/semver.mjs';
-import { SCHEMA_VERSION, fileProblems, validateData } from '../lib/validate.mjs';
+import { fileProblems, validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { renderJson } from '../render/json.mjs';
 import { DATA, contractCodesDoc, resolvedOf, texts } from './helpers.mjs';
@@ -85,8 +84,7 @@ test('semver: a text added to a code is MINOR, reworded PATCH, an arg changed MA
   assert.equal(lvl((c) => { c.args = ['dir']; c.text = { en: '{dir}' }; }), 'major');
 });
 
-test('this repo\'s own codes (the contract domain, CONTRACT_CODES) all carry their source sentence and nothing else, validating against omx-contract >= 3.12.0', () => {
-  assert.ok(atLeast(SCHEMA_VERSION, '3.12.0'), `this schema is ${SCHEMA_VERSION}`);
+test('this repo\'s own codes (the contract domain, CONTRACT_CODES) all carry their source sentence and nothing else, against this schema (no schema floor: the devel wave 2026-11-24)', () => {
   const doc = contractCodesDoc();
   assert.deepEqual(fileProblems({ rel: 'contract.d/contract/contract.json', text: '', doc }), []);
   const codes = doc.CONTRACT_CODES.codes;

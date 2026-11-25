@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
 import { entriesOf, isDescriptor, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { PARAM_SCALE_IDS } from '../lib/descriptor.mjs';
 import { fileProblems } from '../lib/validate.mjs';
@@ -45,9 +45,9 @@ let n = 0;
 /** A contract directory holding omx-contract's data/ as the install writes it and the package `pkg` holding `files`. */
 function directory(files, pkg = 'omx-plugins') {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
-  const dir = join(root, String(SCHEMA_MAJOR), pkg);
+  const dir = join(root, pkg);
   const listed = {};
   for (const [rel, doc] of Object.entries(files)) {
     const p = join(dir, rel);
@@ -56,7 +56,7 @@ function directory(files, pkg = 'omx-plugins') {
     writeFileSync(p, text);
     listed[rel] = sha256(Buffer.from(text));
   }
-  writeFileSync(join(dir, 'MANIFEST.json'), `${JSON.stringify({ package: pkg, version: '0.6.0', schemaMajor: SCHEMA_MAJOR, files: listed }, null, 2)}\n`);
+  writeFileSync(join(dir, 'MANIFEST.json'), `${JSON.stringify({ package: pkg, version: '0.6.0', 'x-omx-contract': CONTRACT_FORMAT, files: listed }, null, 2)}\n`);
   return root;
 }
 

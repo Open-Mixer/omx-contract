@@ -119,6 +119,9 @@ install-cli: all build-lib
 	install -m 0644 contract.d/contract/contract.json $(DESTDIR)$(CLIDIR)/contract.d/contract/
 	install -m 0644 contract.d/param/param.json $(DESTDIR)$(CLIDIR)/contract.d/param/
 	install -m 0644 package.json $(DESTDIR)$(CLIDIR)/
+	# the example descriptors package.json exports (./examples/descriptors/*): a consumer's tests resolve them here
+	install -d $(DESTDIR)$(CLIDIR)/examples/descriptors
+	install -m 0644 examples/descriptors/*.json $(DESTDIR)$(CLIDIR)/examples/descriptors/
 	for t in vendor/*.tgz; do \
 	  m=$$(basename $$t .tgz | sed 's/-[0-9][^-]*$$//'); \
 	  install -d $(DESTDIR)$(CLIDIR)/node_modules/$$m && tar -xzf $$t --no-same-owner --strip-components=1 -C $(DESTDIR)$(CLIDIR)/node_modules/$$m || exit 1; \

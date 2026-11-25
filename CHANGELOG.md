@@ -11,10 +11,32 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   nowhere (#241). The data reader takes the rebuilt files' sources beside their texts. test/domain-as-data and
   test/domain-kinds compare everything but those lines byte for byte and hold the lines to the domain document. An
   owner that commits files rendered by this form re-renders them: `render --check` reads the old lines as stale.
+- FIXED: npm follows a successful promotion (#254): publish.yml's gate let the dry-run-only promote jobs (the unsigned
+  trees, skipped on a tag) through, and asks the jobs that put the release in the channel to each succeed. v3.22.0 was
+  promoted and its npm publish refused on the skipped jobs.
+- ADDED: a reply code's `x-leaves-no-mark` in the domain format is the data form's `leavesNoMark` (#248): a domain that
+  owns its reply codes (plugin-hostd-protocol's) states a refusal that leaves no mark on the plugin, as `x-transient`
+  states a transient one. Not a boolean, or on a word that is no code, is refused by name.
+- CHANGED: the package is 3.23.0 (#252): the changes since 3.22.0 are MINOR (#208), and the semver gate refuses
+  3.22.0 -> 3.22.0 as a none bump. x-since stays 3.22.0 on what v3.22.0 shipped.
+- ADDED: a descriptor control may state its filter's `response` (#208), a word of `PARAM_FILTER_RESPONSES`, a new
+  words item of the `param` domain: `peaking`, `lowShelf`, `highShelf`, `highpass`, `lowpass`, `notch`, `bandpass`,
+  `allpass1`, `allpass2`, the section kinds omx-dsp's EQ design builds, which reads their codes from this item (its
+  BIQUAD_KINDS copy goes, omx-dsp#170). Optional; the schema's `$defs.filterResponse` is its
+  render (tools/unit-enum.mjs). A consumer finds an EQ's edges by `highpass` and `lowpass` in any language, never by a
+  name word. `examples/descriptors/authored-omx-eq8.json` states them on omx-eq8's HPF and LPF controls.
+- FIXED: the RPM and deb CLI tree (`<clidir>`) installs `examples/descriptors/`, which its package.json exports (#250):
+  a consumer resolving `@openmixer/omx-contract/examples/descriptors/<file>` against the installed package finds them.
 - FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
   <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
   do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in
   its GENERATED comment (the owner's `banner` words) and is unchanged. omx-clap re-renders its hosting codes module.
+- CHANGED: a v<version> tag PROMOTES and never builds (#230). release.yml's tag path calls Open-Mixer/.github
+  promote-staged.yml, which copies the signed files the staged build of that commit left under staging/ (rpm and deb)
+  to the channel root and creates the GitHub release; the tag's commit must be on main. The build is the dispatch
+  with staged on: the quick set by default, matrix: full for a promotion candidate (Open-Mixer/.github#274 lets a
+  staged run build full). npm follows the promotion, never the bare tag: publish.yml runs when release completes and
+  publishes only when its promote jobs all succeeded, from the tag's commit.
 - FIXED: tools/kernel-recipe.mjs is installed 0755: the deb build's lintian refused it as script-not-executable
   (a #! file shipped 0644). Every #! file under tools/ is 100755 in git, and two tests hold both.
 - FIXED: `semver <previous tag>` reads the released tree as it was released: an id spelling rule added since (a

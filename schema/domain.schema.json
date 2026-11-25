@@ -241,6 +241,7 @@
         "x-since": { "description": "The version a verb came in; the data form's since. Only on a verb.", "type": "string" },
         "x-resp": { "description": "A reply code's number, the n of resp <n>; the data form's resp. Only on a code.", "type": "integer", "maximum": -1 },
         "x-transient": { "description": "A reply code that says nothing about the plugin or the request; the data form's transient. Only on a code.", "type": "boolean" },
+        "x-leaves-no-mark": { "description": "A refusal that leaves no mark on the plugin, no verdict and no history; the data form's leavesNoMark. Only on a code.", "type": "boolean" },
         "x-name": { "description": "The code's key in the data item it rebuilds, the macro stem (docs/render.md).", "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
         "x-from": {
           "description": "What the word is taken from: a term of a terms item, or a word of a words item of another domain (or its own), by its $ref (the domain id and the item) and x-term (the term's key, or the target word's title). A package or domain other than omx-contract, the document's own and its owner is declared in info.x-requires.",

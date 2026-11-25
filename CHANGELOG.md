@@ -18,6 +18,8 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   BIQUAD_KINDS copy goes, omx-dsp#170). Optional; the schema's `$defs.filterResponse` is its
   render (tools/unit-enum.mjs). A consumer finds an EQ's edges by `highpass` and `lowpass` in any language, never by a
   name word. `examples/descriptors/authored-omx-eq8.json` states them on omx-eq8's HPF and LPF controls.
+- FIXED: the RPM and deb CLI tree (`<clidir>`) installs `examples/descriptors/`, which its package.json exports (#250):
+  a consumer resolving `@openmixer/omx-contract/examples/descriptors/<file>` against the installed package finds them.
 - FIXED: the GENERATED line of a ts module that a domain's root `x-render` frames (`render --target ts --package
   <owner> --with-domain`) names the domain's document, `contract.d/<domain>/<leaf>.json`, as the module's `@see` lines
   do; it named `data/<x-file>`, the path the rebuild writes, which exists nowhere (#218). The C target names no path in

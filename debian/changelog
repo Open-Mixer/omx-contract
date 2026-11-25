@@ -1,3 +1,14 @@
+omx-contract (0.23.2) unstable; urgency=medium
+
+  * tools/consumer-drift.mjs: every consumer's use of the install interface
+    (the installer's arguments, the rpm macros, the pkg-config variables)
+    read at its devel head and held to this tree; ci.yml's consumer-drift
+    job is red on the drift a change makes (#262). No change to the
+    installed files; 0.23.2 because the staging channel already serves
+    0.23.1.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 26 Nov 2026 00:30:00 +0000
+
 omx-contract (0.23.1) unstable; urgency=medium
 
   * Test audit rows 9 and 16: the FreeMixer issue references are kept as

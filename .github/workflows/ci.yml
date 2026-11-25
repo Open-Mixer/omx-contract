@@ -36,6 +36,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Open-Mixer/.github/.github/actions/deps-render@openmixer-v1
 
+  # every consumer's use of the install interface (the installer's arguments, the rpm macros, the pkg-config variables),
+  # read at its devel head (tools/consumers.txt) and held to this head: the drift THIS change makes is red, each finding
+  # naming the consumer, the file and the line (#262: 0.23 dropped the installer's schema-major argument and nine
+  # consumers still passed it). A consumer already behind devel is counted on the last line, never judged here.
+  consumer-drift:
+    name: no consumer's install interface breaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      # lib/ (the entry point's isMain) is built, as every tool here reads it
+      - run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          node tools/consumer-drift.mjs --base origin/devel
+
   # the cells the import and package jobs run: check-matrix's answer (Fedora 45 alone; the quick set while a release wave
   # is open, the whole matrix declared here otherwise)
   checks:
@@ -132,8 +153,14 @@ jobs:
         name: What this change is to a consumer (semver against the last tag, the schema included); the release holds the bump to it
         run: |
           git fetch --tags --force origin
-          tag=$(git tag --list 'v[0-9]*' --sort=-v:refname | head -n 1)
-          test -n "$tag"
+          # the previous release of package.json's major (tools/previous-tag.sh, as release.yml reads it): a tag of
+          # another major is never compared, and the first release of a major has nothing to compare with
+          version=$(node -p 'require("./package.json").version')
+          tag=$(sh tools/previous-tag.sh "$version") || exit 1
+          if [ -z "$tag" ]; then
+            echo "first release of v${version%%.*}: no previous tag of its major" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           node bin/omx-contract.mjs semver "$tag" --report | tee "$RUNNER_TEMP/semver.txt"
           { echo "### Changes since $tag"; echo '```'; cat "$RUNNER_TEMP/semver.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           # the schema's version moves with the schema, in the change, since consumers' floors are read against it

@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/contract",
   "info": {
     "title": "The refusal codes of the contract directory",
-    "version": "1.2.0",
+    "version": "0.23.0",
     "x-owner": "omx-contract",
     "x-stability": "experimental"
   },
@@ -11,7 +11,7 @@
     "schemas": {
       "CONTRACT_CODES": {
         "description": "The refusals of the contract-directory reader and of the links check (docs/contract-dir.md), by the code a refusal is printed with. A code is never reworded.",
-        "x-since": "1.0.0",
+        "x-since": "0.23.0",
         "oneOf": [
           {
             "const": "contract.dir.absent",

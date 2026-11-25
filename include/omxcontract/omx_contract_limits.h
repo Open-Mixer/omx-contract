@@ -28,7 +28,7 @@
 
 /* Every set rendered to C, sorted by set: an enum of the ids (a named id's position, or a numeric id's number), `OMX_<SET>_COUNT` and,
  * where the set names a default, `OMX_<SET>_DEFAULT`. */
-/** How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`. (since 1.3.0) A named id's value is its position. */
+/** How a host draws a parameter: linear, logarithmic (a frequency, a time) or in discrete steps. The words omx-plugins' declarations and plugin-hostd's protocol use; a travel names its own with `scale`. (since 0.23.0) A named id's value is its position. */
 enum omx_param_scales {
   OMX_PARAM_SCALES_LINEAR = 0, ///< The id `linear`.
   OMX_PARAM_SCALES_LOG = 1, ///< The id `log`.

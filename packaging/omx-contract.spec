@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 3.23.0
+Version: 0.23.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -307,7 +307,7 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
-* Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 3.23.0-1
+* Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.0-1
 - 3.23.0 (#252): a descriptor control may state its filter's response, a word
   of PARAM_FILTER_RESPONSES, a new words item of the param domain (#208);
   omx-dsp's EQ design reads its section kinds from it.

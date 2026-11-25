@@ -4,6 +4,9 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: npm follows a successful promotion (#254): publish.yml's gate let the dry-run-only promote jobs (the unsigned
+  trees, skipped on a tag) through, and asks the jobs that put the release in the channel to each succeed. v3.22.0 was
+  promoted and its npm publish refused on the skipped jobs.
 - ADDED: a reply code's `x-leaves-no-mark` in the domain format is the data form's `leavesNoMark` (#248): a domain that
   owns its reply codes (plugin-hostd-protocol's) states a refusal that leaves no mark on the plugin, as `x-transient`
   states a transient one. Not a boolean, or on a word that is no code, is refused by name.

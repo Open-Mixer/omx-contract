@@ -136,10 +136,16 @@ test('publish.yml: npm runs on release completing, never on the tag, and asks fo
 });
 
 test('a refused promotion leaves npm untouched: the gate stops on a failed, skipped or missing promote job', () => {
-  const ok = 'check\tsuccess\npromote / Find the staged build\tsuccess\npromote / Publish\tsuccess\npack\tsuccess\n';
-  assert.equal(gate(ok), 0, 'positive control: a promotion whose jobs all succeeded publishes');
+  // the jobs of a real tag run (omx-contract v3.22.0, run 45524728510): the dry-run-only unsigned trees are skipped
+  const ok = ['check\tsuccess', 'promote / Find the staged build\tsuccess', 'promote / Assemble the unsigned RPM tree, nothing is published\tskipped',
+    'promote / Assemble the unsigned DEB tree, nothing is published\tskipped', 'promote / Promote the RPMs\tsuccess', 'promote / Promote the DEBs\tsuccess',
+    'promote / The channel serves the same bytes\tsuccess', 'promote / Install check (fc45, x86_64)\tsuccess', 'promote / Release gate\tsuccess',
+    'promote / GitHub release\tsuccess', 'pack\tsuccess', ''].join('\n');
+  assert.equal(gate(ok), 0, 'positive control: a promotion whose publishing jobs succeeded, its dry-run-only trees skipped, publishes');
   assert.equal(gate(ok.replace('promote / Find the staged build\tsuccess', 'promote / Find the staged build\tfailure')), 1, 'a refused promotion (the staged tree incomplete)');
-  assert.equal(gate(ok.replace('promote / Publish\tsuccess', 'promote / Publish\tskipped')), 1, 'a promotion that never published');
+  assert.equal(gate(ok.replace('promote / Promote the DEBs\tsuccess', 'promote / Promote the DEBs\tskipped')), 1, 'a promotion that never published the DEBs');
+  assert.equal(gate(ok.replace('promote / GitHub release\tsuccess\n', '')), 1, 'a promotion with no GitHub release job');
+  assert.equal(gate(ok.replace('promote / Install check (fc45, x86_64)\tsuccess', 'promote / Install check (fc45, x86_64)\tcancelled')), 1, 'a cancelled install check');
   assert.equal(gate('check\tfailure\npack\tsuccess\n'), 1, 'no promote job ran (the tag not on main stops check)');
 });
 

@@ -20,7 +20,7 @@ export function renderJson(resolved, version) {
   const doc = { name: '@openmixer/omx-contract', version, items };
   if (resolved.kernels) doc.kernels = resolved.kernels;
   const files = [{ path: 'omx-contract.json', text: `${JSON.stringify(doc, null, 2)}\n` }];
-  const vocabulary = renderVocabularySchema(resolved, version);
+  const vocabulary = renderVocabularySchema(resolved);
   if (vocabulary) files.push({ path: 'omx-vocabulary.schema.json', text: vocabulary });
   return files;
 }

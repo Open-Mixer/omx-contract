@@ -12,7 +12,7 @@
 /** The schema of Travel, relative to omx-contract's data directory (`pkg-config --variable=datadir omx-contract`). */
 #define OMX_SHAPE_TRAVEL_SCHEMA "shapes/travel.schema.json"
 /** The `$id` of the schema of Travel. */
-#define OMX_SHAPE_TRAVEL_ID "https://openmixer.org/schema/omx-contract/v3/shapes/travel.schema.json"
+#define OMX_SHAPE_TRAVEL_ID "https://openmixer.org/schema/omx-contract/v0/shapes/travel.schema.json"
 
 /* ScaleTravel: A travel as a descriptor states it: a scale word of PARAM_SCALES with its ends; `unknown` is served linear; a log word over a floor that is not positive is served linear. */
 /** The keys of ScaleTravel, each as X(identifier, "key"): scale, min, max, step. */

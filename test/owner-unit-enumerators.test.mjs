@@ -11,7 +11,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
-import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { DATA, ROOT, domainOwner } from './helpers.mjs';
 
@@ -30,9 +29,9 @@ const quiet = (fn) => {
 function contractDir() {
   const root = join(SCRATCH, 'dir');
   const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), ...a], { stdio: 'ignore' });
-  sh('-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data');
+  sh('-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data');
   sh('--domain', join(ROOT, 'contract.d/param'), root, domainOwner(join(ROOT, 'contract.d/param')));
-  sh('acme', '0.1.0', String(SCHEMA_MAJOR), OWNER, root, 'data');
+  sh('acme', '0.1.0', OWNER, root, 'data');
   return root;
 }
 

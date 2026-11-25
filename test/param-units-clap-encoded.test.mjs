@@ -86,17 +86,18 @@ test('sabotage: a served set that is no prefix of PARAM_UNITS is refused by name
   assert.doesNotThrow(() => encodedItem(servedIds({ db: 'dB', dbfs: 'dBFS' }, all), all));
 });
 
-test('the item first ships in 3.22.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
-  // the item first ships in 3.22.0; the domain's info.version is that or a later minor (3.23.0 adds PARAM_FILTER_RESPONSES)
-  assert.equal(doc().components.schemas[ITEM]['x-since'], '3.22.0');
-  const [maj, min] = doc().info.version.split('.').map(Number);
-  assert.ok(maj === 3 && min >= 22, `info.version ${doc().info.version} is not 3.22.0 or a later 3.x`);
+test('the item first ships in 0.1.0, and an x-since above the domain\'s info.version is refused by name (domain-x-since)', () => {
+  // the item first ships in 0.1.0, the param domain's first version: a domain's info.version is the vocabulary's own,
+  // starting at 0.1.0 (the owner's ruling of 2026-11-25), never the package's
+  assert.equal(doc().components.schemas[ITEM]['x-since'], '0.1.0');
+  const [maj] = doc().info.version.split('.').map(Number);
+  assert.ok(maj === 0, `info.version ${doc().info.version} is not a 0.x domain version`);
   // the installed domain is where validate reads x-since: a contract directory holding the param domain, as installed
   const dir = mkdtempSync(join(tmpdir(), 'omx-clap-encoded-since-'));
   try {
     const sh = (...a) => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), ...a], { stdio: 'ignore' });
     const validate = (root) => spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'validate', '--contract-dir', root], { encoding: 'utf8' });
-    for (const [name, since] of [['ok', undefined], ['above', '3.24.0']]) {
+    for (const [name, since] of [['ok', undefined], ['above', '0.24.0']]) {
       const src = join(dir, `src-${name}`, 'contract.d', 'param');
       mkdirSync(src, { recursive: true });
       const d = doc();
@@ -106,7 +107,7 @@ test('the item first ships in 3.22.0, and an x-since above the domain\'s info.ve
       sh('--domain', src, root, domainOwner(src));
       const r = validate(root);
       if (!since) assert.doesNotMatch(r.stdout + r.stderr, /domain-x-since/, r.stdout + r.stderr);
-      else assert.ok(r.stderr.includes(`param/param.json: PARAM_UNITS_CLAP_ENCODED: domain-x-since: x-since 3.24.0 is above the document's info.version ${d.info.version}`), r.stdout + r.stderr);
+      else assert.ok(r.stderr.includes(`param/param.json: PARAM_UNITS_CLAP_ENCODED: domain-x-since: x-since 0.24.0 is above the document's info.version ${d.info.version}`), r.stdout + r.stderr);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });

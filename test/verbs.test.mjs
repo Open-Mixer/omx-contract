@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
+import { loadContractDir, sha256 } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { packageVocabularyC } from '../render/vocabulary.mjs';
 import { classify, refusal } from '../lib/semver.mjs';
@@ -37,12 +37,12 @@ const quiet = (fn) => {
   try { return fn(); } finally { console.log = log; console.error = error; }
 };
 
-const install = (pkg, from, root, version = '1.0.0') => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), pkg, version, String(SCHEMA_MAJOR), from, root, 'data'], { stdio: 'ignore' });
+const install = (pkg, from, root, version = '1.0.0') => execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), pkg, version, from, root, 'data'], { stdio: 'ignore' });
 
 /** A contract directory holding omx-contract's data/ and the fixture package, each as its install writes it. */
 function installed() {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   installVerbHosts(root);
   install(PKG, FIXTURE, root);
@@ -78,7 +78,7 @@ function refusalOf(root) {
 /** The contract directory of omx-contract and the fixture with `edit` applied; `extra` installs more packages. */
 function brokenDir(edit, extra = () => {}) {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   installVerbHosts(root);
   install(PKG, fixtureWith(edit), root);
@@ -88,9 +88,9 @@ function brokenDir(edit, extra = () => {}) {
 
 test('the fixture installs into a contract directory and reads back: four verbs, their refusals resolved to the code and the resp', () => {
   const root = installed();
-  const m = JSON.parse(readFileSync(join(root, String(SCHEMA_MAJOR), PKG, 'MANIFEST.json'), 'utf8'));
+  const m = JSON.parse(readFileSync(join(root, PKG, 'MANIFEST.json'), 'utf8'));
   assert.deepEqual(Object.keys(m.files).sort(), ['errors.json', 'host-verbs.json']);
-  for (const [f, h] of Object.entries(m.files)) assert.equal(sha256(readFileSync(join(root, String(SCHEMA_MAJOR), PKG, f))), h);
+  for (const [f, h] of Object.entries(m.files)) assert.equal(sha256(readFileSync(join(root, PKG, f))), h);
   const data = loadContractDir({ dir: root });
   assert.equal(data.items.get('HOST_VERBS').pkg, PKG);
   const r = resolveData(data).get('HOST_VERBS');

@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
 import { readDomain } from '../lib/domain.mjs';
-import { loadContractDir } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, loadContractDir } from '../lib/contract-dir.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
 import { domainCodesC } from '../render/codes.mjs';
 import { DATA, ROOT } from './helpers.mjs';
@@ -33,7 +33,7 @@ function panelDomain() {
       oneOf: Object.entries(it.words).map(([key, w], i) => ({ const: w.word, title: key, description: w.doc, 'x-code': i, ...(w.text ? { 'x-text': w.text.en } : {}) })),
     };
   }
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas } };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', 'x-omx-contract': CONTRACT_FORMAT, info: { title: 'The panel vocabulary', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas } };
 }
 
 /** A contract directory holding the domain document `doc` as `<name>/<name>.json`. */
@@ -146,7 +146,7 @@ function groupedDomain() {
   const code = (list) => list.map((e, i) => ({ ...e, 'x-code': i }));
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://openmixer.org/contract/grouped',
+    $id: 'https://openmixer.org/contract/grouped', 'x-omx-contract': CONTRACT_FORMAT,
     info: { title: 'Grouped words', version: '1.0.0', 'x-owner': 'some-owner', 'x-stability': 'experimental' },
     components: {
       schemas: {
@@ -183,7 +183,7 @@ test('a group no word of the groups schema names, and a $ref that is no domain i
 test('an x-from $ref names a nested domain, dsp/kernels: read as its item, and held to info.x-requires by name', () => {
   const doc = groupedDomain();
   doc.components.schemas.GROUPED_REASONS.oneOf[1]['x-from'][0].$ref = 'https://openmixer.org/contract/dsp/kernels#/components/schemas/DSP_KERNELS_X';
-  assert.deepEqual(readDomain('grouped', doc, 'https://example.org/s.json', 3).doc.GROUPED_REASONS.words.impulse.from, ['DSP_KERNELS_X#latency']);
+  assert.deepEqual(readDomain('grouped', doc, 'https://example.org/s.json', SCHEMA_MAJOR).doc.GROUPED_REASONS.words.impulse.from, ['DSP_KERNELS_X#latency']);
   const undeclared = refusalError(dirWith(doc, 'grouped'));
   assert.equal(undeclared.code, CONTRACT_CODES.refUndeclared);
   assert.match(undeclared.message, /dsp\/kernels/);

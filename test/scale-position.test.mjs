@@ -137,7 +137,7 @@ test('the library is exported and the vectors are installed beside omx-contract.
   try {
     execFileSync('make', ['install', `DESTDIR=${dest}`, 'PREFIX=/usr'], { cwd: ROOT, stdio: 'ignore' });
     assert.deepEqual(JSON.parse(readFileSync(join(dest, 'usr/share/omx-contract/scale-vectors.json'), 'utf8')), VECTORS);
-    assert.ok(!existsSync(join(dest, 'usr/share/omx-contract/contract.d/3/omx-contract/scale-vectors.json')), 'not a declaration');
+    assert.ok(!existsSync(join(dest, 'usr/share/omx-contract/contract.d/omx-contract/scale-vectors.json')), 'not a declaration');
   } finally { rmSync(dest, { recursive: true, force: true }); }
 });
 

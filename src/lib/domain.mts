@@ -6,6 +6,7 @@
  * returns it as the classic file the rest of the tool reads (items, validation), and the items it marks for C.
  */
 import { refuse } from './codes.mjs';
+import { FORMAT } from './format.mjs';
 import type { JsonObject } from './json.mjs';
 import { placeholdersOf } from './placeholders.mjs';
 
@@ -259,6 +260,16 @@ const hintsOf = (s: JsonObject): JsonObject => ({ ...(s['x-units'] === undefined
 const hintOf = (e: JsonObject): JsonObject => ({ ...(e['x-figure-unit'] === undefined ? {} : { figureUnit: e['x-figure-unit'] }), ...(e['x-basis'] === undefined ? {} : { basis: e['x-basis'] }) });
 
 /**
+ * Refuse a document's `x-omx-contract` (a domain document's or a manifest's, at `at`) that is absent or not MAJOR.MINOR
+ * (contract.manifest.invalid), or of another MAJOR than `major` (contract.schema.major); a higher MINOR is read.
+ */
+export function formatProblem(format: unknown, major: number, at: string): void {
+  if (typeof format !== 'string' || !FORMAT.test(format)) refuse('manifestInvalid', at, `x-omx-contract ${format === undefined ? 'is absent' : `${JSON.stringify(format)} is not MAJOR.MINOR`}: a document states the omx-contract format it is written in`);
+  const m = Number((format as string).split('.')[0]);
+  if (m !== major) refuse('schemaMajor', at, `x-omx-contract ${format} is of the format major ${m}; this reader reads ${major}`);
+}
+
+/**
  * `released`: the document is a RELEASED tree's, read back as data (`semver <previous tag>` compares it with this tree).
  * A released tree passed its own release's rules; the spelling rules of ids this tree adds later (a unit id is
  * camelCase, 2026-11-23) are not held against it, or a rename the tree makes on purpose would refuse the comparison
@@ -267,7 +278,8 @@ const hintOf = (e: JsonObject): JsonObject => ({ ...(e['x-figure-unit'] === unde
 export function readDomain(name: string, doc: JsonObject, schemaUrl: string, schemaMajor: number, { released = false }: { released?: boolean } = {}): { doc: JsonObject; manifest: JsonObject; codes: DomainCodes; names: string[] } {
   const at = domainPath(name);
   if (doc.$id !== domainId(name)) refuse('manifestInvalid', at, `$id ${JSON.stringify(doc.$id)} is not ${domainId(name)}, the id of the domain whose directory this is`);
-  only(doc, ['$schema', '$id', 'info', 'components', 'x-render', 'x-file'], at, 'domain document');
+  only(doc, ['$schema', '$id', 'x-omx-contract', 'info', 'components', 'x-render', 'x-file'], at, 'domain document');
+  formatProblem(doc['x-omx-contract'], schemaMajor, at);
   if (doc.$schema !== DOMAIN_SCHEMA) refuse('fileInvalid', at, `$schema ${JSON.stringify(doc.$schema)} is not ${DOMAIN_SCHEMA}: a domain document is JSON Schema 2020-12`);
   const info = doc.info as JsonObject | undefined;
   if (typeof info !== 'object' || info === null || Array.isArray(info)) refuse('manifestInvalid', at, 'info is not an object');

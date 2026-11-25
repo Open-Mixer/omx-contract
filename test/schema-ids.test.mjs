@@ -12,6 +12,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { installedSchemaUrl, SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
 import { loadData, resolveData } from '../lib/data.mjs';
+import { renderJson } from '../render/json.mjs';
 import { renderVocabularySchema } from '../render/vocabulary.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -54,7 +55,11 @@ test('the schema a contract file names is on openmixer.org', () => {
   assert.equal(installedSchemaUrl(SCHEMA_MAJOR), `${BASE}v${SCHEMA_MAJOR}/omx-contract.schema.json`);
 });
 
-test('a rendered vocabulary schema carries the openmixer.org id, by the major version only', () => {
-  const doc = JSON.parse(renderVocabularySchema(resolveData(loadData(join(ROOT, 'data'))), '9.8.7'));
-  assert.equal(doc.$id, `${BASE}v9/omx-vocabulary.schema.json`);
+test('a rendered vocabulary schema carries the openmixer.org id, by the schema\'s major only, never the package version\'s', () => {
+  const resolved = resolveData(loadData(join(ROOT, 'data')));
+  assert.equal(JSON.parse(renderVocabularySchema(resolved)).$id, `${BASE}v${SCHEMA_MAJOR}/omx-vocabulary.schema.json`);
+  // a render under a package version of another major still names the schema's: the $id is the schema's, not the package's
+  const fragment = renderJson(resolved, '9.8.7').find((f) => f.path === 'omx-vocabulary.schema.json');
+  assert.notEqual(SCHEMA_MAJOR, 9, 'positive control: the package version below is of another major');
+  assert.equal(JSON.parse(fragment.text).$id, `${BASE}v${SCHEMA_MAJOR}/omx-vocabulary.schema.json`);
 });

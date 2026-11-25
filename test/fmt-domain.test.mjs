@@ -9,13 +9,14 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileS
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { ROOT, scratchDir } from './helpers.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 
 const cli = (...a) => spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), ...a], { encoding: 'utf8' });
 const SCRATCH = scratchDir('omx-fmt-domain-');
 
 const DOC = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://openmixer.org/contract/shade',
+  $id: 'https://openmixer.org/contract/shade', 'x-omx-contract': CONTRACT_FORMAT,
   info: { title: 'The shade vocabulary', version: '1.0.0', 'x-owner': 'omx-fixture', 'x-stability': 'experimental' },
   components: {
     schemas: {
@@ -65,6 +66,7 @@ test('fmt puts the keys of a domain document in the schema order and keeps every
   const shuffled = {
     components: { schemas: Object.fromEntries(Object.entries(DOC.components.schemas).map(([k, s]) => [k, { oneOf: s.oneOf.map((w) => Object.fromEntries(Object.entries(w).reverse())), ...Object.fromEntries(Object.entries(s).filter(([x]) => x !== 'oneOf').reverse()) }])) },
     info: Object.fromEntries(Object.entries(DOC.info).reverse()),
+    'x-omx-contract': DOC['x-omx-contract'],
     $id: DOC.$id,
     $schema: DOC.$schema,
   };

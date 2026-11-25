@@ -10,10 +10,11 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { DATA, ROOT } from './helpers.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 const PATH = 'schema/domain.schema.json';
-const ID = 'https://openmixer.org/schema/omx-contract/v3/domain.schema.json';
+const ID = 'https://openmixer.org/schema/omx-contract/v0/domain.schema.json';
 const schema = existsSync(join(ROOT, PATH)) ? JSON.parse(read(PATH)) : {};
 const validate = new Ajv2020({ allErrors: true, strict: true }).compile(existsSync(join(ROOT, PATH)) ? schema : {});
 
@@ -34,7 +35,7 @@ function domainOf(file) {
 }
 const wrap = (name, schemas) => ({
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: `https://openmixer.org/contract/${name}`,
+  $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT,
   info: { title: `The ${name} vocabulary`, version: '1.0.0', 'x-owner': 'omx-contract', 'x-stability': 'experimental' },
   components: { schemas },
 });
@@ -66,7 +67,7 @@ const breaks = {
   'no $schema': (d) => { delete d.$schema; },
   'another dialect': (d) => { d.$schema = 'http://json-schema.org/draft-07/schema#'; },
   'no $id': (d) => { delete d.$id; },
-  'a $id of the schema form': (d) => { d.$id = 'https://openmixer.org/schema/omx-contract/v3/panel.schema.json'; },
+  'a $id of the schema form': (d) => { d.$id = 'https://openmixer.org/schema/omx-contract/v0/panel.schema.json'; },
   'a $id with a fragment': (d) => { d.$id = 'https://openmixer.org/contract/panel#x'; },
   'a $id of an upper case domain': (d) => { d.$id = 'https://openmixer.org/contract/Panel'; },
   'no info': (d) => { delete d.info; },

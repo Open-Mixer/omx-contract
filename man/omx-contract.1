@@ -124,6 +124,8 @@ word or a code with no doc, naming each.
 .TP
 .B semver
 Report whether the version bump covers every change since a previous release.
+The tag is of the tree's own major: one of another major is a usage error
+(exit 2), as it is no previous release of this line.
 With
 .BR \-\-schema\-version ,
 whether the version the schema states covers its changes since that tag.

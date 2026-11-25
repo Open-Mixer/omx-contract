@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
@@ -31,10 +31,10 @@ const write = (root, rel, doc) => {
 /** A contract directory holding omx-contract's data and `omx-clap` 0.30.5 with HOST_REPLY_CODES, as an install writes them. */
 function contractDir({ clapCore = true } = {}) {
   const root = fresh('contract');
-  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [join(ROOT, 'tools/install-contract-dir.sh'), '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   installParamDomain(root);
   if (!clapCore) return root;
-  const pdir = join(root, String(SCHEMA_MAJOR), 'omx-clap');
+  const pdir = join(root, 'omx-clap');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
     HOST_REPLY_CODES: {
@@ -47,7 +47,7 @@ function contractDir({ clapCore = true } = {}) {
   });
   const files = {};
   for (const f of readdirSync(pdir)) files[f] = sha256(readFileSync(join(pdir, f)));
-  write(pdir, 'MANIFEST.json', { package: 'omx-clap', version: '0.30.5', schemaMajor: SCHEMA_MAJOR, files });
+  write(pdir, 'MANIFEST.json', { package: 'omx-clap', version: '0.30.5', 'x-omx-contract': CONTRACT_FORMAT, files });
   return root;
 }
 
@@ -101,7 +101,7 @@ const run = (tree, env = {}) => {
 // that host and green in CI. A host directory that breaks the read stands in for it here.
 test('the host\'s installed contract directory never reaches these tests', () => {
   const host = fresh('host');
-  const pdir = join(host, String(SCHEMA_MAJOR), 'host-package');
+  const pdir = join(host, 'host-package');
   write(pdir, 'verbs.json', {
     $schema: installedSchemaUrl(SCHEMA_MAJOR),
     HOST_PACKAGE_VERBS: {
@@ -109,7 +109,7 @@ test('the host\'s installed contract directory never reaches these tests', () =>
       verbs: { hostOnly: { verb: 'host_only', format: 'host_only', reply: 'resp 0', codes: [{ ref: 'HOST_REPLY_CODES.nowhere' }], implementedBy: { 'plugin-hostd': 'required' }, doc: 'a host verb' } },
     },
   });
-  write(pdir, 'MANIFEST.json', { package: 'host-package', version: '0.1.0', schemaMajor: SCHEMA_MAJOR, files: { 'verbs.json': sha256(readFileSync(join(pdir, 'verbs.json'))) } });
+  write(pdir, 'MANIFEST.json', { package: 'host-package', version: '0.1.0', 'x-omx-contract': CONTRACT_FORMAT, files: { 'verbs.json': sha256(readFileSync(join(pdir, 'verbs.json'))) } });
   const pc = fresh('pc');
   write(pc, 'omx-contract.pc', `contractdir=${host}\n\nName: omx-contract\nDescription: a host's installed contract\nVersion: ${packageVersion(ROOT)}\n`);
   const saved = { PKG_CONFIG_PATH: process.env.PKG_CONFIG_PATH, PKG_CONFIG_LIBDIR: process.env.PKG_CONFIG_LIBDIR };
@@ -149,7 +149,7 @@ test('a requirement found nowhere is refused by name: the requirement, every pla
 
 test('a requirement is a name: any installed version of it is read, no floor (the devel wave 2026-11-24)', () => {
   const dir = contractDir();
-  const m = join(dir, String(SCHEMA_MAJOR), 'omx-clap/MANIFEST.json');
+  const m = join(dir, 'omx-clap/MANIFEST.json');
   const doc = JSON.parse(readFileSync(m, 'utf8'));
   doc.version = '0.30.4';
   writeFileSync(m, JSON.stringify(doc));

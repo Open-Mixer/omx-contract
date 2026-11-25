@@ -6,7 +6,7 @@
 //      into that one package and render; one of them alone is refused, naming the item the other holds;
 //  (b) a domain whose info.x-requires names another domain may refer to that domain's items, installed or rebuilt
 //      (the conformance case valid-domain-requires-domain holds the installed read);
-//  (c) a domain-only owner: `install-contract-dir.sh --owner <package> <version> <major> <contractdir> <domain>...`
+//  (c) a domain-only owner: `install-contract-dir.sh --owner <package> <version> <contractdir> <domain>...`
 //      installs a package with no data file, its MANIFEST.json `files` empty and `domains` the domains its contract
 //      is; the reader reads it with those domains, and refuses a listed domain that is not installed; a plain install
 //      of a directory with no data file is still refused; and `render --with-domain` rebuilds an owner that is not
@@ -17,7 +17,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { DATA, installParamDomain, installVerbHosts, ROOT, domainOwner } from './helpers.mjs';
 
@@ -29,7 +29,7 @@ let n = 0;
 
 const domain = (name, title, schemas, requires) => ({
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: `https://openmixer.org/contract/${name}`,
+  $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT,
   info: { title, version: '1.0.0', 'x-owner': 'omx-owned', 'x-stability': 'experimental', ...(requires ? { 'x-requires': requires } : {}) },
   components: { schemas },
 });
@@ -60,7 +60,7 @@ function tree() {
 /** A contract directory holding omx-contract as `make install` writes it; its root. */
 function contractDir() {
   const root = join(SCRATCH, `cd-${n++}`);
-  execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), String(SCHEMA_MAJOR), DATA, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [SH, '-x', 'scale-vectors.json', 'omx-contract', packageVersion(ROOT), DATA, root, 'data'], { stdio: 'ignore' });
   execFileSync('sh', [SH, '--domain', join(ROOT, 'contract.d/contract'), root, domainOwner(join(ROOT, 'contract.d/contract'))], { stdio: 'ignore' });
   installParamDomain(root);
   installVerbHosts(root);
@@ -86,10 +86,10 @@ test('(a) render --with-domain twice: two domains of one owner rebuild into it a
 test('(c) install --owner: a package with no data file, its manifest naming its domains; read with them, refused without', () => {
   const t = tree();
   const root = contractDir();
-  const i = spawnSync('sh', [SH, '--owner', 'omx-owned', '1.0.0', String(SCHEMA_MAJOR), root, 'owned-host', 'owned'], { encoding: 'utf8' });
+  const i = spawnSync('sh', [SH, '--owner', 'omx-owned', '1.0.0', root, 'owned-host', 'owned'], { encoding: 'utf8' });
   assert.equal(i.status, 0, i.stderr);
-  const m = JSON.parse(readFileSync(join(root, String(SCHEMA_MAJOR), 'omx-owned/MANIFEST.json'), 'utf8'));
-  assert.deepEqual(m, { package: 'omx-owned', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: {}, domains: ['owned-host', 'owned'] });
+  const m = JSON.parse(readFileSync(join(root, 'omx-owned/MANIFEST.json'), 'utf8'));
+  assert.deepEqual(m, { package: 'omx-owned', version: '1.0.0', 'x-omx-contract': CONTRACT_FORMAT, files: {}, domains: ['owned-host', 'owned'] });
   const missing = cli('validate', '--contract-dir', root);
   assert.equal(missing.status, 1, 'a listed domain that is not installed is refused');
   assert.match(missing.stderr, /contract\.manifest\.mismatch.*owned-host/s);
@@ -99,7 +99,7 @@ test('(c) install --owner: a package with no data file, its manifest naming its 
   // a plain install of a directory with no data file stays refused: --owner says the package is only domains
   const empty = join(SCRATCH, `empty-${n++}`);
   mkdirSync(empty);
-  assert.equal(spawnSync('sh', [SH, 'omx-owned', '1.0.0', String(SCHEMA_MAJOR), empty, join(SCRATCH, `cd-${n++}`)]).status, 1);
+  assert.equal(spawnSync('sh', [SH, 'omx-owned', '1.0.0', empty, join(SCRATCH, `cd-${n++}`)]).status, 1);
 });
 
 test('(c) render --with-domain builds an owner that is not installed, from its domains alone', () => {
@@ -120,7 +120,7 @@ test('an installed domain\'s run-time items are absent from its owner\'s package
   const data = join(SCRATCH, `owned-data-${n++}`);
   mkdirSync(data);
   writeFileSync(join(data, 'owned.json'), `${JSON.stringify({ $schema: '../schema/omx-contract.schema.json', OWNED_MODES: { kind: 'words', since: '1.0.0', doc: 'The modes.', words: { one: { word: 'one', doc: 'One.' } } } }, null, 2)}\n`);
-  execFileSync('sh', [SH, 'omx-owned', '1.0.0', String(SCHEMA_MAJOR), data, root, 'data'], { stdio: 'ignore' });
+  execFileSync('sh', [SH, 'omx-owned', '1.0.0', data, root, 'data'], { stdio: 'ignore' });
   const run = structuredClone(HOST);
   run.components.schemas = { OWNED_HOST_RUN_WORDS: { description: 'Words read at run time.', 'x-since': '1.0.0', 'x-kind': 'words', oneOf: [{ const: 'live', title: 'live', description: 'Live.', 'x-code': 0 }] } };
   mkdirSync(join(root, 'owned-host'));

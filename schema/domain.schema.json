@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openmixer.org/schema/omx-contract/v3/domain.schema.json",
+  "$id": "https://openmixer.org/schema/omx-contract/v0/domain.schema.json",
   "title": "omx-contract domain document",
   "description": "A domain document (docs/contract-dir.md, Domains): <contractdir>/<domain>/<last segment>.json, one JSON Schema 2020-12 document of a vocabulary, its words items, range items, sheets, scalars, terms items and map items under components.schemas. GPL-3.0-or-later. What a schema cannot say stays in the reader (src/lib/domain.mts): the prefix rule (an item name starts with the domain's name in upper snake case with its underscore, and never with the prefix of a longer domain of the read); the x-code order (a word's x-code is its place in the oneOf, from 0); a title used twice in one item; x-groups naming a words item of this document and x-group a word of that item; x-dimensions and x-dimension likewise; a set's x-default being one of its words; the $id agreeing with the directory the document is in (the domain's name, a nested domain's document being <domain>/<last segment>.json); a name used by two domains; a word's x-args being exactly the placeholders of its x-text, each once (and present when the x-text has any); a map row's const being its title and the outcome and cover rules a schema states again by name; a map row's term link resolving to a term of a terms item of the map's format, which the read of all the data checks (validate, rule map-term); and x-since and x-why, which the reader does not type.",
   "type": "object",
-  "required": ["$schema", "$id", "info", "components"],
+  "required": ["$schema", "$id", "x-omx-contract", "info", "components"],
   "additionalProperties": false,
   "properties": {
     "$schema": { "const": "https://json-schema.org/draft/2020-12/schema" },
@@ -12,6 +12,11 @@
       "description": "The stable id of the domain, the URL every cross-domain reference names.",
       "type": "string",
       "pattern": "^https://openmixer\\.org/contract/[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$"
+    },
+    "x-omx-contract": {
+      "description": "The omx-contract format the document is written in, MAJOR.MINOR of the schema's x-omx-schema-version (docs/contract-dir.md, \"Domains\"), as OpenAPI's openapi field: never the domain's own version, which is info.version. A reader refuses another MAJOR than its own.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
     },
     "info": {
       "type": "object",

@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { CONTRACT_CODES } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { DATA, installParamDomain, ROOT } from './helpers.mjs';
 
@@ -47,7 +47,7 @@ function contractDir({ clapCore = true } = {}) {
   });
   const files = {};
   for (const f of readdirSync(pdir)) files[f] = sha256(readFileSync(join(pdir, f)));
-  write(pdir, 'MANIFEST.json', { package: 'omx-clap', version: '0.30.5', schemaMajor: SCHEMA_MAJOR, files });
+  write(pdir, 'MANIFEST.json', { package: 'omx-clap', version: '0.30.5', 'x-omx-contract': CONTRACT_FORMAT, files });
   return root;
 }
 
@@ -109,7 +109,7 @@ test('the host\'s installed contract directory never reaches these tests', () =>
       verbs: { hostOnly: { verb: 'host_only', format: 'host_only', reply: 'resp 0', codes: [{ ref: 'HOST_REPLY_CODES.nowhere' }], implementedBy: { 'plugin-hostd': 'required' }, doc: 'a host verb' } },
     },
   });
-  write(pdir, 'MANIFEST.json', { package: 'host-package', version: '0.1.0', schemaMajor: SCHEMA_MAJOR, files: { 'verbs.json': sha256(readFileSync(join(pdir, 'verbs.json'))) } });
+  write(pdir, 'MANIFEST.json', { package: 'host-package', version: '0.1.0', 'x-omx-contract': CONTRACT_FORMAT, files: { 'verbs.json': sha256(readFileSync(join(pdir, 'verbs.json'))) } });
   const pc = fresh('pc');
   write(pc, 'omx-contract.pc', `contractdir=${host}\n\nName: omx-contract\nDescription: a host's installed contract\nVersion: ${packageVersion(ROOT)}\n`);
   const saved = { PKG_CONFIG_PATH: process.env.PKG_CONFIG_PATH, PKG_CONFIG_LIBDIR: process.env.PKG_CONFIG_LIBDIR };

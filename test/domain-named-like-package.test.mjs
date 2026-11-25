@@ -12,7 +12,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { DATA, installParamDomain, installVerbHosts, ROOT, domainOwner } from './helpers.mjs';
 
@@ -25,7 +25,7 @@ let n = 0;
 /** The domain `owned`, version 1.0.0, owned by `owner`, holding OWNED_MODES (one word, first carried at `since`). */
 const domain = (owner = 'owned', since = '1.0.0') => ({
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://openmixer.org/contract/owned',
+  $id: 'https://openmixer.org/contract/owned', 'x-omx-contract': CONTRACT_FORMAT,
   info: { title: 'The words of the owner', version: '1.0.0', 'x-owner': owner, 'x-stability': 'experimental' },
   components: { schemas: { OWNED_MODES: { description: 'The modes.', 'x-since': since, 'x-kind': 'words', oneOf: [{ const: 'one', title: 'one', description: 'One.', 'x-code': 0 }] } } },
 });
@@ -142,7 +142,7 @@ function handPackage(root, files) {
     writeFileSync(join(dir, rel), text);
     listed[rel] = sha256(Buffer.from(text));
   }
-  writeFileSync(join(dir, 'MANIFEST.json'), `${JSON.stringify({ package: 'owned', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: listed }, null, 2)}\n`);
+  writeFileSync(join(dir, 'MANIFEST.json'), `${JSON.stringify({ package: 'owned', version: '1.0.0', 'x-omx-contract': CONTRACT_FORMAT, files: listed }, null, 2)}\n`);
 }
 const extra = { OWNED_EXTRA: { kind: 'words', since: '1.0.0', doc: 'The words.', words: { two: { word: 'two', doc: 'Two.' } } } };
 

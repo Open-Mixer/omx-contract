@@ -20,6 +20,7 @@ import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
 import { DATA, installParamDomain, ROOT, domainOwner } from './helpers.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 
 const FIX = join(ROOT, 'test/fixtures/package-strings');
 const GOLDEN = join(ROOT, 'test/golden/strings/acme_unit_ids.h');
@@ -94,7 +95,7 @@ function rootFormDomain() {
   const sheet = (it, file) => ({ description: it.doc, 'x-kind': 'sheet', 'x-file': file, 'x-value': it.value, ...(it.docs ? { 'x-docs': it.docs } : {}) });
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://openmixer.org/contract/acme-param',
+    $id: 'https://openmixer.org/contract/acme-param', 'x-omx-contract': CONTRACT_FORMAT,
     info: { title: 'The acme fixture\'s unit codes and their standard ids', version: '1.0.0', 'x-owner': 'acme', 'x-stability': 'experimental' },
     'x-render': { c: [u.render.c[0], { ...i.render.c[0], scope: 'package' }] },
     'x-file': 'acme-units.json',

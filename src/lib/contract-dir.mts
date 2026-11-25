@@ -18,13 +18,15 @@ import { verbProblems } from './verbs.mjs';
 import { roleProblems } from './role-meanings.mjs';
 import { readCatalogs } from './domain-reader.mjs';
 import { parseStrict } from './json-strict.mjs';
-import { DOMAIN_NAME, checkItemPrefixes, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain, requiresNames } from './domain.mjs';
+import { DOMAIN_NAME, checkItemPrefixes, formatProblem, domainDataFiles, domainFroms, domainLeaf, domainPath, domainRequires, readDomain, requiresNames } from './domain.mjs';
 import type { DomainCodes, DomainItems } from './domain.mjs';
 import { fromDifference, fromDifferences } from './word-from.mjs';
 import type { Json, JsonObject } from './json.mjs';
 
-/** The schema major this reader reads: a manifest's `schemaMajor` and a file's `$schema` must state it. */
+/** The schema major this reader reads: a manifest's and a domain document's `x-omx-contract` and a file's `$schema` must state it. */
 export const SCHEMA_MAJOR = Number(SCHEMA_VERSION.split('.')[0]);
+
+export { CONTRACT_FORMAT } from './format.mjs';
 
 /** The package whose files are read by the schema they ship with, and whose items every file may refer to. */
 export const SCHEMA_PACKAGE = 'omx-contract';
@@ -173,12 +175,11 @@ function readManifest(pdir, name, major) {
   let m;
   try { m = JSON.parse(readFileSync(p, 'utf8')); } catch (e) { refuse('manifestInvalid', at, `not JSON: ${(e as Error).message}`); }
   if (typeof m !== 'object' || m === null || Array.isArray(m)) refuse('manifestInvalid', at, 'not an object');
-  const known = ['package', 'version', 'schemaMajor', 'tree', 'files', 'domains'];
+  const known = ['package', 'version', 'x-omx-contract', 'tree', 'files', 'domains'];
   for (const k of Object.keys(m)) if (!known.includes(k)) refuse('manifestInvalid', at, `unknown key ${k}: a manifest holds ${known.join(', ')}`);
   if (m.package !== name) refuse('manifestInvalid', at, `names the package ${JSON.stringify(m.package)}, and sits in ${name}/`);
   if (typeof m.version !== 'string' || !VERSION.test(m.version)) refuse('manifestInvalid', at, `version ${JSON.stringify(m.version)} is not x.y.z`);
-  if (!Number.isInteger(m.schemaMajor) || m.schemaMajor < 0) refuse('manifestInvalid', at, `schemaMajor ${JSON.stringify(m.schemaMajor)} is not a schema major`);
-  if (m.schemaMajor !== major) refuse('schemaMajor', at, `the manifest states schema major ${m.schemaMajor}; this reader reads ${major}`);
+  formatProblem(m['x-omx-contract'], major, at);
   if (m.tree !== undefined && (typeof m.tree !== 'string' || !/^[A-Za-z0-9_+.-]+(\/[A-Za-z0-9_+.-]+)*$/.test(m.tree) || m.tree.split('/').includes('..'))) {
     refuse('manifestInvalid', at, `tree ${JSON.stringify(m.tree)} is not a relative directory`);
   }

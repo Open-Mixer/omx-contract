@@ -154,7 +154,8 @@ test('the package mode installs at <contractdir>/<package>/, no major level: the
   const r = run('pkg', '1.0.0', packageSource(), to);
   assert.equal(r.status, 0, r.stderr);
   assert.deepEqual(files(to), ['pkg/MANIFEST.json', 'pkg/a.json'], 'nothing under a major directory');
-  assert.equal(JSON.parse(readFileSync(join(to, 'pkg/MANIFEST.json'), 'utf8')).schemaMajor, SCHEMA_MAJOR_OF_TREE, 'the major of the schema beside the script');
+  const format = JSON.parse(readFileSync(join(ROOT, 'schema/omx-contract.schema.json'), 'utf8'))['x-omx-schema-version'].split('.').slice(0, 2).join('.');
+  assert.equal(JSON.parse(readFileSync(join(to, 'pkg/MANIFEST.json'), 'utf8'))['x-omx-contract'], format, 'the format of the schema beside the script');
   assert.ok(readFileSync(join(to, 'pkg/a.json'), 'utf8').includes(`https://openmixer.org/schema/omx-contract/v${SCHEMA_MAJOR_OF_TREE}/`));
 });
 
@@ -220,6 +221,28 @@ test('one name, one directory: an owner file in a domain\'s place and two owners
   r = run('--domain', source(), three, OWNER);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /holds the package widget, and the domain widget is owned by omx-fixture: two owners in one directory/);
+});
+
+test('--domain refuses a document that states no format, or one of another major, naming the file (x-omx-contract)', () => {
+  for (const [what, edit, says] of [
+    ['absent', (t) => t.replace(/^  "x-omx-contract": "[^"]*",\n/m, ''), /no x-omx-contract; a domain document states the omx-contract format it is written in/],
+    ['not MAJOR.MINOR', (t) => t.replace(/("x-omx-contract": )"[^"]*"/, '$1"0.23.0"'), /x-omx-contract "0\.23\.0" is not MAJOR\.MINOR/],
+    ['another major', (t) => t.replace(/("x-omx-contract": )"[^"]*"/, '$1"9.0"'), /x-omx-contract 9\.0 is of the format major 9; this omx-contract installs/],
+  ]) {
+    const from = source();
+    const doc = join(from, 'widget.json');
+    const text = readFileSync(doc, 'utf8');
+    writeFileSync(doc, edit(text));
+    assert.notEqual(readFileSync(doc, 'utf8'), text, `${what}: the sabotage landed`);
+    const to = dest();
+    const r = run('--domain', from, to, OWNER);
+    assert.equal(r.status, 1, `${what}: ${r.stderr}`);
+    assert.match(r.stderr, says, what);
+    assert.match(r.stderr, /widget\.json/, `${what}: the file is named`);
+    assert.ok(!existsSync(join(to, 'widget')), `${what}: nothing installed`);
+  }
+  // positive control: the fixture as it is states the format and installs
+  assert.equal(run('--domain', source(), dest(), OWNER).status, 0);
 });
 
 // the RPM macro (packaging/macros.omx-contract.in): a package's and a domain's %files name %{omx_contract_dir}/<name>/,

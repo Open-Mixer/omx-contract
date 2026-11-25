@@ -14,7 +14,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
 import { ROOT } from './helpers.mjs';
 
@@ -74,7 +74,7 @@ test('render --installed --with-domain: xb rebuilt into pkg-b takes its words fr
   mkdirSync(pkg, { recursive: true });
   const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), PKG_B_EXTRA: { kind: 'codes', since: '1.0.0', doc: 'A code pkg-b installs itself.', codes: { extraOne: { code: 'pkg.b.extra.one' } } } }, null, 2)}\n`;
   writeFileSync(join(pkg, 'extra.json'), text);
-  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'pkg-b', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: { 'extra.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'pkg-b', version: '1.0.0', 'x-omx-contract': CONTRACT_FORMAT, files: { 'extra.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
   const wd = join(SCRATCH, `wd-${n++}`, 'xb');
   mkdirSync(wd, { recursive: true });
   cpSync(join(FIX, 'xb/xb.json'), join(wd, 'xb.json'));

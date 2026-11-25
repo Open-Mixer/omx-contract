@@ -9,7 +9,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { loadContractDir } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, loadContractDir } from '../lib/contract-dir.mjs';
 import { ROOT } from './helpers.mjs';
 
 const SCRATCH = mkdtempSync(join(tmpdir(), 'omx-domain-check-'));
@@ -23,7 +23,7 @@ const word = (c, i) => ({ const: c, title: c, description: `The ${c}.`, 'x-code'
 function doc(version = '1.2.0', over = {}) {
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://openmixer.org/contract/pad',
+    $id: 'https://openmixer.org/contract/pad', 'x-omx-contract': CONTRACT_FORMAT,
     info: { title: 'The pad vocabulary', version, 'x-owner': 'omx-pad', 'x-stability': 'experimental' },
     components: {
       schemas: {

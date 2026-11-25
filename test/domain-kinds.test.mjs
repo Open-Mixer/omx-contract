@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { after, test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { domainDataFiles } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
 import { ROOT, provenanceNaming, provenanceTo } from './helpers.mjs';
@@ -52,7 +52,7 @@ function contractDir(doc) {
   const terms = JSON.parse(readFileSync(join(FIX, 'data/terms.json'), 'utf8'));
   const text = `${JSON.stringify({ $schema: installedSchemaUrl(SCHEMA_MAJOR), ...terms }, null, 2)}\n`;
   writeFileSync(join(pkg, 'terms.json'), text);
-  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-owner', version: '1.2.0', schemaMajor: SCHEMA_MAJOR, files: { 'terms.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-owner', version: '1.2.0', 'x-omx-contract': CONTRACT_FORMAT, files: { 'terms.json': sha256(Buffer.from(text)) } }, null, 2)}\n`);
   return root;
 }
 
@@ -221,7 +221,7 @@ function installed(files, doc) {
     writeFileSync(join(pkg, rel), text);
     hashes[rel] = sha256(Buffer.from(text));
   }
-  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-owner', version: '1.2.0', schemaMajor: SCHEMA_MAJOR, files: hashes }, null, 2)}\n`);
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-owner', version: '1.2.0', 'x-omx-contract': CONTRACT_FORMAT, files: hashes }, null, 2)}\n`);
   if (doc) {
     mkdirSync(join(root, 'kinds', 'catalogs'), { recursive: true });
     writeFileSync(join(root, 'kinds', 'kinds.json'), `${JSON.stringify(doc, null, 2)}\n`);
@@ -375,7 +375,7 @@ function twoPackages(owner, termsVersion, doc, termFiles = terms()) {
     writeFileSync(join(pkg, rel), text);
     hashes[rel] = sha256(Buffer.from(text));
   }
-  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: termsVersion, schemaMajor: SCHEMA_MAJOR, files: hashes }, null, 2)}\n`);
+  writeFileSync(join(pkg, 'MANIFEST.json'), `${JSON.stringify({ package: 'kinds-terms', version: termsVersion, 'x-omx-contract': CONTRACT_FORMAT, files: hashes }, null, 2)}\n`);
   return root;
 }
 

@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { DATA, ROOT } from './helpers.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 const PATH = 'schema/domain.schema.json';
@@ -34,7 +35,7 @@ function domainOf(file) {
 }
 const wrap = (name, schemas) => ({
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: `https://openmixer.org/contract/${name}`,
+  $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT,
   info: { title: `The ${name} vocabulary`, version: '1.0.0', 'x-owner': 'omx-contract', 'x-stability': 'experimental' },
   components: { schemas },
 });

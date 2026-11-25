@@ -17,7 +17,7 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
-import { SCHEMA_MAJOR } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT } from '../lib/contract-dir.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { DATA, installParamDomain, installVerbHosts, ROOT, domainOwner } from './helpers.mjs';
 
@@ -29,7 +29,7 @@ let n = 0;
 
 const domain = (name, title, schemas, requires) => ({
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: `https://openmixer.org/contract/${name}`,
+  $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT,
   info: { title, version: '1.0.0', 'x-owner': 'omx-owned', 'x-stability': 'experimental', ...(requires ? { 'x-requires': requires } : {}) },
   components: { schemas },
 });
@@ -89,7 +89,7 @@ test('(c) install --owner: a package with no data file, its manifest naming its 
   const i = spawnSync('sh', [SH, '--owner', 'omx-owned', '1.0.0', root, 'owned-host', 'owned'], { encoding: 'utf8' });
   assert.equal(i.status, 0, i.stderr);
   const m = JSON.parse(readFileSync(join(root, 'omx-owned/MANIFEST.json'), 'utf8'));
-  assert.deepEqual(m, { package: 'omx-owned', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, files: {}, domains: ['owned-host', 'owned'] });
+  assert.deepEqual(m, { package: 'omx-owned', version: '1.0.0', 'x-omx-contract': CONTRACT_FORMAT, files: {}, domains: ['owned-host', 'owned'] });
   const missing = cli('validate', '--contract-dir', root);
   assert.equal(missing.status, 1, 'a listed domain that is not installed is refused');
   assert.match(missing.stderr, /contract\.manifest\.mismatch.*owned-host/s);

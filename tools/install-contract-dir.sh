@@ -8,8 +8,9 @@
 #   install-contract-dir.sh --owner <package> <version> <contractdir> <domain>...
 # The contract directory has no schema-major level (owner ruling 2026-11-25): a package is <contractdir>/<package>/,
 # beside the domains, and shares <contractdir>/<name>/ with the domain of its name (docs/contract-dir.md, "One name, one
-# directory"). The schema major a manifest and an installed "$schema" state is read from the omx-contract.schema.json
-# beside this script (installed: the same directory; a checkout: ../schema/), never passed.
+# directory"). The format a manifest states ("x-omx-contract": MAJOR.MINOR) and the major of an installed "$schema" are
+# read from the omx-contract.schema.json beside this script (installed: the same directory; a checkout: ../schema/),
+# never passed; a domain document must state a format of that major.
 # Package: copies every .json under <from dir> (less each -x <rel>) to <contractdir>/<package>/, writes a relative
 # "$schema" as the schema major's URL, and writes MANIFEST.json with each file's sha256 (<tree>: its "tree"). A
 # reinstall removes the files its previous manifest listed, never a domain sharing the directory.
@@ -21,12 +22,12 @@
 # refuses a listed domain that is not installed). Exit 0 installed; 1 a refusal (a file named); 2 usage.
 set -eu
 
-# the schema major: the x-omx-schema-version of the schema installed beside this script, or of a checkout's schema/
-schema_major() {
+# the format, MAJOR.MINOR of the x-omx-schema-version of the schema installed beside this script, or of a checkout's schema/
+schema_format() {
   here=$(cd "$(dirname "$0")" && pwd)
   for s in "$here/omx-contract.schema.json" "$here/../schema/omx-contract.schema.json"; do
     [ -f "$s" ] || continue
-    m=$(sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$/\1/p' "$s")
+    m=$(sed -n 's/^  "x-omx-schema-version": "\([0-9]*\.[0-9]*\)\.[0-9]*",$/\1/p' "$s")
     [ -n "$m" ] || { echo "install-contract-dir.sh: $s states no x-omx-schema-version" >&2; exit 2; }
     echo "$m"
     return 0
@@ -75,6 +76,13 @@ if [ "$#" -gt 0 ] && [ "$1" = --domain ]; then
   [ -n "$owners" ] || refuse "$from/$leaf.json: no info.x-owner; a domain names the package that owns it"
   [ "$(printf '%s\n' "$owners" | wc -l)" -eq 1 ] || refuse "$from/$leaf.json: more than one x-owner key"
   [ "$owners" = "$pkg" ] || refuse "$from/$leaf.json: its info.x-owner is $owners, not $pkg: a package installs only the domains it owns"
+  # the format the document is written in (docs/contract-dir.md): x-omx-contract, MAJOR.MINOR of this schema's major
+  formats=$(grep -o '"x-omx-contract"[[:space:]]*:[[:space:]]*"[^"]*"' "$from/$leaf.json" | sed 's/.*"\([^"]*\)"$/\1/')
+  [ -n "$formats" ] || refuse "$from/$leaf.json: no x-omx-contract; a domain document states the omx-contract format it is written in"
+  [ "$(printf '%s\n' "$formats" | wc -l)" -eq 1 ] || refuse "$from/$leaf.json: more than one x-omx-contract key"
+  printf '%s\n' "$formats" | grep -Eqx '(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)' || refuse "$from/$leaf.json: x-omx-contract \"$formats\" is not MAJOR.MINOR"
+  format=$(schema_format)
+  [ "${formats%%.*}" = "${format%%.*}" ] || refuse "$from/$leaf.json: x-omx-contract $formats is of the format major ${formats%%.*}; this omx-contract installs ${format%%.*}"
   for e in "$from"/* "$from"/.[!.]* "$from"/..?*; do
     [ -e "$e" ] || [ -L "$e" ] || continue
     b=${e##*/}
@@ -122,7 +130,7 @@ if [ "$#" -gt 0 ] && [ "$1" = --owner ]; then
   no_major_argument "$to"
   shift 4
   case $pkg in *[!a-z0-9-]* | '' | -*) echo "install-contract-dir.sh: package $pkg is not a lower-case name" >&2; exit 2 ;; esac
-  major=$(schema_major)
+  format=$(schema_format)
   echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' || { echo "install-contract-dir.sh: version $version is not x.y.z" >&2; exit 2; }
   list='' seen=''
   for d in "$@"; do
@@ -135,7 +143,7 @@ if [ "$#" -gt 0 ] && [ "$1" = --owner ]; then
   same_owner "$to/$pkg" "$pkg"
   remove_previous "$dest"
   install -d "$dest"
-  printf '{\n  "package": "%s",\n  "version": "%s",\n  "schemaMajor": %s,\n  "files": {},\n  "domains": [%s]\n}\n' "$pkg" "$version" "$major" "$list" > "$dest/MANIFEST.json"
+  printf '{\n  "package": "%s",\n  "version": "%s",\n  "x-omx-contract": "%s",\n  "files": {},\n  "domains": [%s]\n}\n' "$pkg" "$version" "$format" "$list" > "$dest/MANIFEST.json"
   chmod 0644 "$dest/MANIFEST.json"
   echo "install-contract-dir.sh: $pkg $version: no data file, the domains$seen"
   exit 0
@@ -155,7 +163,8 @@ case $pkg in *[!a-z0-9-]* | '' | -*) echo "install-contract-dir.sh: package $pkg
 echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' || { echo "install-contract-dir.sh: version $version is not x.y.z" >&2; exit 2; }
 [ -d "$from" ] || { echo "install-contract-dir.sh: no directory $from" >&2; exit 2; }
 
-major=$(schema_major)
+format=$(schema_format)
+major=${format%%.*}
 dest=$to/$pkg
 url="https://openmixer.org/schema/omx-contract/v$major/omx-contract.schema.json"
 same_owner "$to/$pkg" "$pkg"
@@ -178,7 +187,7 @@ remove_previous "$dest"
 install -d "$dest"
 manifest="$dest/MANIFEST.json"
 {
-  printf '{\n  "package": "%s",\n  "version": "%s",\n  "schemaMajor": %s,\n' "$pkg" "$version" "$major"
+  printf '{\n  "package": "%s",\n  "version": "%s",\n  "x-omx-contract": "%s",\n' "$pkg" "$version" "$format"
   [ -z "$tree" ] || printf '  "tree": "%s",\n' "$tree"
   printf '  "files": {'
 } > "$manifest.tmp"

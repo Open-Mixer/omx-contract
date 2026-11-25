@@ -12,6 +12,7 @@
 import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { refuse } from './codes.mjs';
+import { FORMAT, FORMAT_MAJOR } from './format.mjs';
 import { parseStrict } from './json-strict.mjs';
 import { placeholdersOf } from './placeholders.mjs';
 
@@ -218,6 +219,9 @@ export function openDomainAt(dirs: string | readonly string[], domain: string, n
   const d = doc as Obj;
   const want = `${ID_PREFIX}${domain}`;
   if (d.$id !== want) refuse('manifestInvalid', rel, `${lead}: $id is "${typeof d.$id === 'string' ? d.$id : '(absent)'}", and must be "${want}".`);
+  const format = str(d, 'x-omx-contract');
+  if (format === undefined || !FORMAT.test(format)) refuse('manifestInvalid', rel, `${lead}: x-omx-contract is ${format === undefined ? '(absent)' : `"${format}"`}, and must be the omx-contract format the document is written in, MAJOR.MINOR.`);
+  if (Number(format!.split('.')[0]) !== FORMAT_MAJOR) refuse('schemaMajor', rel, `${lead}: x-omx-contract ${format} is of the format major ${format!.split('.')[0]}; this loader reads ${FORMAT_MAJOR}.`);
   const info = d.info;
   const version = str(info, 'version');
   const stability = str(info, 'x-stability');

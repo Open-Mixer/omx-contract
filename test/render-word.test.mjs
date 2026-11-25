@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
-import { SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl, sha256 } from '../lib/contract-dir.mjs';
 import { loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { validateData } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
@@ -174,7 +174,7 @@ function directory() {
   mkdirSync(dir, { recursive: true });
   // limits.json, never acme.json: <package>.json is the place of the domain of the package's name (docs/contract-dir.md)
   writeFileSync(join(dir, 'limits.json'), text);
-  writeFileSync(join(dir, 'MANIFEST.json'), JSON.stringify({ package: 'acme', version: '1.2.3', schemaMajor: SCHEMA_MAJOR, tree: 'data', files: { 'limits.json': sha256(Buffer.from(text)) } }));
+  writeFileSync(join(dir, 'MANIFEST.json'), JSON.stringify({ package: 'acme', version: '1.2.3', 'x-omx-contract': CONTRACT_FORMAT, tree: 'data', files: { 'limits.json': sha256(Buffer.from(text)) } }));
   return root;
 }
 
@@ -282,7 +282,7 @@ test('a package-scope header is cut to its package in a contract directory', () 
     writeFileSync(join(dir, r), body);
     files[r] = sha256(Buffer.from(body));
   }
-  writeFileSync(join(dir, 'MANIFEST.json'), JSON.stringify({ package: 'acme', version: '1.0.0', schemaMajor: SCHEMA_MAJOR, tree: 'data', files }));
+  writeFileSync(join(dir, 'MANIFEST.json'), JSON.stringify({ package: 'acme', version: '1.0.0', 'x-omx-contract': CONTRACT_FORMAT, tree: 'data', files }));
   const out = join(SCRATCH, `omx-${n++}`);
   assert.equal(quiet(() => main(['render', '--target', 'c', '--contract-dir', root, '--package', 'acme', '--out', out])), 0);
   const h = readFileSync(join(out, 'acme/acme_definitions.h'), 'utf8');

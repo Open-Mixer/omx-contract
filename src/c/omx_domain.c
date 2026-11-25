@@ -27,6 +27,10 @@
 #endif
 
 #define DOMAIN_ID_PREFIX "https://openmixer.org/contract/"
+/* the format major this loader reads, the schema's (docs/contract-dir.md, x-omx-contract): compiled in by the Makefile */
+#ifndef OMX_CONTRACT_FORMAT_MAJOR
+#error "OMX_CONTRACT_FORMAT_MAJOR is the schema's major (the Makefile's -DOMX_CONTRACT_FORMAT_MAJOR)"
+#endif
 
 typedef struct { char *word, *title, *description, *text, *group; int code; } word_t;
 typedef struct { char *name, *unit, *scale; double min, max, def; int has_default; } param_t;
@@ -128,6 +132,26 @@ static int parse_version(const char *s, unsigned long v[3]) {
     v[i] = n;
     if (i < 2) { if (*s != '.') return 0; s++; }
   }
+  return *s == '\0';
+}
+
+/* A format MAJOR.MINOR (x-omx-contract), each part a number with no leading zero; its MAJOR in *major. NULL is no format. */
+static int parse_format(const char *s, unsigned long *major) {
+  if (!s) return 0;
+  unsigned long v[2];
+  for (int i = 0; i < 2; i++) {
+    if (*s < '0' || *s > '9') return 0;
+    if (*s == '0' && s[1] >= '0' && s[1] <= '9') return 0;
+    unsigned long n = 0;
+    for (; *s >= '0' && *s <= '9'; s++) {
+      unsigned long digit = (unsigned long)(*s - '0');
+      if (n > (ULONG_MAX - digit) / 10) return 0;
+      n = n * 10 + digit;
+    }
+    v[i] = n;
+    if (i < 1) { if (*s != '.') return 0; s++; }
+  }
+  *major = v[0];
   return *s == '\0';
 }
 
@@ -501,6 +525,7 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   omx_domain *d = calloc(1, sizeof *d);
   if (!d) { json_decref(root); return OOM(path, domain); }
   unsigned long have[3];
+  unsigned long format_major = 0;
   const char *id = str_of(root, "$id");
   json_t *info = json_object_get(root, "info");
   const char *version = str_of(info, "version");
@@ -510,6 +535,8 @@ int omx_domain_open_at(const char *dir, const char *domain, const char *needs_ve
   if (!id_fits) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s: the $id it must carry does not fit.", domain);
   else if (!json_is_object(root)) rc = refuse(err, OMX_CONTRACT_CODE_FILE_INVALID, "The domain %s at %s is not a JSON object.", domain, path);
   else if (!id || strcmp(id, want_id) != 0) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: $id is \"%s\", and must be \"%s\".", domain, path, id ? id : "(absent)", want_id);
+  else if (!parse_format(str_of(root, "x-omx-contract"), &format_major)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: x-omx-contract is %s%s%s, and must be the omx-contract format the document is written in, MAJOR.MINOR.", domain, path, str_of(root, "x-omx-contract") ? "\"" : "", str_of(root, "x-omx-contract") ? str_of(root, "x-omx-contract") : "(absent)", str_of(root, "x-omx-contract") ? "\"" : "");
+  else if (format_major != (unsigned long)OMX_CONTRACT_FORMAT_MAJOR) rc = refuse(err, OMX_CONTRACT_CODE_SCHEMA_MAJOR, "The domain %s at %s: x-omx-contract %s is of the format major %lu; this loader reads %d.", domain, path, str_of(root, "x-omx-contract"), format_major, OMX_CONTRACT_FORMAT_MAJOR);
   else if (!version || !parse_version(version, have)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s has no info.version of the form x.y.z.", domain, path);
   else if (!str_of(info, "x-owner") || !*str_of(info, "x-owner")) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s has no info.x-owner.", domain, path);
   else if (!stability || (strcmp(stability, "experimental") != 0 && strcmp(stability, "stable") != 0)) rc = refuse(err, OMX_CONTRACT_CODE_MANIFEST_INVALID, "The domain %s at %s: info.x-stability is %s%s%s, and must be \"experimental\" or \"stable\".", domain, path, stability ? "\"" : "", stability ? stability : "(absent)", stability ? "\"" : "");

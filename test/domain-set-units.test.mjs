@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
 import { domainDataFiles, readDomain } from '../lib/domain.mjs';
 import { ROOT } from './helpers.mjs';
 
@@ -24,7 +24,7 @@ function sample() {
   const units = BEFORE.PARAM_UNITS;
   return {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://openmixer.org/contract/sample',
+    $id: 'https://openmixer.org/contract/sample', 'x-omx-contract': CONTRACT_FORMAT,
     info: { title: 'A sample of a set and a unit list', version: '1.0.0', 'x-owner': 'sample', 'x-stability': 'experimental' },
     components: {
       schemas: {

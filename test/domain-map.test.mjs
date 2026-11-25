@@ -22,7 +22,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
-import { SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, installedSchemaUrl } from '../lib/contract-dir.mjs';
 import { domainDataFiles, readDomain } from '../lib/domain.mjs';
 import { openDomainAt } from '../lib/domain-reader.mjs';
 import { packageVersion } from '../lib/data.mjs';
@@ -77,7 +77,7 @@ function termsDomain(dir, name, owner) {
   }
   const at = join(SCRATCH, 'terms/contract.d', name);
   mkdirSync(at, { recursive: true });
-  writeFileSync(join(at, `${name}.json`), JSON.stringify({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://openmixer.org/contract/${name}`, info: { title: `The ${name} terms`, version: '1.0.0', 'x-owner': owner, 'x-stability': 'experimental' }, components: { schemas } }));
+  writeFileSync(join(at, `${name}.json`), JSON.stringify({ $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://openmixer.org/contract/${name}`, 'x-omx-contract': CONTRACT_FORMAT, info: { title: `The ${name} terms`, version: '1.0.0', 'x-owner': owner, 'x-stability': 'experimental' }, components: { schemas } }));
   return at;
 }
 

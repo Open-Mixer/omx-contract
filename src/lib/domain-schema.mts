@@ -11,6 +11,7 @@ export const domainSchema = {
   "required": [
     "$schema",
     "$id",
+    "x-omx-contract",
     "info",
     "components"
   ],
@@ -23,6 +24,11 @@ export const domainSchema = {
       "description": "The stable id of the domain, the URL every cross-domain reference names.",
       "type": "string",
       "pattern": "^https://openmixer\\.org/contract/[a-z][a-z0-9-]*(/[a-z][a-z0-9-]*)*$"
+    },
+    "x-omx-contract": {
+      "description": "The omx-contract format the document is written in, MAJOR.MINOR of the schema's x-omx-schema-version (docs/contract-dir.md, \"Domains\"), as OpenAPI's openapi field: never the domain's own version, which is info.version. A reader refuses another MAJOR than its own.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
     },
     "info": {
       "type": "object",

@@ -142,13 +142,15 @@ LIBDIR ?= $(PREFIX)/lib
 DOMAIN_SO = libomx-domain.so.0
 JANSSON_CFLAGS ?= $(shell pkg-config --cflags jansson)
 JANSSON_LIBS ?= $(shell pkg-config --libs jansson)
+# the format major the loader reads (docs/contract-dir.md, x-omx-contract): the schema's, compiled in as the directory is
+CONTRACT_FORMAT_MAJOR := $(shell sed -n 's/^  "x-omx-schema-version": "\([0-9]*\)\..*",$$/\1/p' schema/omx-contract.schema.json)
 DOMAIN_CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic -Iinclude $(JANSSON_CFLAGS)
 CBUILD ?= build/c
 
 $(CBUILD)/$(DOMAIN_SO): src/c/omx_domain.c include/omxcontract/omx_domain.h abi/libomx-domain.map
 	@mkdir -p $(CBUILD)
 	$(CC) $(DOMAIN_CFLAGS) $(CFLAGS) -O2 -fPIC -shared -Wl,-soname,$(DOMAIN_SO) -Wl,--version-script=abi/libomx-domain.map $(LDFLAGS) \
-	  -DOMX_CONTRACTDIR='"$(CONTRACTDIR)"' src/c/omx_domain.c -o $@ $(JANSSON_LIBS)
+	  -DOMX_CONTRACTDIR='"$(CONTRACTDIR)"' -DOMX_CONTRACT_FORMAT_MAJOR=$(CONTRACT_FORMAT_MAJOR) src/c/omx_domain.c -o $@ $(JANSSON_LIBS)
 
 # CLI_RPATH is the test's way to find the library beside the command; an installed command is found by ldconfig.
 CLI_RPATH ?=
@@ -213,7 +215,7 @@ fuzz:
 	@command -v clang >/dev/null || { echo "make fuzz needs clang (libFuzzer); make fuzz-replay runs the corpus with any compiler" >&2; exit 2; }
 	rm -rf build/fuzz && mkdir -p build/fuzz/work
 	clang -std=c11 -g -O1 -fno-omit-frame-pointer -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all -Iinclude $(JANSSON_CFLAGS) \
-	  -DOMX_CONTRACTDIR='"/nonexistent"' $(FUZZ_DEFS) $(FUZZ_SRC) src/c/omx_domain.c -o build/fuzz/fuzz_domain $(JANSSON_LIBS)
+	  -DOMX_CONTRACTDIR='"/nonexistent"' -DOMX_CONTRACT_FORMAT_MAJOR=$(CONTRACT_FORMAT_MAJOR) $(FUZZ_DEFS) $(FUZZ_SRC) src/c/omx_domain.c -o build/fuzz/fuzz_domain $(JANSSON_LIBS)
 	cp test/c/fuzz/corpus/* build/fuzz/work/
 	build/fuzz/fuzz_domain -dict=test/c/fuzz/domain.dict -max_total_time=$(FUZZ_SECONDS) -artifact_prefix=build/fuzz/ build/fuzz/work
 

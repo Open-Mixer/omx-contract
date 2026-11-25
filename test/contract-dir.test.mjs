@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
 import { CONTRACT_CODES, ContractRefusal } from '../lib/codes.mjs';
-import { SCHEMA_MAJOR, contractRoots, contractVersion, installedSchemaUrl, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
+import { CONTRACT_FORMAT, SCHEMA_MAJOR, contractRoots, contractVersion, installedSchemaUrl, loadContractDir, sha256 } from '../lib/contract-dir.mjs';
 import { dataFiles, loadData, packageVersion, resolveData } from '../lib/data.mjs';
 import { SCHEMA_VERSION, fileProblems } from '../lib/validate.mjs';
 import { renderC } from '../render/c.mjs';
@@ -39,7 +39,7 @@ const pkgDir = (root, pkg) => join(root, pkg);
 function rehash(root, pkg, edit) {
   const dir = pkgDir(root, pkg);
   const mp = join(dir, 'MANIFEST.json');
-  const m = existsSync(mp) ? JSON.parse(readFileSync(mp, 'utf8')) : { package: pkg, version: '1.0.0', schemaMajor: SCHEMA_MAJOR };
+  const m = existsSync(mp) ? JSON.parse(readFileSync(mp, 'utf8')) : { package: pkg, version: '1.0.0', 'x-omx-contract': CONTRACT_FORMAT };
   m.files = {};
   const walk = (d, pre) => {
     for (const f of readdirSync(d, { withFileTypes: true })) {
@@ -86,7 +86,8 @@ test('the install writes omx-contract\'s data/ with its manifest: every file, it
   const m = JSON.parse(readFileSync(join(dir, 'MANIFEST.json'), 'utf8'));
   assert.equal(m.package, 'omx-contract');
   assert.equal(m.version, VERSION);
-  assert.equal(m.schemaMajor, SCHEMA_MAJOR);
+  assert.equal(m['x-omx-contract'], CONTRACT_FORMAT, 'the manifest states the format, MAJOR.MINOR of the schema');
+  assert.ok(!('schemaMajor' in m), 'and no schemaMajor beside it');
   assert.equal(m.tree, 'data');
   const want = dataFiles(DATA).map((p) => p.slice(DATA.length + 1)).sort();
   assert.deepEqual(Object.keys(m.files).sort(), want);
@@ -183,8 +184,11 @@ test('contract.manifest.absent and contract.manifest.invalid', () => {
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestAbsent);
   for (const edit of [
     (m) => { m.package = 'omx-dsp'; },
-    (m) => { m.schemaMajor = 'x'; },
-    (m) => { delete m.schemaMajor; },
+    (m) => { m['x-omx-contract'] = 'x'; },
+    (m) => { m['x-omx-contract'] = '0.23.0'; },
+    (m) => { m['x-omx-contract'] = 0; },
+    (m) => { delete m['x-omx-contract']; },
+    (m) => { m.schemaMajor = SCHEMA_MAJOR; },
     (m) => { m.version = '2.14'; },
     (m) => { m.extra = true; },
     (m) => { m.tree = '../data'; },
@@ -215,19 +219,43 @@ test('contract.manifest.mismatch: an unlisted file, a listed file missing, a has
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.manifestMismatch, 'an edit after install is caught by its hash');
 });
 
-test('contract.schema.major: a manifest of another schema major is refused by name, the major read from the document, never a path', () => {
+test('contract.schema.major: a manifest of another format major is refused by name, the major read from the document, never a path', () => {
   for (const other of [SCHEMA_MAJOR + 1, SCHEMA_MAJOR === 0 ? 3 : SCHEMA_MAJOR - 1]) {
     const root = installed();
-    rehash(root, 'omx-contract', (m) => { m.schemaMajor = other; });
+    rehash(root, 'omx-contract', (m) => { m['x-omx-contract'] = `${other}.0`; });
     let e;
     try { loadContractDir({ dir: root }); } catch (x) { e = x; }
     assert.equal(e?.code, CONTRACT_CODES.schemaMajor, String(other));
-    assert.equal(e.message, `the manifest states schema major ${other}; this reader reads ${SCHEMA_MAJOR}`);
+    assert.equal(e.message, `x-omx-contract ${other}.0 is of the format major ${other}; this reader reads ${SCHEMA_MAJOR}`);
     assert.equal(e.file, 'omx-contract/MANIFEST.json', 'named by the manifest that states it');
   }
   const root = installed();
-  rehash(root, 'omx-contract', () => {});
-  assert.ok(loadContractDir({ dir: root }).packages.has('omx-contract'), 'positive control: the rehashed manifest of the reader\'s major is read');
+  rehash(root, 'omx-contract', (m) => { m['x-omx-contract'] = `${SCHEMA_MAJOR}.999`; });
+  assert.ok(loadContractDir({ dir: root }).packages.has('omx-contract'), 'positive control: a higher minor of the reader\'s major is read');
+});
+
+test('a domain document of the read states its format: absent or not MAJOR.MINOR is contract.manifest.invalid, another major contract.schema.major', () => {
+  for (const [what, format, code, says] of [
+    ['absent', undefined, CONTRACT_CODES.manifestInvalid, /x-omx-contract is absent: a document states the omx-contract format it is written in/],
+    ['not MAJOR.MINOR', '0.23.0', CONTRACT_CODES.manifestInvalid, /x-omx-contract "0\.23\.0" is not MAJOR\.MINOR/],
+    ['another major', `${SCHEMA_MAJOR + 1}.0`, CONTRACT_CODES.schemaMajor, new RegExp(`x-omx-contract ${SCHEMA_MAJOR + 1}\\.0 is of the format major ${SCHEMA_MAJOR + 1}; this reader reads ${SCHEMA_MAJOR}`)],
+  ]) {
+    const root = installed();
+    const p = join(root, 'param/param.json');
+    const doc = JSON.parse(readFileSync(p, 'utf8'));
+    if (format === undefined) delete doc['x-omx-contract'];
+    else doc['x-omx-contract'] = format;
+    writeFileSync(p, `${JSON.stringify(doc, null, 2)}\n`);
+    let e;
+    try { loadContractDir({ dir: root }); } catch (x) { e = x; }
+    assert.equal(e?.code, code, what);
+    assert.match(e.message, says, what);
+    assert.equal(e.file, 'param/param.json', `${what}: named by the document`);
+  }
+  const root = installed();
+  const p = join(root, 'param/param.json');
+  writeFileSync(p, readFileSync(p, 'utf8').replace(/"x-omx-contract": "[^"]*"/, `"x-omx-contract": "${SCHEMA_MAJOR}.999"`));
+  assert.ok(loadContractDir({ dir: root }).packages.has('param'), 'positive control: a higher minor of the reader\'s major is read');
 });
 
 test('contract.schema.major, and requires: a sorted list of names, never a map of floors, never empty (the devel wave 2026-11-24)', () => {
@@ -273,7 +301,7 @@ test('contract.item.duplicate: two packages declare one name', () => {
 
 test('contract.item.prefix: an item of a domain that does not start with its domain\'s name', () => {
   const root = installed();
-  const doc = { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', info: { title: 'The panel', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas: { WIDGETS: { description: 'The widgets.', oneOf: [{ const: 'knob', title: 'knob', 'x-code': 0 }] } } } };
+  const doc = { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: 'https://openmixer.org/contract/panel', 'x-omx-contract': CONTRACT_FORMAT, info: { title: 'The panel', version: '1.0.0', 'x-owner': 'omx-panel', 'x-stability': 'experimental' }, components: { schemas: { WIDGETS: { description: 'The widgets.', oneOf: [{ const: 'knob', title: 'knob', 'x-code': 0 }] } } } };
   mkdirSync(join(root, 'panel'));
   writeFileSync(join(root, 'panel', 'panel.json'), JSON.stringify(doc));
   assert.equal(refusalOf({ dir: root }), CONTRACT_CODES.itemPrefix);

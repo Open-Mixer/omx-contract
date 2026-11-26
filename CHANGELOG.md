@@ -4,6 +4,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 ## Unreleased
 
+- FIXED: the RPM and deb CLI tree (`<clidir>`) installs every declaration and module its package.json exports as
+  `types` or `import` (#266): `lib/*.d.mts`, `render/c/*.d.mts` and `dist/ts/` (the committed `test/golden/ts/`, the
+  bytes `prepack` renders). A TypeScript consumer whose `node_modules/@openmixer/omx-contract` links the installed tree
+  got TS7016 (TS2307 on the root). test/install-tree checks every such target exists under `<clidir>`.
 - FIXED: `render --data <dir> --with-domain <domain dir>` names the domain's document,
   `contract.d/<domain>/<leaf>.json`, in every provenance line of a file it rebuilds from the domain (a ts module's
   GENERATED line and `@see` lines, a header's `/* ITEM (<path>) */`, a verb's `(<path>)`), as `--installed` and

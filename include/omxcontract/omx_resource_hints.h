@@ -5,7 +5,8 @@
 /*
  * GENERATED: DO NOT EDIT BY HAND.
  * Produced by `omx-contract render --target c` from RESOURCE_HINTS (data/resource-profile.json, docs/resource-hints.md):
- * the CLAP extension org.openmixer.resource-hints.draft/0, the hints a plugin declares about its own footprint. A hint is a claim:
+ * the CLAP extension org.openmixer.resource-hints.draft/0 and the factory org.openmixer.resource-hints-factory.draft/0, the hints a plugin declares about its own footprint,
+ * the factory's by plugin id before any instance exists. A hint is a claim:
  * plugin-qualify measures the same resource and a declared figure the measurement does not bear out is a finding.
  */
 
@@ -27,6 +28,9 @@ struct clap_plugin;
 
 /** The extension id, as a plugin's get_extension is asked for it. */
 #define OMX_CLAP_EXT_RESOURCE_HINTS_DRAFT "org.openmixer.resource-hints.draft/0"
+
+/** The factory id, as a plugin entry's get_factory is asked for it: the same hints by plugin id, no instance created. */
+#define OMX_CLAP_RESOURCE_HINTS_FACTORY_ID_DRAFT "org.openmixer.resource-hints-factory.draft/0"
 
 /** One bit of `declared` per hint, in the order of RESOURCE_HINTS. */
 #define OMX_RESOURCE_HINT_FOOTPRINT_AT_REST (1u << 0) ///< The memory one instance holds at rest, once activated and idle, with no note playing. (bytes)
@@ -59,6 +63,15 @@ typedef struct omx_clap_plugin_resource_hints
     /** [main-thread] Fills `hints`; false when the plugin has none to state. */
     bool (CLAP_ABI *get)(const struct clap_plugin *plugin, omx_resource_hints_t *hints);
 } omx_clap_plugin_resource_hints_t;
+
+/** The org.openmixer.resource-hints-factory.draft/0 factory a plugin's entry offers: what a host can know of a plugin's cost before it creates one. */
+typedef struct omx_clap_resource_hints_factory
+{
+    /** [thread-safe] Fills `hints` for the plugin `plugin_id` names, at `sample_rate` (0 when its figures do not
+     * depend on it); false when the id is unknown or that plugin has none to state. */
+    bool (CLAP_ABI *get)(const struct omx_clap_resource_hints_factory *factory, const char *plugin_id, double sample_rate,
+                         omx_resource_hints_t *hints);
+} omx_clap_resource_hints_factory_t;
 
 #ifdef __cplusplus
 }

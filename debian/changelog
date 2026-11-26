@@ -1,3 +1,11 @@
+omx-contract (0.23.3) unstable; urgency=medium
+
+  * Published by the devel release of the full matrix (every Fedora release
+    and architecture, every Debian cell), with every change merged to devel
+    since 0.23.2.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 26 Nov 2026 23:11:54 +0100
+
 omx-contract (0.23.2) unstable; urgency=medium
 
   * tools/consumer-drift.mjs: every consumer's use of the install interface

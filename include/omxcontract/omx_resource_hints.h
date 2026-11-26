@@ -67,7 +67,7 @@ typedef struct omx_clap_plugin_resource_hints
 /** The org.openmixer.resource-hints-factory.draft/0 factory a plugin's entry offers: what a host can know of a plugin's cost before it creates one. */
 typedef struct omx_clap_resource_hints_factory
 {
-    /** [thread-safe] Fills `hints` for the plugin `plugin_id` names, at `sample_rate` (0 when its figures do not
+    /** [main-thread] Fills `hints` for the plugin `plugin_id` names, at `sample_rate` (0 when its figures do not
      * depend on it); false when the id is unknown or that plugin has none to state. */
     bool (CLAP_ABI *get)(const struct omx_clap_resource_hints_factory *factory, const char *plugin_id, double sample_rate,
                          omx_resource_hints_t *hints);

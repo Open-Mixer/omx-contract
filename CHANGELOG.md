@@ -6,7 +6,7 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
 
 - RESOURCE_HINTS names a second CLAP carrier, the factory `org.openmixer.resource-hints-factory.draft/0`
   (`extension.clapFactory`, required by the schema): `omx_resource_hints.h` renders `OMX_CLAP_RESOURCE_HINTS_FACTORY_ID_DRAFT`
-  and `omx_clap_resource_hints_factory_t`, whose `get(factory, plugin_id, sample_rate, hints)` a host reads from a plugin's
+  and `omx_clap_resource_hints_factory_t`, whose `get(factory, plugin_id, sample_rate, hints)` (main thread, as `create_plugin` is for an adapter over a shared description world) a host reads from a plugin's
   entry before any instance exists (#268). The instance extension stays while plugins still serve it.
   test/resource-hints holds the factory id and the signature of `get` to the declaration, with two sabotage arms.
 

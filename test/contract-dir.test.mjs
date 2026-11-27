@@ -162,6 +162,23 @@ test('discovery: --contract-dir, else OMX_CONTRACT_PATH (first directory wins a 
   assert.equal(loadContractDir({ env: {}, pkgConfig: pc }).items.size, DATA_ITEMS);
 });
 
+test('discovery: pkg-config runs once per process, however many calls ask (omx-contract#273)', () => {
+  const a = installed();
+  const runs = join(SCRATCH, 'pkg-config-runs');
+  const pc = join(SCRATCH, 'pkg-config-counted');
+  writeFileSync(pc, `#!/bin/sh\necho run >> '${runs}'\n[ "$1" = --variable=contractdir ] && [ "$2" = omx-contract ] && echo '${a}'\n`);
+  chmodSync(pc, 0o755);
+  for (let i = 0; i < 5; i++) assert.deepEqual(contractRoots({ env: {}, pkgConfig: pc }), [a]);
+  assert.equal(loadContractDir({ env: {}, pkgConfig: pc }).items.size, DATA_ITEMS);
+  assert.equal(readFileSync(runs, 'utf8').split('\n').filter(Boolean).length, 1);
+  // an answer of none is kept too: a missing pkg-config is asked once, and every call still refuses
+  const gone = join(SCRATCH, 'pkg-config-gone');
+  writeFileSync(gone, `#!/bin/sh\necho run >> '${runs}.gone'\nexit 1\n`);
+  chmodSync(gone, 0o755);
+  for (let i = 0; i < 3; i++) assert.throws(() => contractRoots({ env: {}, pkgConfig: gone }), (e) => e?.code === CONTRACT_CODES.dirAbsent);
+  assert.equal(readFileSync(`${runs}.gone`, 'utf8').split('\n').filter(Boolean).length, 1);
+});
+
 test('contract.dir.absent: nothing names a directory, the one named is missing, or it holds no package of this major', () => {
   assert.equal(refusalOf({ env: {}, pkgConfig: join(SCRATCH, 'no-such-pkg-config') }), CONTRACT_CODES.dirAbsent);
   assert.equal(refusalOf({ dir: join(SCRATCH, 'missing') }), CONTRACT_CODES.dirAbsent);

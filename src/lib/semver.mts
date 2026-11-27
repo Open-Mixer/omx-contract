@@ -348,3 +348,27 @@ export function schemaVersionProblem(prev, next) {
   const why = refusal(level, prev[key], next[key]);
   return why && `the schema: ${why}`;
 }
+
+/**
+ * The items new since the previous release whose `x-since` is not the release that ships them (omx-contract#246). An
+ * item's `x-since` is the `info.version` of its domain that first carries it (docs/contract-dir.md), so an item absent
+ * from the domain at the previous tag says the domain's `info.version` in this tree, and that version is above the
+ * domain's at the tag. `prev` and `next` map a domain's name to its document (`prev` without the domains the tag did not
+ * have). One line per problem, naming the domain, the item, its x-since and the version that ships it; [] when none.
+ */
+export function sinceProblems(prev: Record<string, Json>, next: Record<string, Json>, from: string): string[] {
+  const out: string[] = [];
+  for (const [name, doc] of Object.entries(next)) {
+    const was = prev[name];
+    const ships = doc?.info?.version;
+    const wasAt = was?.info?.version;
+    const had = new Set(Object.keys(was?.components?.schemas ?? {}));
+    for (const [item, decl] of Object.entries(doc?.components?.schemas ?? {})) {
+      if (had.has(item)) continue;
+      const since = (decl as Json)['x-since'];
+      if (since !== ships) out.push(`${name} ${item}: new since ${from}, and its x-since ${since} is not ${ships}, the info.version of ${name} that ships it`);
+      else if (wasAt !== undefined && bumpOf(wasAt, ships) === 'none') out.push(`${name} ${item}: new since ${from}, and ${name}'s info.version ${ships} is what it was at ${from}: the release that adds the item raises it`);
+    }
+  }
+  return out;
+}

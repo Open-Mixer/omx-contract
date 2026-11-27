@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import { main } from '../bin/omx-contract.mjs';
 import { packageVersion } from '../lib/data.mjs';
 import { readDomain } from '../lib/domain.mjs';
-import { DEVELOPMENT_PHASE, bumpOf, classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
+import { DEVELOPMENT_PHASE, bumpOf, classify, classifySchema, refusal, schemaVersionProblem, sinceProblems } from '../lib/semver.mjs';
 import { DATA, ROOT, dropDecl, editData, relOf, resolvedOf, scratchData, texts } from './helpers.mjs';
 
 const base = resolvedOf(texts());
@@ -186,4 +186,34 @@ test('the CLI refuses a tag of another major by name, exit 2: it is no previous 
   }
   // positive control: --version of that major lifts the refusal, so the check reads the tree's major and nothing else
   assert.doesNotMatch(cli(other, '--report', '--version', `${Number(v.split('.')[0]) + 3}.22.0`).stderr, /semver compares within one major/);
+});
+
+// omx-contract#246: an item new since the previous tag says, as its x-since, the info.version of its domain that ships it
+test('an item new since the tag with a stale x-since is refused by name; one that says the raised info.version passes', () => {
+  const was = JSON.parse(readFileSync(join(ROOT, 'contract.d/param/param.json'), 'utf8'));
+  const grown = (version, since) => {
+    const d = structuredClone(was);
+    d.info.version = version;
+    d.components.schemas.PARAM_NEW_ITEM = { description: 'new', 'x-since': since, oneOf: [{ const: 'a', title: 'a', description: 'a', 'x-code': 0 }] };
+    return d;
+  };
+  const at = was.info.version;
+  const [a, b, c] = at.split('.').map(Number);
+  const raised = `${a}.${b + 1}.0`;
+  assert.deepEqual(sinceProblems({ param: was }, { param: structuredClone(was) }, 'v0.1.0'), [], 'nothing new, nothing refused');
+  assert.deepEqual(sinceProblems({ param: was }, { param: grown(raised, raised) }, 'v0.1.0'), [], 'the raised version stated');
+  assert.deepEqual(sinceProblems({ param: was }, { param: grown(raised, at) }, 'v0.1.0'),
+    [`param PARAM_NEW_ITEM: new since v0.1.0, and its x-since ${at} is not ${raised}, the info.version of param that ships it`]);
+  assert.deepEqual(sinceProblems({ param: was }, { param: grown(at, at) }, 'v0.1.0'),
+    [`param PARAM_NEW_ITEM: new since v0.1.0, and param's info.version ${at} is what it was at v0.1.0: the release that adds the item raises it`]);
+  // a domain the tag did not have: its items say its first version
+  assert.deepEqual(sinceProblems({}, { param: was }, 'v0.1.0').length, Object.values(was.components.schemas).filter((d) => d['x-since'] !== at).length);
+  void c;
+});
+
+test('the CLI against a tag runs the x-since check: the tree against its own HEAD has nothing new and passes', () => {
+  const git = spawnSync('git', ['-C', ROOT, 'rev-parse', '--verify', 'HEAD^{commit}']);
+  if (git.status !== 0) return;   // not a git checkout
+  const r = spawnSync(process.execPath, [join(ROOT, 'bin/omx-contract.mjs'), 'semver', 'HEAD', '--version', packageVersion(ROOT)], { cwd: ROOT, encoding: 'utf8' });
+  assert.doesNotMatch(r.stderr, /x-since/, r.stderr);
 });

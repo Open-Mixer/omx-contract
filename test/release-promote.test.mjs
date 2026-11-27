@@ -116,6 +116,10 @@ export function publishFindings(text) {
   if (!/- name: The release run promoted the tag\n {8}if: github\.event_name == 'workflow_run'\n/.test(job)) out.push('publish: no step reads the promote jobs before publishing');
   if (!/^ {10}ref: \$\{\{ env\.SHA \}\}$/m.test(job)) out.push('publish: does not check out the tag\'s commit (workflow_run starts on the default branch)');
   if (job.indexOf('The release run promoted the tag') > job.indexOf('npm publish')) out.push('publish: the promotion is read after the publish');
+  // npm 11 applies latest implicitly only to a version above the one latest names; the 0.M.m line sits below 3.x
+  const publish = /^ {8}run: (npm publish\b.*)$/m.exec(job)?.[1] ?? '';
+  if (!publish) out.push('publish: no npm publish step');
+  else if (!/(^| )--tag latest( |$)/.test(publish)) out.push(`publish: npm publish names no --tag latest ("${publish}"): npm 11 refuses to move latest below 3.21.0`);
   return out;
 }
 
@@ -156,6 +160,8 @@ const PUBLISH_ARMS = [
   ['no conclusion asked', (t) => t.replace("github.event.workflow_run.conclusion == 'success' && ", ''), /concluded success/],
   ['the gate step gone', (t) => t.replace('- name: The release run promoted the tag', '- name: Note the release run'), /no step reads the promote jobs/],
   ['the default branch checked out', (t) => t.replace('          ref: ${{ env.SHA }}\n', ''), /does not check out the tag's commit/],
+  ['the explicit latest tag dropped', (t) => t.replace(' --tag latest $DRY', ' $DRY'), /names no --tag latest/],
+  ['another dist-tag named', (t) => t.replace(' --tag latest $DRY', ' --tag next $DRY'), /names no --tag latest/],
 ];
 
 test('each careless edit of publish.yml is named', () => {

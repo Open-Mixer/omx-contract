@@ -1,3 +1,10 @@
+omx-contract (0.24.1) unstable; urgency=medium
+
+  * contractRoots() asks pkg-config once per process and keeps its answer,
+    so a long-lived host never forks per call (#273)
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 18:04:34 +0100
+
 omx-contract (0.24.0) unstable; urgency=medium
 
   * RESOURCE_HINTS names its factory, org.openmixer.resource-hints-

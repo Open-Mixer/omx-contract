@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 0.24.0
+Version: 0.24.1
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -307,6 +307,10 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.24.1-1
+- contractRoots() asks pkg-config once per process and keeps its answer, so
+  a long-lived host never forks per call (#273)
+
 * Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.24.0-1
 - RESOURCE_HINTS names its factory, org.openmixer.resource-hints-
   factory.draft/0: the same hints by plugin id, before any instance (#268).

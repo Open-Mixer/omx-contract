@@ -107,6 +107,13 @@ export interface ContractPackage {
   readonly codes?: DomainCodes;
 }
 
+/**
+ * pkg-config's answer, per pkg-config program, for the life of the process (omx-contract#273): the installed contract
+ * directory does not move while a process lives, and a synchronous fork in a long-lived host blocks its main thread
+ * while the kernel copies its page tables (omx-panel#282). An answer of none is kept too.
+ */
+const pkgConfigRoots = new Map<string, string[]>();
+
 export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config' }: ContractRootsOptions = {}): string[] {
   let roots;
   let from;
@@ -114,9 +121,14 @@ export function contractRoots({ dir, env = process.env, pkgConfig = 'pkg-config'
   else if (env.OMX_CONTRACT_PATH) { roots = env.OMX_CONTRACT_PATH.split(':').filter(Boolean); from = 'OMX_CONTRACT_PATH'; }
   else {
     from = 'pkg-config';
-    try {
-      roots = [execFileSync(pkgConfig, ['--variable=contractdir', 'omx-contract'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()].filter(Boolean);
-    } catch { roots = []; }
+    roots = pkgConfigRoots.get(pkgConfig);
+    if (roots === undefined) {
+      try {
+        roots = [execFileSync(pkgConfig, ['--variable=contractdir', 'omx-contract'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()].filter(Boolean);
+      } catch { roots = []; }
+      pkgConfigRoots.set(pkgConfig, roots);
+    }
+    roots = [...roots];
   }
   if (!roots.length) refuse('dirAbsent', from, 'no contract directory: neither --contract-dir, OMX_CONTRACT_PATH nor pkg-config names one');
   for (const r of roots) if (!existsSync(r) || !statSync(r).isDirectory()) refuse('dirAbsent', r, `the contract directory ${r} (from ${from}) does not exist`);

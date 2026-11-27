@@ -307,11 +307,10 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
-* Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.3-1
-- make install-cli: the CLI tree installs every declaration and module
-  package.json exports as types or import (lib/*.d.mts, render/c/*.d.mts,
-  dist/ts/), so a TypeScript consumer linking the installed tree resolves
-  them (#266). 0.23.3 because the staging channel already serves 0.23.2.
+* Thu Nov 26 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.3-1
+- Published by the devel release of the full matrix (every Fedora release
+  and architecture, every Debian cell), with every change merged to devel
+  since 0.23.2.
 
 * Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.2-1
 - tools/consumer-drift.mjs: every consumer's use of the install interface

@@ -1,11 +1,10 @@
 omx-contract (0.23.3) unstable; urgency=medium
 
-  * make install-cli: the CLI tree installs every declaration and module
-    package.json exports as types or import (lib/*.d.mts, render/c/*.d.mts,
-    dist/ts/), so a TypeScript consumer linking the installed tree resolves
-    them (#266). 0.23.3 because the staging channel already serves 0.23.2.
+  * Published by the devel release of the full matrix (every Fedora release
+    and architecture, every Debian cell), with every change merged to devel
+    since 0.23.2.
 
- -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 12:00:00 +0000
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 26 Nov 2026 23:11:54 +0100
 
 omx-contract (0.23.2) unstable; urgency=medium
 

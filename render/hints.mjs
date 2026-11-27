@@ -23,6 +23,7 @@ export function renderHintsHeader(resolved) {
   if (!item) return undefined;
   const hints = Object.entries(item.value);
   const id = item.extension.clap;
+  const factoryId = item.extension.clapFactory;
   const bits = hints.map(([k, w], i) => `#define OMX_RESOURCE_HINT_${constOf(k)} (1u << ${i}) ///< ${doxyLine(w.doc)} (${w.figureUnit})`);
   const members = hints.map(([k, w]) => `    ${unitOf(k, w).c} ${memberOf(w.word)}; ///< ${doxyLine(w.doc)} (${w.figureUnit})`);
   return `// SPDX-License-Identifier: GPL-3.0-or-later
@@ -32,7 +33,8 @@ export function renderHintsHeader(resolved) {
 /*
  * GENERATED: DO NOT EDIT BY HAND.
  * Produced by \`omx-contract render --target c\` from ${item.name} (${sourceOf(item)}, docs/resource-hints.md):
- * the CLAP extension ${id}, the hints a plugin declares about its own footprint. A hint is a claim:
+ * the CLAP extension ${id} and the factory ${factoryId}, the hints a plugin declares about its own footprint,
+ * the factory's by plugin id before any instance exists. A hint is a claim:
  * plugin-qualify measures the same resource and a declared figure the measurement does not bear out is a finding.
  */
 
@@ -55,6 +57,9 @@ struct clap_plugin;
 /** The extension id, as a plugin's get_extension is asked for it. */
 #define OMX_CLAP_EXT_RESOURCE_HINTS_DRAFT ${cStringLiteral(id)}
 
+/** The factory id, as a plugin entry's get_factory is asked for it: the same hints by plugin id, no instance created. */
+#define OMX_CLAP_RESOURCE_HINTS_FACTORY_ID_DRAFT ${cStringLiteral(factoryId)}
+
 /** One bit of \`declared\` per hint, in the order of ${item.name}. */
 ${bits.join('\n')}
 
@@ -74,6 +79,15 @@ typedef struct omx_clap_plugin_resource_hints
     /** [main-thread] Fills \`hints\`; false when the plugin has none to state. */
     bool (CLAP_ABI *get)(const struct clap_plugin *plugin, omx_resource_hints_t *hints);
 } omx_clap_plugin_resource_hints_t;
+
+/** The ${factoryId} factory a plugin's entry offers: what a host can know of a plugin's cost before it creates one. */
+typedef struct omx_clap_resource_hints_factory
+{
+    /** [main-thread] Fills \`hints\` for the plugin \`plugin_id\` names, at \`sample_rate\` (0 when its figures do not
+     * depend on it); false when the id is unknown or that plugin has none to state. */
+    bool (CLAP_ABI *get)(const struct omx_clap_resource_hints_factory *factory, const char *plugin_id, double sample_rate,
+                         omx_resource_hints_t *hints);
+} omx_clap_resource_hints_factory_t;
 
 #ifdef __cplusplus
 }

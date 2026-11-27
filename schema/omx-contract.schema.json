@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/schema/omx-contract/v0/omx-contract.schema.json",
   "title": "omx-contract data file",
   "description": "A map from an export name to one item: a scalar, a travels table or travel, a sheet, a list, a set, codes, words, a format's terms or a host's verbs. GPL-3.0-or-later.",
-  "x-omx-schema-version": "0.23.4",
+  "x-omx-schema-version": "0.24.0",
   "type": "object",
   "if": { "required": ["origin"] },
   "then": { "$ref": "#/$defs/descriptor" },
@@ -830,9 +830,10 @@
         "dimensions": { "$ref": "#/$defs/name", "description": "The words item whose words are the dimensions of this item's words (since 3.21.0, PARAM_UNITS): every word may name its dimension, what the unit measures." },
         "extension": {
           "type": "object",
-          "description": "The carriers of a words item that declares what a plugin states about itself (docs/resource-hints.md): clap, the id of the CLAP extension, and lv2, the prefix and the namespace of the properties.",
+          "description": "The carriers of a words item that declares what a plugin states about itself (docs/resource-hints.md): clap, the id of the CLAP extension, clapFactory, the id of the CLAP factory that answers the same by plugin id before any instance exists, and lv2, the prefix and the namespace of the properties.",
           "properties": {
             "clap": { "type": "string", "pattern": "^org\\.[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+/[0-9]+$" },
+            "clapFactory": { "type": "string", "pattern": "^org\\.[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+/[0-9]+$", "description": "The id of the CLAP factory a plugin's entry answers get_factory for: the same hints by plugin id, with no instance created." },
             "lv2": {
               "type": "object",
               "properties": {
@@ -843,7 +844,7 @@
               "additionalProperties": false
             }
           },
-          "required": ["clap", "lv2"],
+          "required": ["clap", "clapFactory", "lv2"],
           "additionalProperties": false
         },
         "words": {

@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/omx-contract",
-  "version": "0.23.4",
+  "version": "0.24.0",
   "items": {
     "STANDARD_SAMPLE_RATES": {
       "rel": "data/rates.json",
@@ -247,6 +247,7 @@
       "bases": "RESOURCE_BASES",
       "extension": {
         "clap": "org.openmixer.resource-hints.draft/0",
+        "clapFactory": "org.openmixer.resource-hints-factory.draft/0",
         "lv2": {
           "prefix": "omxres",
           "namespace": "https://www.openmixer.org/ns/resource-hints#"

@@ -37,6 +37,7 @@ after(() => dirs.forEach((d) => rmSync(d, { recursive: true, force: true })));
 test('the declaration is what the issue wants: a resource, a unit and a basis per hint, the two carriers named', () => {
   assert.ok(HINTS.length > 0, 'the hints are read');
   assert.equal(DECL.extension.clap, 'org.openmixer.resource-hints.draft/0');
+  assert.equal(DECL.extension.clapFactory, 'org.openmixer.resource-hints-factory.draft/0', 'a factory names the hints before any instance');
   assert.equal(DECL.extension.lv2.prefix, 'omxres');
   for (const [k, w] of HINTS) {
     assert.ok(w.group && w.figureUnit && w.basis, `${k} states its resource, unit and basis`);
@@ -51,6 +52,11 @@ export function checkHeader(text) {
   const bad = [];
   const id = /#define OMX_CLAP_EXT_RESOURCE_HINTS_DRAFT "([^"]*)"/.exec(text)?.[1];
   if (id !== DECL.extension.clap) bad.push(`the extension id is ${id}, the declaration says ${DECL.extension.clap}`);
+  const fid = /#define OMX_CLAP_RESOURCE_HINTS_FACTORY_ID_DRAFT "([^"]*)"/.exec(text)?.[1];
+  if (fid !== DECL.extension.clapFactory) bad.push(`the factory id is ${fid}, the declaration says ${DECL.extension.clapFactory}`);
+  const factory = /typedef struct omx_clap_resource_hints_factory\s*\{([\s\S]*?)\}\s*omx_clap_resource_hints_factory_t;/.exec(text)?.[1] ?? '';
+  if (!/bool \(CLAP_ABI \*get\)\(const struct omx_clap_resource_hints_factory \*factory, const char \*plugin_id, double sample_rate,\s*omx_resource_hints_t \*hints\);/.test(factory))
+    bad.push('the factory has no get(factory, plugin_id, sample_rate, hints)');
   const bits = [...text.matchAll(/#define OMX_RESOURCE_HINT_([A-Z0-9_]+) \(1u << (\d+)\)/g)].map((m) => [m[1], Number(m[2])]);
   if (bits.length !== HINTS.length) bad.push(`${bits.length} bits for ${HINTS.length} hints`);
   HINTS.forEach(([k], i) => { if (bits[i]?.[0] !== constOf(k) || bits[i]?.[1] !== i) bad.push(`bit ${i} is ${bits[i]?.join('<<')}, the declaration says ${constOf(k)}<<${i}`); });
@@ -81,6 +87,8 @@ test('sabotage: a swapped bit, a changed id, a wrong type, a lost member and a c
   assert.ok(checkHeader(h.replace('uint64_t footprint_at_rest', 'uint32_t footprint_at_rest')).length > 0, 'a type narrowed');
   assert.ok(checkHeader(h.replace(/ {4}bool opens_sockets;.*\n/, '')).length > 0, 'a member lost');
   assert.ok(checkHeader(h.replace('OMX_RESOURCE_HINT_COUNT 7u', 'OMX_RESOURCE_HINT_COUNT 6u')).length > 0, 'the count changed');
+  assert.ok(checkHeader(h.replace('const char *plugin_id, double sample_rate,', 'const char *plugin_id,')).length > 0, 'the factory lost its sample rate');
+  assert.ok(checkHeader(h.replace(/#define OMX_CLAP_RESOURCE_HINTS_FACTORY_ID_DRAFT .*\n/, '')).length > 0, 'the factory id lost');
 });
 
 test('the header compiles as C, and its mask and members hold what the declaration counts', () => {
@@ -91,7 +99,7 @@ test('the header compiles as C, and its mask and members hold what the declarati
 #include <stddef.h>
 _Static_assert(OMX_RESOURCE_HINT_COUNT == ${HINTS.length}, "count");
 _Static_assert(OMX_RESOURCE_HINT_${constOf(HINTS[HINTS.length - 1][0])} == (1u << ${HINTS.length - 1}), "last bit");
-int main(void) { omx_resource_hints_t h = {0}; return (int)(h.declared + sizeof(omx_clap_plugin_resource_hints_t) * 0); }
+int main(void) { omx_resource_hints_t h = {0}; return (int)(h.declared + sizeof(omx_clap_plugin_resource_hints_t) * 0 + sizeof(omx_clap_resource_hints_factory_t) * 0); }
 `);
   execFileSync('cc', ['-std=c11', '-Wall', '-Wextra', '-Werror', `-I${join(ROOT, 'include')}`, src, '-o', join(dir, 'h')]);
   assert.equal(spawnSync(join(dir, 'h')).status, 0);

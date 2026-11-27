@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 0.23.4
+Version: 0.24.0
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -307,6 +307,12 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.24.0-1
+- RESOURCE_HINTS names its factory, org.openmixer.resource-hints-
+  factory.draft/0: the same hints by plugin id, before any instance (#268).
+- omx-contract semver <previous tag> refuses by name an item new since the
+  tag whose x-since is not its domain's raised info.version (#246).
+
 * Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.4-1
 - make install-cli: the CLI tree installs every declaration and module
   package.json exports as types or import (lib/*.d.mts, render/c/*.d.mts,

@@ -1,3 +1,13 @@
+omx-contract (0.24.0) unstable; urgency=medium
+
+  * RESOURCE_HINTS names its factory, org.openmixer.resource-hints-
+    factory.draft/0: the same hints by plugin id, before any instance
+    (#268).
+  * omx-contract semver <previous tag> refuses by name an item new since
+    the tag whose x-since is not its domain's raised info.version (#246).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 13:00:01 +0100
+
 omx-contract (0.23.4) unstable; urgency=medium
 
   * make install-cli: the CLI tree installs every declaration and module

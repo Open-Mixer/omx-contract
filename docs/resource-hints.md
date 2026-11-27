@@ -34,6 +34,7 @@ The hints: `footprint-at-rest` and `footprint-per-voice` and `shared-load` (byte
 | Carrier | File | Command |
 |---|---|---|
 | CLAP draft `org.openmixer.resource-hints.draft/0` | `include/omxcontract/omx_resource_hints.h` | `render --target c` |
+| CLAP factory draft `org.openmixer.resource-hints-factory.draft/0`: the same hints by plugin id, before any instance | `include/omxcontract/omx_resource_hints.h` | `render --target c` |
 | LV2 properties in the openmixer namespace | `share/omx-contract/omx-resource-hints.ttl` | `render --target lv2` |
 | TypeScript | `RESOURCE_HINTS` and `RESOURCE_HINTS_WORDS` in the ts module | `render --target ts` |
 | JSON | the item in `omx-contract.json`, its enum in `omx-vocabulary.schema.json` | `render --target json` |

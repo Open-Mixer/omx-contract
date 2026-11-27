@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 Name: omx-contract
-Version: 0.23.2
+Version: 0.23.3
 Release: 1%{?dist}
 # the command carries ajv and its dependencies (vendor/): MIT, and BSD-3-Clause for fast-uri
 License: GPL-3.0-or-later AND MIT AND BSD-3-Clause
@@ -307,6 +307,12 @@ a floor, the lowest release whose functions it calls.
 %{_mandir}/man1/omx-domain.1*
 
 %changelog
+* Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.3-1
+- make install-cli: the CLI tree installs every declaration and module
+  package.json exports as types or import (lib/*.d.mts, render/c/*.d.mts,
+  dist/ts/), so a TypeScript consumer linking the installed tree resolves
+  them (#266). 0.23.3 because the staging channel already serves 0.23.2.
+
 * Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.2-1
 - tools/consumer-drift.mjs: every consumer's use of the install interface
   (the installer's arguments, the rpm macros, the pkg-config variables) read

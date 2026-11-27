@@ -6,7 +6,7 @@ omx-contract (0.24.0) unstable; urgency=medium
   * omx-contract semver <previous tag> refuses by name an item new since
     the tag whose x-since is not its domain's raised info.version (#246).
 
- -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 03:26:55 +0100
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 13:00:01 +0100
 
 omx-contract (0.23.4) unstable; urgency=medium
 

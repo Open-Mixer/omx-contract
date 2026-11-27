@@ -310,6 +310,8 @@ a floor, the lowest release whose functions it calls.
 * Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.24.0-1
 - RESOURCE_HINTS names its factory, org.openmixer.resource-hints-
   factory.draft/0: the same hints by plugin id, before any instance (#268).
+- omx-contract semver <previous tag> refuses by name an item new since the
+  tag whose x-since is not its domain's raised info.version (#246).
 
 * Thu Nov 26 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.3-1
 - Published by the devel release of the full matrix (every Fedora release

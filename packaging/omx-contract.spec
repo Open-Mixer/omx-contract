@@ -313,6 +313,12 @@ a floor, the lowest release whose functions it calls.
 - omx-contract semver <previous tag> refuses by name an item new since the
   tag whose x-since is not its domain's raised info.version (#246).
 
+* Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.4-1
+- make install-cli: the CLI tree installs every declaration and module
+  package.json exports as types or import (lib/*.d.mts, render/c/*.d.mts,
+  dist/ts/), so a TypeScript consumer linking the installed tree resolves
+  them (#266). 0.23.4 because devel already published 0.23.3.
+
 * Thu Nov 26 2026 Pau Aliagas <linuxnow@gmail.com> - 0.23.3-1
 - Published by the devel release of the full matrix (every Fedora release
   and architecture, every Debian cell), with every change merged to devel

@@ -9,7 +9,10 @@ The releases are in `debian/changelog` and `packaging/omx-contract.spec`. `Unrel
   and `omx_clap_resource_hints_factory_t`, whose `get(factory, plugin_id, sample_rate, hints)` (main thread, as `create_plugin` is for an adapter over a shared description world) a host reads from a plugin's
   entry before any instance exists (#268). The instance extension stays while plugins still serve it.
   test/resource-hints holds the factory id and the signature of `get` to the declaration, with two sabotage arms.
-
+- FIXED: the RPM and deb CLI tree (`<clidir>`) installs every declaration and module its package.json exports as
+  `types` or `import` (#266): `lib/*.d.mts`, `render/c/*.d.mts` and `dist/ts/` (the committed `test/golden/ts/`, the
+  bytes `prepack` renders). A TypeScript consumer whose `node_modules/@openmixer/omx-contract` links the installed tree
+  got TS7016 (TS2307 on the root). test/install-tree checks every such target exists under `<clidir>`.
 - FIXED: `render --data <dir> --with-domain <domain dir>` names the domain's document,
   `contract.d/<domain>/<leaf>.json`, in every provenance line of a file it rebuilds from the domain (a ts module's
   GENERATED line and `@see` lines, a header's `/* ITEM (<path>) */`, a verb's `(<path>)`), as `--installed` and

@@ -106,9 +106,15 @@ install-cli: all build-lib
 	install -d $(DESTDIR)$(CLIDIR)/bin $(DESTDIR)$(CLIDIR)/lib $(DESTDIR)$(CLIDIR)/render/c $(DESTDIR)$(CLIDIR)/schema $(DESTDIR)$(CLIDIR)/tools \
 	  $(DESTDIR)$(CLIDIR)/data $(DESTDIR)$(CLIDIR)/contract.d/contract $(DESTDIR)$(CLIDIR)/contract.d/param $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
 	install -m 0755 bin/omx-contract.mjs $(DESTDIR)$(CLIDIR)/bin/
-	install -m 0644 lib/*.mjs $(DESTDIR)$(CLIDIR)/lib/
+	install -m 0644 lib/*.mjs lib/*.d.mts $(DESTDIR)$(CLIDIR)/lib/
 	install -m 0644 render/*.mjs $(DESTDIR)$(CLIDIR)/render/
-	install -m 0644 render/c/*.mjs $(DESTDIR)$(CLIDIR)/render/c/
+	install -m 0644 render/c/*.mjs render/c/*.d.mts $(DESTDIR)$(CLIDIR)/render/c/
+	# every module and declaration package.json exports ("types", "import"), for a TypeScript consumer whose node_modules
+	# links <clidir> (TS7016): lib/*.d.mts beside lib/*.mjs, render/c/*.d.mts, and dist/ts/, which is the committed
+	# test/golden/ts/ that `render --target ts --check` holds equal to the data (the npm tarball's prepack renders the same)
+	install -d $(DESTDIR)$(CLIDIR)/dist/ts/shapes
+	install -m 0644 test/golden/ts/omx-contract.d.ts test/golden/ts/omx-contract.js $(DESTDIR)$(CLIDIR)/dist/ts/
+	install -m 0644 test/golden/ts/shapes/*.d.ts $(DESTDIR)$(CLIDIR)/dist/ts/shapes/
 	# the recipe reader a consumer's completeness proof imports (omx-contract#227); run from here it reads <recipesdir>
 	install -m 0755 tools/kernel-recipe.mjs $(DESTDIR)$(CLIDIR)/tools/
 	install -m 0644 schema/omx-contract.schema.json schema/domain.schema.json $(DESTDIR)$(CLIDIR)/schema/

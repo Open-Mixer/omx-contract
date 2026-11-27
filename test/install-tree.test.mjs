@@ -99,3 +99,27 @@ test('the staged CLI tree serves the example descriptors its package.json export
   assert.equal(r.status, 0, r.stderr);
   assert.ok(existsSync(r.stdout.trim()), r.stdout);
 });
+
+// TS7016 in a TypeScript consumer (openmixer, plugin-qualify's prepare) whose node_modules/@openmixer/omx-contract links
+// the installed 0.23.2 tree: package.json exports name "types" files (and "import" modules) the CLI tree did not install
+// (dist/ts/, lib/*.d.mts, render/c/*.d.mts). Every "types" and "import" target the installed package.json exports exists
+// under <clidir>; a wildcard one matches at least one file there, and every shape of shapes/ has its dist/ts/shapes/ .d.ts.
+test('every "types" and "import" target the installed package.json exports exists under <clidir>', () => {
+  const root = at('usr/lib/omx-contract');
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const targets = Object.entries(pkg.exports).filter(([, v]) => typeof v === 'object')
+    .flatMap(([key, v]) => Object.entries(v).filter(([c]) => c === 'types' || c === 'import').map(([c, t]) => [key, c, t]));
+  assert.ok(targets.filter(([, c]) => c === 'types').length >= 8, 'positive control: package.json exports its "types" targets');
+  assert.ok(targets.some(([, , t]) => t.includes('*')), 'positive control: a wildcard "types" target is checked');
+  const missing = targets.filter(([, , t]) => {
+    if (!t.includes('*')) return !existsSync(join(root, t));
+    const [head, tail] = t.split('*');
+    const dir = join(root, head.slice(0, head.lastIndexOf('/')));
+    const pre = head.slice(head.lastIndexOf('/') + 1);
+    return !existsSync(dir) || !readdirSync(dir).some((f) => f.startsWith(pre) && f.endsWith(tail));
+  }).map(([key, c, t]) => `${key} (${c}): ${t}`);
+  assert.deepEqual(missing, [], `exported but not installed under <clidir>:\n${missing.join('\n')}`);
+  const shapes = readdirSync(join(ROOT, 'shapes')).filter((f) => f.endsWith('.schema.json')).map((f) => f.replace(/\.schema\.json$/, ''));
+  assert.ok(shapes.length > 0, 'positive control: the tree has shapes');
+  for (const s of shapes) assert.ok(existsSync(join(root, `dist/ts/shapes/${s}.d.ts`)), `no dist/ts/shapes/${s}.d.ts under <clidir>`);
+});

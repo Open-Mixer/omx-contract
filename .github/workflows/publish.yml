@@ -94,7 +94,11 @@ jobs:
         run: |
           v=$(node -p "require('./package.json').version")
           [ "$TAG" = "v$v" ] || { echo "::error::tag $TAG is not v$v"; exit 1; }
+      # --tag latest, always: the 0.M.m line replaces the published 3.x line (#224), and npm 11 refuses to apply the
+      # latest tag implicitly to a version lower than the one it names ("Cannot implicitly apply the latest tag because
+      # previously published version 3.21.0 is higher than the new version 0.23.4"), so a promotion without it fails
+      # after the channel already serves the release. The promotion is the newest release, whatever npm held before.
       - name: Publish @openmixer/omx-contract
         env:
           DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run && '--dry-run' || '' }}
-        run: npm publish --provenance --access public $DRY
+        run: npm publish --provenance --access public --tag latest $DRY

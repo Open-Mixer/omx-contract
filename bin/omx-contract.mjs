@@ -31,7 +31,7 @@ import { domainCheckReport } from '../lib/domain-check.mjs';
 import { domainDataFiles, domainLeaf, domainPath, readDomain, requiresNames } from '../lib/domain.mjs';
 import { checkLinks, linksOf, sourcesOf } from '../lib/links.mjs';
 import { formatFile } from '../lib/fmt.mjs';
-import { classify, classifySchema, refusal, schemaVersionProblem } from '../lib/semver.mjs';
+import { classify, classifySchema, refusal, schemaVersionProblem, sinceProblems } from '../lib/semver.mjs';
 import { fileProblems, validateData } from '../lib/validate.mjs';
 import { lineFinder, unitGate, unitProblems } from '../lib/units.mjs';
 import { catalogKeys, catalogProblems } from '../lib/catalog.mjs';
@@ -388,6 +388,29 @@ function dataAtTag(tag) {
   return texts;
 }
 
+/** The domain documents of contract.d/ at `tag`, by name (contract.d/<name>/<name>.json), as committed. */
+function domainsAtTag(tag) {
+  const git = (...a) => execFileSync('git', ['-C', ROOT, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const out = {};
+  for (const rel of git('ls-tree', '-r', '--name-only', tag, '--', 'contract.d').split('\n')) {
+    const m = /^contract\.d\/([^/]+)\/\1\.json$/.exec(rel);
+    if (m) out[m[1]] = JSON.parse(git('show', `${tag}:${rel}`));
+  }
+  return out;
+}
+
+/** The domain documents of contract.d/ in the tree `root`, by name. */
+function domainsOf(root) {
+  const dir = join(root, 'contract.d');
+  const out = {};
+  if (!existsSync(dir)) return out;
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name, `${name}.json`);
+    if (existsSync(p)) out[name] = JSON.parse(readFileSync(p, 'utf8'));
+  }
+  return out;
+}
+
 const RANKS = { none: 0, patch: 1, minor: 2, major: 3 };
 
 function cmdSemver(argv) {
@@ -437,8 +460,10 @@ function cmdSemver(argv) {
     // the schema carries its own version: a changed schema needs it bumped by what its changes need, once the package is
     if (sc.level !== 'none' && to !== from.replace(/^v/, '')) schemaWhy = refusal(sc.level, prevSchema['x-omx-schema-version'], nextSchema['x-omx-schema-version']);
   }
+  // an item new since the tag says the release of its domain that ships it (#246); only against a tag, whose domains are read
+  const since = fromDir ? [] : sinceProblems(domainsAtTag(from), domainsOf(ROOT), from);
   for (const c of changes) console.log(`${c.level.toUpperCase()} ${c.item}: ${c.what}`);
-  const why = report ? null : (refusal(level, from, to) ?? (schemaWhy && `the schema: ${schemaWhy}`));
+  const why = report ? null : (refusal(level, from, to) ?? (schemaWhy && `the schema: ${schemaWhy}`) ?? (since.length ? `x-since: ${since.join('; ')}` : null));
   console.log(JSON.stringify({ from: from.replace(/^v/, ''), to, level, changes: changes.length, ok: !why }));
   if (why) { console.error(`omx-contract semver: ${why}`); return 1; }
   return 0;

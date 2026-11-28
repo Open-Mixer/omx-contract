@@ -61,7 +61,7 @@
 #define OMX_RESOURCE_KINDS_COUNT 14u
 /** The words of RESOURCE_KINDS in their declared order, as a C initializer list. */
 #define OMX_RESOURCE_KINDS_INIT { "cpu", "memory", "scratch-memory", "latency", "tail", "voices", "startup", "threads", "worker", "block-length", "open-files", "disk-io", "network", "state" }
-/** Expands `X(code, "word", NAME)` once per word of RESOURCE_KINDS, in order, the code being its place in the order. Every resource a host plans a plugin for (FreeMixer/plugin-qualify#116): each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure. */
+/** Expands `X(code, "word", NAME)` once per word of RESOURCE_KINDS, in order, the code being its place in the order. Every resource a host plans a plugin for: each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure. */
 #define OMX_RESOURCE_KINDS(X) \
     X(0u, "cpu", CPU) X(1u, "memory", MEMORY) X(2u, "scratch-memory", SCRATCH_MEMORY) X(3u, "latency", LATENCY) \
     X(4u, "tail", TAIL) X(5u, "voices", VOICES) X(6u, "startup", STARTUP) X(7u, "threads", THREADS) \
@@ -150,7 +150,7 @@
 #define OMX_RESOURCE_HINTS_COUNT 7u
 /** The words of RESOURCE_HINTS in their declared order, as a C initializer list. */
 #define OMX_RESOURCE_HINTS_INIT { "footprint-at-rest", "footprint-per-voice", "shared-load", "threads-spawned", "streams-from-disk", "opens-sockets", "activate-time" }
-/** Expands `X(code, "word", NAME)` once per word of RESOURCE_HINTS, in order, the code being its place in the order. What a plugin declares about its own footprint, in openmixer's own hints (FreeMixer/plugin-qualify#116): each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero. */
+/** Expands `X(code, "word", NAME)` once per word of RESOURCE_HINTS, in order, the code being its place in the order. What a plugin declares about its own footprint, in openmixer's own hints: each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero. */
 #define OMX_RESOURCE_HINTS(X) \
     X(0u, "footprint-at-rest", FOOTPRINT_AT_REST) X(1u, "footprint-per-voice", FOOTPRINT_PER_VOICE) X(2u, "shared-load", SHARED_LOAD) X(3u, "threads-spawned", THREADS_SPAWNED) \
     X(4u, "streams-from-disk", STREAMS_FROM_DISK) X(5u, "opens-sockets", OPENS_SOCKETS) X(6u, "activate-time", ACTIVATE_TIME)

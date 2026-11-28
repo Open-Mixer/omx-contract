@@ -15,7 +15,7 @@ a C compiler to check the header, and jansson (`jansson-devel`, `libjansson-dev`
 
 The RPM omx-contract is arch-dependent because one spec builds the loader beside it; its content is the command and is the same on every architecture. The paths are the ones every release installed, so no reader changes. A program that reads the contract directory or
 the json render at run time requires omx-contract-data, never the development package; every other owner ships its
-own directory the same way, in `<owner>-contract` (FreeMixer/omx-contract#74).
+own directory the same way, in `<owner>-contract`.
 
 ```
 npm ci

@@ -640,7 +640,7 @@ a floor, the lowest release whose functions it calls.
   the header and omx-panel reads the item from omx-contract-data, so omx-panel
   no longer reads anything of omx-plugins (#145). The codes are the ones
   omx-plugins shipped.
-- A sheet whose name starts with OMX_ is spelled once in omx_contract_limits.h.
+- A sheet whose name starts with OMX_ is spelled once in omx_contract.h.
 - omx-resource-hints.ttl validates with sord_validate (a label on every term) and
   states its integer figures as xsd:integer, which lilv reads (#144).
 - semver classifies the schema too and has --report; every pull request runs it

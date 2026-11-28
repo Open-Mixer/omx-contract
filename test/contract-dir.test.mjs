@@ -421,7 +421,7 @@ test('the codes are the contract domain\'s: its item holds every code once, vali
   assert.equal(new Set(codes).size, codes.length);
   assert.ok(codes.every((c) => /^contract\.[a-z]+\.[a-z-]+$/.test(c)));
   assert.equal(loadData(DATA).items.has('CONTRACT_CODES'), false);
-  assert.ok(!readFileSync(join(ROOT, 'include/omxcontract/omx_contract_limits.h'), 'utf8').includes('contract.dir.absent'));
+  assert.ok(!readFileSync(join(ROOT, 'include/omxcontract/omx_contract.h'), 'utf8').includes('contract.dir.absent'));
 });
 
 test('a scanned plugin descriptor is no declaration: contract.origin.misplaced, the whole read', () => {

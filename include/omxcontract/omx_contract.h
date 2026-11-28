@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-#ifndef OMX_CONTRACT_LIMITS_H
-#define OMX_CONTRACT_LIMITS_H
+#ifndef OMXCONTRACT_CONTRACT_H
+#define OMXCONTRACT_CONTRACT_H
 #include <math.h>
 /*
  * GENERATED: DO NOT EDIT BY HAND.
@@ -39,7 +39,7 @@ enum omx_param_scales {
 /** The id PARAM_SCALES names as its default. */
 #define OMX_PARAM_SCALES_DEFAULT OMX_PARAM_SCALES_LINEAR
 
-#endif /* OMX_CONTRACT_LIMITS_H */
+#endif /* OMXCONTRACT_CONTRACT_H */
 
 /* The standard sample rates (STANDARD_SAMPLE_RATES, declared in omx-contract's rates.json): the set
  * a rate is checked against and the grid a native tool iterates. Guarded on its own, outside the

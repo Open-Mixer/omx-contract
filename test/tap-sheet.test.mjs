@@ -31,9 +31,9 @@ const cc = (process.env.CC ?? 'cc').split(' ');
 test('the integer ceiling sizes a C array', { skip: spawnSync(cc[0], [...cc.slice(1), '--version']).status !== 0 && 'no cc' }, () => {
   const dir = scratchDir('omx-tap-sheet-');
   mkdirSync(join(dir, 'omxcontract'));
-  writeFileSync(join(dir, 'omxcontract/omx_contract_limits.h'), header());
+  writeFileSync(join(dir, 'omxcontract/omx_contract.h'), header());
   writeFileSync(join(dir, 'main.c'), [
-    '#include <omxcontract/omx_contract_limits.h>',
+    '#include <omxcontract/omx_contract.h>',
     'static float taps[OMX_ECHO_TAPS_RANGE_MAX];',
     'int main(void) { return (int)(sizeof taps / sizeof taps[0]) == 3 ? 0 : 1; }',
   ].join('\n'));

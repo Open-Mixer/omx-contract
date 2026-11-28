@@ -41,9 +41,9 @@ test('c: the lookup returns an id\'s value, or 0 for an id that carries none', {
   const h = renderC(planted())[0].text;
   const dir = scratchDir('omx-set-values-');
   mkdirSync(join(dir, 'omxcontract'));
-  writeFileSync(join(dir, 'omxcontract/omx_contract_limits.h'), h);
+  writeFileSync(join(dir, 'omxcontract/omx_contract.h'), h);
   writeFileSync(join(dir, 'main.c'), [
-    '#include <omxcontract/omx_contract_limits.h>',
+    '#include <omxcontract/omx_contract.h>',
     'int main(void) {',
     '  float v = -1.0f;',
     '  if (omx_swell_kinds_value(OMX_SWELL_KINDS_SOFT, &v) != 0 || v != -1.0f) return 1;',

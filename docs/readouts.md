@@ -33,7 +33,7 @@ drawn, so it has no engine value to cite and the kernel recipe does not ask for 
 
 ## How it renders
 
-- C, in `omx_contract_limits.h`, per kernel that declares readouts: `enum omx_<kernel>_readouts` with
+- C, in `omx_contract.h`, per kernel that declares readouts: `enum omx_<kernel>_readouts` with
   `OMX_<KERNEL>_READOUT_<NAME>` at its position, `OMX_<KERNEL>_READOUT_COUNT`, and per readout `_MIN` and `_MAX`
   (float literals), `_RATE_HZ`, `_SCALE` (an `OMX_PARAM_SCALES_*` member) and `_UNIT` (a string literal).
 - TypeScript: `READOUTS`, by kernel, each readout `{ name, doc, unit, min, max, scale, rateHz }` with every

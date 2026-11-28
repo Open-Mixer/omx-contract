@@ -65,7 +65,7 @@ test('(a) unitWords and descriptorUnitWords, the schema\'s $defs.unit and $defs.
 });
 
 test('(a) the committed renders carry the golden words: the scales enum, a define per unit and per dimension', () => {
-  const limits = readFileSync(join(ROOT, 'include/omxcontract/omx_contract_limits.h'), 'utf8');
+  const limits = readFileSync(join(ROOT, 'include/omxcontract/omx_contract.h'), 'utf8');
   assert.match(limits, /OMX_PARAM_SCALES_LINEAR = 0,[^\n]*\n {2}OMX_PARAM_SCALES_LOG = 1,[^\n]*\n {2}OMX_PARAM_SCALES_STEPPED = 2,/);
   assert.match(limits, /#define OMX_PARAM_SCALES_DEFAULT OMX_PARAM_SCALES_LINEAR/);
   const vocab = readFileSync(join(ROOT, 'include/omxcontract/omx_vocabulary.h'), 'utf8');
@@ -116,7 +116,7 @@ test('(c) sabotage: a domain without log and dBu: the scales lack log, the rende
     assert.deepEqual(ids, ['linear', 'stepped'], 'the descriptor check reads its scales from the domain');
     const out = join(dir, 'out');
     execFileSync(process.execPath, [join(dir, 'bin/omx-contract.mjs'), 'render', '--target', 'c', '--out', out], { encoding: 'utf8', cwd: dir });
-    assert.ok(!readFileSync(join(out, 'omxcontract/omx_contract_limits.h'), 'utf8').includes('OMX_PARAM_SCALES_LOG'), 'the render reads the scales from the domain');
+    assert.ok(!readFileSync(join(out, 'omxcontract/omx_contract.h'), 'utf8').includes('OMX_PARAM_SCALES_LOG'), 'the render reads the scales from the domain');
     assert.ok(!readFileSync(join(out, 'omxcontract/omx_vocabulary.h'), 'utf8').includes('OMX_PARAM_UNITS_DBU '), 'the render reads the units from the domain');
     const r = spawnSync(process.execPath, [join(dir, 'tools/unit-enum.mjs'), '--check', '--root', dir], { encoding: 'utf8' });
     assert.equal(r.status, 1, 'unit-enum reads the units from the domain');

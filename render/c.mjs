@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 /**
- * The `c` target: `omxcontract/omx_contract_limits.h`, and beside it the header each file's `render.c` word declares
+ * The `c` target: `omxcontract/omx_contract.h`, and beside it the header each file's `render.c` word declares
  * (docs/render.md); with a package named, only that package's declared headers, at their own paths. Every define of
- * omx_contract_limits.h is spelled by the helpers of c/c-literals.mjs; the frame (banner, section
+ * omx_contract.h is spelled by the helpers of c/c-literals.mjs; the frame (banner, section
  * comments) is this file's. A plugin's parameter header is rendered by omx-plugins from its
  * declaration, by reference to the items here.
  */
@@ -162,7 +162,7 @@ export function cNamesOf(resolved) {
 }
 
 /**
- * The defines of omx_contract_limits.h over `resolved`, its sections each under its comment: the native tables, the
+ * The defines of omx_contract.h over `resolved`, its sections each under its comment: the native tables, the
  * declared scalars, lists and sets, and the kernels' readouts. What omx-contract's own header holds, and what an owner's `limits` section holds of its own items.
  */
 export function limitsSections(resolved) {
@@ -189,13 +189,13 @@ export function limitsSections(resolved) {
   return sections.map(([body, comment]) => `${comment}\n${body}`).join('\n\n');
 }
 
-/** The limits header of the resolved data: omx-contract's own omx_contract_limits.h. */
+/** The limits header of the resolved data: omx-contract's own omx_contract.h. */
 export function renderLimitsHeader(resolved) {
   const d = doors(resolved);
   return `// SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-#ifndef OMX_CONTRACT_LIMITS_H
-#define OMX_CONTRACT_LIMITS_H
+#ifndef OMXCONTRACT_CONTRACT_H
+#define OMXCONTRACT_CONTRACT_H
 #include <math.h>
 /*
  * GENERATED: DO NOT EDIT BY HAND.
@@ -212,7 +212,7 @@ export function renderLimitsHeader(resolved) {
 
 ${limitsSections(resolved)}
 
-#endif /* OMX_CONTRACT_LIMITS_H */
+#endif /* OMXCONTRACT_CONTRACT_H */
 ${d.STANDARD_SAMPLE_RATES ? ratesTail(d.STANDARD_SAMPLE_RATES) : ''}`;
 }
 
@@ -241,7 +241,7 @@ function stringsRead(resolved, pkg) {
 
 /**
  * The headers the `render.c` words of the data declare, `[{ path, text, pkg, omx }]`, `path` the word's `header`;
- * `omx` when a section spells OMX_ names (scalars, limits), which omx_contract_limits.h of a whole read holds already.
+ * `omx` when a section spells OMX_ names (scalars, limits), which omx_contract.h of a whole read holds already.
  * A header reads the items of the file that declares it, or with `scope: package` every item of its package. Those of
  * one package when `pkg` is given (a data directory's files are the package named).
  * @throws naming both files: two files that declare one header.
@@ -272,15 +272,15 @@ export function ownerHeaders(resolved, { pkg, all = false } = {}) {
 
 /**
  * Every file of the `c` target: `[{ path, text }]`, paths relative to the output directory. The whole data renders
- * omx_contract_limits.h and, under `omxcontract/` beside it, every declared header that spells no OMX_ name (the
+ * omx_contract.h and, under `omxcontract/` beside it, every declared header that spells no OMX_ name (the
  * layout omx-contract 2.14.0 installed), omx_vocabulary.h, the vocabulary's codes and words (render/vocabulary.mjs), and
  * omx_host_verbs.h when the read declares verbs (render/verbs.mjs); `{ pkg }` renders every header that package declares, each at its own path,
  * for the owner to commit, its vocabulary, `<stem>_vocabulary.h` (render/vocabulary.mjs), and its verbs, `<stem>_host_verbs.h`.
  */
 export function renderC(resolved, { pkg } = {}) {
   if (pkg !== undefined) return [...ownerHeaders(resolved, { pkg }).map(({ path, text }) => ({ path, text })), ...packageVocabularyC(resolved, pkg), ...packageVerbsC(resolved, pkg)];
-  const files = [{ path: 'omxcontract/omx_contract_limits.h', text: renderLimitsHeader(resolved) }];
-  // a header of OMX_ names repeats lines of omx_contract_limits.h, which the whole read holds once
+  const files = [{ path: 'omxcontract/omx_contract.h', text: renderLimitsHeader(resolved) }];
+  // a header of OMX_ names repeats lines of omx_contract.h, which the whole read holds once
   for (const h of ownerHeaders(resolved, { all: true })) if (!h.omx) files.push({ path: `omxcontract/${h.path}`, text: h.text });
   const vocabulary = renderVocabularyHeader(resolved);
   if (vocabulary) files.push({ path: 'omxcontract/omx_vocabulary.h', text: vocabulary });

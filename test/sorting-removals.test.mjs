@@ -28,7 +28,7 @@ const ROWS = {
 };
 const GONE = Object.values(ROWS).flat();
 const hasCc = () => spawnSync('cc', ['--version']).status === 0;
-const RENDERS = ['include/omxcontract/omx_contract_limits.h', 'include/omxcontract/omx_vocabulary.h', 'share/omx-contract/omx-contract.json', 'share/omx-contract/omx-vocabulary.schema.json', 'test/golden/ts/omx-contract.d.ts', 'test/golden/ts/omx-contract.js'];
+const RENDERS = ['include/omxcontract/omx_contract.h', 'include/omxcontract/omx_vocabulary.h', 'share/omx-contract/omx-contract.json', 'share/omx-contract/omx-vocabulary.schema.json', 'test/golden/ts/omx-contract.d.ts', 'test/golden/ts/omx-contract.js'];
 const LANGS = ['ca', 'de', 'es', 'fr', 'it', 'pt'];
 
 /** The name `n` as a whole name (CLAP_PLUGIN_FEATURE_ANALYZER, a CLAP term, is no PLUGIN_FEATURE_ANALYZER; OMX_READOUT_RATE_HZ is READOUT_RATE_HZ). */

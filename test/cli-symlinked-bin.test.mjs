@@ -30,7 +30,7 @@ for (const [how, cli] of [['node <link>', viaNode], ['the link itself (npx)', vi
   test(`through a symlinked bin (${how}), a refused check exits 1 and names the cause`, () => {
     const r = cli('render', '--target', 'c', '--out', join(ROOT, 'test/fixtures'), '--check');
     assert.equal(r.status, 1);
-    assert.match(r.stderr, /omxcontract\/omx_contract_limits\.h is missing/);
+    assert.match(r.stderr, /omxcontract\/omx_contract\.h is missing/);
   });
 
   test(`through a symlinked bin (${how}), a passing check exits 0`, () => {

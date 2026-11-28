@@ -30,7 +30,7 @@ Python: `python3-omx-contract` (rpm and deb), the package `omx_contract` with th
 ## Start
 
 ```c
-#include <omxcontract/omx_contract_limits.h>
+#include <omxcontract/omx_contract.h>
 ```
 
 ```

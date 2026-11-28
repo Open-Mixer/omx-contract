@@ -3,7 +3,7 @@
 /**
  * The split of a contract-limits render (render/c.mjs) by owner: the ONE render of a consumer's
  * declarations, cut by membership in the INSTALLED owners' C headers. Each owner header (omx-contract's own
- * `<omxcontract/omx_contract_limits.h>`, omx-dsp's `<omxdsp/omxdsp_definitions.h>`) is re-rendered unit by
+ * `<omxcontract/omx_contract.h>`, omx-dsp's `<omxdsp/omxdsp_definitions.h>`) is re-rendered unit by
  * unit, and every unit no owner carries goes to the consumer's own header.
  *
  * A UNIT is what one definition spells: a `#define OMX_<NAME> <value>` line, a stage's law array, or a
@@ -21,7 +21,7 @@
  */
 
 /** omx-contract's header inside its include directory. */
-export const CONTRACT_HEADER = 'omxcontract/omx_contract_limits.h';
+export const CONTRACT_HEADER = 'omxcontract/omx_contract.h';
 
 /** omx-dsp's definitions header inside its include directory. */
 export const DSP_DEFINITIONS_HEADER = 'omxdsp/omxdsp_definitions.h';

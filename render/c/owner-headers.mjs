@@ -5,7 +5,7 @@
  * framed by the words the file states (header, guard, project, banner, brief, includes) and spelled by its sections:
  * numbers (every sheet, `<prefix><FIELD>`), codes (every codes item, `<prefix><NAME>`), strings (every sheet of
  * strings, the X-macro `<table>(X)` over the defines a sibling header's numbers section renders), scalars (the numbers
- * spelled OMX_<macro>, as omx_contract_limits.h spells them) and limits (every section of omx_contract_limits.h). A
+ * spelled OMX_<macro>, as omx_contract.h spells them) and limits (every section of omx_contract.h). A
  * header reads the items of its own file, or with `scope: package` every item of its package; a strings section also
  * reads, never changes, the sibling sheet and the standard unit list (docs/units.md, the render shape). The tool names
  * no project here, and no item but that list.
@@ -148,7 +148,7 @@ function codesSection(spec, items, header) {
 
 /**
  * One header over `items` (a Map of resolved items, with its kernels). `blocks` renders the OMX_ spellings:
- * `scalars(items)` the declared-scalars block, `limits(items)` every section of omx_contract_limits.h. `read` is what a
+ * `scalars(items)` the declared-scalars block, `limits(items)` every section of omx_contract.h. `read` is what a
  * strings section reads beyond its own items, read-only: `sibling(prefix)` and `item(name)` (stringsSection).
  */
 export function renderOwnerHeader(spec, items, blocks, read) {

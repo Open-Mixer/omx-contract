@@ -50,7 +50,7 @@ test('the c headers of the union compile, and a C reader sees the declared value
   const dir = scratchDir('omx-c-');
   const src = join(dir, 't.c');
   writeFileSync(src, `#include <stdio.h>
-#include <omxcontract/omx_contract_limits.h>
+#include <omxcontract/omx_contract.h>
 int main(void) {
   printf("%g %g %d %u %g %d %d\\n", (double)OMX_SWELL_THRESHOLD_DB_MIN, OMX_TOOL_Q_DOUBLE, OMX_CONTOUR_CENTRE_COUNT,
          OMX_DECLARED_RATE_COUNT, (double)OMX_CONTOUR_SHELF_GAIN_DB, (int)OMX_CONTOUR_MAX_BANDS,
@@ -69,10 +69,10 @@ int main(void) {
 // The C header's rate tail says where the list it renders is declared: the data file that declares
 // STANDARD_SAMPLE_RATES (read off the data, by the name it is installed under in the contract directory too), not the
 // console engine module it came from (FreeMixer/omx-contract#108).
-test('c: the rate tail of omx_contract_limits.h names the data file that declares the rates', () => {
+test('c: the rate tail of omx_contract.h names the data file that declares the rates', () => {
   const file = own().get('STANDARD_SAMPLE_RATES').rel.split('/').pop();
-  const h = readFileSync(join(ROOT, 'include/omxcontract/omx_contract_limits.h'), 'utf8');
-  const tail = h.slice(h.lastIndexOf('#endif /* OMX_CONTRACT_LIMITS_H */') + 1);
+  const h = readFileSync(join(ROOT, 'include/omxcontract/omx_contract.h'), 'utf8');
+  const tail = h.slice(h.lastIndexOf('#endif /* OMXCONTRACT_CONTRACT_H */') + 1);
   const prose = tail.slice(0, tail.indexOf('#ifndef OMX_DECLARED_RATE_COUNT'));
   assert.ok(prose.includes('STANDARD_SAMPLE_RATES'), 'positive control: the tail introduces the rates');
   assert.ok(prose.includes(`omx-contract's ${file}`), `the rate tail names omx-contract's ${file}`);

@@ -139,8 +139,8 @@ for pkg in "$cli" "$devel" $packs; do
     dpkg-deb -f "$f" Depends | tr ',' '\n' | sed 's/^ *//' | grep -qx "$data (= $v)" || { echo "$pkg: does not depend on $data (= $v)"; bad=1; }
   fi
 done
-# the command runs on node with no version (the code runs on every node the releases carry, bookworm's 18 included; a
-# floor above a release's node makes the package uninstallable there), and recommends pkg-config, which --installed
+# the command runs on node with no version (the code runs on every node the releases carry; a floor above a release's
+# node makes the package uninstallable there), and recommends pkg-config, which --installed
 # reads the contract directory through
 f=$(pkgfile "$cli")
 if [ "$kind" = rpm ]; then

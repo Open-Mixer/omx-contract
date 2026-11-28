@@ -70,10 +70,10 @@ const cc = (process.env.CC ?? 'cc').split(' ');
 test('c: the table compiles and reads by enumerator', { skip: spawnSync(cc[0], [...cc.slice(1), '--version']).status !== 0 && 'no cc' }, () => {
   const dir = scratchDir('omx-set-standard-');
   mkdirSync(join(dir, 'omxcontract'));
-  writeFileSync(join(dir, 'omxcontract/omx_contract_limits.h'), renderC(planted())[0].text);
+  writeFileSync(join(dir, 'omxcontract/omx_contract.h'), renderC(planted())[0].text);
   writeFileSync(join(dir, 'main.c'), [
     '#include <string.h>',
-    '#include <omxcontract/omx_contract_limits.h>',
+    '#include <omxcontract/omx_contract.h>',
     'int main(void) {',
     '  if (strcmp(OMX_DEMO_UNITS_STANDARD[OMX_DEMO_UNITS_HZ], "Hz") != 0) return 1;',
     '  if (strcmp(OMX_DEMO_UNITS_STANDARD[OMX_DEMO_UNITS_COEF], "coef") != 0) return 2;',

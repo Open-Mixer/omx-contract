@@ -47,4 +47,4 @@ one `CLAP_HOST_<FIELD>` define per core number (an integer as an unsigned litera
 `///<` comment; `hosted_stage_limits.h`, every number as `OMX_HOSTED_STAGE_<FIELD>`, the worker fields included; and a
 TypeScript module of both items. omx-clap-core renders them with `omx-contract render --target c|ts --package
 omx-clap` and commits them, byte for byte, so it builds on its own and its source is public; the render of a whole
-read writes `clap_host_limits.h` as `omxcontract/clap_host_limits.h` beside `omx_contract_limits.h`.
+read writes `clap_host_limits.h` as `omxcontract/clap_host_limits.h` beside `omx_contract.h`.

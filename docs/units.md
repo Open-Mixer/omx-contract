@@ -125,7 +125,7 @@ Each format level holds its own spellings and a mapping to the standard ids abov
   tokens, each a wire code (0 is no unit, 1 to 24 are the LV2 units one to one, 0x100 (256) up a vendor block) mapped to
   a standard unit id; codes are append-only. A descriptor names standard unit ids, never codes: only the extension
   encodes them. It is the released `OMX_PARAM_CONTRACT_UNITS` (3.20.2), rendered to `omx_param_units.h` and
-  `omx_contract_limits.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
+  `omx_contract.h`. It is therefore a move OUT of omx-contract, a row of the sorting pass: the sheet and its
   render go to omx-clap-core; each reader (omx-plugins, omx-panel, the console, omx-clap-core's own code) switches its
   read, and its floors, to omx-clap-core's contract package; the old sheet in omx-contract is removed in the same
   chain-3 run, before any reader renders (B1, below). The PRs are those of the map amendment (the amendment of

@@ -25,7 +25,7 @@ test('move a travel ceiling: every target follows', () => {
   editData(dir, 'kernels/echo.json', (d, at) => { at('ECHO_TIME_RANGE').travel.max = 1200; });
   const { r, text } = all(dir);
   const c = renderC(r);
-  const limits = c.find((f) => f.path.endsWith('omx_contract_limits.h')).text;
+  const limits = c.find((f) => f.path.endsWith('omx_contract.h')).text;
   assert.match(limits, /^#define OMX_ECHO_TIME_RANGE_MAX 1200$/m);
   assert.match(renderTs(r)[0].text, /"max": 1200/);
   assert.equal(JSON.parse(renderJson(r, '0.0.0')[0].text).items.ECHO_TIME_RANGE.value.max, 1200);

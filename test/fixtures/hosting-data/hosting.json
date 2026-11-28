@@ -28,7 +28,7 @@
         "project": "omx-clap-host",
         "banner": [
           "Rendered from HOSTED_STAGE_LIMITS of data/hosting.json: every number of the stage, spelled once,",
-          "OMX_HOSTED_STAGE_<FIELD>, as omx-contract's omx_contract_limits.h spelled it, the worker fields included. The rendered",
+          "OMX_HOSTED_STAGE_<FIELD>, as omx-contract's omx_contract.h spelled it, the worker fields included. The rendered",
           "file is kept in this repository so the library builds on its own; the numbers are changed where they are declared and",
           "the file is re-rendered, never edited here."
         ],

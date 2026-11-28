@@ -103,7 +103,7 @@ const EXPECTED = `/* SPDX-License-Identifier: GPL-3.0-or-later */
 #endif /* ACME_LIMITS_H */
 `;
 
-test('the word renders the whole header, byte for byte, beside omx_contract_limits.h', () => {
+test('the word renders the whole header, byte for byte, beside omx_contract.h', () => {
   assert.equal(header(), EXPECTED);
   assert.equal(renderC(resolveData(loadData(null, texts()))).find((f) => f.path === 'omxcontract/acme_limits.h').text, EXPECTED);
   assert.deepEqual(problems(), []);
@@ -189,7 +189,7 @@ test('render --package: the owner renders only its own headers, at their own pat
   const root = directory();
   const out = join(SCRATCH, `out-${n++}`);
   assert.equal(quiet(() => main(['render', '--target', 'c', '--contract-dir', root, '--package', 'acme', '--out', out])), 0);
-  assert.deepEqual(readdirSync(out), ['acme_limits.h'], 'one header, no omx_contract_limits.h');
+  assert.deepEqual(readdirSync(out), ['acme_limits.h'], 'one header, no omx_contract.h');
   assert.equal(readFileSync(join(out, 'acme_limits.h'), 'utf8'), EXPECTED);
   writeFileSync(join(out, 'acme.c'), 'int acme;\n');
   assert.equal(quiet(() => main(['render', '--target', 'c', '--contract-dir', root, '--package', 'acme', '--out', out, '--check'])), 0, 'the owner\'s other files are not extra');
@@ -210,8 +210,8 @@ test('render --package: the owner renders only its own headers, at their own pat
   assert.equal(mod.ACME_LIMITS.queueDepth, 16);
   const whole = join(SCRATCH, `whole-${n++}`);
   assert.equal(quiet(() => main(['render', '--target', 'c', '--contract-dir', root, '--out', whole])), 0);
-  assert.equal(readFileSync(join(whole, 'omxcontract/acme_limits.h'), 'utf8'), EXPECTED, 'the whole read places it beside omx_contract_limits.h');
-  assert.match(readFileSync(join(whole, 'omxcontract/omx_contract_limits.h'), 'utf8'), /^#define OMX_ACME_QUEUE_DEPTH 16$/m, 'and its numbers are items like any other');
+  assert.equal(readFileSync(join(whole, 'omxcontract/acme_limits.h'), 'utf8'), EXPECTED, 'the whole read places it beside omx_contract.h');
+  assert.match(readFileSync(join(whole, 'omxcontract/omx_contract.h'), 'utf8'), /^#define OMX_ACME_QUEUE_DEPTH 16$/m, 'and its numbers are items like any other');
 });
 
 test('a data directory is the package it is rendered for: an owner renders from its own tree', () => {
@@ -257,15 +257,15 @@ test('a package-scope limits header frames the OMX_* defines of every item of it
     ' * Rendered from acme\'s definitions.', ' * Re-render, never edit.', ' */', '', '/** @file', ' * @brief The acme definitions. */', '',
     '#include <math.h>', '',
   ]);
-  assert.match(lines[33], /^\/\* Per-parameter numeric travel/, 'the sections of omx_contract_limits.h, each under its own comment');
+  assert.match(lines[33], /^\/\* Per-parameter numeric travel/, 'the sections of omx_contract.h, each under its own comment');
   assert.match(own.text, /\n#endif \/\* ACME_DEFINITIONS_H \*\/\n$/);
   const defines = lines.filter((l) => l.startsWith('#define OMX_'));
   assert.deepEqual(defines.filter((l) => / OMX_ACME_(TABLE_RATIO|GAIN_RANGE)_(MIN|MAX|DEFAULT) /.test(`${l} `)).length, 6, 'the table and the travel');
   assert.ok(defines.includes('#define OMX_ACME_READOUT_LEVEL_RATE_HZ 30'), 'the kernel\'s readouts');
-  const whole = renderC(r).find((f) => f.path === 'omxcontract/omx_contract_limits.h').text.split('\n');
+  const whole = renderC(r).find((f) => f.path === 'omxcontract/omx_contract.h').text.split('\n');
   for (const d of defines) assert.ok(whole.includes(d), `${d} is the whole read's line`);
   assert.ok(defines.includes('#define OMX_PARAM_SCALES_COUNT 3u'), 'a data directory is one package: every item of it, the scales beside the kernel included');
-  assert.equal(renderC(r).some((f) => f.path.includes('acme_definitions')), false, 'the whole read holds these defines in omx_contract_limits.h, not twice');
+  assert.equal(renderC(r).some((f) => f.path.includes('acme_definitions')), false, 'the whole read holds these defines in omx_contract.h, not twice');
 });
 
 test('a package-scope header is cut to its package in a contract directory', () => {

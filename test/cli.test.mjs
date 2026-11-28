@@ -32,7 +32,7 @@ test('a usage error exits 2, never a pass', () => {
 test('render --check names a missing and an extra file', () => {
   const r = cli('render', '--target', 'c', '--out', join(ROOT, 'test/fixtures'), '--check');
   assert.equal(r.status, 1);
-  assert.match(r.stderr, /omxcontract\/omx_contract_limits\.h is missing/);
+  assert.match(r.stderr, /omxcontract\/omx_contract\.h is missing/);
 });
 
 test('fmt --check refuses a file out of the one formatting, fmt fixes it', () => {

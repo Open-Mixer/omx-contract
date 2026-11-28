@@ -27,11 +27,11 @@ const FULL = `#ifndef FULL_H
 `;
 
 test('the split gives an owner its own units and the consumer every other one', () => {
-  const pinned = [{ owner: 'omx-contract', header: 'omxcontract/omx_contract_limits.h', text: OWNER }];
+  const pinned = [{ owner: 'omx-contract', header: 'omxcontract/omx_contract.h', text: OWNER }];
   const split = splitContractLimits({ full: FULL, pinned, generator: 'make limits' });
   assert.deepEqual([...split.contractNames].sort(), ['OMX_A_MAX', 'OMX_B_MAX']);
   assert.deepEqual([...split.consoleNames].sort(), ['OMX_C_MAX', 'OMX_DECLARED_SCALARS_TABLE'].filter((n) => split.consoleNames.has(n)).sort());
-  assert.match(split.console, /^#include <omxcontract\/omx_contract_limits\.h>$/m);
+  assert.match(split.console, /^#include <omxcontract\/omx_contract\.h>$/m);
   assert.match(split.console, /^#define OMX_C_MAX 4\.0f$/m);
   assert.doesNotMatch(split.console, /^#define OMX_A_MAX/m, 'an owner\'s unit stays out of the consumer header');
   assert.match(split.console, /Regenerate: make limits,/);

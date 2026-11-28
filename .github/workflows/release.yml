@@ -6,9 +6,10 @@ name: release
 # python3-omx-contract and a language pack per language of share/omx-contract/languages.json (RPM), and omx-contract,
 # omx-contract-data, libomx-contract-dev, python3-omx-contract and the packs (DEB), through Open-Mixer/.github's
 # build-rpm.yml and build-deb.yml, signed, into the staging channel (staging/rpm and staging/deb of the channel
-# repository), where the next layer of the release chain builds against them. The quick set by default (matrix:
-# quick, the staging of a devel run); a promotion candidate is dispatched with matrix: full, the only staged tree a tag
-# can promote (promote-staged refuses one that lacks a release or architecture). A full staged run needs the shared
+# repository), where the next layer of the release chain builds against them. The full matrix by default (matrix:
+# full, every release and architecture: owner ruling 2026-11-26, every package in every cell; a quick default staged
+# fc45 x86_64 and trixie arm64 alone and the next layer's amd64 and aarch64 builds found nothing), the only staged tree
+# a tag can promote (promote-staged refuses one that lacks a release or architecture); matrix: quick is asked for by name. A full staged run needs the shared
 # release-matrix to allow it (Open-Mixer/.github, the pairing change).
 # omx-contract is the first layer of a wave, so its staged run passes staging-bootstrap: the staging channel may not
 # exist yet when its build starts. staged-deps is still declared and handed on; the shared workflows ignore it.
@@ -37,10 +38,10 @@ on:
         type: boolean
         default: false
       matrix:
-        description: 'quick (fc45 x86_64, trixie arm64: the staging of every devel run) or full (every release and architecture: a promotion candidate, the only tree a tag can promote)'
+        description: 'full (every release and architecture, the default: owner ruling 2026-11-26, and the only tree a tag can promote) or quick (fc45 x86_64, trixie arm64 alone, asked for by name)'
         type: choice
         options: [quick, full]
-        default: quick
+        default: full
       version:
         description: 'A dry run of the promotion: the staged version to find (no v). Set, nothing is built'
         type: string

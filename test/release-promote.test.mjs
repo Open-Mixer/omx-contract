@@ -47,7 +47,8 @@ export function findings(text) {
     if (!/^ {6}matrix: \$\{\{ inputs\.matrix \}\}$/m.test(job)) out.push(`${kind}: the staged build does not take the matrix input`);
   }
   const matrix = /^ {6}matrix:\n((?: {8}.*\n)+)/m.exec(on)?.[1] ?? '';
-  if (!/^ {8}default: quick$/m.test(matrix)) out.push('the matrix input does not default to quick (the staging of every devel run)');
+  // every package in every cell (owner ruling 2026-11-26): a staged dispatch told nothing stages the full matrix
+  if (!/^ {8}default: full$/m.test(matrix)) out.push('the matrix input does not default to full (every package in every cell, owner ruling 2026-11-26)');
   if (!/^ {8}options: \[quick, full\]$/m.test(matrix)) out.push('the matrix input does not offer full (a promotion candidate is dispatched with matrix=full)');
   const promote = j.promote ?? '';
   if (!promote.includes('uses: Open-Mixer/.github/.github/workflows/promote-staged.yml@openmixer-v1')) out.push('promote: no job calls promote-staged.yml@openmixer-v1');
@@ -70,7 +71,7 @@ export function findings(text) {
   return out;
 }
 
-test('release.yml: a dispatch builds staged (the quick set by default, full on request), a v* tag on main promotes that build and builds nothing', () => {
+test('release.yml: a dispatch builds staged (the full matrix by default, quick on request), a v* tag on main promotes that build and builds nothing', () => {
   assert.deepEqual(findings(WORKFLOW), []);
 });
 
@@ -79,7 +80,7 @@ const ARMS = [
   ['the rpm build back on the tag', (t) => t.replace(/( {2}rpm:\n {4}# the build path:[^\n]*\n) {4}if: [^\n]*\n/, "$1    if: github.event_name == 'workflow_dispatch' || github.ref_type == 'tag'\n"), /rpm: builds on a tag/],
   ['the deb build publishing on the tag', (t) => t.replace(/(\n {2}deb:\n[\s\S]*?) {6}publish: false\n/, "$1      publish: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}\n"), /deb: publish is not false/],
   ['the promote job gone', (t) => t.replace(/\n {2}promote:\n[\s\S]*?\n {2}pack:\n/, '\n  pack:\n'), /promote: no job calls promote-staged/],
-  ['full by default', (t) => t.replace('        default: quick\n', '        default: full\n'), /does not default to quick/],
+  ['quick by default', (t) => t.replace('        default: full\n', '        default: quick\n'), /does not default to full/],
   ['full not offered', (t) => t.replace('        options: [quick, full]\n', '        options: [quick]\n'), /does not offer full/],
   ['a binary only the rpm builds', (t) => t.replace('binary-names: omx-contract omx-contract-data python3-omx-contract', 'binary-names: omx-contract omx-contract-devel'), /names omx-contract-devel, which the rpm and deb builds do not both build/],
   ['the on-main step gone', (t) => t.replace(/ {6}- name: The tag is on main\n[\s\S]*?fast-forward main to it first"; exit 1; \}\n/, ''), /check: no step refuses a tag whose commit is not on main/],

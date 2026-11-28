@@ -29,7 +29,7 @@ export const STANDARD_QUANTA = [
 ];
 
 /**
- * Every resource a host plans a plugin for (FreeMixer/plugin-qualify#116): each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.
+ * Every resource a host plans a plugin for: each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.
  * @see data/resource-profile.json
  */
 export const RESOURCE_KINDS = {
@@ -232,7 +232,7 @@ export const RESOURCE_BASES = {
 };
 
 /**
- * What a plugin declares about its own footprint, in openmixer's own hints (FreeMixer/plugin-qualify#116): each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.
+ * What a plugin declares about its own footprint, in openmixer's own hints: each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.
  * @see data/resource-profile.json
  */
 export const RESOURCE_HINTS = {

@@ -20,8 +20,7 @@ abstractions: served curves, one gesture reference, ownership by gesture; "the c
 rulings it rests on: all DSP maths is written in C in omx-dsp and TypeScript holds none (the console's ruling that
 DSP results come from C, which excludes a WASM build of omx-dsp "unless a client must compute while no console
 answers it" — the case §5.2 below is about); declarations as data, rendered, never copied
-(`docs/overview.md` here); the vocabulary-owner rule (a word is declared by the package that owns it,
-FreeMixer/omx-contract#157); no backward-compatibility machinery while developing (the owner, 2026-11-16).
+(`docs/overview.md` here); the vocabulary-owner rule (a word is declared by the package that owns it); no backward-compatibility machinery while developing (the owner, 2026-11-16).
 Related issues: Open-Mixer/omx-panel#52 (Python constants generated from `schema/gestures.json`),
 Open-Mixer/omx-contract#46 (named members for `scale.LAWS`), Open-Mixer/omx-contract#66 (one owner for a rule, with
 conformance vectors), Open-Mixer/zynthian-ui#42 (the drawbar and XY answer the one gesture vocabulary). The console's own repository is

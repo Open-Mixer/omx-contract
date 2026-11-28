@@ -3,7 +3,7 @@
   "RESOURCE_KINDS": {
     "kind": "words",
     "since": "2.18.0",
-    "doc": "Every resource a host plans a plugin for (FreeMixer/plugin-qualify#116): each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.",
+    "doc": "Every resource a host plans a plugin for: each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.",
     "words": {
       "cpu": {
         "word": "cpu",
@@ -206,7 +206,7 @@
   "RESOURCE_HINTS": {
     "kind": "words",
     "since": "3.1.0",
-    "doc": "What a plugin declares about its own footprint, in openmixer's own hints (FreeMixer/plugin-qualify#116): each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.",
+    "doc": "What a plugin declares about its own footprint, in openmixer's own hints: each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.",
     "groups": "RESOURCE_KINDS",
     "units": "RESOURCE_UNITS",
     "bases": "RESOURCE_BASES",

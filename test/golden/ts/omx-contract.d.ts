@@ -15,7 +15,7 @@ export declare const STANDARD_SAMPLE_RATES: readonly [44100, 48000, 88200, 96000
 export declare const STANDARD_QUANTA: readonly [32, 64, 128, 256, 512, 1024];
 
 /**
- * Every resource a host plans a plugin for (FreeMixer/plugin-qualify#116): each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.
+ * Every resource a host plans a plugin for: each measured per machine class, judged per host profile, and unknown, never a pass, when it has no figure.
  * @see data/resource-profile.json
  */
 export declare const RESOURCE_KINDS: {
@@ -218,7 +218,7 @@ export declare const RESOURCE_BASES: {
 };
 
 /**
- * What a plugin declares about its own footprint, in openmixer's own hints (FreeMixer/plugin-qualify#116): each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.
+ * What a plugin declares about its own footprint, in openmixer's own hints: each a claim plugin-qualify measures and checks, carried by the extension below, as the CLAP draft and as LV2 properties. A hint a plugin does not state is unknown, never zero.
  * @see data/resource-profile.json
  */
 export declare const RESOURCE_HINTS: {

@@ -76,7 +76,7 @@ one name is drawn alike (one unit, range, scale and rate), since a host draws th
 validator refuses a band 0 or a zero-padded number, a gap, a band out of order, a readout between two bands and a
 band drawn unlike the others (`readout-band`).
 
-The remaining-FX wave's kernel files declare these in omx-dsp (FreeMixer/omx-dsp#188), in this grammar:
+The remaining-FX wave's kernel files declare these in omx-dsp, in this grammar:
 
 | kernel | readouts | unit | range | why |
 |---|---|---|---|---|
